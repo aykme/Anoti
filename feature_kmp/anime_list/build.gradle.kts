@@ -11,7 +11,7 @@ kotlin {
             }
         }
     }
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -25,7 +25,15 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            //put your multiplatform dependencies here
+            api(libs.kotlinx.coroutines.core)
+            api(libs.essenty.lifecycle)
+            api(libs.essenty.instance.keeper)
+
+            implementation(libs.mvikotlin)
+            implementation(libs.mvikotlin.main)
+            implementation(libs.mvikotlin.logger)
+            implementation(libs.mvikotlin.timetravel)
+            implementation(libs.mvikotlin.extensions.coroutines)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
