@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/item_anime_list_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/black"
+    android:padding="8dp">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        android:importantForAccessibility="no"
+        android:scaleType="centerCrop"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/RoundedImageView3percentStyle"
+        tools:srcCompat="@drawable/anime_image_sample" />
+
+    <View
+        android:id="@+id/info_background"
+        android:layout_width="0dp"
+        android:layout_height="165dp"
+        android:alpha="0.5"
+        android:background="@drawable/rectangle_background_4dp_radius"
+        android:backgroundTint="@color/black"
+        app:layout_constraintBottom_toBottomOf="@id/image"
+        app:layout_constraintEnd_toEndOf="@id/image"
+        app:layout_constraintStart_toStartOf="@id/image" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/name_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="11dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="11dp"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="@id/info_background"
+        app:layout_constraintStart_toStartOf="@id/info_background"
+        app:layout_constraintTop_toTopOf="@id/info_background"
+        tools:text="Атака титанов: Финал. Часть 2" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/current_episodes_info_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+        android:textColor="@color/white"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@id/notification_button"
+        app:layout_constraintEnd_toStartOf="@id/future_episode_info_button"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="@id/name_text"
+        app:layout_constraintTop_toBottomOf="@id/name_text"
+        app:layout_constraintVertical_bias="0"
+        tools:text="Эпизоды: 2 / ?" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/future_episode_info_button"
+        style="@style/FloatingActionButtomStyle"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginStart="3dp"
+        android:layout_marginTop="1dp"
+        android:backgroundTint="@color/black_transparent"
+        android:contentDescription="@string/future_episode_info_button_description"
+        android:src="@drawable/ic_info_outline_28"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@id/current_episodes_info_text"
+        app:layout_constraintEnd_toStartOf="@id/notification_button_barrier"
+        app:layout_constraintStart_toEndOf="@id/current_episodes_info_text"
+        app:layout_constraintTop_toTopOf="@id/current_episodes_info_text" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/future_episode_info_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:textColor="@color/white"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/notification_button"
+        app:layout_constraintEnd_toStartOf="@id/current_episodes_info_button"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="@id/name_text"
+        app:layout_constraintTop_toBottomOf="@id/name_text"
+        app:layout_constraintVertical_bias="0"
+        tools:text="Следующий эпизод:\n 20 февр. 2022" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/current_episodes_info_button"
+        style="@style/FloatingActionButtomStyle"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginStart="3dp"
+        android:layout_marginTop="3dp"
+        android:backgroundTint="@color/black_transparent"
+        android:contentDescription="@string/current_episodes_info_button_discription"
+        android:src="@drawable/ic_info_28"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/future_episode_info_text"
+        app:layout_constraintEnd_toStartOf="@id/notification_button_barrier"
+        app:layout_constraintStart_toEndOf="@id/future_episode_info_text"
+        app:layout_constraintTop_toTopOf="@id/future_episode_info_text" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/notification_button_barrier"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:barrierDirection="left"
+        app:constraint_referenced_ids="notification_button" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/score_image"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="8dp"
+        android:contentDescription="@string/score_image_description"
+        android:src="@drawable/ic_score_42"
+        android:tint="@color/pink"
+        app:layout_constraintBottom_toBottomOf="@id/notification_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/notification_button" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/score_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="11dp"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@id/score_image"
+        app:layout_constraintStart_toEndOf="@id/score_image"
+        app:layout_constraintTop_toTopOf="@id/score_image"
+        tools:text="8.90" />
+
+    <View
+        android:id="@+id/vertical_divider_after_score"
+        android:layout_width="3dp"
+        android:layout_height="10dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="4dp"
+        android:background="@color/white_transparent"
+        app:layout_constraintBottom_toBottomOf="@id/status_text"
+        app:layout_constraintEnd_toStartOf="@id/status_text"
+        app:layout_constraintStart_toEndOf="@id/score_text"
+        app:layout_constraintTop_toTopOf="@id/status_text" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/status_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+        android:textColor="@color/green"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@id/notification_button"
+        app:layout_constraintEnd_toStartOf="@id/vertical_divider_after_status"
+        app:layout_constraintStart_toEndOf="@id/vertical_divider_after_score"
+        app:layout_constraintTop_toTopOf="@id/notification_button"
+        tools:text="Ongoing" />
+
+    <View
+        android:id="@+id/vertical_divider_after_status"
+        android:layout_width="3dp"
+        android:layout_height="10dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="4dp"
+        android:background="@color/white_transparent"
+        app:layout_constraintBottom_toBottomOf="@id/status_text"
+        app:layout_constraintEnd_toStartOf="@id/notification_button"
+        app:layout_constraintStart_toEndOf="@id/status_text"
+        app:layout_constraintTop_toTopOf="@id/status_text" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/notification_button"
+        style="@style/FloatingActionButtomStyle"
+        android:layout_width="54dp"
+        android:layout_height="54dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:alpha="0.8"
+        android:backgroundTint="@color/green"
+        android:contentDescription="@string/notification_button_turn_on"
+        android:src="@drawable/ic_notifications_off_40"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
