@@ -10,6 +10,8 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/feature_platform" />
+            <option value="$PROJECT_DIR$/feature_platform/anime_list" />
             <option value="$PROJECT_DIR$/main" />
             <option value="$PROJECT_DIR$/ui_core" />
             <option value="$PROJECT_DIR$/ui_core/atom" />

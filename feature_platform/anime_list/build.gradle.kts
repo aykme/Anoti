@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.alekseivinogradov.main"
+    namespace = "com.alekseivinogradov.anime_list"
     compileSdk = 34
 
     defaultConfig {
@@ -30,16 +30,16 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
-    implementation(project(":ui_core:theme"))
-    implementation(project(":feature_platform:anime_list"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.navigation.fragment)
-    implementation(libs.androidx.navigation.ui)
+    implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
