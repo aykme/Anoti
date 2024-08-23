@@ -78,6 +78,7 @@
         android:backgroundTint="@color/black_transparent"
         android:contentDescription="@string/future_episode_info_description"
         android:src="@drawable/ic_info_outline_28"
+        android:tint="@color/pink"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@id/current_episodes_info_text"
         app:layout_constraintEnd_toStartOf="@id/notification_button_barrier"
@@ -113,6 +114,7 @@
         android:backgroundTint="@color/black_transparent"
         android:contentDescription="@string/current_episodes_info_discription"
         android:src="@drawable/ic_info_28"
+        android:tint="@color/pink"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/future_episode_info_text"
         app:layout_constraintEnd_toStartOf="@id/notification_button_barrier"
@@ -132,6 +134,7 @@
         android:layout_width="42dp"
         android:layout_height="42dp"
         android:layout_marginStart="8dp"
+        android:alpha="0.8"
         android:contentDescription="@string/score"
         android:src="@drawable/ic_score_42"
         android:tint="@color/pink"
@@ -204,6 +207,7 @@
         android:backgroundTint="@color/green"
         android:contentDescription="@string/notifications_turn_on"
         android:src="@drawable/ic_notifications_off_40"
+        android:tint="@color/black_transparent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
