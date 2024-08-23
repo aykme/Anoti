@@ -72,7 +72,7 @@
             app:rippleColor="@color/pink"
             tools:text="Announced" />
 
-        <androidx.appcompat.widget.AppCompatImageButton
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/search_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -86,7 +86,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.appcompat.widget.AppCompatImageButton
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/search_button_shadow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -130,12 +130,13 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <androidx.appcompat.widget.AppCompatImageButton
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/search_cancel_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
+            android:background="@android:color/transparent"
             android:contentDescription="@string/search"
             android:elevation="2dp"
             android:padding="12dp"

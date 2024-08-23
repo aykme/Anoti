@@ -2,7 +2,7 @@
 <resources>
 
     <style name="UpperMenuTextAppearance" parent="TextAppearance.AppCompat">
-        <item name="android:fontFamily">@font/amiko_bold</item>
+        <item name="android:textStyle">bold</item>
         <item name="android:textSize">22sp</item>
         <item name="android:shadowColor">@color/black_transparent</item>
         <item name="android:shadowDx">10</item>
