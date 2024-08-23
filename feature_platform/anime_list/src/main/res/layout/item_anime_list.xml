@@ -47,7 +47,7 @@
         app:layout_constraintEnd_toEndOf="@id/info_background"
         app:layout_constraintStart_toStartOf="@id/info_background"
         app:layout_constraintTop_toTopOf="@id/info_background"
-        tools:text="Атака титанов: Финал. Часть 2" />
+        tools:text="Attack on Titan: Final. Part 2" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/current_episodes_info_text"
@@ -66,7 +66,7 @@
         app:layout_constraintStart_toStartOf="@id/name_text"
         app:layout_constraintTop_toBottomOf="@id/name_text"
         app:layout_constraintVertical_bias="0"
-        tools:text="Эпизоды: 2 / ?" />
+        tools:text="Episodes: 2 / ?" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/future_episode_info_button"
@@ -76,7 +76,7 @@
         android:layout_marginStart="3dp"
         android:layout_marginTop="1dp"
         android:backgroundTint="@color/black_transparent"
-        android:contentDescription="@string/future_episode_info_button_description"
+        android:contentDescription="@string/future_episode_info_description"
         android:src="@drawable/ic_info_outline_28"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@id/current_episodes_info_text"
@@ -111,7 +111,7 @@
         android:layout_marginStart="3dp"
         android:layout_marginTop="3dp"
         android:backgroundTint="@color/black_transparent"
-        android:contentDescription="@string/current_episodes_info_button_discription"
+        android:contentDescription="@string/current_episodes_info_discription"
         android:src="@drawable/ic_info_28"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/future_episode_info_text"
@@ -132,7 +132,7 @@
         android:layout_width="42dp"
         android:layout_height="42dp"
         android:layout_marginStart="8dp"
-        android:contentDescription="@string/score_image_description"
+        android:contentDescription="@string/score"
         android:src="@drawable/ic_score_42"
         android:tint="@color/pink"
         app:layout_constraintBottom_toBottomOf="@id/notification_button"
@@ -202,7 +202,7 @@
         android:layout_marginBottom="16dp"
         android:alpha="0.8"
         android:backgroundTint="@color/green"
-        android:contentDescription="@string/notification_button_turn_on"
+        android:contentDescription="@string/notifications_turn_on"
         android:src="@drawable/ic_notifications_off_40"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

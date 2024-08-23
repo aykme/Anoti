@@ -1,10 +1,11 @@
 <resources>
-    <string name="future_episode_info_button_description">Display information about the release of a new episode</string>
-    <string name="current_episodes_info_button_discription">Display information about the released episodes</string>
-    <string name="notification_button_turn_on">Turn on notification</string>
-    <string name="notification_button_turn_off">Turn off notifications</string>
-    <string name="score_image_description">Anime score</string>
-    <string name="loading_in_progress_description">Loading in progress</string>
-    <string name="connection_error_description">Connection error</string>
+    <string name="future_episode_info_description">Display information about the release of a new episode</string>
+    <string name="current_episodes_info_discription">Display information about the released episodes</string>
+    <string name="notifications_turn_on">Turn on notifications</string>
+    <string name="notifications_turn_off">Turn off notifications</string>
+    <string name="score">Score</string>
+    <string name="loading_in_progress">Loading in progress</string>
+    <string name="connection_error">Connection error</string>
+    <string name="search">Search</string>
 
 </resources>

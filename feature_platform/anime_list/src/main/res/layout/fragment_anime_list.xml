@@ -1,28 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/anime_list_layout"
+    android:id="@+id/swipe_refresh_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/black"
-    tools:context=".presentation.AnimeListFragment">
+    android:layout_height="match_parent">
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/status_image"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_margin="64dp"
-        android:contentDescription="@string/loading_in_progress_description"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipe_refresh_layout"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/anime_list_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/black"
+        tools:context=".presentation.AnimeListFragment">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/status_image"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="64dp"
+            android:contentDescription="@string/loading_in_progress"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/ongoing_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="56dp"
+            android:background="@android:color/transparent"
+            android:elevation="2dp"
+            android:textAppearance="@style/UpperMenuTextAppearance"
+            android:textColor="@color/white_transparent"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@id/search_button"
+            app:layout_constraintEnd_toStartOf="@id/vertical_divider"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/search_button"
+            tools:text="Ongoings"
+            tools:textColor="@color/pink" />
+
+        <View
+            android:id="@+id/vertical_divider"
+            android:layout_width="3dp"
+            android:layout_height="9dp"
+            android:background="@color/white_transparent"
+            android:elevation="2dp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@id/search_button"
+            app:layout_constraintEnd_toStartOf="@id/announced_button"
+            app:layout_constraintStart_toEndOf="@id/ongoing_button"
+            app:layout_constraintTop_toTopOf="@id/search_button" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/announced_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:textAppearance="@style/UpperMenuTextAppearance"
+            android:textColor="@color/white_transparent"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@id/search_button"
+            app:layout_constraintEnd_toStartOf="@id/search_button"
+            app:layout_constraintStart_toEndOf="@id/vertical_divider"
+            app:layout_constraintTop_toTopOf="@id/search_button"
+            app:rippleColor="@color/pink"
+            tools:text="Announced" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/search_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="@string/search"
+            android:elevation="2dp"
+            android:padding="12dp"
+            android:src="@drawable/ic_search_32"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/search_button_shadow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:elevation="1dp"
+            android:importantForAccessibility="no"
+            android:padding="12dp"
+            android:src="@drawable/ic_search_34"
+            android:tint="@color/black_transparent"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/anime_list_rv"
@@ -34,6 +107,6 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:listitem="@layout/item_anime_list" />
 
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
