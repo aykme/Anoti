@@ -26,16 +26,15 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/ongoing_button"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="56dp"
             android:background="@android:color/transparent"
             android:elevation="2dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
+            android:padding="12dp"
             android:textAppearance="@style/UpperMenuTextAppearance"
             android:textColor="@color/white_transparent"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/search_button"
             app:layout_constraintEnd_toStartOf="@id/vertical_divider"
             app:layout_constraintStart_toStartOf="parent"
@@ -49,7 +48,7 @@
             android:layout_height="9dp"
             android:background="@color/white_transparent"
             android:elevation="2dp"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/search_button"
             app:layout_constraintEnd_toStartOf="@id/announced_button"
             app:layout_constraintStart_toEndOf="@id/ongoing_button"
@@ -57,19 +56,17 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/announced_button"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
+            android:padding="12dp"
             android:textAppearance="@style/UpperMenuTextAppearance"
             android:textColor="@color/white_transparent"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/search_button"
             app:layout_constraintEnd_toStartOf="@id/search_button"
             app:layout_constraintStart_toEndOf="@id/vertical_divider"
             app:layout_constraintTop_toTopOf="@id/search_button"
-            app:rippleColor="@color/pink"
             tools:text="Announced" />
 
         <androidx.appcompat.widget.AppCompatImageView
@@ -82,7 +79,7 @@
             android:elevation="2dp"
             android:padding="12dp"
             android:src="@drawable/ic_search_32"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -97,7 +94,7 @@
             android:padding="12dp"
             android:src="@drawable/ic_search_34"
             android:tint="@color/black_transparent"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -105,9 +102,18 @@
             android:id="@+id/search_input_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/black_transparent"
             android:elevation="1dp"
-            android:visibility="gone"
+            android:hint="Enter the name of anime"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:textColorHint="@color/white_transparent"
+            android:visibility="visible"
+            app:boxBackgroundColor="@color/black_transparent"
+            app:boxStrokeColor="@color/pink"
+            app:cursorColor="@color/pink"
+            app:expandedHintEnabled="true"
+            app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+            app:hintTextColor="@color/pink"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -116,24 +122,25 @@
                 android:id="@+id/search_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="64dp"
                 android:elevation="1dp"
                 android:ellipsize="end"
                 android:inputType="text"
+                android:maxLength="@integer/material_motion_duration_short_1"
                 android:maxLines="1"
                 android:paddingStart="16dp"
+                android:paddingEnd="56dp"
                 android:textColor="@color/white"
-                android:textColorHint="@color/pink"
-                tools:hint="Enter the name of anime" />
+                tools:background="@color/black_transparent"
+                tools:hint="Enter the name of anime"
+                tools:textColorHint="@color/white_transparent" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/search_cancel_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:background="@android:color/transparent"
@@ -142,7 +149,7 @@
             android:padding="12dp"
             android:src="@drawable/ic_search_cancel_32"
             android:tint="@color/pink"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

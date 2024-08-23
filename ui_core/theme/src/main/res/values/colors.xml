@@ -18,6 +18,7 @@
     <color name="golden_rod">#DAA520</color>
     <color name="dark_golden_rod">#B8860B</color>
     <color name="silver">#C0C0C0</color>
+    <color name="silver_transpaent">#D5C0C0C0</color>
     <color name="medium_purple">#9370DB</color>
     <color name="plum">#DDA0DD</color>
     <color name="light_coral">#F08080</color>
