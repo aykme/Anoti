@@ -9,6 +9,7 @@ import com.alekseivinogradov.anime_list.api.model.UiSection
 import com.alekseivinogradov.anime_list.api.model.list_content.UiListItem
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
 import com.alekseivinogradov.anime_list.databinding.FragmentAnimeListBinding
+import com.alekseivinogradov.anime_list.presentation.adapter.AnimeListAdapter
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer
@@ -26,6 +27,19 @@ internal class AnimeListViewImpl(
 
     private val defaultMenuColor
         get() = context.getColor(theme_R.color.white_transparent)
+
+    private val episodesInfoClickCallback = { itemIndex: Int ->
+        dispatch(AnimeListView.UiEvent.EpisodesInfoClick(itemIndex))
+    }
+
+    private val notificationClickCallback = { itemIndex: Int ->
+        dispatch(AnimeListView.UiEvent.NotificationClick(itemIndex))
+    }
+
+    private val adapter = AnimeListAdapter(
+        episodesInfoClickCallback = episodesInfoClickCallback,
+        notificationClickCallback = notificationClickCallback
+    )
 
     init {
         initClickListeners()
@@ -207,27 +221,49 @@ internal class AnimeListViewImpl(
         }
     }
 
-    private fun getOngoingListItems(uiModel: AnimeListView.UiModel): List<UiListItem> {
-        return uiModel.ongoingListItems
+    private fun getOngoingListItems(uiModel: AnimeListView.UiModel): ListItemsWithSelectedSection {
+        return ListItemsWithSelectedSection(
+            listItems = uiModel.ongoingListItems,
+            selectedSection = uiModel.selectedSection
+        )
     }
 
-    private fun setOngoingListItems(ongoingListItems: List<UiListItem>) {
+    private fun setOngoingListItems(listItemsWithSelectedSection: ListItemsWithSelectedSection) {
+        if (listItemsWithSelectedSection.selectedSection == UiSection.ONGOINGS) {
 
+        }
     }
 
-    private fun getAnnouncedListItems(uiModel: AnimeListView.UiModel): List<UiListItem> {
-        return uiModel.announcedListItems
+    private fun getAnnouncedListItems(
+        uiModel: AnimeListView.UiModel
+    ): ListItemsWithSelectedSection {
+        return ListItemsWithSelectedSection(
+            listItems = uiModel.announcedListItems,
+            selectedSection = uiModel.selectedSection
+        )
     }
 
-    private fun setAnnouncedListItems(announcedListItems: List<UiListItem>) {
+    private fun setAnnouncedListItems(listItemsWithSelectedSection: ListItemsWithSelectedSection) {
+        if (listItemsWithSelectedSection.selectedSection == UiSection.ANNOUNCED) {
 
+        }
     }
 
-    private fun getSearchListItems(uiModel: AnimeListView.UiModel): List<UiListItem> {
-        return uiModel.searchListItems
+    private fun getSearchListItems(uiModel: AnimeListView.UiModel): ListItemsWithSelectedSection {
+        return ListItemsWithSelectedSection(
+            listItems = uiModel.searchListItems,
+            selectedSection = uiModel.selectedSection
+        )
     }
 
-    private fun setSearchListItems(searchListItems: List<UiListItem>) {
+    private fun setSearchListItems(listItemsWithSelectedSection: ListItemsWithSelectedSection) {
+        if (listItemsWithSelectedSection.selectedSection == UiSection.SEARCH) {
 
+        }
     }
+
+    data class ListItemsWithSelectedSection(
+        val listItems: List<UiListItem>,
+        val selectedSection: UiSection
+    )
 }

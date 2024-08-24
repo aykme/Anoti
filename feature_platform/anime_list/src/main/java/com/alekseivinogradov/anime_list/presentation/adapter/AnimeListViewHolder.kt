@@ -1,7 +1,6 @@
 package com.alekseivinogradov.anime_list.presentation.adapter
 
 import android.content.res.ColorStateList
-import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
@@ -15,17 +14,23 @@ import com.alekseivinogradov.theme.R as theme_R
 
 internal class AnimeListViewHolder(
     private val binding: ItemAnimeListBinding,
-    private val episodesInfoClickListener: View.OnClickListener,
-    private val notificationButtonClickListener: View.OnClickListener
+    private val episodesInfoClickCallback: (Int) -> Unit,
+    private val notificationClickCallback: (Int) -> Unit
 ) :
     RecyclerView.ViewHolder(binding.root) {
 
     private val context = binding.root.context
 
     init {
-        binding.availableEpisodesInfoButton.setOnClickListener(episodesInfoClickListener)
-        binding.futureInfoButton.setOnClickListener(episodesInfoClickListener)
-        binding.notificationButton.setOnClickListener(notificationButtonClickListener)
+        binding.availableEpisodesInfoButton.setOnClickListener {
+            episodesInfoClickCallback(layoutPosition)
+        }
+        binding.futureInfoButton.setOnClickListener {
+            episodesInfoClickCallback()
+        }
+        binding.notificationButton.setOnClickListener {
+            notificationClickCallback()
+        }
     }
 
     internal fun bindWithPayload(payload: AnimeListPayload) {
