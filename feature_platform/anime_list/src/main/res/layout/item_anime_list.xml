@@ -60,7 +60,7 @@
         android:textColor="@color/white"
         android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@id/notification_button"
-        app:layout_constraintEnd_toStartOf="@id/future_episode_info_button"
+        app:layout_constraintEnd_toStartOf="@id/future_info_button"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="@id/name_text"
@@ -69,7 +69,7 @@
         tools:text="Episodes: 2 / ?" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/future_episode_info_button"
+        android:id="@+id/future_info_button"
         style="@style/FloatingActionButtomStyle"
         android:layout_width="35dp"
         android:layout_height="35dp"
@@ -83,10 +83,11 @@
         app:layout_constraintBottom_toBottomOf="@id/current_episodes_info_text"
         app:layout_constraintEnd_toStartOf="@id/notification_button_barrier"
         app:layout_constraintStart_toEndOf="@id/current_episodes_info_text"
-        app:layout_constraintTop_toTopOf="@id/current_episodes_info_text" />
+        app:layout_constraintTop_toTopOf="@id/current_episodes_info_text"
+        tools:ignore="TouchTargetSizeCheck" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/future_episode_info_text"
+        android:id="@+id/future_info_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
@@ -116,10 +117,10 @@
         android:src="@drawable/ic_info_28"
         android:tint="@color/pink"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/future_episode_info_text"
+        app:layout_constraintBottom_toBottomOf="@id/future_info_text"
         app:layout_constraintEnd_toStartOf="@id/notification_button_barrier"
-        app:layout_constraintStart_toEndOf="@id/future_episode_info_text"
-        app:layout_constraintTop_toTopOf="@id/future_episode_info_text" />
+        app:layout_constraintStart_toEndOf="@id/future_info_text"
+        app:layout_constraintTop_toTopOf="@id/future_info_text" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/notification_button_barrier"

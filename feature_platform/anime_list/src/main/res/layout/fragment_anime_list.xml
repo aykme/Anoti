@@ -103,7 +103,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:elevation="1dp"
-            android:hint="Enter the name of anime"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
             android:textColorHint="@color/white_transparent"
@@ -133,7 +132,8 @@
                 android:textColor="@color/white"
                 tools:background="@color/black_transparent"
                 tools:hint="Enter the name of anime"
-                tools:textColorHint="@color/white_transparent" />
+                tools:textColorHint="@color/white_transparent"
+                tools:ignore="VisualLintTextFieldSize" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
