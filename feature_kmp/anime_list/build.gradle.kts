@@ -42,7 +42,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.alekseivinogradov.anime_list"
+    namespace = "com.alekseivinogradov.anime_list_kmp"
     compileSdk = 34
     defaultConfig {
         minSdk = 26

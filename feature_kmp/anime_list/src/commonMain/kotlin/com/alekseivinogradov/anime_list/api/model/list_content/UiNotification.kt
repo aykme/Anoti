@@ -1,6 +1,6 @@
 package com.alekseivinogradov.anime_list.api.model.list_content
 
-enum class Notification {
+enum class UiNotification {
     ENABLED,
     DISABLED
 }

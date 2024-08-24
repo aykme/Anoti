@@ -14,7 +14,7 @@
         tools:context=".presentation.AnimeListFragment">
 
         <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/status_image"
+            android:id="@+id/connection_status_image"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_margin="64dp"
@@ -34,7 +34,7 @@
             android:padding="12dp"
             android:textAppearance="@style/UpperMenuTextAppearance"
             android:textColor="@color/white_transparent"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="@id/search_button"
             app:layout_constraintEnd_toStartOf="@id/vertical_divider"
             app:layout_constraintStart_toStartOf="parent"
@@ -48,7 +48,7 @@
             android:layout_height="9dp"
             android:background="@color/white_transparent"
             android:elevation="2dp"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="@id/search_button"
             app:layout_constraintEnd_toStartOf="@id/announced_button"
             app:layout_constraintStart_toEndOf="@id/ongoing_button"
@@ -62,7 +62,7 @@
             android:padding="12dp"
             android:textAppearance="@style/UpperMenuTextAppearance"
             android:textColor="@color/white_transparent"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="@id/search_button"
             app:layout_constraintEnd_toStartOf="@id/search_button"
             app:layout_constraintStart_toEndOf="@id/vertical_divider"
@@ -79,7 +79,8 @@
             android:elevation="2dp"
             android:padding="12dp"
             android:src="@drawable/ic_search_32"
-            android:visibility="gone"
+            android:tint="@color/white_transparent"
+            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -94,7 +95,7 @@
             android:padding="12dp"
             android:src="@drawable/ic_search_34"
             android:tint="@color/black_transparent"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -106,11 +107,10 @@
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
             android:textColorHint="@color/white_transparent"
-            android:visibility="visible"
+            android:visibility="gone"
             app:boxBackgroundColor="@color/black_transparent"
             app:boxStrokeColor="@color/pink"
             app:cursorColor="@color/pink"
-            app:expandedHintEnabled="true"
             app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
             app:hintTextColor="@color/pink"
             app:layout_constraintEnd_toEndOf="parent"
@@ -132,8 +132,8 @@
                 android:textColor="@color/white"
                 tools:background="@color/black_transparent"
                 tools:hint="Enter the name of anime"
-                tools:textColorHint="@color/white_transparent"
-                tools:ignore="VisualLintTextFieldSize" />
+                tools:ignore="VisualLintTextFieldSize"
+                tools:textColorHint="@color/white_transparent" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -149,7 +149,7 @@
             android:padding="12dp"
             android:src="@drawable/ic_search_cancel_32"
             android:tint="@color/pink"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
