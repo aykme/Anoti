@@ -3,6 +3,8 @@ package com.alekseivinogradov.anime_list.presentation
 import android.text.Editable
 import android.text.TextWatcher
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.alekseivinogradov.anime_list.R
 import com.alekseivinogradov.anime_list.api.model.UiContentType
 import com.alekseivinogradov.anime_list.api.model.UiSearch
 import com.alekseivinogradov.anime_list.api.model.UiSection
@@ -22,10 +24,10 @@ internal class AnimeListViewImpl(
     private val context
         get() = binding.root.context
 
-    private val activeMenuColor
+    private val activeColor
         get() = context.getColor(theme_R.color.pink)
 
-    private val defaultMenuColor
+    private val defaultColor
         get() = context.getColor(theme_R.color.white_transparent)
 
     private val episodesInfoClickCallback = { itemIndex: Int ->
@@ -44,6 +46,7 @@ internal class AnimeListViewImpl(
     init {
         initClickListeners()
         initSearchTextChangedListener()
+        initRv()
     }
 
     override val renderer: ViewRenderer<AnimeListView.UiModel> = diff {
@@ -119,6 +122,18 @@ internal class AnimeListViewImpl(
         )
     }
 
+    private fun initRv() {
+        with(binding.animeListRv) {
+            adapter = adapter
+            layoutManager = LinearLayoutManager(
+                context,
+                LinearLayoutManager.VERTICAL,
+                false
+            )
+            itemAnimator = null
+        }
+    }
+
     private fun getSelectedSection(uiModel: AnimeListView.UiModel): UiSection {
         return uiModel.selectedSection
     }
@@ -127,21 +142,21 @@ internal class AnimeListViewImpl(
         with(binding) {
             when (selectedSection) {
                 UiSection.ONGOINGS -> {
-                    ongoingButton.setTextColor(activeMenuColor)
-                    announcedButton.setTextColor(defaultMenuColor)
-                    searchButton.setColorFilter(defaultMenuColor)
+                    ongoingButton.setTextColor(activeColor)
+                    announcedButton.setTextColor(defaultColor)
+                    searchButton.setColorFilter(defaultColor)
                 }
 
                 UiSection.ANNOUNCED -> {
-                    announcedButton.setTextColor(activeMenuColor)
-                    ongoingButton.setTextColor(defaultMenuColor)
-                    searchButton.setColorFilter(defaultMenuColor)
+                    announcedButton.setTextColor(activeColor)
+                    ongoingButton.setTextColor(defaultColor)
+                    searchButton.setColorFilter(defaultColor)
                 }
 
                 UiSection.SEARCH -> {
-                    searchButton.setColorFilter(activeMenuColor)
-                    announcedButton.setTextColor(defaultMenuColor)
-                    ongoingButton.setTextColor(defaultMenuColor)
+                    searchButton.setColorFilter(activeColor)
+                    announcedButton.setTextColor(defaultColor)
+                    ongoingButton.setTextColor(defaultColor)
                 }
             }
         }
@@ -210,11 +225,13 @@ internal class AnimeListViewImpl(
 
                 UiContentType.LOADING -> {
                     animeListRv.isVisible = false
+                    connectionStatusImage.setImageResource(R.drawable.loading_animation)
                     connectionStatusImage.isVisible = true
                 }
 
                 UiContentType.NO_DATA -> {
                     animeListRv.isVisible = false
+                    connectionStatusImage.setImageResource(R.drawable.connection_error_48)
                     connectionStatusImage.isVisible = true
                 }
             }
@@ -230,7 +247,7 @@ internal class AnimeListViewImpl(
 
     private fun setOngoingListItems(listItemsWithSelectedSection: ListItemsWithSelectedSection) {
         if (listItemsWithSelectedSection.selectedSection == UiSection.ONGOINGS) {
-
+            setListItems(listItemsWithSelectedSection.listItems)
         }
     }
 
@@ -245,7 +262,7 @@ internal class AnimeListViewImpl(
 
     private fun setAnnouncedListItems(listItemsWithSelectedSection: ListItemsWithSelectedSection) {
         if (listItemsWithSelectedSection.selectedSection == UiSection.ANNOUNCED) {
-
+            setListItems(listItemsWithSelectedSection.listItems)
         }
     }
 
@@ -258,7 +275,17 @@ internal class AnimeListViewImpl(
 
     private fun setSearchListItems(listItemsWithSelectedSection: ListItemsWithSelectedSection) {
         if (listItemsWithSelectedSection.selectedSection == UiSection.SEARCH) {
+            setListItems(listItemsWithSelectedSection.listItems)
+        }
+    }
 
+    private fun setListItems(listItems: List<UiListItem>) {
+        adapter.submitList(listItems) {
+            if (listItems.isNotEmpty()) {
+                dispatch(AnimeListView.UiEvent.ContentTypeChange(UiContentType.LOADED))
+            } else {
+                dispatch(AnimeListView.UiEvent.ContentTypeChange(UiContentType.NO_DATA))
+            }
         }
     }
 

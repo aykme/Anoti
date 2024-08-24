@@ -28,8 +28,7 @@ kotlin {
             api(libs.kotlinx.coroutines.core)
             api(libs.essenty.lifecycle)
             api(libs.essenty.instance.keeper)
-
-            implementation(libs.mvikotlin)
+            api(libs.mvikotlin)
             implementation(libs.mvikotlin.main)
             implementation(libs.mvikotlin.logger)
             implementation(libs.mvikotlin.timetravel)

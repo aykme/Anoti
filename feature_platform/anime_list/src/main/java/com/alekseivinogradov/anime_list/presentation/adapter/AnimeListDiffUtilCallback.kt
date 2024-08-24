@@ -14,6 +14,9 @@ internal class AnimeListDiffUtilCallback : DiffUtil.ItemCallback<UiListItem>() {
 
     override fun getChangePayload(oldItem: UiListItem, newItem: UiListItem): Any {
         return buildList {
+            if (oldItem.imageUrl != newItem.imageUrl) {
+                add(AnimeListPayload.ImageUrlChange(newItem.imageUrl))
+            }
             if (oldItem.name != newItem.name) {
                 add(AnimeListPayload.NameChange(newItem.name))
             }

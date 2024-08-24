@@ -10,6 +10,7 @@ import com.alekseivinogradov.anime_list.api.model.list_content.UiListItem
 import com.alekseivinogradov.anime_list.api.model.list_content.UiNotification
 import com.alekseivinogradov.anime_list.api.model.list_content.UiReleaseStatus
 import com.alekseivinogradov.anime_list.databinding.ItemAnimeListBinding
+import com.bumptech.glide.Glide
 import com.alekseivinogradov.theme.R as theme_R
 
 internal class AnimeListViewHolder(
@@ -21,20 +22,12 @@ internal class AnimeListViewHolder(
 
     private val context = binding.root.context
 
-    init {
-        binding.availableEpisodesInfoButton.setOnClickListener {
-            episodesInfoClickCallback(layoutPosition)
-        }
-        binding.futureInfoButton.setOnClickListener {
-            episodesInfoClickCallback()
-        }
-        binding.notificationButton.setOnClickListener {
-            notificationClickCallback()
-        }
-    }
-
     internal fun bindWithPayload(payload: AnimeListPayload) {
         when (payload) {
+            is AnimeListPayload.ImageUrlChange -> {
+                bindImageUrl(payload.imageUrl)
+            }
+
             is AnimeListPayload.NameChange -> {
                 bindName(payload.name)
             }
@@ -67,6 +60,7 @@ internal class AnimeListViewHolder(
 
     internal fun bind(item: UiListItem) {
         bindCommonFieldsVisibility()
+        bindImageUrl(item.imageUrl)
         bindName(item.name)
         bindEpisodesInfoType(item.episodesInfoType)
         bindAvailableEpisodesInfo(item.availableEpisodesInfo)
@@ -74,10 +68,20 @@ internal class AnimeListViewHolder(
         bindScore(item.score)
         bindReleaseStatus(item.releaseStatus)
         bindNotification(item.notification)
+        binding.availableEpisodesInfoButton.setOnClickListener {
+            episodesInfoClickCallback(item.itemIndex)
+        }
+        binding.futureInfoButton.setOnClickListener {
+            episodesInfoClickCallback(item.itemIndex)
+        }
+        binding.notificationButton.setOnClickListener {
+            notificationClickCallback(item.itemIndex)
+        }
     }
 
     private fun bindCommonFieldsVisibility() {
         with(binding) {
+            image.isVisible = true
             nameText.isVisible = true
             scoreImage.isVisible = true
             scoreText.isVisible = true
@@ -86,6 +90,14 @@ internal class AnimeListViewHolder(
             verticalDividerAfterStatus.isVisible = true
             notificationButton.isVisible = true
         }
+    }
+
+    private fun bindImageUrl(imageUrl: String) {
+        Glide.with(binding.image)
+            .load(imageUrl)
+            .placeholder(R.drawable.loading_animation)
+            .error(R.drawable.load_image_error_48)
+            .into(binding.image)
     }
 
     private fun bindName(name: String) {

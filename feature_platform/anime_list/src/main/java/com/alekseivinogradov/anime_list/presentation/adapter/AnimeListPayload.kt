@@ -5,6 +5,7 @@ import com.alekseivinogradov.anime_list.api.model.list_content.UiNotification
 import com.alekseivinogradov.anime_list.api.model.list_content.UiReleaseStatus
 
 internal sealed interface AnimeListPayload {
+    data class ImageUrlChange(val imageUrl: String) : AnimeListPayload
     data class NameChange(val name: String) : AnimeListPayload
     data class EpisodesInfoTypeChange(val episodesInfoType: UiEpisodesInfoType) : AnimeListPayload
     data class AvailableEpisodesInfoChange(val availableEpisodesInfo: String) : AnimeListPayload
