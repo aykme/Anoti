@@ -10,12 +10,7 @@
         <item name="shapeAppearanceOverlay">@style/FabRoundedStyle</item>
     </style>
 
-    <style name="FabRoundedStyle" parent="ShapeAppearance.MaterialComponents.SmallComponent">
-        <item name="cornerFamilyTopLeft">rounded</item>
-        <item name="cornerFamilyTopRight">rounded</item>
-        <item name="cornerFamilyBottomLeft">rounded</item>
-        <item name="cornerFamilyBottomRight">rounded</item>
-        <item name="rippleColor">@color/pink</item>
-        <item name="tint">@color/pink</item>
+    <style name="FabRoundedStyle">
+        <item name="cornerFamily">rounded</item>
     </style>
 </resources>

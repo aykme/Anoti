@@ -23,4 +23,5 @@
     <color name="plum">#DDA0DD</color>
     <color name="light_coral">#F08080</color>
     <color name="salmon">#FA8072</color>
+    <color name="transparent">#00000000</color>
 </resources>

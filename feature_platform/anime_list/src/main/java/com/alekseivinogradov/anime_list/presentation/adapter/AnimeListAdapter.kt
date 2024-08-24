@@ -13,7 +13,11 @@ internal class AnimeListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnimeListViewHolder {
         return AnimeListViewHolder(
-            binding = ItemAnimeListBinding.inflate(LayoutInflater.from(parent.context)),
+            binding = ItemAnimeListBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            ),
             episodesInfoClickCallback = episodesInfoClickCallback,
             notificationClickCallback = notificationClickCallback
         )
@@ -23,19 +27,19 @@ internal class AnimeListAdapter(
         holder.bind(item = getItem(position))
     }
 
-    override fun onBindViewHolder(
-        holder: AnimeListViewHolder,
-        position: Int,
-        payloads: MutableList<Any>
-    ) {
-        payloads.forEach { payloadsList ->
-            if (payloadsList !is List<*>) return
-
-            payloadsList.forEach { payload ->
-                if (payload is AnimeListPayload) {
-                    holder.bindWithPayload(payload = payload)
-                }
-            }
-        }
-    }
+//    override fun onBindViewHolder(
+//        holder: AnimeListViewHolder,
+//        position: Int,
+//        payloads: MutableList<Any>
+//    ) {
+//        payloads.forEach { payloadsList ->
+//            if (payloadsList !is List<*>) return
+//
+//            payloadsList.forEach { payload ->
+//                if (payload is AnimeListPayload) {
+//                    holder.bindWithPayload(payload = payload)
+//                }
+//            }
+//        }
+//    }
 }

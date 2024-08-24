@@ -18,11 +18,11 @@ import com.arkivanov.mvikotlin.core.view.ViewRenderer
 import com.alekseivinogradov.theme.R as theme_R
 
 internal class AnimeListViewImpl(
-    private val binding: FragmentAnimeListBinding
+    private val viewBinding: FragmentAnimeListBinding
 ) : AnimeListView, BaseMviView<AnimeListView.UiModel, AnimeListView.UiEvent>() {
 
     private val context
-        get() = binding.root.context
+        get() = viewBinding.root.context
 
     private val activeColor
         get() = context.getColor(theme_R.color.pink)
@@ -44,6 +44,7 @@ internal class AnimeListViewImpl(
     )
 
     init {
+        setCommonFields()
         initClickListeners()
         initSearchTextChangedListener()
         initRv()
@@ -78,11 +79,19 @@ internal class AnimeListViewImpl(
         diff(
             get = ::getSearchListItems,
             set = ::setSearchListItems
-        )
+        )/**/
+    }
+
+    private fun setCommonFields() {
+        with(viewBinding) {
+            ongoingButton.text = context.applicationContext.getString(R.string.ongoings)
+            announcedButton.text = context.applicationContext.getString(R.string.announced)
+            searchInputLayout.hint = context.applicationContext.getString(R.string.search_hint)
+        }
     }
 
     private fun initClickListeners() {
-        with(binding) {
+        with(viewBinding) {
             ongoingButton.setOnClickListener {
                 dispatch(AnimeListView.UiEvent.OngoingsSectionClick)
             }
@@ -99,7 +108,7 @@ internal class AnimeListViewImpl(
     }
 
     private fun initSearchTextChangedListener() {
-        binding.searchEditText.addTextChangedListener(
+        viewBinding.searchEditText.addTextChangedListener(
             object : TextWatcher {
                 override fun beforeTextChanged(
                     s: CharSequence?,
@@ -123,14 +132,14 @@ internal class AnimeListViewImpl(
     }
 
     private fun initRv() {
-        with(binding.animeListRv) {
-            adapter = adapter
-            layoutManager = LinearLayoutManager(
+        with(viewBinding) {
+            animeListRv.adapter = adapter
+            animeListRv.layoutManager = LinearLayoutManager(
                 context,
                 LinearLayoutManager.VERTICAL,
                 false
             )
-            itemAnimator = null
+            animeListRv.itemAnimator = null
         }
     }
 
@@ -139,7 +148,7 @@ internal class AnimeListViewImpl(
     }
 
     private fun setSelectedSection(selectedSection: UiSection) {
-        with(binding) {
+        with(viewBinding) {
             when (selectedSection) {
                 UiSection.ONGOINGS -> {
                     ongoingButton.setTextColor(activeColor)
@@ -164,18 +173,21 @@ internal class AnimeListViewImpl(
     }
 
     private fun setSwipeRefreshListener(selectedSection: UiSection) {
-        with(binding.swipeRefreshLayout) {
+        with(viewBinding) {
             when (selectedSection) {
-                UiSection.ONGOINGS -> setOnRefreshListener {
+                UiSection.ONGOINGS -> swipeRefreshLayout.setOnRefreshListener {
                     dispatch(AnimeListView.UiEvent.UpdateOngoingsSection)
+                    swipeRefreshLayout.isRefreshing = false
                 }
 
-                UiSection.ANNOUNCED -> setOnRefreshListener {
+                UiSection.ANNOUNCED -> swipeRefreshLayout.setOnRefreshListener {
                     dispatch(AnimeListView.UiEvent.UpdateAnnouncedSection)
+                    swipeRefreshLayout.isRefreshing = false
                 }
 
-                UiSection.SEARCH -> setOnRefreshListener {
+                UiSection.SEARCH -> swipeRefreshLayout.setOnRefreshListener {
                     dispatch(AnimeListView.UiEvent.UpdateSearchSection)
+                    swipeRefreshLayout.isRefreshing = false
                 }
             }
         }
@@ -186,7 +198,7 @@ internal class AnimeListViewImpl(
     }
 
     private fun setSearch(search: UiSearch) {
-        with(binding) {
+        with(viewBinding) {
             when (search) {
                 UiSearch.HIDEN -> {
                     searchInputLayout.isVisible = false
@@ -216,7 +228,7 @@ internal class AnimeListViewImpl(
     }
 
     private fun setContentType(contentType: UiContentType) {
-        with(binding) {
+        with(viewBinding) {
             when (contentType) {
                 UiContentType.LOADED -> {
                     connectionStatusImage.isVisible = false
@@ -283,8 +295,13 @@ internal class AnimeListViewImpl(
         adapter.submitList(listItems) {
             if (listItems.isNotEmpty()) {
                 dispatch(AnimeListView.UiEvent.ContentTypeChange(UiContentType.LOADED))
+                //TODO Убрать
+                setContentType(UiContentType.LOADED)
+                println("tagtag items: $listItems")
             } else {
                 dispatch(AnimeListView.UiEvent.ContentTypeChange(UiContentType.NO_DATA))
+                //TODO Убрать
+                setContentType(UiContentType.NO_DATA)
             }
         }
     }

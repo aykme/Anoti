@@ -10,5 +10,6 @@
     <string name="ongoings">Ongoings</string>
     <string name="announced">Announced</string>
     <string name="released">Released</string>
+    <string name="search_hint">Enter the name of anime</string>
 
 </resources>

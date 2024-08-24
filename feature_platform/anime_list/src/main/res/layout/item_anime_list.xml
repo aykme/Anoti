@@ -29,9 +29,9 @@
         android:alpha="0.5"
         android:background="@drawable/rectangle_background_4dp_radius"
         android:backgroundTint="@color/black"
-        app:layout_constraintBottom_toBottomOf="@id/image"
-        app:layout_constraintEnd_toEndOf="@id/image"
-        app:layout_constraintStart_toStartOf="@id/image" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/name_text"
@@ -44,8 +44,8 @@
         android:maxLines="2"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
         android:textColor="@color/white"
-        app:layout_constraintEnd_toEndOf="@id/info_background"
-        app:layout_constraintStart_toStartOf="@id/info_background"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/info_background"
         tools:text="Attack on Titan: Final. Part 2" />
 
@@ -71,8 +71,8 @@
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/future_info_button"
         style="@style/FloatingActionButtomStyle"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="3dp"
         android:layout_marginTop="1dp"
         android:backgroundTint="@color/black_transparent"
@@ -80,10 +80,13 @@
         android:src="@drawable/ic_info_outline_28"
         android:tint="@color/pink"
         android:visibility="visible"
+        app:fabCustomSize="35dp"
         app:layout_constraintBottom_toBottomOf="@id/available_episodes_info_text"
         app:layout_constraintEnd_toStartOf="@id/notification_button_barrier"
         app:layout_constraintStart_toEndOf="@id/available_episodes_info_text"
         app:layout_constraintTop_toTopOf="@id/available_episodes_info_text"
+        app:maxImageSize="28dp"
+        app:rippleColor="@color/black"
         tools:ignore="TouchTargetSizeCheck" />
 
     <com.google.android.material.textview.MaterialTextView
@@ -108,8 +111,8 @@
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/available_episodes_info_button"
         style="@style/FloatingActionButtomStyle"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="3dp"
         android:layout_marginTop="3dp"
         android:backgroundTint="@color/black_transparent"
@@ -117,10 +120,13 @@
         android:src="@drawable/ic_info_28"
         android:tint="@color/pink"
         android:visibility="gone"
+        app:fabCustomSize="35dp"
         app:layout_constraintBottom_toBottomOf="@id/future_info_text"
         app:layout_constraintEnd_toStartOf="@id/notification_button_barrier"
         app:layout_constraintStart_toEndOf="@id/future_info_text"
-        app:layout_constraintTop_toTopOf="@id/future_info_text" />
+        app:layout_constraintTop_toTopOf="@id/future_info_text"
+        app:maxImageSize="28dp"
+        app:rippleColor="@color/black" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/notification_button_barrier"
@@ -200,8 +206,8 @@
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/notification_button"
         style="@style/FloatingActionButtomStyle"
-        android:layout_width="54dp"
-        android:layout_height="54dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:alpha="0.8"
@@ -210,5 +216,6 @@
         android:src="@drawable/ic_notifications_off_40"
         android:tint="@color/black_transparent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:maxImageSize="40dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

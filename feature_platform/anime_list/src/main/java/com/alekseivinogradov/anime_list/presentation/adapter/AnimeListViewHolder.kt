@@ -22,6 +22,10 @@ internal class AnimeListViewHolder(
 
     private val context = binding.root.context
 
+    init {
+        bindCommonFields()
+    }
+
     internal fun bindWithPayload(payload: AnimeListPayload) {
         when (payload) {
             is AnimeListPayload.ImageUrlChange -> {
@@ -59,7 +63,7 @@ internal class AnimeListViewHolder(
     }
 
     internal fun bind(item: UiListItem) {
-        bindCommonFieldsVisibility()
+        bindCommonFields()
         bindImageUrl(item.imageUrl)
         bindName(item.name)
         bindEpisodesInfoType(item.episodesInfoType)
@@ -79,15 +83,24 @@ internal class AnimeListViewHolder(
         }
     }
 
-    private fun bindCommonFieldsVisibility() {
+    private fun bindCommonFields() {
         with(binding) {
             image.isVisible = true
             nameText.isVisible = true
+            futureInfoButton.backgroundTintList = ColorStateList.valueOf(
+                context.getColor(theme_R.color.black)
+            )
+            availableEpisodesInfoButton.backgroundTintList = ColorStateList.valueOf(
+                context.getColor(theme_R.color.black)
+            )
             scoreImage.isVisible = true
             scoreText.isVisible = true
             verticalDividerAfterScore.isVisible = true
             releasedStatusText.isVisible = true
             verticalDividerAfterStatus.isVisible = true
+            notificationButton.backgroundTintList = ColorStateList.valueOf(
+                context.getColor(theme_R.color.transparent)
+            )
             notificationButton.isVisible = true
         }
     }
@@ -137,57 +150,54 @@ internal class AnimeListViewHolder(
     }
 
     private fun bindReleaseStatus(releaseStatus: UiReleaseStatus) {
-        with(binding.releasedStatusText) {
+        with(binding) {
             when (releaseStatus) {
                 UiReleaseStatus.ONGOING -> {
-                    text = context.applicationContext.getString(R.string.ongoings)
-                    setTextColor(context.getColor(theme_R.color.green))
+                    releasedStatusText.text =
+                        context.applicationContext.getString(R.string.ongoings)
+                    releasedStatusText.setTextColor(context.getColor(theme_R.color.green))
                 }
 
                 UiReleaseStatus.ANNOUNCED -> {
-                    text = context.applicationContext.getString(R.string.announced)
-                    setTextColor(context.getColor(theme_R.color.purple_200))
+                    releasedStatusText.text =
+                        context.applicationContext.getString(R.string.announced)
+                    releasedStatusText.setTextColor(context.getColor(theme_R.color.purple_200))
                 }
 
                 UiReleaseStatus.RELEASED -> {
-                    text = context.applicationContext.getString(R.string.released)
-                    setTextColor(context.getColor(theme_R.color.pink))
+                    releasedStatusText.text =
+                        context.applicationContext.getString(R.string.released)
+                    releasedStatusText.setTextColor(context.getColor(theme_R.color.pink))
                 }
             }
         }
     }
 
     private fun bindNotification(notification: UiNotification) {
-        with(binding.notificationButton) {
+        with(binding) {
             when (notification) {
                 UiNotification.ENABLED -> {
-                    setImageDrawable(
+                    notificationButton.setImageDrawable(
                         ContextCompat.getDrawable(
                             context.applicationContext,
                             R.drawable.ic_notifications_on_40
                         )
                     )
-                    backgroundTintList = ColorStateList.valueOf(
-                        context.getColor(theme_R.color.green)
-                    )
-                    rippleColor = context.getColor(theme_R.color.green)
-                    contentDescription = resources.getString(
+                    notificationButton.rippleColor = context.getColor(theme_R.color.green)
+                    notificationButton.contentDescription = context.resources.getString(
                         R.string.notifications_turn_on
                     )
                 }
 
                 UiNotification.DISABLED -> {
-                    setImageDrawable(
+                    notificationButton.setImageDrawable(
                         ContextCompat.getDrawable(
                             context.applicationContext,
                             R.drawable.ic_notifications_off_40
                         )
                     )
-                    backgroundTintList = ColorStateList.valueOf(
-                        context.getColor(theme_R.color.pink)
-                    )
-                    rippleColor = context.getColor(theme_R.color.pink)
-                    contentDescription = resources.getString(
+                    notificationButton.rippleColor = context.getColor(theme_R.color.pink)
+                    notificationButton.contentDescription = context.resources.getString(
                         R.string.notifications_turn_off
                     )
                 }
