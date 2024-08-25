@@ -27,19 +27,22 @@ internal class AnimeListAdapter(
         holder.bind(item = getItem(position))
     }
 
-//    override fun onBindViewHolder(
-//        holder: AnimeListViewHolder,
-//        position: Int,
-//        payloads: MutableList<Any>
-//    ) {
-//        payloads.forEach { payloadsList ->
-//            if (payloadsList !is List<*>) return
-//
-//            payloadsList.forEach { payload ->
-//                if (payload is AnimeListPayload) {
-//                    holder.bindWithPayload(payload = payload)
-//                }
-//            }
-//        }
-//    }
+    override fun onBindViewHolder(
+        holder: AnimeListViewHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
+        if (payloads.isNotEmpty()) {
+            payloads.forEach { payloadsList ->
+                if (payloadsList !is List<*>) return
+                payloadsList.forEach { payload ->
+                    if (payload is AnimeListPayload) {
+                        holder.bindWithPayload(payload = payload)
+                    }
+                }
+            }
+        } else {
+            onBindViewHolder(holder, position)
+        }
+    }
 }

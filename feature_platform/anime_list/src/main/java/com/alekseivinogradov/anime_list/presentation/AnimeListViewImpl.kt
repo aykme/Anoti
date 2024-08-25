@@ -1,9 +1,13 @@
 package com.alekseivinogradov.anime_list.presentation
 
+import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.alekseivinogradov.anime_list.LIST_FIRST_INDEX
 import com.alekseivinogradov.anime_list.R
 import com.alekseivinogradov.anime_list.api.model.UiContentType
 import com.alekseivinogradov.anime_list.api.model.UiSearch
@@ -174,6 +178,8 @@ internal class AnimeListViewImpl(
 
     private fun setSwipeRefreshListener(selectedSection: UiSection) {
         with(viewBinding) {
+            swipeRefreshLayout.setProgressViewOffset(false, 45, 245)
+            swipeRefreshLayout.setColorSchemeResources(theme_R.color.pink)
             when (selectedSection) {
                 UiSection.ONGOINGS -> swipeRefreshLayout.setOnRefreshListener {
                     dispatch(AnimeListView.UiEvent.UpdateOngoingsSection)
@@ -201,6 +207,7 @@ internal class AnimeListViewImpl(
         with(viewBinding) {
             when (search) {
                 UiSearch.HIDEN -> {
+                    hideKeyboard()
                     searchInputLayout.isVisible = false
                     searchCancelButton.isVisible = false
                     ongoingButton.isVisible = true
@@ -221,6 +228,12 @@ internal class AnimeListViewImpl(
                 }
             }
         }
+    }
+
+    private fun hideKeyboard() {
+        val inputMethodManager =
+            context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(viewBinding.root.windowToken, 0)
     }
 
     private fun getContentType(uiModel: AnimeListView.UiModel): UiContentType {
@@ -295,13 +308,9 @@ internal class AnimeListViewImpl(
         adapter.submitList(listItems) {
             if (listItems.isNotEmpty()) {
                 dispatch(AnimeListView.UiEvent.ContentTypeChange(UiContentType.LOADED))
-                //TODO Убрать
-                setContentType(UiContentType.LOADED)
-                println("tagtag items: $listItems")
+                viewBinding.animeListRv.scrollToPosition(LIST_FIRST_INDEX)
             } else {
                 dispatch(AnimeListView.UiEvent.ContentTypeChange(UiContentType.NO_DATA))
-                //TODO Убрать
-                setContentType(UiContentType.NO_DATA)
             }
         }
     }

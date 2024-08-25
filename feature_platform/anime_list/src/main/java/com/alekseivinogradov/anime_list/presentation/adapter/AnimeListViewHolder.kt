@@ -101,6 +101,8 @@ internal class AnimeListViewHolder(
             notificationButton.backgroundTintList = ColorStateList.valueOf(
                 context.getColor(theme_R.color.transparent)
             )
+            notificationButton.backgroundTintList =
+                ColorStateList.valueOf(theme_R.color.transparent)
             notificationButton.isVisible = true
         }
     }
@@ -120,7 +122,7 @@ internal class AnimeListViewHolder(
     private fun bindEpisodesInfoType(episodesInfoType: UiEpisodesInfoType) {
         with(binding) {
             when (episodesInfoType) {
-                UiEpisodesInfoType.CURRENT -> {
+                UiEpisodesInfoType.AVAILABLE -> {
                     futureInfoText.isVisible = false
                     availableEpisodesInfoButton.isVisible = false
                     availableEpisodesInfoText.isVisible = true
@@ -183,7 +185,8 @@ internal class AnimeListViewHolder(
                             R.drawable.ic_notifications_on_40
                         )
                     )
-                    notificationButton.rippleColor = context.getColor(theme_R.color.green)
+                    notificationButton.rippleColor = context.getColor(theme_R.color.pink)
+                    notificationButton.isActivated = true
                     notificationButton.contentDescription = context.resources.getString(
                         R.string.notifications_turn_on
                     )
@@ -196,7 +199,8 @@ internal class AnimeListViewHolder(
                             R.drawable.ic_notifications_off_40
                         )
                     )
-                    notificationButton.rippleColor = context.getColor(theme_R.color.pink)
+                    notificationButton.rippleColor = context.getColor(theme_R.color.green)
+                    notificationButton.isActivated = false
                     notificationButton.contentDescription = context.resources.getString(
                         R.string.notifications_turn_off
                     )
