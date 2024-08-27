@@ -25,11 +25,9 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            api(libs.kotlinx.coroutines.core)
-            api(libs.essenty.lifecycle)
-            api(libs.essenty.instance.keeper)
             api(libs.mvikotlin)
-            implementation(libs.mvikotlin.main)
+            api(libs.mvikotlin.main)
+            implementation(libs.kotlinx.coroutines.core)
             implementation(libs.mvikotlin.logger)
             implementation(libs.mvikotlin.timetravel)
             implementation(libs.mvikotlin.extensions.coroutines)

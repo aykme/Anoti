@@ -6,15 +6,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.alekseivinogradov.anime_list.databinding.FragmentAnimeListBinding
-import com.alekseivinogradov.anime_list.impl.presentation.TestAnimeListController
+import com.alekseivinogradov.anime_list.impl.presentation.AnimeListController
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
+import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 
 class AnimeListFragment : Fragment() {
 
     private lateinit var binding: FragmentAnimeListBinding
 
-    private val controller: TestAnimeListController by lazy {
-        TestAnimeListController(
+    private val controller: AnimeListController by lazy {
+        AnimeListController(
+            storeFactory = DefaultStoreFactory(),
             lifecycle = essentyLifecycle()
         )
     }
