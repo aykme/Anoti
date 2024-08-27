@@ -1,18 +1,18 @@
 package com.alekseivinogradov.anime_list.presentation.adapter
 
 import androidx.recyclerview.widget.DiffUtil
-import com.alekseivinogradov.anime_list.api.model.list_content.UiListItem
+import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ListItemUi
 
-internal class AnimeListDiffUtilCallback : DiffUtil.ItemCallback<UiListItem>() {
-    override fun areItemsTheSame(oldItem: UiListItem, newItem: UiListItem): Boolean {
+internal class AnimeListDiffUtilCallback : DiffUtil.ItemCallback<ListItemUi>() {
+    override fun areItemsTheSame(oldItem: ListItemUi, newItem: ListItemUi): Boolean {
         return oldItem.itemIndex == newItem.itemIndex
     }
 
-    override fun areContentsTheSame(oldItem: UiListItem, newItem: UiListItem): Boolean {
+    override fun areContentsTheSame(oldItem: ListItemUi, newItem: ListItemUi): Boolean {
         return oldItem == newItem
     }
 
-    override fun getChangePayload(oldItem: UiListItem, newItem: UiListItem): Any {
+    override fun getChangePayload(oldItem: ListItemUi, newItem: ListItemUi): Any {
         return buildList {
             if (oldItem.imageUrl != newItem.imageUrl) {
                 add(AnimeListPayload.ImageUrlChange(newItem.imageUrl))

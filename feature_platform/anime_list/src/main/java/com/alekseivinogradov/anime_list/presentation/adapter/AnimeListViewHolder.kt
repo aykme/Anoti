@@ -5,10 +5,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.alekseivinogradov.anime_list.R
-import com.alekseivinogradov.anime_list.api.model.list_content.UiEpisodesInfoType
-import com.alekseivinogradov.anime_list.api.model.list_content.UiListItem
-import com.alekseivinogradov.anime_list.api.model.list_content.UiNotification
-import com.alekseivinogradov.anime_list.api.model.list_content.UiReleaseStatus
+import com.alekseivinogradov.anime_list.api.presentation.model.list_content.EpisodesInfoTypeUi
+import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ListItemUi
+import com.alekseivinogradov.anime_list.api.presentation.model.list_content.NotificationUi
+import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ReleaseStatusUi
 import com.alekseivinogradov.anime_list.databinding.ItemAnimeListBinding
 import com.bumptech.glide.Glide
 import com.alekseivinogradov.theme.R as theme_R
@@ -62,7 +62,7 @@ internal class AnimeListViewHolder(
         }
     }
 
-    internal fun bind(item: UiListItem) {
+    internal fun bind(item: ListItemUi) {
         bindCommonFields()
         bindImageUrl(item.imageUrl)
         bindName(item.name)
@@ -119,17 +119,17 @@ internal class AnimeListViewHolder(
         binding.nameText.text = name
     }
 
-    private fun bindEpisodesInfoType(episodesInfoType: UiEpisodesInfoType) {
+    private fun bindEpisodesInfoType(episodesInfoType: EpisodesInfoTypeUi) {
         with(binding) {
             when (episodesInfoType) {
-                UiEpisodesInfoType.AVAILABLE -> {
+                EpisodesInfoTypeUi.AVAILABLE -> {
                     futureInfoText.isVisible = false
                     availableEpisodesInfoButton.isVisible = false
                     availableEpisodesInfoText.isVisible = true
                     futureInfoButton.isVisible = true
                 }
 
-                UiEpisodesInfoType.FUTURE -> {
+                EpisodesInfoTypeUi.FUTURE -> {
                     availableEpisodesInfoText.isVisible = false
                     futureInfoButton.isVisible = false
                     futureInfoText.isVisible = true
@@ -151,22 +151,22 @@ internal class AnimeListViewHolder(
         binding.scoreText.text = score
     }
 
-    private fun bindReleaseStatus(releaseStatus: UiReleaseStatus) {
+    private fun bindReleaseStatus(releaseStatus: ReleaseStatusUi) {
         with(binding) {
             when (releaseStatus) {
-                UiReleaseStatus.ONGOING -> {
+                ReleaseStatusUi.ONGOING -> {
                     releasedStatusText.text =
                         context.applicationContext.getString(R.string.ongoings)
                     releasedStatusText.setTextColor(context.getColor(theme_R.color.green))
                 }
 
-                UiReleaseStatus.ANNOUNCED -> {
+                ReleaseStatusUi.ANNOUNCED -> {
                     releasedStatusText.text =
                         context.applicationContext.getString(R.string.announced)
                     releasedStatusText.setTextColor(context.getColor(theme_R.color.purple_200))
                 }
 
-                UiReleaseStatus.RELEASED -> {
+                ReleaseStatusUi.RELEASED -> {
                     releasedStatusText.text =
                         context.applicationContext.getString(R.string.released)
                     releasedStatusText.setTextColor(context.getColor(theme_R.color.pink))
@@ -175,10 +175,10 @@ internal class AnimeListViewHolder(
         }
     }
 
-    private fun bindNotification(notification: UiNotification) {
+    private fun bindNotification(notification: NotificationUi) {
         with(binding) {
             when (notification) {
-                UiNotification.ENABLED -> {
+                NotificationUi.ENABLED -> {
                     notificationButton.setImageDrawable(
                         ContextCompat.getDrawable(
                             context.applicationContext,
@@ -192,7 +192,7 @@ internal class AnimeListViewHolder(
                     )
                 }
 
-                UiNotification.DISABLED -> {
+                NotificationUi.DISABLED -> {
                     notificationButton.setImageDrawable(
                         ContextCompat.getDrawable(
                             context.applicationContext,

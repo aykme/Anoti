@@ -1,12 +1,12 @@
 package com.alekseivinogradov.anime_list.impl.presentation
 
-import com.alekseivinogradov.anime_list.api.model.UiContentType
-import com.alekseivinogradov.anime_list.api.model.UiSearch
-import com.alekseivinogradov.anime_list.api.model.UiSection
-import com.alekseivinogradov.anime_list.api.model.list_content.UiEpisodesInfoType
-import com.alekseivinogradov.anime_list.api.model.list_content.UiListItem
-import com.alekseivinogradov.anime_list.api.model.list_content.UiNotification
-import com.alekseivinogradov.anime_list.api.model.list_content.UiReleaseStatus
+import com.alekseivinogradov.anime_list.api.presentation.model.ContentTypeUi
+import com.alekseivinogradov.anime_list.api.presentation.model.SearchUi
+import com.alekseivinogradov.anime_list.api.presentation.model.SectionUi
+import com.alekseivinogradov.anime_list.api.presentation.model.list_content.EpisodesInfoTypeUi
+import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ListItemUi
+import com.alekseivinogradov.anime_list.api.presentation.model.list_content.NotificationUi
+import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ReleaseStatusUi
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.doOnDestroy
@@ -52,39 +52,39 @@ class TestAnimeListController(lifecycle: Lifecycle) {
         return AnimeListView.UiModel(
             selectedSection = testNextSelectedSection(),
             search = testNextSearch(),
-            contentType = UiContentType.LOADED,
+            contentType = ContentTypeUi.LOADED,
             ongoingListItems = testCreateOngoingListItems(),
             announcedListItems = testCreateAnnouncedListItems(),
             searchListItems = testCreateSearchListItems()
         )
     }
 
-    private fun testNextSelectedSection(): UiSection {
+    private fun testNextSelectedSection(): SectionUi {
         return when (testUiDataFlow.value.selectedSection) {
-            UiSection.ONGOINGS -> UiSection.ANNOUNCED
-            UiSection.ANNOUNCED -> UiSection.SEARCH
-            UiSection.SEARCH -> UiSection.ONGOINGS
+            SectionUi.ONGOINGS -> SectionUi.ANNOUNCED
+            SectionUi.ANNOUNCED -> SectionUi.SEARCH
+            SectionUi.SEARCH -> SectionUi.ONGOINGS
         }
     }
 
-    private fun testNextSearch(): UiSearch {
+    private fun testNextSearch(): SearchUi {
         return when (testUiDataFlow.value.search) {
-            UiSearch.HIDEN -> UiSearch.SHOWN
-            UiSearch.SHOWN -> UiSearch.HIDEN
+            SearchUi.HIDEN -> SearchUi.SHOWN
+            SearchUi.SHOWN -> SearchUi.HIDEN
         }
     }
 
-    private fun testNextContentType(): UiContentType {
+    private fun testNextContentType(): ContentTypeUi {
         return when (testUiDataFlow.value.contentType) {
-            UiContentType.LOADED -> UiContentType.LOADING
-            UiContentType.LOADING -> UiContentType.NO_DATA
-            UiContentType.NO_DATA -> UiContentType.LOADED
+            ContentTypeUi.LOADED -> ContentTypeUi.LOADING
+            ContentTypeUi.LOADING -> ContentTypeUi.NO_DATA
+            ContentTypeUi.NO_DATA -> ContentTypeUi.LOADED
         }
     }
 
-    private fun testCreateOngoingListItems(): List<UiListItem> {
+    private fun testCreateOngoingListItems(): List<ListItemUi> {
         val listCapacity = 20
-        return mutableListOf<UiListItem>().apply {
+        return mutableListOf<ListItemUi>().apply {
             while (size < listCapacity) {
                 add(
                     index = size,
@@ -98,9 +98,9 @@ class TestAnimeListController(lifecycle: Lifecycle) {
         }
     }
 
-    private fun testCreateAnnouncedListItems(): List<UiListItem> {
+    private fun testCreateAnnouncedListItems(): List<ListItemUi> {
         val listCapacity = 20
-        return mutableListOf<UiListItem>().apply {
+        return mutableListOf<ListItemUi>().apply {
             while (size < listCapacity) {
                 add(
                     index = size,
@@ -114,9 +114,9 @@ class TestAnimeListController(lifecycle: Lifecycle) {
         }
     }
 
-    private fun testCreateSearchListItems(): List<UiListItem> {
+    private fun testCreateSearchListItems(): List<ListItemUi> {
         val listCapacity = 20
-        return mutableListOf<UiListItem>().apply {
+        return mutableListOf<ListItemUi>().apply {
             while (size < listCapacity) {
                 add(
                     index = size,
@@ -131,20 +131,20 @@ class TestAnimeListController(lifecycle: Lifecycle) {
     }
 
     private var iteration = 0
-    private fun testCreateListItem(index: Int, textPrefix: String, iteration: Int): UiListItem {
+    private fun testCreateListItem(index: Int, textPrefix: String, iteration: Int): ListItemUi {
         val firstItem = testUiDataFlow.value.ongoingListItems.getOrNull(0)
-        return UiListItem(
+        return ListItemUi(
             itemIndex = index,
             imageUrl = "https://cdn.oneesports.gg/cdn-data/2022/01/AttackonTitan_FinalSeasonKeyVisualEren-1.jpg",
             name = "$textPrefix n$index i$iteration",
-            episodesInfoType = UiEpisodesInfoType.AVAILABLE,
+            episodesInfoType = EpisodesInfoTypeUi.AVAILABLE,
 //            episodesInfoType = testNextEpisodesInfoType(firstItem),
             availableEpisodesInfo = "$textPrefix n$index i$iteration",
             futureInfo = "$textPrefix n$index i$iteration",
             score = "$textPrefix n$index i$iteration",
-            releaseStatus = UiReleaseStatus.ONGOING,
+            releaseStatus = ReleaseStatusUi.ONGOING,
 //            releaseStatus = testNextReleaseStatus(firstItem),
-            notification = UiNotification.DISABLED
+            notification = NotificationUi.DISABLED
 //            notification = testNextNotification(firstItem)
         )
     }
@@ -157,25 +157,25 @@ class TestAnimeListController(lifecycle: Lifecycle) {
         }
     }
 
-    private fun testNextEpisodesInfoType(listItems: UiListItem?): UiEpisodesInfoType {
+    private fun testNextEpisodesInfoType(listItems: ListItemUi?): EpisodesInfoTypeUi {
         return when (listItems?.episodesInfoType) {
-            null, UiEpisodesInfoType.AVAILABLE -> UiEpisodesInfoType.FUTURE
-            UiEpisodesInfoType.FUTURE -> UiEpisodesInfoType.AVAILABLE
+            null, EpisodesInfoTypeUi.AVAILABLE -> EpisodesInfoTypeUi.FUTURE
+            EpisodesInfoTypeUi.FUTURE -> EpisodesInfoTypeUi.AVAILABLE
         }
     }
 
-    private fun testNextReleaseStatus(listItems: UiListItem?): UiReleaseStatus {
+    private fun testNextReleaseStatus(listItems: ListItemUi?): ReleaseStatusUi {
         return when (listItems?.releaseStatus) {
-            null, UiReleaseStatus.ONGOING -> UiReleaseStatus.ANNOUNCED
-            UiReleaseStatus.ANNOUNCED -> UiReleaseStatus.RELEASED
-            UiReleaseStatus.RELEASED -> UiReleaseStatus.ONGOING
+            null, ReleaseStatusUi.ONGOING -> ReleaseStatusUi.ANNOUNCED
+            ReleaseStatusUi.ANNOUNCED -> ReleaseStatusUi.RELEASED
+            ReleaseStatusUi.RELEASED -> ReleaseStatusUi.ONGOING
         }
     }
 
-    private fun testNextNotification(listItems: UiListItem?): UiNotification {
+    private fun testNextNotification(listItems: ListItemUi?): NotificationUi {
         return when (listItems?.notification) {
-            null, UiNotification.ENABLED -> UiNotification.DISABLED
-            UiNotification.DISABLED -> UiNotification.ENABLED
+            null, NotificationUi.ENABLED -> NotificationUi.DISABLED
+            NotificationUi.DISABLED -> NotificationUi.ENABLED
         }
     }
 }

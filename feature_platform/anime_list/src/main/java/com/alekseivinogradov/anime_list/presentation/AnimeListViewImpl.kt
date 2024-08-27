@@ -3,16 +3,15 @@ package com.alekseivinogradov.anime_list.presentation
 import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.alekseivinogradov.anime_list.LIST_FIRST_INDEX
 import com.alekseivinogradov.anime_list.R
-import com.alekseivinogradov.anime_list.api.model.UiContentType
-import com.alekseivinogradov.anime_list.api.model.UiSearch
-import com.alekseivinogradov.anime_list.api.model.UiSection
-import com.alekseivinogradov.anime_list.api.model.list_content.UiListItem
+import com.alekseivinogradov.anime_list.api.presentation.model.ContentTypeUi
+import com.alekseivinogradov.anime_list.api.presentation.model.SearchUi
+import com.alekseivinogradov.anime_list.api.presentation.model.SectionUi
+import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ListItemUi
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
 import com.alekseivinogradov.anime_list.databinding.FragmentAnimeListBinding
 import com.alekseivinogradov.anime_list.presentation.adapter.AnimeListAdapter
@@ -147,26 +146,26 @@ internal class AnimeListViewImpl(
         }
     }
 
-    private fun getSelectedSection(uiModel: AnimeListView.UiModel): UiSection {
+    private fun getSelectedSection(uiModel: AnimeListView.UiModel): SectionUi {
         return uiModel.selectedSection
     }
 
-    private fun setSelectedSection(selectedSection: UiSection) {
+    private fun setSelectedSection(selectedSection: SectionUi) {
         with(viewBinding) {
             when (selectedSection) {
-                UiSection.ONGOINGS -> {
+                SectionUi.ONGOINGS -> {
                     ongoingButton.setTextColor(activeColor)
                     announcedButton.setTextColor(defaultColor)
                     searchButton.setColorFilter(defaultColor)
                 }
 
-                UiSection.ANNOUNCED -> {
+                SectionUi.ANNOUNCED -> {
                     announcedButton.setTextColor(activeColor)
                     ongoingButton.setTextColor(defaultColor)
                     searchButton.setColorFilter(defaultColor)
                 }
 
-                UiSection.SEARCH -> {
+                SectionUi.SEARCH -> {
                     searchButton.setColorFilter(activeColor)
                     announcedButton.setTextColor(defaultColor)
                     ongoingButton.setTextColor(defaultColor)
@@ -176,22 +175,22 @@ internal class AnimeListViewImpl(
         setSwipeRefreshListener(selectedSection)
     }
 
-    private fun setSwipeRefreshListener(selectedSection: UiSection) {
+    private fun setSwipeRefreshListener(selectedSection: SectionUi) {
         with(viewBinding) {
             swipeRefreshLayout.setProgressViewOffset(false, 45, 245)
             swipeRefreshLayout.setColorSchemeResources(theme_R.color.pink)
             when (selectedSection) {
-                UiSection.ONGOINGS -> swipeRefreshLayout.setOnRefreshListener {
+                SectionUi.ONGOINGS -> swipeRefreshLayout.setOnRefreshListener {
                     dispatch(AnimeListView.UiEvent.UpdateOngoingsSection)
                     swipeRefreshLayout.isRefreshing = false
                 }
 
-                UiSection.ANNOUNCED -> swipeRefreshLayout.setOnRefreshListener {
+                SectionUi.ANNOUNCED -> swipeRefreshLayout.setOnRefreshListener {
                     dispatch(AnimeListView.UiEvent.UpdateAnnouncedSection)
                     swipeRefreshLayout.isRefreshing = false
                 }
 
-                UiSection.SEARCH -> swipeRefreshLayout.setOnRefreshListener {
+                SectionUi.SEARCH -> swipeRefreshLayout.setOnRefreshListener {
                     dispatch(AnimeListView.UiEvent.UpdateSearchSection)
                     swipeRefreshLayout.isRefreshing = false
                 }
@@ -199,14 +198,14 @@ internal class AnimeListViewImpl(
         }
     }
 
-    private fun getSearch(uiModel: AnimeListView.UiModel): UiSearch {
+    private fun getSearch(uiModel: AnimeListView.UiModel): SearchUi {
         return uiModel.search
     }
 
-    private fun setSearch(search: UiSearch) {
+    private fun setSearch(search: SearchUi) {
         with(viewBinding) {
             when (search) {
-                UiSearch.HIDEN -> {
+                SearchUi.HIDEN -> {
                     hideKeyboard()
                     searchInputLayout.isVisible = false
                     searchCancelButton.isVisible = false
@@ -217,7 +216,7 @@ internal class AnimeListViewImpl(
                     searchButtonShadow.isVisible = true
                 }
 
-                UiSearch.SHOWN -> {
+                SearchUi.SHOWN -> {
                     ongoingButton.isVisible = false
                     verticalDivider.isVisible = false
                     announcedButton.isVisible = false
@@ -236,25 +235,25 @@ internal class AnimeListViewImpl(
         inputMethodManager.hideSoftInputFromWindow(viewBinding.root.windowToken, 0)
     }
 
-    private fun getContentType(uiModel: AnimeListView.UiModel): UiContentType {
+    private fun getContentType(uiModel: AnimeListView.UiModel): ContentTypeUi {
         return uiModel.contentType
     }
 
-    private fun setContentType(contentType: UiContentType) {
+    private fun setContentType(contentType: ContentTypeUi) {
         with(viewBinding) {
             when (contentType) {
-                UiContentType.LOADED -> {
+                ContentTypeUi.LOADED -> {
                     connectionStatusImage.isVisible = false
                     animeListRv.isVisible = true
                 }
 
-                UiContentType.LOADING -> {
+                ContentTypeUi.LOADING -> {
                     animeListRv.isVisible = false
                     connectionStatusImage.setImageResource(R.drawable.loading_animation)
                     connectionStatusImage.isVisible = true
                 }
 
-                UiContentType.NO_DATA -> {
+                ContentTypeUi.NO_DATA -> {
                     animeListRv.isVisible = false
                     connectionStatusImage.setImageResource(R.drawable.connection_error_48)
                     connectionStatusImage.isVisible = true
@@ -271,7 +270,7 @@ internal class AnimeListViewImpl(
     }
 
     private fun setOngoingListItems(listItemsWithSelectedSection: ListItemsWithSelectedSection) {
-        if (listItemsWithSelectedSection.selectedSection == UiSection.ONGOINGS) {
+        if (listItemsWithSelectedSection.selectedSection == SectionUi.ONGOINGS) {
             setListItems(listItemsWithSelectedSection.listItems)
         }
     }
@@ -286,7 +285,7 @@ internal class AnimeListViewImpl(
     }
 
     private fun setAnnouncedListItems(listItemsWithSelectedSection: ListItemsWithSelectedSection) {
-        if (listItemsWithSelectedSection.selectedSection == UiSection.ANNOUNCED) {
+        if (listItemsWithSelectedSection.selectedSection == SectionUi.ANNOUNCED) {
             setListItems(listItemsWithSelectedSection.listItems)
         }
     }
@@ -299,24 +298,24 @@ internal class AnimeListViewImpl(
     }
 
     private fun setSearchListItems(listItemsWithSelectedSection: ListItemsWithSelectedSection) {
-        if (listItemsWithSelectedSection.selectedSection == UiSection.SEARCH) {
+        if (listItemsWithSelectedSection.selectedSection == SectionUi.SEARCH) {
             setListItems(listItemsWithSelectedSection.listItems)
         }
     }
 
-    private fun setListItems(listItems: List<UiListItem>) {
+    private fun setListItems(listItems: List<ListItemUi>) {
         adapter.submitList(listItems) {
             if (listItems.isNotEmpty()) {
-                dispatch(AnimeListView.UiEvent.ContentTypeChange(UiContentType.LOADED))
+                dispatch(AnimeListView.UiEvent.ContentTypeChange(ContentTypeUi.LOADED))
                 viewBinding.animeListRv.scrollToPosition(LIST_FIRST_INDEX)
             } else {
-                dispatch(AnimeListView.UiEvent.ContentTypeChange(UiContentType.NO_DATA))
+                dispatch(AnimeListView.UiEvent.ContentTypeChange(ContentTypeUi.NO_DATA))
             }
         }
     }
 
     data class ListItemsWithSelectedSection(
-        val listItems: List<UiListItem>,
-        val selectedSection: UiSection
+        val listItems: List<ListItemUi>,
+        val selectedSection: SectionUi
     )
 }

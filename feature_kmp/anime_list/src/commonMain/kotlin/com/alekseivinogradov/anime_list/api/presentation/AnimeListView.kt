@@ -1,20 +1,20 @@
 package com.alekseivinogradov.anime_list.api.presentation
 
-import com.alekseivinogradov.anime_list.api.model.UiContentType
-import com.alekseivinogradov.anime_list.api.model.UiSearch
-import com.alekseivinogradov.anime_list.api.model.UiSection
-import com.alekseivinogradov.anime_list.api.model.list_content.UiListItem
+import com.alekseivinogradov.anime_list.api.presentation.model.ContentTypeUi
+import com.alekseivinogradov.anime_list.api.presentation.model.SearchUi
+import com.alekseivinogradov.anime_list.api.presentation.model.SectionUi
+import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ListItemUi
 import com.arkivanov.mvikotlin.core.view.MviView
 
 interface AnimeListView : MviView<AnimeListView.UiModel, AnimeListView.UiEvent> {
 
     data class UiModel(
-        val selectedSection: UiSection = UiSection.ONGOINGS,
-        val search: UiSearch = UiSearch.HIDEN,
-        val contentType: UiContentType = UiContentType.LOADING,
-        val ongoingListItems: List<UiListItem> = listOf(),
-        val announcedListItems: List<UiListItem> = listOf(),
-        val searchListItems: List<UiListItem> = listOf()
+        val selectedSection: SectionUi = SectionUi.ONGOINGS,
+        val search: SearchUi = SearchUi.HIDEN,
+        val contentType: ContentTypeUi = ContentTypeUi.LOADING,
+        val ongoingListItems: List<ListItemUi> = listOf(),
+        val announcedListItems: List<ListItemUi> = listOf(),
+        val searchListItems: List<ListItemUi> = listOf()
     )
 
     sealed interface UiEvent {
@@ -28,6 +28,6 @@ interface AnimeListView : MviView<AnimeListView.UiModel, AnimeListView.UiEvent> 
         data class SearchTextChange(val text: String) : UiEvent
         data class EpisodesInfoClick(val itemIndex: Int) : UiEvent
         data class NotificationClick(val itemIndex: Int) : UiEvent
-        data class ContentTypeChange(val contentType: UiContentType) : UiEvent
+        data class ContentTypeChange(val contentType: ContentTypeUi) : UiEvent
     }
 }
