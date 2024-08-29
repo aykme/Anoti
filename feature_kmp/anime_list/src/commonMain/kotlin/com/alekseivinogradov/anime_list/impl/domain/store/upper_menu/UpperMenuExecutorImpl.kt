@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anime_list.impl.domain.store.upper_menu
 
-import com.alekseivinogradov.anime_list.api.domain.model.SearchDomain
-import com.alekseivinogradov.anime_list.api.domain.model.SectionDomain
+import com.alekseivinogradov.anime_list.api.domain.model.upper_menu.SearchDomain
+import com.alekseivinogradov.anime_list.api.domain.model.upper_menu.SectionDomain
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 
 internal typealias UpperMenuExecutor = CoroutineExecutor<
@@ -13,24 +13,18 @@ internal typealias UpperMenuExecutor = CoroutineExecutor<
 
 internal class UpperMenuExecutorImpl() : UpperMenuExecutor() {
 
-    override fun executeIntent(
-        intent: UpperMenuStore.Intent,
-        getState: () -> UpperMenuStore.State
-    ) {
+    override fun executeIntent(intent: UpperMenuStore.Intent) {
         when (intent) {
-            UpperMenuStore.Intent.OngoingsSectionClick -> ongoingSectionClick(getState)
-            UpperMenuStore.Intent.AnnouncedSectionClick -> announcedSectionClick(getState)
-            UpperMenuStore.Intent.SearchSectionClick -> searchSectionClick(getState)
-            UpperMenuStore.Intent.CancelSearchClick -> cancelSearchClick(getState)
-            is UpperMenuStore.Intent.SearchTextChange -> searchTextChange(
-                getState = getState,
-                intent = intent
-            )
+            UpperMenuStore.Intent.OngoingsSectionClick -> ongoingSectionClick()
+            UpperMenuStore.Intent.AnnouncedSectionClick -> announcedSectionClick()
+            UpperMenuStore.Intent.SearchSectionClick -> searchSectionClick()
+            UpperMenuStore.Intent.CancelSearchClick -> cancelSearchClick()
+            is UpperMenuStore.Intent.SearchTextChange -> searchTextChange(intent)
         }
     }
 
-    private fun ongoingSectionClick(getState: () -> UpperMenuStore.State) {
-        when (getState().selectedSection) {
+    private fun ongoingSectionClick() {
+        when (state().selectedSection) {
             SectionDomain.ONGOINGS -> Unit
             SectionDomain.ANNOUNCED,
             SectionDomain.SEARCH,
@@ -42,8 +36,8 @@ internal class UpperMenuExecutorImpl() : UpperMenuExecutor() {
         }
     }
 
-    private fun announcedSectionClick(getState: () -> UpperMenuStore.State) {
-        when (getState().selectedSection) {
+    private fun announcedSectionClick() {
+        when (state().selectedSection) {
             SectionDomain.ANNOUNCED -> Unit
             SectionDomain.ONGOINGS,
             SectionDomain.SEARCH,
@@ -55,8 +49,8 @@ internal class UpperMenuExecutorImpl() : UpperMenuExecutor() {
         }
     }
 
-    private fun searchSectionClick(getState: () -> UpperMenuStore.State) {
-        val state = getState()
+    private fun searchSectionClick() {
+        val state = state()
         when (state.selectedSection) {
             SectionDomain.SEARCH -> Unit
             SectionDomain.ONGOINGS,
@@ -76,23 +70,20 @@ internal class UpperMenuExecutorImpl() : UpperMenuExecutor() {
         )
     }
 
-    private fun cancelSearchClick(getState: () -> UpperMenuStore.State) {
+    private fun cancelSearchClick() {
         dispatch(
             UpperMenuReducer.Message.ChangeSearch(
-                search = getState().search.copy(
+                search = state().search.copy(
                     type = SearchDomain.Type.HIDEN
                 )
             )
         )
     }
 
-    private fun searchTextChange(
-        getState: () -> UpperMenuStore.State,
-        intent: UpperMenuStore.Intent.SearchTextChange
-    ) {
+    private fun searchTextChange(intent: UpperMenuStore.Intent.SearchTextChange) {
         dispatch(
             UpperMenuReducer.Message.ChangeSearch(
-                search = getState().search.copy(
+                search = state().search.copy(
                     searchText = intent.text
                 )
             )

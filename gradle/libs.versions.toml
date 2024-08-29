@@ -12,9 +12,9 @@ activity = "1.9.1"
 constraintlayout = "2.1.4"
 navigation = "2.7.7"
 swiperefreshlayout = "1.1.0"
-coroutines = "1.8.0"
-essenty = "1.2.0"
-mviKotlin = "3.3.0"
+coroutines = "1.9.0-RC"
+essenty = "2.1.0"
+mviKotlin = "4.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

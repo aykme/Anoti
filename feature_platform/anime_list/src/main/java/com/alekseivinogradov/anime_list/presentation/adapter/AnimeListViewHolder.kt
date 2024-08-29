@@ -20,7 +20,11 @@ internal class AnimeListViewHolder(
 ) :
     RecyclerView.ViewHolder(binding.root) {
 
-    private val context = binding.root.context
+    private val context
+        get() = binding.root.context
+
+    private val transparentColor
+        get() = context.getColor(theme_R.color.transparent)
 
     init {
         bindCommonFields()
@@ -44,8 +48,8 @@ internal class AnimeListViewHolder(
                 bindAvailableEpisodesInfo(payload.availableEpisodesInfo)
             }
 
-            is AnimeListPayload.FutureInfoChange -> {
-                bindFutureInfo(payload.futureInfo)
+            is AnimeListPayload.ExtraEpisodesInfoChange -> {
+                bindExtraEpisodesInfo(payload.extraEpisodesInfo)
             }
 
             is AnimeListPayload.ScoreChange -> {
@@ -68,14 +72,14 @@ internal class AnimeListViewHolder(
         bindName(item.name)
         bindEpisodesInfoType(item.episodesInfoType)
         bindAvailableEpisodesInfo(item.availableEpisodesInfo)
-        bindFutureInfo(item.futureInfo)
+        bindExtraEpisodesInfo(item.extraEpisodesInfo)
         bindScore(item.score)
         bindReleaseStatus(item.releaseStatus)
         bindNotification(item.notification)
         binding.availableEpisodesInfoButton.setOnClickListener {
             episodesInfoClickCallback(item.itemIndex)
         }
-        binding.futureInfoButton.setOnClickListener {
+        binding.extraEpisodesInfoButton.setOnClickListener {
             episodesInfoClickCallback(item.itemIndex)
         }
         binding.notificationButton.setOnClickListener {
@@ -87,7 +91,7 @@ internal class AnimeListViewHolder(
         with(binding) {
             image.isVisible = true
             nameText.isVisible = true
-            futureInfoButton.backgroundTintList = ColorStateList.valueOf(
+            extraEpisodesInfoButton.backgroundTintList = ColorStateList.valueOf(
                 context.getColor(theme_R.color.black)
             )
             availableEpisodesInfoButton.backgroundTintList = ColorStateList.valueOf(
@@ -96,13 +100,10 @@ internal class AnimeListViewHolder(
             scoreImage.isVisible = true
             scoreText.isVisible = true
             verticalDividerAfterScore.isVisible = true
-            releasedStatusText.isVisible = true
             verticalDividerAfterStatus.isVisible = true
-            notificationButton.backgroundTintList = ColorStateList.valueOf(
-                context.getColor(theme_R.color.transparent)
-            )
+            notificationButton.backgroundTintList = ColorStateList.valueOf(transparentColor)
             notificationButton.backgroundTintList =
-                ColorStateList.valueOf(theme_R.color.transparent)
+                ColorStateList.valueOf(transparentColor)
             notificationButton.isVisible = true
         }
     }
@@ -123,16 +124,16 @@ internal class AnimeListViewHolder(
         with(binding) {
             when (episodesInfoType) {
                 EpisodesInfoTypeUi.AVAILABLE -> {
-                    futureInfoText.isVisible = false
+                    extraEpisodesInfoText.isVisible = false
                     availableEpisodesInfoButton.isVisible = false
                     availableEpisodesInfoText.isVisible = true
-                    futureInfoButton.isVisible = true
+                    extraEpisodesInfoButton.isVisible = true
                 }
 
                 EpisodesInfoTypeUi.FUTURE -> {
                     availableEpisodesInfoText.isVisible = false
-                    futureInfoButton.isVisible = false
-                    futureInfoText.isVisible = true
+                    extraEpisodesInfoButton.isVisible = false
+                    extraEpisodesInfoText.isVisible = true
                     availableEpisodesInfoButton.isVisible = true
                 }
             }
@@ -143,8 +144,8 @@ internal class AnimeListViewHolder(
         binding.availableEpisodesInfoText.text = availableEpisodesInfo
     }
 
-    private fun bindFutureInfo(futureInfo: String) {
-        binding.futureInfoText.text = futureInfo
+    private fun bindExtraEpisodesInfo(extraEpisodesInfoInfo: String) {
+        binding.extraEpisodesInfoText.text = extraEpisodesInfoInfo
     }
 
     private fun bindScore(score: String) {
@@ -158,18 +159,25 @@ internal class AnimeListViewHolder(
                     releasedStatusText.text =
                         context.applicationContext.getString(R.string.ongoings)
                     releasedStatusText.setTextColor(context.getColor(theme_R.color.green))
+                    releasedStatusText.isVisible = true
                 }
 
                 ReleaseStatusUi.ANNOUNCED -> {
                     releasedStatusText.text =
                         context.applicationContext.getString(R.string.announced)
                     releasedStatusText.setTextColor(context.getColor(theme_R.color.purple_200))
+                    releasedStatusText.isVisible = true
                 }
 
                 ReleaseStatusUi.RELEASED -> {
                     releasedStatusText.text =
                         context.applicationContext.getString(R.string.released)
                     releasedStatusText.setTextColor(context.getColor(theme_R.color.pink))
+                    releasedStatusText.isVisible = true
+                }
+
+                ReleaseStatusUi.UNKNOWN -> {
+                    releasedStatusText.isVisible = false
                 }
             }
         }

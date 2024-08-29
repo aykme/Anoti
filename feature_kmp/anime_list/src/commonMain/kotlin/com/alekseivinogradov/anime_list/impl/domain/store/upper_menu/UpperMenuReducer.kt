@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anime_list.impl.domain.store.upper_menu
 
-import com.alekseivinogradov.anime_list.api.domain.model.SearchDomain
-import com.alekseivinogradov.anime_list.api.domain.model.SectionDomain
+import com.alekseivinogradov.anime_list.api.domain.model.upper_menu.SearchDomain
+import com.alekseivinogradov.anime_list.api.domain.model.upper_menu.SectionDomain
 import com.arkivanov.mvikotlin.core.store.Reducer
 
 internal class UpperMenuReducer : Reducer<UpperMenuStore.State, UpperMenuReducer.Message> {

@@ -140,7 +140,7 @@ class TestAnimeListController(lifecycle: Lifecycle) {
             episodesInfoType = EpisodesInfoTypeUi.AVAILABLE,
 //            episodesInfoType = testNextEpisodesInfoType(firstItem),
             availableEpisodesInfo = "$textPrefix n$index i$iteration",
-            futureInfo = "$textPrefix n$index i$iteration",
+            extraEpisodesInfo = "$textPrefix n$index i$iteration",
             score = "$textPrefix n$index i$iteration",
             releaseStatus = ReleaseStatusUi.ONGOING,
 //            releaseStatus = testNextReleaseStatus(firstItem),
@@ -168,7 +168,8 @@ class TestAnimeListController(lifecycle: Lifecycle) {
         return when (listItems?.releaseStatus) {
             null, ReleaseStatusUi.ONGOING -> ReleaseStatusUi.ANNOUNCED
             ReleaseStatusUi.ANNOUNCED -> ReleaseStatusUi.RELEASED
-            ReleaseStatusUi.RELEASED -> ReleaseStatusUi.ONGOING
+            ReleaseStatusUi.RELEASED -> ReleaseStatusUi.UNKNOWN
+            ReleaseStatusUi.UNKNOWN -> ReleaseStatusUi.ONGOING
         }
     }
 
