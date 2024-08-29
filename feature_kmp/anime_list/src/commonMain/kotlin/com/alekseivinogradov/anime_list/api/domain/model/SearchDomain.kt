@@ -1,7 +1,7 @@
-package com.alekseivinogradov.anime_list.impl.domain.model
+package com.alekseivinogradov.anime_list.api.domain.model
 
 internal data class SearchDomain(
-    val type: SearchDomain.Type = Type.HIDEN,
+    val type: Type = Type.HIDEN,
     val searchText: String = ""
 ) {
     enum class Type {

@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anime_list.impl.domain.store.upper_menu
 
-import com.alekseivinogradov.anime_list.impl.domain.model.SearchDomain
-import com.alekseivinogradov.anime_list.impl.domain.model.SectionDomain
+import com.alekseivinogradov.anime_list.api.domain.model.SearchDomain
+import com.alekseivinogradov.anime_list.api.domain.model.SectionDomain
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 
 internal typealias UpperMenuExecutor = CoroutineExecutor<

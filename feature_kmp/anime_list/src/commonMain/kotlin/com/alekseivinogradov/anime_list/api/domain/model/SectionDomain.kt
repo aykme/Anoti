@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anime_list.impl.domain.model
+package com.alekseivinogradov.anime_list.api.domain.model
 
 internal enum class SectionDomain {
     ONGOINGS,
