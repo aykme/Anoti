@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anime_list.impl.domain.store.upper_menu
+package com.alekseivinogradov.anime_list.api.domain.store.upper_menu
 
 import com.alekseivinogradov.anime_list.api.domain.model.upper_menu.SearchDomain
 import com.alekseivinogradov.anime_list.api.domain.model.upper_menu.SectionDomain
@@ -24,5 +24,12 @@ internal interface UpperMenuStore :
         data object UpdateOngoingsSection : Label
         data object UpdateAnnouncedSection : Label
         data object UpdateSearchSection : Label
+    }
+
+    sealed interface Action
+
+    sealed interface Message {
+        data class ChangeSelectedSection(val selectedSection: SectionDomain) : Message
+        data class ChangeSearch(val search: SearchDomain) : Message
     }
 }

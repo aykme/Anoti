@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anime_list.impl.domain.store.section_content
+package com.alekseivinogradov.anime_list.api.domain.store.section_content
 
 import com.alekseivinogradov.anime_list.api.domain.model.section_content.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.section_content.ListItemDomain
@@ -23,5 +23,10 @@ interface SectionContentStore
 
     sealed interface Action {
         data object InitSection : Action
+    }
+
+    sealed interface Message {
+        data class ChangeContentType(val contentType: ContentTypeDomain) : Message
+        data class UpdateListItems(val listItems: List<ListItemDomain>) : Message
     }
 }

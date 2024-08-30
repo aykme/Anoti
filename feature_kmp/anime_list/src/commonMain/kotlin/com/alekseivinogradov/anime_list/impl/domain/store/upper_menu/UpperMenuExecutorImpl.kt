@@ -2,14 +2,8 @@ package com.alekseivinogradov.anime_list.impl.domain.store.upper_menu
 
 import com.alekseivinogradov.anime_list.api.domain.model.upper_menu.SearchDomain
 import com.alekseivinogradov.anime_list.api.domain.model.upper_menu.SectionDomain
-import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
-
-internal typealias UpperMenuExecutor = CoroutineExecutor<
-        UpperMenuStore.Intent,
-        Unit, UpperMenuStore.State,
-        UpperMenuReducer.Message,
-        UpperMenuStore.Label
-        >
+import com.alekseivinogradov.anime_list.api.domain.store.upper_menu.UpperMenuExecutor
+import com.alekseivinogradov.anime_list.api.domain.store.upper_menu.UpperMenuStore
 
 internal class UpperMenuExecutorImpl() : UpperMenuExecutor() {
 
@@ -29,7 +23,7 @@ internal class UpperMenuExecutorImpl() : UpperMenuExecutor() {
             SectionDomain.ANNOUNCED,
             SectionDomain.SEARCH,
             -> dispatch(
-                UpperMenuReducer.Message.ChangeSelectedSection(
+                UpperMenuStore.Message.ChangeSelectedSection(
                     selectedSection = SectionDomain.ONGOINGS
                 )
             )
@@ -42,7 +36,7 @@ internal class UpperMenuExecutorImpl() : UpperMenuExecutor() {
             SectionDomain.ONGOINGS,
             SectionDomain.SEARCH,
             -> dispatch(
-                UpperMenuReducer.Message.ChangeSelectedSection(
+                UpperMenuStore.Message.ChangeSelectedSection(
                     selectedSection = SectionDomain.ANNOUNCED
                 )
             )
@@ -56,13 +50,13 @@ internal class UpperMenuExecutorImpl() : UpperMenuExecutor() {
             SectionDomain.ONGOINGS,
             SectionDomain.ANNOUNCED,
             -> dispatch(
-                UpperMenuReducer.Message.ChangeSelectedSection(
+                UpperMenuStore.Message.ChangeSelectedSection(
                     selectedSection = SectionDomain.SEARCH
                 )
             )
         }
         dispatch(
-            UpperMenuReducer.Message.ChangeSearch(
+            UpperMenuStore.Message.ChangeSearch(
                 search = state.search.copy(
                     type = SearchDomain.Type.SHOWN
                 )
@@ -72,7 +66,7 @@ internal class UpperMenuExecutorImpl() : UpperMenuExecutor() {
 
     private fun cancelSearchClick() {
         dispatch(
-            UpperMenuReducer.Message.ChangeSearch(
+            UpperMenuStore.Message.ChangeSearch(
                 search = state().search.copy(
                     type = SearchDomain.Type.HIDEN
                 )
@@ -82,7 +76,7 @@ internal class UpperMenuExecutorImpl() : UpperMenuExecutor() {
 
     private fun searchTextChange(intent: UpperMenuStore.Intent.SearchTextChange) {
         dispatch(
-            UpperMenuReducer.Message.ChangeSearch(
+            UpperMenuStore.Message.ChangeSearch(
                 search = state().search.copy(
                     searchText = intent.text
                 )

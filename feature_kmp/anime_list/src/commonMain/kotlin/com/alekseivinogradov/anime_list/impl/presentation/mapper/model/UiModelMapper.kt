@@ -5,7 +5,7 @@ import com.alekseivinogradov.anime_list.api.presentation.model.SearchUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SectionUi
 import com.alekseivinogradov.anime_list.api.domain.model.upper_menu.SearchDomain
 import com.alekseivinogradov.anime_list.api.domain.model.upper_menu.SectionDomain
-import com.alekseivinogradov.anime_list.impl.domain.store.upper_menu.UpperMenuStore
+import com.alekseivinogradov.anime_list.api.domain.store.upper_menu.UpperMenuStore
 
 internal fun mapStateToUiModel(
     upperMenuState: UpperMenuStore.State
