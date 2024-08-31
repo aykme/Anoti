@@ -18,7 +18,7 @@ kotlin {
         iosSimulatorArm64()
     ).forEach {
         it.binaries.framework {
-            baseName = "network"
+            baseName = "network_kmp"
             isStatic = true
         }
     }
