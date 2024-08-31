@@ -9,7 +9,7 @@ interface ShikimoriApiServicePlatform {
         @Query("limit") itemsPerPage: Int,
         @Query("status") releaseStatus: String?,
         @Query("order") sort: String?,
+        @Query("search") search: String?,
         @Query("ids") ids: String?,
-        @Query("search") search: String?
     ): List<AnimeShortPlatformResponse>
 }

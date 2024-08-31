@@ -13,13 +13,13 @@ package com.alekseivinogradov.anime_list.api.domain.model.section_content
  * @param notification - уведомление о выходе новых эпизодов
  */
 data class ListItemDomain(
-    val id: Int,
+    val id: Int?,
     val name: String,
-    val imageUrl: String,
+    val imageUrl: String?,
     val episodesInfoType: EpisodesInfoTypeDomain,
     val episodesAired: Int?,
     val episodesTotal: Int?,
-    val extraEpisodesInfo: String,
+    val extraEpisodesInfo: String?,
     val score: Float?,
     val releaseStatus: ReleaseStatusDomain,
     val notification: NotificationDomain

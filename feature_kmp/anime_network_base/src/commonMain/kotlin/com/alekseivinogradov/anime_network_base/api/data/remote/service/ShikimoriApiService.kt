@@ -1,5 +1,7 @@
 package com.alekseivinogradov.anime_network_base.api.data.remote.service
 
+import com.alekseivinogradov.anime_network_base.api.data.remote.response.AnimeShortResponse
+
 interface ShikimoriApiService {
 
     suspend fun getAnimeList(
@@ -7,7 +9,7 @@ interface ShikimoriApiService {
         itemsPerPage: Int,
         releaseStatus: String?,
         sort: String?,
-        ids: String?,
-        search: String?
-    )
+        search: String?,
+        ids: String?
+    ): List<AnimeShortResponse>
 }
