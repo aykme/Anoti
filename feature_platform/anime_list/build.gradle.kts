@@ -38,6 +38,7 @@ android {
 dependencies {
     implementation(project(":ui_core:theme"))
     implementation(project(":feature_kmp:anime_list"))
+    implementation(project(":feature_platform:anime_network_base"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

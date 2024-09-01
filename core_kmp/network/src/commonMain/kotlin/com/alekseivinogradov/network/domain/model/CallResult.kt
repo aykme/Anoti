@@ -1,4 +1,4 @@
-package com.alekseivinogradov.network.domain
+package com.alekseivinogradov.network.domain.model
 
 sealed class CallResult<out T> {
     data class Success<out T>(val value: T) : CallResult<T>()

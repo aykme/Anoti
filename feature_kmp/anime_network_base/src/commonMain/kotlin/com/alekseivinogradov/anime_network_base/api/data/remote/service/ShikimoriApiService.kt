@@ -2,6 +2,8 @@ package com.alekseivinogradov.anime_network_base.api.data.remote.service
 
 import com.alekseivinogradov.anime_network_base.api.data.remote.response.AnimeShortResponse
 
+const val ANIME_LIST_APPEND_URL = "api/animes"
+
 interface ShikimoriApiService {
 
     suspend fun getAnimeList(

@@ -33,7 +33,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":feature_kmp:anime_network_base"))
+    api(project(":feature_kmp:anime_network_base"))
+    implementation(project(":core_platform:network"))
 
     implementation(libs.androidx.core.ktx)
     implementation (libs.retrofit)
