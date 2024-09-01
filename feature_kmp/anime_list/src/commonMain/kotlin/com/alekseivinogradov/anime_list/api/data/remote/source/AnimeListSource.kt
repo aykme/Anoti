@@ -1,6 +1,7 @@
 package com.alekseivinogradov.anime_list.api.data.remote.source
 
 import com.alekseivinogradov.anime_list.api.domain.model.section_content.ListItemDomain
+import com.alekseivinogradov.network.domain.CallResult
 
 interface AnimeListSource {
 
@@ -8,18 +9,18 @@ interface AnimeListSource {
         page: Int,
         itemsPerPage: Int,
         sort: String
-    ): List<ListItemDomain>
+    ): CallResult<List<ListItemDomain>>
 
     suspend fun getAnnouncedList(
         page: Int,
         itemsPerPage: Int,
         sort: String
-    ): List<ListItemDomain>
+    ): CallResult<List<ListItemDomain>>
 
     suspend fun getListBySearch(
         page: Int,
         itemsPerPage: Int,
         search: String,
         sort: String
-    ): List<ListItemDomain>
+    ): CallResult<List<ListItemDomain>>
 }

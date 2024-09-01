@@ -7,25 +7,30 @@ import com.alekseivinogradov.anime_list.impl.data.remote.mapper.toOngoingListIte
 import com.alekseivinogradov.anime_list.impl.data.remote.mapper.toSearchListItem
 import com.alekseivinogradov.anime_network_base.api.data.model.ReleaseStatusData
 import com.alekseivinogradov.anime_network_base.api.data.remote.service.ShikimoriApiService
+import com.alekseivinogradov.network.domain.CallResult
+import com.alekseivinogradov.network.domain.SafeApi
 
 internal class AnimeListSourceImpl(
-    private val service: ShikimoriApiService
+    private val service: ShikimoriApiService,
+    private val safeApi: SafeApi
 ) : AnimeListSource {
 
     override suspend fun getOngoingList(
         page: Int,
         itemsPerPage: Int,
         sort: String
-    ): List<ListItemDomain> {
-        return service.getAnimeList(
-            page = page,
-            itemsPerPage = itemsPerPage,
-            releaseStatus = ReleaseStatusData.ONGOING.value,
-            sort = sort,
-            search = null,
-            ids = null,
-        ).map {
-            it.toOngoingListItem()
+    ): CallResult<List<ListItemDomain>> {
+        return safeApi.call {
+            service.getAnimeList(
+                page = page,
+                itemsPerPage = itemsPerPage,
+                releaseStatus = ReleaseStatusData.ONGOING.value,
+                sort = sort,
+                search = null,
+                ids = null,
+            ).map {
+                it.toOngoingListItem()
+            }
         }
     }
 
@@ -33,16 +38,18 @@ internal class AnimeListSourceImpl(
         page: Int,
         itemsPerPage: Int,
         sort: String
-    ): List<ListItemDomain> {
-        return service.getAnimeList(
-            page = page,
-            itemsPerPage = itemsPerPage,
-            releaseStatus = ReleaseStatusData.ANNOUNCED.value,
-            sort = sort,
-            search = null,
-            ids = null,
-        ).map {
-            it.toAnnouncedListItem()
+    ): CallResult<List<ListItemDomain>> {
+        return safeApi.call {
+            service.getAnimeList(
+                page = page,
+                itemsPerPage = itemsPerPage,
+                releaseStatus = ReleaseStatusData.ANNOUNCED.value,
+                sort = sort,
+                search = null,
+                ids = null,
+            ).map {
+                it.toAnnouncedListItem()
+            }
         }
     }
 
@@ -51,16 +58,18 @@ internal class AnimeListSourceImpl(
         itemsPerPage: Int,
         search: String,
         sort: String
-    ): List<ListItemDomain> {
-        return service.getAnimeList(
-            page = page,
-            itemsPerPage = itemsPerPage,
-            releaseStatus = null,
-            sort = sort,
-            search = search,
-            ids = null,
-        ).map {
-            it.toSearchListItem()
+    ): CallResult<List<ListItemDomain>> {
+        return safeApi.call {
+            service.getAnimeList(
+                page = page,
+                itemsPerPage = itemsPerPage,
+                releaseStatus = null,
+                sort = sort,
+                search = search,
+                ids = null,
+            ).map {
+                it.toSearchListItem()
+            }
         }
     }
 }
