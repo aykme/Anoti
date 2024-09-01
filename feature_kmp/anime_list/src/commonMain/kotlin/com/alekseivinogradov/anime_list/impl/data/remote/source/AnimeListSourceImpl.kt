@@ -7,10 +7,10 @@ import com.alekseivinogradov.anime_list.impl.data.remote.mapper.toOngoingListIte
 import com.alekseivinogradov.anime_list.impl.data.remote.mapper.toSearchListItem
 import com.alekseivinogradov.anime_network_base.api.data.model.ReleaseStatusData
 import com.alekseivinogradov.anime_network_base.api.data.remote.service.ShikimoriApiService
-import com.alekseivinogradov.network.domain.model.CallResult
 import com.alekseivinogradov.network.data.remote.SafeApi
+import com.alekseivinogradov.network.domain.model.CallResult
 
-internal class AnimeListSourceImpl(
+class AnimeListSourceImpl(
     private val service: ShikimoriApiService,
     private val safeApi: SafeApi
 ) : AnimeListSource {

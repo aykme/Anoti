@@ -33,7 +33,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":core_kmp:network"))
+    api(project(":core_kmp:network"))
 
     implementation(libs.androidx.core.ktx)
     implementation (libs.retrofit)

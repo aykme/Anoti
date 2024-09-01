@@ -1,8 +1,10 @@
 package com.alekseivinogradov.anime_list.impl.presentation
 
-import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
 import com.alekseivinogradov.anime_list.api.domain.store.upper_menu.UpperMenuStore
+import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
+import com.alekseivinogradov.anime_list.impl.domain.store.section_content.SectionContentStoreFactory
 import com.alekseivinogradov.anime_list.impl.domain.store.upper_menu.UpperMenuStoreFactory
+import com.alekseivinogradov.anime_list.impl.domain.usecase.Usecases
 import com.alekseivinogradov.anime_list.impl.presentation.mapper.model.mapStateToUiModel
 import com.alekseivinogradov.anime_list.impl.presentation.mapper.store.mapUiEventToUpperMenuIntent
 import com.arkivanov.essenty.lifecycle.Lifecycle
@@ -19,10 +21,17 @@ import kotlinx.coroutines.flow.mapNotNull
 
 class AnimeListController(
     storeFactory: StoreFactory = DefaultStoreFactory(),
-    lifecycle: Lifecycle
+    lifecycle: Lifecycle,
+    usecases: Usecases
 ) {
 
     private val upperMenuStore = UpperMenuStoreFactory(storeFactory).create()
+
+    private val ongoingSectionContentStore = SectionContentStoreFactory(
+        storeFactory = storeFactory,
+        storeName = "OngoingSectionContentStore",
+        fetchAnimeListUsecase = usecases.fetchAnimeOngoingListUsecase
+    ).create()
 
     init {
         lifecycle.doOnDestroy { upperMenuStore.dispose() }

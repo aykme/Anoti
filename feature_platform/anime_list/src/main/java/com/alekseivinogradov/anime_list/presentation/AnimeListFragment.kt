@@ -5,8 +5,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.alekseivinogradov.anime_list.api.data.remote.source.AnimeListSource
+import com.alekseivinogradov.anime_list.api.domain.usecase.FetchAnimeListUsecase
 import com.alekseivinogradov.anime_list.databinding.FragmentAnimeListBinding
+import com.alekseivinogradov.anime_list.impl.data.remote.source.AnimeListSourceImpl
+import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeAnnouncedListUsecase
+import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeListBySearchUsecase
+import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeOngoingListUsecase
+import com.alekseivinogradov.anime_list.impl.domain.usecase.Usecases
 import com.alekseivinogradov.anime_list.impl.presentation.AnimeListController
+import com.alekseivinogradov.anime_network_base.api.data.remote.service.ShikimoriApiService
+import com.alekseivinogradov.anime_network_base.api.data.remote.service.ShikimoriApiServicePlatform
+import com.alekseivinogradov.anime_network_base.impl.remote.ShikimoriApiServiceImpl
+import com.alekseivinogradov.network.data.remote.SafeApi
+import com.alekseivinogradov.network.data.remote.SafeApiImpl
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 
@@ -14,10 +26,31 @@ class AnimeListFragment : Fragment() {
 
     private lateinit var binding: FragmentAnimeListBinding
 
+    private val shikimoriService: ShikimoriApiService = ShikimoriApiServiceImpl(
+        servicePlatform = ShikimoriApiServicePlatform.instance
+    )
+
+    private val safeApi: SafeApi = SafeApiImpl()
+
+    private val animeListSource: AnimeListSource = AnimeListSourceImpl(
+        service = shikimoriService,
+        safeApi = safeApi
+    )
+
+    private val fetchAnimeOngoingListUsecase: FetchAnimeListUsecase =
+        FetchAnimeOngoingListUsecase(source = animeListSource)
+
+    private val fetchAnimeAnnouncedListUsecase: FetchAnimeListUsecase =
+        FetchAnimeAnnouncedListUsecase(source = animeListSource)
+
+    private val fetchAnimeListBySearchUsecase: FetchAnimeListUsecase =
+        FetchAnimeListBySearchUsecase(source = animeListSource)
+
     private val controller: AnimeListController by lazy {
         AnimeListController(
             storeFactory = DefaultStoreFactory(),
-            lifecycle = essentyLifecycle()
+            lifecycle = essentyLifecycle(),
+            usecases = getUsecases()
         )
     }
 
@@ -39,4 +72,10 @@ class AnimeListFragment : Fragment() {
             viewLifecycle = viewLifecycleOwner.essentyLifecycle()
         )
     }
+
+    private fun getUsecases() = Usecases(
+        fetchAnimeOngoingListUsecase = fetchAnimeOngoingListUsecase,
+        fetchAnimeAnnouncedListUsecase = fetchAnimeAnnouncedListUsecase,
+        fetchAnimeListBySearchUsecase = fetchAnimeListBySearchUsecase
+    )
 }
