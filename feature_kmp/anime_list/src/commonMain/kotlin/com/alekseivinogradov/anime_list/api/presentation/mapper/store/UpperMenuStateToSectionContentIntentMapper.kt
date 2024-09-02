@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anime_list.impl.presentation.mapper.store
+package com.alekseivinogradov.anime_list.api.presentation.mapper.store
 
 import com.alekseivinogradov.anime_list.api.domain.model.upper_menu.SectionDomain
 import com.alekseivinogradov.anime_list.api.domain.store.section_content.SectionContentStore

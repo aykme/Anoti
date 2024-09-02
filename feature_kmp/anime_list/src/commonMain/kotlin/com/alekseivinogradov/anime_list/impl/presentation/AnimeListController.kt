@@ -3,12 +3,12 @@ package com.alekseivinogradov.anime_list.impl.presentation
 import com.alekseivinogradov.anime_list.api.domain.store.section_content.SectionContentStore
 import com.alekseivinogradov.anime_list.api.domain.store.upper_menu.UpperMenuStore
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
+import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUiEventToUpperMenuIntent
+import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUpperMenuStateToOngoingSectionContentIntent
 import com.alekseivinogradov.anime_list.impl.domain.store.section_content.SectionContentStoreFactory
 import com.alekseivinogradov.anime_list.impl.domain.store.upper_menu.UpperMenuStoreFactory
 import com.alekseivinogradov.anime_list.impl.domain.usecase.Usecases
 import com.alekseivinogradov.anime_list.impl.presentation.mapper.model.mapStateToUiModel
-import com.alekseivinogradov.anime_list.impl.presentation.mapper.store.mapUiEventToUpperMenuIntent
-import com.alekseivinogradov.anime_list.impl.presentation.mapper.store.mapUpperMenuStateToOngoingSectionContentIntent
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.mvikotlin.core.binder.BinderLifecycleMode
