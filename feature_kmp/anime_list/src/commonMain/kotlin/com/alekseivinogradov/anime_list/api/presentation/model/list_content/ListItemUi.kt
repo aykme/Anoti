@@ -2,7 +2,7 @@ package com.alekseivinogradov.anime_list.api.presentation.model.list_content
 
 data class ListItemUi(
     val itemIndex: Int,
-    val imageUrl: String,
+    val imageUrl: String?,
     val name: String,
     val episodesInfoType: EpisodesInfoTypeUi,
     val availableEpisodesInfo: String = "",

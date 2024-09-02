@@ -1,4 +1,4 @@
-package com.alekseivinogradov.network.data.remote
+package com.alekseivinogradov.network.impl.data.remote
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory

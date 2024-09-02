@@ -6,6 +6,8 @@ import com.alekseivinogradov.anime_list.api.domain.model.section_content.Notific
 import com.alekseivinogradov.anime_list.api.domain.model.section_content.ReleaseStatusDomain
 import com.alekseivinogradov.anime_network_base.api.data.model.ReleaseStatusData
 import com.alekseivinogradov.anime_network_base.api.data.remote.response.AnimeShortResponse
+import com.alekseivinogradov.anime_network_base.api.data.remote.response.ImageResponse
+import com.alekseivinogradov.network.api.domain.SHIKIMORI_BASE_URL
 
 internal fun AnimeShortResponse.toOngoingListItem() = this.toListItemDomain(
     extraEpisodesInfo = null
@@ -24,17 +26,26 @@ private fun AnimeShortResponse.toListItemDomain(
 ) = ListItemDomain(
     id = this.id,
     name = this.englishName ?: "",
-    imageUrl = this.imageResponse?.originalSizeUrl ?: this.imageResponse?.previewSizeUrl,
+    imageUrl = mapImageUrlDataToDomain(this.imageResponse),
     episodesInfoType = EpisodesInfoTypeDomain.AVAILABLE,
     episodesAired = this.episodesAired,
     episodesTotal = this.episodesTotal,
     extraEpisodesInfo = extraEpisodesInfo,
     score = this.score,
-    releaseStatus = getReleaseStatus(this.releaseStatus),
+    releaseStatus = mapReleaseStatusDataToDomain(this.releaseStatus),
     notification = NotificationDomain.DISABLED
 )
 
-private fun getReleaseStatus(releaseStatus: String?): ReleaseStatusDomain {
+private fun mapImageUrlDataToDomain(imageResponse: ImageResponse?): String? {
+    val additionalImageUrl =
+        imageResponse?.originalSizeUrl ?: imageResponse?.previewSizeUrl
+    val fullImageUrl = additionalImageUrl?.let {
+        SHIKIMORI_BASE_URL + additionalImageUrl
+    }
+    return fullImageUrl
+}
+
+private fun mapReleaseStatusDataToDomain(releaseStatus: String?): ReleaseStatusDomain {
     return when (releaseStatus) {
         ReleaseStatusData.ONGOING.value -> ReleaseStatusDomain.ONGOING
         ReleaseStatusData.ANNOUNCED.value -> ReleaseStatusDomain.ANNOUNCED

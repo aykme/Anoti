@@ -1,6 +1,7 @@
-package com.alekseivinogradov.network.data.remote
+package com.alekseivinogradov.network.impl.data.remote
 
-import com.alekseivinogradov.network.domain.model.CallResult
+import com.alekseivinogradov.network.api.data.remote.SafeApi
+import com.alekseivinogradov.network.api.domain.model.CallResult
 import retrofit2.HttpException
 
 class SafeApiImpl() : SafeApi {

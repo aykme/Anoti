@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anime_network_base.api.data.remote.service
 
 import com.alekseivinogradov.anime_network_base.api.data.remote.response.AnimeShortPlatformResponse
-import com.alekseivinogradov.network.data.remote.shikimoriRetrofit
+import com.alekseivinogradov.network.impl.data.remote.shikimoriRetrofit
 import retrofit2.http.GET
 import retrofit2.http.Query
 

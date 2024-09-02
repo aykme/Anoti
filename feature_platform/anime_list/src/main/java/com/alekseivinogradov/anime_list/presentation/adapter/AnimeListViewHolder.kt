@@ -108,12 +108,14 @@ internal class AnimeListViewHolder(
         }
     }
 
-    private fun bindImageUrl(imageUrl: String) {
-        Glide.with(binding.image)
-            .load(imageUrl)
-            .placeholder(R.drawable.loading_animation)
-            .error(R.drawable.load_image_error_48)
-            .into(binding.image)
+    private fun bindImageUrl(imageUrl: String?) {
+        imageUrl?.let {
+            Glide.with(binding.image)
+                .load(it)
+                .placeholder(R.drawable.loading_animation)
+                .error(R.drawable.load_image_error_48)
+                .into(binding.image)
+        }
     }
 
     private fun bindName(name: String) {

@@ -6,7 +6,7 @@ import android.text.TextWatcher
 import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.alekseivinogradov.anime_list.LIST_FIRST_INDEX
+import com.alekseivinogradov.anime_list.api.domain.LIST_FIRST_INDEX
 import com.alekseivinogradov.anime_list.R
 import com.alekseivinogradov.anime_list.api.presentation.model.ContentTypeUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SearchUi

@@ -13,6 +13,7 @@ interface SectionContentStore
     )
 
     sealed interface Intent {
+        data object InitSection: Intent
         data object UpdateSection : Intent
         data class EpisodesInfoClick(val itemIndex: Int) : Intent
         data class NotificationClick(val itemIndex: Int) : Intent
@@ -21,9 +22,7 @@ interface SectionContentStore
 
     sealed interface Label
 
-    sealed interface Action {
-        data object InitSection : Action
-    }
+    sealed interface Action
 
     sealed interface Message {
         data class ChangeContentType(val contentType: ContentTypeDomain) : Message

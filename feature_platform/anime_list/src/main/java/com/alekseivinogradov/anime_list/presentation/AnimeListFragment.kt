@@ -17,8 +17,8 @@ import com.alekseivinogradov.anime_list.impl.presentation.AnimeListController
 import com.alekseivinogradov.anime_network_base.api.data.remote.service.ShikimoriApiService
 import com.alekseivinogradov.anime_network_base.api.data.remote.service.ShikimoriApiServicePlatform
 import com.alekseivinogradov.anime_network_base.impl.remote.ShikimoriApiServiceImpl
-import com.alekseivinogradov.network.data.remote.SafeApi
-import com.alekseivinogradov.network.data.remote.SafeApiImpl
+import com.alekseivinogradov.network.api.data.remote.SafeApi
+import com.alekseivinogradov.network.impl.data.remote.SafeApiImpl
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 
