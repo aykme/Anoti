@@ -2,6 +2,7 @@ package com.alekseivinogradov.anime_list.impl.domain.store.section_content
 
 import com.alekseivinogradov.anime_list.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.anime_list.api.domain.model.section_content.ContentTypeDomain
+import com.alekseivinogradov.anime_list.api.domain.model.section_content.EpisodesInfoTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.store.section_content.SectionContentExecutor
 import com.alekseivinogradov.anime_list.api.domain.store.section_content.SectionContentStore
 import com.alekseivinogradov.anime_list.api.domain.usecase.FetchAnimeListUsecase
@@ -19,7 +20,7 @@ internal class SectionContentExecutorImpl(
         when (intent) {
             SectionContentStore.Intent.InitSection -> initSection()
             SectionContentStore.Intent.UpdateSection -> updateSection()
-            is SectionContentStore.Intent.EpisodesInfoClick -> episodeInfoClick()
+            is SectionContentStore.Intent.EpisodesInfoClick -> episodeInfoClick(intent.itemIndex)
             is SectionContentStore.Intent.NotificationClick -> notificationClick()
         }
     }
@@ -64,8 +65,37 @@ internal class SectionContentExecutorImpl(
         }
     }
 
-    private fun episodeInfoClick() {
+    private fun episodeInfoClick(itemIndex: Int) {
+        val listItem = state().listItems.getOrNull(itemIndex)
+        when (listItem?.episodesInfoType) {
+            EpisodesInfoTypeDomain.AVAILABLE -> {
+                val newListItem = listItem.copy(
+                    episodesInfoType = EpisodesInfoTypeDomain.EXTRA
+                )
+                val newListItems = state().listItems.toMutableList()
+                newListItems[itemIndex] = newListItem
+                dispatch(
+                    SectionContentStore.Message.UpdateListItems(
+                        listItems = newListItems.toList()
+                    )
+                )
+            }
 
+            EpisodesInfoTypeDomain.EXTRA -> {
+                val newListItem = listItem.copy(
+                    episodesInfoType = EpisodesInfoTypeDomain.AVAILABLE
+                )
+                val newListItems = state().listItems.toMutableList()
+                newListItems[itemIndex] = newListItem
+                dispatch(
+                    SectionContentStore.Message.UpdateListItems(
+                        listItems = newListItems.toList()
+                    )
+                )
+            }
+
+            null -> Unit
+        }
     }
 
     private fun notificationClick() {

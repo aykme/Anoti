@@ -7,7 +7,6 @@ import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.alekseivinogradov.anime_list.R
-import com.alekseivinogradov.anime_list.api.domain.LIST_FIRST_INDEX
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
 import com.alekseivinogradov.anime_list.api.presentation.model.ContentTypeUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SearchUi
@@ -304,11 +303,7 @@ internal class AnimeListViewImpl(
     }
 
     private fun setListItems(listItems: List<ListItemUi>) {
-        adapter.submitList(listItems) {
-            if (listItems.isNotEmpty()) {
-                viewBinding.animeListRv.scrollToPosition(LIST_FIRST_INDEX)
-            }
-        }
+        adapter.submitList(listItems)
     }
 
     data class ListItemsWithSelectedSection(

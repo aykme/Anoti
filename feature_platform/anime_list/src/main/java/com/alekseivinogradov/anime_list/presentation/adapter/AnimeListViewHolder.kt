@@ -154,7 +154,7 @@ internal class AnimeListViewHolder(
                     extraEpisodesInfoButton.isVisible = true
                 }
 
-                EpisodesInfoTypeUi.FUTURE -> {
+                EpisodesInfoTypeUi.EXTRA -> {
                     availableEpisodesInfoText.isVisible = false
                     extraEpisodesInfoButton.isVisible = false
                     extraEpisodesInfoText.isVisible = true

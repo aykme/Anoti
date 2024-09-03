@@ -1,6 +1,7 @@
 package com.alekseivinogradov.anime_list.impl.presentation.mapper.model
 
 import com.alekseivinogradov.anime_list.api.domain.model.section_content.ContentTypeDomain
+import com.alekseivinogradov.anime_list.api.domain.model.section_content.EpisodesInfoTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.section_content.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.section_content.NotificationDomain
 import com.alekseivinogradov.anime_list.api.domain.model.section_content.ReleaseStatusDomain
@@ -80,7 +81,7 @@ private fun mapListItemDomainToUi(itemIndex: Int, listItem: ListItemDomain): Lis
         itemIndex = itemIndex,
         imageUrl = listItem.imageUrl,
         name = listItem.name,
-        episodesInfoType = EpisodesInfoTypeUi.AVAILABLE,
+        episodesInfoType = mapEpisodeInfoTypeDomainToUi(listItem.episodesInfoType),
         availableEpisodesInfo = getAvailableEpisodesInfo(
             episodesAired = listItem.episodesAired ?: 0,
             episodesTotal = listItem.episodesTotal ?: 0
@@ -90,6 +91,15 @@ private fun mapListItemDomainToUi(itemIndex: Int, listItem: ListItemDomain): Lis
         releaseStatus = mapReleaseStatusDomainToUi(listItem.releaseStatus),
         notification = mapNotificationDomainToUi(listItem.notification)
     )
+}
+
+private fun mapEpisodeInfoTypeDomainToUi(
+    episodesInfoType: EpisodesInfoTypeDomain
+): EpisodesInfoTypeUi {
+    return when (episodesInfoType) {
+        EpisodesInfoTypeDomain.AVAILABLE -> EpisodesInfoTypeUi.AVAILABLE
+        EpisodesInfoTypeDomain.EXTRA -> EpisodesInfoTypeUi.EXTRA
+    }
 }
 
 private fun getAvailableEpisodesInfo(episodesAired: Int, episodesTotal: Int): String {
