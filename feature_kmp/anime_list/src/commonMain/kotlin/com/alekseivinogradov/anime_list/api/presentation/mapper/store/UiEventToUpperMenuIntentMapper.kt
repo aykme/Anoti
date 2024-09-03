@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anime_list.api.presentation.mapper.store
 
-import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
 import com.alekseivinogradov.anime_list.api.domain.store.upper_menu.UpperMenuStore
+import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
 
 internal fun mapUiEventToUpperMenuIntent(uiEvent: AnimeListView.UiEvent): UpperMenuStore.Intent? {
     return when (uiEvent) {
@@ -16,7 +16,6 @@ internal fun mapUiEventToUpperMenuIntent(uiEvent: AnimeListView.UiEvent): UpperM
         AnimeListView.UiEvent.UpdateAnnouncedSection,
         AnimeListView.UiEvent.UpdateOngoingsSection,
         AnimeListView.UiEvent.UpdateSearchSection,
-        is AnimeListView.UiEvent.ContentTypeChange,
         is AnimeListView.UiEvent.EpisodesInfoClick,
         is AnimeListView.UiEvent.NotificationClick,
         -> null

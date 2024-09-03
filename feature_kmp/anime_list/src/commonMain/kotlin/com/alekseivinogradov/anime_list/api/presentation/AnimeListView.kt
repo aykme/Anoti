@@ -28,6 +28,5 @@ interface AnimeListView : MviView<AnimeListView.UiModel, AnimeListView.UiEvent> 
         data class SearchTextChange(val text: String) : UiEvent
         data class EpisodesInfoClick(val itemIndex: Int) : UiEvent
         data class NotificationClick(val itemIndex: Int) : UiEvent
-        data class ContentTypeChange(val contentType: ContentTypeUi) : UiEvent
     }
 }

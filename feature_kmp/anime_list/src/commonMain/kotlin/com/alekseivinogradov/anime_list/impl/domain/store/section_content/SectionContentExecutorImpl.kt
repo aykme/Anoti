@@ -33,6 +33,9 @@ internal class SectionContentExecutorImpl(
     private fun updateSection() {
         updateSectionJob?.cancel()
         updateSectionJob = scope.launch {
+            dispatch(
+                SectionContentStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
+            )
             val result = fetchAnimeListUsecase.execute(
                 page = 1,
                 itemsPerPage = ITEMS_PER_PAGE
@@ -42,9 +45,15 @@ internal class SectionContentExecutorImpl(
                     dispatch(
                         SectionContentStore.Message.UpdateListItems(result.value)
                     )
-                    dispatch(
-                        SectionContentStore.Message.ChangeContentType(ContentTypeDomain.LOADED)
-                    )
+                    if (result.value.isNotEmpty()) {
+                        dispatch(
+                            SectionContentStore.Message.ChangeContentType(ContentTypeDomain.LOADED)
+                        )
+                    } else {
+                        dispatch(
+                            SectionContentStore.Message.ChangeContentType(ContentTypeDomain.NO_DATA)
+                        )
+                    }
                 }
 
                 is CallResult.HttpError,

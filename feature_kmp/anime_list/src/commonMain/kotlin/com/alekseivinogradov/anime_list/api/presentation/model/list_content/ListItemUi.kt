@@ -5,8 +5,8 @@ data class ListItemUi(
     val imageUrl: String?,
     val name: String,
     val episodesInfoType: EpisodesInfoTypeUi,
-    val availableEpisodesInfo: String = "",
-    val extraEpisodesInfo: String = "",
+    val availableEpisodesInfo: String,
+    val extraEpisodesInfo: String?,
     val score: String,
     val releaseStatus: ReleaseStatusUi,
     val notification: NotificationUi

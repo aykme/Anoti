@@ -26,8 +26,16 @@ internal class AnimeListDiffUtilCallback : DiffUtil.ItemCallback<ListItemUi>() {
             if (oldItem.availableEpisodesInfo != newItem.availableEpisodesInfo) {
                 add(AnimeListPayload.AvailableEpisodesInfoChange(newItem.availableEpisodesInfo))
             }
-            if (oldItem.extraEpisodesInfo != newItem.extraEpisodesInfo) {
-                add(AnimeListPayload.ExtraEpisodesInfoChange(newItem.extraEpisodesInfo))
+            if (
+                oldItem.extraEpisodesInfo != newItem.extraEpisodesInfo ||
+                oldItem.releaseStatus != newItem.releaseStatus
+            ) {
+                add(
+                    AnimeListPayload.ExtraEpisodesInfoChange(
+                        extraEpisodesInfo = newItem.extraEpisodesInfo,
+                        releaseStatus = newItem.releaseStatus
+                    )
+                )
             }
             if (oldItem.score != newItem.score) {
                 add(AnimeListPayload.ScoreChange(newItem.score))

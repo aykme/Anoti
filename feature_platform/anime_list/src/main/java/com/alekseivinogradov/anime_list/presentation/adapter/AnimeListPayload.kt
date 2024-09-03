@@ -9,7 +9,11 @@ internal sealed interface AnimeListPayload {
     data class NameChange(val name: String) : AnimeListPayload
     data class EpisodesInfoTypeChange(val episodesInfoType: EpisodesInfoTypeUi) : AnimeListPayload
     data class AvailableEpisodesInfoChange(val availableEpisodesInfo: String) : AnimeListPayload
-    data class ExtraEpisodesInfoChange(val extraEpisodesInfo: String) : AnimeListPayload
+    data class ExtraEpisodesInfoChange(
+        val extraEpisodesInfo: String?,
+        val releaseStatus: ReleaseStatusUi
+    ) : AnimeListPayload
+
     data class ScoreChange(val score: String) : AnimeListPayload
     data class ReleaseStatusChange(val releaseStatus: ReleaseStatusUi) : AnimeListPayload
     data class NotificationChange(val notification: NotificationUi) : AnimeListPayload

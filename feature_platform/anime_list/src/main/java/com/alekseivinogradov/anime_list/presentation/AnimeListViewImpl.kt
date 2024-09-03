@@ -6,13 +6,13 @@ import android.text.TextWatcher
 import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.alekseivinogradov.anime_list.api.domain.LIST_FIRST_INDEX
 import com.alekseivinogradov.anime_list.R
+import com.alekseivinogradov.anime_list.api.domain.LIST_FIRST_INDEX
+import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
 import com.alekseivinogradov.anime_list.api.presentation.model.ContentTypeUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SearchUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SectionUi
 import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ListItemUi
-import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
 import com.alekseivinogradov.anime_list.databinding.FragmentAnimeListBinding
 import com.alekseivinogradov.anime_list.presentation.adapter.AnimeListAdapter
 import com.arkivanov.mvikotlin.core.utils.diff
@@ -306,10 +306,7 @@ internal class AnimeListViewImpl(
     private fun setListItems(listItems: List<ListItemUi>) {
         adapter.submitList(listItems) {
             if (listItems.isNotEmpty()) {
-                dispatch(AnimeListView.UiEvent.ContentTypeChange(ContentTypeUi.LOADED))
                 viewBinding.animeListRv.scrollToPosition(LIST_FIRST_INDEX)
-            } else {
-                dispatch(AnimeListView.UiEvent.ContentTypeChange(ContentTypeUi.NO_DATA))
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anime_list.presentation.adapter
 
+import android.content.Context
 import android.content.res.ColorStateList
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -20,11 +21,26 @@ internal class AnimeListViewHolder(
 ) :
     RecyclerView.ViewHolder(binding.root) {
 
-    private val context
+    private val context: Context
         get() = binding.root.context
 
-    private val transparentColor
+    private val transparentColor: Int
         get() = context.getColor(theme_R.color.transparent)
+
+    private val nextEpisodeString: String
+        get() = context.applicationContext.getString(R.string.next_episode)
+
+    private val beginningOfTheShowString: String
+        get() = context.applicationContext.getString(R.string.beginning_of_the_show)
+
+    private val showIsFinishedString: String
+        get() = context.applicationContext.getString(R.string.show_is_finished)
+
+    private val noDataString: String
+        get() = context.applicationContext.getString(R.string.no_data)
+
+    private val inaccurateString: String
+        get() = context.applicationContext.getString(R.string.inaccurate)
 
     init {
         bindCommonFields()
@@ -49,7 +65,10 @@ internal class AnimeListViewHolder(
             }
 
             is AnimeListPayload.ExtraEpisodesInfoChange -> {
-                bindExtraEpisodesInfo(payload.extraEpisodesInfo)
+                bindExtraEpisodesInfo(
+                    extraEpisodesInfo = payload.extraEpisodesInfo,
+                    releaseStatus = payload.releaseStatus
+                )
             }
 
             is AnimeListPayload.ScoreChange -> {
@@ -72,7 +91,10 @@ internal class AnimeListViewHolder(
         bindName(item.name)
         bindEpisodesInfoType(item.episodesInfoType)
         bindAvailableEpisodesInfo(item.availableEpisodesInfo)
-        bindExtraEpisodesInfo(item.extraEpisodesInfo)
+        bindExtraEpisodesInfo(
+            extraEpisodesInfo = item.extraEpisodesInfo,
+            releaseStatus = item.releaseStatus
+        )
         bindScore(item.score)
         bindReleaseStatus(item.releaseStatus)
         bindNotification(item.notification)
@@ -146,8 +168,31 @@ internal class AnimeListViewHolder(
         binding.availableEpisodesInfoText.text = availableEpisodesInfo
     }
 
-    private fun bindExtraEpisodesInfo(extraEpisodesInfoInfo: String) {
-        binding.extraEpisodesInfoText.text = extraEpisodesInfoInfo
+    private fun bindExtraEpisodesInfo(
+        extraEpisodesInfo: String?,
+        releaseStatus: ReleaseStatusUi,
+    ) {
+        val extraEpisodesInfoDateString = if (extraEpisodesInfo?.isNotEmpty() == true) {
+            extraEpisodesInfo
+        } else {
+            noDataString
+        }
+        val extraEpisodesInfoFullString = when (releaseStatus) {
+            ReleaseStatusUi.ONGOING -> {
+                "$nextEpisodeString:\n$extraEpisodesInfoDateString"
+            }
+
+            ReleaseStatusUi.ANNOUNCED -> {
+                "$beginningOfTheShowString:\n$extraEpisodesInfoDateString ($inaccurateString)"
+            }
+
+            ReleaseStatusUi.RELEASED -> {
+                "$showIsFinishedString:\n$extraEpisodesInfoDateString"
+            }
+
+            ReleaseStatusUi.UNKNOWN -> extraEpisodesInfoDateString
+        }
+        binding.extraEpisodesInfoText.text = extraEpisodesInfoFullString
     }
 
     private fun bindScore(score: String) {

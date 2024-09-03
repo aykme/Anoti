@@ -3,6 +3,7 @@ package com.alekseivinogradov.anime_list.impl.presentation
 import com.alekseivinogradov.anime_list.api.domain.store.section_content.SectionContentStore
 import com.alekseivinogradov.anime_list.api.domain.store.upper_menu.UpperMenuStore
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
+import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUiEventToSectionContentIntent
 import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUiEventToUpperMenuIntent
 import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUpperMenuStateToOngoingSectionContentIntent
 import com.alekseivinogradov.anime_list.impl.domain.store.section_content.SectionContentStoreFactory
@@ -42,9 +43,15 @@ class AnimeListController(
     fun onViewCreated(mainView: AnimeListView, viewLifecycle: Lifecycle) {
         bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
             mainView.events.mapNotNull(::mapUiEventToUpperMenuIntent) bindTo upperMenuStore
+
+            mainView.events.mapNotNull(
+                ::mapUiEventToSectionContentIntent
+            ) bindTo ongoingSectionContentStore
+
             upperMenuStore.states.mapNotNull(
                 ::mapUpperMenuStateToOngoingSectionContentIntent
             ) bindTo ongoingSectionContentStore
+
             subscribeOnAllRequiredStates() bindTo mainView
         }
     }
