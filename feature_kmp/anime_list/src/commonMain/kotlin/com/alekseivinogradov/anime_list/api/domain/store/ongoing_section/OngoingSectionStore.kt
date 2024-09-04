@@ -1,12 +1,11 @@
-package com.alekseivinogradov.anime_list.api.domain.store.section_content
+package com.alekseivinogradov.anime_list.api.domain.store.ongoing_section
 
-import com.alekseivinogradov.anime_list.api.domain.model.section_content.ContentTypeDomain
-import com.alekseivinogradov.anime_list.api.domain.model.section_content.ListItemDomain
+import com.alekseivinogradov.anime_list.api.domain.model.section.ContentTypeDomain
+import com.alekseivinogradov.anime_list.api.domain.model.section.ListItemDomain
 import com.arkivanov.mvikotlin.core.store.Store
 
-interface SectionContentStore
-    : Store<SectionContentStore.Intent, SectionContentStore.State, SectionContentStore.Label> {
-
+interface OngoingSectionStore
+    : Store<OngoingSectionStore.Intent, OngoingSectionStore.State, OngoingSectionStore.Label> {
     data class State(
         val contentType: ContentTypeDomain = ContentTypeDomain.LOADING,
         val listItems: List<ListItemDomain> = listOf()

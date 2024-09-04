@@ -1,9 +1,9 @@
 package com.alekseivinogradov.anime_list.impl.data.remote.mapper
 
-import com.alekseivinogradov.anime_list.api.domain.model.section_content.EpisodesInfoTypeDomain
-import com.alekseivinogradov.anime_list.api.domain.model.section_content.ListItemDomain
-import com.alekseivinogradov.anime_list.api.domain.model.section_content.NotificationDomain
-import com.alekseivinogradov.anime_list.api.domain.model.section_content.ReleaseStatusDomain
+import com.alekseivinogradov.anime_list.api.domain.model.section.EpisodesInfoTypeDomain
+import com.alekseivinogradov.anime_list.api.domain.model.section.ListItemDomain
+import com.alekseivinogradov.anime_list.api.domain.model.section.NotificationDomain
+import com.alekseivinogradov.anime_list.api.domain.model.section.ReleaseStatusDomain
 import com.alekseivinogradov.anime_network_base.api.data.model.ReleaseStatusData
 import com.alekseivinogradov.anime_network_base.api.data.remote.response.AnimeShortResponse
 import com.alekseivinogradov.anime_network_base.api.data.remote.response.ImageResponse

@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.alekseivinogradov.anime_list.api.data.remote.source.AnimeListSource
-import com.alekseivinogradov.anime_list.api.domain.usecase.FetchAnimeListUsecase
 import com.alekseivinogradov.anime_list.databinding.FragmentAnimeListBinding
 import com.alekseivinogradov.anime_list.impl.data.remote.source.AnimeListSourceImpl
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeAnnouncedListUsecase
@@ -37,13 +36,13 @@ class AnimeListFragment : Fragment() {
         safeApi = safeApi
     )
 
-    private val fetchAnimeOngoingListUsecase: FetchAnimeListUsecase =
+    private val fetchAnimeOngoingListUsecase =
         FetchAnimeOngoingListUsecase(source = animeListSource)
 
-    private val fetchAnimeAnnouncedListUsecase: FetchAnimeListUsecase =
+    private val fetchAnimeAnnouncedListUsecase =
         FetchAnimeAnnouncedListUsecase(source = animeListSource)
 
-    private val fetchAnimeListBySearchUsecase: FetchAnimeListUsecase =
+    private val fetchAnimeListBySearchUsecase =
         FetchAnimeListBySearchUsecase(source = animeListSource)
 
     private val controller: AnimeListController by lazy {

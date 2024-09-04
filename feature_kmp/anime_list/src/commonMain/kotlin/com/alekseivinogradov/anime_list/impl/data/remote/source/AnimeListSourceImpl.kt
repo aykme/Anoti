@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anime_list.impl.data.remote.source
 
 import com.alekseivinogradov.anime_list.api.data.remote.source.AnimeListSource
-import com.alekseivinogradov.anime_list.api.domain.model.section_content.ListItemDomain
+import com.alekseivinogradov.anime_list.api.domain.model.section.ListItemDomain
 import com.alekseivinogradov.anime_list.impl.data.remote.mapper.toAnnouncedListItem
 import com.alekseivinogradov.anime_list.impl.data.remote.mapper.toOngoingListItem
 import com.alekseivinogradov.anime_list.impl.data.remote.mapper.toSearchListItem

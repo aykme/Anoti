@@ -1,12 +1,12 @@
 package com.alekseivinogradov.anime_list.impl.presentation
 
-import com.alekseivinogradov.anime_list.api.domain.store.section_content.SectionContentStore
+import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.OngoingSectionStore
 import com.alekseivinogradov.anime_list.api.domain.store.upper_menu.UpperMenuStore
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
-import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUiEventToSectionContentIntent
+import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUiEventToOngoingSectionIntent
 import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUiEventToUpperMenuIntent
-import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUpperMenuStateToOngoingSectionContentIntent
-import com.alekseivinogradov.anime_list.impl.domain.store.section_content.SectionContentStoreFactory
+import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUpperMenuStateToOngoingSectionIntent
+import com.alekseivinogradov.anime_list.impl.domain.store.ongoing_section.OngoingSectionStoreFactory
 import com.alekseivinogradov.anime_list.impl.domain.store.upper_menu.UpperMenuStoreFactory
 import com.alekseivinogradov.anime_list.impl.domain.usecase.Usecases
 import com.alekseivinogradov.anime_list.impl.presentation.mapper.model.mapStateToUiModel
@@ -30,9 +30,8 @@ class AnimeListController(
 
     private val upperMenuStore = UpperMenuStoreFactory(storeFactory).create()
 
-    private val ongoingSectionContentStore = SectionContentStoreFactory(
+    private val ongoingSectionStore = OngoingSectionStoreFactory(
         storeFactory = storeFactory,
-        storeName = "OngoingSectionContentStore",
         fetchAnimeListUsecase = usecases.fetchAnimeOngoingListUsecase
     ).create()
 
@@ -45,12 +44,12 @@ class AnimeListController(
             mainView.events.mapNotNull(::mapUiEventToUpperMenuIntent) bindTo upperMenuStore
 
             mainView.events.mapNotNull(
-                ::mapUiEventToSectionContentIntent
-            ) bindTo ongoingSectionContentStore
+                ::mapUiEventToOngoingSectionIntent
+            ) bindTo ongoingSectionStore
 
             upperMenuStore.states.mapNotNull(
-                ::mapUpperMenuStateToOngoingSectionContentIntent
-            ) bindTo ongoingSectionContentStore
+                ::mapUpperMenuStateToOngoingSectionIntent
+            ) bindTo ongoingSectionStore
 
             subscribeOnAllRequiredStates() bindTo mainView
         }
@@ -59,14 +58,14 @@ class AnimeListController(
     private fun subscribeOnAllRequiredStates(): Flow<AnimeListView.UiModel> {
         return combine(
             upperMenuStore.states,
-            ongoingSectionContentStore.states,
+            ongoingSectionStore.states,
             ::stateToUiMapper
         )
     }
 
     private fun stateToUiMapper(
         upperMenuState: UpperMenuStore.State,
-        ongoingSectionContentState: SectionContentStore.State
+        ongoingSectionContentState: OngoingSectionStore.State
     ): AnimeListView.UiModel {
         return mapStateToUiModel(
             upperMenuState = upperMenuState,

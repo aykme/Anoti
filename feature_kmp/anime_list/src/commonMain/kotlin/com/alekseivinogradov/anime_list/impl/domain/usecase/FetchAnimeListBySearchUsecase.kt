@@ -1,16 +1,15 @@
 package com.alekseivinogradov.anime_list.impl.domain.usecase
 
 import com.alekseivinogradov.anime_list.api.data.remote.source.AnimeListSource
-import com.alekseivinogradov.anime_list.api.domain.model.section_content.ListItemDomain
-import com.alekseivinogradov.anime_list.api.domain.usecase.FetchAnimeListUsecase
+import com.alekseivinogradov.anime_list.api.domain.model.section.ListItemDomain
 import com.alekseivinogradov.anime_network_base.api.data.model.SortData
 import com.alekseivinogradov.network.api.domain.model.CallResult
 
 class FetchAnimeListBySearchUsecase(
     private val source: AnimeListSource
-) : FetchAnimeListUsecase {
+) {
 
-    override suspend fun execute(
+    suspend fun execute(
         page: Int,
         itemsPerPage: Int,
         searchText: String

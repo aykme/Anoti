@@ -1,13 +1,13 @@
 package com.alekseivinogradov.anime_list.impl.presentation.mapper.model
 
-import com.alekseivinogradov.anime_list.api.domain.model.section_content.ContentTypeDomain
-import com.alekseivinogradov.anime_list.api.domain.model.section_content.EpisodesInfoTypeDomain
-import com.alekseivinogradov.anime_list.api.domain.model.section_content.ListItemDomain
-import com.alekseivinogradov.anime_list.api.domain.model.section_content.NotificationDomain
-import com.alekseivinogradov.anime_list.api.domain.model.section_content.ReleaseStatusDomain
+import com.alekseivinogradov.anime_list.api.domain.model.section.ContentTypeDomain
+import com.alekseivinogradov.anime_list.api.domain.model.section.EpisodesInfoTypeDomain
+import com.alekseivinogradov.anime_list.api.domain.model.section.ListItemDomain
+import com.alekseivinogradov.anime_list.api.domain.model.section.NotificationDomain
+import com.alekseivinogradov.anime_list.api.domain.model.section.ReleaseStatusDomain
 import com.alekseivinogradov.anime_list.api.domain.model.upper_menu.SearchDomain
 import com.alekseivinogradov.anime_list.api.domain.model.upper_menu.SectionDomain
-import com.alekseivinogradov.anime_list.api.domain.store.section_content.SectionContentStore
+import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.OngoingSectionStore
 import com.alekseivinogradov.anime_list.api.domain.store.upper_menu.UpperMenuStore
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
 import com.alekseivinogradov.anime_list.api.presentation.model.ContentTypeUi
@@ -20,7 +20,7 @@ import com.alekseivinogradov.anime_list.api.presentation.model.list_content.Rele
 
 internal fun mapStateToUiModel(
     upperMenuState: UpperMenuStore.State,
-    ongoingSectionContentState: SectionContentStore.State
+    ongoingSectionContentState: OngoingSectionStore.State
 ): AnimeListView.UiModel {
     return AnimeListView.UiModel(
         selectedSection = mapSelectedSectionDomainToUi(upperMenuState.selectedSection),
