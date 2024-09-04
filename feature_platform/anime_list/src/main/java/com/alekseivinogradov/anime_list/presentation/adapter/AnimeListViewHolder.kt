@@ -183,7 +183,12 @@ internal class AnimeListViewHolder(
             }
 
             ReleaseStatusUi.ANNOUNCED -> {
-                "$beginningOfTheShowString:\n$extraEpisodesInfoDateString ($inaccurateString)"
+                val commentAfterDateString = if (extraEpisodesInfo?.isNotEmpty() == true) {
+                    " ($inaccurateString)"
+                } else {
+                    ""
+                }
+                "$beginningOfTheShowString:\n$extraEpisodesInfoDateString$commentAfterDateString"
             }
 
             ReleaseStatusUi.RELEASED -> {

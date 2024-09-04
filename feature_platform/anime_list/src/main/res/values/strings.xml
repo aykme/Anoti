@@ -15,5 +15,5 @@
     <string name="beginning_of_the_show">Beginning of the show</string>
     <string name="show_is_finished">Show is finished</string>
     <string name="no_data">No data</string>
-    <string name="inaccurate">No data</string>
+    <string name="inaccurate">Inaccurate</string>
 </resources>
