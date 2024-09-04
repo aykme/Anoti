@@ -3,6 +3,7 @@ package com.alekseivinogradov.anime_list.impl.presentation
 import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.OngoingSectionStore
 import com.alekseivinogradov.anime_list.api.domain.store.upper_menu.UpperMenuStore
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
+import com.alekseivinogradov.anime_list.api.presentation.mapper.model.UiModel
 import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUiEventToOngoingSectionIntent
 import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUiEventToUpperMenuIntent
 import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUpperMenuStateToOngoingSectionIntent
@@ -55,7 +56,7 @@ class AnimeListController(
         }
     }
 
-    private fun subscribeOnAllRequiredStates(): Flow<AnimeListView.UiModel> {
+    private fun subscribeOnAllRequiredStates(): Flow<UiModel> {
         return combine(
             upperMenuStore.states,
             ongoingSectionStore.states,
@@ -66,7 +67,7 @@ class AnimeListController(
     private fun stateToUiMapper(
         upperMenuState: UpperMenuStore.State,
         ongoingSectionContentState: OngoingSectionStore.State
-    ): AnimeListView.UiModel {
+    ): UiModel {
         return mapStateToUiModel(
             upperMenuState = upperMenuState,
             ongoingSectionContentState = ongoingSectionContentState

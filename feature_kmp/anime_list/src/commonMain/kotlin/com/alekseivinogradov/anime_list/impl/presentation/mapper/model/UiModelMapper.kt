@@ -9,7 +9,7 @@ import com.alekseivinogradov.anime_list.api.domain.model.upper_menu.SearchDomain
 import com.alekseivinogradov.anime_list.api.domain.model.upper_menu.SectionDomain
 import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.OngoingSectionStore
 import com.alekseivinogradov.anime_list.api.domain.store.upper_menu.UpperMenuStore
-import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
+import com.alekseivinogradov.anime_list.api.presentation.mapper.model.UiModel
 import com.alekseivinogradov.anime_list.api.presentation.model.ContentTypeUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SearchUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SectionUi
@@ -21,8 +21,8 @@ import com.alekseivinogradov.anime_list.api.presentation.model.list_content.Rele
 internal fun mapStateToUiModel(
     upperMenuState: UpperMenuStore.State,
     ongoingSectionContentState: OngoingSectionStore.State
-): AnimeListView.UiModel {
-    return AnimeListView.UiModel(
+): UiModel {
+    return UiModel(
         selectedSection = mapSelectedSectionDomainToUi(upperMenuState.selectedSection),
         search = mapSearchDomainToUi(upperMenuState.search),
         contentType = getContentType(

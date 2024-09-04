@@ -8,6 +8,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.alekseivinogradov.anime_list.R
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
+import com.alekseivinogradov.anime_list.api.presentation.mapper.model.UiModel
 import com.alekseivinogradov.anime_list.api.presentation.model.ContentTypeUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SearchUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SectionUi
@@ -21,7 +22,7 @@ import com.alekseivinogradov.theme.R as theme_R
 
 internal class AnimeListViewImpl(
     private val viewBinding: FragmentAnimeListBinding
-) : AnimeListView, BaseMviView<AnimeListView.UiModel, AnimeListView.UiEvent>() {
+) : AnimeListView, BaseMviView<UiModel, AnimeListView.UiEvent>() {
 
     private val context
         get() = viewBinding.root.context
@@ -52,7 +53,7 @@ internal class AnimeListViewImpl(
         initRv()
     }
 
-    override val renderer: ViewRenderer<AnimeListView.UiModel> = diff {
+    override val renderer: ViewRenderer<UiModel> = diff {
         diff(
             get = ::getSelectedSection,
             set = ::setSelectedSection
@@ -145,7 +146,7 @@ internal class AnimeListViewImpl(
         }
     }
 
-    private fun getSelectedSection(uiModel: AnimeListView.UiModel): SectionUi {
+    private fun getSelectedSection(uiModel: UiModel): SectionUi {
         return uiModel.selectedSection
     }
 
@@ -197,7 +198,7 @@ internal class AnimeListViewImpl(
         }
     }
 
-    private fun getSearch(uiModel: AnimeListView.UiModel): SearchUi {
+    private fun getSearch(uiModel: UiModel): SearchUi {
         return uiModel.search
     }
 
@@ -234,7 +235,7 @@ internal class AnimeListViewImpl(
         inputMethodManager.hideSoftInputFromWindow(viewBinding.root.windowToken, 0)
     }
 
-    private fun getContentType(uiModel: AnimeListView.UiModel): ContentTypeUi {
+    private fun getContentType(uiModel: UiModel): ContentTypeUi {
         return uiModel.contentType
     }
 
@@ -261,7 +262,7 @@ internal class AnimeListViewImpl(
         }
     }
 
-    private fun getOngoingListItems(uiModel: AnimeListView.UiModel): ListItemsWithSelectedSection {
+    private fun getOngoingListItems(uiModel: UiModel): ListItemsWithSelectedSection {
         return ListItemsWithSelectedSection(
             listItems = uiModel.ongoingListItems,
             selectedSection = uiModel.selectedSection
@@ -275,7 +276,7 @@ internal class AnimeListViewImpl(
     }
 
     private fun getAnnouncedListItems(
-        uiModel: AnimeListView.UiModel
+        uiModel: UiModel
     ): ListItemsWithSelectedSection {
         return ListItemsWithSelectedSection(
             listItems = uiModel.announcedListItems,
@@ -289,7 +290,7 @@ internal class AnimeListViewImpl(
         }
     }
 
-    private fun getSearchListItems(uiModel: AnimeListView.UiModel): ListItemsWithSelectedSection {
+    private fun getSearchListItems(uiModel: UiModel): ListItemsWithSelectedSection {
         return ListItemsWithSelectedSection(
             listItems = uiModel.searchListItems,
             selectedSection = uiModel.selectedSection
