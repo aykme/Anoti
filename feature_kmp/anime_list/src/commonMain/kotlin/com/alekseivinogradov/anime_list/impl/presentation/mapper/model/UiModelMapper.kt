@@ -7,7 +7,9 @@ import com.alekseivinogradov.anime_list.api.domain.model.section.NotificationDom
 import com.alekseivinogradov.anime_list.api.domain.model.section.ReleaseStatusDomain
 import com.alekseivinogradov.anime_list.api.domain.model.upper_menu.SearchDomain
 import com.alekseivinogradov.anime_list.api.domain.model.upper_menu.SectionDomain
+import com.alekseivinogradov.anime_list.api.domain.store.announced_section.AnnouncedSectionStore
 import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.OngoingSectionStore
+import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionStore
 import com.alekseivinogradov.anime_list.api.domain.store.upper_menu.UpperMenuStore
 import com.alekseivinogradov.anime_list.api.presentation.mapper.model.UiModel
 import com.alekseivinogradov.anime_list.api.presentation.model.ContentTypeUi
@@ -20,16 +22,22 @@ import com.alekseivinogradov.anime_list.api.presentation.model.list_content.Rele
 
 internal fun mapStateToUiModel(
     upperMenuState: UpperMenuStore.State,
-    ongoingSectionContentState: OngoingSectionStore.State
+    ongoingSectionState: OngoingSectionStore.State,
+    announcedSectionState: AnnouncedSectionStore.State,
+    searchSectionState: SearchSectionStore.State
 ): UiModel {
     return UiModel(
         selectedSection = mapSelectedSectionDomainToUi(upperMenuState.selectedSection),
         search = mapSearchDomainToUi(upperMenuState.search),
         contentType = getContentType(
             selectedSection = upperMenuState.selectedSection,
-            ongoingSectionContentType = ongoingSectionContentState.contentType
+            ongoingSectionContentType = ongoingSectionState.contentType,
+            announcedSectionContentType = announcedSectionState.contentType,
+            searchSectionContentType = searchSectionState.contentType,
         ),
-        ongoingListItems = mapListItemsDomainToUi(ongoingSectionContentState.listItems)
+        ongoingListItems = mapListItemsDomainToUi(ongoingSectionState.listItems),
+        announcedListItems = mapListItemsDomainToUi(announcedSectionState.listItems),
+        searchListItems = mapListItemsDomainToUi(searchSectionState.listItems)
     )
 }
 
@@ -50,12 +58,14 @@ private fun mapSearchDomainToUi(search: SearchDomain): SearchUi {
 
 private fun getContentType(
     selectedSection: SectionDomain,
-    ongoingSectionContentType: ContentTypeDomain
+    ongoingSectionContentType: ContentTypeDomain,
+    announcedSectionContentType: ContentTypeDomain,
+    searchSectionContentType: ContentTypeDomain
 ): ContentTypeUi {
     return when (selectedSection) {
         SectionDomain.ONGOINGS -> mapContentTypeDomainToUi(ongoingSectionContentType)
-        SectionDomain.ANNOUNCED -> ContentTypeUi.LOADING
-        SectionDomain.SEARCH -> ContentTypeUi.LOADING
+        SectionDomain.ANNOUNCED -> mapContentTypeDomainToUi(announcedSectionContentType)
+        SectionDomain.SEARCH -> mapContentTypeDomainToUi(searchSectionContentType)
     }
 }
 

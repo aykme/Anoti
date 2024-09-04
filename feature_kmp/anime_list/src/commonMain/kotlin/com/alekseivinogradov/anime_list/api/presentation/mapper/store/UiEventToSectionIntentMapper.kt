@@ -8,7 +8,8 @@ import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
 internal fun mapUiEventToOngoingSectionIntent(uiEvent: AnimeListView.UiEvent)
         : OngoingSectionStore.Intent? {
     return when (uiEvent) {
-        AnimeListView.UiEvent.UpdateOngoingsSection -> OngoingSectionStore.Intent.UpdateSection
+        AnimeListView.UiEvent.UpdateOngoingsSection ->
+            OngoingSectionStore.Intent.UpdateSection
 
         is AnimeListView.UiEvent.EpisodesInfoClick ->
             OngoingSectionStore.Intent.EpisodesInfoClick(
@@ -34,7 +35,8 @@ internal fun mapUiEventToOngoingSectionIntent(uiEvent: AnimeListView.UiEvent)
 internal fun mapUiEventToAnnouncedSectionIntent(uiEvent: AnimeListView.UiEvent)
         : AnnouncedSectionStore.Intent? {
     return when (uiEvent) {
-        AnimeListView.UiEvent.UpdateAnnouncedSection -> AnnouncedSectionStore.Intent.UpdateSection
+        AnimeListView.UiEvent.UpdateAnnouncedSection ->
+            AnnouncedSectionStore.Intent.UpdateSection
 
         is AnimeListView.UiEvent.EpisodesInfoClick ->
             AnnouncedSectionStore.Intent.EpisodesInfoClick(
@@ -60,7 +62,8 @@ internal fun mapUiEventToAnnouncedSectionIntent(uiEvent: AnimeListView.UiEvent)
 internal fun mapUiEventToSearchSectionIntent(uiEvent: AnimeListView.UiEvent)
         : SearchSectionStore.Intent? {
     return when (uiEvent) {
-        AnimeListView.UiEvent.UpdateSearchSection -> SearchSectionStore.Intent.UpdateSection
+        AnimeListView.UiEvent.UpdateSearchSection ->
+            SearchSectionStore.Intent.UpdateSection
 
         is AnimeListView.UiEvent.EpisodesInfoClick ->
             SearchSectionStore.Intent.EpisodesInfoClick(

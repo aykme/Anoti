@@ -2,8 +2,10 @@ package com.alekseivinogradov.anime_list.api.domain.store.search_section
 
 import com.alekseivinogradov.anime_list.api.domain.model.section.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.section.ListItemDomain
+import com.arkivanov.mvikotlin.core.store.Store
 
-interface SearchSectionStore {
+interface SearchSectionStore
+    : Store<SearchSectionStore.Intent, SearchSectionStore.State, SearchSectionStore.Label> {
     data class State(
         val contentType: ContentTypeDomain = ContentTypeDomain.LOADING,
         val listItems: List<ListItemDomain> = listOf()
