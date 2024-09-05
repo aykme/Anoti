@@ -17,7 +17,7 @@ internal interface UpperMenuStore :
         data object AnnouncedSectionClick : Intent
         data object SearchSectionClick : Intent
         data object CancelSearchClick : Intent
-        data class SearchTextChange(val text: String) : Intent
+        data class SearchTextChange(val searchText: String) : Intent
     }
 
     sealed interface Label {

@@ -1,37 +1,50 @@
 package com.alekseivinogradov.anime_list.impl.domain.store.search_section
 
 import com.alekseivinogradov.anime_list.api.domain.ITEMS_PER_PAGE
+import com.alekseivinogradov.anime_list.api.domain.SEARCH_DEBOUNCE
 import com.alekseivinogradov.anime_list.api.domain.model.section.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.section.EpisodesInfoTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionExecutor
 import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionStore
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeListBySearchUsecase
 import com.alekseivinogradov.network.api.domain.model.CallResult
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
-private var updateSectionJob: Job? = null
 
 internal class SearchSectionExecutorImpl(
     private val fetchAnimeListUsecase: FetchAnimeListBySearchUsecase
 ) : SearchSectionExecutor() {
 
+    private val searchFlow: MutableStateFlow<String> = MutableStateFlow("")
+    private var changeSearchJob: Job? = null
+    private var updateSectionJob: Job? = null
+
     override fun executeIntent(intent: SearchSectionStore.Intent) {
         when (intent) {
             SearchSectionStore.Intent.InitSection -> initSection()
-            SearchSectionStore.Intent.UpdateSection -> updateSection()
+            SearchSectionStore.Intent.UpdateSection -> updateSection(state().searchText)
+            is SearchSectionStore.Intent.SearchTextChange -> searchTextChange(intent.searchText)
             is SearchSectionStore.Intent.EpisodesInfoClick -> episodeInfoClick(intent.itemIndex)
             is SearchSectionStore.Intent.NotificationClick -> notificationClick()
         }
     }
 
+    @OptIn(FlowPreview::class)
     private fun initSection() {
-        if (state().listItems.isEmpty()) {
-            updateSection()
+        if (changeSearchJob?.isActive == true) return
+        changeSearchJob = scope.launch {
+            searchFlow.debounce(SEARCH_DEBOUNCE)
+                .collect {
+                    updateSection(state().searchText)
+                }
         }
     }
 
-    private fun updateSection() {
+    private fun updateSection(searchText: String) {
         updateSectionJob?.cancel()
         updateSectionJob = scope.launch {
             dispatch(
@@ -40,7 +53,7 @@ internal class SearchSectionExecutorImpl(
             val result = fetchAnimeListUsecase.execute(
                 page = 1,
                 itemsPerPage = ITEMS_PER_PAGE,
-                searchText = ""
+                searchText = searchText
             )
             when (result) {
                 is CallResult.Success -> {
@@ -64,6 +77,11 @@ internal class SearchSectionExecutorImpl(
                 )
             }
         }
+    }
+
+    private fun searchTextChange(searchText: String) {
+        dispatch(SearchSectionStore.Message.ChangeSearchText(searchText))
+        searchFlow.update { state().searchText }
     }
 
     private fun episodeInfoClick(itemIndex: Int) {

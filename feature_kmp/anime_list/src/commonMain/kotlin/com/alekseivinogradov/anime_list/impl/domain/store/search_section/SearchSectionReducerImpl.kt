@@ -16,6 +16,10 @@ internal class SearchSectionReducerImpl :
             is SearchSectionStore.Message.UpdateListItems -> copy(
                 listItems = msg.listItems
             )
+
+            is SearchSectionStore.Message.ChangeSearchText -> copy(
+                searchText = msg.searchText
+            )
         }
     }
 }

@@ -117,12 +117,11 @@
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
             android:textColorHint="@color/white_transparent"
+            android:theme="@style/Theme.Anoti.TextInputEditText.Outlined"
             android:visibility="gone"
             app:boxBackgroundColor="@color/black_transparent"
             app:boxStrokeColor="@color/pink"
-            app:cursorColor="@color/pink"
             app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-            app:hintTextColor="@color/pink"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">

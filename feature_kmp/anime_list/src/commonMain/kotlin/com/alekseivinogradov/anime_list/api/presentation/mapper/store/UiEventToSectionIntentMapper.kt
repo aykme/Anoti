@@ -65,6 +65,11 @@ internal fun mapUiEventToSearchSectionIntent(uiEvent: AnimeListView.UiEvent)
         AnimeListView.UiEvent.UpdateSearchSection ->
             SearchSectionStore.Intent.UpdateSection
 
+        is AnimeListView.UiEvent.SearchTextChange ->
+            SearchSectionStore.Intent.SearchTextChange(
+                searchText = uiEvent.searchText
+            )
+
         is AnimeListView.UiEvent.EpisodesInfoClick ->
             SearchSectionStore.Intent.EpisodesInfoClick(
                 itemIndex = uiEvent.itemIndex
@@ -82,8 +87,6 @@ internal fun mapUiEventToSearchSectionIntent(uiEvent: AnimeListView.UiEvent)
         AnimeListView.UiEvent.OngoingsSectionClick,
         AnimeListView.UiEvent.AnnouncedSectionClick,
         AnimeListView.UiEvent.SearchSectionClick,
-        AnimeListView.UiEvent.CancelSearchClick,
-        is AnimeListView.UiEvent.SearchTextChange -> null
-
+        AnimeListView.UiEvent.CancelSearchClick -> null
     }
 }

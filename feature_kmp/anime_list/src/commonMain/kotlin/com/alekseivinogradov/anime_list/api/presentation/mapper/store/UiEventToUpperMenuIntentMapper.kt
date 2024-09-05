@@ -10,7 +10,7 @@ internal fun mapUiEventToUpperMenuIntent(uiEvent: AnimeListView.UiEvent): UpperM
         AnimeListView.UiEvent.SearchSectionClick -> UpperMenuStore.Intent.SearchSectionClick
         AnimeListView.UiEvent.CancelSearchClick -> UpperMenuStore.Intent.CancelSearchClick
         is AnimeListView.UiEvent.SearchTextChange -> UpperMenuStore.Intent.SearchTextChange(
-            text = uiEvent.text
+            searchText = uiEvent.searchText
         )
 
         AnimeListView.UiEvent.UpdateAnnouncedSection,

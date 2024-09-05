@@ -78,7 +78,7 @@ internal class UpperMenuExecutorImpl() : UpperMenuExecutor() {
         dispatch(
             UpperMenuStore.Message.ChangeSearch(
                 search = state().search.copy(
-                    searchText = intent.text
+                    searchText = intent.searchText
                 )
             )
         )
