@@ -94,7 +94,8 @@ private fun mapListItemDomainToUi(itemIndex: Int, listItem: ListItemDomain): Lis
         episodesInfoType = mapEpisodeInfoTypeDomainToUi(listItem.episodesInfoType),
         availableEpisodesInfo = getAvailableEpisodesInfo(
             episodesAired = listItem.episodesAired ?: 0,
-            episodesTotal = listItem.episodesTotal ?: 0
+            episodesTotal = listItem.episodesTotal ?: 0,
+            releaseStatus = listItem.releaseStatus
         ),
         extraEpisodesInfo = listItem.extraEpisodesInfo,
         score = listItem.score?.toString().orEmpty(),
@@ -112,12 +113,24 @@ private fun mapEpisodeInfoTypeDomainToUi(
     }
 }
 
-private fun getAvailableEpisodesInfo(episodesAired: Int, episodesTotal: Int): String {
+private fun getAvailableEpisodesInfo(
+    episodesAired: Int,
+    episodesTotal: Int,
+    releaseStatus: ReleaseStatusDomain
+): String {
+    val isReleased = releaseStatus == ReleaseStatusDomain.RELEASED
+
+    val episodesAiredString = if (isReleased.not()) {
+        episodesAired
+    } else {
+        episodesTotal
+    }
+
     val episotesTotalString = if (episodesTotal > 0) {
         episodesTotal.toString()
     } else "?"
 
-    return "$episodesAired / $episotesTotalString"
+    return "$episodesAiredString / $episotesTotalString"
 }
 
 private fun mapReleaseStatusDomainToUi(releaseStatus: ReleaseStatusDomain): ReleaseStatusUi {

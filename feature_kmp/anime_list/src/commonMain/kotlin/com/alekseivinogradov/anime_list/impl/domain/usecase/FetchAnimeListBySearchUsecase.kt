@@ -17,7 +17,7 @@ class FetchAnimeListBySearchUsecase(
         return source.getListBySearch(
             page = page,
             itemsPerPage = itemsPerPage,
-            sort = SortData.POPULARITY.value,
+            sort = SortData.SCORE.value,
             search = searchText
         )
     }
