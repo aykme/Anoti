@@ -11,13 +11,15 @@ import com.alekseivinogradov.anime_list.api.presentation.model.list_content.List
 import com.alekseivinogradov.anime_list.api.presentation.model.list_content.NotificationUi
 import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ReleaseStatusUi
 import com.alekseivinogradov.anime_list.databinding.ItemAnimeListBinding
+import com.alekseivinogradov.theme.date_format.DateFormatUtil
 import com.bumptech.glide.Glide
 import com.alekseivinogradov.theme.R as theme_R
 
 internal class AnimeListViewHolder(
     private val binding: ItemAnimeListBinding,
     private val episodesInfoClickCallback: (Int) -> Unit,
-    private val notificationClickCallback: (Int) -> Unit
+    private val notificationClickCallback: (Int) -> Unit,
+    private val dateFormatUtil: DateFormatUtil
 ) :
     RecyclerView.ViewHolder(binding.root) {
 
@@ -173,7 +175,10 @@ internal class AnimeListViewHolder(
         releaseStatus: ReleaseStatusUi,
     ) {
         val extraEpisodesInfoDateString = if (extraEpisodesInfo?.isNotEmpty() == true) {
-            extraEpisodesInfo
+            dateFormatUtil.getFormattedDate(
+                inputText = extraEpisodesInfo,
+                fallbackText = noDataString
+            )
         } else {
             noDataString
         }

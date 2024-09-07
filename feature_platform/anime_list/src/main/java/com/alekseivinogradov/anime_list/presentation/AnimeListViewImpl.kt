@@ -15,6 +15,7 @@ import com.alekseivinogradov.anime_list.api.presentation.model.SectionUi
 import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ListItemUi
 import com.alekseivinogradov.anime_list.databinding.FragmentAnimeListBinding
 import com.alekseivinogradov.anime_list.presentation.adapter.AnimeListAdapter
+import com.alekseivinogradov.theme.date_format.DateFormatUtil
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer
@@ -43,7 +44,8 @@ internal class AnimeListViewImpl(
 
     private val adapter = AnimeListAdapter(
         episodesInfoClickCallback = episodesInfoClickCallback,
-        notificationClickCallback = notificationClickCallback
+        notificationClickCallback = notificationClickCallback,
+        dateFormatUtil = DateFormatUtil.getInstance(context.applicationContext)
     )
 
     init {

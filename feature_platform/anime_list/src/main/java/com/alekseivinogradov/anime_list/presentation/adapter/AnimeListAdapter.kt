@@ -5,10 +5,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ListItemUi
 import com.alekseivinogradov.anime_list.databinding.ItemAnimeListBinding
+import com.alekseivinogradov.theme.date_format.DateFormatUtil
 
 internal class AnimeListAdapter(
     private val episodesInfoClickCallback: (Int) -> Unit,
-    private val notificationClickCallback: (Int) -> Unit
+    private val notificationClickCallback: (Int) -> Unit,
+    private val dateFormatUtil: DateFormatUtil
 ) : ListAdapter<ListItemUi, AnimeListViewHolder>(AnimeListDiffUtilCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnimeListViewHolder {
@@ -19,7 +21,8 @@ internal class AnimeListAdapter(
                 false
             ),
             episodesInfoClickCallback = episodesInfoClickCallback,
-            notificationClickCallback = notificationClickCallback
+            notificationClickCallback = notificationClickCallback,
+            dateFormatUtil = dateFormatUtil
         )
     }
 
