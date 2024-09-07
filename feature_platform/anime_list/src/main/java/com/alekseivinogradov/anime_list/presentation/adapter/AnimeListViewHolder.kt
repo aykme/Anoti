@@ -46,6 +46,7 @@ internal class AnimeListViewHolder(
 
     init {
         bindCommonFields()
+        setClickListeners()
     }
 
     internal fun bindWithPayload(payload: AnimeListPayload) {
@@ -100,15 +101,6 @@ internal class AnimeListViewHolder(
         bindScore(item.score)
         bindReleaseStatus(item.releaseStatus)
         bindNotification(item.notification)
-        binding.availableEpisodesInfoButton.setOnClickListener {
-            episodesInfoClickCallback(item.itemIndex)
-        }
-        binding.extraEpisodesInfoButton.setOnClickListener {
-            episodesInfoClickCallback(item.itemIndex)
-        }
-        binding.notificationButton.setOnClickListener {
-            notificationClickCallback(item.itemIndex)
-        }
     }
 
     private fun bindCommonFields() {
@@ -129,6 +121,20 @@ internal class AnimeListViewHolder(
             notificationButton.backgroundTintList =
                 ColorStateList.valueOf(transparentColor)
             notificationButton.isVisible = true
+        }
+    }
+
+    private fun setClickListeners() {
+        with(binding) {
+            availableEpisodesInfoButton.setOnClickListener {
+                episodesInfoClickCallback(adapterPosition)
+            }
+            extraEpisodesInfoButton.setOnClickListener {
+                episodesInfoClickCallback(adapterPosition)
+            }
+            notificationButton.setOnClickListener {
+                notificationClickCallback(adapterPosition)
+            }
         }
     }
 
