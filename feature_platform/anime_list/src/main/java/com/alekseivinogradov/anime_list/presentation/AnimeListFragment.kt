@@ -9,6 +9,7 @@ import com.alekseivinogradov.anime_list.api.data.remote.source.AnimeListSource
 import com.alekseivinogradov.anime_list.databinding.FragmentAnimeListBinding
 import com.alekseivinogradov.anime_list.impl.data.remote.source.AnimeListSourceImpl
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeAnnouncedListUsecase
+import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeByIdUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeListBySearchUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeOngoingListUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.Usecases
@@ -45,6 +46,9 @@ class AnimeListFragment : Fragment() {
     private val fetchAnimeListBySearchUsecase =
         FetchAnimeListBySearchUsecase(source = animeListSource)
 
+    private val fetchAnimeByIdUsecase =
+        FetchAnimeByIdUsecase(source = animeListSource)
+
     private val controller: AnimeListController by lazy {
         AnimeListController(
             storeFactory = DefaultStoreFactory(),
@@ -75,6 +79,7 @@ class AnimeListFragment : Fragment() {
     private fun getUsecases() = Usecases(
         fetchAnimeOngoingListUsecase = fetchAnimeOngoingListUsecase,
         fetchAnimeAnnouncedListUsecase = fetchAnimeAnnouncedListUsecase,
-        fetchAnimeListBySearchUsecase = fetchAnimeListBySearchUsecase
+        fetchAnimeListBySearchUsecase = fetchAnimeListBySearchUsecase,
+        fetchAnimeByIdUsecase = fetchAnimeByIdUsecase
     )
 }

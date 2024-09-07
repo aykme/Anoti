@@ -5,32 +5,43 @@ import com.alekseivinogradov.anime_list.api.domain.model.section.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.section.NotificationDomain
 import com.alekseivinogradov.anime_list.api.domain.model.section.ReleaseStatusDomain
 import com.alekseivinogradov.anime_network_base.api.data.model.ReleaseStatusData
+import com.alekseivinogradov.anime_network_base.api.data.remote.response.AnimeDetailsResponse
 import com.alekseivinogradov.anime_network_base.api.data.remote.response.AnimeShortResponse
 import com.alekseivinogradov.anime_network_base.api.data.remote.response.ImageResponse
 import com.alekseivinogradov.network.api.domain.SHIKIMORI_BASE_URL
 
-internal fun AnimeShortResponse.toOngoingListItem() = this.toListItemDomain(
-    extraEpisodesInfo = null
-)
-
-internal fun AnimeShortResponse.toAnnouncedListItem() = this.toListItemDomain(
-    extraEpisodesInfo = this.airedOn
-)
-
-internal fun AnimeShortResponse.toSearchListItem() = this.toListItemDomain(
-    extraEpisodesInfo = this.releasedOn
-)
-
-private fun AnimeShortResponse.toListItemDomain(
-    extraEpisodesInfo: String?
-) = ListItemDomain(
+internal fun AnimeShortResponse.toListItemDomain() = ListItemDomain(
     id = this.id,
     name = this.englishName ?: "",
     imageUrl = mapImageUrlDataToDomain(this.imageResponse),
     episodesInfoType = EpisodesInfoTypeDomain.AVAILABLE,
     episodesAired = this.episodesAired,
     episodesTotal = this.episodesTotal,
-    extraEpisodesInfo = extraEpisodesInfo,
+    extraEpisodesInfo = getExtraEpisodesInfo(
+        releaseStatus = this.releaseStatus,
+        nextEpisodeAt = null,
+        airedOn = this.airedOn,
+        releasedOn = this.releasedOn
+    ),
+    score = this.score,
+    releaseStatus = mapReleaseStatusDataToDomain(this.releaseStatus),
+    notification = NotificationDomain.DISABLED
+)
+
+
+internal fun AnimeDetailsResponse.toListItemDomain() = ListItemDomain(
+    id = this.id,
+    name = this.englishName ?: "",
+    imageUrl = mapImageUrlDataToDomain(this.imageResponse),
+    episodesInfoType = EpisodesInfoTypeDomain.AVAILABLE,
+    episodesAired = this.episodesAired,
+    episodesTotal = this.episodesTotal,
+    extraEpisodesInfo = getExtraEpisodesInfo(
+        releaseStatus = this.releaseStatus,
+        nextEpisodeAt = this.nextEpisodeAt,
+        airedOn = this.airedOn,
+        releasedOn = this.releasedOn
+    ),
     score = this.score,
     releaseStatus = mapReleaseStatusDataToDomain(this.releaseStatus),
     notification = NotificationDomain.DISABLED
@@ -43,6 +54,20 @@ private fun mapImageUrlDataToDomain(imageResponse: ImageResponse?): String? {
         SHIKIMORI_BASE_URL + additionalImageUrl
     }
     return fullImageUrl
+}
+
+private fun getExtraEpisodesInfo(
+    releaseStatus: String?,
+    nextEpisodeAt: String?,
+    airedOn: String?,
+    releasedOn: String?
+): String? {
+    return when (releaseStatus) {
+        ReleaseStatusData.ONGOING.value -> nextEpisodeAt
+        ReleaseStatusData.ANNOUNCED.value -> airedOn
+        ReleaseStatusData.RELEASED.value -> releasedOn
+        else -> null
+    }
 }
 
 private fun mapReleaseStatusDataToDomain(releaseStatus: String?): ReleaseStatusDomain {

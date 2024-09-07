@@ -4,4 +4,5 @@ data class Usecases(
     val fetchAnimeOngoingListUsecase: FetchAnimeOngoingListUsecase,
     val fetchAnimeAnnouncedListUsecase: FetchAnimeAnnouncedListUsecase,
     val fetchAnimeListBySearchUsecase: FetchAnimeListBySearchUsecase,
+    val fetchAnimeByIdUsecase: FetchAnimeByIdUsecase
 )

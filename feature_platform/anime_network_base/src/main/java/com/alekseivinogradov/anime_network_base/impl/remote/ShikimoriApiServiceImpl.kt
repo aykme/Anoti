@@ -1,6 +1,7 @@
 package com.alekseivinogradov.anime_network_base.impl.remote
 
 import com.alekseivinogradov.anime_network_base.api.data.remote.mapper.toKmp
+import com.alekseivinogradov.anime_network_base.api.data.remote.response.AnimeDetailsResponse
 import com.alekseivinogradov.anime_network_base.api.data.remote.response.AnimeShortResponse
 import com.alekseivinogradov.anime_network_base.api.data.remote.service.ShikimoriApiService
 import com.alekseivinogradov.anime_network_base.api.data.remote.service.ShikimoriApiServicePlatform
@@ -27,5 +28,9 @@ class ShikimoriApiServiceImpl(
         ).map {
             it.toKmp()
         }
+    }
+
+    override suspend fun getAnimeById(id: Int): AnimeDetailsResponse {
+        return servicePlatform.getAnimeById(id).toKmp()
     }
 }

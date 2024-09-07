@@ -2,9 +2,7 @@ package com.alekseivinogradov.anime_list.impl.data.remote.source
 
 import com.alekseivinogradov.anime_list.api.data.remote.source.AnimeListSource
 import com.alekseivinogradov.anime_list.api.domain.model.section.ListItemDomain
-import com.alekseivinogradov.anime_list.impl.data.remote.mapper.toAnnouncedListItem
-import com.alekseivinogradov.anime_list.impl.data.remote.mapper.toOngoingListItem
-import com.alekseivinogradov.anime_list.impl.data.remote.mapper.toSearchListItem
+import com.alekseivinogradov.anime_list.impl.data.remote.mapper.toListItemDomain
 import com.alekseivinogradov.anime_network_base.api.data.model.ReleaseStatusData
 import com.alekseivinogradov.anime_network_base.api.data.remote.service.ShikimoriApiService
 import com.alekseivinogradov.network.api.data.remote.SafeApi
@@ -29,7 +27,7 @@ class AnimeListSourceImpl(
                 search = null,
                 ids = null,
             ).map {
-                it.toOngoingListItem()
+                it.toListItemDomain()
             }
         }
     }
@@ -48,7 +46,7 @@ class AnimeListSourceImpl(
                 search = null,
                 ids = null,
             ).map {
-                it.toAnnouncedListItem()
+                it.toListItemDomain()
             }
         }
     }
@@ -68,8 +66,14 @@ class AnimeListSourceImpl(
                 search = search,
                 ids = null,
             ).map {
-                it.toSearchListItem()
+                it.toListItemDomain()
             }
+        }
+    }
+
+    override suspend fun getItemById(id: Int): CallResult<ListItemDomain> {
+        return safeApi.call {
+            service.getAnimeById(id).toListItemDomain()
         }
     }
 }

@@ -23,4 +23,6 @@ interface AnimeListSource {
         search: String,
         sort: String
     ): CallResult<List<ListItemDomain>>
+
+    suspend fun getItemById(id: Int): CallResult<ListItemDomain>
 }

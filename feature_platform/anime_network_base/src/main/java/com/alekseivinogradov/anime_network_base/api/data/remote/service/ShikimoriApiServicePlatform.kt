@@ -1,8 +1,10 @@
 package com.alekseivinogradov.anime_network_base.api.data.remote.service
 
+import com.alekseivinogradov.anime_network_base.api.data.remote.response.AnimeDetailsPlatformResponse
 import com.alekseivinogradov.anime_network_base.api.data.remote.response.AnimeShortPlatformResponse
 import com.alekseivinogradov.network.impl.data.remote.shikimoriRetrofit
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ShikimoriApiServicePlatform {
@@ -21,4 +23,7 @@ interface ShikimoriApiServicePlatform {
         @Query("search") search: String?,
         @Query("ids") ids: String?,
     ): List<AnimeShortPlatformResponse>
+
+    @GET("$ANIME_LIST_APPEND_URL/{id}")
+    suspend fun getAnimeById(@Path("id") id: Int): AnimeDetailsPlatformResponse
 }
