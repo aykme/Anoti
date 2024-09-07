@@ -41,7 +41,8 @@ class AnimeListController(
 
     private val ongoingSectionStore = OngoingSectionStoreFactory(
         storeFactory = storeFactory,
-        fetchAnimeListUsecase = usecases.fetchAnimeOngoingListUsecase
+        fetchAnimeListUsecase = usecases.fetchAnimeOngoingListUsecase,
+        fetchAnimeByIdUsecase = usecases.fetchAnimeByIdUsecase
     ).create()
 
     private val announcedSectionStore = AnnouncedSectionStoreFactory(
@@ -51,7 +52,8 @@ class AnimeListController(
 
     private val searchSectionStore = SearchSectionStoreFactory(
         storeFactory = storeFactory,
-        fetchAnimeListUsecase = usecases.fetchAnimeListBySearchUsecase
+        fetchAnimeListUsecase = usecases.fetchAnimeListBySearchUsecase,
+        fetchAnimeByIdUsecase = usecases.fetchAnimeByIdUsecase
     ).create()
 
     init {

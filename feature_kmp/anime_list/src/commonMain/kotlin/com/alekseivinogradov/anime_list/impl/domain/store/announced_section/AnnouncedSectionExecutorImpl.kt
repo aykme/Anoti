@@ -3,6 +3,7 @@ package com.alekseivinogradov.anime_list.impl.domain.store.announced_section
 import com.alekseivinogradov.anime_list.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.anime_list.api.domain.model.section.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.section.EpisodesInfoTypeDomain
+import com.alekseivinogradov.anime_list.api.domain.model.section.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.store.announced_section.AnnouncedSectionExecutor
 import com.alekseivinogradov.anime_list.api.domain.store.announced_section.AnnouncedSectionStore
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeAnnouncedListUsecase
@@ -10,11 +11,11 @@ import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-private var updateSectionJob: Job? = null
-
 internal class AnnouncedSectionExecutorImpl(
     private val fetchAnimeListUsecase: FetchAnimeAnnouncedListUsecase
 ) : AnnouncedSectionExecutor() {
+
+    private var updateSectionJob: Job? = null
 
     override fun executeIntent(intent: AnnouncedSectionStore.Intent) {
         when (intent) {
@@ -66,36 +67,42 @@ internal class AnnouncedSectionExecutorImpl(
     }
 
     private fun episodeInfoClick(itemIndex: Int) {
-        val listItem = state().listItems.getOrNull(itemIndex)
-        when (listItem?.episodesInfoType) {
+        val listItem = state().listItems.getOrNull(itemIndex) ?: return
+        when (listItem.episodesInfoType) {
             EpisodesInfoTypeDomain.AVAILABLE -> {
-                val newListItem = listItem.copy(
-                    episodesInfoType = EpisodesInfoTypeDomain.EXTRA
-                )
-                val newListItems = state().listItems.toMutableList()
-                newListItems[itemIndex] = newListItem
-                dispatch(
-                    AnnouncedSectionStore.Message.UpdateListItems(
-                        listItems = newListItems.toList()
-                    )
-                )
+                extraEpisodesInfoClick(listItem = listItem, itemIndex = itemIndex)
             }
 
             EpisodesInfoTypeDomain.EXTRA -> {
-                val newListItem = listItem.copy(
-                    episodesInfoType = EpisodesInfoTypeDomain.AVAILABLE
-                )
-                val newListItems = state().listItems.toMutableList()
-                newListItems[itemIndex] = newListItem
-                dispatch(
-                    AnnouncedSectionStore.Message.UpdateListItems(
-                        listItems = newListItems.toList()
-                    )
-                )
+                availableEpisodesInfoClick(listItem = listItem, itemIndex = itemIndex)
             }
-
-            null -> Unit
         }
+    }
+
+    private fun extraEpisodesInfoClick(listItem: ListItemDomain, itemIndex: Int) {
+        val newListItem = listItem.copy(
+            episodesInfoType = EpisodesInfoTypeDomain.EXTRA
+        )
+        val newListItems = state().listItems.toMutableList()
+        newListItems[itemIndex] = newListItem
+        dispatch(
+            AnnouncedSectionStore.Message.UpdateListItems(
+                listItems = newListItems.toList()
+            )
+        )
+    }
+
+    private fun availableEpisodesInfoClick(listItem: ListItemDomain, itemIndex: Int) {
+        val newListItem = listItem.copy(
+            episodesInfoType = EpisodesInfoTypeDomain.AVAILABLE
+        )
+        val newListItems = state().listItems.toMutableList()
+        newListItems[itemIndex] = newListItem
+        dispatch(
+            AnnouncedSectionStore.Message.UpdateListItems(
+                listItems = newListItems.toList()
+            )
+        )
     }
 
     private fun notificationClick() {

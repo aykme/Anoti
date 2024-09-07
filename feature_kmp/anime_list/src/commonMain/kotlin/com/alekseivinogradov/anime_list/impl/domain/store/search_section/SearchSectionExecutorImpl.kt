@@ -1,11 +1,15 @@
 package com.alekseivinogradov.anime_list.impl.domain.store.search_section
 
+import com.alekseivinogradov.anime_list.api.domain.AnimeId
 import com.alekseivinogradov.anime_list.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.anime_list.api.domain.SEARCH_DEBOUNCE
 import com.alekseivinogradov.anime_list.api.domain.model.section.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.section.EpisodesInfoTypeDomain
+import com.alekseivinogradov.anime_list.api.domain.model.section.ListItemDomain
+import com.alekseivinogradov.anime_list.api.domain.model.section.ReleaseStatusDomain
 import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionExecutor
 import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionStore
+import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeByIdUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeListBySearchUsecase
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.FlowPreview
@@ -16,12 +20,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 internal class SearchSectionExecutorImpl(
-    private val fetchAnimeListUsecase: FetchAnimeListBySearchUsecase
+    private val fetchAnimeListUsecase: FetchAnimeListBySearchUsecase,
+    private val fetchAnimeByIdUsecase: FetchAnimeByIdUsecase
 ) : SearchSectionExecutor() {
 
     private val searchFlow: MutableStateFlow<String> = MutableStateFlow("")
     private var changeSearchJob: Job? = null
     private var updateSectionJob: Job? = null
+    private val updateExtraEpisodesInfoJobMap = mutableMapOf<AnimeId, Job>()
 
     override fun executeIntent(intent: SearchSectionStore.Intent) {
         when (intent) {
@@ -85,36 +91,81 @@ internal class SearchSectionExecutorImpl(
     }
 
     private fun episodeInfoClick(itemIndex: Int) {
-        val listItem = state().listItems.getOrNull(itemIndex)
-        when (listItem?.episodesInfoType) {
+        val listItem = state().listItems.getOrNull(itemIndex) ?: return
+        when (listItem.episodesInfoType) {
             EpisodesInfoTypeDomain.AVAILABLE -> {
-                val newListItem = listItem.copy(
-                    episodesInfoType = EpisodesInfoTypeDomain.EXTRA
-                )
-                val newListItems = state().listItems.toMutableList()
-                newListItems[itemIndex] = newListItem
-                dispatch(
-                    SearchSectionStore.Message.UpdateListItems(
-                        listItems = newListItems.toList()
-                    )
-                )
+                extraEpisodesInfoClick(listItem = listItem, itemIndex = itemIndex)
             }
 
             EpisodesInfoTypeDomain.EXTRA -> {
-                val newListItem = listItem.copy(
-                    episodesInfoType = EpisodesInfoTypeDomain.AVAILABLE
-                )
-                val newListItems = state().listItems.toMutableList()
-                newListItems[itemIndex] = newListItem
-                dispatch(
-                    SearchSectionStore.Message.UpdateListItems(
-                        listItems = newListItems.toList()
-                    )
-                )
+                availableEpisodesInfoClick(listItem = listItem, itemIndex = itemIndex)
             }
-
-            null -> Unit
         }
+    }
+
+    private fun extraEpisodesInfoClick(listItem: ListItemDomain, itemIndex: Int) {
+        val newListItem = listItem.copy(
+            episodesInfoType = EpisodesInfoTypeDomain.EXTRA
+        )
+        val newListItems = state().listItems.toMutableList()
+        newListItems[itemIndex] = newListItem
+        dispatch(
+            SearchSectionStore.Message.UpdateListItems(
+                listItems = newListItems.toList()
+            )
+        )
+        if (listItem.releaseStatus == ReleaseStatusDomain.ONGOING) {
+            updateExtraEpisodesInfo(itemIndex)
+        }
+    }
+
+    private fun availableEpisodesInfoClick(listItem: ListItemDomain, itemIndex: Int) {
+        val newListItem = listItem.copy(
+            episodesInfoType = EpisodesInfoTypeDomain.AVAILABLE
+        )
+        val newListItems = state().listItems.toMutableList()
+        newListItems[itemIndex] = newListItem
+        dispatch(
+            SearchSectionStore.Message.UpdateListItems(
+                listItems = newListItems.toList()
+            )
+        )
+    }
+
+    private fun updateExtraEpisodesInfo(itemIndex: Int) {
+        val listItem = state().listItems.getOrNull(itemIndex) ?: return
+        val id = listItem.id ?: return
+
+        updateExtraEpisodesInfoJobMap[id]?.cancel()
+        updateExtraEpisodesInfoJobMap[id] = scope.launch {
+            val result = fetchAnimeByIdUsecase.execute(id)
+            when (result) {
+                is CallResult.Success -> onSuccessUpdateExtraEpisodesInfo(
+                    updateListItem = result.value,
+                    itemIndex = itemIndex
+                )
+
+                is CallResult.HttpError,
+                is CallResult.OtherError -> Unit
+            }
+        }
+    }
+
+    private fun onSuccessUpdateExtraEpisodesInfo(
+        updateListItem: ListItemDomain,
+        itemIndex: Int
+    ) {
+        val currentListItem = state().listItems.getOrNull(itemIndex) ?: return
+        val newListItem = currentListItem.copy(
+            extraEpisodesInfo = updateListItem.extraEpisodesInfo
+        )
+        val newListItems = state().listItems.toMutableList()
+        newListItems[itemIndex] = newListItem
+        dispatch(
+            SearchSectionStore.Message.UpdateListItems(
+                listItems = newListItems.toList()
+            )
+        )
     }
 
     private fun notificationClick() {

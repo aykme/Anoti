@@ -14,7 +14,6 @@ class SafeApiImpl() : SafeApi {
         apiCall: suspend () -> T
     ): CallResult<T> {
         return try {
-            println("tagtag attempt: $callAttempt")
             CallResult.Success(apiCall.invoke())
         } catch (throwable: Throwable) {
             if (callAttempt < maxAttempt) {
