@@ -5,20 +5,29 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.alekseivinogradov.anime_list.api.data.local.repository.AnimeListDatabaseRepository
 import com.alekseivinogradov.anime_list.api.data.remote.source.AnimeListSource
 import com.alekseivinogradov.anime_list.databinding.FragmentAnimeListBinding
+import com.alekseivinogradov.anime_list.impl.data.local.repository.AnimeListDatabaseRepositoryImpl
 import com.alekseivinogradov.anime_list.impl.data.remote.source.AnimeListSourceImpl
+import com.alekseivinogradov.anime_list.impl.domain.usecase.DeleteAnimeDatabaseItemUsecase
+import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAllAnimeDatabaseItemsFlowUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeAnnouncedListUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeByIdUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeListBySearchUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeOngoingListUsecase
-import com.alekseivinogradov.anime_list.impl.domain.usecase.Usecases
+import com.alekseivinogradov.anime_list.impl.domain.usecase.InsertAnimeDatabaseItemUsecase
+import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.AnnouncedUsecases
+import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.OngoingUsecases
+import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.SearchUsecases
 import com.alekseivinogradov.anime_list.impl.presentation.AnimeListController
 import com.alekseivinogradov.anime_network_base.api.data.remote.service.ShikimoriApiService
 import com.alekseivinogradov.anime_network_base.api.data.remote.service.ShikimoriApiServicePlatform
 import com.alekseivinogradov.anime_network_base.impl.remote.ShikimoriApiServiceImpl
-import com.alekseivinogradov.network.api.data.remote.SafeApi
-import com.alekseivinogradov.network.impl.data.remote.SafeApiImpl
+import com.alekseivinogradov.database.api.data.AnimeDatabaseRepository
+import com.alekseivinogradov.database.room.impl.data.AnimeDatabase
+import com.alekseivinogradov.database.room.impl.data.AnimeDatabaseRepositoryImpl
+import com.alekseivinogradov.network.impl.data.SafeApiImpl
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 
@@ -30,11 +39,9 @@ class AnimeListFragment : Fragment() {
         servicePlatform = ShikimoriApiServicePlatform.instance
     )
 
-    private val safeApi: SafeApi = SafeApiImpl()
-
     private val animeListSource: AnimeListSource = AnimeListSourceImpl(
         service = shikimoriService,
-        safeApi = safeApi
+        safeApi = SafeApiImpl
     )
 
     private val fetchAnimeOngoingListUsecase =
@@ -49,11 +56,42 @@ class AnimeListFragment : Fragment() {
     private val fetchAnimeByIdUsecase =
         FetchAnimeByIdUsecase(source = animeListSource)
 
+    val animeDatabase by lazy(LazyThreadSafetyMode.NONE) {
+        AnimeDatabase.getDatabase(view!!.context.applicationContext)
+    }
+
+    val animeDatabaseRepository: AnimeDatabaseRepository
+            by lazy(LazyThreadSafetyMode.NONE) {
+                AnimeDatabaseRepositoryImpl(animeDao = animeDatabase.animeDao())
+            }
+
+    val animeListDatabaseRepository: AnimeListDatabaseRepository
+            by lazy(LazyThreadSafetyMode.NONE) {
+                AnimeListDatabaseRepositoryImpl(animeDatabaseRepository)
+            }
+
+    val insertAnimeDatabaseItemUsecase
+            by lazy(LazyThreadSafetyMode.NONE) {
+                InsertAnimeDatabaseItemUsecase(animeListDatabaseRepository)
+            }
+
+    val deleteAnimeDatabaseItemUsecase
+            by lazy(LazyThreadSafetyMode.NONE) {
+                DeleteAnimeDatabaseItemUsecase(animeListDatabaseRepository)
+            }
+
+    val fetchAllAnimeDatabaseItemsFlowUsecase
+            by lazy(LazyThreadSafetyMode.NONE) {
+                FetchAllAnimeDatabaseItemsFlowUsecase(animeListDatabaseRepository)
+            }
+
     private val controller: AnimeListController by lazy {
         AnimeListController(
             storeFactory = DefaultStoreFactory(),
             lifecycle = essentyLifecycle(),
-            usecases = getUsecases()
+            ongoingUsecases = getOngoingUsecases(),
+            announcedUsecases = getAnnouncedUsecases(),
+            searchUsecases = getSearchUsecases()
         )
     }
 
@@ -67,7 +105,6 @@ class AnimeListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         controller.onViewCreated(
             mainView = AnimeListViewImpl(
                 viewBinding = binding
@@ -76,10 +113,26 @@ class AnimeListFragment : Fragment() {
         )
     }
 
-    private fun getUsecases() = Usecases(
+    private fun getOngoingUsecases() = OngoingUsecases(
         fetchAnimeOngoingListUsecase = fetchAnimeOngoingListUsecase,
+        fetchAnimeByIdUsecase = fetchAnimeByIdUsecase,
+        insertAnimeDatabaseItemUsecase = insertAnimeDatabaseItemUsecase,
+        deleteAnimeDatabaseItemUsecase = deleteAnimeDatabaseItemUsecase,
+        fetchAllAnimeDatabaseItemsFlowUsecase = fetchAllAnimeDatabaseItemsFlowUsecase
+    )
+
+    private fun getAnnouncedUsecases() = AnnouncedUsecases(
         fetchAnimeAnnouncedListUsecase = fetchAnimeAnnouncedListUsecase,
+        insertAnimeDatabaseItemUsecase = insertAnimeDatabaseItemUsecase,
+        deleteAnimeDatabaseItemUsecase = deleteAnimeDatabaseItemUsecase,
+        fetchAllAnimeDatabaseItemsFlowUsecase = fetchAllAnimeDatabaseItemsFlowUsecase
+    )
+
+    private fun getSearchUsecases() = SearchUsecases(
         fetchAnimeListBySearchUsecase = fetchAnimeListBySearchUsecase,
-        fetchAnimeByIdUsecase = fetchAnimeByIdUsecase
+        fetchAnimeByIdUsecase = fetchAnimeByIdUsecase,
+        insertAnimeDatabaseItemUsecase = insertAnimeDatabaseItemUsecase,
+        deleteAnimeDatabaseItemUsecase = deleteAnimeDatabaseItemUsecase,
+        fetchAllAnimeDatabaseItemsFlowUsecase = fetchAllAnimeDatabaseItemsFlowUsecase
     )
 }

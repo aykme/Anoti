@@ -16,6 +16,10 @@ internal class OngoingSectionReducerImpl :
             is OngoingSectionStore.Message.UpdateListItems -> copy(
                 listItems = msg.listItems
             )
+
+            is OngoingSectionStore.Message.UpdateEnabledNotificationIds -> copy(
+                enabledNotificationIds = msg.enabledNotificationIds
+            )
         }
     }
 }

@@ -8,7 +8,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.alekseivinogradov.anime_list.R
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
-import com.alekseivinogradov.anime_list.api.presentation.mapper.model.UiModel
+import com.alekseivinogradov.anime_list.api.presentation.model.UiModel
 import com.alekseivinogradov.anime_list.api.presentation.model.ContentTypeUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SearchUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SectionUi

@@ -5,7 +5,7 @@ import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.Ongoing
 import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionStore
 import com.alekseivinogradov.anime_list.api.domain.store.upper_menu.UpperMenuStore
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
-import com.alekseivinogradov.anime_list.api.presentation.mapper.model.UiModel
+import com.alekseivinogradov.anime_list.api.presentation.mapper.model.mapStateToUiModel
 import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUiEventToAnnouncedSectionIntent
 import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUiEventToOngoingSectionIntent
 import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUiEventToSearchSectionIntent
@@ -13,12 +13,14 @@ import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUiEvent
 import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUpperMenuStateToAnnouncedSectionIntent
 import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUpperMenuStateToOngoingSectionIntent
 import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUpperMenuStateToSearchSectionIntent
+import com.alekseivinogradov.anime_list.api.presentation.model.UiModel
 import com.alekseivinogradov.anime_list.impl.domain.store.announced_section.AnnouncedSectionStoreFactory
 import com.alekseivinogradov.anime_list.impl.domain.store.ongoing_section.OngoingSectionStoreFactory
 import com.alekseivinogradov.anime_list.impl.domain.store.search_section.SearchSectionStoreFactory
 import com.alekseivinogradov.anime_list.impl.domain.store.upper_menu.UpperMenuStoreFactory
-import com.alekseivinogradov.anime_list.impl.domain.usecase.Usecases
-import com.alekseivinogradov.anime_list.impl.presentation.mapper.model.mapStateToUiModel
+import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.AnnouncedUsecases
+import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.OngoingUsecases
+import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.SearchUsecases
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.mvikotlin.core.binder.BinderLifecycleMode
@@ -34,26 +36,26 @@ import kotlinx.coroutines.flow.mapNotNull
 class AnimeListController(
     storeFactory: StoreFactory = DefaultStoreFactory(),
     lifecycle: Lifecycle,
-    usecases: Usecases
+    ongoingUsecases: OngoingUsecases,
+    announcedUsecases: AnnouncedUsecases,
+    searchUsecases: SearchUsecases,
 ) {
 
     private val upperMenuStore = UpperMenuStoreFactory(storeFactory).create()
 
     private val ongoingSectionStore = OngoingSectionStoreFactory(
         storeFactory = storeFactory,
-        fetchAnimeListUsecase = usecases.fetchAnimeOngoingListUsecase,
-        fetchAnimeByIdUsecase = usecases.fetchAnimeByIdUsecase
+        ongoingUsecases = ongoingUsecases
     ).create()
 
     private val announcedSectionStore = AnnouncedSectionStoreFactory(
         storeFactory = storeFactory,
-        fetchAnimeListUsecase = usecases.fetchAnimeAnnouncedListUsecase
+        announcedUsecases = announcedUsecases
     ).create()
 
     private val searchSectionStore = SearchSectionStoreFactory(
         storeFactory = storeFactory,
-        fetchAnimeListUsecase = usecases.fetchAnimeListBySearchUsecase,
-        fetchAnimeByIdUsecase = usecases.fetchAnimeByIdUsecase
+        searchUsecases = searchUsecases
     ).create()
 
     init {

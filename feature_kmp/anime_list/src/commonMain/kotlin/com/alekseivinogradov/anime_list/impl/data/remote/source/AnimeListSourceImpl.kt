@@ -2,7 +2,7 @@ package com.alekseivinogradov.anime_list.impl.data.remote.source
 
 import com.alekseivinogradov.anime_list.api.data.remote.source.AnimeListSource
 import com.alekseivinogradov.anime_list.api.domain.model.section.ListItemDomain
-import com.alekseivinogradov.anime_list.impl.data.remote.mapper.toListItemDomain
+import com.alekseivinogradov.anime_list.api.data.remote.mapper.toListItemDomain
 import com.alekseivinogradov.anime_network_base.api.data.model.ReleaseStatusData
 import com.alekseivinogradov.anime_network_base.api.data.remote.service.ShikimoriApiService
 import com.alekseivinogradov.network.api.data.remote.SafeApi

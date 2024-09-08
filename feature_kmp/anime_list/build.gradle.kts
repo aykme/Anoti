@@ -27,6 +27,7 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":feature_kmp:anime_network_base"))
             implementation(project(":core_kmp:network"))
+            implementation(project(":core_kmp:database"))
 
             api(libs.mvikotlin)
             api(libs.mvikotlin.main)

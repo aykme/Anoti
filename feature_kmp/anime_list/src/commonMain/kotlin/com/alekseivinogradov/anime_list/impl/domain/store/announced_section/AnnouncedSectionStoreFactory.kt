@@ -2,18 +2,18 @@ package com.alekseivinogradov.anime_list.impl.domain.store.announced_section
 
 import com.alekseivinogradov.anime_list.api.domain.store.announced_section.AnnouncedSectionExecutor
 import com.alekseivinogradov.anime_list.api.domain.store.announced_section.AnnouncedSectionStore
-import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeAnnouncedListUsecase
+import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.AnnouncedUsecases
 import com.arkivanov.mvikotlin.core.store.SimpleBootstrapper
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 
 internal class AnnouncedSectionStoreFactory(
     private val storeFactory: StoreFactory,
-    private val fetchAnimeListUsecase: FetchAnimeAnnouncedListUsecase
+    announcedUsecases: AnnouncedUsecases
 ) {
 
     val executorFactory: () -> AnnouncedSectionExecutor = {
-        AnnouncedSectionExecutorImpl(fetchAnimeListUsecase)
+        AnnouncedSectionExecutorImpl(usecases = announcedUsecases)
     }
 
     internal fun create(): AnnouncedSectionStore {

@@ -11,8 +11,10 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/core_kmp" />
+            <option value="$PROJECT_DIR$/core_kmp/database" />
             <option value="$PROJECT_DIR$/core_kmp/network" />
             <option value="$PROJECT_DIR$/core_platform" />
+            <option value="$PROJECT_DIR$/core_platform/database" />
             <option value="$PROJECT_DIR$/core_platform/network" />
             <option value="$PROJECT_DIR$/feature_kmp" />
             <option value="$PROJECT_DIR$/feature_kmp/anime_list" />

@@ -6,13 +6,13 @@ import com.alekseivinogradov.anime_list.api.domain.model.section.EpisodesInfoTyp
 import com.alekseivinogradov.anime_list.api.domain.model.section.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.store.announced_section.AnnouncedSectionExecutor
 import com.alekseivinogradov.anime_list.api.domain.store.announced_section.AnnouncedSectionStore
-import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeAnnouncedListUsecase
+import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.AnnouncedUsecases
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 internal class AnnouncedSectionExecutorImpl(
-    private val fetchAnimeListUsecase: FetchAnimeAnnouncedListUsecase
+    private val usecases: AnnouncedUsecases
 ) : AnnouncedSectionExecutor() {
 
     private var updateSectionJob: Job? = null
@@ -38,7 +38,7 @@ internal class AnnouncedSectionExecutorImpl(
             dispatch(
                 AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
             )
-            val result = fetchAnimeListUsecase.execute(
+            val result = usecases.fetchAnimeAnnouncedListUsecase.execute(
                 page = 1,
                 itemsPerPage = ITEMS_PER_PAGE
             )

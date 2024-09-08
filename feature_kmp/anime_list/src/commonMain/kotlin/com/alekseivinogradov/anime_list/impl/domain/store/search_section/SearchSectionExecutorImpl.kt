@@ -9,8 +9,7 @@ import com.alekseivinogradov.anime_list.api.domain.model.section.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.section.ReleaseStatusDomain
 import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionExecutor
 import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionStore
-import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeByIdUsecase
-import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeListBySearchUsecase
+import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.SearchUsecases
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -20,8 +19,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 internal class SearchSectionExecutorImpl(
-    private val fetchAnimeListUsecase: FetchAnimeListBySearchUsecase,
-    private val fetchAnimeByIdUsecase: FetchAnimeByIdUsecase
+    private val usecases: SearchUsecases
 ) : SearchSectionExecutor() {
 
     private val searchFlow: MutableStateFlow<String> = MutableStateFlow("")
@@ -39,8 +37,13 @@ internal class SearchSectionExecutorImpl(
         }
     }
 
-    @OptIn(FlowPreview::class)
+
     private fun initSection() {
+        subscribeSearchFlow()
+    }
+
+    @OptIn(FlowPreview::class)
+    private fun subscribeSearchFlow() {
         if (changeSearchJob?.isActive == true) return
         changeSearchJob = scope.launch {
             searchFlow.debounce(SEARCH_DEBOUNCE)
@@ -56,7 +59,7 @@ internal class SearchSectionExecutorImpl(
             dispatch(
                 SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
             )
-            val result = fetchAnimeListUsecase.execute(
+            val result = usecases.fetchAnimeListBySearchUsecase.execute(
                 page = 1,
                 itemsPerPage = ITEMS_PER_PAGE,
                 searchText = searchText
@@ -138,7 +141,7 @@ internal class SearchSectionExecutorImpl(
 
         updateExtraEpisodesInfoJobMap[id]?.cancel()
         updateExtraEpisodesInfoJobMap[id] = scope.launch {
-            val result = fetchAnimeByIdUsecase.execute(id)
+            val result = usecases.fetchAnimeByIdUsecase.execute(id)
             when (result) {
                 is CallResult.Success -> onSuccessUpdateExtraEpisodesInfo(
                     updateListItem = result.value,
