@@ -20,43 +20,28 @@ internal class OngoingSectionExecutorImpl(
     private var updateSectionJob: Job? = null
     private val updateExtraEpisodesInfoJobMap = mutableMapOf<AnimeId, Job>()
     private var fetchAllDatabaseItemsJob: Job? = null
-    private var notificationJob: Job? = null
-
-    override fun executeAction(action: OngoingSectionStore.Action) {
-        when (action) {
-            OngoingSectionStore.Action.SubscribeToDatabase -> subscribeToDatabase()
-        }
-    }
 
     override fun executeIntent(intent: OngoingSectionStore.Intent) {
         when (intent) {
+            is OngoingSectionStore.Intent.UpdateEnabledNotificationIds -> {
+                updateEnabledNotificationIds(intent.enabledNotificationIds)
+            }
+
             OngoingSectionStore.Intent.InitSection -> initSection()
             OngoingSectionStore.Intent.UpdateSection -> updateSection()
             is OngoingSectionStore.Intent.EpisodesInfoClick -> episodeInfoClick(intent.itemIndex)
             is OngoingSectionStore.Intent.NotificationClick -> notificationClick(intent.itemIndex)
+
         }
+    }
+
+    private fun updateEnabledNotificationIds(enabledNotificationIds: Set<AnimeId>) {
+        dispatch(OngoingSectionStore.Message.UpdateEnabledNotificationIds(enabledNotificationIds))
     }
 
     private fun initSection() {
         if (state().listItems.isEmpty()) {
             updateSection()
-        }
-    }
-
-    private fun subscribeToDatabase() {
-        if (fetchAllDatabaseItemsJob?.isActive == true) return
-        fetchAllDatabaseItemsJob = scope.launch {
-            usecases.fetchAllAnimeDatabaseItemsFlowUsecase.execute()
-                .collect { itemList: List<ListItemDomain> ->
-                    val enabledNotificationIds = itemList.map { item: ListItemDomain ->
-                        item.id
-                    }.filterNotNull().toSet()
-                    dispatch(
-                        OngoingSectionStore.Message.UpdateEnabledNotificationIds(
-                            enabledNotificationIds
-                        )
-                    )
-                }
         }
     }
 
@@ -184,16 +169,10 @@ internal class OngoingSectionExecutorImpl(
     }
 
     private fun enableNotification(listItem: ListItemDomain) {
-        if (notificationJob?.isActive == true) return
-        notificationJob = scope.launch {
-            usecases.insertAnimeDatabaseItemUsecase.execute(listItem)
-        }
+        publish(OngoingSectionStore.Label.EnableNotification(listItem))
     }
 
     private fun disableNotification(id: Int) {
-        if (notificationJob?.isActive == true) return
-        notificationJob = scope.launch {
-            usecases.deleteAnimeDatabaseItemUsecase.execute(id)
-        }
+        publish(OngoingSectionStore.Label.DisableNotification(id))
     }
 }

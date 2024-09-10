@@ -1,5 +1,7 @@
 package com.alekseivinogradov.anime_list.impl.presentation
 
+import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapDatabaseStateToOngoingSectionIntent
+import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapOngoingSectionLabelToDatabaseIntent
 import com.alekseivinogradov.anime_list.api.domain.store.announced_section.AnnouncedSectionStore
 import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.OngoingSectionStore
 import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionStore
@@ -21,25 +23,35 @@ import com.alekseivinogradov.anime_list.impl.domain.store.upper_menu.UpperMenuSt
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.AnnouncedUsecases
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.OngoingUsecases
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.SearchUsecases
+import com.alekseivinogradov.database.impl.domain.store.DatabaseStoreFactory
+import com.alekseivinogradov.database.impl.domain.usecase.DatabaseUsecases
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.mvikotlin.core.binder.BinderLifecycleMode
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.bind
 import com.arkivanov.mvikotlin.extensions.coroutines.events
+import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.extensions.coroutines.states
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 
 class AnimeListController(
     storeFactory: StoreFactory = DefaultStoreFactory(),
     lifecycle: Lifecycle,
+    databaseUsecases: DatabaseUsecases,
     ongoingUsecases: OngoingUsecases,
     announcedUsecases: AnnouncedUsecases,
-    searchUsecases: SearchUsecases,
+    searchUsecases: SearchUsecases
 ) {
+
+    private val databaseStore = DatabaseStoreFactory(
+        storeFactory = storeFactory,
+        databaseUsecases = databaseUsecases
+    ).create()
 
     private val upperMenuStore = UpperMenuStoreFactory(storeFactory).create()
 
@@ -89,6 +101,14 @@ class AnimeListController(
             upperMenuStore.states.mapNotNull(
                 ::mapUpperMenuStateToSearchSectionIntent
             ) bindTo searchSectionStore
+
+            ongoingSectionStore.labels.map(
+                ::mapOngoingSectionLabelToDatabaseIntent
+            ) bindTo databaseStore
+
+            databaseStore.states.map(
+                ::mapDatabaseStateToOngoingSectionIntent
+            ) bindTo ongoingSectionStore
 
             subscribeOnAllRequiredStates() bindTo mainView
         }

@@ -2,7 +2,6 @@ package com.alekseivinogradov.anime_list.api.data.remote.mapper
 
 import com.alekseivinogradov.anime_list.api.domain.model.section.EpisodesInfoTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.section.ListItemDomain
-import com.alekseivinogradov.anime_list.api.domain.model.section.NotificationDomain
 import com.alekseivinogradov.anime_list.api.domain.model.section.ReleaseStatusDomain
 import com.alekseivinogradov.anime_network_base.api.data.model.ReleaseStatusData
 import com.alekseivinogradov.anime_network_base.api.data.remote.response.AnimeDetailsResponse
@@ -24,8 +23,7 @@ internal fun AnimeShortResponse.toListItemDomain() = ListItemDomain(
         releasedOn = this.releasedOn
     ),
     score = this.score,
-    releaseStatus = mapReleaseStatusDataToDomain(this.releaseStatus),
-    notification = NotificationDomain.DISABLED
+    releaseStatus = mapReleaseStatusDataToDomain(this.releaseStatus)
 )
 
 
@@ -43,8 +41,7 @@ internal fun AnimeDetailsResponse.toListItemDomain() = ListItemDomain(
         releasedOn = this.releasedOn
     ),
     score = this.score,
-    releaseStatus = mapReleaseStatusDataToDomain(this.releaseStatus),
-    notification = NotificationDomain.DISABLED
+    releaseStatus = mapReleaseStatusDataToDomain(this.releaseStatus)
 )
 
 private fun mapImageUrlDataToDomain(imageResponse: ImageResponse?): String? {

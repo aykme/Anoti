@@ -7,4 +7,5 @@ internal typealias SearchSectionExecutor = CoroutineExecutor<
         SearchSectionStore.Action,
         SearchSectionStore.State,
         SearchSectionStore.Message,
-        SearchSectionStore.Label>
+        SearchSectionStore.Label
+        >

@@ -7,4 +7,5 @@ internal typealias AnnouncedSectionExecutor = CoroutineExecutor<
         AnnouncedSectionStore.Action,
         AnnouncedSectionStore.State,
         AnnouncedSectionStore.Message,
-        AnnouncedSectionStore.Label>
+        AnnouncedSectionStore.Label
+        >

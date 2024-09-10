@@ -5,18 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.alekseivinogradov.anime_list.api.data.local.repository.AnimeListDatabaseRepository
 import com.alekseivinogradov.anime_list.api.data.remote.source.AnimeListSource
 import com.alekseivinogradov.anime_list.databinding.FragmentAnimeListBinding
-import com.alekseivinogradov.anime_list.impl.data.local.repository.AnimeListDatabaseRepositoryImpl
 import com.alekseivinogradov.anime_list.impl.data.remote.source.AnimeListSourceImpl
-import com.alekseivinogradov.anime_list.impl.domain.usecase.DeleteAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAllAnimeDatabaseItemsFlowUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeAnnouncedListUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeByIdUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeListBySearchUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeOngoingListUsecase
-import com.alekseivinogradov.anime_list.impl.domain.usecase.InsertAnimeDatabaseItemUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.AnnouncedUsecases
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.OngoingUsecases
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.SearchUsecases
@@ -25,6 +20,10 @@ import com.alekseivinogradov.anime_network_base.api.data.remote.service.Shikimor
 import com.alekseivinogradov.anime_network_base.api.data.remote.service.ShikimoriApiServicePlatform
 import com.alekseivinogradov.anime_network_base.impl.remote.ShikimoriApiServiceImpl
 import com.alekseivinogradov.database.api.data.AnimeDatabaseRepository
+import com.alekseivinogradov.database.impl.domain.usecase.DatabaseUsecases
+import com.alekseivinogradov.database.impl.domain.usecase.DeleteAnimeDatabaseItemUsecase
+import com.alekseivinogradov.database.impl.domain.usecase.FetchAllAnimeDatabaseItemsFlowUsecase
+import com.alekseivinogradov.database.impl.domain.usecase.InsertAnimeDatabaseItemUsecase
 import com.alekseivinogradov.database.room.impl.data.AnimeDatabase
 import com.alekseivinogradov.database.room.impl.data.AnimeDatabaseRepositoryImpl
 import com.alekseivinogradov.network.impl.data.SafeApiImpl
@@ -56,39 +55,35 @@ class AnimeListFragment : Fragment() {
     private val fetchAnimeByIdUsecase =
         FetchAnimeByIdUsecase(source = animeListSource)
 
-    val animeDatabase by lazy(LazyThreadSafetyMode.NONE) {
-        AnimeDatabase.getDatabase(view!!.context.applicationContext)
+    private val animeDatabase by lazy(LazyThreadSafetyMode.NONE) {
+        AnimeDatabase.getDatabase(requireContext().applicationContext)
     }
 
-    val animeDatabaseRepository: AnimeDatabaseRepository
+    private val animeDatabaseRepository: AnimeDatabaseRepository
             by lazy(LazyThreadSafetyMode.NONE) {
                 AnimeDatabaseRepositoryImpl(animeDao = animeDatabase.animeDao())
             }
 
-    val animeListDatabaseRepository: AnimeListDatabaseRepository
+    private val fetchAllAnimeDatabaseItemsFlowUsecase
             by lazy(LazyThreadSafetyMode.NONE) {
-                AnimeListDatabaseRepositoryImpl(animeDatabaseRepository)
+                FetchAllAnimeDatabaseItemsFlowUsecase(repository = animeDatabaseRepository)
             }
 
-    val insertAnimeDatabaseItemUsecase
+    private val insertAnimeDatabaseItemUsecase
             by lazy(LazyThreadSafetyMode.NONE) {
-                InsertAnimeDatabaseItemUsecase(animeListDatabaseRepository)
+                InsertAnimeDatabaseItemUsecase(repository = animeDatabaseRepository)
             }
 
-    val deleteAnimeDatabaseItemUsecase
+    private val deleteAnimeDatabaseItemUsecase
             by lazy(LazyThreadSafetyMode.NONE) {
-                DeleteAnimeDatabaseItemUsecase(animeListDatabaseRepository)
-            }
-
-    val fetchAllAnimeDatabaseItemsFlowUsecase
-            by lazy(LazyThreadSafetyMode.NONE) {
-                FetchAllAnimeDatabaseItemsFlowUsecase(animeListDatabaseRepository)
+                DeleteAnimeDatabaseItemUsecase(repository = animeDatabaseRepository)
             }
 
     private val controller: AnimeListController by lazy {
         AnimeListController(
             storeFactory = DefaultStoreFactory(),
             lifecycle = essentyLifecycle(),
+            databaseUsecases = getDatabaseUsecases(),
             ongoingUsecases = getOngoingUsecases(),
             announcedUsecases = getAnnouncedUsecases(),
             searchUsecases = getSearchUsecases()
@@ -113,26 +108,23 @@ class AnimeListFragment : Fragment() {
         )
     }
 
+    private fun getDatabaseUsecases() = DatabaseUsecases(
+        fetchAllAnimeDatabaseItemsFlowUsecase = fetchAllAnimeDatabaseItemsFlowUsecase,
+        insertAnimeDatabaseItemUsecase = insertAnimeDatabaseItemUsecase,
+        deleteAnimeDatabaseItemUsecase = deleteAnimeDatabaseItemUsecase
+    )
+
     private fun getOngoingUsecases() = OngoingUsecases(
         fetchAnimeOngoingListUsecase = fetchAnimeOngoingListUsecase,
-        fetchAnimeByIdUsecase = fetchAnimeByIdUsecase,
-        insertAnimeDatabaseItemUsecase = insertAnimeDatabaseItemUsecase,
-        deleteAnimeDatabaseItemUsecase = deleteAnimeDatabaseItemUsecase,
-        fetchAllAnimeDatabaseItemsFlowUsecase = fetchAllAnimeDatabaseItemsFlowUsecase
+        fetchAnimeByIdUsecase = fetchAnimeByIdUsecase
     )
 
     private fun getAnnouncedUsecases() = AnnouncedUsecases(
-        fetchAnimeAnnouncedListUsecase = fetchAnimeAnnouncedListUsecase,
-        insertAnimeDatabaseItemUsecase = insertAnimeDatabaseItemUsecase,
-        deleteAnimeDatabaseItemUsecase = deleteAnimeDatabaseItemUsecase,
-        fetchAllAnimeDatabaseItemsFlowUsecase = fetchAllAnimeDatabaseItemsFlowUsecase
+        fetchAnimeAnnouncedListUsecase = fetchAnimeAnnouncedListUsecase
     )
 
     private fun getSearchUsecases() = SearchUsecases(
         fetchAnimeListBySearchUsecase = fetchAnimeListBySearchUsecase,
-        fetchAnimeByIdUsecase = fetchAnimeByIdUsecase,
-        insertAnimeDatabaseItemUsecase = insertAnimeDatabaseItemUsecase,
-        deleteAnimeDatabaseItemUsecase = deleteAnimeDatabaseItemUsecase,
-        fetchAllAnimeDatabaseItemsFlowUsecase = fetchAllAnimeDatabaseItemsFlowUsecase
+        fetchAnimeByIdUsecase = fetchAnimeByIdUsecase
     )
 }

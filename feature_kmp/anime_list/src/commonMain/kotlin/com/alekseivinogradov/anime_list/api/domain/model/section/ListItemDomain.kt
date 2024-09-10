@@ -10,7 +10,6 @@ package com.alekseivinogradov.anime_list.api.domain.model.section
  * @param extraEpisodesInfo - дата следующего эпизода / дата начала показа / дата завершения показа
  * @param score - оценка
  * @param releaseStatus - статус аниме (онгоинг, анонс, выпущено)
- * @param notification - уведомление о выходе новых эпизодов
  */
 data class ListItemDomain(
     val id: Int?,
@@ -21,6 +20,5 @@ data class ListItemDomain(
     val episodesTotal: Int?,
     val extraEpisodesInfo: String?,
     val score: Float?,
-    val releaseStatus: ReleaseStatusDomain,
-    val notification: NotificationDomain
+    val releaseStatus: ReleaseStatusDomain
 )

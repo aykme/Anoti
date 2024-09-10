@@ -22,7 +22,7 @@ internal class OngoingSectionStoreFactory(
             by storeFactory.create(
                 name = "OngoingSectionStore",
                 initialState = OngoingSectionStore.State(),
-                bootstrapper = SimpleBootstrapper(OngoingSectionStore.Action.SubscribeToDatabase),
+                bootstrapper = SimpleBootstrapper(),
                 executorFactory = executorFactory,
                 reducer = OngoingSectionReducerImpl()
             ) {}

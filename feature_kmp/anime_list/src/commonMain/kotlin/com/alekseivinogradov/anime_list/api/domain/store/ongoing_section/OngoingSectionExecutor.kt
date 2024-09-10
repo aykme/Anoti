@@ -7,4 +7,5 @@ internal typealias OngoingSectionExecutor = CoroutineExecutor<
         OngoingSectionStore.Action,
         OngoingSectionStore.State,
         OngoingSectionStore.Message,
-        OngoingSectionStore.Label>
+        OngoingSectionStore.Label
+        >

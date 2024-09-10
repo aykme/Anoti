@@ -18,13 +18,15 @@ interface OngoingSectionStore
         data object UpdateSection : Intent
         data class EpisodesInfoClick(val itemIndex: Int) : Intent
         data class NotificationClick(val itemIndex: Int) : Intent
+        data class UpdateEnabledNotificationIds(val enabledNotificationIds: Set<AnimeId>) : Intent
     }
 
-    sealed interface Label
-
-    sealed interface Action {
-        data object SubscribeToDatabase : Action
+    sealed interface Label {
+        data class EnableNotification(val listItem: ListItemDomain) : Label
+        data class DisableNotification(val id: Int) : Label
     }
+
+    sealed interface Action
 
     sealed interface Message {
         data class ChangeContentType(val contentType: ContentTypeDomain) : Message
