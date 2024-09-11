@@ -24,7 +24,7 @@ internal class AnnouncedSectionExecutorImpl(
                 updateEnabledNotificationIds(intent.enabledNotificationIds)
             }
 
-            AnnouncedSectionStore.Intent.InitSection -> initSection()
+            AnnouncedSectionStore.Intent.OpenSection -> openSection()
             AnnouncedSectionStore.Intent.UpdateSection -> updateSection()
             is AnnouncedSectionStore.Intent.EpisodesInfoClick -> episodeInfoClick(intent.itemIndex)
             is AnnouncedSectionStore.Intent.NotificationClick -> notificationClick(intent.itemIndex)
@@ -36,7 +36,7 @@ internal class AnnouncedSectionExecutorImpl(
         dispatch(AnnouncedSectionStore.Message.UpdateEnabledNotificationIds(enabledNotificationIds))
     }
 
-    private fun initSection() {
+    private fun openSection() {
         if (state().listItems.isEmpty()) {
             updateSection()
         }

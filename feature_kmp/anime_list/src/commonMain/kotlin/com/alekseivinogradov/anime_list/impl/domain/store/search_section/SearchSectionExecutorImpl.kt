@@ -22,10 +22,16 @@ internal class SearchSectionExecutorImpl(
     private val usecases: SearchUsecases
 ) : SearchSectionExecutor() {
 
-    private val searchFlow: MutableStateFlow<String> = MutableStateFlow("")
+    private var searchFlow: MutableStateFlow<String>? = null
     private var changeSearchJob: Job? = null
     private var updateSectionJob: Job? = null
     private val updateExtraEpisodesInfoJobMap = mutableMapOf<AnimeId, Job>()
+
+    override fun executeAction(action: SearchSectionStore.Action) {
+        when (action) {
+            SearchSectionStore.Action.InitSection -> initSection()
+        }
+    }
 
     override fun executeIntent(intent: SearchSectionStore.Intent) {
         when (intent) {
@@ -33,7 +39,7 @@ internal class SearchSectionExecutorImpl(
                 updateEnabledNotificationIds(intent.enabledNotificationIds)
             }
 
-            SearchSectionStore.Intent.InitSection -> initSection()
+            SearchSectionStore.Intent.OpenSection -> openSection()
             SearchSectionStore.Intent.UpdateSection -> updateSection(state().searchText)
             is SearchSectionStore.Intent.SearchTextChange -> searchTextChange(intent.searchText)
             is SearchSectionStore.Intent.EpisodesInfoClick -> episodeInfoClick(intent.itemIndex)
@@ -41,11 +47,15 @@ internal class SearchSectionExecutorImpl(
         }
     }
 
+    private fun initSection() {
+        searchFlow = MutableStateFlow(state().searchText)
+    }
+
     private fun updateEnabledNotificationIds(enabledNotificationIds: Set<AnimeId>) {
         dispatch(SearchSectionStore.Message.UpdateEnabledNotificationIds(enabledNotificationIds))
     }
 
-    private fun initSection() {
+    private fun openSection() {
         subscribeSearchFlow()
     }
 
@@ -53,8 +63,8 @@ internal class SearchSectionExecutorImpl(
     private fun subscribeSearchFlow() {
         if (changeSearchJob?.isActive == true) return
         changeSearchJob = scope.launch {
-            searchFlow.debounce(SEARCH_DEBOUNCE)
-                .collect {
+            searchFlow?.debounce(SEARCH_DEBOUNCE)
+                ?.collect {
                     updateSection(state().searchText)
                 }
         }
@@ -97,7 +107,7 @@ internal class SearchSectionExecutorImpl(
 
     private fun searchTextChange(searchText: String) {
         dispatch(SearchSectionStore.Message.ChangeSearchText(searchText))
-        searchFlow.update { state().searchText }
+        searchFlow?.update { state().searchText }
     }
 
     private fun episodeInfoClick(itemIndex: Int) {

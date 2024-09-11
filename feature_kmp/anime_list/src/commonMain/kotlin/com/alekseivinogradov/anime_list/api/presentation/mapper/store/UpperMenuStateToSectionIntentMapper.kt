@@ -9,7 +9,7 @@ import com.alekseivinogradov.anime_list.api.domain.store.upper_menu.UpperMenuSto
 internal fun mapUpperMenuStateToOngoingSectionIntent(state: UpperMenuStore.State):
         OngoingSectionStore.Intent? {
     return when (state.selectedSection) {
-        SectionDomain.ONGOINGS -> OngoingSectionStore.Intent.InitSection
+        SectionDomain.ONGOINGS -> OngoingSectionStore.Intent.OpenSection
         SectionDomain.ANNOUNCED,
         SectionDomain.SEARCH -> null
     }
@@ -18,7 +18,7 @@ internal fun mapUpperMenuStateToOngoingSectionIntent(state: UpperMenuStore.State
 internal fun mapUpperMenuStateToAnnouncedSectionIntent(state: UpperMenuStore.State):
         AnnouncedSectionStore.Intent? {
     return when (state.selectedSection) {
-        SectionDomain.ANNOUNCED -> AnnouncedSectionStore.Intent.InitSection
+        SectionDomain.ANNOUNCED -> AnnouncedSectionStore.Intent.OpenSection
         SectionDomain.ONGOINGS,
         SectionDomain.SEARCH -> null
     }
@@ -27,7 +27,7 @@ internal fun mapUpperMenuStateToAnnouncedSectionIntent(state: UpperMenuStore.Sta
 internal fun mapUpperMenuStateToSearchSectionIntent(state: UpperMenuStore.State):
         SearchSectionStore.Intent? {
     return when (state.selectedSection) {
-        SectionDomain.SEARCH -> SearchSectionStore.Intent.InitSection
+        SectionDomain.SEARCH -> SearchSectionStore.Intent.OpenSection
         SectionDomain.ANNOUNCED,
         SectionDomain.ONGOINGS -> null
     }

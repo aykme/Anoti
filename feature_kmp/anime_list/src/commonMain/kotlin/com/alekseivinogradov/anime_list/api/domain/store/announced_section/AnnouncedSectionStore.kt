@@ -3,7 +3,6 @@ package com.alekseivinogradov.anime_list.api.domain.store.announced_section
 import com.alekseivinogradov.anime_list.api.domain.AnimeId
 import com.alekseivinogradov.anime_list.api.domain.model.section.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.section.ListItemDomain
-import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.OngoingSectionStore.Label
 import com.arkivanov.mvikotlin.core.store.Store
 
 interface AnnouncedSectionStore : Store<
@@ -18,7 +17,7 @@ interface AnnouncedSectionStore : Store<
     )
 
     sealed interface Intent {
-        data object InitSection : Intent
+        data object OpenSection : Intent
         data object UpdateSection : Intent
         data class EpisodesInfoClick(val itemIndex: Int) : Intent
         data class NotificationClick(val itemIndex: Int) : Intent

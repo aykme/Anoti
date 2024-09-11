@@ -14,7 +14,7 @@ interface OngoingSectionStore
     )
 
     sealed interface Intent {
-        data object InitSection : Intent
+        data object OpenSection : Intent
         data object UpdateSection : Intent
         data class EpisodesInfoClick(val itemIndex: Int) : Intent
         data class NotificationClick(val itemIndex: Int) : Intent

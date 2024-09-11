@@ -27,7 +27,7 @@ internal class OngoingSectionExecutorImpl(
                 updateEnabledNotificationIds(intent.enabledNotificationIds)
             }
 
-            OngoingSectionStore.Intent.InitSection -> initSection()
+            OngoingSectionStore.Intent.OpenSection -> openSection()
             OngoingSectionStore.Intent.UpdateSection -> updateSection()
             is OngoingSectionStore.Intent.EpisodesInfoClick -> episodeInfoClick(intent.itemIndex)
             is OngoingSectionStore.Intent.NotificationClick -> notificationClick(intent.itemIndex)
@@ -39,7 +39,7 @@ internal class OngoingSectionExecutorImpl(
         dispatch(OngoingSectionStore.Message.UpdateEnabledNotificationIds(enabledNotificationIds))
     }
 
-    private fun initSection() {
+    private fun openSection() {
         if (state().listItems.isEmpty()) {
             updateSection()
         }

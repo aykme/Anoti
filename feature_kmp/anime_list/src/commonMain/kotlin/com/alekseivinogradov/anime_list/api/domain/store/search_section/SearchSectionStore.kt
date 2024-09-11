@@ -15,7 +15,7 @@ interface SearchSectionStore
     )
 
     sealed interface Intent {
-        data object InitSection : Intent
+        data object OpenSection : Intent
         data object UpdateSection : Intent
         data class SearchTextChange(val searchText: String) : Intent
         data class EpisodesInfoClick(val itemIndex: Int) : Intent
@@ -28,7 +28,9 @@ interface SearchSectionStore
         data class DisableNotification(val id: Int) : Label
     }
 
-    sealed interface Action
+    sealed interface Action {
+        data object InitSection : Action
+    }
 
     sealed interface Message {
         data class ChangeContentType(val contentType: ContentTypeDomain) : Message
