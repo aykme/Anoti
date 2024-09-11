@@ -20,6 +20,10 @@ internal class SearchSectionReducerImpl :
             is SearchSectionStore.Message.ChangeSearchText -> copy(
                 searchText = msg.searchText
             )
+
+            is SearchSectionStore.Message.UpdateEnabledNotificationIds -> copy(
+                enabledNotificationIds = msg.enabledNotificationIds
+            )
         }
     }
 }

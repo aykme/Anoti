@@ -16,6 +16,10 @@ internal class AnnouncedSectionReducerImpl :
             is AnnouncedSectionStore.Message.UpdateListItems -> copy(
                 listItems = msg.listItems
             )
+
+            is AnnouncedSectionStore.Message.UpdateEnabledNotificationIds -> copy(
+                enabledNotificationIds = msg.enabledNotificationIds
+            )
         }
     }
 }

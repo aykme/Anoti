@@ -1,7 +1,11 @@
 package com.alekseivinogradov.anime_list.impl.presentation
 
+import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapAnnouncedSectionLabelToDatabaseIntent
+import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapDatabaseStateToAnnouncedSectionIntent
 import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapDatabaseStateToOngoingSectionIntent
+import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapDatabaseStateToSearchSectionIntent
 import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapOngoingSectionLabelToDatabaseIntent
+import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapSearchSectionLabelToDatabaseIntent
 import com.alekseivinogradov.anime_list.api.domain.store.announced_section.AnnouncedSectionStore
 import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.OngoingSectionStore
 import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionStore
@@ -102,13 +106,29 @@ class AnimeListController(
                 ::mapUpperMenuStateToSearchSectionIntent
             ) bindTo searchSectionStore
 
+            databaseStore.states.map(
+                ::mapDatabaseStateToOngoingSectionIntent
+            ) bindTo ongoingSectionStore
+
+            databaseStore.states.map(
+                ::mapDatabaseStateToAnnouncedSectionIntent
+            ) bindTo announcedSectionStore
+
+            databaseStore.states.map(
+                ::mapDatabaseStateToSearchSectionIntent
+            ) bindTo searchSectionStore
+
             ongoingSectionStore.labels.map(
                 ::mapOngoingSectionLabelToDatabaseIntent
             ) bindTo databaseStore
 
-            databaseStore.states.map(
-                ::mapDatabaseStateToOngoingSectionIntent
-            ) bindTo ongoingSectionStore
+            announcedSectionStore.labels.map(
+                ::mapAnnouncedSectionLabelToDatabaseIntent
+            ) bindTo databaseStore
+
+            searchSectionStore.labels.map(
+                ::mapSearchSectionLabelToDatabaseIntent
+            ) bindTo databaseStore
 
             subscribeOnAllRequiredStates() bindTo mainView
         }

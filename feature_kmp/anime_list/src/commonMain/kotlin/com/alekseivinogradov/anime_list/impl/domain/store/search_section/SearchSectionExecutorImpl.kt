@@ -29,14 +29,21 @@ internal class SearchSectionExecutorImpl(
 
     override fun executeIntent(intent: SearchSectionStore.Intent) {
         when (intent) {
+            is SearchSectionStore.Intent.UpdateEnabledNotificationIds -> {
+                updateEnabledNotificationIds(intent.enabledNotificationIds)
+            }
+
             SearchSectionStore.Intent.InitSection -> initSection()
             SearchSectionStore.Intent.UpdateSection -> updateSection(state().searchText)
             is SearchSectionStore.Intent.SearchTextChange -> searchTextChange(intent.searchText)
             is SearchSectionStore.Intent.EpisodesInfoClick -> episodeInfoClick(intent.itemIndex)
-            is SearchSectionStore.Intent.NotificationClick -> notificationClick()
+            is SearchSectionStore.Intent.NotificationClick -> notificationClick(intent.itemIndex)
         }
     }
 
+    private fun updateEnabledNotificationIds(enabledNotificationIds: Set<AnimeId>) {
+        dispatch(SearchSectionStore.Message.UpdateEnabledNotificationIds(enabledNotificationIds))
+    }
 
     private fun initSection() {
         subscribeSearchFlow()
@@ -171,7 +178,22 @@ internal class SearchSectionExecutorImpl(
         )
     }
 
-    private fun notificationClick() {
+    private fun notificationClick(itemIndex: Int) {
+        val listItem = state().listItems.getOrNull(itemIndex) ?: return
+        val id = listItem.id ?: return
 
+        if (state().enabledNotificationIds.contains(id).not()) {
+            enableNotification(listItem)
+        } else {
+            disableNotification(id)
+        }
+    }
+
+    private fun enableNotification(listItem: ListItemDomain) {
+        publish(SearchSectionStore.Label.EnableNotification(listItem))
+    }
+
+    private fun disableNotification(id: Int) {
+        publish(SearchSectionStore.Label.DisableNotification(id))
     }
 }

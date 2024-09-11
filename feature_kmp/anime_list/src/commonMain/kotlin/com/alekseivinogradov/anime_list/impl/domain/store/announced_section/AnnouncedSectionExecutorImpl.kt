@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anime_list.impl.domain.store.announced_section
 
+import com.alekseivinogradov.anime_list.api.domain.AnimeId
 import com.alekseivinogradov.anime_list.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.anime_list.api.domain.model.section.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.section.EpisodesInfoTypeDomain
@@ -19,11 +20,20 @@ internal class AnnouncedSectionExecutorImpl(
 
     override fun executeIntent(intent: AnnouncedSectionStore.Intent) {
         when (intent) {
+            is AnnouncedSectionStore.Intent.UpdateEnabledNotificationIds -> {
+                updateEnabledNotificationIds(intent.enabledNotificationIds)
+            }
+
             AnnouncedSectionStore.Intent.InitSection -> initSection()
             AnnouncedSectionStore.Intent.UpdateSection -> updateSection()
             is AnnouncedSectionStore.Intent.EpisodesInfoClick -> episodeInfoClick(intent.itemIndex)
-            is AnnouncedSectionStore.Intent.NotificationClick -> notificationClick()
+            is AnnouncedSectionStore.Intent.NotificationClick -> notificationClick(intent.itemIndex)
+
         }
+    }
+
+    private fun updateEnabledNotificationIds(enabledNotificationIds: Set<AnimeId>) {
+        dispatch(AnnouncedSectionStore.Message.UpdateEnabledNotificationIds(enabledNotificationIds))
     }
 
     private fun initSection() {
@@ -105,7 +115,22 @@ internal class AnnouncedSectionExecutorImpl(
         )
     }
 
-    private fun notificationClick() {
+    private fun notificationClick(itemIndex: Int) {
+        val listItem = state().listItems.getOrNull(itemIndex) ?: return
+        val id = listItem.id ?: return
 
+        if (state().enabledNotificationIds.contains(id).not()) {
+            enableNotification(listItem)
+        } else {
+            disableNotification(id)
+        }
+    }
+
+    private fun enableNotification(listItem: ListItemDomain) {
+        publish(AnnouncedSectionStore.Label.EnableNotification(listItem))
+    }
+
+    private fun disableNotification(id: Int) {
+        publish(AnnouncedSectionStore.Label.DisableNotification(id))
     }
 }

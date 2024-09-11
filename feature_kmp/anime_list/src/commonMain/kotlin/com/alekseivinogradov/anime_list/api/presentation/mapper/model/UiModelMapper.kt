@@ -40,11 +40,11 @@ internal fun mapStateToUiModel(
         ),
         announcedListItems = mapListItemsDomainToUi(
             listItems = announcedSectionState.listItems,
-            enabledNotificationIds = setOf()
+            enabledNotificationIds = announcedSectionState.enabledNotificationIds
         ),
         searchListItems = mapListItemsDomainToUi(
             listItems = searchSectionState.listItems,
-            enabledNotificationIds = setOf()
+            enabledNotificationIds = searchSectionState.enabledNotificationIds
         )
     )
 }
