@@ -1,18 +1,15 @@
 package com.alekseivinogradov.anime_list.api.presentation.mapper.model
 
-import com.alekseivinogradov.anime_list.api.domain.model.section.ContentTypeDomain
-import com.alekseivinogradov.anime_list.api.domain.model.section.EpisodesInfoTypeDomain
-import com.alekseivinogradov.anime_list.api.domain.model.section.ListItemDomain
-import com.alekseivinogradov.anime_list.api.domain.model.section.ReleaseStatusDomain
-import com.alekseivinogradov.anime_list.api.domain.model.upper_menu.SearchDomain
-import com.alekseivinogradov.anime_list.api.domain.model.upper_menu.SectionDomain
-import com.alekseivinogradov.anime_list.api.domain.store.announced_section.AnnouncedSectionStore
-import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.OngoingSectionStore
-import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionStore
-import com.alekseivinogradov.anime_list.api.domain.store.upper_menu.UpperMenuStore
+import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
+import com.alekseivinogradov.anime_list.api.domain.model.EpisodesInfoTypeDomain
+import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
+import com.alekseivinogradov.anime_list.api.domain.model.ReleaseStatusDomain
+import com.alekseivinogradov.anime_list.api.domain.model.SearchDomain
+import com.alekseivinogradov.anime_list.api.domain.model.SectionHatDomain
+import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anime_list.api.presentation.model.ContentTypeUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SearchUi
-import com.alekseivinogradov.anime_list.api.presentation.model.SectionUi
+import com.alekseivinogradov.anime_list.api.presentation.model.SectionHatUi
 import com.alekseivinogradov.anime_list.api.presentation.model.UiModel
 import com.alekseivinogradov.anime_list.api.presentation.model.list_content.EpisodesInfoTypeUi
 import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ListItemUi
@@ -20,40 +17,21 @@ import com.alekseivinogradov.anime_list.api.presentation.model.list_content.Noti
 import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ReleaseStatusUi
 
 internal fun mapStateToUiModel(
-    upperMenuState: UpperMenuStore.State,
-    ongoingSectionState: OngoingSectionStore.State,
-    announcedSectionState: AnnouncedSectionStore.State,
-    searchSectionState: SearchSectionStore.State
+    state: AnimeListMainStore.State
 ): UiModel {
     return UiModel(
-        selectedSection = mapSelectedSectionDomainToUi(upperMenuState.selectedSection),
-        search = mapSearchDomainToUi(upperMenuState.search),
-        contentType = getContentType(
-            selectedSection = upperMenuState.selectedSection,
-            ongoingSectionContentType = ongoingSectionState.contentType,
-            announcedSectionContentType = announcedSectionState.contentType,
-            searchSectionContentType = searchSectionState.contentType,
-        ),
-        ongoingListItems = mapListItemsDomainToUi(
-            listItems = ongoingSectionState.listItems,
-            enabledNotificationIds = ongoingSectionState.enabledNotificationIds
-        ),
-        announcedListItems = mapListItemsDomainToUi(
-            listItems = announcedSectionState.listItems,
-            enabledNotificationIds = announcedSectionState.enabledNotificationIds
-        ),
-        searchListItems = mapListItemsDomainToUi(
-            listItems = searchSectionState.listItems,
-            enabledNotificationIds = searchSectionState.enabledNotificationIds
-        )
+        selectedSection = mapSelectedSectionDomainToUi(state.selectedSection),
+        search = mapSearchDomainToUi(state.search),
+        contentType = getContentTypeUi(state),
+        listItems = getListItemsUi(state),
     )
 }
 
-private fun mapSelectedSectionDomainToUi(selectedSection: SectionDomain): SectionUi {
+private fun mapSelectedSectionDomainToUi(selectedSection: SectionHatDomain): SectionHatUi {
     return when (selectedSection) {
-        SectionDomain.ONGOINGS -> SectionUi.ONGOINGS
-        SectionDomain.ANNOUNCED -> SectionUi.ANNOUNCED
-        SectionDomain.SEARCH -> SectionUi.SEARCH
+        SectionHatDomain.ONGOINGS -> SectionHatUi.ONGOINGS
+        SectionHatDomain.ANNOUNCED -> SectionHatUi.ANNOUNCED
+        SectionHatDomain.SEARCH -> SectionHatUi.SEARCH
     }
 }
 
@@ -64,20 +42,12 @@ private fun mapSearchDomainToUi(search: SearchDomain): SearchUi {
     }
 }
 
-private fun getContentType(
-    selectedSection: SectionDomain,
-    ongoingSectionContentType: ContentTypeDomain,
-    announcedSectionContentType: ContentTypeDomain,
-    searchSectionContentType: ContentTypeDomain
-): ContentTypeUi {
-    return when (selectedSection) {
-        SectionDomain.ONGOINGS -> mapContentTypeDomainToUi(ongoingSectionContentType)
-        SectionDomain.ANNOUNCED -> mapContentTypeDomainToUi(announcedSectionContentType)
-        SectionDomain.SEARCH -> mapContentTypeDomainToUi(searchSectionContentType)
+private fun getContentTypeUi(state: AnimeListMainStore.State): ContentTypeUi {
+    val contentType = when (state.selectedSection) {
+        SectionHatDomain.ONGOINGS -> state.ongoingContent.contentType
+        SectionHatDomain.ANNOUNCED -> state.announcedContent.contentType
+        SectionHatDomain.SEARCH -> state.searchContent.contentType
     }
-}
-
-private fun mapContentTypeDomainToUi(contentType: ContentTypeDomain): ContentTypeUi {
     return when (contentType) {
         ContentTypeDomain.LOADED -> ContentTypeUi.LOADED
         ContentTypeDomain.LOADING -> ContentTypeUi.LOADING
@@ -85,10 +55,16 @@ private fun mapContentTypeDomainToUi(contentType: ContentTypeDomain): ContentTyp
     }
 }
 
-private fun mapListItemsDomainToUi(
-    listItems: List<ListItemDomain>,
-    enabledNotificationIds: Set<Int>
+private fun getListItemsUi(
+    state: AnimeListMainStore.State
 ): List<ListItemUi> {
+    val listItems = when (state.selectedSection) {
+        SectionHatDomain.ONGOINGS -> state.ongoingContent.listItems
+        SectionHatDomain.ANNOUNCED -> state.announcedContent.listItems
+        SectionHatDomain.SEARCH -> state.searchContent.listItems
+    }
+    val enabledNotificationIds = state.enabledNotificationIds
+
     return listItems.mapIndexed { itemIndex: Int, listItem: ListItemDomain ->
         mapListItemDomainToUi(
             itemIndex = itemIndex,

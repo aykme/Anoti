@@ -3,10 +3,10 @@ package com.alekseivinogradov.anime_list.impl.domain.store.search_section
 import com.alekseivinogradov.anime_list.api.domain.AnimeId
 import com.alekseivinogradov.anime_list.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.anime_list.api.domain.SEARCH_DEBOUNCE
-import com.alekseivinogradov.anime_list.api.domain.model.section.ContentTypeDomain
-import com.alekseivinogradov.anime_list.api.domain.model.section.EpisodesInfoTypeDomain
-import com.alekseivinogradov.anime_list.api.domain.model.section.ListItemDomain
-import com.alekseivinogradov.anime_list.api.domain.model.section.ReleaseStatusDomain
+import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
+import com.alekseivinogradov.anime_list.api.domain.model.EpisodesInfoTypeDomain
+import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
+import com.alekseivinogradov.anime_list.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionExecutor
 import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionStore
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.SearchUsecases
@@ -27,41 +27,23 @@ internal class SearchSectionExecutorImpl(
     private var updateSectionJob: Job? = null
     private val updateExtraEpisodesInfoJobMap = mutableMapOf<AnimeId, Job>()
 
-    override fun executeAction(action: SearchSectionStore.Action) {
-        when (action) {
-            SearchSectionStore.Action.InitSection -> initSection()
-        }
-    }
-
     override fun executeIntent(intent: SearchSectionStore.Intent) {
         when (intent) {
-            is SearchSectionStore.Intent.UpdateEnabledNotificationIds -> {
-                updateEnabledNotificationIds(intent.enabledNotificationIds)
-            }
-
-            SearchSectionStore.Intent.OpenSection -> openSection()
+            SearchSectionStore.Intent.OpenSection -> initSection()
             SearchSectionStore.Intent.UpdateSection -> updateSection(state().searchText)
-            is SearchSectionStore.Intent.SearchTextChange -> searchTextChange(intent.searchText)
+            is SearchSectionStore.Intent.ChangeSearchText -> searchTextChange(intent.searchText)
             is SearchSectionStore.Intent.EpisodesInfoClick -> episodeInfoClick(intent.itemIndex)
-            is SearchSectionStore.Intent.NotificationClick -> notificationClick(intent.itemIndex)
         }
     }
 
     private fun initSection() {
-        searchFlow = MutableStateFlow(state().searchText)
-    }
-
-    private fun updateEnabledNotificationIds(enabledNotificationIds: Set<AnimeId>) {
-        dispatch(SearchSectionStore.Message.UpdateEnabledNotificationIds(enabledNotificationIds))
-    }
-
-    private fun openSection() {
-        subscribeSearchFlow()
+        subscribeSearchFlowIfNeeded()
     }
 
     @OptIn(FlowPreview::class)
-    private fun subscribeSearchFlow() {
+    private fun subscribeSearchFlowIfNeeded() {
         if (changeSearchJob?.isActive == true) return
+        searchFlow = MutableStateFlow(state().searchText)
         changeSearchJob = scope.launch {
             searchFlow?.debounce(SEARCH_DEBOUNCE)
                 ?.collect {
@@ -186,24 +168,5 @@ internal class SearchSectionExecutorImpl(
                 listItems = newListItems.toList()
             )
         )
-    }
-
-    private fun notificationClick(itemIndex: Int) {
-        val listItem = state().listItems.getOrNull(itemIndex) ?: return
-        val id = listItem.id ?: return
-
-        if (state().enabledNotificationIds.contains(id).not()) {
-            enableNotification(listItem)
-        } else {
-            disableNotification(id)
-        }
-    }
-
-    private fun enableNotification(listItem: ListItemDomain) {
-        publish(SearchSectionStore.Label.EnableNotification(listItem))
-    }
-
-    private fun disableNotification(id: Int) {
-        publish(SearchSectionStore.Label.DisableNotification(id))
     }
 }

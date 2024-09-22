@@ -1,8 +1,8 @@
 package com.alekseivinogradov.anime_list.api.data.local.mapper
 
-import com.alekseivinogradov.anime_list.api.domain.model.section.EpisodesInfoTypeDomain
-import com.alekseivinogradov.anime_list.api.domain.model.section.ListItemDomain
-import com.alekseivinogradov.anime_list.api.domain.model.section.ReleaseStatusDomain
+import com.alekseivinogradov.anime_list.api.domain.model.EpisodesInfoTypeDomain
+import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
+import com.alekseivinogradov.anime_list.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.database.api.data.model.AnimeDb
 import com.alekseivinogradov.database.api.data.model.ReleaseStatusDb
 

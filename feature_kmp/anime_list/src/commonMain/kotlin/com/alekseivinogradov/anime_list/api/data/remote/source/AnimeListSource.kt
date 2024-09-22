@@ -1,6 +1,6 @@
 package com.alekseivinogradov.anime_list.api.data.remote.source
 
-import com.alekseivinogradov.anime_list.api.domain.model.section.ListItemDomain
+import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.network.api.domain.model.CallResult
 
 interface AnimeListSource {

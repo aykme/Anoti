@@ -1,6 +1,6 @@
 package com.alekseivinogradov.anime_list.api.presentation.model
 
-enum class SectionUi {
+enum class SectionHatUi {
     ONGOINGS,
     ANNOUNCED,
     SEARCH

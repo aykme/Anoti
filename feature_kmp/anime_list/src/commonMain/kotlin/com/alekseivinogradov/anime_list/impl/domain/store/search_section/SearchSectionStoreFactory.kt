@@ -22,7 +22,7 @@ internal class SearchSectionStoreFactory(
             by storeFactory.create(
                 name = "SearchSectionStore",
                 initialState = SearchSectionStore.State(),
-                bootstrapper = SimpleBootstrapper(SearchSectionStore.Action.InitSection),
+                bootstrapper = SimpleBootstrapper(),
                 executorFactory = executorFactory,
                 reducer = SearchSectionReducerImpl()
             ) {}

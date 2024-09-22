@@ -2,10 +2,10 @@ package com.alekseivinogradov.anime_list.impl.domain.store.ongoing_section
 
 import com.alekseivinogradov.anime_list.api.domain.AnimeId
 import com.alekseivinogradov.anime_list.api.domain.ITEMS_PER_PAGE
-import com.alekseivinogradov.anime_list.api.domain.model.section.ContentTypeDomain
-import com.alekseivinogradov.anime_list.api.domain.model.section.EpisodesInfoTypeDomain
-import com.alekseivinogradov.anime_list.api.domain.model.section.ListItemDomain
-import com.alekseivinogradov.anime_list.api.domain.model.section.ReleaseStatusDomain
+import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
+import com.alekseivinogradov.anime_list.api.domain.model.EpisodesInfoTypeDomain
+import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
+import com.alekseivinogradov.anime_list.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.OngoingSectionExecutor
 import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.OngoingSectionStore
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.OngoingUsecases
@@ -19,27 +19,22 @@ internal class OngoingSectionExecutorImpl(
 
     private var updateSectionJob: Job? = null
     private val updateExtraEpisodesInfoJobMap = mutableMapOf<AnimeId, Job>()
-    private var fetchAllDatabaseItemsJob: Job? = null
 
-    override fun executeIntent(intent: OngoingSectionStore.Intent) {
-        when (intent) {
-            is OngoingSectionStore.Intent.UpdateEnabledNotificationIds -> {
-                updateEnabledNotificationIds(intent.enabledNotificationIds)
-            }
-
-            OngoingSectionStore.Intent.OpenSection -> openSection()
-            OngoingSectionStore.Intent.UpdateSection -> updateSection()
-            is OngoingSectionStore.Intent.EpisodesInfoClick -> episodeInfoClick(intent.itemIndex)
-            is OngoingSectionStore.Intent.NotificationClick -> notificationClick(intent.itemIndex)
-
+    override fun executeAction(action: OngoingSectionStore.Action) {
+        when (action) {
+            OngoingSectionStore.Action.InitSection -> initSection()
         }
     }
 
-    private fun updateEnabledNotificationIds(enabledNotificationIds: Set<AnimeId>) {
-        dispatch(OngoingSectionStore.Message.UpdateEnabledNotificationIds(enabledNotificationIds))
+    override fun executeIntent(intent: OngoingSectionStore.Intent) {
+        when (intent) {
+            OngoingSectionStore.Intent.OpenSection -> initSection()
+            OngoingSectionStore.Intent.UpdateSection -> updateSection()
+            is OngoingSectionStore.Intent.EpisodesInfoClick -> episodeInfoClick(intent.itemIndex)
+        }
     }
 
-    private fun openSection() {
+    private fun initSection() {
         if (state().listItems.isEmpty()) {
             updateSection()
         }
@@ -155,24 +150,5 @@ internal class OngoingSectionExecutorImpl(
                 listItems = newListItems.toList()
             )
         )
-    }
-
-    private fun notificationClick(itemIndex: Int) {
-        val listItem = state().listItems.getOrNull(itemIndex) ?: return
-        val id = listItem.id ?: return
-
-        if (state().enabledNotificationIds.contains(id).not()) {
-            enableNotification(listItem)
-        } else {
-            disableNotification(id)
-        }
-    }
-
-    private fun enableNotification(listItem: ListItemDomain) {
-        publish(OngoingSectionStore.Label.EnableNotification(listItem))
-    }
-
-    private fun disableNotification(id: Int) {
-        publish(OngoingSectionStore.Label.DisableNotification(id))
     }
 }

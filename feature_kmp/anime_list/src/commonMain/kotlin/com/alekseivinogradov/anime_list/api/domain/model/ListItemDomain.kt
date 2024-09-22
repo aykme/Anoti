@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anime_list.api.domain.model.section
+package com.alekseivinogradov.anime_list.api.domain.model
 
 /**
  * @param id- id аниме в базе данных

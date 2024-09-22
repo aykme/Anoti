@@ -6,8 +6,9 @@ import com.arkivanov.mvikotlin.core.store.Reducer
 internal class OngoingSectionReducerImpl :
     Reducer<OngoingSectionStore.State, OngoingSectionStore.Message> {
 
-    override fun OngoingSectionStore.State.reduce(msg: OngoingSectionStore.Message):
-            OngoingSectionStore.State {
+    override fun OngoingSectionStore.State.reduce(
+        msg: OngoingSectionStore.Message
+    ): OngoingSectionStore.State {
         return when (msg) {
             is OngoingSectionStore.Message.ChangeContentType -> copy(
                 contentType = msg.contentType
@@ -15,10 +16,6 @@ internal class OngoingSectionReducerImpl :
 
             is OngoingSectionStore.Message.UpdateListItems -> copy(
                 listItems = msg.listItems
-            )
-
-            is OngoingSectionStore.Message.UpdateEnabledNotificationIds -> copy(
-                enabledNotificationIds = msg.enabledNotificationIds
             )
         }
     }

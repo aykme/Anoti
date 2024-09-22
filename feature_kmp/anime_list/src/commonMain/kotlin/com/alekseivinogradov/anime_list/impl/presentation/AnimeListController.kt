@@ -1,29 +1,19 @@
 package com.alekseivinogradov.anime_list.impl.presentation
 
-import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapAnnouncedSectionLabelToDatabaseIntent
-import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapDatabaseStateToAnnouncedSectionIntent
-import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapDatabaseStateToOngoingSectionIntent
-import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapDatabaseStateToSearchSectionIntent
-import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapOngoingSectionLabelToDatabaseIntent
-import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapSearchSectionLabelToDatabaseIntent
-import com.alekseivinogradov.anime_list.api.domain.store.announced_section.AnnouncedSectionStore
-import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.OngoingSectionStore
-import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionStore
-import com.alekseivinogradov.anime_list.api.domain.store.upper_menu.UpperMenuStore
+import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapAnnouncedStoreStateToMainStoreIntent
+import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapDatabaseStoreStateToMainStoreIntent
+import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapMainStoreLabelToAnnouncedStoreIntent
+import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapMainStoreLabelToDatabaseStoreIntent
+import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapMainStoreLabelToOngoingStoreIntent
+import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapMainStoreLabelToSearchStoreIntent
+import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapOngoingStoreStateToMainStoreIntent
+import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapSearchStoreStateToMainStoreIntent
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
 import com.alekseivinogradov.anime_list.api.presentation.mapper.model.mapStateToUiModel
-import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUiEventToAnnouncedSectionIntent
-import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUiEventToOngoingSectionIntent
-import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUiEventToSearchSectionIntent
-import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUiEventToUpperMenuIntent
-import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUpperMenuStateToAnnouncedSectionIntent
-import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUpperMenuStateToOngoingSectionIntent
-import com.alekseivinogradov.anime_list.api.presentation.mapper.store.mapUpperMenuStateToSearchSectionIntent
-import com.alekseivinogradov.anime_list.api.presentation.model.UiModel
 import com.alekseivinogradov.anime_list.impl.domain.store.announced_section.AnnouncedSectionStoreFactory
+import com.alekseivinogradov.anime_list.impl.domain.store.main.AnimeListMainStoreFactory
 import com.alekseivinogradov.anime_list.impl.domain.store.ongoing_section.OngoingSectionStoreFactory
 import com.alekseivinogradov.anime_list.impl.domain.store.search_section.SearchSectionStoreFactory
-import com.alekseivinogradov.anime_list.impl.domain.store.upper_menu.UpperMenuStoreFactory
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.AnnouncedUsecases
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.OngoingUsecases
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.SearchUsecases
@@ -38,8 +28,6 @@ import com.arkivanov.mvikotlin.extensions.coroutines.events
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.extensions.coroutines.states
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 
@@ -52,12 +40,14 @@ class AnimeListController(
     searchUsecases: SearchUsecases
 ) {
 
+    private val mainStore = AnimeListMainStoreFactory(
+        storeFactory = storeFactory
+    ).create()
+
     private val databaseStore = DatabaseStoreFactory(
         storeFactory = storeFactory,
         databaseUsecases = databaseUsecases
     ).create()
-
-    private val upperMenuStore = UpperMenuStoreFactory(storeFactory).create()
 
     private val ongoingSectionStore = OngoingSectionStoreFactory(
         storeFactory = storeFactory,
@@ -75,86 +65,54 @@ class AnimeListController(
     ).create()
 
     init {
-        lifecycle.doOnDestroy { upperMenuStore.dispose() }
+        lifecycle.doOnDestroy { mainStore.dispose() }
+        lifecycle.doOnDestroy { databaseStore.dispose() }
+        lifecycle.doOnDestroy { ongoingSectionStore.dispose() }
+        lifecycle.doOnDestroy { announcedSectionStore.dispose() }
+        lifecycle.doOnDestroy { searchSectionStore.dispose() }
     }
 
     fun onViewCreated(mainView: AnimeListView, viewLifecycle: Lifecycle) {
         bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
-            mainView.events.mapNotNull(::mapUiEventToUpperMenuIntent) bindTo upperMenuStore
-
-            mainView.events.mapNotNull(
-                ::mapUiEventToOngoingSectionIntent
-            ) bindTo ongoingSectionStore
-
-            mainView.events.mapNotNull(
-                ::mapUiEventToAnnouncedSectionIntent
-            ) bindTo announcedSectionStore
-
-            mainView.events.mapNotNull(
-                ::mapUiEventToSearchSectionIntent
-            ) bindTo searchSectionStore
-
-            upperMenuStore.states.mapNotNull(
-                ::mapUpperMenuStateToOngoingSectionIntent
-            ) bindTo ongoingSectionStore
-
-            upperMenuStore.states.mapNotNull(
-                ::mapUpperMenuStateToAnnouncedSectionIntent
-            ) bindTo announcedSectionStore
-
-            upperMenuStore.states.mapNotNull(
-                ::mapUpperMenuStateToSearchSectionIntent
-            ) bindTo searchSectionStore
-
-            databaseStore.states.map(
-                ::mapDatabaseStateToOngoingSectionIntent
-            ) bindTo ongoingSectionStore
-
-            databaseStore.states.map(
-                ::mapDatabaseStateToAnnouncedSectionIntent
-            ) bindTo announcedSectionStore
-
-            databaseStore.states.map(
-                ::mapDatabaseStateToSearchSectionIntent
-            ) bindTo searchSectionStore
-
-            ongoingSectionStore.labels.map(
-                ::mapOngoingSectionLabelToDatabaseIntent
-            ) bindTo databaseStore
-
-            announcedSectionStore.labels.map(
-                ::mapAnnouncedSectionLabelToDatabaseIntent
-            ) bindTo databaseStore
-
-            searchSectionStore.labels.map(
-                ::mapSearchSectionLabelToDatabaseIntent
-            ) bindTo databaseStore
-
-            subscribeOnAllRequiredStates() bindTo mainView
+            connectAllRequiredStores(viewLifecycle)
+            mainView.events bindTo mainStore
+            mainStore.states.map(::mapStateToUiModel) bindTo mainView
         }
     }
 
-    private fun subscribeOnAllRequiredStates(): Flow<UiModel> {
-        return combine(
-            upperMenuStore.states,
-            ongoingSectionStore.states,
-            announcedSectionStore.states,
-            searchSectionStore.states,
-            ::stateToUiMapper
-        )
-    }
+    private fun connectAllRequiredStores(viewLifecycle: Lifecycle) {
+        bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
+            databaseStore.states.map(
+                ::mapDatabaseStoreStateToMainStoreIntent
+            ) bindTo mainStore
 
-    private fun stateToUiMapper(
-        upperMenuState: UpperMenuStore.State,
-        ongoingSectionState: OngoingSectionStore.State,
-        announcedSectiontState: AnnouncedSectionStore.State,
-        searchSectionState: SearchSectionStore.State,
-    ): UiModel {
-        return mapStateToUiModel(
-            upperMenuState = upperMenuState,
-            ongoingSectionState = ongoingSectionState,
-            announcedSectionState = announcedSectiontState,
-            searchSectionState = searchSectionState
-        )
+            mainStore.labels.mapNotNull(
+                ::mapMainStoreLabelToDatabaseStoreIntent
+            ) bindTo databaseStore
+
+            ongoingSectionStore.states.map(
+                ::mapOngoingStoreStateToMainStoreIntent
+            ) bindTo mainStore
+
+            announcedSectionStore.states.map(
+                ::mapAnnouncedStoreStateToMainStoreIntent
+            ) bindTo mainStore
+
+            searchSectionStore.states.map(
+                ::mapSearchStoreStateToMainStoreIntent
+            ) bindTo mainStore
+
+            mainStore.labels.mapNotNull(
+                ::mapMainStoreLabelToOngoingStoreIntent
+            ) bindTo ongoingSectionStore
+
+            mainStore.labels.mapNotNull(
+                ::mapMainStoreLabelToAnnouncedStoreIntent
+            ) bindTo announcedSectionStore
+
+            mainStore.labels.mapNotNull(
+                ::mapMainStoreLabelToSearchStoreIntent
+            ) bindTo searchSectionStore
+        }
     }
 }

@@ -1,5 +1,7 @@
 package com.alekseivinogradov.main
 
+import android.annotation.SuppressLint
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -8,6 +10,8 @@ import androidx.core.view.WindowInsetsCompat
 import com.alekseivinogradov.theme.R as theme_R
 
 class MainActivity : AppCompatActivity() {
+    
+    @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -19,5 +23,6 @@ class MainActivity : AppCompatActivity() {
         }
         window.setStatusBarColor(getColor(theme_R.color.black))
         window.setNavigationBarColor(getColor(theme_R.color.black))
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
     }
 }
