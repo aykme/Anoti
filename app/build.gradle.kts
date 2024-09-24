@@ -36,7 +36,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":ui_core:theme"))
+    implementation(project(":ui-core:theme"))
     implementation(project(":main"))
 
     implementation(libs.androidx.core.ktx)

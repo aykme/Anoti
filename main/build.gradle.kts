@@ -33,8 +33,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":ui_core:theme"))
-    implementation(project(":feature_platform:anime_list"))
+    implementation(project(":ui-core:theme"))
+    implementation(project(":feature-platform:anime-list"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

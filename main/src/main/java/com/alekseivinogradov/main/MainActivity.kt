@@ -10,7 +10,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.alekseivinogradov.theme.R as theme_R
 
 class MainActivity : AppCompatActivity() {
-    
+
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
