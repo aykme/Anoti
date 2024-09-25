@@ -57,7 +57,7 @@ class AnimeListFragment : Fragment() {
         FetchAnimeByIdUsecase(source = animeListSource)
 
     private val animeDatabase by lazy(LazyThreadSafetyMode.NONE) {
-        AnimeDatabase.getDatabase(requireContext().applicationContext)
+        AnimeDatabase.getDatabase(requireContext())
     }
 
     private val animeDatabaseRepository: AnimeDatabaseRepository
@@ -104,7 +104,7 @@ class AnimeListFragment : Fragment() {
         controller.onViewCreated(
             mainView = AnimeListViewImpl(
                 viewBinding = binding,
-                dateFormatter = DateFormatter.getInstance(view.context.applicationContext)
+                dateFormatter = DateFormatter.getInstance(view.context)
             ),
             viewLifecycle = viewLifecycleOwner.essentyLifecycle()
         )

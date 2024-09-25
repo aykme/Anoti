@@ -93,9 +93,9 @@ internal class AnimeListViewImpl(
 
     private fun setCommonFields() {
         with(viewBinding) {
-            ongoingButton.text = context.applicationContext.getString(R.string.ongoings)
-            announcedButton.text = context.applicationContext.getString(R.string.announced)
-            searchInputLayout.hint = context.applicationContext.getString(R.string.search_hint)
+            ongoingButton.text = context.getString(R.string.ongoings)
+            announcedButton.text = context.getString(R.string.announced)
+            searchInputLayout.hint = context.getString(R.string.search_hint)
         }
     }
 

@@ -30,19 +30,19 @@ internal class AnimeListViewHolder(
         get() = context.getColor(theme_R.color.transparent)
 
     private val nextEpisodeString: String
-        get() = context.applicationContext.getString(R.string.next_episode)
+        get() = context.getString(R.string.next_episode)
 
     private val beginningOfTheShowString: String
-        get() = context.applicationContext.getString(R.string.beginning_of_the_show)
+        get() = context.getString(R.string.beginning_of_the_show)
 
     private val showIsFinishedString: String
-        get() = context.applicationContext.getString(R.string.show_is_finished)
+        get() = context.getString(R.string.show_is_finished)
 
     private val noDataString: String
-        get() = context.applicationContext.getString(R.string.no_data)
+        get() = context.getString(R.string.no_data)
 
     private val inaccurateString: String
-        get() = context.applicationContext.getString(R.string.inaccurate)
+        get() = context.getString(R.string.inaccurate)
 
     init {
         bindCommonFields()
@@ -117,7 +117,6 @@ internal class AnimeListViewHolder(
             scoreText.isVisible = true
             verticalDividerAfterScore.isVisible = true
             verticalDividerAfterStatus.isVisible = true
-            notificationButton.backgroundTintList = ColorStateList.valueOf(transparentColor)
             notificationButton.backgroundTintList =
                 ColorStateList.valueOf(transparentColor)
             notificationButton.isVisible = true
@@ -220,21 +219,21 @@ internal class AnimeListViewHolder(
             when (releaseStatus) {
                 ReleaseStatusUi.ONGOING -> {
                     releasedStatusText.text =
-                        context.applicationContext.getString(R.string.ongoings)
+                        context.getString(R.string.ongoings)
                     releasedStatusText.setTextColor(context.getColor(theme_R.color.green))
                     releasedStatusText.isVisible = true
                 }
 
                 ReleaseStatusUi.ANNOUNCED -> {
                     releasedStatusText.text =
-                        context.applicationContext.getString(R.string.announced)
+                        context.getString(R.string.announced)
                     releasedStatusText.setTextColor(context.getColor(theme_R.color.purple_200))
                     releasedStatusText.isVisible = true
                 }
 
                 ReleaseStatusUi.RELEASED -> {
                     releasedStatusText.text =
-                        context.applicationContext.getString(R.string.released)
+                        context.getString(R.string.released)
                     releasedStatusText.setTextColor(context.getColor(theme_R.color.pink))
                     releasedStatusText.isVisible = true
                 }
@@ -252,7 +251,7 @@ internal class AnimeListViewHolder(
                 NotificationUi.ENABLED -> {
                     notificationButton.setImageDrawable(
                         ContextCompat.getDrawable(
-                            context.applicationContext,
+                            context,
                             R.drawable.ic_notifications_on_40
                         )
                     )
@@ -266,7 +265,7 @@ internal class AnimeListViewHolder(
                 NotificationUi.DISABLED -> {
                     notificationButton.setImageDrawable(
                         ContextCompat.getDrawable(
-                            context.applicationContext,
+                            context,
                             R.drawable.ic_notifications_off_40
                         )
                     )

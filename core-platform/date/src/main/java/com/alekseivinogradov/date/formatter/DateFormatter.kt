@@ -30,7 +30,7 @@ class DateFormatter private constructor(
     }
 
     private val locale = if (isAutomaticLanguageDetection) {
-        context.applicationContext.resources.configuration.locales.get(0) ?: Locale("en")
+        context.resources.configuration.locales.get(0) ?: Locale("en")
     } else {
         Locale("en")
     }
