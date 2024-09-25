@@ -211,7 +211,6 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:alpha="0.8"
-        android:backgroundTint="@color/notifications_color_selector"
         android:contentDescription="@string/notifications_turn_on"
         android:src="@drawable/ic_notifications_off_40"
         android:tint="@color/black_transparent"

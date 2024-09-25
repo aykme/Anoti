@@ -29,6 +29,12 @@ internal class AnimeListViewHolder(
     private val transparentColor: Int
         get() = context.getColor(theme_R.color.transparent)
 
+    private val disableColor: Int
+        get() = context.getColor(theme_R.color.pink)
+
+    private val enableColor: Int
+        get() = context.getColor(theme_R.color.green)
+
     private val nextEpisodeString: String
         get() = context.getString(R.string.next_episode)
 
@@ -117,8 +123,6 @@ internal class AnimeListViewHolder(
             scoreText.isVisible = true
             verticalDividerAfterScore.isVisible = true
             verticalDividerAfterStatus.isVisible = true
-            notificationButton.backgroundTintList =
-                ColorStateList.valueOf(transparentColor)
             notificationButton.isVisible = true
         }
     }
@@ -255,8 +259,8 @@ internal class AnimeListViewHolder(
                             R.drawable.ic_notifications_on_40
                         )
                     )
-                    notificationButton.rippleColor = context.getColor(theme_R.color.pink)
-                    notificationButton.isActivated = true
+                    notificationButton.rippleColor = disableColor
+                    notificationButton.backgroundTintList = ColorStateList.valueOf(enableColor)
                     notificationButton.contentDescription = context.resources.getString(
                         R.string.notifications_turn_on
                     )
@@ -269,8 +273,8 @@ internal class AnimeListViewHolder(
                             R.drawable.ic_notifications_off_40
                         )
                     )
-                    notificationButton.rippleColor = context.getColor(theme_R.color.green)
-                    notificationButton.isActivated = false
+                    notificationButton.rippleColor = enableColor
+                    notificationButton.backgroundTintList = ColorStateList.valueOf(disableColor)
                     notificationButton.contentDescription = context.resources.getString(
                         R.string.notifications_turn_off
                     )
