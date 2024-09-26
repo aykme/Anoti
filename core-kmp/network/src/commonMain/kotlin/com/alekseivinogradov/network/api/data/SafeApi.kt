@@ -1,4 +1,4 @@
-package com.alekseivinogradov.network.api.data.remote
+package com.alekseivinogradov.network.api.data
 
 import com.alekseivinogradov.network.api.domain.model.CallResult
 

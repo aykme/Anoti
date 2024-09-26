@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anime_list.api.data.local.mapper
+package com.alekseivinogradov.anime_list.api.data.mapper
 
 import com.alekseivinogradov.anime_list.api.domain.model.EpisodesInfoTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain

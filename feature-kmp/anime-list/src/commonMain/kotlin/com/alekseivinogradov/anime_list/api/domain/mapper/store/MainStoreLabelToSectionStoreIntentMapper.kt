@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anime_list.api.domain.store.mapper
+package com.alekseivinogradov.anime_list.api.domain.mapper.store
 
 import com.alekseivinogradov.anime_list.api.domain.store.announced_section.AnnouncedSectionStore
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore

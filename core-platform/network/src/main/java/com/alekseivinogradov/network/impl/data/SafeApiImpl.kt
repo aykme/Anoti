@@ -1,6 +1,6 @@
 package com.alekseivinogradov.network.impl.data
 
-import com.alekseivinogradov.network.api.data.remote.SafeApi
+import com.alekseivinogradov.network.api.data.SafeApi
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.delay
 import retrofit2.HttpException

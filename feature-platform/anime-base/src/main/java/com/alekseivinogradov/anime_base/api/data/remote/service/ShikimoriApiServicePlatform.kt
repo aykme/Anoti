@@ -2,6 +2,7 @@ package com.alekseivinogradov.anime_base.api.data.remote.service
 
 import com.alekseivinogradov.anime_base.api.data.remote.response.AnimeDetailsPlatformResponse
 import com.alekseivinogradov.anime_base.api.data.remote.response.AnimeShortPlatformResponse
+import com.alekseivinogradov.anime_base.api.data.service.ANIME_LIST_APPEND_URL
 import com.alekseivinogradov.network.impl.data.shikimoriRetrofit
 import retrofit2.http.GET
 import retrofit2.http.Path

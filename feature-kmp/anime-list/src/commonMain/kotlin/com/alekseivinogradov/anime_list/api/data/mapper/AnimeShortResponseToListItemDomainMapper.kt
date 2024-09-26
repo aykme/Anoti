@@ -1,12 +1,12 @@
-package com.alekseivinogradov.anime_list.api.data.remote.mapper
+package com.alekseivinogradov.anime_list.api.data.mapper
 
 import com.alekseivinogradov.anime_list.api.domain.model.EpisodesInfoTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_base.api.data.model.ReleaseStatusData
-import com.alekseivinogradov.anime_base.api.data.remote.response.AnimeDetailsResponse
-import com.alekseivinogradov.anime_base.api.data.remote.response.AnimeShortResponse
-import com.alekseivinogradov.anime_base.api.data.remote.response.ImageResponse
+import com.alekseivinogradov.anime_base.api.data.response.AnimeDetailsResponse
+import com.alekseivinogradov.anime_base.api.data.response.AnimeShortResponse
+import com.alekseivinogradov.anime_base.api.data.response.ImageResponse
 import com.alekseivinogradov.network.api.domain.SHIKIMORI_BASE_URL
 
 /**

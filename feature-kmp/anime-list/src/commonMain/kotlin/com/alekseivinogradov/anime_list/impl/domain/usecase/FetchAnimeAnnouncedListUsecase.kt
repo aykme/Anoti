@@ -1,6 +1,6 @@
 package com.alekseivinogradov.anime_list.impl.domain.usecase
 
-import com.alekseivinogradov.anime_list.api.data.remote.source.AnimeListSource
+import com.alekseivinogradov.anime_list.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_base.api.data.model.SortData
 import com.alekseivinogradov.network.api.domain.model.CallResult

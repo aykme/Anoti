@@ -1,6 +1,6 @@
-package com.alekseivinogradov.anime_list.api.data.local.mapper.store
+package com.alekseivinogradov.anime_list.api.data.mapper.store
 
-import com.alekseivinogradov.anime_list.api.data.local.mapper.toDb
+import com.alekseivinogradov.anime_list.api.data.mapper.toDb
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.database.api.domain.store.DatabaseStore
 

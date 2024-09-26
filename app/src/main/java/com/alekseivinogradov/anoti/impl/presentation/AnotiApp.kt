@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti
+package com.alekseivinogradov.anoti.impl.presentation
 
 import android.app.Application
 

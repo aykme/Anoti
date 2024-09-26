@@ -1,4 +1,4 @@
-package com.alekseivinogradov.database.api.data
+package com.alekseivinogradov.database.api.domain.repository
 
 import com.alekseivinogradov.database.api.data.model.AnimeDb
 import kotlinx.coroutines.flow.Flow

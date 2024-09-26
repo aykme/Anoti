@@ -1,4 +1,4 @@
-package com.alekseivinogradov.main
+package com.alekseivinogradov.main.impl.presentation
 
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.alekseivinogradov.main.R
 import com.alekseivinogradov.theme.R as theme_R
 
 class MainActivity : AppCompatActivity() {

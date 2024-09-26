@@ -1,13 +1,13 @@
 package com.alekseivinogradov.anime_list.impl.presentation
 
-import com.alekseivinogradov.anime_list.api.domain.store.mapper.mapAnnouncedStoreStateToMainStoreIntent
-import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapDatabaseStoreStateToMainStoreIntent
-import com.alekseivinogradov.anime_list.api.domain.store.mapper.mapMainStoreLabelToAnnouncedStoreIntent
-import com.alekseivinogradov.anime_list.api.data.local.mapper.store.mapMainStoreLabelToDatabaseStoreIntent
-import com.alekseivinogradov.anime_list.api.domain.store.mapper.mapMainStoreLabelToOngoingStoreIntent
-import com.alekseivinogradov.anime_list.api.domain.store.mapper.mapMainStoreLabelToSearchStoreIntent
-import com.alekseivinogradov.anime_list.api.domain.store.mapper.mapOngoingStoreStateToMainStoreIntent
-import com.alekseivinogradov.anime_list.api.domain.store.mapper.mapSearchStoreStateToMainStoreIntent
+import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapAnnouncedStoreStateToMainStoreIntent
+import com.alekseivinogradov.anime_list.api.data.mapper.store.mapDatabaseStoreStateToMainStoreIntent
+import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapMainStoreLabelToAnnouncedStoreIntent
+import com.alekseivinogradov.anime_list.api.data.mapper.store.mapMainStoreLabelToDatabaseStoreIntent
+import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapMainStoreLabelToOngoingStoreIntent
+import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapMainStoreLabelToSearchStoreIntent
+import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapOngoingStoreStateToMainStoreIntent
+import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapSearchStoreStateToMainStoreIntent
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
 import com.alekseivinogradov.anime_list.api.presentation.mapper.model.mapStateToUiModel
 import com.alekseivinogradov.anime_list.impl.domain.store.announced_section.AnnouncedSectionStoreFactory

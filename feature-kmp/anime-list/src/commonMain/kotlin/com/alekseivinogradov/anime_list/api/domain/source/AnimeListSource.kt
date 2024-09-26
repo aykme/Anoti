@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anime_list.api.data.remote.source
+package com.alekseivinogradov.anime_list.api.domain.source
 
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.network.api.domain.model.CallResult

@@ -1,6 +1,6 @@
 package com.alekseivinogradov.database.impl.domain.usecase
 
-import com.alekseivinogradov.database.api.data.AnimeDatabaseRepository
+import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 
 class DeleteAnimeDatabaseItemUsecase(
     private val repository: AnimeDatabaseRepository

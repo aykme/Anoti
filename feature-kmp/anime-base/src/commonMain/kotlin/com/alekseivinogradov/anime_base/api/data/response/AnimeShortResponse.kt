@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anime_base.api.data.remote.response
+package com.alekseivinogradov.anime_base.api.data.response
 
 data class AnimeShortResponse(
     val id: Int?,
