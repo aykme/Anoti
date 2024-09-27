@@ -2,8 +2,8 @@ package com.alekseivinogradov.database.api.data.model
 
 data class AnimeDb(
     val id: Int,
-    val name: String,
     val imageUrl: String?,
+    val name: String,
     val episodesAired: Int?,
     val episodesTotal: Int?,
     val nextEpisodeAt: String?,
