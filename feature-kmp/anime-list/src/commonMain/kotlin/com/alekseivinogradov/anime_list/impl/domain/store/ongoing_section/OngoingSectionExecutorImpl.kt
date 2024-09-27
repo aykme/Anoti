@@ -47,7 +47,7 @@ internal class OngoingSectionExecutorImpl(
                 OngoingSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
             )
             val result = usecases
-                .fetchAnimeOngoingListUsecase
+                .fetchOngoingAnimeListUsecase
                 .execute(
                     page = 1,
                     itemsPerPage = ITEMS_PER_PAGE

@@ -8,10 +8,10 @@ import androidx.fragment.app.Fragment
 import com.alekseivinogradov.animeListPlatform.databinding.FragmentAnimeListBinding
 import com.alekseivinogradov.anime_list.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anime_list.impl.data.source.AnimeListSourceImpl
-import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeAnnouncedListUsecase
+import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnnouncedAnimeListUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeByIdUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeListBySearchUsecase
-import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeOngoingListUsecase
+import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchOngoingAnimeListUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.AnnouncedUsecases
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.OngoingUsecases
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.SearchUsecases
@@ -44,11 +44,11 @@ class AnimeListFragment : Fragment() {
         safeApi = SafeApiImpl
     )
 
-    private val fetchAnimeOngoingListUsecase =
-        FetchAnimeOngoingListUsecase(source = animeListSource)
+    private val fetchOngoingAnimeListUsecase =
+        FetchOngoingAnimeListUsecase(source = animeListSource)
 
-    private val fetchAnimeAnnouncedListUsecase =
-        FetchAnimeAnnouncedListUsecase(source = animeListSource)
+    private val fetchAnnouncedAnimeListUsecase =
+        FetchAnnouncedAnimeListUsecase(source = animeListSource)
 
     private val fetchAnimeListBySearchUsecase =
         FetchAnimeListBySearchUsecase(source = animeListSource)
@@ -117,12 +117,12 @@ class AnimeListFragment : Fragment() {
     )
 
     private fun getOngoingUsecases() = OngoingUsecases(
-        fetchAnimeOngoingListUsecase = fetchAnimeOngoingListUsecase,
+        fetchOngoingAnimeListUsecase = fetchOngoingAnimeListUsecase,
         fetchAnimeByIdUsecase = fetchAnimeByIdUsecase
     )
 
     private fun getAnnouncedUsecases() = AnnouncedUsecases(
-        fetchAnimeAnnouncedListUsecase = fetchAnimeAnnouncedListUsecase
+        fetchAnnouncedAnimeListUsecase = fetchAnnouncedAnimeListUsecase
     )
 
     private fun getSearchUsecases() = SearchUsecases(

@@ -38,7 +38,7 @@ internal class AnnouncedSectionExecutorImpl(
                 AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
             )
             val result = usecases
-                .fetchAnimeAnnouncedListUsecase
+                .fetchAnnouncedAnimeListUsecase
                 .execute(
                     page = 1,
                     itemsPerPage = ITEMS_PER_PAGE
