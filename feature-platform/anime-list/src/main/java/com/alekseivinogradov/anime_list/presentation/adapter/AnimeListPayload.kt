@@ -12,11 +12,15 @@ internal sealed interface AnimeListPayload {
     ) : AnimeListPayload
 
     data class AvailableEpisodesInfoChange(
-        val availableEpisodesInfo: String
+        val episodesAired: Int?,
+        val episodesTotal: Int?,
+        val releaseStatus: ReleaseStatusUi
     ) : AnimeListPayload
 
     data class ExtraEpisodesInfoChange(
-        val extraEpisodesInfo: String?,
+        val nextEpisodeAt: String?,
+        val airedOn: String?,
+        val releasedOn: String?,
         val releaseStatus: ReleaseStatusUi
     ) : AnimeListPayload
 

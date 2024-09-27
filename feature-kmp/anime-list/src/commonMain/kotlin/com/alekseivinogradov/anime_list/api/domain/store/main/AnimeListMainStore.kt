@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anime_list.api.domain.store.main
 
+import app.cash.paging.PagingData
 import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
@@ -29,8 +30,8 @@ interface AnimeListMainStore
         data class UpdateOngoingContent(val content: SectionContentDomain) : Intent
         data class UpdateAnnouncedContent(val content: SectionContentDomain) : Intent
         data class UpdateSearchContent(val content: SectionContentDomain) : Intent
-        data class EpisodesInfoClick(val id: AnimeId) : Intent
-        data class NotificationClick(val id: AnimeId) : Intent
+        data class EpisodesInfoClick(val listItem: ListItemDomain) : Intent
+        data class NotificationClick(val listItem: ListItemDomain) : Intent
         data class UpdateEnabledNotificationIds(val enabledNotificationIds: Set<AnimeId>) : Intent
     }
 
@@ -42,9 +43,9 @@ interface AnimeListMainStore
         data object UpdateAnnouncedSection : Label
         data object UpdateSearchSection : Label
         data class ChangeSearchText(val searchText: String) : Label
-        data class OngoingEpisodeInfoClick(val id: AnimeId) : Label
-        data class AnnouncedEpisodeInfoClick(val id: AnimeId) : Label
-        data class SearchEpisodeInfoClick(val id: AnimeId) : Label
+        data class OngoingEpisodeInfoClick(val listItem: ListItemDomain) : Label
+        data class AnnouncedEpisodeInfoClick(val listItem: ListItemDomain) : Label
+        data class SearchEpisodeInfoClick(val listItem: ListItemDomain) : Label
         data class EnableNotification(val listItem: ListItemDomain) : Label
         data class DisableNotification(val id: AnimeId) : Label
     }
@@ -57,9 +58,9 @@ interface AnimeListMainStore
         data class ChangeOngoingContentType(val contentType: ContentTypeDomain) : Message
         data class ChangeAnnouncedContentType(val contentType: ContentTypeDomain) : Message
         data class ChangeSearchContentType(val contentType: ContentTypeDomain) : Message
-        data class UpdateOngoingListItems(val listItems: List<ListItemDomain>) : Message
-        data class UpdateAnnouncedListItems(val listItems: List<ListItemDomain>) : Message
-        data class UpdateSearchListItems(val listItems: List<ListItemDomain>) : Message
+        data class UpdateOngoingListItems(val listItems: PagingData<ListItemDomain>) : Message
+        data class UpdateAnnouncedListItems(val listItems: PagingData<ListItemDomain>) : Message
+        data class UpdateSearchListItems(val listItems: PagingData<ListItemDomain>) : Message
         data class UpdateEnabledNotificationIds(val enabledNotificationIds: Set<AnimeId>) : Message
         data class UpdateOngoingEnabledExtraEpisodesInfoIds(
             val enabledExtraEpisodesInfoId: Set<AnimeId>

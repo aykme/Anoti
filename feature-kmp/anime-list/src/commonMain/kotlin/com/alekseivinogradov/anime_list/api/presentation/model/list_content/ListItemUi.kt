@@ -4,11 +4,14 @@ import com.alekseivinogradov.anime_base.api.domain.AnimeId
 
 data class ListItemUi(
     val id: AnimeId,
-    val imageUrl: String?,
     val name: String,
+    val imageUrl: String?,
     val episodesInfoType: EpisodesInfoTypeUi,
-    val availableEpisodesInfo: String,
-    val extraEpisodesInfo: String?,
+    val episodesAired: Int?,
+    val episodesTotal: Int?,
+    val nextEpisodeAt: String?,
+    val airedOn: String?,
+    val releasedOn: String?,
     val score: String,
     val releaseStatus: ReleaseStatusUi,
     val notification: NotificationUi

@@ -1,5 +1,7 @@
 package com.alekseivinogradov.anime_list.api.presentation.mapper.model
 
+import app.cash.paging.PagingData
+import app.cash.paging.map
 import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
@@ -57,7 +59,7 @@ private fun getContentTypeUi(state: AnimeListMainStore.State): ContentTypeUi {
 
 private fun getListItemsUi(
     state: AnimeListMainStore.State
-): List<ListItemUi> {
+): PagingData<ListItemUi> {
     val listItemsContent = when (state.selectedSection) {
         SectionHatDomain.ONGOINGS -> state.ongoingContent
         SectionHatDomain.ANNOUNCED -> state.announcedContent
@@ -88,11 +90,11 @@ private fun getListItemUi(
             id = listItem.id,
             enabledExtraEpisodesInfoIds = enabledExtraEpisodesInfoIds
         ),
-        availableEpisodesInfo = getAvailableEpisodesInfo(listItem),
-        extraEpisodesInfo = getExtraEpisodesInfo(
-            listItem = listItem,
-            nextEpisodesInfo = nextEpisodesInfo
-        ),
+        episodesAired = listItem.episodesAired,
+        episodesTotal = listItem.episodesTotal,
+        nextEpisodeAt = nextEpisodesInfo[listItem.id],
+        airedOn = listItem.airedOn,
+        releasedOn = listItem.releasedOn,
         score = listItem.score?.toString().orEmpty(),
         releaseStatus = mapReleaseStatusDomainToUi(listItem.releaseStatus),
         notification = mapNotificationDomainToUi(
@@ -110,38 +112,6 @@ private fun getEpisodesInfoTypeUi(
         EpisodesInfoTypeUi.EXTRA
     } else {
         EpisodesInfoTypeUi.AVAILABLE
-    }
-}
-
-private fun getAvailableEpisodesInfo(listItem: ListItemDomain): String {
-    val isReleased = listItem.releaseStatus == ReleaseStatusDomain.RELEASED
-
-    val episodesTotal = listItem.episodesTotal ?: 0
-    val episodesAiredString = if (isReleased.not()) {
-        listItem.episodesAired ?: 0
-    } else {
-        episodesTotal
-    }
-
-    val episotesTotalString = if (episodesTotal > 0) {
-        episodesTotal.toString()
-    } else "?"
-
-    return "$episodesAiredString / $episotesTotalString"
-}
-
-private fun getExtraEpisodesInfo(
-    listItem: ListItemDomain,
-    nextEpisodesInfo: Map<AnimeId, String>
-): String? {
-    return when (listItem.releaseStatus) {
-        ReleaseStatusDomain.ONGOING -> {
-            nextEpisodesInfo.getOrElse(listItem.id) { listItem.nextEpisodeAt }
-        }
-
-        ReleaseStatusDomain.ANNOUNCED -> listItem.airedOn
-        ReleaseStatusDomain.RELEASED -> listItem.releasedOn
-        ReleaseStatusDomain.UNKNOWN -> null
     }
 }
 

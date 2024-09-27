@@ -1,16 +1,23 @@
 package com.alekseivinogradov.anime_list.impl.domain.store.search_section
 
+import app.cash.paging.Pager
+import app.cash.paging.PagingConfig
+import app.cash.paging.PagingData
+import app.cash.paging.cachedIn
 import com.alekseivinogradov.anime_base.api.domain.AnimeId
+import com.alekseivinogradov.anime_base.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.anime_base.api.domain.SEARCH_DEBOUNCE
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionExecutor
 import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionStore
+import com.alekseivinogradov.anime_list.impl.domain.paging.SearchListDataSource
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.SearchUsecases
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
@@ -58,37 +65,6 @@ internal class SearchSectionExecutorImpl(
             dispatch(
                 SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
             )
-            val result = usecases
-                .fetchAnimeListBySearchUsecase
-                .execute(
-                    page = 1,
-                    searchText = state().searchText
-                )
-            when (result) {
-                is CallResult.Success -> {
-                    dispatch(
-                        SearchSectionStore.Message.UpdateListItems(result.value)
-                    )
-                    if (result.value.isNotEmpty()) {
-                        dispatch(
-                            SearchSectionStore.Message.ChangeContentType(
-                                ContentTypeDomain.LOADED
-                            )
-                        )
-                    } else {
-                        dispatch(
-                            SearchSectionStore.Message.ChangeContentType(
-                                ContentTypeDomain.ERROR
-                            )
-                        )
-                    }
-                }
-
-                is CallResult.HttpError,
-                is CallResult.OtherError -> dispatch(
-                    SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR)
-                )
-            }
             dispatch(
                 SearchSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
                     enabledExtraEpisodesInfoId = setOf()
@@ -99,7 +75,24 @@ internal class SearchSectionExecutorImpl(
                     nextEpisodesInfo = mapOf()
                 )
             )
+            getPagingDataFlow().collect { listItems: PagingData<ListItemDomain> ->
+                dispatch(SearchSectionStore.Message.UpdateListItems(listItems))
+                dispatch(
+                    SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADED)
+                )
+            }
         }
+    }
+
+    private fun getPagingDataFlow(): Flow<PagingData<ListItemDomain>> {
+        return Pager(
+            config = PagingConfig(pageSize = ITEMS_PER_PAGE)
+        ) {
+            SearchListDataSource(
+                fetchAnimeListBySearchUsecase = usecases.fetchAnimeListBySearchUsecase,
+                searchText = state().searchText
+            )
+        }.flow.cachedIn(scope)
     }
 
     private fun ChangesearchText(intent: SearchSectionStore.Intent.ChangeSearchText) {
@@ -108,14 +101,10 @@ internal class SearchSectionExecutorImpl(
     }
 
     private fun episodeInfoClick(intent: SearchSectionStore.Intent.EpisodesInfoClick) {
-        val sectionContent = state().sectionContent
-        val listItem = sectionContent.listItems
-            .find { it.id == intent.id } ?: return
-
-        if (sectionContent.enabledExtraEpisodesInfoIds.contains(listItem.id)) {
-            availableEpisodesInfoClick(listItem)
+        if (state().sectionContent.enabledExtraEpisodesInfoIds.contains(intent.listItem.id)) {
+            availableEpisodesInfoClick(intent.listItem)
         } else {
-            extraEpisodesInfoClick(listItem)
+            extraEpisodesInfoClick(intent.listItem)
         }
     }
 

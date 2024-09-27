@@ -18,7 +18,7 @@ internal fun mapMainStoreLabelToOngoingStoreIntent(
         }
 
         is AnimeListMainStore.Label.OngoingEpisodeInfoClick -> {
-            OngoingSectionStore.Intent.EpisodesInfoClick(label.id)
+            OngoingSectionStore.Intent.EpisodesInfoClick(label.listItem)
         }
 
         AnimeListMainStore.Label.OpenAnnouncedSection,
@@ -46,7 +46,7 @@ internal fun mapMainStoreLabelToAnnouncedStoreIntent(
         }
 
         is AnimeListMainStore.Label.AnnouncedEpisodeInfoClick -> {
-            AnnouncedSectionStore.Intent.EpisodesInfoClick(label.id)
+            AnnouncedSectionStore.Intent.EpisodesInfoClick(label.listItem)
         }
 
         AnimeListMainStore.Label.OpenOngoingSection,
@@ -74,7 +74,7 @@ internal fun mapMainStoreLabelToSearchStoreIntent(
         }
 
         is AnimeListMainStore.Label.SearchEpisodeInfoClick -> {
-            SearchSectionStore.Intent.EpisodesInfoClick(label.id)
+            SearchSectionStore.Intent.EpisodesInfoClick(label.listItem)
         }
 
         is AnimeListMainStore.Label.ChangeSearchText -> {

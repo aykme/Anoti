@@ -2,24 +2,29 @@ package com.alekseivinogradov.anime_list.presentation.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.ListAdapter
+import androidx.paging.PagingDataAdapter
 import com.alekseivinogradov.animeListPlatform.databinding.ItemAnimeListBinding
-import com.alekseivinogradov.anime_base.api.domain.AnimeId
+import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
+import com.alekseivinogradov.anime_list.api.presentation.mapper.model.toDomain
 import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ListItemUi
 import com.alekseivinogradov.date.formatter.DateFormatter
 
 internal class AnimeListAdapter(
-    private val episodesInfoClickAdapterCallback: (AnimeId) -> Unit,
-    private val notificationClickAdapterCallback: (AnimeId) -> Unit,
+    private val episodesInfoClickAdapterCallback: (ListItemDomain) -> Unit,
+    private val notificationClickAdapterCallback: (ListItemDomain) -> Unit,
     private val dateFormatter: DateFormatter
-) : ListAdapter<ListItemUi, AnimeListViewHolder>(AnimeListDiffUtilCallback()) {
+) : PagingDataAdapter<ListItemUi, AnimeListViewHolder>(AnimeListDiffUtilCallback()) {
 
     private val episodesInfoClickViewHolderCallback: (Int) -> Unit = { adapterPosition: Int ->
-        episodesInfoClickAdapterCallback(getItem(adapterPosition).id)
+        getItem(adapterPosition)?.let {
+            episodesInfoClickAdapterCallback(it.toDomain())
+        }
     }
 
     private val notificationClickViewHolderCallback: (Int) -> Unit = { adapterPosition: Int ->
-        notificationClickAdapterCallback(getItem(adapterPosition).id)
+        getItem(adapterPosition)?.let {
+            notificationClickAdapterCallback(it.toDomain())
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnimeListViewHolder {
@@ -36,7 +41,9 @@ internal class AnimeListAdapter(
     }
 
     override fun onBindViewHolder(holder: AnimeListViewHolder, position: Int) {
-        holder.bind(item = getItem(position))
+        getItem(position)?.let {
+            holder.bind(it)
+        }
     }
 
     override fun onBindViewHolder(

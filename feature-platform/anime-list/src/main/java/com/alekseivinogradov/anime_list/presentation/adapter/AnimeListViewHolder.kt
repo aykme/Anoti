@@ -70,12 +70,18 @@ internal class AnimeListViewHolder(
             }
 
             is AnimeListPayload.AvailableEpisodesInfoChange -> {
-                bindAvailableEpisodesInfo(payload.availableEpisodesInfo)
+                bindAvailableEpisodesInfo(
+                    episodesAired = payload.episodesAired,
+                    episodesTotal = payload.episodesTotal,
+                    releaseStatus = payload.releaseStatus
+                )
             }
 
             is AnimeListPayload.ExtraEpisodesInfoChange -> {
                 bindExtraEpisodesInfo(
-                    extraEpisodesInfo = payload.extraEpisodesInfo,
+                    nextEpisodeAt = payload.nextEpisodeAt,
+                    airedOn = payload.airedOn,
+                    releasedOn = payload.releasedOn,
                     releaseStatus = payload.releaseStatus
                 )
             }
@@ -99,9 +105,15 @@ internal class AnimeListViewHolder(
         bindImageUrl(item.imageUrl)
         bindName(item.name)
         bindEpisodesInfoType(item.episodesInfoType)
-        bindAvailableEpisodesInfo(item.availableEpisodesInfo)
+        bindAvailableEpisodesInfo(
+            episodesAired = item.episodesAired,
+            episodesTotal = item.episodesTotal,
+            releaseStatus = item.releaseStatus
+        )
         bindExtraEpisodesInfo(
-            extraEpisodesInfo = item.extraEpisodesInfo,
+            nextEpisodeAt = item.nextEpisodeAt,
+            airedOn = item.airedOn,
+            releasedOn = item.releasedOn,
             releaseStatus = item.releaseStatus
         )
         bindScore(item.score)
@@ -175,43 +187,97 @@ internal class AnimeListViewHolder(
         }
     }
 
-    private fun bindAvailableEpisodesInfo(availableEpisodesInfo: String) {
-        binding.availableEpisodesInfoText.text = availableEpisodesInfo
+    private fun bindAvailableEpisodesInfo(
+        episodesAired: Int?,
+        episodesTotal: Int?,
+        releaseStatus: ReleaseStatusUi
+    ) {
+        binding.availableEpisodesInfoText.text = getAvailableEpisodesInfo(
+            episodesAired = episodesAired,
+            episodesTotal = episodesTotal,
+            releaseStatus = releaseStatus
+        )
+    }
+
+    private fun getAvailableEpisodesInfo(
+        episodesAired: Int?,
+        episodesTotal: Int?,
+        releaseStatus: ReleaseStatusUi
+    ): String {
+        val isReleased = releaseStatus == ReleaseStatusUi.RELEASED
+
+        val episodesTotalNotNull = episodesTotal ?: 0
+        val episodesAiredString = if (isReleased.not()) {
+            episodesAired ?: 0
+        } else {
+            episodesTotalNotNull
+        }
+
+        val episotesTotalString = if (episodesTotalNotNull > 0) {
+            episodesTotalNotNull.toString()
+        } else "?"
+
+        return "$episodesAiredString / $episotesTotalString"
     }
 
     private fun bindExtraEpisodesInfo(
-        extraEpisodesInfo: String?,
-        releaseStatus: ReleaseStatusUi,
+        nextEpisodeAt: String?,
+        airedOn: String?,
+        releasedOn: String?,
+        releaseStatus: ReleaseStatusUi
     ) {
-        val extraEpisodesInfoDateString = if (extraEpisodesInfo?.isNotEmpty() == true) {
-            dateFormatter.getFormattedDate(
-                inputText = extraEpisodesInfo,
-                fallbackText = noDataString
-            )
-        } else {
-            noDataString
+        binding.extraEpisodesInfoText.text = getExtraEpisodesInfo(
+            nextEpisodeAt = nextEpisodeAt,
+            airedOn = airedOn,
+            releasedOn = releasedOn,
+            releaseStatus = releaseStatus
+        )
+    }
+
+    private fun getExtraEpisodesInfo(
+        nextEpisodeAt: String?,
+        airedOn: String?,
+        releasedOn: String?,
+        releaseStatus: ReleaseStatusUi
+    ): String? {
+        val extraEpisodeInfoNotFormatted = when (releaseStatus) {
+            ReleaseStatusUi.ONGOING -> nextEpisodeAt
+            ReleaseStatusUi.ANNOUNCED -> airedOn
+            ReleaseStatusUi.RELEASED -> releasedOn
+            ReleaseStatusUi.UNKNOWN -> null
         }
+        val extraEpisodesInfoFormatted =
+            if (extraEpisodeInfoNotFormatted?.isNotEmpty() == true) {
+                dateFormatter.getFormattedDate(
+                    inputText = extraEpisodeInfoNotFormatted,
+                    fallbackText = noDataString
+                )
+            } else {
+                noDataString
+            }
         val extraEpisodesInfoFullString = when (releaseStatus) {
             ReleaseStatusUi.ONGOING -> {
-                "$nextEpisodeString:\n$extraEpisodesInfoDateString"
+                "$nextEpisodeString:\n$extraEpisodesInfoFormatted"
             }
 
             ReleaseStatusUi.ANNOUNCED -> {
-                val commentAfterDateString = if (extraEpisodesInfo?.isNotEmpty() == true) {
-                    " ($inaccurateString)"
-                } else {
-                    ""
-                }
-                "$beginningOfTheShowString:\n$extraEpisodesInfoDateString$commentAfterDateString"
+                val commentAfterDateString =
+                    if (extraEpisodeInfoNotFormatted?.isNotEmpty() == true) {
+                        " ($inaccurateString)"
+                    } else {
+                        ""
+                    }
+                "$beginningOfTheShowString:\n$extraEpisodesInfoFormatted$commentAfterDateString"
             }
 
             ReleaseStatusUi.RELEASED -> {
-                "$showIsFinishedString:\n$extraEpisodesInfoDateString"
+                "$showIsFinishedString:\n$extraEpisodesInfoFormatted"
             }
 
-            ReleaseStatusUi.UNKNOWN -> extraEpisodesInfoDateString
+            ReleaseStatusUi.UNKNOWN -> extraEpisodesInfoFormatted
         }
-        binding.extraEpisodesInfoText.text = extraEpisodesInfoFullString
+
+        return extraEpisodesInfoFullString
     }
 
     private fun bindScore(score: String) {
