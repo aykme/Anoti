@@ -4,14 +4,23 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import com.alekseivinogradov.animeListPlatform.databinding.ItemAnimeListBinding
+import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ListItemUi
 import com.alekseivinogradov.date.formatter.DateFormatter
 
 internal class AnimeListAdapter(
-    private val episodesInfoClickCallback: (Int) -> Unit,
-    private val notificationClickCallback: (Int) -> Unit,
+    private val episodesInfoClickAdapterCallback: (AnimeId) -> Unit,
+    private val notificationClickAdapterCallback: (AnimeId) -> Unit,
     private val dateFormatter: DateFormatter
 ) : ListAdapter<ListItemUi, AnimeListViewHolder>(AnimeListDiffUtilCallback()) {
+
+    private val episodesInfoClickViewHolderCallback: (Int) -> Unit = { adapterPosition: Int ->
+        episodesInfoClickAdapterCallback(getItem(adapterPosition).id)
+    }
+
+    private val notificationClickViewHolderCallback: (Int) -> Unit = { adapterPosition: Int ->
+        notificationClickAdapterCallback(getItem(adapterPosition).id)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnimeListViewHolder {
         return AnimeListViewHolder(
@@ -20,8 +29,8 @@ internal class AnimeListAdapter(
                 parent,
                 false
             ),
-            episodesInfoClickCallback = episodesInfoClickCallback,
-            notificationClickCallback = notificationClickCallback,
+            episodesInfoClickViewHolderCallback = episodesInfoClickViewHolderCallback,
+            notificationClickViewHolderCallback = notificationClickViewHolderCallback,
             dateFormatter = dateFormatter
         )
     }

@@ -5,7 +5,7 @@ import com.alekseivinogradov.anime_list.api.presentation.model.list_content.List
 
 internal class AnimeListDiffUtilCallback : DiffUtil.ItemCallback<ListItemUi>() {
     override fun areItemsTheSame(oldItem: ListItemUi, newItem: ListItemUi): Boolean {
-        return oldItem.itemIndex == newItem.itemIndex
+        return oldItem.id == newItem.id
     }
 
     override fun areContentsTheSame(oldItem: ListItemUi, newItem: ListItemUi): Boolean {

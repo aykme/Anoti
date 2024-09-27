@@ -8,6 +8,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.alekseivinogradov.animeListPlatform.R
 import com.alekseivinogradov.animeListPlatform.databinding.FragmentAnimeListBinding
+import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
 import com.alekseivinogradov.anime_list.api.presentation.model.ContentTypeUi
@@ -36,17 +37,17 @@ internal class AnimeListViewImpl(
     private val defaultColor
         get() = context.getColor(theme_R.color.white_transparent)
 
-    private val episodesInfoClickCallback = { itemIndex: Int ->
-        dispatch(AnimeListMainStore.Intent.EpisodesInfoClick(itemIndex))
+    private val episodesInfoClickAdapterCallback = { id: AnimeId ->
+        dispatch(AnimeListMainStore.Intent.EpisodesInfoClick(id))
     }
 
-    private val notificationClickCallback = { itemIndex: Int ->
-        dispatch(AnimeListMainStore.Intent.NotificationClick(itemIndex))
+    private val notificationClickAdapterCallback = { id: AnimeId ->
+        dispatch(AnimeListMainStore.Intent.NotificationClick(id))
     }
 
     private val adapter = AnimeListAdapter(
-        episodesInfoClickCallback = episodesInfoClickCallback,
-        notificationClickCallback = notificationClickCallback,
+        episodesInfoClickAdapterCallback = episodesInfoClickAdapterCallback,
+        notificationClickAdapterCallback = notificationClickAdapterCallback,
         dateFormatter = dateFormatter
     )
 

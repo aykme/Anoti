@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anime_list.api.domain.store.ongoing_section
 
+import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.SectionContentDomain
@@ -14,7 +15,7 @@ interface OngoingSectionStore
     sealed interface Intent {
         data object OpenSection : Intent
         data object UpdateSection : Intent
-        data class EpisodesInfoClick(val itemIndex: Int) : Intent
+        data class EpisodesInfoClick(val id: AnimeId) : Intent
     }
 
     sealed interface Label

@@ -17,8 +17,8 @@ import com.alekseivinogradov.theme.R as theme_R
 
 internal class AnimeListViewHolder(
     private val binding: ItemAnimeListBinding,
-    private val episodesInfoClickCallback: (Int) -> Unit,
-    private val notificationClickCallback: (Int) -> Unit,
+    private val episodesInfoClickViewHolderCallback: (Int) -> Unit,
+    private val notificationClickViewHolderCallback: (Int) -> Unit,
     private val dateFormatter: DateFormatter
 ) :
     RecyclerView.ViewHolder(binding.root) {
@@ -130,13 +130,13 @@ internal class AnimeListViewHolder(
     private fun setClickListeners() {
         with(binding) {
             availableEpisodesInfoButton.setOnClickListener {
-                episodesInfoClickCallback(adapterPosition)
+                episodesInfoClickViewHolderCallback(adapterPosition)
             }
             extraEpisodesInfoButton.setOnClickListener {
-                episodesInfoClickCallback(adapterPosition)
+                episodesInfoClickViewHolderCallback(adapterPosition)
             }
             notificationButton.setOnClickListener {
-                notificationClickCallback(adapterPosition)
+                notificationClickViewHolderCallback(adapterPosition)
             }
         }
     }

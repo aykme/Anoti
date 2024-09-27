@@ -1,7 +1,9 @@
 package com.alekseivinogradov.anime_list.api.presentation.model.list_content
 
+import com.alekseivinogradov.anime_base.api.domain.AnimeId
+
 data class ListItemUi(
-    val itemIndex: Int,
+    val id: AnimeId,
     val imageUrl: String?,
     val name: String,
     val episodesInfoType: EpisodesInfoTypeUi,

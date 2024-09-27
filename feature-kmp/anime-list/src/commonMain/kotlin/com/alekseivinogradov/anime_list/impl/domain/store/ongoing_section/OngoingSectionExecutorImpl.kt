@@ -78,66 +78,53 @@ internal class OngoingSectionExecutorImpl(
 
     private fun episodeInfoClick(intent: OngoingSectionStore.Intent.EpisodesInfoClick) {
         val listItem = state().sectionContent.listItems
-            .getOrNull(intent.itemIndex) ?: return
+            .find { it.id == intent.id } ?: return
 
         when (listItem.episodesInfoType) {
-            EpisodesInfoTypeDomain.AVAILABLE -> {
-                extraEpisodesInfoClick(listItem = listItem, itemIndex = intent.itemIndex)
-            }
-
-            EpisodesInfoTypeDomain.EXTRA -> {
-                availableEpisodesInfoClick(listItem = listItem, itemIndex = intent.itemIndex)
-            }
+            EpisodesInfoTypeDomain.AVAILABLE -> extraEpisodesInfoClick(listItem)
+            EpisodesInfoTypeDomain.EXTRA -> availableEpisodesInfoClick(listItem)
         }
     }
 
-    private fun extraEpisodesInfoClick(listItem: ListItemDomain, itemIndex: Int) {
-        val newListItem = listItem.copy(
-            episodesInfoType = EpisodesInfoTypeDomain.EXTRA
-        )
-        val newListItems = state().sectionContent.listItems
-            .toMutableList()
-
-        newListItems[itemIndex] = newListItem
+    private fun extraEpisodesInfoClick(listItem: ListItemDomain) {
+        val newListItems = state().sectionContent.listItems.map {
+            if (it.id == listItem.id) {
+                it.copy(episodesInfoType = EpisodesInfoTypeDomain.EXTRA)
+            } else it
+        }
         dispatch(
             OngoingSectionStore.Message.UpdateListItems(
-                listItems = newListItems.toList()
+                listItems = newListItems
             )
         )
         if (listItem.releaseStatus == ReleaseStatusDomain.ONGOING) {
-            updateExtraEpisodesInfo(itemIndex)
+            updateExtraEpisodesInfo(listItem.id)
         }
     }
 
-    private fun availableEpisodesInfoClick(listItem: ListItemDomain, itemIndex: Int) {
-        val newListItem = listItem.copy(
-            episodesInfoType = EpisodesInfoTypeDomain.AVAILABLE
-        )
-        val newListItems = state().sectionContent.listItems
-            .toMutableList()
-
-        newListItems[itemIndex] = newListItem
+    private fun availableEpisodesInfoClick(listItem: ListItemDomain) {
+        val newListItems = state().sectionContent.listItems.map {
+            if (it.id == listItem.id) {
+                it.copy(episodesInfoType = EpisodesInfoTypeDomain.AVAILABLE)
+            } else it
+        }
         dispatch(
             OngoingSectionStore.Message.UpdateListItems(
-                listItems = newListItems.toList()
+                listItems = newListItems
             )
         )
     }
 
-    private fun updateExtraEpisodesInfo(itemIndex: Int) {
-        val listItem = state().sectionContent.listItems
-            .getOrNull(itemIndex) ?: return
-
-        updateExtraEpisodesInfoJobMap[listItem.id]?.cancel()
-        updateExtraEpisodesInfoJobMap[listItem.id] = scope.launch {
+    private fun updateExtraEpisodesInfo(id: AnimeId) {
+        updateExtraEpisodesInfoJobMap[id]?.cancel()
+        updateExtraEpisodesInfoJobMap[id] = scope.launch {
             val result = usecases
                 .fetchAnimeByIdUsecase
-                .execute(listItem.id)
+                .execute(id)
 
             when (result) {
                 is CallResult.Success -> onSuccessUpdateExtraEpisodesInfo(
-                    updateListItem = result.value,
-                    itemIndex = itemIndex
+                    updateListItem = result.value
                 )
 
                 is CallResult.HttpError,
@@ -147,22 +134,16 @@ internal class OngoingSectionExecutorImpl(
     }
 
     private fun onSuccessUpdateExtraEpisodesInfo(
-        updateListItem: ListItemDomain,
-        itemIndex: Int
+        updateListItem: ListItemDomain
     ) {
-        val currentListItem = state().sectionContent.listItems
-            .getOrNull(itemIndex) ?: return
-
-        val newListItem = currentListItem.copy(
-            nextEpisodeAt = updateListItem.nextEpisodeAt
-        )
-        val newListItems = state().sectionContent.listItems
-            .toMutableList()
-
-        newListItems[itemIndex] = newListItem
+        val newListItems = state().sectionContent.listItems.map {
+            if (it.id == updateListItem.id) {
+                it.copy(nextEpisodeAt = updateListItem.nextEpisodeAt)
+            } else it
+        }
         dispatch(
             OngoingSectionStore.Message.UpdateListItems(
-                listItems = newListItems.toList()
+                listItems = newListItems
             )
         )
     }

@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anime_list.api.presentation.mapper.model
 
+import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.EpisodesInfoTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
@@ -65,9 +66,8 @@ private fun getListItemsUi(
     }
     val enabledNotificationIds = state.enabledNotificationIds
 
-    return listItems.mapIndexed { itemIndex: Int, listItem: ListItemDomain ->
+    return listItems.map { listItem: ListItemDomain ->
         mapListItemDomainToUi(
-            itemIndex = itemIndex,
             listItem = listItem,
             enabledNotificationIds = enabledNotificationIds
         )
@@ -75,12 +75,11 @@ private fun getListItemsUi(
 }
 
 private fun mapListItemDomainToUi(
-    itemIndex: Int,
     listItem: ListItemDomain,
-    enabledNotificationIds: Set<Int>
+    enabledNotificationIds: Set<AnimeId>
 ): ListItemUi {
     return ListItemUi(
-        itemIndex = itemIndex,
+        id = listItem.id,
         imageUrl = listItem.imageUrl,
         name = listItem.name,
         episodesInfoType = mapEpisodeInfoTypeDomainToUi(listItem.episodesInfoType),

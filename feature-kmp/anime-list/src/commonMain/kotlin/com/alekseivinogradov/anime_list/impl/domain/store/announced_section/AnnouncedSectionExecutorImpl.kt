@@ -69,45 +69,36 @@ internal class AnnouncedSectionExecutorImpl(
 
     private fun episodeInfoClick(intent: AnnouncedSectionStore.Intent.EpisodesInfoClick) {
         val listItem = state().sectionContent.listItems
-            .getOrNull(intent.itemIndex) ?: return
+            .find { it.id == intent.id } ?: return
 
         when (listItem.episodesInfoType) {
-            EpisodesInfoTypeDomain.AVAILABLE -> {
-                extraEpisodesInfoClick(listItem = listItem, itemIndex = intent.itemIndex)
-            }
-
-            EpisodesInfoTypeDomain.EXTRA -> {
-                availableEpisodesInfoClick(listItem = listItem, itemIndex = intent.itemIndex)
-            }
+            EpisodesInfoTypeDomain.AVAILABLE -> extraEpisodesInfoClick(listItem)
+            EpisodesInfoTypeDomain.EXTRA -> availableEpisodesInfoClick(listItem)
         }
     }
 
-    private fun extraEpisodesInfoClick(listItem: ListItemDomain, itemIndex: Int) {
-        val newListItem = listItem.copy(
-            episodesInfoType = EpisodesInfoTypeDomain.EXTRA
-        )
-        val newListItems = state().sectionContent.listItems
-            .toMutableList()
-
-        newListItems[itemIndex] = newListItem
+    private fun extraEpisodesInfoClick(listItem: ListItemDomain) {
+        val newListItems = state().sectionContent.listItems.map {
+            if (it.id == listItem.id) {
+                it.copy(episodesInfoType = EpisodesInfoTypeDomain.EXTRA)
+            } else it
+        }
         dispatch(
             AnnouncedSectionStore.Message.UpdateListItems(
-                listItems = newListItems.toList()
+                listItems = newListItems
             )
         )
     }
 
-    private fun availableEpisodesInfoClick(listItem: ListItemDomain, itemIndex: Int) {
-        val newListItem = listItem.copy(
-            episodesInfoType = EpisodesInfoTypeDomain.AVAILABLE
-        )
-        val newListItems = state().sectionContent.listItems
-            .toMutableList()
-
-        newListItems[itemIndex] = newListItem
+    private fun availableEpisodesInfoClick(listItem: ListItemDomain) {
+        val newListItems = state().sectionContent.listItems.map {
+            if (it.id == listItem.id) {
+                it.copy(episodesInfoType = EpisodesInfoTypeDomain.AVAILABLE)
+            } else it
+        }
         dispatch(
             AnnouncedSectionStore.Message.UpdateListItems(
-                listItems = newListItems.toList()
+                listItems = newListItems
             )
         )
     }

@@ -29,8 +29,8 @@ interface AnimeListMainStore
         data class UpdateOngoingContent(val content: SectionContentDomain) : Intent
         data class UpdateAnnouncedContent(val content: SectionContentDomain) : Intent
         data class UpdateSearchContent(val content: SectionContentDomain) : Intent
-        data class EpisodesInfoClick(val itemIndex: Int) : Intent
-        data class NotificationClick(val itemIndex: Int) : Intent
+        data class EpisodesInfoClick(val id: AnimeId) : Intent
+        data class NotificationClick(val id: AnimeId) : Intent
         data class UpdateEnabledNotificationIds(val enabledNotificationIds: Set<AnimeId>) : Intent
     }
 
@@ -42,9 +42,9 @@ interface AnimeListMainStore
         data object UpdateAnnouncedSection : Label
         data object UpdateSearchSection : Label
         data class ChangeSearchText(val searchText: String) : Label
-        data class OngoingEpisodeInfoClick(val itemIndex: Int) : Label
-        data class AnnouncedEpisodeInfoClick(val itemIndex: Int) : Label
-        data class SearchEpisodeInfoClick(val itemIndex: Int) : Label
+        data class OngoingEpisodeInfoClick(val id: AnimeId) : Label
+        data class AnnouncedEpisodeInfoClick(val id: AnimeId) : Label
+        data class SearchEpisodeInfoClick(val id: AnimeId) : Label
         data class EnableNotification(val listItem: ListItemDomain) : Label
         data class DisableNotification(val id: AnimeId) : Label
     }
