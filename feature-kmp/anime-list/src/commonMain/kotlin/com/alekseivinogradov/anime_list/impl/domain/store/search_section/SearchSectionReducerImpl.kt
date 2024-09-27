@@ -30,6 +30,12 @@ internal class SearchSectionReducerImpl :
                     enabledExtraEpisodesInfoIds = msg.enabledExtraEpisodesInfoId
                 )
             )
+
+            is SearchSectionStore.Message.UpdateNextEpisodesInfo -> copy(
+                sectionContent = sectionContent.copy(
+                    nextEpisodesInfo = msg.nextEpisodesInfo
+                )
+            )
         }
     }
 }

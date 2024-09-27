@@ -77,6 +77,11 @@ internal class OngoingSectionExecutorImpl(
                     enabledExtraEpisodesInfoId = setOf()
                 )
             )
+            dispatch(
+                OngoingSectionStore.Message.UpdateNextEpisodesInfo(
+                    nextEpisodesInfo = mapOf()
+                )
+            )
         }
     }
 
@@ -102,7 +107,10 @@ internal class OngoingSectionExecutorImpl(
                 newEnabledExtraEpisodesInfoIds
             )
         )
-        if (listItem.releaseStatus == ReleaseStatusDomain.ONGOING) {
+        if (
+            listItem.releaseStatus == ReleaseStatusDomain.ONGOING &&
+            !state().sectionContent.nextEpisodesInfo.contains(listItem.id)
+        ) {
             updateExtraEpisodesInfo(listItem.id)
         }
     }
@@ -140,15 +148,15 @@ internal class OngoingSectionExecutorImpl(
     private fun onSuccessUpdateExtraEpisodesInfo(
         updateListItem: ListItemDomain
     ) {
-        val newListItems = state().sectionContent.listItems.map {
-            if (it.id == updateListItem.id) {
-                it.copy(nextEpisodeAt = updateListItem.nextEpisodeAt)
-            } else it
-        }
+        val newNextEpisodesInfo = mutableMapOf<AnimeId, String>()
+            .apply {
+                putAll(state().sectionContent.nextEpisodesInfo)
+                updateListItem.nextEpisodeAt?.let {
+                    this[updateListItem.id] = it
+                }
+            }.toMap()
         dispatch(
-            OngoingSectionStore.Message.UpdateListItems(
-                listItems = newListItems
-            )
+            OngoingSectionStore.Message.UpdateNextEpisodesInfo(newNextEpisodesInfo)
         )
     }
 }

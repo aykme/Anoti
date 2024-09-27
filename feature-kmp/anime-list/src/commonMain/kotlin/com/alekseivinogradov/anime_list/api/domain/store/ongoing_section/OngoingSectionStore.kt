@@ -30,5 +30,7 @@ interface OngoingSectionStore
         data class UpdateEnabledExtraEpisodesInfoIds(
             val enabledExtraEpisodesInfoId: Set<AnimeId>
         ) : Message
+
+        data class UpdateNextEpisodesInfo(val nextEpisodesInfo: Map<AnimeId, String>) : Message
     }
 }

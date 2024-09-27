@@ -72,5 +72,13 @@ interface AnimeListMainStore
         data class UpdateSearchEnabledExtraEpisodesInfoIds(
             val enabledExtraEpisodesInfoId: Set<AnimeId>
         ) : Message
+
+        data class UpdateOngoingNextEpisodesInfo(
+            val nextEpisodesInfo: Map<AnimeId, String>
+        ) : Message
+
+        data class UpdateSearchNextEpisodesInfo(
+            val nextEpisodesInfo: Map<AnimeId, String>
+        ) : Message
     }
 }

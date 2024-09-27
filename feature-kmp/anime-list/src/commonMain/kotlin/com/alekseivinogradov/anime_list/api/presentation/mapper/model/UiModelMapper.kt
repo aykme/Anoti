@@ -68,7 +68,8 @@ private fun getListItemsUi(
         getListItemUi(
             listItem = listItem,
             enabledNotificationIds = state.enabledNotificationIds,
-            enabledExtraEpisodesInfoIds = listItemsContent.enabledExtraEpisodesInfoIds
+            enabledExtraEpisodesInfoIds = listItemsContent.enabledExtraEpisodesInfoIds,
+            nextEpisodesInfo = listItemsContent.nextEpisodesInfo
         )
     }
 }
@@ -76,7 +77,8 @@ private fun getListItemsUi(
 private fun getListItemUi(
     listItem: ListItemDomain,
     enabledNotificationIds: Set<AnimeId>,
-    enabledExtraEpisodesInfoIds: Set<AnimeId>
+    enabledExtraEpisodesInfoIds: Set<AnimeId>,
+    nextEpisodesInfo: Map<AnimeId, String>
 ): ListItemUi {
     return ListItemUi(
         id = listItem.id,
@@ -87,7 +89,10 @@ private fun getListItemUi(
             enabledExtraEpisodesInfoIds = enabledExtraEpisodesInfoIds
         ),
         availableEpisodesInfo = getAvailableEpisodesInfo(listItem),
-        extraEpisodesInfo = getExtraEpisodesInfo(listItem),
+        extraEpisodesInfo = getExtraEpisodesInfo(
+            listItem = listItem,
+            nextEpisodesInfo = nextEpisodesInfo
+        ),
         score = listItem.score?.toString().orEmpty(),
         releaseStatus = mapReleaseStatusDomainToUi(listItem.releaseStatus),
         notification = mapNotificationDomainToUi(
@@ -125,9 +130,15 @@ private fun getAvailableEpisodesInfo(listItem: ListItemDomain): String {
     return "$episodesAiredString / $episotesTotalString"
 }
 
-private fun getExtraEpisodesInfo(listItem: ListItemDomain): String? {
+private fun getExtraEpisodesInfo(
+    listItem: ListItemDomain,
+    nextEpisodesInfo: Map<AnimeId, String>
+): String? {
     return when (listItem.releaseStatus) {
-        ReleaseStatusDomain.ONGOING -> listItem.nextEpisodeAt
+        ReleaseStatusDomain.ONGOING -> {
+            nextEpisodesInfo.getOrElse(listItem.id) { listItem.nextEpisodeAt }
+        }
+
         ReleaseStatusDomain.ANNOUNCED -> listItem.airedOn
         ReleaseStatusDomain.RELEASED -> listItem.releasedOn
         ReleaseStatusDomain.UNKNOWN -> null

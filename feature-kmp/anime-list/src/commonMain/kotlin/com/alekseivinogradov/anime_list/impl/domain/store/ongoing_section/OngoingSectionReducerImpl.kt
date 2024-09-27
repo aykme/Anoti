@@ -27,6 +27,12 @@ internal class OngoingSectionReducerImpl :
                     enabledExtraEpisodesInfoIds = msg.enabledExtraEpisodesInfoId
                 )
             )
+
+            is OngoingSectionStore.Message.UpdateNextEpisodesInfo -> copy(
+                sectionContent = sectionContent.copy(
+                    nextEpisodesInfo = msg.nextEpisodesInfo
+                )
+            )
         }
     }
 }

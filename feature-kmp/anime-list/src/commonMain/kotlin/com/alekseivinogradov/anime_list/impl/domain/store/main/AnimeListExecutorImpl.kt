@@ -156,6 +156,13 @@ internal class AnimeListExecutorImpl() : AnimeListExecutor() {
                 )
             )
         }
+        if (state.ongoingContent.nextEpisodesInfo != intent.content.nextEpisodesInfo) {
+            dispatch(
+                AnimeListMainStore.Message.UpdateOngoingNextEpisodesInfo(
+                    intent.content.nextEpisodesInfo
+                )
+            )
+        }
     }
 
     private fun updateAnnouncedContent(intent: AnimeListMainStore.Intent.UpdateAnnouncedContent) {
@@ -201,6 +208,13 @@ internal class AnimeListExecutorImpl() : AnimeListExecutor() {
             dispatch(
                 AnimeListMainStore.Message.UpdateSearchEnabledExtraEpisodesInfoIds(
                     intent.content.enabledExtraEpisodesInfoIds
+                )
+            )
+        }
+        if (state.searchContent.nextEpisodesInfo != intent.content.nextEpisodesInfo) {
+            dispatch(
+                AnimeListMainStore.Message.UpdateSearchNextEpisodesInfo(
+                    intent.content.nextEpisodesInfo
                 )
             )
         }
