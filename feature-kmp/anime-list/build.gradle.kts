@@ -35,9 +35,11 @@ kotlin {
             implementation(libs.mvikotlin.logger)
             implementation(libs.mvikotlin.timetravel)
             implementation(libs.mvikotlin.extensions.coroutines)
+            implementation(libs.paging.common)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.paging.testing)
         }
     }
 }
