@@ -3,6 +3,7 @@ package com.alekseivinogradov.anime_base.api.data.remote.service
 import com.alekseivinogradov.anime_base.api.data.remote.response.AnimeDetailsPlatformResponse
 import com.alekseivinogradov.anime_base.api.data.remote.response.AnimeShortPlatformResponse
 import com.alekseivinogradov.anime_base.api.data.service.ANIME_LIST_APPEND_URL
+import com.alekseivinogradov.anime_base.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.network.impl.data.shikimoriRetrofit
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -18,7 +19,7 @@ interface ShikimoriApiServicePlatform {
     @GET(ANIME_LIST_APPEND_URL)
     suspend fun getAnimeList(
         @Query("page") page: Int,
-        @Query("limit") itemsPerPage: Int,
+        @Query("limit") itemsPerPage: Int = ITEMS_PER_PAGE,
         @Query("status") releaseStatus: String?,
         @Query("order") sort: String?,
         @Query("search") search: String?,

@@ -1,7 +1,6 @@
 package com.alekseivinogradov.anime_list.impl.domain.store.ongoing_section
 
 import com.alekseivinogradov.anime_base.api.domain.AnimeId
-import com.alekseivinogradov.anime_base.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.EpisodesInfoTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
@@ -48,10 +47,7 @@ internal class OngoingSectionExecutorImpl(
             )
             val result = usecases
                 .fetchOngoingAnimeListUsecase
-                .execute(
-                    page = 1,
-                    itemsPerPage = ITEMS_PER_PAGE
-                )
+                .execute(page = 1)
             when (result) {
                 is CallResult.Success -> {
                     dispatch(

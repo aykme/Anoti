@@ -9,7 +9,6 @@ interface ShikimoriApiService {
 
     suspend fun getAnimeList(
         page: Int,
-        itemsPerPage: Int,
         releaseStatus: String?,
         sort: String?,
         search: String?,

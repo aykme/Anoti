@@ -1,7 +1,6 @@
 package com.alekseivinogradov.anime_list.impl.domain.store.search_section
 
 import com.alekseivinogradov.anime_base.api.domain.AnimeId
-import com.alekseivinogradov.anime_base.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.anime_base.api.domain.SEARCH_DEBOUNCE
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.EpisodesInfoTypeDomain
@@ -64,7 +63,6 @@ internal class SearchSectionExecutorImpl(
                 .fetchAnimeListBySearchUsecase
                 .execute(
                     page = 1,
-                    itemsPerPage = ITEMS_PER_PAGE,
                     searchText = state().searchText
                 )
             when (result) {

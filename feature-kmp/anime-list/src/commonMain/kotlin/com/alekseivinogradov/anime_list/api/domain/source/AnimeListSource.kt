@@ -7,19 +7,16 @@ interface AnimeListSource {
 
     suspend fun getOngoingList(
         page: Int,
-        itemsPerPage: Int,
         sort: String
     ): CallResult<List<ListItemDomain>>
 
     suspend fun getAnnouncedList(
         page: Int,
-        itemsPerPage: Int,
         sort: String
     ): CallResult<List<ListItemDomain>>
 
     suspend fun getListBySearch(
         page: Int,
-        itemsPerPage: Int,
         search: String,
         sort: String
     ): CallResult<List<ListItemDomain>>
