@@ -5,6 +5,7 @@ import com.alekseivinogradov.anime_base.api.data.remote.service.ShikimoriApiServ
 import com.alekseivinogradov.anime_base.api.data.response.AnimeDetailsResponse
 import com.alekseivinogradov.anime_base.api.data.response.AnimeShortResponse
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
+import com.alekseivinogradov.anime_base.api.domain.AnimeId
 
 class ShikimoriApiServiceImpl(
     private val servicePlatform: ShikimoriApiServicePlatform
@@ -28,7 +29,7 @@ class ShikimoriApiServiceImpl(
         }
     }
 
-    override suspend fun getAnimeById(id: Int): AnimeDetailsResponse {
+    override suspend fun getAnimeById(id: AnimeId): AnimeDetailsResponse {
         return servicePlatform.getAnimeById(id).toKmp()
     }
 }

@@ -2,6 +2,7 @@ package com.alekseivinogradov.anime_list.impl.data.source
 
 import com.alekseivinogradov.anime_base.api.data.model.ReleaseStatusData
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
+import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_list.api.data.mapper.toListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.source.AnimeListSource
@@ -71,7 +72,7 @@ class AnimeListSourceImpl(
         }
     }
 
-    override suspend fun getItemById(id: Int): CallResult<ListItemDomain> {
+    override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
         return safeApi.call {
             service.getAnimeById(id).toListItemDomain()
         }
