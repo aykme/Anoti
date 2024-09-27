@@ -84,12 +84,8 @@ private fun mapListItemDomainToUi(
         imageUrl = listItem.imageUrl,
         name = listItem.name,
         episodesInfoType = mapEpisodeInfoTypeDomainToUi(listItem.episodesInfoType),
-        availableEpisodesInfo = getAvailableEpisodesInfo(
-            episodesAired = listItem.episodesAired ?: 0,
-            episodesTotal = listItem.episodesTotal ?: 0,
-            releaseStatus = listItem.releaseStatus
-        ),
-        extraEpisodesInfo = listItem.extraEpisodesInfo,
+        availableEpisodesInfo = getAvailableEpisodesInfo(listItem),
+        extraEpisodesInfo = getExtraEpisodesInfo(listItem),
         score = listItem.score?.toString().orEmpty(),
         releaseStatus = mapReleaseStatusDomainToUi(listItem.releaseStatus),
         notification = mapNotificationDomainToUi(
@@ -108,15 +104,12 @@ private fun mapEpisodeInfoTypeDomainToUi(
     }
 }
 
-private fun getAvailableEpisodesInfo(
-    episodesAired: Int,
-    episodesTotal: Int,
-    releaseStatus: ReleaseStatusDomain
-): String {
-    val isReleased = releaseStatus == ReleaseStatusDomain.RELEASED
+private fun getAvailableEpisodesInfo(listItem: ListItemDomain): String {
+    val isReleased = listItem.releaseStatus == ReleaseStatusDomain.RELEASED
 
+    val episodesTotal = listItem.episodesTotal ?: 0
     val episodesAiredString = if (isReleased.not()) {
-        episodesAired
+        listItem.episodesAired ?: 0
     } else {
         episodesTotal
     }
@@ -126,6 +119,15 @@ private fun getAvailableEpisodesInfo(
     } else "?"
 
     return "$episodesAiredString / $episotesTotalString"
+}
+
+private fun getExtraEpisodesInfo(listItem: ListItemDomain): String? {
+    return when (listItem.releaseStatus) {
+        ReleaseStatusDomain.ONGOING -> listItem.nextEpisodeAt
+        ReleaseStatusDomain.ANNOUNCED -> listItem.airedOn
+        ReleaseStatusDomain.RELEASED -> listItem.releasedOn
+        ReleaseStatusDomain.UNKNOWN -> null
+    }
 }
 
 private fun mapReleaseStatusDomainToUi(releaseStatus: ReleaseStatusDomain): ReleaseStatusUi {

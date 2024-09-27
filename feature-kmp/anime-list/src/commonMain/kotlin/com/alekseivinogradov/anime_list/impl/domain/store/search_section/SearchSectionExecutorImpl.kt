@@ -176,7 +176,7 @@ internal class SearchSectionExecutorImpl(
             .getOrNull(itemIndex) ?: return
 
         val newListItem = currentListItem.copy(
-            extraEpisodesInfo = updateListItem.extraEpisodesInfo
+            nextEpisodeAt = updateListItem.nextEpisodeAt
         )
         val newListItems = state().sectionContent.listItems
             .toMutableList()
