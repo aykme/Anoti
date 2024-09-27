@@ -51,7 +51,7 @@ private fun getContentTypeUi(state: AnimeListMainStore.State): ContentTypeUi {
     return when (contentType) {
         ContentTypeDomain.LOADED -> ContentTypeUi.LOADED
         ContentTypeDomain.LOADING -> ContentTypeUi.LOADING
-        ContentTypeDomain.NO_DATA -> ContentTypeUi.NO_DATA
+        ContentTypeDomain.ERROR -> ContentTypeUi.ERROR
     }
 }
 

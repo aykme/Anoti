@@ -79,7 +79,7 @@ internal class SearchSectionExecutorImpl(
                     } else {
                         dispatch(
                             SearchSectionStore.Message.ChangeContentType(
-                                ContentTypeDomain.NO_DATA
+                                ContentTypeDomain.ERROR
                             )
                         )
                     }
@@ -87,7 +87,7 @@ internal class SearchSectionExecutorImpl(
 
                 is CallResult.HttpError,
                 is CallResult.OtherError -> dispatch(
-                    SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.NO_DATA)
+                    SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR)
                 )
             }
         }

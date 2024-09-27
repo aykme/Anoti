@@ -235,7 +235,7 @@ internal class AnimeListViewImpl(
                     connectionStatusImage.isVisible = true
                 }
 
-                ContentTypeUi.NO_DATA -> {
+                ContentTypeUi.ERROR -> {
                     animeListRv.isVisible = false
                     connectionStatusImage.setImageResource(R.drawable.connection_error_48)
                     connectionStatusImage.isVisible = true

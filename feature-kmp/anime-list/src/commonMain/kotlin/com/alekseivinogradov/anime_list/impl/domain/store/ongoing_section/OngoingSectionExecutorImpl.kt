@@ -62,7 +62,7 @@ internal class OngoingSectionExecutorImpl(
                     } else {
                         dispatch(
                             OngoingSectionStore.Message.ChangeContentType(
-                                ContentTypeDomain.NO_DATA
+                                ContentTypeDomain.ERROR
                             )
                         )
                     }
@@ -70,7 +70,7 @@ internal class OngoingSectionExecutorImpl(
 
                 is CallResult.HttpError,
                 is CallResult.OtherError -> dispatch(
-                    OngoingSectionStore.Message.ChangeContentType(ContentTypeDomain.NO_DATA)
+                    OngoingSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR)
                 )
             }
         }
