@@ -4,7 +4,6 @@ import com.alekseivinogradov.anime_base.api.data.model.ReleaseStatusData
 import com.alekseivinogradov.anime_base.api.data.response.AnimeDetailsResponse
 import com.alekseivinogradov.anime_base.api.data.response.AnimeShortResponse
 import com.alekseivinogradov.anime_base.api.data.response.ImageResponse
-import com.alekseivinogradov.anime_list.api.domain.model.EpisodesInfoTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.network.api.domain.SHIKIMORI_BASE_URL
@@ -17,7 +16,6 @@ internal fun AnimeShortResponse.toListItemDomain() = ListItemDomain(
     id = this.id ?: -1,
     name = this.englishName ?: "",
     imageUrl = mapImageUrlDataToDomain(this.imageResponse),
-    episodesInfoType = EpisodesInfoTypeDomain.AVAILABLE,
     episodesAired = this.episodesAired,
     episodesTotal = this.episodesTotal,
     nextEpisodeAt = null,
@@ -36,7 +34,6 @@ internal fun AnimeDetailsResponse.toListItemDomain() = ListItemDomain(
     id = this.id ?: -1,
     name = this.englishName ?: "",
     imageUrl = mapImageUrlDataToDomain(this.imageResponse),
-    episodesInfoType = EpisodesInfoTypeDomain.AVAILABLE,
     episodesAired = this.episodesAired,
     episodesTotal = this.episodesTotal,
     nextEpisodeAt = this.nextEpisodeAt,

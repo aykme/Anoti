@@ -61,5 +61,16 @@ interface AnimeListMainStore
         data class UpdateAnnouncedListItems(val listItems: List<ListItemDomain>) : Message
         data class UpdateSearchListItems(val listItems: List<ListItemDomain>) : Message
         data class UpdateEnabledNotificationIds(val enabledNotificationIds: Set<AnimeId>) : Message
+        data class UpdateOngoingEnabledExtraEpisodesInfoIds(
+            val enabledExtraEpisodesInfoId: Set<AnimeId>
+        ) : Message
+
+        data class UpdateAnnouncedEnabledExtraEpisodesInfoIds(
+            val enabledExtraEpisodesInfoId: Set<AnimeId>
+        ) : Message
+
+        data class UpdateSearchEnabledExtraEpisodesInfoIds(
+            val enabledExtraEpisodesInfoId: Set<AnimeId>
+        ) : Message
     }
 }

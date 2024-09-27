@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anime_list.impl.domain.store.announced_section
 
+import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
-import com.alekseivinogradov.anime_list.api.domain.model.EpisodesInfoTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.store.announced_section.AnnouncedSectionExecutor
 import com.alekseivinogradov.anime_list.api.domain.store.announced_section.AnnouncedSectionStore
@@ -64,41 +64,46 @@ internal class AnnouncedSectionExecutorImpl(
                     AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR)
                 )
             }
+            dispatch(
+                AnnouncedSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
+                    enabledExtraEpisodesInfoId = setOf()
+                )
+            )
         }
     }
 
     private fun episodeInfoClick(intent: AnnouncedSectionStore.Intent.EpisodesInfoClick) {
-        val listItem = state().sectionContent.listItems
+        val sectionContent = state().sectionContent
+        val listItem = sectionContent.listItems
             .find { it.id == intent.id } ?: return
 
-        when (listItem.episodesInfoType) {
-            EpisodesInfoTypeDomain.AVAILABLE -> extraEpisodesInfoClick(listItem)
-            EpisodesInfoTypeDomain.EXTRA -> availableEpisodesInfoClick(listItem)
+        if (sectionContent.enabledExtraEpisodesInfoIds.contains(listItem.id)) {
+            availableEpisodesInfoClick(listItem)
+        } else {
+            extraEpisodesInfoClick(listItem)
         }
     }
 
     private fun extraEpisodesInfoClick(listItem: ListItemDomain) {
-        val newListItems = state().sectionContent.listItems.map {
-            if (it.id == listItem.id) {
-                it.copy(episodesInfoType = EpisodesInfoTypeDomain.EXTRA)
-            } else it
-        }
+        val newEnabledExtraEpisodesInfoIds = mutableSetOf<AnimeId>().apply {
+            addAll(state().sectionContent.enabledExtraEpisodesInfoIds)
+            add(listItem.id)
+        }.toSet()
         dispatch(
-            AnnouncedSectionStore.Message.UpdateListItems(
-                listItems = newListItems
+            AnnouncedSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
+                newEnabledExtraEpisodesInfoIds
             )
         )
     }
 
     private fun availableEpisodesInfoClick(listItem: ListItemDomain) {
-        val newListItems = state().sectionContent.listItems.map {
-            if (it.id == listItem.id) {
-                it.copy(episodesInfoType = EpisodesInfoTypeDomain.AVAILABLE)
-            } else it
-        }
+        val newEnabledExtraEpisodesInfoIds = mutableSetOf<AnimeId>().apply {
+            addAll(state().sectionContent.enabledExtraEpisodesInfoIds)
+            remove(listItem.id)
+        }.toSet()
         dispatch(
-            AnnouncedSectionStore.Message.UpdateListItems(
-                listItems = newListItems
+            AnnouncedSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
+                newEnabledExtraEpisodesInfoIds
             )
         )
     }

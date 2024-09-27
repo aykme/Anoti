@@ -28,5 +28,8 @@ interface AnnouncedSectionStore : Store<
     sealed interface Message {
         data class ChangeContentType(val contentType: ContentTypeDomain) : Message
         data class UpdateListItems(val listItems: List<ListItemDomain>) : Message
+        data class UpdateEnabledExtraEpisodesInfoIds(
+            val enabledExtraEpisodesInfoId: Set<AnimeId>
+        ) : Message
     }
 }

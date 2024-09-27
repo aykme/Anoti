@@ -141,9 +141,19 @@ internal class AnimeListExecutorImpl() : AnimeListExecutor() {
                 AnimeListMainStore.Message.ChangeOngoingContentType(intent.content.contentType)
             )
         }
-        if (!state.ongoingContent.listItems.equals(intent.content.listItems)) {
+        if (state.ongoingContent.listItems != intent.content.listItems) {
             dispatch(
                 AnimeListMainStore.Message.UpdateOngoingListItems(intent.content.listItems)
+            )
+        }
+        if (
+            state.ongoingContent.enabledExtraEpisodesInfoIds !=
+            intent.content.enabledExtraEpisodesInfoIds
+        ) {
+            dispatch(
+                AnimeListMainStore.Message.UpdateOngoingEnabledExtraEpisodesInfoIds(
+                    intent.content.enabledExtraEpisodesInfoIds
+                )
             )
         }
     }
@@ -155,9 +165,19 @@ internal class AnimeListExecutorImpl() : AnimeListExecutor() {
                 AnimeListMainStore.Message.ChangeAnnouncedContentType(intent.content.contentType)
             )
         }
-        if (!state.announcedContent.listItems.equals(intent.content.listItems)) {
+        if (state.announcedContent.listItems != intent.content.listItems) {
             dispatch(
                 AnimeListMainStore.Message.UpdateAnnouncedListItems(intent.content.listItems)
+            )
+        }
+        if (
+            state.announcedContent.enabledExtraEpisodesInfoIds !=
+            intent.content.enabledExtraEpisodesInfoIds
+        ) {
+            dispatch(
+                AnimeListMainStore.Message.UpdateAnnouncedEnabledExtraEpisodesInfoIds(
+                    intent.content.enabledExtraEpisodesInfoIds
+                )
             )
         }
     }
@@ -169,9 +189,19 @@ internal class AnimeListExecutorImpl() : AnimeListExecutor() {
                 AnimeListMainStore.Message.ChangeSearchContentType(intent.content.contentType)
             )
         }
-        if (!state.searchContent.listItems.equals(intent.content.listItems)) {
+        if (state.searchContent.listItems != intent.content.listItems) {
             dispatch(
                 AnimeListMainStore.Message.UpdateSearchListItems(intent.content.listItems)
+            )
+        }
+        if (
+            state.searchContent.enabledExtraEpisodesInfoIds !=
+            intent.content.enabledExtraEpisodesInfoIds
+        ) {
+            dispatch(
+                AnimeListMainStore.Message.UpdateSearchEnabledExtraEpisodesInfoIds(
+                    intent.content.enabledExtraEpisodesInfoIds
+                )
             )
         }
     }

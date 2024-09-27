@@ -2,7 +2,6 @@ package com.alekseivinogradov.anime_list.api.presentation.mapper.model
 
 import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
-import com.alekseivinogradov.anime_list.api.domain.model.EpisodesInfoTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_list.api.domain.model.SearchDomain
@@ -59,30 +58,34 @@ private fun getContentTypeUi(state: AnimeListMainStore.State): ContentTypeUi {
 private fun getListItemsUi(
     state: AnimeListMainStore.State
 ): List<ListItemUi> {
-    val listItems = when (state.selectedSection) {
-        SectionHatDomain.ONGOINGS -> state.ongoingContent.listItems
-        SectionHatDomain.ANNOUNCED -> state.announcedContent.listItems
-        SectionHatDomain.SEARCH -> state.searchContent.listItems
+    val listItemsContent = when (state.selectedSection) {
+        SectionHatDomain.ONGOINGS -> state.ongoingContent
+        SectionHatDomain.ANNOUNCED -> state.announcedContent
+        SectionHatDomain.SEARCH -> state.searchContent
     }
-    val enabledNotificationIds = state.enabledNotificationIds
 
-    return listItems.map { listItem: ListItemDomain ->
-        mapListItemDomainToUi(
+    return listItemsContent.listItems.map { listItem: ListItemDomain ->
+        getListItemUi(
             listItem = listItem,
-            enabledNotificationIds = enabledNotificationIds
+            enabledNotificationIds = state.enabledNotificationIds,
+            enabledExtraEpisodesInfoIds = listItemsContent.enabledExtraEpisodesInfoIds
         )
     }
 }
 
-private fun mapListItemDomainToUi(
+private fun getListItemUi(
     listItem: ListItemDomain,
-    enabledNotificationIds: Set<AnimeId>
+    enabledNotificationIds: Set<AnimeId>,
+    enabledExtraEpisodesInfoIds: Set<AnimeId>
 ): ListItemUi {
     return ListItemUi(
         id = listItem.id,
         imageUrl = listItem.imageUrl,
         name = listItem.name,
-        episodesInfoType = mapEpisodeInfoTypeDomainToUi(listItem.episodesInfoType),
+        episodesInfoType = getEpisodesInfoTypeUi(
+            id = listItem.id,
+            enabledExtraEpisodesInfoIds = enabledExtraEpisodesInfoIds
+        ),
         availableEpisodesInfo = getAvailableEpisodesInfo(listItem),
         extraEpisodesInfo = getExtraEpisodesInfo(listItem),
         score = listItem.score?.toString().orEmpty(),
@@ -94,12 +97,14 @@ private fun mapListItemDomainToUi(
     )
 }
 
-private fun mapEpisodeInfoTypeDomainToUi(
-    episodesInfoType: EpisodesInfoTypeDomain
+private fun getEpisodesInfoTypeUi(
+    id: AnimeId,
+    enabledExtraEpisodesInfoIds: Set<AnimeId>,
 ): EpisodesInfoTypeUi {
-    return when (episodesInfoType) {
-        EpisodesInfoTypeDomain.AVAILABLE -> EpisodesInfoTypeUi.AVAILABLE
-        EpisodesInfoTypeDomain.EXTRA -> EpisodesInfoTypeUi.EXTRA
+    return if (enabledExtraEpisodesInfoIds.contains(id)) {
+        EpisodesInfoTypeUi.EXTRA
+    } else {
+        EpisodesInfoTypeUi.AVAILABLE
     }
 }
 

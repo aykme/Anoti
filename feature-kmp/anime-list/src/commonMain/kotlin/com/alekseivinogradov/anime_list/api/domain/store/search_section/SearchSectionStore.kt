@@ -25,8 +25,11 @@ interface SearchSectionStore
     sealed interface Action
 
     sealed interface Message {
+        data class ChangeSearchText(val searchText: String) : Message
         data class ChangeContentType(val contentType: ContentTypeDomain) : Message
         data class UpdateListItems(val listItems: List<ListItemDomain>) : Message
-        data class ChangeSearchText(val searchText: String) : Message
+        data class UpdateEnabledExtraEpisodesInfoIds(
+            val enabledExtraEpisodesInfoId: Set<AnimeId>
+        ) : Message
     }
 }

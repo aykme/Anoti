@@ -6,7 +6,6 @@ data class ListItemDomain(
     val id: AnimeId,
     val name: String,
     val imageUrl: String?,
-    val episodesInfoType: EpisodesInfoTypeDomain,
     val episodesAired: Int?,
     val episodesTotal: Int?,
     val nextEpisodeAt: String?,
