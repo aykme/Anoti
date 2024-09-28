@@ -49,7 +49,7 @@ dependencies {
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.glide)
     implementation(libs.androidx.room.ktx)
-    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.runtime.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
