@@ -21,6 +21,18 @@ internal class OngoingSectionReducerImpl :
                     listItems = msg.listItems
                 )
             )
+
+            is OngoingSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds -> copy(
+                sectionContent = sectionContent.copy(
+                    enabledExtraEpisodesInfoIds = msg.enabledExtraEpisodesInfoId
+                )
+            )
+
+            is OngoingSectionStore.Message.UpdateNextEpisodesInfo -> copy(
+                sectionContent = sectionContent.copy(
+                    nextEpisodesInfo = msg.nextEpisodesInfo
+                )
+            )
         }
     }
 }

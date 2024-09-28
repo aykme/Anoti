@@ -5,7 +5,7 @@ import com.alekseivinogradov.anime_list.api.presentation.model.list_content.List
 
 internal class AnimeListDiffUtilCallback : DiffUtil.ItemCallback<ListItemUi>() {
     override fun areItemsTheSame(oldItem: ListItemUi, newItem: ListItemUi): Boolean {
-        return oldItem.itemIndex == newItem.itemIndex
+        return oldItem.id == newItem.id
     }
 
     override fun areContentsTheSame(oldItem: ListItemUi, newItem: ListItemUi): Boolean {
@@ -23,16 +23,29 @@ internal class AnimeListDiffUtilCallback : DiffUtil.ItemCallback<ListItemUi>() {
             if (oldItem.episodesInfoType != newItem.episodesInfoType) {
                 add(AnimeListPayload.EpisodesInfoTypeChange(newItem.episodesInfoType))
             }
-            if (oldItem.availableEpisodesInfo != newItem.availableEpisodesInfo) {
-                add(AnimeListPayload.AvailableEpisodesInfoChange(newItem.availableEpisodesInfo))
+            if (
+                oldItem.episodesAired != newItem.episodesAired ||
+                oldItem.episodesTotal != newItem.episodesTotal
+            ) {
+                add(
+                    AnimeListPayload.AvailableEpisodesInfoChange(
+                        episodesAired = newItem.episodesAired,
+                        episodesTotal = newItem.episodesTotal,
+                        releaseStatus = newItem.releaseStatus
+                    )
+                )
             }
             if (
-                oldItem.extraEpisodesInfo != newItem.extraEpisodesInfo ||
+                oldItem.nextEpisodeAt != newItem.nextEpisodeAt ||
+                oldItem.airedOn != newItem.airedOn ||
+                oldItem.releasedOn != newItem.releasedOn ||
                 oldItem.releaseStatus != newItem.releaseStatus
             ) {
                 add(
                     AnimeListPayload.ExtraEpisodesInfoChange(
-                        extraEpisodesInfo = newItem.extraEpisodesInfo,
+                        nextEpisodeAt = newItem.nextEpisodeAt,
+                        airedOn = newItem.airedOn,
+                        releasedOn = newItem.releasedOn,
                         releaseStatus = newItem.releaseStatus
                     )
                 )

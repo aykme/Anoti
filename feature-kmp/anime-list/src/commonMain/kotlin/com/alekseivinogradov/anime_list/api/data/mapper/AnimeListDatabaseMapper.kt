@@ -1,6 +1,5 @@
 package com.alekseivinogradov.anime_list.api.data.mapper
 
-import com.alekseivinogradov.anime_list.api.domain.model.EpisodesInfoTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.database.api.data.model.AnimeDb
@@ -12,7 +11,9 @@ internal fun ListItemDomain.toDb() = AnimeDb(
     imageUrl = this.imageUrl,
     episodesAired = this.episodesAired,
     episodesTotal = this.episodesTotal,
-    extraEpisodesInfo = this.extraEpisodesInfo,
+    nextEpisodeAt = this.nextEpisodeAt,
+    airedOn = this.airedOn,
+    releasedOn = this.releasedOn,
     score = this.score,
     releaseStatus = mapReleaseStatusDomainToDb(this.releaseStatus),
     episodesViewed = 0,
@@ -23,10 +24,11 @@ internal fun AnimeDb.toDomain() = ListItemDomain(
     id = this.id,
     name = this.name,
     imageUrl = this.imageUrl,
-    episodesInfoType = EpisodesInfoTypeDomain.AVAILABLE,
     episodesAired = this.episodesAired,
     episodesTotal = this.episodesTotal,
-    extraEpisodesInfo = this.extraEpisodesInfo,
+    nextEpisodeAt = this.nextEpisodeAt,
+    airedOn = this.airedOn,
+    releasedOn = this.releasedOn,
     score = this.score,
     releaseStatus = mapReleaseStatusDbToDomain(this.releaseStatus)
 )

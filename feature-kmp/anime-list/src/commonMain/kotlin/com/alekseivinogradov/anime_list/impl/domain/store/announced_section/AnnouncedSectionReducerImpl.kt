@@ -21,6 +21,12 @@ internal class AnnouncedSectionReducerImpl :
                     listItems = msg.listItems
                 )
             )
+
+            is AnnouncedSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds -> copy(
+                sectionContent = sectionContent.copy(
+                    enabledExtraEpisodesInfoIds = msg.enabledExtraEpisodesInfoId
+                )
+            )
         }
     }
 }

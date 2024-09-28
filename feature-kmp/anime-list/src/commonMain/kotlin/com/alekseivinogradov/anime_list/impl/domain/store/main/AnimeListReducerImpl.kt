@@ -57,6 +57,36 @@ internal class AnimeListReducerImpl :
             is AnimeListMainStore.Message.UpdateEnabledNotificationIds -> copy(
                 enabledNotificationIds = msg.enabledNotificationIds
             )
+
+            is AnimeListMainStore.Message.UpdateOngoingEnabledExtraEpisodesInfoIds -> copy(
+                ongoingContent = ongoingContent.copy(
+                    enabledExtraEpisodesInfoIds = msg.enabledExtraEpisodesInfoId
+                )
+            )
+
+            is AnimeListMainStore.Message.UpdateAnnouncedEnabledExtraEpisodesInfoIds -> copy(
+                announcedContent = announcedContent.copy(
+                    enabledExtraEpisodesInfoIds = msg.enabledExtraEpisodesInfoId
+                )
+            )
+
+            is AnimeListMainStore.Message.UpdateSearchEnabledExtraEpisodesInfoIds -> copy(
+                searchContent = searchContent.copy(
+                    enabledExtraEpisodesInfoIds = msg.enabledExtraEpisodesInfoId
+                )
+            )
+
+            is AnimeListMainStore.Message.UpdateOngoingNextEpisodesInfo -> copy(
+                ongoingContent = ongoingContent.copy(
+                    nextEpisodesInfo = msg.nextEpisodesInfo
+                )
+            )
+
+            is AnimeListMainStore.Message.UpdateSearchNextEpisodesInfo -> copy(
+                searchContent = searchContent.copy(
+                    nextEpisodesInfo = msg.nextEpisodesInfo
+                )
+            )
         }
     }
 }

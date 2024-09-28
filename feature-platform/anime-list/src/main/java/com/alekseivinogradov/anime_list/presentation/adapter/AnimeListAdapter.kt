@@ -2,16 +2,30 @@ package com.alekseivinogradov.anime_list.presentation.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.ListAdapter
+import androidx.paging.PagingDataAdapter
 import com.alekseivinogradov.animeListPlatform.databinding.ItemAnimeListBinding
+import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
+import com.alekseivinogradov.anime_list.api.presentation.mapper.model.toDomain
 import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ListItemUi
 import com.alekseivinogradov.date.formatter.DateFormatter
 
 internal class AnimeListAdapter(
-    private val episodesInfoClickCallback: (Int) -> Unit,
-    private val notificationClickCallback: (Int) -> Unit,
+    private val episodesInfoClickAdapterCallback: (ListItemDomain) -> Unit,
+    private val notificationClickAdapterCallback: (ListItemDomain) -> Unit,
     private val dateFormatter: DateFormatter
-) : ListAdapter<ListItemUi, AnimeListViewHolder>(AnimeListDiffUtilCallback()) {
+) : PagingDataAdapter<ListItemUi, AnimeListViewHolder>(AnimeListDiffUtilCallback()) {
+
+    private val episodesInfoClickViewHolderCallback: (Int) -> Unit = { adapterPosition: Int ->
+        getItem(adapterPosition)?.let {
+            episodesInfoClickAdapterCallback(it.toDomain())
+        }
+    }
+
+    private val notificationClickViewHolderCallback: (Int) -> Unit = { adapterPosition: Int ->
+        getItem(adapterPosition)?.let {
+            notificationClickAdapterCallback(it.toDomain())
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnimeListViewHolder {
         return AnimeListViewHolder(
@@ -20,14 +34,16 @@ internal class AnimeListAdapter(
                 parent,
                 false
             ),
-            episodesInfoClickCallback = episodesInfoClickCallback,
-            notificationClickCallback = notificationClickCallback,
+            episodesInfoClickViewHolderCallback = episodesInfoClickViewHolderCallback,
+            notificationClickViewHolderCallback = notificationClickViewHolderCallback,
             dateFormatter = dateFormatter
         )
     }
 
     override fun onBindViewHolder(holder: AnimeListViewHolder, position: Int) {
-        holder.bind(item = getItem(position))
+        getItem(position)?.let {
+            holder.bind(it)
+        }
     }
 
     override fun onBindViewHolder(

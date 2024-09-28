@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper
 
-import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeAnnouncedListUsecase
+import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnnouncedAnimeListUsecase
 
 data class AnnouncedUsecases(
-    val fetchAnimeAnnouncedListUsecase: FetchAnimeAnnouncedListUsecase
+    val fetchAnnouncedAnimeListUsecase: FetchAnnouncedAnimeListUsecase
 )

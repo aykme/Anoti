@@ -24,6 +24,18 @@ internal class SearchSectionReducerImpl :
             is SearchSectionStore.Message.ChangeSearchText -> copy(
                 searchText = msg.searchText
             )
+
+            is SearchSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds -> copy(
+                sectionContent = sectionContent.copy(
+                    enabledExtraEpisodesInfoIds = msg.enabledExtraEpisodesInfoId
+                )
+            )
+
+            is SearchSectionStore.Message.UpdateNextEpisodesInfo -> copy(
+                sectionContent = sectionContent.copy(
+                    nextEpisodesInfo = msg.nextEpisodesInfo
+                )
+            )
         }
     }
 }

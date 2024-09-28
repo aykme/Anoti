@@ -141,9 +141,26 @@ internal class AnimeListExecutorImpl() : AnimeListExecutor() {
                 AnimeListMainStore.Message.ChangeOngoingContentType(intent.content.contentType)
             )
         }
-        if (!state.ongoingContent.listItems.equals(intent.content.listItems)) {
+        if (state.ongoingContent.listItems != intent.content.listItems) {
             dispatch(
                 AnimeListMainStore.Message.UpdateOngoingListItems(intent.content.listItems)
+            )
+        }
+        if (
+            state.ongoingContent.enabledExtraEpisodesInfoIds !=
+            intent.content.enabledExtraEpisodesInfoIds
+        ) {
+            dispatch(
+                AnimeListMainStore.Message.UpdateOngoingEnabledExtraEpisodesInfoIds(
+                    intent.content.enabledExtraEpisodesInfoIds
+                )
+            )
+        }
+        if (state.ongoingContent.nextEpisodesInfo != intent.content.nextEpisodesInfo) {
+            dispatch(
+                AnimeListMainStore.Message.UpdateOngoingNextEpisodesInfo(
+                    intent.content.nextEpisodesInfo
+                )
             )
         }
     }
@@ -155,9 +172,19 @@ internal class AnimeListExecutorImpl() : AnimeListExecutor() {
                 AnimeListMainStore.Message.ChangeAnnouncedContentType(intent.content.contentType)
             )
         }
-        if (!state.announcedContent.listItems.equals(intent.content.listItems)) {
+        if (state.announcedContent.listItems != intent.content.listItems) {
             dispatch(
                 AnimeListMainStore.Message.UpdateAnnouncedListItems(intent.content.listItems)
+            )
+        }
+        if (
+            state.announcedContent.enabledExtraEpisodesInfoIds !=
+            intent.content.enabledExtraEpisodesInfoIds
+        ) {
+            dispatch(
+                AnimeListMainStore.Message.UpdateAnnouncedEnabledExtraEpisodesInfoIds(
+                    intent.content.enabledExtraEpisodesInfoIds
+                )
             )
         }
     }
@@ -169,9 +196,26 @@ internal class AnimeListExecutorImpl() : AnimeListExecutor() {
                 AnimeListMainStore.Message.ChangeSearchContentType(intent.content.contentType)
             )
         }
-        if (!state.searchContent.listItems.equals(intent.content.listItems)) {
+        if (state.searchContent.listItems != intent.content.listItems) {
             dispatch(
                 AnimeListMainStore.Message.UpdateSearchListItems(intent.content.listItems)
+            )
+        }
+        if (
+            state.searchContent.enabledExtraEpisodesInfoIds !=
+            intent.content.enabledExtraEpisodesInfoIds
+        ) {
+            dispatch(
+                AnimeListMainStore.Message.UpdateSearchEnabledExtraEpisodesInfoIds(
+                    intent.content.enabledExtraEpisodesInfoIds
+                )
+            )
+        }
+        if (state.searchContent.nextEpisodesInfo != intent.content.nextEpisodesInfo) {
+            dispatch(
+                AnimeListMainStore.Message.UpdateSearchNextEpisodesInfo(
+                    intent.content.nextEpisodesInfo
+                )
             )
         }
     }
@@ -179,31 +223,24 @@ internal class AnimeListExecutorImpl() : AnimeListExecutor() {
     private fun episodeInfoClick(intent: AnimeListMainStore.Intent.EpisodesInfoClick) {
         when (state().selectedSection) {
             SectionHatDomain.ONGOINGS -> publish(
-                AnimeListMainStore.Label.OngoingEpisodeInfoClick(intent.itemIndex)
+                AnimeListMainStore.Label.OngoingEpisodeInfoClick(intent.listItem)
             )
 
             SectionHatDomain.ANNOUNCED -> publish(
-                AnimeListMainStore.Label.AnnouncedEpisodeInfoClick(intent.itemIndex)
+                AnimeListMainStore.Label.AnnouncedEpisodeInfoClick(intent.listItem)
             )
 
             SectionHatDomain.SEARCH -> publish(
-                AnimeListMainStore.Label.SearchEpisodeInfoClick(intent.itemIndex)
+                AnimeListMainStore.Label.SearchEpisodeInfoClick(intent.listItem)
             )
         }
     }
 
     private fun notificationClick(intent: AnimeListMainStore.Intent.NotificationClick) {
-        val state = state()
-        val listItem = when (state.selectedSection) {
-            SectionHatDomain.ONGOINGS -> state.ongoingContent.listItems
-            SectionHatDomain.ANNOUNCED -> state.announcedContent.listItems
-            SectionHatDomain.SEARCH -> state.searchContent.listItems
-        }.getOrNull(index = intent.itemIndex) ?: return
-
-        if (state().enabledNotificationIds.contains(listItem.id).not()) {
-            enableNotification(listItem)
+        if (state().enabledNotificationIds.contains(intent.listItem.id).not()) {
+            enableNotification(intent.listItem)
         } else {
-            disableNotification(listItem.id)
+            disableNotification(intent.listItem.id)
         }
     }
 

@@ -6,8 +6,10 @@ import android.text.TextWatcher
 import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
+import app.cash.paging.PagingData
 import com.alekseivinogradov.animeListPlatform.R
 import com.alekseivinogradov.animeListPlatform.databinding.FragmentAnimeListBinding
+import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
 import com.alekseivinogradov.anime_list.api.presentation.model.ContentTypeUi
@@ -20,11 +22,14 @@ import com.alekseivinogradov.date.formatter.DateFormatter
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import com.alekseivinogradov.theme.R as theme_R
 
 internal class AnimeListViewImpl(
     private val viewBinding: FragmentAnimeListBinding,
-    dateFormatter: DateFormatter
+    dateFormatter: DateFormatter,
+    private val viewScope: CoroutineScope
 ) : AnimeListView, BaseMviView<UiModel, AnimeListMainStore.Intent>() {
 
     private val context
@@ -36,17 +41,19 @@ internal class AnimeListViewImpl(
     private val defaultColor
         get() = context.getColor(theme_R.color.white_transparent)
 
-    private val episodesInfoClickCallback = { itemIndex: Int ->
-        dispatch(AnimeListMainStore.Intent.EpisodesInfoClick(itemIndex))
-    }
+    private val episodesInfoClickAdapterCallback: (ListItemDomain) -> Unit =
+        { listItem: ListItemDomain ->
+            dispatch(AnimeListMainStore.Intent.EpisodesInfoClick(listItem))
+        }
 
-    private val notificationClickCallback = { itemIndex: Int ->
-        dispatch(AnimeListMainStore.Intent.NotificationClick(itemIndex))
-    }
+    private val notificationClickAdapterCallback: (ListItemDomain) -> Unit =
+        { listItem: ListItemDomain ->
+            dispatch(AnimeListMainStore.Intent.NotificationClick(listItem))
+        }
 
     private val adapter = AnimeListAdapter(
-        episodesInfoClickCallback = episodesInfoClickCallback,
-        notificationClickCallback = notificationClickCallback,
+        episodesInfoClickAdapterCallback = episodesInfoClickAdapterCallback,
+        notificationClickAdapterCallback = notificationClickAdapterCallback,
         dateFormatter = dateFormatter
     )
 
@@ -235,7 +242,7 @@ internal class AnimeListViewImpl(
                     connectionStatusImage.isVisible = true
                 }
 
-                ContentTypeUi.NO_DATA -> {
+                ContentTypeUi.ERROR -> {
                     animeListRv.isVisible = false
                     connectionStatusImage.setImageResource(R.drawable.connection_error_48)
                     connectionStatusImage.isVisible = true
@@ -244,11 +251,13 @@ internal class AnimeListViewImpl(
         }
     }
 
-    private fun getListItems(uiModel: UiModel): List<ListItemUi> {
+    private fun getListItems(uiModel: UiModel): PagingData<ListItemUi> {
         return uiModel.listItems
     }
 
-    private fun setListItems(listItems: List<ListItemUi>) {
-        adapter.submitList(listItems)
+    private fun setListItems(listItems: PagingData<ListItemUi>) {
+        viewScope.launch {
+            adapter.submitData(listItems)
+        }
     }
 }

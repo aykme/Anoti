@@ -8,10 +8,12 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
 material = "1.12.0"
-activity = "1.9.1"
+activity = "1.9.2"
 constraintlayout = "2.1.4"
 moshiKotlin = "1.13.0"
-navigation = "2.7.7"
+navigation = "2.8.1"
+paging = "3.3.0-alpha02-0.5.1"
+pagingRuntimeKtx = "3.3.2"
 retrofit = "2.11.0"
 room = "2.6.1"
 swiperefreshlayout = "1.1.0"
@@ -24,6 +26,7 @@ ksp = "2.0.20-1.0.24"
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-navigation-fragment = { module = "androidx.navigation:navigation-fragment", version.ref = "navigation" }
 androidx-navigation-ui = { module = "androidx.navigation:navigation-ui", version.ref = "navigation" }
+androidx-paging-runtime-ktx = { module = "androidx.paging:paging-runtime-ktx", version.ref = "pagingRuntimeKtx" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
@@ -49,6 +52,8 @@ mvikotlin-extensions-coroutines = { group = "com.arkivanov.mvikotlin", name = "m
 mvikotlin-utils-internal = { group = "com.arkivanov.mvikotlin", name = "utils-internal", version.ref = "mviKotlin" }
 mvikotlin-logger = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-logging", version.ref = "mviKotlin" }
 mvikotlin-timetravel = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-timetravel", version.ref = "mviKotlin" }
+paging-common = { module = "app.cash.paging:paging-common", version.ref = "paging" }
+paging-testing = { module = "app.cash.paging:paging-testing", version.ref = "paging" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 
 [plugins]

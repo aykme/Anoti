@@ -1,7 +1,9 @@
 package com.alekseivinogradov.anime_list.api.presentation.mapper.model
 
+import app.cash.paging.PagingData
+import app.cash.paging.map
+import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
-import com.alekseivinogradov.anime_list.api.domain.model.EpisodesInfoTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_list.api.domain.model.SearchDomain
@@ -51,45 +53,48 @@ private fun getContentTypeUi(state: AnimeListMainStore.State): ContentTypeUi {
     return when (contentType) {
         ContentTypeDomain.LOADED -> ContentTypeUi.LOADED
         ContentTypeDomain.LOADING -> ContentTypeUi.LOADING
-        ContentTypeDomain.NO_DATA -> ContentTypeUi.NO_DATA
+        ContentTypeDomain.ERROR -> ContentTypeUi.ERROR
     }
 }
 
 private fun getListItemsUi(
     state: AnimeListMainStore.State
-): List<ListItemUi> {
-    val listItems = when (state.selectedSection) {
-        SectionHatDomain.ONGOINGS -> state.ongoingContent.listItems
-        SectionHatDomain.ANNOUNCED -> state.announcedContent.listItems
-        SectionHatDomain.SEARCH -> state.searchContent.listItems
+): PagingData<ListItemUi> {
+    val listItemsContent = when (state.selectedSection) {
+        SectionHatDomain.ONGOINGS -> state.ongoingContent
+        SectionHatDomain.ANNOUNCED -> state.announcedContent
+        SectionHatDomain.SEARCH -> state.searchContent
     }
-    val enabledNotificationIds = state.enabledNotificationIds
 
-    return listItems.mapIndexed { itemIndex: Int, listItem: ListItemDomain ->
-        mapListItemDomainToUi(
-            itemIndex = itemIndex,
+    return listItemsContent.listItems.map { listItem: ListItemDomain ->
+        getListItemUi(
             listItem = listItem,
-            enabledNotificationIds = enabledNotificationIds
+            enabledNotificationIds = state.enabledNotificationIds,
+            enabledExtraEpisodesInfoIds = listItemsContent.enabledExtraEpisodesInfoIds,
+            nextEpisodesInfo = listItemsContent.nextEpisodesInfo
         )
     }
 }
 
-private fun mapListItemDomainToUi(
-    itemIndex: Int,
+private fun getListItemUi(
     listItem: ListItemDomain,
-    enabledNotificationIds: Set<Int>
+    enabledNotificationIds: Set<AnimeId>,
+    enabledExtraEpisodesInfoIds: Set<AnimeId>,
+    nextEpisodesInfo: Map<AnimeId, String>
 ): ListItemUi {
     return ListItemUi(
-        itemIndex = itemIndex,
+        id = listItem.id,
         imageUrl = listItem.imageUrl,
         name = listItem.name,
-        episodesInfoType = mapEpisodeInfoTypeDomainToUi(listItem.episodesInfoType),
-        availableEpisodesInfo = getAvailableEpisodesInfo(
-            episodesAired = listItem.episodesAired ?: 0,
-            episodesTotal = listItem.episodesTotal ?: 0,
-            releaseStatus = listItem.releaseStatus
+        episodesInfoType = getEpisodesInfoTypeUi(
+            id = listItem.id,
+            enabledExtraEpisodesInfoIds = enabledExtraEpisodesInfoIds
         ),
-        extraEpisodesInfo = listItem.extraEpisodesInfo,
+        episodesAired = listItem.episodesAired,
+        episodesTotal = listItem.episodesTotal,
+        nextEpisodeAt = nextEpisodesInfo[listItem.id],
+        airedOn = listItem.airedOn,
+        releasedOn = listItem.releasedOn,
         score = listItem.score?.toString().orEmpty(),
         releaseStatus = mapReleaseStatusDomainToUi(listItem.releaseStatus),
         notification = mapNotificationDomainToUi(
@@ -99,33 +104,15 @@ private fun mapListItemDomainToUi(
     )
 }
 
-private fun mapEpisodeInfoTypeDomainToUi(
-    episodesInfoType: EpisodesInfoTypeDomain
+private fun getEpisodesInfoTypeUi(
+    id: AnimeId,
+    enabledExtraEpisodesInfoIds: Set<AnimeId>,
 ): EpisodesInfoTypeUi {
-    return when (episodesInfoType) {
-        EpisodesInfoTypeDomain.AVAILABLE -> EpisodesInfoTypeUi.AVAILABLE
-        EpisodesInfoTypeDomain.EXTRA -> EpisodesInfoTypeUi.EXTRA
-    }
-}
-
-private fun getAvailableEpisodesInfo(
-    episodesAired: Int,
-    episodesTotal: Int,
-    releaseStatus: ReleaseStatusDomain
-): String {
-    val isReleased = releaseStatus == ReleaseStatusDomain.RELEASED
-
-    val episodesAiredString = if (isReleased.not()) {
-        episodesAired
+    return if (enabledExtraEpisodesInfoIds.contains(id)) {
+        EpisodesInfoTypeUi.EXTRA
     } else {
-        episodesTotal
+        EpisodesInfoTypeUi.AVAILABLE
     }
-
-    val episotesTotalString = if (episodesTotal > 0) {
-        episodesTotal.toString()
-    } else "?"
-
-    return "$episodesAiredString / $episotesTotalString"
 }
 
 private fun mapReleaseStatusDomainToUi(releaseStatus: ReleaseStatusDomain): ReleaseStatusUi {
