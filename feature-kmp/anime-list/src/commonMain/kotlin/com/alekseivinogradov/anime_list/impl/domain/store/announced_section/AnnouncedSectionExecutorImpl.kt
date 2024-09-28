@@ -39,9 +39,11 @@ internal class AnnouncedSectionExecutorImpl(
     private fun updateSection() {
         updateSectionJob?.cancel()
         updateSectionJob = scope.launch {
-            dispatch(
-                AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
-            )
+            if (state().sectionContent.contentType == ContentTypeDomain.ERROR) {
+                dispatch(
+                    AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
+                )
+            }
             dispatch(
                 AnnouncedSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
                     enabledExtraEpisodesInfoId = setOf()
@@ -49,9 +51,6 @@ internal class AnnouncedSectionExecutorImpl(
             )
             getPagingDataFlow().collect { listItems: PagingData<ListItemDomain> ->
                 dispatch(AnnouncedSectionStore.Message.UpdateListItems(listItems))
-                dispatch(
-                    AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADED)
-                )
             }
         }
     }
@@ -61,7 +60,9 @@ internal class AnnouncedSectionExecutorImpl(
             config = PagingConfig(pageSize = ITEMS_PER_PAGE)
         ) {
             AnnouncedListDataSource(
-                fetchAnnouncedAnimeListUseCase = usecases.fetchAnnouncedAnimeListUsecase
+                fetchAnnouncedAnimeListUseCase = usecases.fetchAnnouncedAnimeListUsecase,
+                initialLoadSuccessCallback = ::initialLoadSuccessCallback,
+                initialLoadErrorCallback = ::initialLoadErrorCallback
             )
         }.flow.cachedIn(scope)
     }
@@ -72,6 +73,18 @@ internal class AnnouncedSectionExecutorImpl(
         } else {
             extraEpisodesInfoClick(intent.listItem)
         }
+    }
+
+    private fun initialLoadSuccessCallback() {
+        dispatch(
+            AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADED)
+        )
+    }
+
+    private fun initialLoadErrorCallback() {
+        dispatch(
+            AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR)
+        )
     }
 
     private fun extraEpisodesInfoClick(listItem: ListItemDomain) {

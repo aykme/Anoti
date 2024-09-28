@@ -48,9 +48,11 @@ internal class OngoingSectionExecutorImpl(
     private fun updateSection() {
         updateSectionJob?.cancel()
         updateSectionJob = scope.launch {
-            dispatch(
-                OngoingSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
-            )
+            if (state().sectionContent.contentType == ContentTypeDomain.ERROR) {
+                dispatch(
+                    OngoingSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
+                )
+            }
             dispatch(
                 OngoingSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
                     enabledExtraEpisodesInfoId = setOf()
@@ -63,9 +65,6 @@ internal class OngoingSectionExecutorImpl(
             )
             getPagingDataFlow().collect { listItems: PagingData<ListItemDomain> ->
                 dispatch(OngoingSectionStore.Message.UpdateListItems(listItems))
-                dispatch(
-                    OngoingSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADED)
-                )
             }
         }
     }
@@ -75,9 +74,23 @@ internal class OngoingSectionExecutorImpl(
             config = PagingConfig(pageSize = ITEMS_PER_PAGE)
         ) {
             OngoingListDataSource(
-                fetchOngoingAnimeListUseCase = usecases.fetchOngoingAnimeListUsecase
+                fetchOngoingAnimeListUseCase = usecases.fetchOngoingAnimeListUsecase,
+                initialLoadSuccessCallback = ::initialLoadSuccessCallback,
+                initialLoadErrorCallback = ::initialLoadErrorCallback
             )
         }.flow.cachedIn(scope)
+    }
+
+    private fun initialLoadSuccessCallback() {
+        dispatch(
+            OngoingSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADED)
+        )
+    }
+
+    private fun initialLoadErrorCallback() {
+        dispatch(
+            OngoingSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR)
+        )
     }
 
     private fun episodeInfoClick(intent: OngoingSectionStore.Intent.EpisodesInfoClick) {

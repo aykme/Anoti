@@ -9,7 +9,9 @@ import com.alekseivinogradov.network.api.domain.model.CallResult
 
 class SearchListDataSource(
     private val fetchAnimeListBySearchUsecase: FetchAnimeListBySearchUsecase,
-    private val searchText: String
+    private val searchText: String,
+    private val initialLoadSuccessCallback: () -> Unit,
+    private val initialLoadErrorCallback: () -> Unit
 ) : PagingSource<Int, ListItemDomain>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ListItemDomain> {
@@ -19,14 +21,30 @@ class SearchListDataSource(
             .execute(page = page, searchText = searchText)
 
         return when (usecaseResult) {
-            is CallResult.Success -> LoadResult.Page(
-                data = usecaseResult.value,
-                prevKey = if (page <= FIRST_PAGING_PAGE) null else (page - 1),
-                nextKey = page + 1
-            )
+            is CallResult.Success -> {
+                if (page == FIRST_PAGING_PAGE) {
+                    initialLoadSuccessCallback()
+                }
+                LoadResult.Page(
+                    data = usecaseResult.value,
+                    prevKey = if (page <= FIRST_PAGING_PAGE) null else (page - 1),
+                    nextKey = page + 1
+                )
+            }
 
-            is CallResult.HttpError -> LoadResult.Error(usecaseResult.throwable)
-            is CallResult.OtherError -> LoadResult.Error(usecaseResult.throwable)
+            is CallResult.HttpError -> {
+                if (page == FIRST_PAGING_PAGE) {
+                    initialLoadErrorCallback()
+                }
+                LoadResult.Error(usecaseResult.throwable)
+            }
+
+            is CallResult.OtherError -> {
+                if (page == FIRST_PAGING_PAGE) {
+                    initialLoadErrorCallback()
+                }
+                LoadResult.Error(usecaseResult.throwable)
+            }
         }
     }
 

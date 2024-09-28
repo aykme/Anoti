@@ -62,9 +62,11 @@ internal class SearchSectionExecutorImpl(
     private fun updateSection() {
         updateSectionJob?.cancel()
         updateSectionJob = scope.launch {
-            dispatch(
-                SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
-            )
+            if (state().sectionContent.contentType == ContentTypeDomain.ERROR) {
+                dispatch(
+                    SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
+                )
+            }
             dispatch(
                 SearchSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
                     enabledExtraEpisodesInfoId = setOf()
@@ -77,9 +79,6 @@ internal class SearchSectionExecutorImpl(
             )
             getPagingDataFlow().collect { listItems: PagingData<ListItemDomain> ->
                 dispatch(SearchSectionStore.Message.UpdateListItems(listItems))
-                dispatch(
-                    SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADED)
-                )
             }
         }
     }
@@ -90,9 +89,23 @@ internal class SearchSectionExecutorImpl(
         ) {
             SearchListDataSource(
                 fetchAnimeListBySearchUsecase = usecases.fetchAnimeListBySearchUsecase,
-                searchText = state().searchText
+                searchText = state().searchText,
+                initialLoadSuccessCallback = ::initialLoadSuccessCallback,
+                initialLoadErrorCallback = ::initialLoadErrorCallback
             )
         }.flow.cachedIn(scope)
+    }
+
+    private fun initialLoadSuccessCallback() {
+        dispatch(
+            SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADED)
+        )
+    }
+
+    private fun initialLoadErrorCallback() {
+        dispatch(
+            SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR)
+        )
     }
 
     private fun ChangesearchText(intent: SearchSectionStore.Intent.ChangeSearchText) {
