@@ -1,24 +1,25 @@
 package com.alekseivinogradov.anime_list.presentation
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.alekseivinogradov.animeListPlatform.databinding.FragmentAnimeListBinding
+import com.alekseivinogradov.anime_base.api.data.remote.service.ShikimoriApiServicePlatform
+import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
+import com.alekseivinogradov.anime_base.impl.remote.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anime_list.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anime_list.impl.data.source.AnimeListSourceImpl
-import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnnouncedAnimeListUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeByIdUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeListBySearchUsecase
+import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnnouncedAnimeListUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchOngoingAnimeListUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.AnnouncedUsecases
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.OngoingUsecases
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.SearchUsecases
 import com.alekseivinogradov.anime_list.impl.presentation.AnimeListController
-import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
-import com.alekseivinogradov.anime_base.api.data.remote.service.ShikimoriApiServicePlatform
-import com.alekseivinogradov.anime_base.impl.remote.ShikimoriApiServiceImpl
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.impl.domain.usecase.DatabaseUsecases
 import com.alekseivinogradov.database.impl.domain.usecase.DeleteAnimeDatabaseItemUsecase
@@ -30,8 +31,15 @@ import com.alekseivinogradov.date.formatter.DateFormatter
 import com.alekseivinogradov.network.impl.data.SafeApiImpl
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 
 class AnimeListFragment : Fragment() {
+
+    private val tag = "AnimeList"
 
     private lateinit var binding: FragmentAnimeListBinding
 
@@ -91,6 +99,13 @@ class AnimeListFragment : Fragment() {
         )
     }
 
+    private val viewScope = CoroutineScope(
+        SupervisorJob() + Dispatchers.Main +
+                CoroutineExceptionHandler { _, e ->
+                    Log.e(tag, "$e")
+                }
+    )
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -104,10 +119,16 @@ class AnimeListFragment : Fragment() {
         controller.onViewCreated(
             mainView = AnimeListViewImpl(
                 viewBinding = binding,
-                dateFormatter = DateFormatter.getInstance(view.context)
+                dateFormatter = DateFormatter.getInstance(view.context),
+                viewScope = viewScope
             ),
             viewLifecycle = viewLifecycleOwner.essentyLifecycle()
         )
+    }
+
+    override fun onDestroy() {
+        viewScope.cancel()
+        super.onDestroy()
     }
 
     private fun getDatabaseUsecases() = DatabaseUsecases(

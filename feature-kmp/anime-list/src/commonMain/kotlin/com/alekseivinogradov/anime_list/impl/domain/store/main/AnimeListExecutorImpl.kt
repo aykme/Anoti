@@ -223,31 +223,24 @@ internal class AnimeListExecutorImpl() : AnimeListExecutor() {
     private fun episodeInfoClick(intent: AnimeListMainStore.Intent.EpisodesInfoClick) {
         when (state().selectedSection) {
             SectionHatDomain.ONGOINGS -> publish(
-                AnimeListMainStore.Label.OngoingEpisodeInfoClick(intent.id)
+                AnimeListMainStore.Label.OngoingEpisodeInfoClick(intent.listItem)
             )
 
             SectionHatDomain.ANNOUNCED -> publish(
-                AnimeListMainStore.Label.AnnouncedEpisodeInfoClick(intent.id)
+                AnimeListMainStore.Label.AnnouncedEpisodeInfoClick(intent.listItem)
             )
 
             SectionHatDomain.SEARCH -> publish(
-                AnimeListMainStore.Label.SearchEpisodeInfoClick(intent.id)
+                AnimeListMainStore.Label.SearchEpisodeInfoClick(intent.listItem)
             )
         }
     }
 
     private fun notificationClick(intent: AnimeListMainStore.Intent.NotificationClick) {
-        val state = state()
-        val listItem = when (state.selectedSection) {
-            SectionHatDomain.ONGOINGS -> state.ongoingContent.listItems
-            SectionHatDomain.ANNOUNCED -> state.announcedContent.listItems
-            SectionHatDomain.SEARCH -> state.searchContent.listItems
-        }.find { it.id == intent.id } ?: return
-
-        if (state().enabledNotificationIds.contains(listItem.id).not()) {
-            enableNotification(listItem)
+        if (state().enabledNotificationIds.contains(intent.listItem.id).not()) {
+            enableNotification(intent.listItem)
         } else {
-            disableNotification(listItem.id)
+            disableNotification(intent.listItem.id)
         }
     }
 
