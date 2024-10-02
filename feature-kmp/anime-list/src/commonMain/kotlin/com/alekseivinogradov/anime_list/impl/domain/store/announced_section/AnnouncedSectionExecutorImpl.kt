@@ -6,6 +6,7 @@ import app.cash.paging.PagingData
 import app.cash.paging.cachedIn
 import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_base.api.domain.ITEMS_PER_PAGE
+import com.alekseivinogradov.anime_base.api.domain.PAGING_PREFETCH_DISTANCE
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.store.announced_section.AnnouncedSectionExecutor
@@ -39,11 +40,9 @@ internal class AnnouncedSectionExecutorImpl(
     private fun updateSection() {
         updateSectionJob?.cancel()
         updateSectionJob = scope.launch {
-            if (state().sectionContent.contentType == ContentTypeDomain.ERROR) {
-                dispatch(
-                    AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
-                )
-            }
+            dispatch(
+                AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
+            )
             dispatch(
                 AnnouncedSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
                     enabledExtraEpisodesInfoId = setOf()
@@ -57,7 +56,11 @@ internal class AnnouncedSectionExecutorImpl(
 
     private fun getPagingDataFlow(): Flow<PagingData<ListItemDomain>> {
         return Pager(
-            config = PagingConfig(pageSize = ITEMS_PER_PAGE)
+            config = PagingConfig(
+                pageSize = ITEMS_PER_PAGE,
+                prefetchDistance = PAGING_PREFETCH_DISTANCE,
+                enablePlaceholders = true
+            )
         ) {
             AnnouncedListDataSource(
                 fetchAnnouncedAnimeListUseCase = usecases.fetchAnnouncedAnimeListUsecase,

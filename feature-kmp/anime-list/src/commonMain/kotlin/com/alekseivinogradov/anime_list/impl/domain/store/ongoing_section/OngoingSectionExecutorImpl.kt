@@ -6,6 +6,7 @@ import app.cash.paging.PagingData
 import app.cash.paging.cachedIn
 import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_base.api.domain.ITEMS_PER_PAGE
+import com.alekseivinogradov.anime_base.api.domain.PAGING_PREFETCH_DISTANCE
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ReleaseStatusDomain
@@ -48,11 +49,9 @@ internal class OngoingSectionExecutorImpl(
     private fun updateSection() {
         updateSectionJob?.cancel()
         updateSectionJob = scope.launch {
-            if (state().sectionContent.contentType == ContentTypeDomain.ERROR) {
-                dispatch(
-                    OngoingSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
-                )
-            }
+            dispatch(
+                OngoingSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
+            )
             dispatch(
                 OngoingSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
                     enabledExtraEpisodesInfoId = setOf()
@@ -71,8 +70,13 @@ internal class OngoingSectionExecutorImpl(
 
     private fun getPagingDataFlow(): Flow<PagingData<ListItemDomain>> {
         return Pager(
-            config = PagingConfig(pageSize = ITEMS_PER_PAGE)
-        ) {
+            config = PagingConfig(
+                pageSize = ITEMS_PER_PAGE,
+                prefetchDistance = PAGING_PREFETCH_DISTANCE,
+                enablePlaceholders = true
+            ),
+
+            ) {
             OngoingListDataSource(
                 fetchOngoingAnimeListUseCase = usecases.fetchOngoingAnimeListUsecase,
                 initialLoadSuccessCallback = ::initialLoadSuccessCallback,

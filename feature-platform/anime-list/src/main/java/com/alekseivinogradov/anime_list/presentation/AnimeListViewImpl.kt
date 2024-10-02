@@ -23,6 +23,7 @@ import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import com.alekseivinogradov.theme.R as theme_R
 
@@ -255,8 +256,10 @@ internal class AnimeListViewImpl(
         return uiModel.listItems
     }
 
+    private var submitDataJob: Job? = null
     private fun setListItems(listItems: PagingData<ListItemUi>) {
-        viewScope.launch {
+        submitDataJob?.cancel()
+        submitDataJob = viewScope.launch {
             adapter.submitData(listItems)
         }
     }

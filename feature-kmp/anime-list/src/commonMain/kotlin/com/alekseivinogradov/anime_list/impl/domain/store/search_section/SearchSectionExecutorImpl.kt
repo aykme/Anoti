@@ -6,6 +6,7 @@ import app.cash.paging.PagingData
 import app.cash.paging.cachedIn
 import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_base.api.domain.ITEMS_PER_PAGE
+import com.alekseivinogradov.anime_base.api.domain.PAGING_PREFETCH_DISTANCE
 import com.alekseivinogradov.anime_base.api.domain.SEARCH_DEBOUNCE
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
@@ -49,8 +50,10 @@ internal class SearchSectionExecutorImpl(
 
     @OptIn(FlowPreview::class)
     private fun subscribeSearchFlowIfNeeded() {
+        if (searchFlow == null) {
+            searchFlow = MutableStateFlow(state().searchText)
+        }
         if (changeSearchJob?.isActive == true) return
-        searchFlow = MutableStateFlow(state().searchText)
         changeSearchJob = scope.launch {
             searchFlow?.debounce(SEARCH_DEBOUNCE)
                 ?.collect {
@@ -62,11 +65,9 @@ internal class SearchSectionExecutorImpl(
     private fun updateSection() {
         updateSectionJob?.cancel()
         updateSectionJob = scope.launch {
-            if (state().sectionContent.contentType == ContentTypeDomain.ERROR) {
-                dispatch(
-                    SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
-                )
-            }
+            dispatch(
+                SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
+            )
             dispatch(
                 SearchSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
                     enabledExtraEpisodesInfoId = setOf()
@@ -85,7 +86,11 @@ internal class SearchSectionExecutorImpl(
 
     private fun getPagingDataFlow(): Flow<PagingData<ListItemDomain>> {
         return Pager(
-            config = PagingConfig(pageSize = ITEMS_PER_PAGE)
+            config = PagingConfig(
+                pageSize = ITEMS_PER_PAGE,
+                prefetchDistance = PAGING_PREFETCH_DISTANCE,
+                enablePlaceholders = true
+            )
         ) {
             SearchListDataSource(
                 fetchAnimeListBySearchUsecase = usecases.fetchAnimeListBySearchUsecase,
