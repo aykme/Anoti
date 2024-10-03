@@ -15,6 +15,10 @@ internal class AnimeListExecutorImpl() : AnimeListExecutor() {
             AnimeListMainStore.Intent.SearchSectionClick -> searchSectionClick()
             AnimeListMainStore.Intent.CancelSearchClick -> cancelSearchClick()
             is AnimeListMainStore.Intent.ChangeSearchText -> ChangesearchText(intent)
+            is AnimeListMainStore.Intent.ChangeResetListPositionAfterUpdateStatus -> {
+                changeResetListPositionAfterUpdateStatus(intent)
+            }
+
             AnimeListMainStore.Intent.UpdateSection -> updateSection()
             is AnimeListMainStore.Intent.UpdateOngoingContent -> updateOngoingContent(intent)
             is AnimeListMainStore.Intent.UpdateAnnouncedContent -> updateAnnouncedContent(intent)
@@ -187,6 +191,16 @@ internal class AnimeListExecutorImpl() : AnimeListExecutor() {
                 )
             )
         }
+    }
+
+    private fun changeResetListPositionAfterUpdateStatus(
+        intent: AnimeListMainStore.Intent.ChangeResetListPositionAfterUpdateStatus
+    ) {
+        dispatch(
+            AnimeListMainStore.Message.ChangeResetListPositionAfterUpdateStatus(
+                isNeedToResetListPosition = intent.isNeedToResetListPosition
+            )
+        )
     }
 
     private fun updateSearchContent(intent: AnimeListMainStore.Intent.UpdateSearchContent) {

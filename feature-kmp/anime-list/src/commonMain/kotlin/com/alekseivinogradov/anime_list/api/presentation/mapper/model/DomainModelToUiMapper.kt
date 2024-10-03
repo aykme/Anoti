@@ -10,6 +10,7 @@ import com.alekseivinogradov.anime_list.api.domain.model.SearchDomain
 import com.alekseivinogradov.anime_list.api.domain.model.SectionHatDomain
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anime_list.api.presentation.model.ContentTypeUi
+import com.alekseivinogradov.anime_list.api.presentation.model.ListContentUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SearchUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SectionHatUi
 import com.alekseivinogradov.anime_list.api.presentation.model.UiModel
@@ -25,7 +26,7 @@ internal fun mapStateToUiModel(
         selectedSection = mapSelectedSectionDomainToUi(state.selectedSection),
         search = mapSearchDomainToUi(state.search),
         contentType = getContentTypeUi(state),
-        listItems = getListItemsUi(state),
+        listContent = getListContentUi(state)
     )
 }
 
@@ -55,6 +56,13 @@ private fun getContentTypeUi(state: AnimeListMainStore.State): ContentTypeUi {
         ContentTypeDomain.LOADING -> ContentTypeUi.LOADING
         ContentTypeDomain.ERROR -> ContentTypeUi.ERROR
     }
+}
+
+private fun getListContentUi(state: AnimeListMainStore.State): ListContentUi {
+    return ListContentUi(
+        listItems = getListItemsUi(state),
+        isNeedToResetListPositon = state.isNeedToResetListPositon
+    )
 }
 
 private fun getListItemsUi(

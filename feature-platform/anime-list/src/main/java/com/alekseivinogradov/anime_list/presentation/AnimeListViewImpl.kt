@@ -6,17 +6,17 @@ import android.text.TextWatcher
 import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
-import app.cash.paging.PagingData
 import com.alekseivinogradov.animeListPlatform.R
 import com.alekseivinogradov.animeListPlatform.databinding.FragmentAnimeListBinding
+import com.alekseivinogradov.anime_base.api.domain.PAGING_SUBMIT_LIST_DELAY
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
 import com.alekseivinogradov.anime_list.api.presentation.model.ContentTypeUi
+import com.alekseivinogradov.anime_list.api.presentation.model.ListContentUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SearchUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SectionHatUi
 import com.alekseivinogradov.anime_list.api.presentation.model.UiModel
-import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ListItemUi
 import com.alekseivinogradov.anime_list.presentation.adapter.AnimeListAdapter
 import com.alekseivinogradov.date.formatter.DateFormatter
 import com.arkivanov.mvikotlin.core.utils.diff
@@ -24,6 +24,7 @@ import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.alekseivinogradov.theme.R as theme_R
 
@@ -51,6 +52,15 @@ internal class AnimeListViewImpl(
         { listItem: ListItemDomain ->
             dispatch(AnimeListMainStore.Intent.NotificationClick(listItem))
         }
+
+    private val resetListPositionCallback: () -> Unit = {
+        viewBinding.animeListRv.scrollToPosition(0)
+        dispatch(
+            AnimeListMainStore.Intent.ChangeResetListPositionAfterUpdateStatus(
+                isNeedToResetListPosition = false
+            )
+        )
+    }
 
     private val adapter = AnimeListAdapter(
         episodesInfoClickAdapterCallback = episodesInfoClickAdapterCallback,
@@ -83,8 +93,8 @@ internal class AnimeListViewImpl(
         )
 
         diff(
-            get = ::getListItems,
-            set = ::setListItems
+            get = ::getListContent,
+            set = ::setListContent
         )
     }
 
@@ -229,38 +239,58 @@ internal class AnimeListViewImpl(
         return uiModel.contentType
     }
 
+    private var contentTypeChangeJob: Job? = null
     private fun setContentType(contentType: ContentTypeUi) {
-        with(viewBinding) {
-            when (contentType) {
-                ContentTypeUi.LOADED -> {
-                    connectionStatusImage.isVisible = false
-                    animeListRv.isVisible = true
-                }
+        contentTypeChangeJob?.cancel()
+        contentTypeChangeJob = viewScope.launch {
+            with(viewBinding) {
+                when (contentType) {
+                    ContentTypeUi.LOADED -> {
+                        /**
+                         * The reason for this delay is so that
+                         * the list can be updated before the ContentType change
+                         */
+                        delay(PAGING_SUBMIT_LIST_DELAY * 2)
+                        connectionStatusImage.isVisible = false
+                        animeListRv.isVisible = true
+                    }
 
-                ContentTypeUi.LOADING -> {
-                    animeListRv.isVisible = false
-                    connectionStatusImage.setImageResource(R.drawable.loading_animation)
-                    connectionStatusImage.isVisible = true
-                }
+                    ContentTypeUi.LOADING -> {
+                        animeListRv.isVisible = false
+                        connectionStatusImage.setImageResource(R.drawable.loading_animation)
+                        connectionStatusImage.isVisible = true
+                    }
 
-                ContentTypeUi.ERROR -> {
-                    animeListRv.isVisible = false
-                    connectionStatusImage.setImageResource(R.drawable.connection_error_48)
-                    connectionStatusImage.isVisible = true
+                    ContentTypeUi.ERROR -> {
+                        animeListRv.isVisible = false
+                        connectionStatusImage.setImageResource(R.drawable.connection_error_48)
+                        connectionStatusImage.isVisible = true
+                    }
                 }
             }
         }
     }
 
-    private fun getListItems(uiModel: UiModel): PagingData<ListItemUi> {
-        return uiModel.listItems
+    private fun getListContent(uiModel: UiModel): ListContentUi {
+        return uiModel.listContent
     }
 
     private var submitDataJob: Job? = null
-    private fun setListItems(listItems: PagingData<ListItemUi>) {
+    private fun setListContent(listContent: ListContentUi) {
         submitDataJob?.cancel()
         submitDataJob = viewScope.launch {
-            adapter.submitData(listItems)
+            /**
+             * The reason for this delay is that if the list is updated within a few milliseconds,
+             * the PagingDataAdapter freezes and does not update the items.
+             * Apparently, this is a library bug.
+             * This is a big problem in MVI, as state can be updated very often.
+             */
+            delay(PAGING_SUBMIT_LIST_DELAY)
+            adapter.removeOnPagesUpdatedListener(resetListPositionCallback)
+            if (listContent.isNeedToResetListPositon) {
+                adapter.addOnPagesUpdatedListener(resetListPositionCallback)
+            }
+            adapter.submitData(listContent.listItems)
         }
     }
 }

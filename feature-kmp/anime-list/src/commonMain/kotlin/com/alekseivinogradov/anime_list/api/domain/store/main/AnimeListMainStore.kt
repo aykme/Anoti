@@ -17,7 +17,8 @@ interface AnimeListMainStore
         val ongoingContent: SectionContentDomain = SectionContentDomain(),
         val announcedContent: SectionContentDomain = SectionContentDomain(),
         val searchContent: SectionContentDomain = SectionContentDomain(),
-        val enabledNotificationIds: Set<AnimeId> = setOf()
+        val enabledNotificationIds: Set<AnimeId> = setOf(),
+        val isNeedToResetListPositon: Boolean = false
     )
 
     sealed interface Intent {
@@ -26,6 +27,10 @@ interface AnimeListMainStore
         data object SearchSectionClick : Intent
         data object CancelSearchClick : Intent
         data class ChangeSearchText(val searchText: String) : Intent
+        data class ChangeResetListPositionAfterUpdateStatus(
+            val isNeedToResetListPosition: Boolean
+        ) : Intent
+
         data object UpdateSection : Intent
         data class UpdateOngoingContent(val content: SectionContentDomain) : Intent
         data class UpdateAnnouncedContent(val content: SectionContentDomain) : Intent
@@ -58,6 +63,10 @@ interface AnimeListMainStore
         data class ChangeOngoingContentType(val contentType: ContentTypeDomain) : Message
         data class ChangeAnnouncedContentType(val contentType: ContentTypeDomain) : Message
         data class ChangeSearchContentType(val contentType: ContentTypeDomain) : Message
+        data class ChangeResetListPositionAfterUpdateStatus(
+            val isNeedToResetListPosition: Boolean
+        ) : Message
+
         data class UpdateOngoingListItems(val listItems: PagingData<ListItemDomain>) : Message
         data class UpdateAnnouncedListItems(val listItems: PagingData<ListItemDomain>) : Message
         data class UpdateSearchListItems(val listItems: PagingData<ListItemDomain>) : Message

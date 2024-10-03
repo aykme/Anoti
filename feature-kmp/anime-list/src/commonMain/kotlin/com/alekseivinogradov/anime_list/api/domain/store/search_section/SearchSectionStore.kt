@@ -21,7 +21,9 @@ interface SearchSectionStore
         data class EpisodesInfoClick(val listItem: ListItemDomain) : Intent
     }
 
-    sealed interface Label
+    sealed interface Label {
+        data object ResetListPositionAfterUpdate : Label
+    }
 
     sealed interface Action
 

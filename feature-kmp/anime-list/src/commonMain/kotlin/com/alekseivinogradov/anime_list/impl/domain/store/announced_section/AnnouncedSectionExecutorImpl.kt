@@ -25,13 +25,14 @@ internal class AnnouncedSectionExecutorImpl(
 
     override fun executeIntent(intent: AnnouncedSectionStore.Intent) {
         when (intent) {
-            AnnouncedSectionStore.Intent.OpenSection -> initSection()
+            AnnouncedSectionStore.Intent.OpenSection -> openSection()
             AnnouncedSectionStore.Intent.UpdateSection -> updateSection()
             is AnnouncedSectionStore.Intent.EpisodesInfoClick -> episodeInfoClick(intent)
         }
     }
 
-    private fun initSection() {
+    private fun openSection() {
+        publish(AnnouncedSectionStore.Label.ResetListPositionAfterUpdate)
         if (state().sectionContent.contentType != ContentTypeDomain.LOADED) {
             updateSection()
         }

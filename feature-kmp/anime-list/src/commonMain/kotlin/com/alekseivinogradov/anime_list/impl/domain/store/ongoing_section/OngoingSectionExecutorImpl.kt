@@ -28,19 +28,20 @@ internal class OngoingSectionExecutorImpl(
 
     override fun executeAction(action: OngoingSectionStore.Action) {
         when (action) {
-            OngoingSectionStore.Action.InitSection -> initSection()
+            OngoingSectionStore.Action.InitSection -> openSection()
         }
     }
 
     override fun executeIntent(intent: OngoingSectionStore.Intent) {
         when (intent) {
-            OngoingSectionStore.Intent.OpenSection -> initSection()
+            OngoingSectionStore.Intent.OpenSection -> openSection()
             OngoingSectionStore.Intent.UpdateSection -> updateSection()
             is OngoingSectionStore.Intent.EpisodesInfoClick -> episodeInfoClick(intent)
         }
     }
 
-    private fun initSection() {
+    private fun openSection() {
+        publish(OngoingSectionStore.Label.ResetListPositionAfterUpdate)
         if (state().sectionContent.contentType != ContentTypeDomain.LOADED) {
             updateSection()
         }

@@ -35,7 +35,7 @@ internal class SearchSectionExecutorImpl(
 
     override fun executeIntent(intent: SearchSectionStore.Intent) {
         when (intent) {
-            SearchSectionStore.Intent.OpenSection -> initSection()
+            SearchSectionStore.Intent.OpenSection -> openSection()
             SearchSectionStore.Intent.UpdateSection -> updateSection()
 
             is SearchSectionStore.Intent.ChangeSearchText -> ChangesearchText(intent)
@@ -44,7 +44,8 @@ internal class SearchSectionExecutorImpl(
         }
     }
 
-    private fun initSection() {
+    private fun openSection() {
+        publish(SearchSectionStore.Label.ResetListPositionAfterUpdate)
         subscribeSearchFlowIfNeeded()
     }
 
