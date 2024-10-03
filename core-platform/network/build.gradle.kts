@@ -1,10 +1,10 @@
 plugins {
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrains.kotlin.android)
 }
 
 android {
-    namespace = "com.alekseivinogradov.networkPlatform"
+    namespace = "com.alekseivinogradov.network_platform"
     compileSdk = 34
 
     defaultConfig {

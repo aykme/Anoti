@@ -1,10 +1,10 @@
 plugins {
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrains.kotlin.android)
 }
 
 android {
-    namespace = "com.alekseivinogradov.datePlatform"
+    namespace = "com.alekseivinogradov.date_platform"
     compileSdk = 34
 
     defaultConfig {

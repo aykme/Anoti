@@ -1,10 +1,10 @@
 plugins {
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrains.kotlin.android)
 }
 
 android {
-    namespace = "com.alekseivinogradov.animeListPlatform"
+    namespace = "com.alekseivinogradov.anime_list_platform"
     compileSdk = 34
 
     defaultConfig {

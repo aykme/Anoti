@@ -6,8 +6,6 @@ import android.text.TextWatcher
 import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.alekseivinogradov.animeListPlatform.R
-import com.alekseivinogradov.animeListPlatform.databinding.FragmentAnimeListBinding
 import com.alekseivinogradov.anime_base.api.domain.PAGING_SUBMIT_LIST_DELAY
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
@@ -18,6 +16,8 @@ import com.alekseivinogradov.anime_list.api.presentation.model.SearchUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SectionHatUi
 import com.alekseivinogradov.anime_list.api.presentation.model.UiModel
 import com.alekseivinogradov.anime_list.presentation.adapter.AnimeListAdapter
+import com.alekseivinogradov.anime_list_platform.R
+import com.alekseivinogradov.anime_list_platform.databinding.FragmentAnimeListBinding
 import com.alekseivinogradov.date.formatter.DateFormatter
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView

@@ -6,9 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.alekseivinogradov.animeListPlatform.databinding.FragmentAnimeListBinding
-import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiServicePlatform
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
+import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiServicePlatform
 import com.alekseivinogradov.anime_base.impl.data.service.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anime_list.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anime_list.impl.data.source.AnimeListSourceImpl
@@ -20,6 +19,7 @@ import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.AnnouncedUse
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.OngoingUsecases
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.SearchUsecases
 import com.alekseivinogradov.anime_list.impl.presentation.AnimeListController
+import com.alekseivinogradov.anime_list_platform.databinding.FragmentAnimeListBinding
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.impl.domain.usecase.DatabaseUsecases
 import com.alekseivinogradov.database.impl.domain.usecase.DeleteAnimeDatabaseItemUsecase

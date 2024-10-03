@@ -1,11 +1,11 @@
 plugins {
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.ksp)
 }
 
 android {
-    namespace = "com.alekseivinogradov.databasePlatform"
+    namespace = "com.alekseivinogradov.database_platform"
     compileSdk = 34
 
     defaultConfig {

@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.androidLibrary)
 }
 
 kotlin {
@@ -18,7 +18,7 @@ kotlin {
         iosSimulatorArm64()
     ).forEach {
         it.binaries.framework {
-            baseName = "animeList"
+            baseName = "anime-list"
             isStatic = true
         }
     }
@@ -45,7 +45,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.alekseivinogradov.animeList"
+    namespace = "com.alekseivinogradov.anime_list"
     compileSdk = 34
     defaultConfig {
         minSdk = 26

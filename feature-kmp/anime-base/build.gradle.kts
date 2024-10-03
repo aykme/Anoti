@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.androidLibrary)
 }
 
 kotlin {
@@ -18,7 +18,7 @@ kotlin {
         iosSimulatorArm64()
     ).forEach {
         it.binaries.framework {
-            baseName = "animeNetworkBase"
+            baseName = "anime-base"
             isStatic = true
         }
     }
@@ -34,7 +34,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.alekseivinogradov.animeNetworkBase"
+    namespace = "com.alekseivinogradov.anime_base"
     compileSdk = 34
     defaultConfig {
         minSdk = 26
