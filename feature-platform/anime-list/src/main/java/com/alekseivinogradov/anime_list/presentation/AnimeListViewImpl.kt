@@ -250,7 +250,7 @@ internal class AnimeListViewImpl(
                          * The reason for this delay is so that
                          * the list can be updated before the ContentType change
                          */
-                        delay(PAGING_SUBMIT_LIST_DELAY * 2)
+                        delay(PAGING_SUBMIT_LIST_DELAY * 4)
                         connectionStatusImage.isVisible = false
                         animeListRv.isVisible = true
                     }
