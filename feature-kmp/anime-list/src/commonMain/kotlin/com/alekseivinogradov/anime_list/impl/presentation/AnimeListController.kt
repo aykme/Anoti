@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anime_list.impl.presentation
 
-import com.alekseivinogradov.anime_list.api.data.mapper.store.mapDatabaseStoreStateToMainStoreIntent
-import com.alekseivinogradov.anime_list.api.data.mapper.store.mapMainStoreLabelToDatabaseStoreIntent
+import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapDatabaseStoreStateToMainStoreIntent
+import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapMainStoreLabelToDatabaseStoreIntent
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapAnnouncedStoreLabelToMainStoreIntent
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapAnnouncedStoreStateToMainStoreIntent
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapMainStoreLabelToAnnouncedStoreIntent

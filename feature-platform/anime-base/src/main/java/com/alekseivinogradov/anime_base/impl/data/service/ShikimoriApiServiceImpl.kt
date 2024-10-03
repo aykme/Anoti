@@ -1,7 +1,7 @@
-package com.alekseivinogradov.anime_base.impl.remote
+package com.alekseivinogradov.anime_base.impl.data.service
 
-import com.alekseivinogradov.anime_base.api.data.remote.mapper.toKmp
-import com.alekseivinogradov.anime_base.api.data.remote.service.ShikimoriApiServicePlatform
+import com.alekseivinogradov.anime_base.api.data.mapper.toKmp
+import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiServicePlatform
 import com.alekseivinogradov.anime_base.api.data.response.AnimeDetailsResponse
 import com.alekseivinogradov.anime_base.api.data.response.AnimeShortResponse
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService

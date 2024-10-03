@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anime_list.api.presentation.model.list_content
+package com.alekseivinogradov.anime_list.api.presentation.model.item_content
 
 import com.alekseivinogradov.anime_base.api.domain.AnimeId
 

@@ -2,8 +2,8 @@ package com.alekseivinogradov.anime_list.api.presentation.mapper.model
 
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ReleaseStatusDomain
-import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ListItemUi
-import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ReleaseStatusUi
+import com.alekseivinogradov.anime_list.api.presentation.model.item_content.ListItemUi
+import com.alekseivinogradov.anime_list.api.presentation.model.item_content.ReleaseStatusUi
 
 fun ListItemUi.toDomain(): ListItemDomain {
     return ListItemDomain(

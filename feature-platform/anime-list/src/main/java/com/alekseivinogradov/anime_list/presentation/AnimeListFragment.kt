@@ -7,9 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.alekseivinogradov.animeListPlatform.databinding.FragmentAnimeListBinding
-import com.alekseivinogradov.anime_base.api.data.remote.service.ShikimoriApiServicePlatform
+import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiServicePlatform
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
-import com.alekseivinogradov.anime_base.impl.remote.ShikimoriApiServiceImpl
+import com.alekseivinogradov.anime_base.impl.data.service.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anime_list.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anime_list.impl.data.source.AnimeListSourceImpl
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeByIdUsecase

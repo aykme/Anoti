@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anime_base.api.data.remote.response
+package com.alekseivinogradov.anime_base.api.data.response
 
 import com.squareup.moshi.Json
 

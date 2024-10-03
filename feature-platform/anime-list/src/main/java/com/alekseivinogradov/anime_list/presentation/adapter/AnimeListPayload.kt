@@ -1,8 +1,8 @@
 package com.alekseivinogradov.anime_list.presentation.adapter
 
-import com.alekseivinogradov.anime_list.api.presentation.model.list_content.EpisodesInfoTypeUi
-import com.alekseivinogradov.anime_list.api.presentation.model.list_content.NotificationUi
-import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ReleaseStatusUi
+import com.alekseivinogradov.anime_list.api.presentation.model.item_content.EpisodesInfoTypeUi
+import com.alekseivinogradov.anime_list.api.presentation.model.item_content.NotificationUi
+import com.alekseivinogradov.anime_list.api.presentation.model.item_content.ReleaseStatusUi
 
 internal sealed interface AnimeListPayload {
     data class ImageUrlChange(val imageUrl: String?) : AnimeListPayload

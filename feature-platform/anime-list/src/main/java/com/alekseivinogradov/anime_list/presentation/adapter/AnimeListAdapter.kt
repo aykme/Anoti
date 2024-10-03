@@ -6,7 +6,7 @@ import androidx.paging.PagingDataAdapter
 import com.alekseivinogradov.animeListPlatform.databinding.ItemAnimeListBinding
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.presentation.mapper.model.toDomain
-import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ListItemUi
+import com.alekseivinogradov.anime_list.api.presentation.model.item_content.ListItemUi
 import com.alekseivinogradov.date.formatter.DateFormatter
 
 internal class AnimeListAdapter(

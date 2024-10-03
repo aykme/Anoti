@@ -1,10 +1,10 @@
-package com.alekseivinogradov.anime_base.api.data.remote.mapper
+package com.alekseivinogradov.anime_base.api.data.mapper
 
-import com.alekseivinogradov.anime_base.api.data.remote.response.AnimeDetailsPlatformResponse
+import com.alekseivinogradov.anime_base.api.data.response.AnimeDetailsPlatformResponse
 import com.alekseivinogradov.anime_base.api.data.response.AnimeDetailsResponse
-import com.alekseivinogradov.anime_base.api.data.remote.response.AnimeShortPlatformResponse
+import com.alekseivinogradov.anime_base.api.data.response.AnimeShortPlatformResponse
 import com.alekseivinogradov.anime_base.api.data.response.AnimeShortResponse
-import com.alekseivinogradov.anime_base.api.data.remote.response.ImagePlatformResponse
+import com.alekseivinogradov.anime_base.api.data.response.ImagePlatformResponse
 import com.alekseivinogradov.anime_base.api.data.response.ImageResponse
 
 internal fun AnimeShortPlatformResponse.toKmp() = AnimeShortResponse(

@@ -14,10 +14,10 @@ import com.alekseivinogradov.anime_list.api.presentation.model.ListContentUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SearchUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SectionHatUi
 import com.alekseivinogradov.anime_list.api.presentation.model.UiModel
-import com.alekseivinogradov.anime_list.api.presentation.model.list_content.EpisodesInfoTypeUi
-import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ListItemUi
-import com.alekseivinogradov.anime_list.api.presentation.model.list_content.NotificationUi
-import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ReleaseStatusUi
+import com.alekseivinogradov.anime_list.api.presentation.model.item_content.EpisodesInfoTypeUi
+import com.alekseivinogradov.anime_list.api.presentation.model.item_content.ListItemUi
+import com.alekseivinogradov.anime_list.api.presentation.model.item_content.NotificationUi
+import com.alekseivinogradov.anime_list.api.presentation.model.item_content.ReleaseStatusUi
 
 internal fun mapStateToUiModel(
     state: AnimeListMainStore.State

@@ -7,10 +7,10 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.alekseivinogradov.animeListPlatform.R
 import com.alekseivinogradov.animeListPlatform.databinding.ItemAnimeListBinding
-import com.alekseivinogradov.anime_list.api.presentation.model.list_content.EpisodesInfoTypeUi
-import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ListItemUi
-import com.alekseivinogradov.anime_list.api.presentation.model.list_content.NotificationUi
-import com.alekseivinogradov.anime_list.api.presentation.model.list_content.ReleaseStatusUi
+import com.alekseivinogradov.anime_list.api.presentation.model.item_content.EpisodesInfoTypeUi
+import com.alekseivinogradov.anime_list.api.presentation.model.item_content.ListItemUi
+import com.alekseivinogradov.anime_list.api.presentation.model.item_content.NotificationUi
+import com.alekseivinogradov.anime_list.api.presentation.model.item_content.ReleaseStatusUi
 import com.alekseivinogradov.date.formatter.DateFormatter
 import com.bumptech.glide.Glide
 import com.alekseivinogradov.theme.R as theme_R
