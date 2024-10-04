@@ -41,7 +41,7 @@ class AnimeListFragment : Fragment() {
 
     private val tag = "AnimeList"
 
-    private lateinit var binding: FragmentAnimeListBinding
+    private var binding: FragmentAnimeListBinding? = null
 
     private val shikimoriService: ShikimoriApiService = ShikimoriApiServiceImpl(
         servicePlatform = ShikimoriApiServicePlatform.instance
@@ -118,7 +118,7 @@ class AnimeListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         controller.onViewCreated(
             mainView = AnimeListViewImpl(
-                viewBinding = binding,
+                viewBinding = binding!!,
                 dateFormatter = DateFormatter.getInstance(view.context),
                 viewScope = viewScope
             ),
@@ -128,6 +128,7 @@ class AnimeListFragment : Fragment() {
 
     override fun onDestroy() {
         viewScope.cancel()
+        binding = null
         super.onDestroy()
     }
 
