@@ -289,28 +289,28 @@ internal class AnimeListViewHolder(
         with(binding) {
             when (releaseStatus) {
                 ReleaseStatusUi.ONGOING -> {
-                    releasedStatusText.text =
+                    releaseStatusText.text =
                         context.getString(R.string.ongoings)
-                    releasedStatusText.setTextColor(context.getColor(theme_R.color.green))
-                    releasedStatusText.isVisible = true
+                    releaseStatusText.setTextColor(context.getColor(theme_R.color.green))
+                    releaseStatusText.isVisible = true
                 }
 
                 ReleaseStatusUi.ANNOUNCED -> {
-                    releasedStatusText.text =
+                    releaseStatusText.text =
                         context.getString(R.string.announced)
-                    releasedStatusText.setTextColor(context.getColor(theme_R.color.purple_200))
-                    releasedStatusText.isVisible = true
+                    releaseStatusText.setTextColor(context.getColor(theme_R.color.purple_200))
+                    releaseStatusText.isVisible = true
                 }
 
                 ReleaseStatusUi.RELEASED -> {
-                    releasedStatusText.text =
+                    releaseStatusText.text =
                         context.getString(R.string.released)
-                    releasedStatusText.setTextColor(context.getColor(theme_R.color.pink))
-                    releasedStatusText.isVisible = true
+                    releaseStatusText.setTextColor(context.getColor(theme_R.color.pink))
+                    releaseStatusText.isVisible = true
                 }
 
                 ReleaseStatusUi.UNKNOWN -> {
-                    releasedStatusText.isVisible = false
+                    releaseStatusText.isVisible = false
                 }
             }
         }

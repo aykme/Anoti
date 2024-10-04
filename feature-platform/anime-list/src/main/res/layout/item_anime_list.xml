@@ -169,13 +169,13 @@
         android:layout_marginTop="5dp"
         android:layout_marginEnd="4dp"
         android:background="@color/white_transparent"
-        app:layout_constraintBottom_toBottomOf="@id/released_status_text"
-        app:layout_constraintEnd_toStartOf="@id/released_status_text"
+        app:layout_constraintBottom_toBottomOf="@id/release_status_text"
+        app:layout_constraintEnd_toStartOf="@id/release_status_text"
         app:layout_constraintStart_toEndOf="@id/score_text"
-        app:layout_constraintTop_toTopOf="@id/released_status_text" />
+        app:layout_constraintTop_toTopOf="@id/release_status_text" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/released_status_text"
+        android:id="@+id/release_status_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ellipsize="end"
@@ -197,10 +197,10 @@
         android:layout_marginTop="5dp"
         android:layout_marginEnd="4dp"
         android:background="@color/white_transparent"
-        app:layout_constraintBottom_toBottomOf="@id/released_status_text"
+        app:layout_constraintBottom_toBottomOf="@id/release_status_text"
         app:layout_constraintEnd_toStartOf="@id/notification_button"
-        app:layout_constraintStart_toEndOf="@id/released_status_text"
-        app:layout_constraintTop_toTopOf="@id/released_status_text" />
+        app:layout_constraintStart_toEndOf="@id/release_status_text"
+        app:layout_constraintTop_toTopOf="@id/release_status_text" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/notification_button"
@@ -210,7 +210,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:alpha="0.8"
-        android:contentDescription="@string/notifications_turn_off_description"
+        android:contentDescription="@string/notifications_turn_on_description"
         android:src="@drawable/ic_notifications_off_40"
         android:tint="@color/black_transparent"
         app:layout_constraintBottom_toBottomOf="parent"

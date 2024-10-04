@@ -137,9 +137,74 @@
         android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
         android:textColor="@color/white"
         android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@id/available_episodes_info_text"
         app:layout_constraintEnd_toEndOf="@id/main_info_stroke"
         app:layout_constraintStart_toStartOf="@id/main_info_stroke"
         app:layout_constraintTop_toTopOf="@id/main_info_stroke"
+        app:layout_constraintVertical_bias="0"
+        app:layout_constraintVertical_chainStyle="packed"
         tools:text="Attack on Titan: Final. Part 2" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/available_episodes_info_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:ellipsize="end"
+        android:gravity="start"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:textColor="@color/white"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@id/release_status_barrier"
+        app:layout_constraintEnd_toStartOf="@id/notification_button"
+        app:layout_constraintStart_toStartOf="@id/main_info_stroke"
+        app:layout_constraintTop_toBottomOf="@id/name_text"
+        app:layout_constraintVertical_bias="0"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Episodes: 2 / ?" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/release_status_barrier"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:barrierDirection="top"
+        app:constraint_referenced_ids="release_status_text" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/release_status_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:ellipsize="end"
+        android:gravity="start"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:textColor="@color/green"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@id/notification_button"
+        app:layout_constraintEnd_toStartOf="@id/notification_button"
+        app:layout_constraintStart_toStartOf="@id/main_info_stroke"
+        app:layout_constraintTop_toTopOf="@id/notification_button"
+        tools:text="Ongoing" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/notification_button"
+        style="@style/FloatingActionButtomStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:alpha="0.8"
+        android:contentDescription="@string/notifications_turn_on_description"
+        android:src="@drawable/ic_notifications_off_40"
+        android:tint="@color/black_transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:maxImageSize="40dp"
+        tools:backgroundTint="@color/pink"
+        tools:ignore="ImageContrastCheck" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

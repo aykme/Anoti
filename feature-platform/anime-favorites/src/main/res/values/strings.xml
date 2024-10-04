@@ -3,4 +3,6 @@
     <!--    TODO Использовать данные строки при реализации-->
     <string name="extra_info_on_description">Turn on the display of extra information</string>
     <string name="extra_info_off_description">Turn off the display of extra information</string>
+    <string name="notifications_turn_off_description">Turn off notifications</string>
+    <string name="notifications_turn_on_description">Turn on notifications</string>
 </resources>
