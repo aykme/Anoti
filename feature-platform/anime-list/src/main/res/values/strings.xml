@@ -1,8 +1,8 @@
 <resources>
-    <string name="future_episode_info_description">Display information about the release of a new episode</string>
-    <string name="current_episodes_info_discription">Display information about the released episodes</string>
-    <string name="notifications_turn_on">Click to turn off notifications</string>
-    <string name="notifications_turn_off">Click to turn on notifications</string>
+    <string name="extra_episodes_info_description">Display extra episodes info</string>
+    <string name="available_episodes_info_discription">Display information about the available episodes</string>
+    <string name="notifications_turn_off_description">Turn off notifications</string>
+    <string name="notifications_turn_on_description">Turn on notifications</string>
     <string name="score">Score</string>
     <string name="loading_in_progress">Loading in progress</string>
     <string name="connection_error">Connection error</string>

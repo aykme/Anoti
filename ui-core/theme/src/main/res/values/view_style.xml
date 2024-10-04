@@ -6,6 +6,11 @@
         <item name="cornerSize">3%</item>
     </style>
 
+    <style name="RoundedImageView8percentStyle">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8%</item>
+    </style>
+
     <style name="FloatingActionButtomStyle" parent="Widget.Design.FloatingActionButton">
         <item name="shapeAppearanceOverlay">@style/FabRoundedStyle</item>
     </style>

@@ -37,6 +37,7 @@ android {
 
 dependencies {
     implementation(project(":ui-core:theme"))
+    implementation(project(":ui-core:atom"))
     implementation(project(":core-platform:database"))
     implementation(project(":core-platform:network"))
     implementation(project(":core-platform:date"))

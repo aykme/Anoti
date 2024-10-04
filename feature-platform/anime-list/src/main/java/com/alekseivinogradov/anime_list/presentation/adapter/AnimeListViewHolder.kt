@@ -13,6 +13,7 @@ import com.alekseivinogradov.anime_list_platform.R
 import com.alekseivinogradov.anime_list_platform.databinding.ItemAnimeListBinding
 import com.alekseivinogradov.date.formatter.DateFormatter
 import com.bumptech.glide.Glide
+import com.alekseivinogradov.atom.R as atom_R
 import com.alekseivinogradov.theme.R as theme_R
 
 internal class AnimeListViewHolder(
@@ -157,8 +158,8 @@ internal class AnimeListViewHolder(
         imageUrl?.let {
             Glide.with(binding.image)
                 .load(it)
-                .placeholder(R.drawable.loading_animation)
-                .error(R.drawable.load_image_error_48)
+                .placeholder(atom_R.drawable.loading_animation)
+                .error(atom_R.drawable.load_image_error_48)
                 .into(binding.image)
         }
     }
@@ -322,13 +323,13 @@ internal class AnimeListViewHolder(
                     notificationButton.setImageDrawable(
                         ContextCompat.getDrawable(
                             context,
-                            R.drawable.ic_notifications_on_40
+                            atom_R.drawable.ic_notifications_on_40
                         )
                     )
                     notificationButton.rippleColor = disableColor
                     notificationButton.backgroundTintList = ColorStateList.valueOf(enableColor)
                     notificationButton.contentDescription = context.resources.getString(
-                        R.string.notifications_turn_on
+                        R.string.notifications_turn_off_description
                     )
                 }
 
@@ -336,13 +337,13 @@ internal class AnimeListViewHolder(
                     notificationButton.setImageDrawable(
                         ContextCompat.getDrawable(
                             context,
-                            R.drawable.ic_notifications_off_40
+                            atom_R.drawable.ic_notifications_off_40
                         )
                     )
                     notificationButton.rippleColor = enableColor
                     notificationButton.backgroundTintList = ColorStateList.valueOf(disableColor)
                     notificationButton.contentDescription = context.resources.getString(
-                        R.string.notifications_turn_off
+                        R.string.notifications_turn_on_description
                     )
                 }
             }

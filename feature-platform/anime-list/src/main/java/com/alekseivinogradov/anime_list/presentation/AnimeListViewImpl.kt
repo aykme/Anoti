@@ -26,6 +26,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.alekseivinogradov.atom.R as atom_R
 import com.alekseivinogradov.theme.R as theme_R
 
 internal class AnimeListViewImpl(
@@ -257,7 +258,7 @@ internal class AnimeListViewImpl(
 
                     ContentTypeUi.LOADING -> {
                         animeListRv.isVisible = false
-                        connectionStatusImage.setImageResource(R.drawable.loading_animation)
+                        connectionStatusImage.setImageResource(atom_R.drawable.loading_animation)
                         connectionStatusImage.isVisible = true
                     }
 
