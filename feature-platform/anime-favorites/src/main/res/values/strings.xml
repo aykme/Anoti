@@ -5,4 +5,6 @@
     <string name="extra_info_off_description">Turn off the display of extra information</string>
     <string name="notifications_turn_off_description">Turn off notifications</string>
     <string name="notifications_turn_on_description">Turn on notifications</string>
+    <string name="episodes_viewed_minus_description">Minus one episode from the number of viewed</string>
+    <string name="episodes_viewed_plus_description">Plus one episode to the number of watched</string>
 </resources>

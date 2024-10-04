@@ -105,7 +105,7 @@
         app:layout_constraintStart_toStartOf="@id/name_text"
         app:layout_constraintTop_toBottomOf="@id/name_text"
         app:layout_constraintVertical_bias="0"
-        tools:text="Следующий эпизод:\n 20 февр. 2022" />
+        tools:text="Next episode:\n 20 feb. 2022" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/available_episodes_info_button"
