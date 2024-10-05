@@ -11,8 +11,7 @@ internal class OngoingSectionStoreFactory(
     private val storeFactory: StoreFactory,
     ongoingUsecases: OngoingUsecases
 ) {
-
-    val executorFactory: () -> OngoingSectionExecutor = {
+    private val executorFactory: () -> OngoingSectionExecutor = {
         OngoingSectionExecutorImpl(usecases = ongoingUsecases)
     }
 

@@ -38,6 +38,7 @@ android {
 dependencies {
     implementation(project(":ui-core:theme"))
     implementation(project(":core-platform:database"))
+    implementation(project(":feature-kmp:bottom-navigation-bar"))
     implementation(project(":feature-platform:anime-list"))
     implementation(project(":feature-platform:anime-favorites"))
 
