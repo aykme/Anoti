@@ -1,14 +1,14 @@
 package com.alekseivinogradov.database.impl.domain.store
 
 import com.alekseivinogradov.database.api.data.model.AnimeDb
+import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.api.domain.store.DatabaseExecutor
 import com.alekseivinogradov.database.api.domain.store.DatabaseStore
-import com.alekseivinogradov.database.impl.domain.usecase.DatabaseUsecases
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 internal class DatabaseExecutorImpl(
-    private val usecases: DatabaseUsecases
+    private val repository: AnimeDatabaseRepository
 ) : DatabaseExecutor() {
 
     private var fetchAllDatabaseItemsJob: Job? = null
@@ -36,7 +36,7 @@ internal class DatabaseExecutorImpl(
     private fun subscribeToDatabase() {
         if (fetchAllDatabaseItemsJob?.isActive == true) return
         fetchAllDatabaseItemsJob = scope.launch {
-            usecases.fetchAllAnimeDatabaseItemsFlowUsecase.execute()
+            repository.getAllItemsFlow()
                 .collect { animeDbList: List<AnimeDb> ->
                     dispatch(
                         DatabaseStore.Message.UpdateAnimeDatabaseItems(animeDbList)
@@ -48,14 +48,14 @@ internal class DatabaseExecutorImpl(
     private fun insertAnimeDatabaseItem(animeDatabaseItem: AnimeDb) {
         if (insertAnimeDatabaseItemsJobMap[animeDatabaseItem.id]?.isActive == true) return
         insertAnimeDatabaseItemsJobMap[animeDatabaseItem.id] = scope.launch {
-            usecases.insertAnimeDatabaseItemUsecase.execute(animeDatabaseItem)
+            repository.insert(animeDatabaseItem)
         }
     }
 
     private fun deleteAnimeDatabaseItem(id: Int) {
         if (deleteAnimeDatabaseItemsJobMap[id]?.isActive == true) return
         deleteAnimeDatabaseItemsJobMap[id] = scope.launch {
-            usecases.deleteAnimeDatabaseItemUsecase.execute(id)
+            repository.delete(id)
         }
     }
 }

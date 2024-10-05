@@ -7,9 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.alekseivinogradov.anime_favorites_platform.databinding.FragmentAnimeFavoritesBinding
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
-import com.alekseivinogradov.database.impl.domain.usecase.DeleteAnimeDatabaseItemUsecase
-import com.alekseivinogradov.database.impl.domain.usecase.FetchAllAnimeDatabaseItemsFlowUsecase
-import com.alekseivinogradov.database.impl.domain.usecase.InsertAnimeDatabaseItemUsecase
 import com.alekseivinogradov.database.room.impl.data.AnimeDatabase
 import com.alekseivinogradov.database.room.impl.data.repository.AnimeDatabaseRepositoryImpl
 
@@ -27,21 +24,6 @@ class AnimeFavoritesFragment : Fragment() {
     private val animeDatabaseRepository: AnimeDatabaseRepository
             by lazy(LazyThreadSafetyMode.NONE) {
                 AnimeDatabaseRepositoryImpl(animeDao = animeDatabase.animeDao())
-            }
-
-    private val fetchAllAnimeDatabaseItemsFlowUsecase
-            by lazy(LazyThreadSafetyMode.NONE) {
-                FetchAllAnimeDatabaseItemsFlowUsecase(repository = animeDatabaseRepository)
-            }
-
-    private val insertAnimeDatabaseItemUsecase
-            by lazy(LazyThreadSafetyMode.NONE) {
-                InsertAnimeDatabaseItemUsecase(repository = animeDatabaseRepository)
-            }
-
-    private val deleteAnimeDatabaseItemUsecase
-            by lazy(LazyThreadSafetyMode.NONE) {
-                DeleteAnimeDatabaseItemUsecase(repository = animeDatabaseRepository)
             }
 
     override fun onCreateView(

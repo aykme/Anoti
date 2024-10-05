@@ -1,10 +1,10 @@
 package com.alekseivinogradov.anime_list.impl.presentation
 
-import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapDatabaseStoreStateToMainStoreIntent
-import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapMainStoreLabelToDatabaseStoreIntent
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapAnnouncedStoreLabelToMainStoreIntent
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapAnnouncedStoreStateToMainStoreIntent
+import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapDatabaseStoreStateToMainStoreIntent
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapMainStoreLabelToAnnouncedStoreIntent
+import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapMainStoreLabelToDatabaseStoreIntent
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapMainStoreLabelToOngoingStoreIntent
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapMainStoreLabelToSearchStoreIntent
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapOngoingStoreLabelToMainStoreIntent
@@ -20,8 +20,8 @@ import com.alekseivinogradov.anime_list.impl.domain.store.search_section.SearchS
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.AnnouncedUsecases
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.OngoingUsecases
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.SearchUsecases
+import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.impl.domain.store.DatabaseStoreFactory
-import com.alekseivinogradov.database.impl.domain.usecase.DatabaseUsecases
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.mvikotlin.core.binder.BinderLifecycleMode
@@ -37,7 +37,7 @@ import kotlinx.coroutines.flow.mapNotNull
 class AnimeListController(
     storeFactory: StoreFactory = DefaultStoreFactory(),
     lifecycle: Lifecycle,
-    databaseUsecases: DatabaseUsecases,
+    databaseRepository: AnimeDatabaseRepository,
     ongoingUsecases: OngoingUsecases,
     announcedUsecases: AnnouncedUsecases,
     searchUsecases: SearchUsecases
@@ -49,7 +49,7 @@ class AnimeListController(
 
     private val databaseStore = DatabaseStoreFactory(
         storeFactory = storeFactory,
-        databaseUsecases = databaseUsecases
+        repository = databaseRepository
     ).create()
 
     private val ongoingSectionStore = OngoingSectionStoreFactory(

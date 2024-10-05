@@ -21,10 +21,6 @@ import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.SearchUsecas
 import com.alekseivinogradov.anime_list.impl.presentation.AnimeListController
 import com.alekseivinogradov.anime_list_platform.databinding.FragmentAnimeListBinding
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
-import com.alekseivinogradov.database.impl.domain.usecase.DatabaseUsecases
-import com.alekseivinogradov.database.impl.domain.usecase.DeleteAnimeDatabaseItemUsecase
-import com.alekseivinogradov.database.impl.domain.usecase.FetchAllAnimeDatabaseItemsFlowUsecase
-import com.alekseivinogradov.database.impl.domain.usecase.InsertAnimeDatabaseItemUsecase
 import com.alekseivinogradov.database.room.impl.data.AnimeDatabase
 import com.alekseivinogradov.database.room.impl.data.repository.AnimeDatabaseRepositoryImpl
 import com.alekseivinogradov.date.formatter.DateFormatter
@@ -73,26 +69,11 @@ class AnimeListFragment : Fragment() {
                 AnimeDatabaseRepositoryImpl(animeDao = animeDatabase.animeDao())
             }
 
-    private val fetchAllAnimeDatabaseItemsFlowUsecase
-            by lazy(LazyThreadSafetyMode.NONE) {
-                FetchAllAnimeDatabaseItemsFlowUsecase(repository = animeDatabaseRepository)
-            }
-
-    private val insertAnimeDatabaseItemUsecase
-            by lazy(LazyThreadSafetyMode.NONE) {
-                InsertAnimeDatabaseItemUsecase(repository = animeDatabaseRepository)
-            }
-
-    private val deleteAnimeDatabaseItemUsecase
-            by lazy(LazyThreadSafetyMode.NONE) {
-                DeleteAnimeDatabaseItemUsecase(repository = animeDatabaseRepository)
-            }
-
     private val controller: AnimeListController by lazy {
         AnimeListController(
             storeFactory = DefaultStoreFactory(),
             lifecycle = essentyLifecycle(),
-            databaseUsecases = getDatabaseUsecases(),
+            databaseRepository = animeDatabaseRepository,
             ongoingUsecases = getOngoingUsecases(),
             announcedUsecases = getAnnouncedUsecases(),
             searchUsecases = getSearchUsecases()
@@ -131,12 +112,6 @@ class AnimeListFragment : Fragment() {
         binding = null
         super.onDestroy()
     }
-
-    private fun getDatabaseUsecases() = DatabaseUsecases(
-        fetchAllAnimeDatabaseItemsFlowUsecase = fetchAllAnimeDatabaseItemsFlowUsecase,
-        insertAnimeDatabaseItemUsecase = insertAnimeDatabaseItemUsecase,
-        deleteAnimeDatabaseItemUsecase = deleteAnimeDatabaseItemUsecase
-    )
 
     private fun getOngoingUsecases() = OngoingUsecases(
         fetchOngoingAnimeListUsecase = fetchOngoingAnimeListUsecase,

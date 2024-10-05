@@ -1,19 +1,19 @@
 package com.alekseivinogradov.database.impl.domain.store
 
+import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.api.domain.store.DatabaseExecutor
 import com.alekseivinogradov.database.api.domain.store.DatabaseStore
-import com.alekseivinogradov.database.impl.domain.usecase.DatabaseUsecases
 import com.arkivanov.mvikotlin.core.store.SimpleBootstrapper
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 
 class DatabaseStoreFactory(
     private val storeFactory: StoreFactory,
-    databaseUsecases: DatabaseUsecases
+    repository: AnimeDatabaseRepository
 ) {
 
     val executorFactory: () -> DatabaseExecutor = {
-        DatabaseExecutorImpl(usecases = databaseUsecases)
+        DatabaseExecutorImpl(repository = repository)
     }
 
     fun create(): DatabaseStore {
