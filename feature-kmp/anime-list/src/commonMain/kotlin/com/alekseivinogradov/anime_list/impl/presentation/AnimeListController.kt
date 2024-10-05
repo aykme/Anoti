@@ -30,12 +30,11 @@ import com.arkivanov.mvikotlin.extensions.coroutines.bind
 import com.arkivanov.mvikotlin.extensions.coroutines.events
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.extensions.coroutines.states
-import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 
 class AnimeListController(
-    storeFactory: StoreFactory = DefaultStoreFactory(),
+    storeFactory: StoreFactory,
     lifecycle: Lifecycle,
     databaseRepository: AnimeDatabaseRepository,
     ongoingUsecases: OngoingUsecases,

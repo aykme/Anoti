@@ -8,7 +8,6 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 internal class AnimeListMainStoreFactory(
     private val storeFactory: StoreFactory
 ) {
-
     internal fun create(): AnimeListMainStore {
         return object : AnimeListMainStore,
             Store<AnimeListMainStore.Intent, AnimeListMainStore.State, AnimeListMainStore.Label>
