@@ -30,7 +30,7 @@ internal class BottomNavigationBarViewImpl(
         viewBinding.bottomNavMenu.getOrCreateBadge(R.id.anime_favorites)
 
     init {
-        initSelectedListener()
+        initOnItemSelectedListener()
         initOnDestinationChangeListener()
         initFavoritesBadge()
     }
@@ -58,7 +58,7 @@ internal class BottomNavigationBarViewImpl(
         favoritesBadge.backgroundColor = context.getColor(theme_R.color.pink_transperent)
     }
 
-    private fun initSelectedListener() {
+    private fun initOnItemSelectedListener() {
         viewBinding.bottomNavMenu.setOnItemSelectedListener { menuItem: MenuItem ->
             when (menuItem.itemId) {
                 R.id.anime_list -> {
