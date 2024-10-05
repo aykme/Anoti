@@ -11,8 +11,7 @@ internal class SearchSectionStoreFactory(
     private val storeFactory: StoreFactory,
     searchUsecases: SearchUsecases
 ) {
-
-    val executorFactory: () -> SearchSectionExecutor = {
+    private val executorFactory: () -> SearchSectionExecutor = {
         SearchSectionExecutorImpl(usecases = searchUsecases)
     }
 

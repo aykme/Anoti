@@ -11,8 +11,7 @@ class DatabaseStoreFactory(
     private val storeFactory: StoreFactory,
     repository: AnimeDatabaseRepository
 ) {
-
-    val executorFactory: () -> DatabaseExecutor = {
+    private val executorFactory: () -> DatabaseExecutor = {
         DatabaseExecutorImpl(repository = repository)
     }
 

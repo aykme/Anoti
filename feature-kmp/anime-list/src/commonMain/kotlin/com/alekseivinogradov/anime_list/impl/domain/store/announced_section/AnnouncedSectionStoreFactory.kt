@@ -11,8 +11,7 @@ internal class AnnouncedSectionStoreFactory(
     private val storeFactory: StoreFactory,
     announcedUsecases: AnnouncedUsecases
 ) {
-
-    val executorFactory: () -> AnnouncedSectionExecutor = {
+    private val executorFactory: () -> AnnouncedSectionExecutor = {
         AnnouncedSectionExecutorImpl(usecases = announcedUsecases)
     }
 
