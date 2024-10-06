@@ -112,6 +112,8 @@ internal class AnimeListViewImpl(
 
     private fun setCommonFields() {
         with(viewBinding) {
+            swipeRefreshLayout.isVisible = true
+            animeListLayout.isVisible = true
             ongoingButton.text = context.getString(R.string.ongoings)
             announcedButton.text = context.getString(R.string.announced)
             searchInputLayout.hint = context.getString(R.string.search_hint)

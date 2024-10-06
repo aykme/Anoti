@@ -12,6 +12,6 @@ data class ListItemUi(
     val releaseStatus: ReleaseStatusUi,
     val notification: NotificationUi,
     val extraEpisodesInfo: String,
-    val episodesWatched: String,
-    val mainInfoBackgroundStroke: MainInfoBackgroundStroke
+    val episodesViewed: String,
+    val isNewEpisode: Boolean
 )

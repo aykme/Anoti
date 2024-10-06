@@ -81,13 +81,13 @@
         android:textColor="@color/white"
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="@id/image_info_background"
-        app:layout_constraintEnd_toStartOf="@id/extra_info_button"
+        app:layout_constraintEnd_toStartOf="@id/info_type_button"
         app:layout_constraintStart_toEndOf="@id/score_image"
         app:layout_constraintTop_toTopOf="@id/image_info_background"
         tools:text="8.90" />
 
     <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/extra_info_button"
+        android:id="@+id/info_type_button"
         android:layout_width="42dp"
         android:layout_height="34dp"
         android:background="@color/black"
@@ -172,6 +172,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="horizontal"
+        android:visibility="invisible"
         app:barrierDirection="top"
         app:constraint_referenced_ids="release_status_text" />
 

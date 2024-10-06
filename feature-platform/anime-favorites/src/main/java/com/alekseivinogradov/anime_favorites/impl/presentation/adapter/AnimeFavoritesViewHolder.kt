@@ -1,26 +1,30 @@
-package com.alekseivinogradov.anime_list.impl.presentation.adapter
+package com.alekseivinogradov.anime_favorites.impl.presentation.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
 import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import com.alekseivinogradov.anime_list.api.presentation.model.item_content.EpisodesInfoTypeUi
-import com.alekseivinogradov.anime_list.api.presentation.model.item_content.ListItemUi
-import com.alekseivinogradov.anime_list.api.presentation.model.item_content.NotificationUi
-import com.alekseivinogradov.anime_list.api.presentation.model.item_content.ReleaseStatusUi
-import com.alekseivinogradov.anime_list_platform.R
-import com.alekseivinogradov.anime_list_platform.databinding.ItemAnimeListBinding
+import com.alekseivinogradov.anime_favorites.api.presentation.model.item_content.InfoTypeUi
+import com.alekseivinogradov.anime_favorites.api.presentation.model.item_content.ListItemUi
+import com.alekseivinogradov.anime_favorites.api.presentation.model.item_content.NotificationUi
+import com.alekseivinogradov.anime_favorites.api.presentation.model.item_content.ReleaseStatusUi
+import com.alekseivinogradov.anime_favorites_platform.R
+import com.alekseivinogradov.anime_favorites_platform.databinding.ItemAnimeFavoritesBinding
 import com.alekseivinogradov.date.formatter.DateFormatter
 import com.bumptech.glide.Glide
 import com.alekseivinogradov.atom.R as atom_R
 import com.alekseivinogradov.theme.R as theme_R
 
-internal class AnimeListViewHolder(
-    private val binding: ItemAnimeListBinding,
-    private val episodesInfoClickViewHolderCallback: (Int) -> Unit,
+internal class AnimeFavoritesViewHolder(
+    private val binding: ItemAnimeFavoritesBinding,
+    private val itemClickViewHolderCallback: (Int) -> Unit,
+    private val infoTypeClickViewHolderCallback: (Int) -> Unit,
     private val notificationClickViewHolderCallback: (Int) -> Unit,
+    private val episodesViewedMinusClickViewHolderCallback: (Int) -> Unit,
+    private val episodesViewedPlusClickViewHolderCallback: (Int) -> Unit,
     private val dateFormatter: DateFormatter
 ) :
     RecyclerView.ViewHolder(binding.root) {
@@ -56,47 +60,49 @@ internal class AnimeListViewHolder(
         setClickListeners()
     }
 
-    internal fun bindWithPayload(payload: AnimeListPayload) {
+    internal fun bindWithPayload(payload: AnimeFavoritesPayload) {
         when (payload) {
-            is AnimeListPayload.ImageUrlChange -> {
+            is AnimeFavoritesPayload.ImageUrlChange -> {
                 bindImageUrl(payload.imageUrl)
             }
 
-            is AnimeListPayload.NameChange -> {
-                bindName(payload.name)
-            }
-
-            is AnimeListPayload.EpisodesInfoTypeChange -> {
-                bindEpisodesInfoType(payload.episodesInfoType)
-            }
-
-            is AnimeListPayload.AvailableEpisodesInfoChange -> {
-                bindAvailableEpisodesInfo(
-                    episodesAired = payload.episodesAired,
-                    episodesTotal = payload.episodesTotal,
-                    releaseStatus = payload.releaseStatus
-                )
-            }
-
-            is AnimeListPayload.ExtraEpisodesInfoChange -> {
-                bindExtraEpisodesInfo(
-                    nextEpisodeAt = payload.nextEpisodeAt,
-                    airedOn = payload.airedOn,
-                    releasedOn = payload.releasedOn,
-                    releaseStatus = payload.releaseStatus
-                )
-            }
-
-            is AnimeListPayload.ScoreChange -> {
+            is AnimeFavoritesPayload.ScoreChange -> {
                 bindScore(payload.score)
             }
 
-            is AnimeListPayload.ReleaseStatusChange -> {
+            is AnimeFavoritesPayload.InfoTypeChange -> {
+                bindInfoType(payload.infoType)
+            }
+
+            is AnimeFavoritesPayload.NameChange -> {
+                bindName(payload.name)
+            }
+
+            is AnimeFavoritesPayload.AvailableEpisodesInfoChange -> {
+                bindAvailableEpisodesInfo(payload.availableEpisodesInfo)
+            }
+
+            is AnimeFavoritesPayload.ReleaseStatusChange -> {
                 bindReleaseStatus(payload.releaseStatus)
             }
 
-            is AnimeListPayload.NotificationChange -> {
+            is AnimeFavoritesPayload.NotificationChange -> {
                 bindNotification(payload.notification)
+            }
+
+            is AnimeFavoritesPayload.ExtraEpisodesInfoChange -> {
+                bindExtraEpisodesInfo(
+                    extraEpisodesInfo = payload.extraEpisodesInfo,
+                    releaseStatus = payload.releaseStatus
+                )
+            }
+
+            is AnimeFavoritesPayload.EpisodesViewedChange -> {
+                bindEpisodesViewed(payload.episodesViewed)
+            }
+
+            is AnimeFavoritesPayload.NewEpisodeStatusChange -> {
+                bindNewEpisodeStatus(payload.isNewEpisode)
             }
         }
     }
@@ -104,55 +110,52 @@ internal class AnimeListViewHolder(
     internal fun bind(item: ListItemUi) {
         bindCommonFields()
         bindImageUrl(item.imageUrl)
-        bindName(item.name)
-        bindEpisodesInfoType(item.episodesInfoType)
-        bindAvailableEpisodesInfo(
-            episodesAired = item.episodesAired,
-            episodesTotal = item.episodesTotal,
-            releaseStatus = item.releaseStatus
-        )
-        bindExtraEpisodesInfo(
-            nextEpisodeAt = item.nextEpisodeAt,
-            airedOn = item.airedOn,
-            releasedOn = item.releasedOn,
-            releaseStatus = item.releaseStatus
-        )
         bindScore(item.score)
+        bindInfoType(item.infoType)
+        bindName(item.name)
+        bindAvailableEpisodesInfo(item.availableEpisodesInfo)
         bindReleaseStatus(item.releaseStatus)
         bindNotification(item.notification)
+        bindExtraEpisodesInfo(
+            extraEpisodesInfo = item.extraEpisodesInfo,
+            releaseStatus = item.releaseStatus
+        )
+        bindEpisodesViewed(item.episodesViewed)
+        bindNewEpisodeStatus(item.isNewEpisode)
     }
 
     private fun bindCommonFields() {
         with(binding) {
-            itemAnimeListLayout.isVisible = true
             image.isVisible = true
-            infoBackground.isVisible = true
-            nameText.isVisible = true
-            extraEpisodesInfoButton.backgroundTintList = ColorStateList.valueOf(
-                context.getColor(theme_R.color.black)
-            )
-            availableEpisodesInfoButton.backgroundTintList = ColorStateList.valueOf(
-                context.getColor(theme_R.color.black)
-            )
-            notificationButtonBarrier.isInvisible = true
+            newEpisodeText.text = context.getString(R.string.new_episode)
+            imageInfoBackground.isVisible = true
             scoreImage.isVisible = true
             scoreText.isVisible = true
-            verticalDividerAfterScore.isVisible = true
-            verticalDividerAfterStatus.isVisible = true
-            notificationButton.isVisible = true
+            infoTypeButton.isVisible = true
+            mainInfoStroke.isVisible = true
+            mainInfoBackground.isVisible = true
+            releaseStatusBarrier.isInvisible = true
+            val episodesViewedText = "${context.getString(R.string.episodes_viewed)}:"
+            episodesViewedTitle.text = episodesViewedText
         }
     }
 
     private fun setClickListeners() {
         with(binding) {
-            availableEpisodesInfoButton.setOnClickListener {
-                episodesInfoClickViewHolderCallback(adapterPosition)
+            root.setOnClickListener {
+                itemClickViewHolderCallback(adapterPosition)
             }
-            extraEpisodesInfoButton.setOnClickListener {
-                episodesInfoClickViewHolderCallback(adapterPosition)
+            infoTypeButton.setOnClickListener {
+                infoTypeClickViewHolderCallback(adapterPosition)
             }
             notificationButton.setOnClickListener {
                 notificationClickViewHolderCallback(adapterPosition)
+            }
+            episodesViewedMinusButton.setOnClickListener {
+                episodesViewedMinusClickViewHolderCallback(adapterPosition)
+            }
+            episodesViewedPlusButton.setOnClickListener {
+                episodesViewedPlusClickViewHolderCallback(adapterPosition)
             }
         }
     }
@@ -171,89 +174,77 @@ internal class AnimeListViewHolder(
         binding.nameText.text = name
     }
 
-    private fun bindEpisodesInfoType(episodesInfoType: EpisodesInfoTypeUi) {
+    private fun bindInfoType(InfoType: InfoTypeUi) {
         with(binding) {
-            when (episodesInfoType) {
-                EpisodesInfoTypeUi.AVAILABLE -> {
+            when (InfoType) {
+                InfoTypeUi.MAIN -> {
+                    infoTypeButton.setImageDrawable(
+                        ContextCompat.getDrawable(
+                            context,
+                            R.drawable.ic_details_on_24
+                        )
+                    )
+                    infoTypeButton.contentDescription = context.getString(
+                        R.string.extra_info_on_description
+                    )
                     extraEpisodesInfoText.isVisible = false
-                    availableEpisodesInfoButton.isVisible = false
+                    episodesViewedTitle.isVisible = false
+                    episodesViewedMinusButton.isVisible = false
+                    episodesViewedNumber.isVisible = false
+                    episodesViewedPlusButton.isVisible = false
+                    nameText.isVisible = true
                     availableEpisodesInfoText.isVisible = true
-                    extraEpisodesInfoButton.isVisible = true
+                    releaseStatusText.isVisible = true
+                    notificationButton.isVisible = true
                 }
 
-                EpisodesInfoTypeUi.EXTRA -> {
+                InfoTypeUi.EXTRA -> {
+                    infoTypeButton.setImageDrawable(
+                        ContextCompat.getDrawable(
+                            context,
+                            R.drawable.ic_details_off_24
+                        )
+                    )
+                    infoTypeButton.contentDescription = context.getString(
+                        R.string.extra_info_off_description
+                    )
+                    nameText.isVisible = false
                     availableEpisodesInfoText.isVisible = false
-                    extraEpisodesInfoButton.isVisible = false
+                    releaseStatusText.isVisible = false
+                    notificationButton.isVisible = false
                     extraEpisodesInfoText.isVisible = true
-                    availableEpisodesInfoButton.isVisible = true
+                    episodesViewedTitle.isVisible = true
+                    episodesViewedMinusButton.isVisible = true
+                    episodesViewedNumber.isVisible = true
+                    episodesViewedPlusButton.isVisible = true
                 }
             }
         }
     }
 
-    private fun bindAvailableEpisodesInfo(
-        episodesAired: Int?,
-        episodesTotal: Int?,
-        releaseStatus: ReleaseStatusUi
-    ) {
-        binding.availableEpisodesInfoText.text = getAvailableEpisodesInfo(
-            episodesAired = episodesAired,
-            episodesTotal = episodesTotal,
-            releaseStatus = releaseStatus
-        )
-    }
-
-    private fun getAvailableEpisodesInfo(
-        episodesAired: Int?,
-        episodesTotal: Int?,
-        releaseStatus: ReleaseStatusUi
-    ): String {
-        val isReleased = releaseStatus == ReleaseStatusUi.RELEASED
-
-        val episodesTotalNotNull = episodesTotal ?: 0
-        val episodesAiredString = if (isReleased.not()) {
-            episodesAired ?: 0
-        } else {
-            episodesTotalNotNull
-        }
-
-        val episotesTotalString = if (episodesTotalNotNull > 0) {
-            episodesTotalNotNull.toString()
-        } else "?"
-
-        return "$episodesString: $episodesAiredString / $episotesTotalString"
+    private fun bindAvailableEpisodesInfo(availableEpisodesInfo: String) {
+        val availableEpisodesInfoText = "$episodesString: $availableEpisodesInfo"
+        binding.availableEpisodesInfoText.text = availableEpisodesInfoText
     }
 
     private fun bindExtraEpisodesInfo(
-        nextEpisodeAt: String?,
-        airedOn: String?,
-        releasedOn: String?,
+        extraEpisodesInfo: String,
         releaseStatus: ReleaseStatusUi
     ) {
         binding.extraEpisodesInfoText.text = getExtraEpisodesInfo(
-            nextEpisodeAt = nextEpisodeAt,
-            airedOn = airedOn,
-            releasedOn = releasedOn,
+            extraEpisodesInfo = extraEpisodesInfo,
             releaseStatus = releaseStatus
         )
     }
 
     private fun getExtraEpisodesInfo(
-        nextEpisodeAt: String?,
-        airedOn: String?,
-        releasedOn: String?,
+        extraEpisodesInfo: String,
         releaseStatus: ReleaseStatusUi
     ): String? {
-        val extraEpisodesInfoNotFormatted = when (releaseStatus) {
-            ReleaseStatusUi.ONGOING -> nextEpisodeAt
-            ReleaseStatusUi.ANNOUNCED -> airedOn
-            ReleaseStatusUi.RELEASED -> releasedOn
-            ReleaseStatusUi.UNKNOWN -> null
-        }
         val extraEpisodesInfoFormatted =
-            if (extraEpisodesInfoNotFormatted?.isNotEmpty() == true) {
+            if (extraEpisodesInfo.isNotEmpty() == true) {
                 dateFormatter.getFormattedDate(
-                    inputText = extraEpisodesInfoNotFormatted,
+                    inputText = extraEpisodesInfo,
                     fallbackText = noDataString
                 )
             } else {
@@ -266,7 +257,7 @@ internal class AnimeListViewHolder(
 
             ReleaseStatusUi.ANNOUNCED -> {
                 val commentAfterDateString =
-                    if (extraEpisodesInfoNotFormatted?.isNotEmpty() == true) {
+                    if (extraEpisodesInfo.isNotEmpty() == true) {
                         " ($inaccurateString)"
                     } else {
                         ""
@@ -288,6 +279,7 @@ internal class AnimeListViewHolder(
         binding.scoreText.text = score
     }
 
+    @SuppressLint("SetTextI18n")
     private fun bindReleaseStatus(releaseStatus: ReleaseStatusUi) {
         with(binding) {
             when (releaseStatus) {
@@ -295,14 +287,12 @@ internal class AnimeListViewHolder(
                     releaseStatusText.text =
                         context.getString(R.string.ongoings)
                     releaseStatusText.setTextColor(context.getColor(theme_R.color.green))
-                    releaseStatusText.isVisible = true
                 }
 
                 ReleaseStatusUi.ANNOUNCED -> {
                     releaseStatusText.text =
                         context.getString(R.string.announced)
                     releaseStatusText.setTextColor(context.getColor(theme_R.color.purple_200))
-                    releaseStatusText.isVisible = true
                 }
 
                 ReleaseStatusUi.RELEASED -> {
@@ -313,7 +303,7 @@ internal class AnimeListViewHolder(
                 }
 
                 ReleaseStatusUi.UNKNOWN -> {
-                    releaseStatusText.isVisible = false
+                    releaseStatusText.text = ""
                 }
             }
         }
@@ -349,6 +339,28 @@ internal class AnimeListViewHolder(
                         R.string.notifications_turn_on_description
                     )
                 }
+            }
+        }
+    }
+
+    private fun bindEpisodesViewed(episodesViewed: String) {
+        binding.episodesViewedNumber.text = episodesViewed
+    }
+
+    private fun bindNewEpisodeStatus(isNewEpisode: Boolean) {
+        with(binding) {
+            if (isNewEpisode) {
+                newEpisodeBackground.isVisible = true
+                newEpisodeText.isVisible = true
+                mainInfoStroke.backgroundTintList = ColorStateList.valueOf(
+                    context.getColor(theme_R.color.silver)
+                )
+            } else {
+                newEpisodeText.isVisible = false
+                newEpisodeBackground.isVisible = false
+                mainInfoStroke.backgroundTintList = ColorStateList.valueOf(
+                    context.getColor(theme_R.color.grey_700)
+                )
             }
         }
     }

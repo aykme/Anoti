@@ -56,7 +56,7 @@ internal class AnimeListAdapter(
                 if (payloadsList !is List<*>) return
                 payloadsList.forEach { payload ->
                     if (payload is AnimeListPayload) {
-                        holder.bindWithPayload(payload = payload)
+                        holder.bindWithPayload(payload)
                     }
                 }
             }
