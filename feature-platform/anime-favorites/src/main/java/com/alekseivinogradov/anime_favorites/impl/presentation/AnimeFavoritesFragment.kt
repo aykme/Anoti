@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anime_favorites.presentation
+package com.alekseivinogradov.anime_favorites.impl.presentation
 
 import android.os.Bundle
 import android.view.LayoutInflater

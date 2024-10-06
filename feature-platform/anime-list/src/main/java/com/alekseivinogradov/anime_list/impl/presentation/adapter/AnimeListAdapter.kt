@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anime_list.presentation.adapter
+package com.alekseivinogradov.anime_list.impl.presentation.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

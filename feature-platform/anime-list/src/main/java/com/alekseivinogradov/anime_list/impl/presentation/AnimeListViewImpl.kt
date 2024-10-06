@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anime_list.presentation
+package com.alekseivinogradov.anime_list.impl.presentation
 
 import android.content.Context
 import android.text.Editable
@@ -15,7 +15,7 @@ import com.alekseivinogradov.anime_list.api.presentation.model.ListContentUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SearchUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SectionHatUi
 import com.alekseivinogradov.anime_list.api.presentation.model.UiModel
-import com.alekseivinogradov.anime_list.presentation.adapter.AnimeListAdapter
+import com.alekseivinogradov.anime_list.impl.presentation.adapter.AnimeListAdapter
 import com.alekseivinogradov.anime_list_platform.R
 import com.alekseivinogradov.anime_list_platform.databinding.FragmentAnimeListBinding
 import com.alekseivinogradov.date.formatter.DateFormatter

@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anime_list.presentation
+package com.alekseivinogradov.anime_list.impl.presentation
 
 import android.os.Bundle
 import android.util.Log

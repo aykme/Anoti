@@ -7,13 +7,13 @@
 
     <fragment
         android:id="@+id/anime_list"
-        android:name="com.alekseivinogradov.anime_list.presentation.AnimeListFragment"
+        android:name="com.alekseivinogradov.anime_list.impl.presentation.AnimeListFragment"
         android:label="@string/anime_list"
         tools:layout="@layout/fragment_anime_list" />
 
     <fragment
         android:id="@+id/anime_favorites"
-        android:name="com.alekseivinogradov.anime_favorites.presentation.AnimeFavoritesFragment"
+        android:name="com.alekseivinogradov.anime_favorites.impl.presentation.AnimeFavoritesFragment"
         android:label="@string/anime_favorites"
         tools:layout="@layout/fragment_anime_favorites" />
 </navigation>

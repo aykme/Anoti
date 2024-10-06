@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anime_list.presentation.adapter
+package com.alekseivinogradov.anime_list.impl.presentation.adapter
 
 import com.alekseivinogradov.anime_list.api.presentation.model.item_content.EpisodesInfoTypeUi
 import com.alekseivinogradov.anime_list.api.presentation.model.item_content.NotificationUi
