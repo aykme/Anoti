@@ -5,17 +5,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
+import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiServicePlatform
+import com.alekseivinogradov.anime_base.impl.data.service.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anime_favorites_platform.databinding.FragmentAnimeFavoritesBinding
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.room.impl.data.AnimeDatabase
 import com.alekseivinogradov.database.room.impl.data.repository.AnimeDatabaseRepositoryImpl
+import com.alekseivinogradov.date.formatter.DateFormatter
+import com.arkivanov.essenty.lifecycle.essentyLifecycle
+import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 
 class AnimeFavoritesFragment : Fragment() {
 
-    private val tag = "AnimeFavorites"
-
     private var binding: FragmentAnimeFavoritesBinding? = null
 
+    private val shikimoriService: ShikimoriApiService = ShikimoriApiServiceImpl(
+        servicePlatform = ShikimoriApiServicePlatform.instance
+    )
 
     private val animeDatabase by lazy(LazyThreadSafetyMode.NONE) {
         AnimeDatabase.getDatabase(requireContext())
@@ -25,6 +32,14 @@ class AnimeFavoritesFragment : Fragment() {
             by lazy(LazyThreadSafetyMode.NONE) {
                 AnimeDatabaseRepositoryImpl(animeDao = animeDatabase.animeDao())
             }
+
+    private val controller: AnimeFavoritesController by lazy {
+        AnimeFavoritesController(
+            storeFactory = DefaultStoreFactory(),
+            lifecycle = essentyLifecycle(),
+            databaseRepository = animeDatabaseRepository,
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,6 +51,13 @@ class AnimeFavoritesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        controller.onViewCreated(
+            mainView = AnimeFavoritesViewImpl(
+                viewBinding = binding!!,
+                dateFormatter = DateFormatter.getInstance(view.context)
+            ),
+            viewLifecycle = viewLifecycleOwner.essentyLifecycle()
+        )
     }
 
     override fun onDestroy() {
