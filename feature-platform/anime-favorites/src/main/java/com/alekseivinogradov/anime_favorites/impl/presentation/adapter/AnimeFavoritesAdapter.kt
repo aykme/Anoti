@@ -17,38 +17,6 @@ internal class AnimeFavoritesAdapter(
     private val dateFormatter: DateFormatter
 ) : ListAdapter<ListItemUi, AnimeFavoritesViewHolder>(AnimeFavoritesDiffUtilCallback()) {
 
-    private val itemClickViewHolderCallback: (Int) -> Unit = { adapterPosition: Int ->
-        getItem(adapterPosition)?.let {
-            itemClickAdapterCallback(it.id)
-        }
-    }
-
-    private val infoTypeClickViewHolderCallback: (Int) -> Unit = { adapterPosition: Int ->
-        getItem(adapterPosition)?.let {
-            infoTypeClickAdapterCallback(it.id)
-        }
-    }
-
-    private val notificationClickViewHolderCallback: (Int) -> Unit = { adapterPosition: Int ->
-        getItem(adapterPosition)?.let {
-            notificationClickAdapterCallback(it.id)
-        }
-    }
-
-    private val episodesViewedMinusClickViewHolderCallback: (Int) -> Unit =
-        { adapterPosition: Int ->
-            getItem(adapterPosition)?.let {
-                episodesViewedMinusClickAdapterCallback(it.id)
-            }
-        }
-
-    private val episodesViewedPlusClickViewHolderCallback: (Int) -> Unit =
-        { adapterPosition: Int ->
-            getItem(adapterPosition)?.let {
-                episodesViewedPlusClickAdapterCallback(it.id)
-            }
-        }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnimeFavoritesViewHolder {
         return AnimeFavoritesViewHolder(
             binding = ItemAnimeFavoritesBinding.inflate(
@@ -56,11 +24,11 @@ internal class AnimeFavoritesAdapter(
                 parent,
                 false
             ),
-            itemClickViewHolderCallback = itemClickViewHolderCallback,
-            infoTypeClickViewHolderCallback = infoTypeClickViewHolderCallback,
-            notificationClickViewHolderCallback = notificationClickViewHolderCallback,
-            episodesViewedMinusClickViewHolderCallback = episodesViewedMinusClickAdapterCallback,
-            episodesViewedPlusClickViewHolderCallback = episodesViewedPlusClickViewHolderCallback,
+            itemClickViewHolderCallback = ::itemClickViewHolderCallback,
+            infoTypeClickViewHolderCallback = ::infoTypeClickViewHolderCallback,
+            notificationClickViewHolderCallback = ::notificationClickViewHolderCallback,
+            episodesViewedMinusClickViewHolderCallback = ::episodesViewedMinusClickViewHolderCallback,
+            episodesViewedPlusClickViewHolderCallback = ::episodesViewedPlusClickViewHolderCallback,
             dateFormatter = dateFormatter
         )
     }
@@ -87,6 +55,36 @@ internal class AnimeFavoritesAdapter(
             }
         } else {
             onBindViewHolder(holder, position)
+        }
+    }
+
+    private fun itemClickViewHolderCallback(adapterPosition: Int) {
+        getItem(adapterPosition)?.let {
+            itemClickAdapterCallback(it.id)
+        }
+    }
+
+    private fun infoTypeClickViewHolderCallback(adapterPosition: Int) {
+        getItem(adapterPosition)?.let {
+            infoTypeClickAdapterCallback(it.id)
+        }
+    }
+
+    private fun notificationClickViewHolderCallback(adapterPosition: Int) {
+        getItem(adapterPosition)?.let {
+            notificationClickAdapterCallback(it.id)
+        }
+    }
+
+    private fun episodesViewedMinusClickViewHolderCallback(adapterPosition: Int) {
+        getItem(adapterPosition)?.let {
+            episodesViewedMinusClickAdapterCallback(it.id)
+        }
+    }
+
+    private fun episodesViewedPlusClickViewHolderCallback(adapterPosition: Int) {
+        getItem(adapterPosition)?.let {
+            episodesViewedPlusClickAdapterCallback(it.id)
         }
     }
 }

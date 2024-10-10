@@ -9,6 +9,7 @@ import com.arkivanov.mvikotlin.core.store.Store
 
 interface OngoingSectionStore
     : Store<OngoingSectionStore.Intent, OngoingSectionStore.State, OngoingSectionStore.Label> {
+
     data class State(
         val sectionContent: SectionContentDomain = SectionContentDomain()
     )

@@ -7,6 +7,8 @@ import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.alekseivinogradov.anime_base.api.domain.PAGING_SUBMIT_LIST_DELAY
+import com.alekseivinogradov.anime_base.api.domain.SWIPE_REFRESH_END_OFFSET
+import com.alekseivinogradov.anime_base.api.domain.SWIPE_REFRESH_START_OFFSET
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
@@ -44,16 +46,6 @@ internal class AnimeListViewImpl(
     private val defaultColor
         get() = context.getColor(theme_R.color.white_transparent)
 
-    private val episodesInfoClickAdapterCallback: (ListItemDomain) -> Unit =
-        { listItem: ListItemDomain ->
-            dispatch(AnimeListMainStore.Intent.EpisodesInfoClick(listItem))
-        }
-
-    private val notificationClickAdapterCallback: (ListItemDomain) -> Unit =
-        { listItem: ListItemDomain ->
-            dispatch(AnimeListMainStore.Intent.NotificationClick(listItem))
-        }
-
     private val resetListPositionCallback: () -> Unit = {
         viewBinding.animeListRv.scrollToPosition(0)
         dispatch(
@@ -64,8 +56,8 @@ internal class AnimeListViewImpl(
     }
 
     private val adapter = AnimeListAdapter(
-        episodesInfoClickAdapterCallback = episodesInfoClickAdapterCallback,
-        notificationClickAdapterCallback = notificationClickAdapterCallback,
+        episodesInfoClickAdapterCallback = ::episodesInfoClickAdapterCallback,
+        notificationClickAdapterCallback = ::notificationClickAdapterCallback,
         dateFormatter = dateFormatter
     )
 
@@ -99,9 +91,21 @@ internal class AnimeListViewImpl(
         )
     }
 
+    private fun episodesInfoClickAdapterCallback(listItem: ListItemDomain) {
+        dispatch(AnimeListMainStore.Intent.EpisodesInfoClick(listItem))
+    }
+
+    private fun notificationClickAdapterCallback(listItem: ListItemDomain) {
+        dispatch(AnimeListMainStore.Intent.NotificationClick(listItem))
+    }
+
     private fun setSwipeToRefresh() {
         with(viewBinding) {
-            swipeRefreshLayout.setProgressViewOffset(false, 45, 245)
+            swipeRefreshLayout.setProgressViewOffset(
+                /* scale = */ false,
+                /* start = */ SWIPE_REFRESH_START_OFFSET,
+                /* end = */ SWIPE_REFRESH_END_OFFSET
+            )
             swipeRefreshLayout.setColorSchemeResources(theme_R.color.pink)
             swipeRefreshLayout.setOnRefreshListener {
                 dispatch(AnimeListMainStore.Intent.UpdateSection)
@@ -165,9 +169,9 @@ internal class AnimeListViewImpl(
         with(viewBinding) {
             animeListRv.adapter = adapter
             animeListRv.layoutManager = LinearLayoutManager(
-                context,
-                LinearLayoutManager.VERTICAL,
-                false
+                /* context = */ context,
+                /* orientation = */ LinearLayoutManager.VERTICAL,
+                /* reverseLayout = */ false
             )
             animeListRv.itemAnimator = null
         }

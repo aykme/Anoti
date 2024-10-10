@@ -15,18 +15,6 @@ internal class AnimeListAdapter(
     private val dateFormatter: DateFormatter
 ) : PagingDataAdapter<ListItemUi, AnimeListViewHolder>(AnimeListDiffUtilCallback()) {
 
-    private val episodesInfoClickViewHolderCallback: (Int) -> Unit = { adapterPosition: Int ->
-        getItem(adapterPosition)?.let {
-            episodesInfoClickAdapterCallback(it.toDomain())
-        }
-    }
-
-    private val notificationClickViewHolderCallback: (Int) -> Unit = { adapterPosition: Int ->
-        getItem(adapterPosition)?.let {
-            notificationClickAdapterCallback(it.toDomain())
-        }
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnimeListViewHolder {
         return AnimeListViewHolder(
             binding = ItemAnimeListBinding.inflate(
@@ -34,8 +22,8 @@ internal class AnimeListAdapter(
                 parent,
                 false
             ),
-            episodesInfoClickViewHolderCallback = episodesInfoClickViewHolderCallback,
-            notificationClickViewHolderCallback = notificationClickViewHolderCallback,
+            episodesInfoClickViewHolderCallback = ::episodesInfoClickViewHolderCallback,
+            notificationClickViewHolderCallback = ::notificationClickViewHolderCallback,
             dateFormatter = dateFormatter
         )
     }
@@ -62,6 +50,18 @@ internal class AnimeListAdapter(
             }
         } else {
             onBindViewHolder(holder, position)
+        }
+    }
+
+    private fun episodesInfoClickViewHolderCallback(adapterPosition: Int) {
+        getItem(adapterPosition)?.let {
+            episodesInfoClickAdapterCallback(it.toDomain())
+        }
+    }
+
+    private fun notificationClickViewHolderCallback(adapterPosition: Int) {
+        getItem(adapterPosition)?.let {
+            notificationClickAdapterCallback(it.toDomain())
         }
     }
 }
