@@ -37,6 +37,7 @@ internal class AnimeFavoritesViewImpl(
     init {
         setSwipeToRefresh()
         setCommonFields()
+        initRv()
     }
 
     override val renderer: ViewRenderer<UiModel> = diff {

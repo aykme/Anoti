@@ -299,7 +299,6 @@ internal class AnimeFavoritesViewHolder(
                     releaseStatusText.text =
                         context.getString(R.string.released)
                     releaseStatusText.setTextColor(context.getColor(theme_R.color.pink))
-                    releaseStatusText.isVisible = true
                 }
 
                 ReleaseStatusUi.UNKNOWN -> {
