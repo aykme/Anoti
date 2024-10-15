@@ -77,8 +77,8 @@ class AnimeListController(
     fun onViewCreated(mainView: AnimeListView, viewLifecycle: Lifecycle) {
         bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
             connectAllRequiredStores(viewLifecycle)
-            mainView.events bindTo mainStore
             mainStore.states.map(::mapStateToUiModel) bindTo mainView
+            mainView.events bindTo mainStore
         }
     }
 

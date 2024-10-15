@@ -228,7 +228,7 @@ internal class AnimeFavoritesViewHolder(
     }
 
     private fun bindExtraEpisodesInfo(
-        extraEpisodesInfo: String,
+        extraEpisodesInfo: String?,
         releaseStatus: ReleaseStatusUi
     ) {
         binding.extraEpisodesInfoText.text = getExtraEpisodesInfo(
@@ -238,11 +238,11 @@ internal class AnimeFavoritesViewHolder(
     }
 
     private fun getExtraEpisodesInfo(
-        extraEpisodesInfo: String,
+        extraEpisodesInfo: String?,
         releaseStatus: ReleaseStatusUi
-    ): String? {
+    ): String {
         val extraEpisodesInfoFormatted =
-            if (extraEpisodesInfo.isNotEmpty() == true) {
+            if (extraEpisodesInfo?.isNotEmpty() == true) {
                 dateFormatter.getFormattedDate(
                     inputText = extraEpisodesInfo,
                     fallbackText = noDataString
@@ -257,7 +257,7 @@ internal class AnimeFavoritesViewHolder(
 
             ReleaseStatusUi.ANNOUNCED -> {
                 val commentAfterDateString =
-                    if (extraEpisodesInfo.isNotEmpty() == true) {
+                    if (extraEpisodesInfo?.isNotEmpty() == true) {
                         " ($inaccurateString)"
                     } else {
                         ""

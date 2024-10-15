@@ -11,7 +11,7 @@ data class ListItemUi(
     val availableEpisodesInfo: String,
     val releaseStatus: ReleaseStatusUi,
     val notification: NotificationUi,
-    val extraEpisodesInfo: String,
+    val extraEpisodesInfo: String?,
     val episodesViewed: String,
     val isNewEpisode: Boolean
 )

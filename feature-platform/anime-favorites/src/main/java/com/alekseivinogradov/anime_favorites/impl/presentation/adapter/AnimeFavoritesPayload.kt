@@ -16,7 +16,7 @@ internal sealed interface AnimeFavoritesPayload {
     data class ReleaseStatusChange(val releaseStatus: ReleaseStatusUi) : AnimeFavoritesPayload
     data class NotificationChange(val notification: NotificationUi) : AnimeFavoritesPayload
     data class ExtraEpisodesInfoChange(
-        val extraEpisodesInfo: String,
+        val extraEpisodesInfo: String?,
         val releaseStatus: ReleaseStatusUi
     ) : AnimeFavoritesPayload
 

@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anime_list.impl.presentation.adapter
 
 import androidx.recyclerview.widget.DiffUtil
-import com.alekseivinogradov.anime_list.api.presentation.model.item_content.ListItemUi
+import com.alekseivinogradov.anime_list.api.presentation.model.ListItemUi
 
 internal class AnimeListDiffUtilCallback : DiffUtil.ItemCallback<ListItemUi>() {
     override fun areItemsTheSame(oldItem: ListItemUi, newItem: ListItemUi): Boolean {

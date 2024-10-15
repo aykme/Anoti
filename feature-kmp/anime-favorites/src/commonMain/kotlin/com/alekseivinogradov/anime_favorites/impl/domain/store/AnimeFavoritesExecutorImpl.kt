@@ -6,6 +6,7 @@ import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesMain
 internal class AnimeFavoritesExecutorImpl() : AnimeFavoritesExecutor() {
     override fun executeIntent(intent: AnimeFavoritesMainStore.Intent) {
         when (intent) {
+            is AnimeFavoritesMainStore.Intent.UpdateListItems -> updateListItems(intent)
             AnimeFavoritesMainStore.Intent.UpdateSection -> updateSection()
             is AnimeFavoritesMainStore.Intent.ItemClick -> itemClick(intent)
             is AnimeFavoritesMainStore.Intent.InfoTypeClick -> infoTypeClick(intent)
@@ -18,6 +19,10 @@ internal class AnimeFavoritesExecutorImpl() : AnimeFavoritesExecutor() {
                 episodesViewedPlusClick(intent)
             }
         }
+    }
+
+    private fun updateListItems(intent: AnimeFavoritesMainStore.Intent.UpdateListItems) {
+        dispatch(AnimeFavoritesMainStore.Message.UpdateListItems(intent.listItems))
     }
 
     private fun updateSection() {
