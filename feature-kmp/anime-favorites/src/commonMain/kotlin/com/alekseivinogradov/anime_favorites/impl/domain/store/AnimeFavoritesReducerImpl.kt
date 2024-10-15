@@ -6,10 +6,13 @@ import com.arkivanov.mvikotlin.core.store.Reducer
 internal class AnimeFavoritesReducerImpl :
     Reducer<AnimeFavoritesMainStore.State, AnimeFavoritesMainStore.Message> {
 
-    override fun AnimeFavoritesMainStore.State.reduce(msg: AnimeFavoritesMainStore.Message): AnimeFavoritesMainStore.State {
+    override fun AnimeFavoritesMainStore.State.reduce(
+        msg: AnimeFavoritesMainStore.Message
+    ): AnimeFavoritesMainStore.State {
         return when (msg) {
-
-            else -> AnimeFavoritesMainStore.State()
+            is AnimeFavoritesMainStore.Message.UpdateListItems -> copy(
+                listItems = msg.listItems
+            )
         }
     }
 }

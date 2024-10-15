@@ -6,8 +6,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import com.alekseivinogradov.anime_list.api.presentation.model.ListItemUi
 import com.alekseivinogradov.anime_list.api.presentation.model.item_content.EpisodesInfoTypeUi
-import com.alekseivinogradov.anime_list.api.presentation.model.item_content.ListItemUi
 import com.alekseivinogradov.anime_list.api.presentation.model.item_content.NotificationUi
 import com.alekseivinogradov.anime_list.api.presentation.model.item_content.ReleaseStatusUi
 import com.alekseivinogradov.anime_list_platform.R
@@ -243,7 +243,7 @@ internal class AnimeListViewHolder(
         airedOn: String?,
         releasedOn: String?,
         releaseStatus: ReleaseStatusUi
-    ): String? {
+    ): String {
         val extraEpisodesInfoNotFormatted = when (releaseStatus) {
             ReleaseStatusUi.ONGOING -> nextEpisodeAt
             ReleaseStatusUi.ANNOUNCED -> airedOn

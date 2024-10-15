@@ -11,11 +11,11 @@ import com.alekseivinogradov.anime_list.api.domain.model.SectionHatDomain
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anime_list.api.presentation.model.ContentTypeUi
 import com.alekseivinogradov.anime_list.api.presentation.model.ListContentUi
+import com.alekseivinogradov.anime_list.api.presentation.model.ListItemUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SearchUi
 import com.alekseivinogradov.anime_list.api.presentation.model.SectionHatUi
 import com.alekseivinogradov.anime_list.api.presentation.model.UiModel
 import com.alekseivinogradov.anime_list.api.presentation.model.item_content.EpisodesInfoTypeUi
-import com.alekseivinogradov.anime_list.api.presentation.model.item_content.ListItemUi
 import com.alekseivinogradov.anime_list.api.presentation.model.item_content.NotificationUi
 import com.alekseivinogradov.anime_list.api.presentation.model.item_content.ReleaseStatusUi
 
