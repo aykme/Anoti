@@ -26,12 +26,11 @@ internal class AnimeFavoritesExecutorImpl() : AnimeFavoritesExecutor() {
     }
 
     private fun updateSection() {
-
-        println("tagtag updateSection")
+        publish(AnimeFavoritesMainStore.Label.UpdateSection)
     }
 
     private fun itemClick(intent: AnimeFavoritesMainStore.Intent.ItemClick) {
-        println("tagtag itemClick: ${intent.id}")
+        publish(AnimeFavoritesMainStore.Label.ItemClick(intent.id))
     }
 
     private fun infoTypeClick(intent: AnimeFavoritesMainStore.Intent.InfoTypeClick) {

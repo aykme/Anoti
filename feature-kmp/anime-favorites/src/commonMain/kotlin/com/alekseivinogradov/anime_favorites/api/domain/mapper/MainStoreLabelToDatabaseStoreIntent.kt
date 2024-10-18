@@ -7,8 +7,15 @@ internal fun mapMainStoreLabelToDatabaseStoreIntent(
     label: AnimeFavoritesMainStore.Label
 ): DatabaseStore.Intent {
     return when (label) {
-        AnimeFavoritesMainStore.Label.HideNewEpisodeLabels -> {
+        AnimeFavoritesMainStore.Label.UpdateSection -> {
             DatabaseStore.Intent.ResetAllItemsNewEpisodeStatus
+        }
+
+        is AnimeFavoritesMainStore.Label.ItemClick -> {
+            DatabaseStore.Intent.ChangeItemNewEpisodeStatus(
+                id = label.id,
+                isNewEpisode = false
+            )
         }
     }
 }

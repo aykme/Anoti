@@ -142,8 +142,12 @@ internal class AnimeFavoritesViewHolder(
 
     private fun setClickListeners() {
         with(binding) {
-            root.setOnClickListener {
+            itemView.setOnClickListener {
                 itemClickViewHolderCallback(adapterPosition)
+            }
+            itemView.setOnLongClickListener {
+                infoTypeClickViewHolderCallback(adapterPosition)
+                true
             }
             infoTypeButton.setOnClickListener {
                 infoTypeClickViewHolderCallback(adapterPosition)

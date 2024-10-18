@@ -14,6 +14,10 @@ interface DatabaseStore
         data class InsertAnimeDatabaseItem(val animeDatabaseItem: AnimeDb) : Intent
         data class DeleteAnimeDatabaseItem(val id: Int) : Intent
         data object ResetAllItemsNewEpisodeStatus : Intent
+        data class ChangeItemNewEpisodeStatus(
+            val isNewEpisode: Boolean,
+            val id: Int
+        ) : Intent
     }
 
     sealed interface Label

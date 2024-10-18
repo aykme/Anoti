@@ -31,4 +31,7 @@ interface AnimeDao {
 
     @Query("UPDATE anime_table SET is_new_episode = false")
     suspend fun resetAllItemsNewEpisodeStatus()
+
+    @Query("UPDATE anime_table SET is_new_episode = :isNewEpisode WHERE id =:id")
+    suspend fun changeItemNewEpisodeStatus(id: Int, isNewEpisode: Boolean)
 }

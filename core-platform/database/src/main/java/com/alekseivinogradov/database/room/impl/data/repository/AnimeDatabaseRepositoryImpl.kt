@@ -1,7 +1,7 @@
 package com.alekseivinogradov.database.room.impl.data.repository
 
-import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.api.data.model.AnimeDb
+import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.room.api.data.AnimeDao
 import com.alekseivinogradov.database.room.api.data.mapper.toKmp
 import com.alekseivinogradov.database.room.api.data.mapper.toPlatform
@@ -42,5 +42,9 @@ class AnimeDatabaseRepositoryImpl(private val animeDao: AnimeDao) : AnimeDatabas
 
     override suspend fun resetAllItemsNewEpisodeStatus() {
         animeDao.resetAllItemsNewEpisodeStatus()
+    }
+
+    override suspend fun changeItemNewEpisodeStatus(id: Int, isNewEpisode: Boolean) {
+        animeDao.changeItemNewEpisodeStatus(id = id, isNewEpisode = isNewEpisode)
     }
 }

@@ -24,7 +24,8 @@ interface AnimeFavoritesMainStore :
     }
 
     sealed interface Label {
-        data object HideNewEpisodeLabels : Label
+        data object UpdateSection : Label
+        data class ItemClick(val id: AnimeId) : Label
     }
 
     sealed interface Action

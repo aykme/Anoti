@@ -75,11 +75,8 @@ class AnimeListController(
     }
 
     fun onViewCreated(mainView: AnimeListView, viewLifecycle: Lifecycle) {
-        bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
-            connectAllAuxiliaryStoresToMain(viewLifecycle)
-            mainStore.states.map(::mapStateToUiModel) bindTo mainView
-            mainView.events bindTo mainStore
-        }
+        connectAllAuxiliaryStoresToMain(viewLifecycle)
+        connectMainStoreToMainView(mainView = mainView, viewLifecycle = viewLifecycle)
     }
 
     private fun connectAllAuxiliaryStoresToMain(viewLifecycle: Lifecycle) {
@@ -127,6 +124,16 @@ class AnimeListController(
             searchSectionStore.labels.map(
                 ::mapSearchStoreLabelToMainStoreIntent
             ) bindTo mainStore
+        }
+    }
+
+    private fun connectMainStoreToMainView(
+        mainView: AnimeListView,
+        viewLifecycle: Lifecycle
+    ) {
+        bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
+            mainStore.states.map(::mapStateToUiModel) bindTo mainView
+            mainView.events bindTo mainStore
         }
     }
 }

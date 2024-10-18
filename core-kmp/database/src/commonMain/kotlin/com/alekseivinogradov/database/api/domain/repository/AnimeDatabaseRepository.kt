@@ -17,4 +17,6 @@ interface AnimeDatabaseRepository {
     suspend fun delete(id: Int)
 
     suspend fun resetAllItemsNewEpisodeStatus()
+
+    suspend fun changeItemNewEpisodeStatus(id: Int, isNewEpisode: Boolean)
 }

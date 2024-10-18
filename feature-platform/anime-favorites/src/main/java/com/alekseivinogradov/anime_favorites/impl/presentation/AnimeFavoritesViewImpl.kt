@@ -78,7 +78,6 @@ internal class AnimeFavoritesViewImpl(
                 /* orientation = */ LinearLayoutManager.VERTICAL,
                 /* reverseLayout = */ false
             )
-            animeFavoritesRv.itemAnimator = null
         }
     }
 

@@ -36,8 +36,21 @@ class BottomNavigationBarController(
     }
 
     fun onViewCreated(mainView: BottomNavigationBarView, viewLifecycle: Lifecycle) {
-        bind(viewLifecycle, BinderLifecycleMode.CREATE_DESTROY) {
+        connectAllAuxiliaryStoresToMain(viewLifecycle)
+        connectMainStoreToMainView(mainView = mainView, viewLifecycle = viewLifecycle)
+    }
+
+    private fun connectAllAuxiliaryStoresToMain(viewLifecycle: Lifecycle) {
+        bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
             databaseStore.states.map(::mapDatabaseStoreStateToMainStoreIntent) bindTo mainStore
+        }
+    }
+
+    private fun connectMainStoreToMainView(
+        mainView: BottomNavigationBarView,
+        viewLifecycle: Lifecycle
+    ) {
+        bind(viewLifecycle, BinderLifecycleMode.CREATE_DESTROY) {
             mainView.events bindTo mainStore
             mainStore.states.map(::mapStateToUiModel) bindTo mainView
             mainStore.labels bindTo mainView::handle

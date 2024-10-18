@@ -12,8 +12,10 @@ internal class DatabaseExecutorImpl(
 ) : DatabaseExecutor() {
 
     private var fetchAllDatabaseItemsJob: Job? = null
-    private val insertAnimeDatabaseItemsJobMap = mutableMapOf<Int, Job>()
-    private val deleteAnimeDatabaseItemsJobMap = mutableMapOf<Int, Job>()
+    private val insertAnimeDatabaseItemsJobMap: MutableMap<Int, Job> = mutableMapOf()
+    private val deleteAnimeDatabaseItemsJobMap: MutableMap<Int, Job> = mutableMapOf()
+    private var resetAllItemsNewEpisodeStatusJob: Job? = null
+    private val changeItemNewEpisodeStatusJobMap: MutableMap<Int, Job> = mutableMapOf()
 
     override fun executeAction(action: DatabaseStore.Action) {
         when (action) {
@@ -26,6 +28,9 @@ internal class DatabaseExecutorImpl(
             is DatabaseStore.Intent.InsertAnimeDatabaseItem -> insertAnimeDatabaseItem(intent)
             is DatabaseStore.Intent.DeleteAnimeDatabaseItem -> deleteAnimeDatabaseItem(intent)
             DatabaseStore.Intent.ResetAllItemsNewEpisodeStatus -> resetAllItemsNewEpisodeStatus()
+            is DatabaseStore.Intent.ChangeItemNewEpisodeStatus -> {
+                changeItemNewEpisodeStatus(intent)
+            }
         }
     }
 
@@ -58,6 +63,29 @@ internal class DatabaseExecutorImpl(
     }
 
     private fun resetAllItemsNewEpisodeStatus() {
+        if (resetAllItemsNewEpisodeStatusJob?.isActive == true) return
+        resetAllItemsNewEpisodeStatusJob = scope.launch {
+            repository.resetAllItemsNewEpisodeStatus()
+        }
+    }
 
+    private fun changeItemNewEpisodeStatus(
+        intent: DatabaseStore.Intent.ChangeItemNewEpisodeStatus
+    ) {
+        if (changeItemNewEpisodeStatusJobMap[intent.id]?.isActive == true) return
+
+        val isItemAlreadyWithoutNewEpisodeLabel = state().animeDatabaseItems
+            .find { animeDb: AnimeDb ->
+                animeDb.id == intent.id
+            }?.isNewEpisode ?: false == false
+
+        if (isItemAlreadyWithoutNewEpisodeLabel) return
+
+        changeItemNewEpisodeStatusJobMap[intent.id] = scope.launch {
+            repository.changeItemNewEpisodeStatus(
+                id = intent.id,
+                isNewEpisode = intent.isNewEpisode
+            )
+        }
     }
 }

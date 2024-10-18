@@ -37,16 +37,24 @@ class AnimeFavoritesController(
     }
 
     fun onViewCreated(mainView: AnimeFavoritesView, viewLifecycle: Lifecycle) {
-        bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
-            mainStore.states.map(::mapStateToUiModel) bindTo mainView
-            mainView.events bindTo mainStore
-        }
+        connectAllAuxiliaryStoresToMain(viewLifecycle)
+        connectMainStoreToMainView(mainView = mainView, viewLifecycle = viewLifecycle)
     }
 
     private fun connectAllAuxiliaryStoresToMain(viewLifecycle: Lifecycle) {
         bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
             databaseStore.states.map(::mapDatabaseStoreStateToMainStoreIntent) bindTo mainStore
             mainStore.labels.map(::mapMainStoreLabelToDatabaseStoreIntent) bindTo databaseStore
+        }
+    }
+
+    private fun connectMainStoreToMainView(
+        mainView: AnimeFavoritesView,
+        viewLifecycle: Lifecycle
+    ) {
+        bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
+            mainStore.states.map(::mapStateToUiModel) bindTo mainView
+            mainView.events bindTo mainStore
         }
     }
 }
