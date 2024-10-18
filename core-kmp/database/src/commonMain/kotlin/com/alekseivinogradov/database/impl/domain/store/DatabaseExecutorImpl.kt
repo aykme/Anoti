@@ -23,13 +23,9 @@ internal class DatabaseExecutorImpl(
 
     override fun executeIntent(intent: DatabaseStore.Intent) {
         when (intent) {
-            is DatabaseStore.Intent.InsertAnimeDatabaseItem -> {
-                insertAnimeDatabaseItem(intent.animeDatabaseItem)
-            }
-
-            is DatabaseStore.Intent.DeleteAnimeDatabaseItem -> {
-                deleteAnimeDatabaseItem(intent.id)
-            }
+            is DatabaseStore.Intent.InsertAnimeDatabaseItem -> insertAnimeDatabaseItem(intent)
+            is DatabaseStore.Intent.DeleteAnimeDatabaseItem -> deleteAnimeDatabaseItem(intent)
+            DatabaseStore.Intent.ResetAllItemsNewEpisodeStatus -> resetAllItemsNewEpisodeStatus()
         }
     }
 
@@ -45,17 +41,23 @@ internal class DatabaseExecutorImpl(
         }
     }
 
-    private fun insertAnimeDatabaseItem(animeDatabaseItem: AnimeDb) {
-        if (insertAnimeDatabaseItemsJobMap[animeDatabaseItem.id]?.isActive == true) return
-        insertAnimeDatabaseItemsJobMap[animeDatabaseItem.id] = scope.launch {
-            repository.insert(animeDatabaseItem)
+    private fun insertAnimeDatabaseItem(
+        intent: DatabaseStore.Intent.InsertAnimeDatabaseItem
+    ) {
+        if (insertAnimeDatabaseItemsJobMap[intent.animeDatabaseItem.id]?.isActive == true) return
+        insertAnimeDatabaseItemsJobMap[intent.animeDatabaseItem.id] = scope.launch {
+            repository.insert(intent.animeDatabaseItem)
         }
     }
 
-    private fun deleteAnimeDatabaseItem(id: Int) {
-        if (deleteAnimeDatabaseItemsJobMap[id]?.isActive == true) return
-        deleteAnimeDatabaseItemsJobMap[id] = scope.launch {
-            repository.delete(id)
+    private fun deleteAnimeDatabaseItem(intent: DatabaseStore.Intent.DeleteAnimeDatabaseItem) {
+        if (deleteAnimeDatabaseItemsJobMap[intent.id]?.isActive == true) return
+        deleteAnimeDatabaseItemsJobMap[intent.id] = scope.launch {
+            repository.delete(intent.id)
         }
+    }
+
+    private fun resetAllItemsNewEpisodeStatus() {
+
     }
 }

@@ -23,7 +23,9 @@ interface AnimeFavoritesMainStore :
         data class EpisodesViewedPlusClick(val id: AnimeId) : Intent
     }
 
-    sealed interface Label
+    sealed interface Label {
+        data object HideNewEpisodeLabels : Label
+    }
 
     sealed interface Action
 

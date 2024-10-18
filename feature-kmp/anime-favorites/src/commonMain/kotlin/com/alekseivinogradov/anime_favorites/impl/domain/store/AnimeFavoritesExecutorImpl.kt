@@ -26,6 +26,7 @@ internal class AnimeFavoritesExecutorImpl() : AnimeFavoritesExecutor() {
     }
 
     private fun updateSection() {
+
         println("tagtag updateSection")
     }
 

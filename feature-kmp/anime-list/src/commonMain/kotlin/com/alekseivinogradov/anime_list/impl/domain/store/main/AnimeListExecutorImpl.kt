@@ -6,7 +6,7 @@ import com.alekseivinogradov.anime_list.api.domain.model.SectionHatDomain
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListExecutor
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
 
-internal class AnimeListExecutorImpl() : AnimeListExecutor() {
+internal class AnimeListExecutorImpl : AnimeListExecutor() {
 
     override fun executeIntent(intent: AnimeListMainStore.Intent) {
         when (intent) {

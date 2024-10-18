@@ -76,13 +76,13 @@ class AnimeListController(
 
     fun onViewCreated(mainView: AnimeListView, viewLifecycle: Lifecycle) {
         bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
-            connectAllRequiredStores(viewLifecycle)
+            connectAllAuxiliaryStoresToMain(viewLifecycle)
             mainStore.states.map(::mapStateToUiModel) bindTo mainView
             mainView.events bindTo mainStore
         }
     }
 
-    private fun connectAllRequiredStores(viewLifecycle: Lifecycle) {
+    private fun connectAllAuxiliaryStoresToMain(viewLifecycle: Lifecycle) {
         bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
             databaseStore.states.map(
                 ::mapDatabaseStoreStateToMainStoreIntent
