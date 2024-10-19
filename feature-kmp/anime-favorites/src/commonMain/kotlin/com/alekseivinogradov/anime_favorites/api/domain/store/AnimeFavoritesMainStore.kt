@@ -10,7 +10,7 @@ interface AnimeFavoritesMainStore :
     data class State(
         val listItems: List<ListItemDomain> = listOf(),
         val enabledExtraInfoIds: Set<AnimeId> = setOf(),
-        val nextEpisodesInfo: Map<AnimeId, String> = mapOf()
+        val fetchedAnimeDetailsIds: Set<AnimeId> = setOf()
     )
 
     sealed interface Intent {
@@ -26,11 +26,14 @@ interface AnimeFavoritesMainStore :
     sealed interface Label {
         data object UpdateSection : Label
         data class ItemClick(val id: AnimeId) : Label
+        data class UpdateListItem(val listItem: ListItemDomain) : Label
     }
 
     sealed interface Action
 
     sealed interface Message {
         data class UpdateListItems(val listItems: List<ListItemDomain>) : Message
+        data class UpdateEnabledExtraInfoIds(val enabledExtraInfoIds: Set<AnimeId>) : Message
+        data class UpdateFetchedAnimeDetailsIds(val fetchedAnimeDetailsIds: Set<AnimeId>) : Message
     }
 }

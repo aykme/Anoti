@@ -1,6 +1,6 @@
 package com.alekseivinogradov.database.impl.domain.store
 
-import com.alekseivinogradov.database.api.data.model.AnimeDb
+import com.alekseivinogradov.database.api.domain.model.AnimeDb
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.api.domain.store.DatabaseExecutor
 import com.alekseivinogradov.database.api.domain.store.DatabaseStore
@@ -16,6 +16,7 @@ internal class DatabaseExecutorImpl(
     private val deleteAnimeDatabaseItemsJobMap: MutableMap<Int, Job> = mutableMapOf()
     private var resetAllItemsNewEpisodeStatusJob: Job? = null
     private val changeItemNewEpisodeStatusJobMap: MutableMap<Int, Job> = mutableMapOf()
+    private val updateItemJobMap: MutableMap<Int, Job> = mutableMapOf()
 
     override fun executeAction(action: DatabaseStore.Action) {
         when (action) {
@@ -31,6 +32,8 @@ internal class DatabaseExecutorImpl(
             is DatabaseStore.Intent.ChangeItemNewEpisodeStatus -> {
                 changeItemNewEpisodeStatus(intent)
             }
+
+            is DatabaseStore.Intent.UpdateAnimeDatabaseItem -> updateAnimeDatabaseItem(intent)
         }
     }
 
@@ -86,6 +89,14 @@ internal class DatabaseExecutorImpl(
                 id = intent.id,
                 isNewEpisode = intent.isNewEpisode
             )
+        }
+    }
+
+    private fun updateAnimeDatabaseItem(intent: DatabaseStore.Intent.UpdateAnimeDatabaseItem) {
+        if (updateItemJobMap[intent.animeDatabaseItem.id]?.isActive == true) return
+
+        updateItemJobMap[intent.animeDatabaseItem.id] = scope.launch {
+            repository.update(intent.animeDatabaseItem)
         }
     }
 }

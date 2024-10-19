@@ -8,6 +8,7 @@ import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_base.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.anime_base.api.domain.PAGING_PREFETCH_DISTANCE
 import com.alekseivinogradov.anime_base.api.domain.SEARCH_DEBOUNCE
+import com.alekseivinogradov.anime_list.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ReleaseStatusDomain
@@ -31,7 +32,7 @@ internal class SearchSectionExecutorImpl(
     private var searchFlow: MutableStateFlow<String>? = null
     private var changeSearchJob: Job? = null
     private var updateSectionJob: Job? = null
-    private val updateExtraEpisodesInfoJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
+    private val updateAnimeDetailsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
 
     override fun executeIntent(intent: SearchSectionStore.Intent) {
         when (intent) {
@@ -71,12 +72,12 @@ internal class SearchSectionExecutorImpl(
             )
             dispatch(
                 SearchSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
-                    enabledExtraEpisodesInfoId = setOf()
+                    enabledExtraEpisodesInfoIds = setOf()
                 )
             )
             dispatch(
-                SearchSectionStore.Message.UpdateNextEpisodesInfo(
-                    nextEpisodesInfo = mapOf()
+                SearchSectionStore.Message.UpdateAnimeDetails(
+                    animeDetails = AnimeDetails()
                 )
             )
             getPagingDataFlow().collect { listItems: PagingData<ListItemDomain> ->
@@ -127,11 +128,29 @@ internal class SearchSectionExecutorImpl(
         }
     }
 
+    private fun availableEpisodesInfoClick(listItem: ListItemDomain) {
+        val newEnabledExtraEpisodesInfoIds = state()
+            .sectionContent
+            .enabledExtraEpisodesInfoIds
+            .toMutableSet().apply {
+                remove(listItem.id)
+            }.toSet()
+
+        dispatch(
+            SearchSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
+                newEnabledExtraEpisodesInfoIds
+            )
+        )
+    }
+
     private fun extraEpisodesInfoClick(listItem: ListItemDomain) {
-        val newEnabledExtraEpisodesInfoIds = mutableSetOf<AnimeId>().apply {
-            addAll(state().sectionContent.enabledExtraEpisodesInfoIds)
-            add(listItem.id)
-        }.toSet()
+        val newEnabledExtraEpisodesInfoIds = state()
+            .sectionContent
+            .enabledExtraEpisodesInfoIds
+            .toMutableSet().apply {
+                add(listItem.id)
+            }.toSet()
+
         dispatch(
             SearchSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
                 newEnabledExtraEpisodesInfoIds
@@ -139,33 +158,21 @@ internal class SearchSectionExecutorImpl(
         )
         if (
             listItem.releaseStatus == ReleaseStatusDomain.ONGOING &&
-            !state().sectionContent.nextEpisodesInfo.contains(listItem.id)
+            !state().sectionContent.animeDetails.nextEpisodesInfo.contains(listItem.id)
         ) {
-            updateExtraEpisodesInfo(listItem.id)
+            updateAnimeDetails(listItem.id)
         }
     }
 
-    private fun availableEpisodesInfoClick(listItem: ListItemDomain) {
-        val newEnabledExtraEpisodesInfoIds = mutableSetOf<AnimeId>().apply {
-            addAll(state().sectionContent.enabledExtraEpisodesInfoIds)
-            remove(listItem.id)
-        }.toSet()
-        dispatch(
-            SearchSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
-                newEnabledExtraEpisodesInfoIds
-            )
-        )
-    }
-
-    private fun updateExtraEpisodesInfo(id: Int) {
-        updateExtraEpisodesInfoJobMap[id]?.cancel()
-        updateExtraEpisodesInfoJobMap[id] = scope.launch {
+    private fun updateAnimeDetails(id: Int) {
+        updateAnimeDetailsJobMap[id]?.cancel()
+        updateAnimeDetailsJobMap[id] = scope.launch {
             val result = usecases
-                .fetchAnimeByIdUsecase
+                .fetchAnimeDetailsByIdUsecase
                 .execute(id)
 
             when (result) {
-                is CallResult.Success -> onSuccessUpdateExtraEpisodesInfo(
+                is CallResult.Success -> onSuccessUpdateAnimeDetails(
                     updateListItem = result.value
                 )
 
@@ -175,18 +182,23 @@ internal class SearchSectionExecutorImpl(
         }
     }
 
-    private fun onSuccessUpdateExtraEpisodesInfo(
+    private fun onSuccessUpdateAnimeDetails(
         updateListItem: ListItemDomain
     ) {
-        val newNextEpisodesInfo = mutableMapOf<AnimeId, String>()
-            .apply {
-                putAll(state().sectionContent.nextEpisodesInfo)
-                updateListItem.nextEpisodeAt?.let {
-                    this[updateListItem.id] = it
-                }
-            }.toMap()
+        val newNextEpisodesInfo = state()
+            .sectionContent
+            .animeDetails
+            .nextEpisodesInfo
+            .toMutableMap().apply {
+                this[updateListItem.id] = updateListItem.nextEpisodeAt
+            }
+
         dispatch(
-            SearchSectionStore.Message.UpdateNextEpisodesInfo(newNextEpisodesInfo)
+            SearchSectionStore.Message.UpdateAnimeDetails(
+                animeDetails = state().sectionContent.animeDetails.copy(
+                    nextEpisodesInfo = newNextEpisodesInfo
+                )
+            )
         )
     }
 }

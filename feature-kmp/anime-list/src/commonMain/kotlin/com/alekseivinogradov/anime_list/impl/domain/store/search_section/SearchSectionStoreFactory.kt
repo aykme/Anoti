@@ -9,10 +9,10 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 
 internal class SearchSectionStoreFactory(
     private val storeFactory: StoreFactory,
-    searchUsecases: SearchUsecases
+    usecases: SearchUsecases
 ) {
     private val executorFactory: () -> SearchSectionExecutor = {
-        SearchSectionExecutorImpl(usecases = searchUsecases)
+        SearchSectionExecutorImpl(usecases)
     }
 
     internal fun create(): SearchSectionStore {

@@ -24,7 +24,7 @@ internal class AnnouncedSectionReducerImpl :
 
             is AnnouncedSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds -> copy(
                 sectionContent = sectionContent.copy(
-                    enabledExtraEpisodesInfoIds = msg.enabledExtraEpisodesInfoId
+                    enabledExtraEpisodesInfoIds = msg.enabledExtraEpisodesInfoIds
                 )
             )
         }

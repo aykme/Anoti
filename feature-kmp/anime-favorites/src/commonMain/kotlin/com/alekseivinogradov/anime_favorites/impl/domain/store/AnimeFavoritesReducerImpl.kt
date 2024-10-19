@@ -13,6 +13,14 @@ internal class AnimeFavoritesReducerImpl :
             is AnimeFavoritesMainStore.Message.UpdateListItems -> copy(
                 listItems = msg.listItems
             )
+
+            is AnimeFavoritesMainStore.Message.UpdateEnabledExtraInfoIds -> copy(
+                enabledExtraInfoIds = msg.enabledExtraInfoIds
+            )
+
+            is AnimeFavoritesMainStore.Message.UpdateFetchedAnimeDetailsIds -> copy(
+                fetchedAnimeDetailsIds = msg.fetchedAnimeDetailsIds
+            )
         }
     }
 }

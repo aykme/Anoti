@@ -3,6 +3,7 @@ package com.alekseivinogradov.anime_list.api.presentation.mapper.model
 import app.cash.paging.PagingData
 import app.cash.paging.map
 import com.alekseivinogradov.anime_base.api.domain.AnimeId
+import com.alekseivinogradov.anime_list.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ReleaseStatusDomain
@@ -79,7 +80,7 @@ private fun getListItemsUi(
             listItem = listItem,
             enabledNotificationIds = state.enabledNotificationIds,
             enabledExtraEpisodesInfoIds = listItemsContent.enabledExtraEpisodesInfoIds,
-            nextEpisodesInfo = listItemsContent.nextEpisodesInfo
+            animeDetails = listItemsContent.animeDetails
         )
     }
 }
@@ -88,7 +89,7 @@ private fun getListItemUi(
     listItem: ListItemDomain,
     enabledNotificationIds: Set<AnimeId>,
     enabledExtraEpisodesInfoIds: Set<AnimeId>,
-    nextEpisodesInfo: Map<AnimeId, String>
+    animeDetails: AnimeDetails
 ): ListItemUi {
     return ListItemUi(
         id = listItem.id,
@@ -100,7 +101,7 @@ private fun getListItemUi(
         ),
         episodesAired = listItem.episodesAired,
         episodesTotal = listItem.episodesTotal,
-        nextEpisodeAt = nextEpisodesInfo[listItem.id],
+        nextEpisodeAt = animeDetails.nextEpisodesInfo[listItem.id],
         airedOn = listItem.airedOn,
         releasedOn = listItem.releasedOn,
         score = listItem.score?.toString().orEmpty(),

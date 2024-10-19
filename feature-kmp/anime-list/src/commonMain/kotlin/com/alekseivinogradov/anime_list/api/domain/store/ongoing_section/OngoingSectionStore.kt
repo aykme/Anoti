@@ -2,6 +2,7 @@ package com.alekseivinogradov.anime_list.api.domain.store.ongoing_section
 
 import app.cash.paging.PagingData
 import com.alekseivinogradov.anime_base.api.domain.AnimeId
+import com.alekseivinogradov.anime_list.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.SectionContentDomain
@@ -32,9 +33,9 @@ interface OngoingSectionStore
         data class ChangeContentType(val contentType: ContentTypeDomain) : Message
         data class UpdateListItems(val listItems: PagingData<ListItemDomain>) : Message
         data class UpdateEnabledExtraEpisodesInfoIds(
-            val enabledExtraEpisodesInfoId: Set<AnimeId>
+            val enabledExtraEpisodesInfoIds: Set<AnimeId>
         ) : Message
 
-        data class UpdateNextEpisodesInfo(val nextEpisodesInfo: Map<AnimeId, String>) : Message
+        data class UpdateAnimeDetails(val animeDetails: AnimeDetails) : Message
     }
 }

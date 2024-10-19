@@ -9,10 +9,10 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 
 internal class AnnouncedSectionStoreFactory(
     private val storeFactory: StoreFactory,
-    announcedUsecases: AnnouncedUsecases
+    usecases: AnnouncedUsecases
 ) {
     private val executorFactory: () -> AnnouncedSectionExecutor = {
-        AnnouncedSectionExecutorImpl(usecases = announcedUsecases)
+        AnnouncedSectionExecutorImpl(usecases)
     }
 
     internal fun create(): AnnouncedSectionStore {

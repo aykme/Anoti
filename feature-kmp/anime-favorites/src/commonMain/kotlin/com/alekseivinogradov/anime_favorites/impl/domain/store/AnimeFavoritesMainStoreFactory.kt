@@ -1,13 +1,19 @@
 package com.alekseivinogradov.anime_favorites.impl.domain.store
 
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesMainStore
+import com.alekseivinogradov.anime_favorites.impl.domain.usecase.wrapper.FavoritesUsecases
 import com.arkivanov.mvikotlin.core.store.SimpleBootstrapper
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 
 internal class AnimeFavoritesMainStoreFactory(
-    private val storeFactory: StoreFactory
+    private val storeFactory: StoreFactory,
+    usecases: FavoritesUsecases
 ) {
+    private val executorFactory: () -> AnimeFavoritesExecutorImpl = {
+        AnimeFavoritesExecutorImpl(usecases)
+    }
+
     internal fun create(): AnimeFavoritesMainStore {
         return object : AnimeFavoritesMainStore,
             Store<
@@ -19,7 +25,7 @@ internal class AnimeFavoritesMainStoreFactory(
                 name = "AnimeFavoritesMainStore",
                 initialState = AnimeFavoritesMainStore.State(),
                 bootstrapper = SimpleBootstrapper(),
-                executorFactory = ::AnimeFavoritesExecutorImpl,
+                executorFactory = executorFactory,
                 reducer = AnimeFavoritesReducerImpl()
             ) {}
     }

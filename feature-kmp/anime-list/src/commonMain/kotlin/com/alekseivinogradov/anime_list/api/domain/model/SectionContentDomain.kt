@@ -7,5 +7,5 @@ data class SectionContentDomain(
     val contentType: ContentTypeDomain = ContentTypeDomain.LOADING,
     val listItems: PagingData<ListItemDomain> = PagingData.empty(),
     val enabledExtraEpisodesInfoIds: Set<AnimeId> = setOf(),
-    val nextEpisodesInfo: Map<AnimeId, String> = mapOf()
+    val animeDetails: AnimeDetails = AnimeDetails()
 )

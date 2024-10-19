@@ -5,7 +5,6 @@ import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.SectionContentDomain
-import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.OngoingSectionStore.Label
 import com.arkivanov.mvikotlin.core.store.Store
 
 interface AnnouncedSectionStore : Store<
@@ -33,7 +32,7 @@ interface AnnouncedSectionStore : Store<
         data class ChangeContentType(val contentType: ContentTypeDomain) : Message
         data class UpdateListItems(val listItems: PagingData<ListItemDomain>) : Message
         data class UpdateEnabledExtraEpisodesInfoIds(
-            val enabledExtraEpisodesInfoId: Set<AnimeId>
+            val enabledExtraEpisodesInfoIds: Set<AnimeId>
         ) : Message
     }
 }

@@ -3,7 +3,7 @@ package com.alekseivinogradov.database.room.api.data.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.alekseivinogradov.database.api.data.model.ReleaseStatusDb
+import com.alekseivinogradov.database.api.domain.model.ReleaseStatusDb
 import com.alekseivinogradov.database.room.api.data.animeTableName
 
 @Entity(tableName = animeTableName)

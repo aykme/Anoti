@@ -4,7 +4,6 @@ import app.cash.paging.Pager
 import app.cash.paging.PagingConfig
 import app.cash.paging.PagingData
 import app.cash.paging.cachedIn
-import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_base.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.anime_base.api.domain.PAGING_PREFETCH_DISTANCE
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
@@ -46,7 +45,7 @@ internal class AnnouncedSectionExecutorImpl(
             )
             dispatch(
                 AnnouncedSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
-                    enabledExtraEpisodesInfoId = setOf()
+                    enabledExtraEpisodesInfoIds = setOf()
                 )
             )
             getPagingDataFlow().collect { listItems: PagingData<ListItemDomain> ->
@@ -71,14 +70,6 @@ internal class AnnouncedSectionExecutorImpl(
         }.flow.cachedIn(scope)
     }
 
-    private fun episodeInfoClick(intent: AnnouncedSectionStore.Intent.EpisodesInfoClick) {
-        if (state().sectionContent.enabledExtraEpisodesInfoIds.contains(intent.listItem.id)) {
-            availableEpisodesInfoClick(intent.listItem)
-        } else {
-            extraEpisodesInfoClick(intent.listItem)
-        }
-    }
-
     private fun initialLoadSuccessCallback() {
         dispatch(
             AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADED)
@@ -91,11 +82,22 @@ internal class AnnouncedSectionExecutorImpl(
         )
     }
 
-    private fun extraEpisodesInfoClick(listItem: ListItemDomain) {
-        val newEnabledExtraEpisodesInfoIds = mutableSetOf<AnimeId>().apply {
-            addAll(state().sectionContent.enabledExtraEpisodesInfoIds)
-            add(listItem.id)
-        }.toSet()
+    private fun episodeInfoClick(intent: AnnouncedSectionStore.Intent.EpisodesInfoClick) {
+        if (state().sectionContent.enabledExtraEpisodesInfoIds.contains(intent.listItem.id)) {
+            availableEpisodesInfoClick(intent.listItem)
+        } else {
+            extraEpisodesInfoClick(intent.listItem)
+        }
+    }
+
+    private fun availableEpisodesInfoClick(listItem: ListItemDomain) {
+        val newEnabledExtraEpisodesInfoIds = state()
+            .sectionContent
+            .enabledExtraEpisodesInfoIds
+            .toMutableSet().apply {
+                remove(listItem.id)
+            }.toSet()
+
         dispatch(
             AnnouncedSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
                 newEnabledExtraEpisodesInfoIds
@@ -103,11 +105,14 @@ internal class AnnouncedSectionExecutorImpl(
         )
     }
 
-    private fun availableEpisodesInfoClick(listItem: ListItemDomain) {
-        val newEnabledExtraEpisodesInfoIds = mutableSetOf<AnimeId>().apply {
-            addAll(state().sectionContent.enabledExtraEpisodesInfoIds)
-            remove(listItem.id)
-        }.toSet()
+    private fun extraEpisodesInfoClick(listItem: ListItemDomain) {
+        val newEnabledExtraEpisodesInfoIds = state()
+            .sectionContent
+            .enabledExtraEpisodesInfoIds
+            .toMutableSet().apply {
+                add(listItem.id)
+            }.toSet()
+
         dispatch(
             AnnouncedSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
                 newEnabledExtraEpisodesInfoIds

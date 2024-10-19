@@ -1,6 +1,6 @@
 package com.alekseivinogradov.database.room.impl.data.repository
 
-import com.alekseivinogradov.database.api.data.model.AnimeDb
+import com.alekseivinogradov.database.api.domain.model.AnimeDb
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.room.api.data.AnimeDao
 import com.alekseivinogradov.database.room.api.data.mapper.toKmp

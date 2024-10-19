@@ -7,6 +7,7 @@ import app.cash.paging.cachedIn
 import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_base.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.anime_base.api.domain.PAGING_PREFETCH_DISTANCE
+import com.alekseivinogradov.anime_list.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ReleaseStatusDomain
@@ -24,7 +25,7 @@ internal class OngoingSectionExecutorImpl(
 ) : OngoingSectionExecutor() {
 
     private var updateSectionJob: Job? = null
-    private val updateExtraEpisodesInfoJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
+    private val updateAnimeDetailsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
 
     override fun executeAction(action: OngoingSectionStore.Action) {
         when (action) {
@@ -55,12 +56,12 @@ internal class OngoingSectionExecutorImpl(
             )
             dispatch(
                 OngoingSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
-                    enabledExtraEpisodesInfoId = setOf()
+                    enabledExtraEpisodesInfoIds = setOf()
                 )
             )
             dispatch(
-                OngoingSectionStore.Message.UpdateNextEpisodesInfo(
-                    nextEpisodesInfo = mapOf()
+                OngoingSectionStore.Message.UpdateAnimeDetails(
+                    animeDetails = AnimeDetails()
                 )
             )
             getPagingDataFlow().collect { listItems: PagingData<ListItemDomain> ->
@@ -106,11 +107,29 @@ internal class OngoingSectionExecutorImpl(
         }
     }
 
+    private fun availableEpisodesInfoClick(listItem: ListItemDomain) {
+        val newEnabledExtraEpisodesInfoIds = state()
+            .sectionContent
+            .enabledExtraEpisodesInfoIds
+            .toMutableSet().apply {
+                remove(listItem.id)
+            }.toSet()
+
+        dispatch(
+            OngoingSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
+                newEnabledExtraEpisodesInfoIds
+            )
+        )
+    }
+
     private fun extraEpisodesInfoClick(listItem: ListItemDomain) {
-        val newEnabledExtraEpisodesInfoIds = mutableSetOf<AnimeId>().apply {
-            addAll(state().sectionContent.enabledExtraEpisodesInfoIds)
-            add(listItem.id)
-        }.toSet()
+        val newEnabledExtraEpisodesInfoIds = state()
+            .sectionContent
+            .enabledExtraEpisodesInfoIds
+            .toMutableSet().apply {
+                add(listItem.id)
+            }.toSet()
+
         dispatch(
             OngoingSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
                 newEnabledExtraEpisodesInfoIds
@@ -118,33 +137,21 @@ internal class OngoingSectionExecutorImpl(
         )
         if (
             listItem.releaseStatus == ReleaseStatusDomain.ONGOING &&
-            !state().sectionContent.nextEpisodesInfo.contains(listItem.id)
+            !state().sectionContent.animeDetails.nextEpisodesInfo.contains(listItem.id)
         ) {
-            updateExtraEpisodesInfo(listItem.id)
+            updateAnimeDetails(listItem.id)
         }
     }
 
-    private fun availableEpisodesInfoClick(listItem: ListItemDomain) {
-        val newEnabledExtraEpisodesInfoIds = mutableSetOf<AnimeId>().apply {
-            addAll(state().sectionContent.enabledExtraEpisodesInfoIds)
-            remove(listItem.id)
-        }.toSet()
-        dispatch(
-            OngoingSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
-                newEnabledExtraEpisodesInfoIds
-            )
-        )
-    }
-
-    private fun updateExtraEpisodesInfo(id: AnimeId) {
-        updateExtraEpisodesInfoJobMap[id]?.cancel()
-        updateExtraEpisodesInfoJobMap[id] = scope.launch {
+    private fun updateAnimeDetails(id: AnimeId) {
+        updateAnimeDetailsJobMap[id]?.cancel()
+        updateAnimeDetailsJobMap[id] = scope.launch {
             val result = usecases
-                .fetchAnimeByIdUsecase
+                .fetchAnimeDetailsByIdUsecase
                 .execute(id)
 
             when (result) {
-                is CallResult.Success -> onSuccessUpdateExtraEpisodesInfo(
+                is CallResult.Success -> onSuccessUpdateAnimeDetails(
                     updateListItem = result.value
                 )
 
@@ -154,18 +161,23 @@ internal class OngoingSectionExecutorImpl(
         }
     }
 
-    private fun onSuccessUpdateExtraEpisodesInfo(
+    private fun onSuccessUpdateAnimeDetails(
         updateListItem: ListItemDomain
     ) {
-        val newNextEpisodesInfo = mutableMapOf<AnimeId, String>()
-            .apply {
-                putAll(state().sectionContent.nextEpisodesInfo)
-                updateListItem.nextEpisodeAt?.let {
-                    this[updateListItem.id] = it
-                }
-            }.toMap()
+        val newNextEpisodesInfo = state()
+            .sectionContent
+            .animeDetails
+            .nextEpisodesInfo
+            .toMutableMap().apply {
+                this[updateListItem.id] = updateListItem.nextEpisodeAt
+            }
+
         dispatch(
-            OngoingSectionStore.Message.UpdateNextEpisodesInfo(newNextEpisodesInfo)
+            OngoingSectionStore.Message.UpdateAnimeDetails(
+                animeDetails = state().sectionContent.animeDetails.copy(
+                    nextEpisodesInfo = newNextEpisodesInfo
+                )
+            )
         )
     }
 }

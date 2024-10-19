@@ -1,6 +1,6 @@
 package com.alekseivinogradov.database.room.api.data.mapper
 
-import com.alekseivinogradov.database.api.data.model.AnimeDb
+import com.alekseivinogradov.database.api.domain.model.AnimeDb
 import com.alekseivinogradov.database.room.api.data.model.AnimeDbPlatform
 
 internal fun AnimeDb.toPlatform() = AnimeDbPlatform(

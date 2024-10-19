@@ -17,5 +17,11 @@ internal fun mapMainStoreLabelToDatabaseStoreIntent(
                 isNewEpisode = false
             )
         }
+
+        is AnimeFavoritesMainStore.Label.UpdateListItem -> {
+            DatabaseStore.Intent.UpdateAnimeDatabaseItem(
+                animeDatabaseItem = label.listItem.toDb()
+            )
+        }
     }
 }

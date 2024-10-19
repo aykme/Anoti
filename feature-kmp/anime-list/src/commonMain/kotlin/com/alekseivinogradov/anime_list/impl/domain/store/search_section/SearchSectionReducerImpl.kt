@@ -27,13 +27,13 @@ internal class SearchSectionReducerImpl :
 
             is SearchSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds -> copy(
                 sectionContent = sectionContent.copy(
-                    enabledExtraEpisodesInfoIds = msg.enabledExtraEpisodesInfoId
+                    enabledExtraEpisodesInfoIds = msg.enabledExtraEpisodesInfoIds
                 )
             )
 
-            is SearchSectionStore.Message.UpdateNextEpisodesInfo -> copy(
+            is SearchSectionStore.Message.UpdateAnimeDetails -> copy(
                 sectionContent = sectionContent.copy(
-                    nextEpisodesInfo = msg.nextEpisodesInfo
+                    animeDetails = msg.animeDetails
                 )
             )
         }

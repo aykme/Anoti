@@ -11,14 +11,13 @@ import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiServicePlat
 import com.alekseivinogradov.anime_base.impl.data.service.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anime_list.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anime_list.impl.data.source.AnimeListSourceImpl
-import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeByIdUsecase
+import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeListBySearchUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnnouncedAnimeListUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchOngoingAnimeListUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.AnnouncedUsecases
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.OngoingUsecases
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.SearchUsecases
-import com.alekseivinogradov.anime_list.impl.presentation.AnimeListController
 import com.alekseivinogradov.anime_list_platform.databinding.FragmentAnimeListBinding
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.room.impl.data.AnimeDatabase
@@ -57,8 +56,8 @@ class AnimeListFragment : Fragment() {
     private val fetchAnimeListBySearchUsecase =
         FetchAnimeListBySearchUsecase(source = animeListSource)
 
-    private val fetchAnimeByIdUsecase =
-        FetchAnimeByIdUsecase(source = animeListSource)
+    private val fetchAnimeDetailsByIdUsecase =
+        FetchAnimeDetailsByIdUsecase(source = animeListSource)
 
     private val animeDatabase by lazy(LazyThreadSafetyMode.NONE) {
         AnimeDatabase.getDatabase(requireContext())
@@ -73,10 +72,10 @@ class AnimeListFragment : Fragment() {
         AnimeListController(
             storeFactory = DefaultStoreFactory(),
             lifecycle = essentyLifecycle(),
-            databaseRepository = animeDatabaseRepository,
             ongoingUsecases = getOngoingUsecases(),
             announcedUsecases = getAnnouncedUsecases(),
-            searchUsecases = getSearchUsecases()
+            searchUsecases = getSearchUsecases(),
+            databaseRepository = animeDatabaseRepository
         )
     }
 
@@ -115,7 +114,7 @@ class AnimeListFragment : Fragment() {
 
     private fun getOngoingUsecases() = OngoingUsecases(
         fetchOngoingAnimeListUsecase = fetchOngoingAnimeListUsecase,
-        fetchAnimeByIdUsecase = fetchAnimeByIdUsecase
+        fetchAnimeDetailsByIdUsecase = fetchAnimeDetailsByIdUsecase
     )
 
     private fun getAnnouncedUsecases() = AnnouncedUsecases(
@@ -124,6 +123,6 @@ class AnimeListFragment : Fragment() {
 
     private fun getSearchUsecases() = SearchUsecases(
         fetchAnimeListBySearchUsecase = fetchAnimeListBySearchUsecase,
-        fetchAnimeByIdUsecase = fetchAnimeByIdUsecase
+        fetchAnimeDetailsByIdUsecase = fetchAnimeDetailsByIdUsecase
     )
 }

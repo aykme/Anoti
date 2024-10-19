@@ -24,13 +24,13 @@ internal class OngoingSectionReducerImpl :
 
             is OngoingSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds -> copy(
                 sectionContent = sectionContent.copy(
-                    enabledExtraEpisodesInfoIds = msg.enabledExtraEpisodesInfoId
+                    enabledExtraEpisodesInfoIds = msg.enabledExtraEpisodesInfoIds
                 )
             )
 
-            is OngoingSectionStore.Message.UpdateNextEpisodesInfo -> copy(
+            is OngoingSectionStore.Message.UpdateAnimeDetails -> copy(
                 sectionContent = sectionContent.copy(
-                    nextEpisodesInfo = msg.nextEpisodesInfo
+                    animeDetails = msg.animeDetails
                 )
             )
         }

@@ -8,11 +8,16 @@ import androidx.fragment.app.Fragment
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiServicePlatform
 import com.alekseivinogradov.anime_base.impl.data.service.ShikimoriApiServiceImpl
+import com.alekseivinogradov.anime_favorites.api.domain.source.AnimeFavoritesSource
+import com.alekseivinogradov.anime_favorites.impl.data.source.AnimeFavoritesSourceImpl
+import com.alekseivinogradov.anime_favorites.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
+import com.alekseivinogradov.anime_favorites.impl.domain.usecase.wrapper.FavoritesUsecases
 import com.alekseivinogradov.anime_favorites_platform.databinding.FragmentAnimeFavoritesBinding
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.room.impl.data.AnimeDatabase
 import com.alekseivinogradov.database.room.impl.data.repository.AnimeDatabaseRepositoryImpl
 import com.alekseivinogradov.date.formatter.DateFormatter
+import com.alekseivinogradov.network.impl.data.SafeApiImpl
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 
@@ -22,6 +27,15 @@ class AnimeFavoritesFragment : Fragment() {
 
     private val shikimoriService: ShikimoriApiService = ShikimoriApiServiceImpl(
         servicePlatform = ShikimoriApiServicePlatform.instance
+    )
+
+    private val animeFavoritesSource: AnimeFavoritesSource = AnimeFavoritesSourceImpl(
+        service = shikimoriService,
+        safeApi = SafeApiImpl
+    )
+
+    private val fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(
+        source = animeFavoritesSource
     )
 
     private val animeDatabase by lazy(LazyThreadSafetyMode.NONE) {
@@ -37,7 +51,8 @@ class AnimeFavoritesFragment : Fragment() {
         AnimeFavoritesController(
             storeFactory = DefaultStoreFactory(),
             lifecycle = essentyLifecycle(),
-            databaseRepository = animeDatabaseRepository,
+            favoritesUsecases = getFavoritesUsecases(),
+            databaseRepository = animeDatabaseRepository
         )
     }
 
@@ -64,4 +79,8 @@ class AnimeFavoritesFragment : Fragment() {
         binding = null
         super.onDestroy()
     }
+
+    private fun getFavoritesUsecases() = FavoritesUsecases(
+        fetchAnimeDetailsByIdUsecase = fetchAnimeDetailsByIdUsecase
+    )
 }

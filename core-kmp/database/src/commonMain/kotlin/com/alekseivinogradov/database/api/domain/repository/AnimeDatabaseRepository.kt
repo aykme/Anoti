@@ -1,6 +1,6 @@
 package com.alekseivinogradov.database.api.domain.repository
 
-import com.alekseivinogradov.database.api.data.model.AnimeDb
+import com.alekseivinogradov.database.api.domain.model.AnimeDb
 import kotlinx.coroutines.flow.Flow
 
 interface AnimeDatabaseRepository {

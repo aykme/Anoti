@@ -9,10 +9,10 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 
 internal class OngoingSectionStoreFactory(
     private val storeFactory: StoreFactory,
-    ongoingUsecases: OngoingUsecases
+    usecases: OngoingUsecases
 ) {
     private val executorFactory: () -> OngoingSectionExecutor = {
-        OngoingSectionExecutorImpl(usecases = ongoingUsecases)
+        OngoingSectionExecutorImpl(usecases)
     }
 
     internal fun create(): OngoingSectionStore {

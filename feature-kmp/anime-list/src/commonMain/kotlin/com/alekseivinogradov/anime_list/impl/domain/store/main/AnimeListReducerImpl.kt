@@ -80,15 +80,15 @@ internal class AnimeListReducerImpl :
                 )
             )
 
-            is AnimeListMainStore.Message.UpdateOngoingNextEpisodesInfo -> copy(
+            is AnimeListMainStore.Message.UpdateOngoingAnimeDetails -> copy(
                 ongoingContent = ongoingContent.copy(
-                    nextEpisodesInfo = msg.nextEpisodesInfo
+                    animeDetails = msg.animeDetails
                 )
             )
 
-            is AnimeListMainStore.Message.UpdateSearchNextEpisodesInfo -> copy(
+            is AnimeListMainStore.Message.UpdateSearchAnimeDetails -> copy(
                 searchContent = searchContent.copy(
-                    nextEpisodesInfo = msg.nextEpisodesInfo
+                    animeDetails = msg.animeDetails
                 )
             )
         }

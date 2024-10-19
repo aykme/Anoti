@@ -1,6 +1,6 @@
 package com.alekseivinogradov.database.api.domain.store
 
-import com.alekseivinogradov.database.api.data.model.AnimeDb
+import com.alekseivinogradov.database.api.domain.model.AnimeDb
 import com.arkivanov.mvikotlin.core.store.Store
 
 interface DatabaseStore
@@ -18,6 +18,8 @@ interface DatabaseStore
             val isNewEpisode: Boolean,
             val id: Int
         ) : Intent
+
+        data class UpdateAnimeDatabaseItem(val animeDatabaseItem: AnimeDb) : Intent
     }
 
     sealed interface Label

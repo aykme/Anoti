@@ -36,10 +36,10 @@ import kotlinx.coroutines.flow.mapNotNull
 class AnimeListController(
     storeFactory: StoreFactory,
     lifecycle: Lifecycle,
-    databaseRepository: AnimeDatabaseRepository,
     ongoingUsecases: OngoingUsecases,
     announcedUsecases: AnnouncedUsecases,
-    searchUsecases: SearchUsecases
+    searchUsecases: SearchUsecases,
+    databaseRepository: AnimeDatabaseRepository
 ) {
 
     private val mainStore = AnimeListMainStoreFactory(
@@ -53,17 +53,17 @@ class AnimeListController(
 
     private val ongoingSectionStore = OngoingSectionStoreFactory(
         storeFactory = storeFactory,
-        ongoingUsecases = ongoingUsecases
+        usecases = ongoingUsecases
     ).create()
 
     private val announcedSectionStore = AnnouncedSectionStoreFactory(
         storeFactory = storeFactory,
-        announcedUsecases = announcedUsecases
+        usecases = announcedUsecases
     ).create()
 
     private val searchSectionStore = SearchSectionStoreFactory(
         storeFactory = storeFactory,
-        searchUsecases = searchUsecases
+        usecases = searchUsecases
     ).create()
 
     init {

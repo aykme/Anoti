@@ -2,6 +2,7 @@ package com.alekseivinogradov.anime_list.api.domain.store.main
 
 import app.cash.paging.PagingData
 import com.alekseivinogradov.anime_base.api.domain.AnimeId
+import com.alekseivinogradov.anime_list.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.SearchDomain
@@ -83,12 +84,12 @@ interface AnimeListMainStore
             val enabledExtraEpisodesInfoId: Set<AnimeId>
         ) : Message
 
-        data class UpdateOngoingNextEpisodesInfo(
-            val nextEpisodesInfo: Map<AnimeId, String>
+        data class UpdateOngoingAnimeDetails(
+            val animeDetails: AnimeDetails
         ) : Message
 
-        data class UpdateSearchNextEpisodesInfo(
-            val nextEpisodesInfo: Map<AnimeId, String>
+        data class UpdateSearchAnimeDetails(
+            val animeDetails: AnimeDetails
         ) : Message
     }
 }

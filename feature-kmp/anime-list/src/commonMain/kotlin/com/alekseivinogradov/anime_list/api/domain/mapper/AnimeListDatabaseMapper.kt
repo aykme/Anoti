@@ -1,9 +1,9 @@
-package com.alekseivinogradov.anime_list.api.data.mapper
+package com.alekseivinogradov.anime_list.api.domain.mapper
 
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ReleaseStatusDomain
-import com.alekseivinogradov.database.api.data.model.AnimeDb
-import com.alekseivinogradov.database.api.data.model.ReleaseStatusDb
+import com.alekseivinogradov.database.api.domain.model.AnimeDb
+import com.alekseivinogradov.database.api.domain.model.ReleaseStatusDb
 
 internal fun ListItemDomain.toDb() = AnimeDb(
     id = this.id,

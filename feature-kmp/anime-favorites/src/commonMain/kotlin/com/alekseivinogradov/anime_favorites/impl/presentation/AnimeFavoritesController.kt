@@ -5,6 +5,7 @@ import com.alekseivinogradov.anime_favorites.api.domain.mapper.mapMainStoreLabel
 import com.alekseivinogradov.anime_favorites.api.presentation.AnimeFavoritesView
 import com.alekseivinogradov.anime_favorites.api.presentation.mapper.mapStateToUiModel
 import com.alekseivinogradov.anime_favorites.impl.domain.store.AnimeFavoritesMainStoreFactory
+import com.alekseivinogradov.anime_favorites.impl.domain.usecase.wrapper.FavoritesUsecases
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.impl.domain.store.DatabaseStoreFactory
 import com.arkivanov.essenty.lifecycle.Lifecycle
@@ -15,16 +16,21 @@ import com.arkivanov.mvikotlin.extensions.coroutines.bind
 import com.arkivanov.mvikotlin.extensions.coroutines.events
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.extensions.coroutines.states
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 class AnimeFavoritesController(
     storeFactory: StoreFactory,
     lifecycle: Lifecycle,
+    favoritesUsecases: FavoritesUsecases,
     databaseRepository: AnimeDatabaseRepository
 ) {
 
     private val mainStore = AnimeFavoritesMainStoreFactory(
-        storeFactory = storeFactory
+        storeFactory = storeFactory,
+        usecases = favoritesUsecases
     ).create()
 
     private val databaseStore = DatabaseStoreFactory(
@@ -39,6 +45,7 @@ class AnimeFavoritesController(
     fun onViewCreated(mainView: AnimeFavoritesView, viewLifecycle: Lifecycle) {
         connectAllAuxiliaryStoresToMain(viewLifecycle)
         connectMainStoreToMainView(mainView = mainView, viewLifecycle = viewLifecycle)
+        test()
     }
 
     private fun connectAllAuxiliaryStoresToMain(viewLifecycle: Lifecycle) {
@@ -55,6 +62,15 @@ class AnimeFavoritesController(
         bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
             mainStore.states.map(::mapStateToUiModel) bindTo mainView
             mainView.events bindTo mainStore
+        }
+    }
+
+    private fun test() {
+        val scope = CoroutineScope(Dispatchers.Main)
+        scope.launch {
+            mainStore.states.collect {
+                println("tagtag fetchedItemDetailsIds:${it.fetchedAnimeDetailsIds}")
+            }
         }
     }
 }

@@ -14,7 +14,7 @@ internal class AnimeListExecutorImpl : AnimeListExecutor() {
             AnimeListMainStore.Intent.AnnouncedSectionClick -> announcedSectionClick()
             AnimeListMainStore.Intent.SearchSectionClick -> searchSectionClick()
             AnimeListMainStore.Intent.CancelSearchClick -> cancelSearchClick()
-            is AnimeListMainStore.Intent.ChangeSearchText -> ChangesearchText(intent)
+            is AnimeListMainStore.Intent.ChangeSearchText -> changeSearchText(intent)
             is AnimeListMainStore.Intent.ChangeResetListPositionAfterUpdateStatus -> {
                 changeResetListPositionAfterUpdateStatus(intent)
             }
@@ -115,7 +115,7 @@ internal class AnimeListExecutorImpl : AnimeListExecutor() {
         )
     }
 
-    private fun ChangesearchText(intent: AnimeListMainStore.Intent.ChangeSearchText) {
+    private fun changeSearchText(intent: AnimeListMainStore.Intent.ChangeSearchText) {
         dispatch(
             AnimeListMainStore.Message.ChangeSearch(
                 search = state().search.copy(
@@ -160,10 +160,10 @@ internal class AnimeListExecutorImpl : AnimeListExecutor() {
                 )
             )
         }
-        if (state.ongoingContent.nextEpisodesInfo != intent.content.nextEpisodesInfo) {
+        if (state.ongoingContent.animeDetails != intent.content.animeDetails) {
             dispatch(
-                AnimeListMainStore.Message.UpdateOngoingNextEpisodesInfo(
-                    intent.content.nextEpisodesInfo
+                AnimeListMainStore.Message.UpdateOngoingAnimeDetails(
+                    animeDetails = intent.content.animeDetails
                 )
             )
         }
@@ -225,10 +225,10 @@ internal class AnimeListExecutorImpl : AnimeListExecutor() {
                 )
             )
         }
-        if (state.searchContent.nextEpisodesInfo != intent.content.nextEpisodesInfo) {
+        if (state.searchContent.animeDetails != intent.content.animeDetails) {
             dispatch(
-                AnimeListMainStore.Message.UpdateSearchNextEpisodesInfo(
-                    intent.content.nextEpisodesInfo
+                AnimeListMainStore.Message.UpdateSearchAnimeDetails(
+                    animeDetails = intent.content.animeDetails
                 )
             )
         }

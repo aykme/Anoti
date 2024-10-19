@@ -1,4 +1,4 @@
-package com.alekseivinogradov.database.api.data.model
+package com.alekseivinogradov.database.api.domain.model
 
 data class AnimeDb(
     val id: Int,
