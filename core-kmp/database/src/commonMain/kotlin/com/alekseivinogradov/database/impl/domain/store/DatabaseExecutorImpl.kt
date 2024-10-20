@@ -54,6 +54,7 @@ internal class DatabaseExecutorImpl(
         intent: DatabaseStore.Intent.InsertAnimeDatabaseItem
     ) {
         if (insertAnimeDatabaseItemsJobMap[intent.animeDatabaseItem.id]?.isActive == true) return
+        if (databaseContainsItem(intent.animeDatabaseItem.id)) return
         insertAnimeDatabaseItemsJobMap[intent.animeDatabaseItem.id] = scope.launch {
             repository.insert(intent.animeDatabaseItem)
         }
@@ -61,6 +62,7 @@ internal class DatabaseExecutorImpl(
 
     private fun deleteAnimeDatabaseItem(intent: DatabaseStore.Intent.DeleteAnimeDatabaseItem) {
         if (deleteAnimeDatabaseItemsJobMap[intent.id]?.isActive == true) return
+        if (!databaseContainsItem(intent.id)) return
         deleteAnimeDatabaseItemsJobMap[intent.id] = scope.launch {
             repository.delete(intent.id)
         }
@@ -95,9 +97,15 @@ internal class DatabaseExecutorImpl(
 
     private fun updateAnimeDatabaseItem(intent: DatabaseStore.Intent.UpdateAnimeDatabaseItem) {
         if (updateItemJobMap[intent.animeDatabaseItem.id]?.isActive == true) return
-
+        if (!databaseContainsItem(intent.animeDatabaseItem.id)) return
         updateItemJobMap[intent.animeDatabaseItem.id] = scope.launch {
             repository.update(intent.animeDatabaseItem)
         }
+    }
+
+    private fun databaseContainsItem(id: AnimeId): Boolean {
+        return state().animeDatabaseItems.map { animeDb: AnimeDb ->
+            animeDb.id
+        }.toSet().contains(id)
     }
 }
