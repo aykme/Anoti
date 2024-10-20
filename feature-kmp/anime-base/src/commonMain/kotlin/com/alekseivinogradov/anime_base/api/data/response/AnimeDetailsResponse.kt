@@ -1,7 +1,9 @@
 package com.alekseivinogradov.anime_base.api.data.response
 
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
+
 data class AnimeDetailsResponse(
-    val id: Int?,
+    val id: AnimeId?,
     val englishName: String?,
     val russianName: String?,
     val pageUrl: String?,

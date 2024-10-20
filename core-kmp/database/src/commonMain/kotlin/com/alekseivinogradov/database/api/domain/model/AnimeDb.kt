@@ -1,7 +1,9 @@
 package com.alekseivinogradov.database.api.domain.model
 
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
+
 data class AnimeDb(
-    val id: Int,
+    val id: AnimeId,
     val imageUrl: String?,
     val name: String,
     val episodesAired: Int?,

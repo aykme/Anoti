@@ -6,9 +6,9 @@ import android.text.TextWatcher
 import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.alekseivinogradov.anime_base.api.domain.PAGING_SUBMIT_LIST_DELAY
-import com.alekseivinogradov.anime_base.api.domain.SWIPE_REFRESH_END_OFFSET
-import com.alekseivinogradov.anime_base.api.domain.SWIPE_REFRESH_START_OFFSET
+import com.alekseivinogradov.celebrity.api.domain.PAGING_SUBMIT_LIST_DELAY
+import com.alekseivinogradov.celebrity.api.domain.SWIPE_REFRESH_END_OFFSET
+import com.alekseivinogradov.celebrity.api.domain.SWIPE_REFRESH_START_OFFSET
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
@@ -20,7 +20,7 @@ import com.alekseivinogradov.anime_list.api.presentation.model.UiModel
 import com.alekseivinogradov.anime_list.impl.presentation.adapter.AnimeListAdapter
 import com.alekseivinogradov.anime_list_platform.R
 import com.alekseivinogradov.anime_list_platform.databinding.FragmentAnimeListBinding
-import com.alekseivinogradov.date.formatter.DateFormatter
+import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer
@@ -103,8 +103,8 @@ internal class AnimeListViewImpl(
         with(viewBinding) {
             swipeRefreshLayout.setProgressViewOffset(
                 /* scale = */ false,
-                /* start = */ SWIPE_REFRESH_START_OFFSET,
-                /* end = */ SWIPE_REFRESH_END_OFFSET
+                /* start = */ com.alekseivinogradov.celebrity.api.domain.SWIPE_REFRESH_START_OFFSET,
+                /* end = */ com.alekseivinogradov.celebrity.api.domain.SWIPE_REFRESH_END_OFFSET
             )
             swipeRefreshLayout.setColorSchemeResources(theme_R.color.pink)
             swipeRefreshLayout.setOnRefreshListener {
@@ -257,7 +257,7 @@ internal class AnimeListViewImpl(
                          * The reason for this delay is so that
                          * the list can be updated before the ContentType change
                          */
-                        delay(PAGING_SUBMIT_LIST_DELAY * 4)
+                        delay(com.alekseivinogradov.celebrity.api.domain.PAGING_SUBMIT_LIST_DELAY * 4)
                         connectionStatusImage.isVisible = false
                         animeListRv.isVisible = true
                     }
@@ -292,7 +292,7 @@ internal class AnimeListViewImpl(
              * Apparently, this is a library bug.
              * This is a big problem in MVI, as state can be updated very often.
              */
-            delay(PAGING_SUBMIT_LIST_DELAY)
+            delay(com.alekseivinogradov.celebrity.api.domain.PAGING_SUBMIT_LIST_DELAY)
             adapter.removeOnPagesUpdatedListener(resetListPositionCallback)
             if (listContent.isNeedToResetListPositon) {
                 adapter.addOnPagesUpdatedListener(resetListPositionCallback)

@@ -18,6 +18,12 @@ internal fun mapMainStoreLabelToDatabaseStoreIntent(
             )
         }
 
+        is AnimeFavoritesMainStore.Label.DisableNotificationClick -> {
+            DatabaseStore.Intent.DeleteAnimeDatabaseItem(
+                id = label.id
+            )
+        }
+
         is AnimeFavoritesMainStore.Label.UpdateListItem -> {
             DatabaseStore.Intent.UpdateAnimeDatabaseItem(
                 animeDatabaseItem = label.listItem.toDb()

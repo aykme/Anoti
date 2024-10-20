@@ -3,10 +3,10 @@ package com.alekseivinogradov.anime_favorites.impl.presentation.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
-import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_favorites.api.presentation.model.item_content.ListItemUi
 import com.alekseivinogradov.anime_favorites_platform.databinding.ItemAnimeFavoritesBinding
-import com.alekseivinogradov.date.formatter.DateFormatter
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
+import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
 
 internal class AnimeFavoritesAdapter(
     private val itemClickAdapterCallback: (AnimeId) -> Unit,

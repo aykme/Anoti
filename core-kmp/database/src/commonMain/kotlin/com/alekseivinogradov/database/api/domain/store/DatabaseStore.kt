@@ -1,5 +1,6 @@
 package com.alekseivinogradov.database.api.domain.store
 
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.database.api.domain.model.AnimeDb
 import com.arkivanov.mvikotlin.core.store.Store
 
@@ -12,11 +13,11 @@ interface DatabaseStore
 
     sealed interface Intent {
         data class InsertAnimeDatabaseItem(val animeDatabaseItem: AnimeDb) : Intent
-        data class DeleteAnimeDatabaseItem(val id: Int) : Intent
+        data class DeleteAnimeDatabaseItem(val id: AnimeId) : Intent
         data object ResetAllItemsNewEpisodeStatus : Intent
         data class ChangeItemNewEpisodeStatus(
             val isNewEpisode: Boolean,
-            val id: Int
+            val id: AnimeId
         ) : Intent
 
         data class UpdateAnimeDatabaseItem(val animeDatabaseItem: AnimeDb) : Intent

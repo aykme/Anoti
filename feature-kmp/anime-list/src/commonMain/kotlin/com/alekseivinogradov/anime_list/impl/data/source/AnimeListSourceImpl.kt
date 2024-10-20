@@ -2,10 +2,10 @@ package com.alekseivinogradov.anime_list.impl.data.source
 
 import com.alekseivinogradov.anime_base.api.data.model.ReleaseStatusData
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
-import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_list.api.data.mapper.toListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.source.AnimeListSource
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.network.api.data.SafeApi
 import com.alekseivinogradov.network.api.domain.model.CallResult
 

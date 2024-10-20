@@ -13,7 +13,8 @@ import com.alekseivinogradov.anime_favorites.api.presentation.model.item_content
 import com.alekseivinogradov.anime_favorites.api.presentation.model.item_content.ReleaseStatusUi
 import com.alekseivinogradov.anime_favorites_platform.R
 import com.alekseivinogradov.anime_favorites_platform.databinding.ItemAnimeFavoritesBinding
-import com.alekseivinogradov.date.formatter.DateFormatter
+import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
+import com.alekseivinogradov.celebrity.impl.presentation.repeat_listener.RepeatListener
 import com.bumptech.glide.Glide
 import com.alekseivinogradov.atom.R as atom_R
 import com.alekseivinogradov.theme.R as theme_R
@@ -140,27 +141,45 @@ internal class AnimeFavoritesViewHolder(
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun setClickListeners() {
         with(binding) {
             root.setOnClickListener {
-                itemClickViewHolderCallback(adapterPosition)
+                if (bindingAdapterPosition == RecyclerView.NO_POSITION) return@setOnClickListener
+                itemClickViewHolderCallback(bindingAdapterPosition)
             }
             root.setOnLongClickListener {
-                infoTypeClickViewHolderCallback(adapterPosition)
-                true
+                if (bindingAdapterPosition != RecyclerView.NO_POSITION) {
+                    infoTypeClickViewHolderCallback(bindingAdapterPosition)
+                    true
+                } else false
             }
             infoTypeButton.setOnClickListener {
-                infoTypeClickViewHolderCallback(adapterPosition)
+                if (bindingAdapterPosition == RecyclerView.NO_POSITION) return@setOnClickListener
+                infoTypeClickViewHolderCallback(bindingAdapterPosition)
             }
             notificationButton.setOnClickListener {
-                notificationClickViewHolderCallback(adapterPosition)
+                if (bindingAdapterPosition == RecyclerView.NO_POSITION) return@setOnClickListener
+                notificationClickViewHolderCallback(bindingAdapterPosition)
             }
-            episodesViewedMinusButton.setOnClickListener {
-                episodesViewedMinusClickViewHolderCallback(adapterPosition)
-            }
-            episodesViewedPlusButton.setOnClickListener {
-                episodesViewedPlusClickViewHolderCallback(adapterPosition)
-            }
+            episodesViewedMinusButton.setOnTouchListener(
+                RepeatListener(
+                    initialInterval = com.alekseivinogradov.celebrity.api.domain.REPEAT_LISTENER_INITIAL_INTERVAL,
+                    repeatInterval = com.alekseivinogradov.celebrity.api.domain.REPEAT_LISTENER_REPEAT_INTERVAL
+                ) {
+                    if (bindingAdapterPosition == RecyclerView.NO_POSITION) return@RepeatListener
+                    episodesViewedMinusClickViewHolderCallback(bindingAdapterPosition)
+                }
+            )
+            episodesViewedPlusButton.setOnTouchListener(
+                RepeatListener(
+                    initialInterval = com.alekseivinogradov.celebrity.api.domain.REPEAT_LISTENER_INITIAL_INTERVAL,
+                    repeatInterval = com.alekseivinogradov.celebrity.api.domain.REPEAT_LISTENER_REPEAT_INTERVAL
+                ) {
+                    if (bindingAdapterPosition == RecyclerView.NO_POSITION) return@RepeatListener
+                    episodesViewedPlusClickViewHolderCallback(bindingAdapterPosition)
+                }
+            )
         }
     }
 

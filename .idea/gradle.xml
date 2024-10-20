@@ -11,11 +11,12 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/core-kmp" />
+            <option value="$PROJECT_DIR$/core-kmp/celebrity" />
             <option value="$PROJECT_DIR$/core-kmp/database" />
             <option value="$PROJECT_DIR$/core-kmp/network" />
             <option value="$PROJECT_DIR$/core-platform" />
+            <option value="$PROJECT_DIR$/core-platform/celebrity" />
             <option value="$PROJECT_DIR$/core-platform/database" />
-            <option value="$PROJECT_DIR$/core-platform/date" />
             <option value="$PROJECT_DIR$/core-platform/network" />
             <option value="$PROJECT_DIR$/feature-kmp" />
             <option value="$PROJECT_DIR$/feature-kmp/anime-base" />

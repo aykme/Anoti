@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anime_favorites.api.domain.store
 
-import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_favorites.api.domain.model.ListItemDomain
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.arkivanov.mvikotlin.core.store.Store
 
 interface AnimeFavoritesMainStore :
@@ -26,6 +26,7 @@ interface AnimeFavoritesMainStore :
     sealed interface Label {
         data object UpdateSection : Label
         data class ItemClick(val id: AnimeId) : Label
+        data class DisableNotificationClick(val id: AnimeId) : Label
         data class UpdateListItem(val listItem: ListItemDomain) : Label
     }
 

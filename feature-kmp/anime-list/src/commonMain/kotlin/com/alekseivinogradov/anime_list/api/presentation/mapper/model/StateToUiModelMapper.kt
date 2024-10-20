@@ -2,7 +2,6 @@ package com.alekseivinogradov.anime_list.api.presentation.mapper.model
 
 import app.cash.paging.PagingData
 import app.cash.paging.map
-import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_list.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
@@ -19,6 +18,7 @@ import com.alekseivinogradov.anime_list.api.presentation.model.UiModel
 import com.alekseivinogradov.anime_list.api.presentation.model.item_content.EpisodesInfoTypeUi
 import com.alekseivinogradov.anime_list.api.presentation.model.item_content.NotificationUi
 import com.alekseivinogradov.anime_list.api.presentation.model.item_content.ReleaseStatusUi
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
 
 internal fun mapStateToUiModel(
     state: AnimeListMainStore.State

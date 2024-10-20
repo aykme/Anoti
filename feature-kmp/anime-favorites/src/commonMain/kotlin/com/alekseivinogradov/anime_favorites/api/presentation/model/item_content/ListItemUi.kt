@@ -1,6 +1,6 @@
 package com.alekseivinogradov.anime_favorites.api.presentation.model.item_content
 
-import com.alekseivinogradov.anime_base.api.domain.AnimeId
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
 
 data class ListItemUi(
     val id: AnimeId,

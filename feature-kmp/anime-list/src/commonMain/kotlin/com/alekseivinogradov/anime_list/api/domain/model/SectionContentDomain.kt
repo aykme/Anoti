@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anime_list.api.domain.model
 
 import app.cash.paging.PagingData
-import com.alekseivinogradov.anime_base.api.domain.AnimeId
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
 
 data class SectionContentDomain(
     val contentType: ContentTypeDomain = ContentTypeDomain.LOADING,

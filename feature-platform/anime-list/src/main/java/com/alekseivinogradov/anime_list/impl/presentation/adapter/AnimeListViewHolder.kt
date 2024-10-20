@@ -12,7 +12,7 @@ import com.alekseivinogradov.anime_list.api.presentation.model.item_content.Noti
 import com.alekseivinogradov.anime_list.api.presentation.model.item_content.ReleaseStatusUi
 import com.alekseivinogradov.anime_list_platform.R
 import com.alekseivinogradov.anime_list_platform.databinding.ItemAnimeListBinding
-import com.alekseivinogradov.date.formatter.DateFormatter
+import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
 import com.bumptech.glide.Glide
 import com.alekseivinogradov.atom.R as atom_R
 import com.alekseivinogradov.theme.R as theme_R
@@ -146,13 +146,16 @@ internal class AnimeListViewHolder(
     private fun setClickListeners() {
         with(binding) {
             availableEpisodesInfoButton.setOnClickListener {
-                episodesInfoClickViewHolderCallback(adapterPosition)
+                if (bindingAdapterPosition == RecyclerView.NO_POSITION) return@setOnClickListener
+                episodesInfoClickViewHolderCallback(bindingAdapterPosition)
             }
             extraEpisodesInfoButton.setOnClickListener {
-                episodesInfoClickViewHolderCallback(adapterPosition)
+                if (bindingAdapterPosition == RecyclerView.NO_POSITION) return@setOnClickListener
+                episodesInfoClickViewHolderCallback(bindingAdapterPosition)
             }
             notificationButton.setOnClickListener {
-                notificationClickViewHolderCallback(adapterPosition)
+                if (bindingAdapterPosition == RecyclerView.NO_POSITION) return@setOnClickListener
+                notificationClickViewHolderCallback(bindingAdapterPosition)
             }
         }
     }

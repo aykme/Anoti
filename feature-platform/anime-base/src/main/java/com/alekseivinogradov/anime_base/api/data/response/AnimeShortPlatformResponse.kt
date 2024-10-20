@@ -1,9 +1,10 @@
 package com.alekseivinogradov.anime_base.api.data.response
 
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.squareup.moshi.Json
 
 data class AnimeShortPlatformResponse(
-    @Json(name = "id") val id: Int?,
+    @Json(name = "id") val id: AnimeId?,
     @Json(name = "name") val englishName: String?,
     @Json(name = "russian") val russianName: String?,
     @Json(name = "url") val pageUrl: String?,

@@ -1,10 +1,10 @@
 package com.alekseivinogradov.anime_list.api.domain.store.announced_section
 
 import app.cash.paging.PagingData
-import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.SectionContentDomain
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.arkivanov.mvikotlin.core.store.Store
 
 interface AnnouncedSectionStore : Store<

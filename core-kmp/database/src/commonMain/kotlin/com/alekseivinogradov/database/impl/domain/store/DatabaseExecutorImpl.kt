@@ -1,5 +1,6 @@
 package com.alekseivinogradov.database.impl.domain.store
 
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.database.api.domain.model.AnimeDb
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.api.domain.store.DatabaseExecutor
@@ -12,11 +13,11 @@ internal class DatabaseExecutorImpl(
 ) : DatabaseExecutor() {
 
     private var fetchAllDatabaseItemsJob: Job? = null
-    private val insertAnimeDatabaseItemsJobMap: MutableMap<Int, Job> = mutableMapOf()
-    private val deleteAnimeDatabaseItemsJobMap: MutableMap<Int, Job> = mutableMapOf()
+    private val insertAnimeDatabaseItemsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
+    private val deleteAnimeDatabaseItemsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
     private var resetAllItemsNewEpisodeStatusJob: Job? = null
-    private val changeItemNewEpisodeStatusJobMap: MutableMap<Int, Job> = mutableMapOf()
-    private val updateItemJobMap: MutableMap<Int, Job> = mutableMapOf()
+    private val changeItemNewEpisodeStatusJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
+    private val updateItemJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
 
     override fun executeAction(action: DatabaseStore.Action) {
         when (action) {

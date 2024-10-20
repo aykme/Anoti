@@ -1,6 +1,5 @@
 package com.alekseivinogradov.anime_favorites.api.presentation.mapper
 
-import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_favorites.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_favorites.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesMainStore
@@ -9,6 +8,7 @@ import com.alekseivinogradov.anime_favorites.api.presentation.model.item_content
 import com.alekseivinogradov.anime_favorites.api.presentation.model.item_content.ListItemUi
 import com.alekseivinogradov.anime_favorites.api.presentation.model.item_content.NotificationUi
 import com.alekseivinogradov.anime_favorites.api.presentation.model.item_content.ReleaseStatusUi
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
 
 internal fun mapStateToUiModel(state: AnimeFavoritesMainStore.State): UiModel {
     return UiModel(

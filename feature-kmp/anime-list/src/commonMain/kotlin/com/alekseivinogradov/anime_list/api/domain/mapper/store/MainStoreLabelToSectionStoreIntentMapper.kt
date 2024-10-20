@@ -28,8 +28,8 @@ internal fun mapMainStoreLabelToOngoingStoreIntent(
         is AnimeListMainStore.Label.ChangeSearchText,
         is AnimeListMainStore.Label.AnnouncedEpisodeInfoClick,
         is AnimeListMainStore.Label.SearchEpisodeInfoClick,
-        is AnimeListMainStore.Label.DisableNotification,
-        is AnimeListMainStore.Label.EnableNotification -> null
+        is AnimeListMainStore.Label.DisableNotificationClick,
+        is AnimeListMainStore.Label.EnableNotificationClick -> null
     }
 }
 
@@ -56,8 +56,8 @@ internal fun mapMainStoreLabelToAnnouncedStoreIntent(
         is AnimeListMainStore.Label.ChangeSearchText,
         is AnimeListMainStore.Label.OngoingEpisodeInfoClick,
         is AnimeListMainStore.Label.SearchEpisodeInfoClick,
-        is AnimeListMainStore.Label.DisableNotification,
-        is AnimeListMainStore.Label.EnableNotification -> null
+        is AnimeListMainStore.Label.DisableNotificationClick,
+        is AnimeListMainStore.Label.EnableNotificationClick -> null
     }
 }
 
@@ -87,7 +87,7 @@ internal fun mapMainStoreLabelToSearchStoreIntent(
         AnimeListMainStore.Label.UpdateAnnouncedSection,
         is AnimeListMainStore.Label.AnnouncedEpisodeInfoClick,
         is AnimeListMainStore.Label.OngoingEpisodeInfoClick,
-        is AnimeListMainStore.Label.DisableNotification,
-        is AnimeListMainStore.Label.EnableNotification -> null
+        is AnimeListMainStore.Label.DisableNotificationClick,
+        is AnimeListMainStore.Label.EnableNotificationClick -> null
     }
 }

@@ -3,7 +3,7 @@
 
     <application>
         <activity
-            android:name=".impl.presentation.MainActivity"
+            android:name="com.alekseivinogradov.main.impl.presentation.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -25,7 +25,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            //put your multiplatform dependencies here
+            api(project(":core-kmp:celebrity"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

@@ -1,11 +1,11 @@
 package com.alekseivinogradov.anime_favorites.impl.domain.store
 
-import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_favorites.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_favorites.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesExecutor
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anime_favorites.impl.domain.usecase.wrapper.FavoritesUsecases
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -15,6 +15,7 @@ internal class AnimeFavoritesExecutorImpl(
 ) : AnimeFavoritesExecutor() {
 
     private val updateAnimeDetailsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
+    private val changeEpisodesViewedJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
 
     override fun executeIntent(intent: AnimeFavoritesMainStore.Intent) {
         when (intent) {
@@ -59,19 +60,45 @@ internal class AnimeFavoritesExecutorImpl(
     }
 
     private fun notificationClick(intent: AnimeFavoritesMainStore.Intent.NotificationClick) {
-        println("tagtag notificationClick: ${intent.id}")
+        publish(AnimeFavoritesMainStore.Label.DisableNotificationClick(intent.id))
     }
 
     private fun episodesViewedMinusClick(
         intent: AnimeFavoritesMainStore.Intent.EpisodesViewedMinusClick
     ) {
-        println("tagtag episodesViewedMinusClick: ${intent.id}")
+        val listItem = state().listItems
+            .find { listItemDomain: ListItemDomain ->
+                listItemDomain.id == intent.id
+            } ?: return
+
+        if (listItem.episodesViewed <= 0) return
+
+        publish(
+            AnimeFavoritesMainStore.Label.UpdateListItem(
+                listItem = listItem.copy(
+                    episodesViewed = listItem.episodesViewed - 1
+                )
+            )
+        )
     }
 
     private fun episodesViewedPlusClick(
         intent: AnimeFavoritesMainStore.Intent.EpisodesViewedPlusClick
     ) {
-        println("tagtag episodesViewedPlusClick: ${intent.id}")
+        val listItem = state().listItems
+            .find { listItemDomain: ListItemDomain ->
+                listItemDomain.id == intent.id
+            } ?: return
+
+        if (listItem.episodesViewed >= getMaxEpisodesViewedNumber(listItem)) return
+
+        publish(
+            AnimeFavoritesMainStore.Label.UpdateListItem(
+                listItem = listItem.copy(
+                    episodesViewed = listItem.episodesViewed + 1
+                )
+            )
+        )
     }
 
     private fun changeInfoTypeToMain(id: AnimeId) {
@@ -92,8 +119,8 @@ internal class AnimeFavoritesExecutorImpl(
         dispatch(AnimeFavoritesMainStore.Message.UpdateEnabledExtraInfoIds(newEnabledExtraInfoIds))
 
         val state = state()
-        val listItem = state.listItems.find { listItem: ListItemDomain ->
-            listItem.id == id
+        val listItem = state.listItems.find { listItemDomain: ListItemDomain ->
+            listItemDomain.id == id
         } ?: return
 
         val isOngoingStatus = listItem.releaseStatus == ReleaseStatusDomain.ONGOING
@@ -143,5 +170,14 @@ internal class AnimeFavoritesExecutorImpl(
                 )
             )
         )
+    }
+
+    private fun getMaxEpisodesViewedNumber(listItem: ListItemDomain): Int {
+        return when (listItem.releaseStatus) {
+            ReleaseStatusDomain.ONGOING -> listItem.episodesAired ?: 0
+            ReleaseStatusDomain.ANNOUNCED -> 0
+            ReleaseStatusDomain.RELEASED -> listItem.episodesTotal ?: 0
+            ReleaseStatusDomain.UNKNOWN -> 0
+        }
     }
 }

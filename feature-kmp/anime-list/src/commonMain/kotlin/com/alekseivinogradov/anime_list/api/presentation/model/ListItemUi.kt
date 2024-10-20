@@ -1,9 +1,9 @@
 package com.alekseivinogradov.anime_list.api.presentation.model
 
-import com.alekseivinogradov.anime_base.api.domain.AnimeId
 import com.alekseivinogradov.anime_list.api.presentation.model.item_content.EpisodesInfoTypeUi
 import com.alekseivinogradov.anime_list.api.presentation.model.item_content.NotificationUi
 import com.alekseivinogradov.anime_list.api.presentation.model.item_content.ReleaseStatusUi
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
 
 data class ListItemUi(
     val id: AnimeId,

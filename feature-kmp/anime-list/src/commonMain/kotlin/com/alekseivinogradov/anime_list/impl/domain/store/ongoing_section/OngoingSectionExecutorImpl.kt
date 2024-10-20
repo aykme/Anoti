@@ -4,9 +4,6 @@ import app.cash.paging.Pager
 import app.cash.paging.PagingConfig
 import app.cash.paging.PagingData
 import app.cash.paging.cachedIn
-import com.alekseivinogradov.anime_base.api.domain.AnimeId
-import com.alekseivinogradov.anime_base.api.domain.ITEMS_PER_PAGE
-import com.alekseivinogradov.anime_base.api.domain.PAGING_PREFETCH_DISTANCE
 import com.alekseivinogradov.anime_list.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
@@ -15,6 +12,9 @@ import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.Ongoing
 import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.OngoingSectionStore
 import com.alekseivinogradov.anime_list.impl.domain.paging.OngoingListDataSource
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.OngoingUsecases
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
+import com.alekseivinogradov.celebrity.api.domain.ITEMS_PER_PAGE
+import com.alekseivinogradov.celebrity.api.domain.PAGING_PREFETCH_DISTANCE
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow

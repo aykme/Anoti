@@ -2,16 +2,14 @@ package com.alekseivinogradov.anime_favorites.impl.presentation
 
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.alekseivinogradov.anime_base.api.domain.AnimeId
-import com.alekseivinogradov.anime_base.api.domain.SWIPE_REFRESH_END_OFFSET
-import com.alekseivinogradov.anime_base.api.domain.SWIPE_REFRESH_START_OFFSET
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anime_favorites.api.presentation.AnimeFavoritesView
 import com.alekseivinogradov.anime_favorites.api.presentation.model.UiModel
 import com.alekseivinogradov.anime_favorites.api.presentation.model.item_content.ListItemUi
 import com.alekseivinogradov.anime_favorites.impl.presentation.adapter.AnimeFavoritesAdapter
 import com.alekseivinogradov.anime_favorites_platform.databinding.FragmentAnimeFavoritesBinding
-import com.alekseivinogradov.date.formatter.DateFormatter
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
+import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
 import com.alekseivinogradov.theme.R
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
@@ -51,8 +49,8 @@ internal class AnimeFavoritesViewImpl(
         with(viewBinding) {
             swipeRefreshLayout.setProgressViewOffset(
                 /* scale = */ false,
-                /* start = */ SWIPE_REFRESH_START_OFFSET,
-                /* end = */ SWIPE_REFRESH_END_OFFSET
+                /* start = */ com.alekseivinogradov.celebrity.api.domain.SWIPE_REFRESH_START_OFFSET,
+                /* end = */ com.alekseivinogradov.celebrity.api.domain.SWIPE_REFRESH_END_OFFSET
             )
             swipeRefreshLayout.setColorSchemeResources(R.color.pink)
             swipeRefreshLayout.setOnRefreshListener {

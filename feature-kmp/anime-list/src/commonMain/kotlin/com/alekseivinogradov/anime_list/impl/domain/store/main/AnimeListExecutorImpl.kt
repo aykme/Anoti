@@ -259,11 +259,11 @@ internal class AnimeListExecutorImpl : AnimeListExecutor() {
     }
 
     private fun enableNotification(listItem: ListItemDomain) {
-        publish(AnimeListMainStore.Label.EnableNotification(listItem))
+        publish(AnimeListMainStore.Label.EnableNotificationClick(listItem))
     }
 
     private fun disableNotification(id: Int) {
-        publish(AnimeListMainStore.Label.DisableNotification(id))
+        publish(AnimeListMainStore.Label.DisableNotificationClick(id))
     }
 
     private fun updateEnabledNotificationIds(

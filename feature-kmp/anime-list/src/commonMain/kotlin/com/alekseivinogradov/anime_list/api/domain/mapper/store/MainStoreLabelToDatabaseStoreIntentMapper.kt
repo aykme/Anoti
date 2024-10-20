@@ -8,11 +8,11 @@ internal fun mapMainStoreLabelToDatabaseStoreIntent(
     label: AnimeListMainStore.Label
 ): DatabaseStore.Intent? {
     return when (label) {
-        is AnimeListMainStore.Label.EnableNotification -> {
+        is AnimeListMainStore.Label.EnableNotificationClick -> {
             DatabaseStore.Intent.InsertAnimeDatabaseItem(label.listItem.toDb())
         }
 
-        is AnimeListMainStore.Label.DisableNotification -> {
+        is AnimeListMainStore.Label.DisableNotificationClick -> {
             DatabaseStore.Intent.DeleteAnimeDatabaseItem(label.id)
         }
 

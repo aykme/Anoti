@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.database.room.api.data.model.AnimeDbPlatform
 import kotlinx.coroutines.flow.Flow
 
@@ -18,7 +19,7 @@ interface AnimeDao {
     suspend fun update(anime: AnimeDbPlatform)
 
     @Query("SELECT * FROM anime_table WHERE id = :id")
-    suspend fun getItem(id: Int): AnimeDbPlatform
+    suspend fun getItem(id: AnimeId): AnimeDbPlatform
 
     @Query("SELECT * FROM anime_table ORDER BY release_status DESC, name ASC")
     fun getAllItemsFlow(): Flow<List<AnimeDbPlatform>>
@@ -27,11 +28,11 @@ interface AnimeDao {
     suspend fun getAllItems(): List<AnimeDbPlatform>
 
     @Query("DELETE FROM anime_table WHERE id =:id")
-    suspend fun delete(id: Int)
+    suspend fun delete(id: AnimeId)
 
     @Query("UPDATE anime_table SET is_new_episode = false")
     suspend fun resetAllItemsNewEpisodeStatus()
 
     @Query("UPDATE anime_table SET is_new_episode = :isNewEpisode WHERE id =:id")
-    suspend fun changeItemNewEpisodeStatus(id: Int, isNewEpisode: Boolean)
+    suspend fun changeItemNewEpisodeStatus(id: AnimeId, isNewEpisode: Boolean)
 }

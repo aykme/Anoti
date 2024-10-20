@@ -25,6 +25,8 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":core-kmp:celebrity"))
+
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.mvikotlin)
             implementation(libs.mvikotlin.extensions.coroutines)

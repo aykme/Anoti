@@ -40,7 +40,6 @@ dependencies {
     implementation(project(":ui-core:atom"))
     implementation(project(":core-platform:database"))
     implementation(project(":core-platform:network"))
-    implementation(project(":core-platform:date"))
     implementation(project(":feature-platform:anime-base"))
     implementation(project(":feature-kmp:anime-list"))
 

@@ -35,6 +35,7 @@ android {
 
 dependencies {
     api(project(":core-kmp:database"))
+    implementation(project(":core-platform:celebrity"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.room.ktx)

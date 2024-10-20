@@ -1,5 +1,6 @@
 package com.alekseivinogradov.database.room.impl.data.repository
 
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.database.api.domain.model.AnimeDb
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.room.api.data.AnimeDao
@@ -18,7 +19,7 @@ class AnimeDatabaseRepositoryImpl(private val animeDao: AnimeDao) : AnimeDatabas
         animeDao.update(anime.toPlatform())
     }
 
-    override suspend fun getItem(id: Int): AnimeDb {
+    override suspend fun getItem(id: AnimeId): AnimeDb {
         return animeDao.getItem(id).toKmp()
     }
 
@@ -36,7 +37,7 @@ class AnimeDatabaseRepositoryImpl(private val animeDao: AnimeDao) : AnimeDatabas
         }
     }
 
-    override suspend fun delete(id: Int) {
+    override suspend fun delete(id: AnimeId) {
         animeDao.delete(id)
     }
 
@@ -44,7 +45,7 @@ class AnimeDatabaseRepositoryImpl(private val animeDao: AnimeDao) : AnimeDatabas
         animeDao.resetAllItemsNewEpisodeStatus()
     }
 
-    override suspend fun changeItemNewEpisodeStatus(id: Int, isNewEpisode: Boolean) {
+    override suspend fun changeItemNewEpisodeStatus(id: AnimeId, isNewEpisode: Boolean) {
         animeDao.changeItemNewEpisodeStatus(id = id, isNewEpisode = isNewEpisode)
     }
 }
