@@ -9,7 +9,7 @@
     tools:background="@color/black">
 
     <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/image"
+        android:id="@+id/poster_image"
         android:layout_width="130dp"
         android:layout_height="130dp"
         android:importantForAccessibility="no"
@@ -18,7 +18,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearanceOverlay="@style/RoundedImageView8percentStyle"
-        tools:srcCompat="@drawable/anime_image_sample" />
+        tools:srcCompat="@drawable/anime_poster_sample" />
 
     <View
         android:id="@+id/new_episode_background"
@@ -29,9 +29,9 @@
         android:backgroundTint="@color/black"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@id/new_episode_text"
-        app:layout_constraintEnd_toEndOf="@id/image"
-        app:layout_constraintStart_toStartOf="@id/image"
-        app:layout_constraintTop_toTopOf="@id/image" />
+        app:layout_constraintEnd_toEndOf="@id/poster_image"
+        app:layout_constraintStart_toStartOf="@id/poster_image"
+        app:layout_constraintTop_toTopOf="@id/poster_image" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/new_episode_text"
@@ -43,10 +43,10 @@
         android:textAppearance="@style/AccentTextAppearance"
         android:textColor="@color/silver"
         android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="@id/image"
-        app:layout_constraintStart_toStartOf="@id/image"
-        app:layout_constraintTop_toTopOf="@id/image"
-        tools:text="New episode" />
+        app:layout_constraintEnd_toEndOf="@id/poster_image"
+        app:layout_constraintStart_toStartOf="@id/poster_image"
+        app:layout_constraintTop_toTopOf="@id/poster_image"
+        tools:text="@string/new_episode" />
 
     <View
         android:id="@+id/image_info_background"
@@ -55,22 +55,22 @@
         android:alpha="0.5"
         android:background="@drawable/rectangle_background_4dp_radius"
         android:backgroundTint="@color/black"
-        app:layout_constraintBottom_toBottomOf="@id/image"
-        app:layout_constraintEnd_toEndOf="@id/image"
-        app:layout_constraintStart_toStartOf="@id/image" />
+        app:layout_constraintBottom_toBottomOf="@id/poster_image"
+        app:layout_constraintEnd_toEndOf="@id/poster_image"
+        app:layout_constraintStart_toStartOf="@id/poster_image" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/score_image"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:alpha="0.8"
-        android:contentDescription="@string/score"
         android:src="@drawable/ic_score_42"
         android:tint="@color/pink"
         app:layout_constraintBottom_toBottomOf="@id/image_info_background"
         app:layout_constraintEnd_toStartOf="@id/score_text"
         app:layout_constraintStart_toStartOf="@id/image_info_background"
-        app:layout_constraintTop_toTopOf="@id/image_info_background" />
+        app:layout_constraintTop_toTopOf="@id/image_info_background"
+        tools:contentDescription="@string/score_image_description" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/score_text"
@@ -92,7 +92,6 @@
         android:layout_width="42dp"
         android:layout_height="34dp"
         android:background="@color/black"
-        android:contentDescription="@string/extra_info_on_description"
         android:foreground="?android:attr/selectableItemBackground"
         android:padding="4dp"
         android:src="@drawable/ic_details_on_24"
@@ -100,7 +99,8 @@
         app:layout_constraintBottom_toBottomOf="@id/image_info_background"
         app:layout_constraintEnd_toEndOf="@id/image_info_background"
         app:layout_constraintStart_toEndOf="@id/score_text"
-        app:layout_constraintTop_toTopOf="@id/image_info_background" />
+        app:layout_constraintTop_toTopOf="@id/image_info_background"
+        tools:contentDescription="@string/extra_info_on_description" />
 
     <View
         android:id="@+id/main_info_stroke"
@@ -111,7 +111,7 @@
         android:backgroundTint="@color/grey_700"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/image"
+        app:layout_constraintStart_toEndOf="@id/poster_image"
         app:layout_constraintTop_toTopOf="parent"
         tools:backgroundTint="@color/silver" />
 
@@ -194,7 +194,7 @@
         app:layout_constraintEnd_toStartOf="@id/notification_button"
         app:layout_constraintStart_toStartOf="@id/main_info_stroke"
         app:layout_constraintTop_toTopOf="@id/notification_button"
-        tools:text="Ongoing" />
+        tools:text="@string/ongoing" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/notification_button"
@@ -204,7 +204,6 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:alpha="0.8"
-        android:contentDescription="@string/notifications_turn_off_description"
         android:src="@drawable/ic_notifications_on_40"
         android:tint="@color/black_transparent"
         android:visibility="visible"
@@ -212,7 +211,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:maxImageSize="40dp"
         tools:backgroundTint="@color/green"
-        tools:ignore="ImageContrastCheck,TouchTargetSizeCheck" />
+        tools:contentDescription="@string/notifications_turn_off_description"
+        tools:ignore="ContentDescription,TouchTargetSizeCheck" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/extra_episodes_info_text"
@@ -261,7 +261,6 @@
         android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
         android:background="@color/black"
-        android:contentDescription="@string/episodes_viewed_minus_description"
         android:foreground="?android:attr/selectableItemBackground"
         android:src="@drawable/ic_arrow_left_32"
         android:visibility="gone"
@@ -270,7 +269,8 @@
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="@id/main_info_stroke"
-        app:tint="@color/pink" />
+        app:tint="@color/pink"
+        tools:contentDescription="@string/episodes_viewed_minus_description" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/episodes_viewed_number"
@@ -299,7 +299,6 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:background="@color/black"
-        android:contentDescription="@string/episodes_viewed_plus_description"
         android:foreground="?android:attr/selectableItemBackground"
         android:src="@drawable/ic_arrow_right_32"
         android:visibility="gone"
@@ -308,6 +307,7 @@
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toEndOf="@id/episodes_viewed_number"
-        app:tint="@color/pink" />
+        app:tint="@color/pink"
+        tools:contentDescription="@string/episodes_viewed_plus_description" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

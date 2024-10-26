@@ -1,15 +1,16 @@
 <resources>
+    <string name="poster_image_description">The image of the anime poster</string>
     <string name="extra_episodes_info_description">Display extra episodes info</string>
     <string name="available_episodes_info_discription">Display information about the available episodes</string>
     <string name="notifications_turn_off_description">Turn off notifications</string>
     <string name="notifications_turn_on_description">Turn on notifications</string>
-    <string name="score">Score</string>
+    <string name="score_image_description">The image of the rating in the form of a star</string>
     <string name="loading_in_progress">Loading in progress</string>
     <string name="connection_error">Connection error</string>
-    <string name="search">Search</string>
+    <string name="search_on_description">Move to search section and/or open search input field</string>
+    <string name="search_off_description">Close search input field</string>
     <string name="ongoings">Ongoings</string>
     <string name="announced">Announced</string>
-    <string name="released">Released</string>
     <string name="search_hint">Enter the name of anime</string>
     <string name="episodes">Episodes</string>
     <string name="next_episode">Next episode</string>
@@ -17,4 +18,6 @@
     <string name="show_is_finished">Show is finished</string>
     <string name="no_data">No data</string>
     <string name="inaccurate">Inaccurate</string>
+    <string name="ongoing">Ongoing</string>
+    <string name="released">Released</string>
 </resources>

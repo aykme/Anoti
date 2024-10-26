@@ -6,9 +6,6 @@ import android.text.TextWatcher
 import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.alekseivinogradov.celebrity.api.domain.PAGING_SUBMIT_LIST_DELAY
-import com.alekseivinogradov.celebrity.api.domain.SWIPE_REFRESH_END_OFFSET
-import com.alekseivinogradov.celebrity.api.domain.SWIPE_REFRESH_START_OFFSET
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
@@ -120,6 +117,9 @@ internal class AnimeListViewImpl(
             animeListLayout.isVisible = true
             ongoingButton.text = context.getString(R.string.ongoings)
             announcedButton.text = context.getString(R.string.announced)
+            searchButton.contentDescription = context.getString(R.string.search_on_description)
+            searchCancelButton.contentDescription = context
+                .getString(R.string.search_off_description)
             searchInputLayout.hint = context.getString(R.string.search_hint)
         }
     }
@@ -265,12 +265,16 @@ internal class AnimeListViewImpl(
                     ContentTypeUi.LOADING -> {
                         animeListRv.isVisible = false
                         connectionStatusImage.setImageResource(atom_R.drawable.loading_animation)
+                        connectionStatusImage.contentDescription = context
+                            .getString(R.string.loading_in_progress)
                         connectionStatusImage.isVisible = true
                     }
 
                     ContentTypeUi.ERROR -> {
                         animeListRv.isVisible = false
                         connectionStatusImage.setImageResource(R.drawable.connection_error_48)
+                        connectionStatusImage.contentDescription = context
+                            .getString(R.string.connection_error)
                         connectionStatusImage.isVisible = true
                     }
                 }

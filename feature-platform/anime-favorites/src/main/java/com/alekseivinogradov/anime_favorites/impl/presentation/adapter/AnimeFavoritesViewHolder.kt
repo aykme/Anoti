@@ -127,9 +127,10 @@ internal class AnimeFavoritesViewHolder(
 
     private fun bindCommonFields() {
         with(binding) {
-            image.isVisible = true
+            posterImage.isVisible = true
             newEpisodeText.text = context.getString(R.string.new_episode)
             imageInfoBackground.isVisible = true
+            scoreImage.contentDescription = context.getString(R.string.score_image_description)
             scoreImage.isVisible = true
             scoreText.isVisible = true
             infoTypeButton.isVisible = true
@@ -138,6 +139,10 @@ internal class AnimeFavoritesViewHolder(
             releaseStatusBarrier.isInvisible = true
             val episodesViewedText = "${context.getString(R.string.episodes_viewed)}:"
             episodesViewedTitle.text = episodesViewedText
+            episodesViewedMinusButton.contentDescription = context
+                .getString(R.string.episodes_viewed_minus_description)
+            episodesViewedPlusButton.contentDescription = context
+                .getString(R.string.episodes_viewed_plus_description)
         }
     }
 
@@ -185,11 +190,11 @@ internal class AnimeFavoritesViewHolder(
 
     private fun bindImageUrl(imageUrl: String?) {
         imageUrl?.let {
-            Glide.with(binding.image)
+            Glide.with(binding.posterImage)
                 .load(it)
                 .placeholder(atom_R.drawable.loading_animation)
                 .error(atom_R.drawable.load_image_error_48)
-                .into(binding.image)
+                .into(binding.posterImage)
         }
     }
 
@@ -308,7 +313,7 @@ internal class AnimeFavoritesViewHolder(
             when (releaseStatus) {
                 ReleaseStatusUi.ONGOING -> {
                     releaseStatusText.text =
-                        context.getString(R.string.ongoings)
+                        context.getString(R.string.ongoing)
                     releaseStatusText.setTextColor(context.getColor(theme_R.color.green))
                 }
 

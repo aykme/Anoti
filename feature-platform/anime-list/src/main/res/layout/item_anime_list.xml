@@ -9,17 +9,17 @@
     tools:background="@color/black">
 
     <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/image"
+        android:id="@+id/poster_image"
         android:layout_width="match_parent"
         android:layout_height="350dp"
-        android:importantForAccessibility="no"
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearanceOverlay="@style/RoundedImageView3percentStyle"
-        tools:srcCompat="@drawable/anime_image_sample" />
+        tools:contentDescription="@string/poster_image_description"
+        tools:srcCompat="@drawable/anime_poster_sample" />
 
     <View
         android:id="@+id/info_background"
@@ -75,7 +75,6 @@
         android:layout_marginStart="3dp"
         android:layout_marginTop="1dp"
         android:backgroundTint="@color/black_transparent"
-        android:contentDescription="@string/extra_episodes_info_description"
         android:src="@drawable/ic_info_outline_28"
         android:tint="@color/pink"
         android:visibility="visible"
@@ -86,7 +85,8 @@
         app:layout_constraintTop_toTopOf="@id/available_episodes_info_text"
         app:maxImageSize="28dp"
         app:rippleColor="@color/black"
-        tools:ignore="TouchTargetSizeCheck" />
+        tools:contentDescription="@string/extra_episodes_info_description"
+        tools:ignore="ContentDescription,TouchTargetSizeCheck" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/extra_episodes_info_text"
@@ -115,7 +115,6 @@
         android:layout_marginStart="3dp"
         android:layout_marginTop="3dp"
         android:backgroundTint="@color/black_transparent"
-        android:contentDescription="@string/available_episodes_info_discription"
         android:src="@drawable/ic_info_28"
         android:tint="@color/pink"
         android:visibility="gone"
@@ -125,7 +124,9 @@
         app:layout_constraintStart_toEndOf="@id/extra_episodes_info_text"
         app:layout_constraintTop_toTopOf="@id/extra_episodes_info_text"
         app:maxImageSize="28dp"
-        app:rippleColor="@color/black" />
+        app:rippleColor="@color/black"
+        tools:contentDescription="@string/available_episodes_info_discription"
+        tools:ignore="ContentDescription" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/notification_button_barrier"
@@ -142,12 +143,12 @@
         android:layout_height="42dp"
         android:layout_marginStart="8dp"
         android:alpha="0.8"
-        android:contentDescription="@string/score"
         android:src="@drawable/ic_score_42"
         android:tint="@color/pink"
         app:layout_constraintBottom_toBottomOf="@id/notification_button"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/notification_button" />
+        app:layout_constraintTop_toTopOf="@id/notification_button"
+        tools:contentDescription="@string/score_image_description" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/score_text"
@@ -188,7 +189,7 @@
         app:layout_constraintEnd_toStartOf="@id/vertical_divider_after_status"
         app:layout_constraintStart_toEndOf="@id/vertical_divider_after_score"
         app:layout_constraintTop_toTopOf="@id/notification_button"
-        tools:text="Ongoing" />
+        tools:text="@string/ongoing" />
 
     <View
         android:id="@+id/vertical_divider_after_status"
@@ -211,12 +212,12 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:alpha="0.8"
-        android:contentDescription="@string/notifications_turn_on_description"
         android:src="@drawable/ic_notifications_off_40"
         android:tint="@color/black_transparent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:maxImageSize="40dp"
         tools:backgroundTint="@color/pink"
-        tools:ignore="ImageContrastCheck" />
+        tools:contentDescription="@string/notifications_turn_on_description"
+        tools:ignore="ContentDescription,ImageContrastCheck,TouchTargetSizeCheck" />
 </androidx.constraintlayout.widget.ConstraintLayout>
