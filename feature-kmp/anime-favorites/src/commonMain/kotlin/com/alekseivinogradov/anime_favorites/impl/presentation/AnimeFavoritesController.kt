@@ -7,6 +7,7 @@ import com.alekseivinogradov.anime_favorites.api.presentation.AnimeFavoritesView
 import com.alekseivinogradov.anime_favorites.api.presentation.mapper.mapStateToUiModel
 import com.alekseivinogradov.anime_favorites.impl.domain.store.AnimeFavoritesMainStoreFactory
 import com.alekseivinogradov.anime_favorites.impl.domain.usecase.wrapper.FavoritesUsecases
+import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.impl.domain.store.DatabaseStoreFactory
 import com.arkivanov.essenty.lifecycle.Lifecycle
@@ -25,6 +26,7 @@ import kotlinx.coroutines.launch
 class AnimeFavoritesController(
     storeFactory: StoreFactory,
     lifecycle: Lifecycle,
+    coroutineContextProvider: CoroutineContextProvider,
     favoritesUsecases: FavoritesUsecases,
     toastProvider: ToastProvider,
     databaseRepository: AnimeDatabaseRepository
@@ -32,12 +34,14 @@ class AnimeFavoritesController(
 
     private val mainStore = AnimeFavoritesMainStoreFactory(
         storeFactory = storeFactory,
+        coroutineContextProvider = coroutineContextProvider,
         usecases = favoritesUsecases,
         toastProvider = toastProvider
     ).create()
 
     private val databaseStore = DatabaseStoreFactory(
         storeFactory = storeFactory,
+        coroutineContextProvider = coroutineContextProvider,
         repository = databaseRepository
     ).create()
 

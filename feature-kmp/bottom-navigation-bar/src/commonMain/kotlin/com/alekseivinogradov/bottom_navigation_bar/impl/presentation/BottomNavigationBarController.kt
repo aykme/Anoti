@@ -3,6 +3,7 @@ package com.alekseivinogradov.bottom_navigation_bar.impl.presentation
 import com.alekseivinogradov.bottom_navigation_bar.api.domain.mapper.mapDatabaseStoreStateToMainStoreIntent
 import com.alekseivinogradov.bottom_navigation_bar.api.presentation.mapper.mapStateToUiModel
 import com.alekseivinogradov.bottom_navigation_bar.impl.domain.store.BottomNavigationBarStoreFactory
+import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.impl.domain.store.DatabaseStoreFactory
 import com.arkivanov.essenty.lifecycle.Lifecycle
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.map
 class BottomNavigationBarController(
     storeFactory: StoreFactory,
     lifecycle: Lifecycle,
+    coroutineContextProvider: CoroutineContextProvider,
     databaseRepository: AnimeDatabaseRepository
 ) {
 
@@ -27,6 +29,7 @@ class BottomNavigationBarController(
 
     private val databaseStore = DatabaseStoreFactory(
         storeFactory = storeFactory,
+        coroutineContextProvider = coroutineContextProvider,
         repository = databaseRepository
     ).create()
 

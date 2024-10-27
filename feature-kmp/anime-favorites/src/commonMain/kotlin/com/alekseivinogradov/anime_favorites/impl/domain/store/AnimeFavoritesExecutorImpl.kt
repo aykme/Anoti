@@ -7,11 +7,13 @@ import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesExec
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anime_favorites.impl.domain.usecase.wrapper.FavoritesUsecases
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
+import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 internal class AnimeFavoritesExecutorImpl(
+    private val coroutineContextProvider: CoroutineContextProvider,
     private val usecases: FavoritesUsecases,
     private var toastProvider: ToastProvider
 ) : AnimeFavoritesExecutor() {
@@ -134,21 +136,22 @@ internal class AnimeFavoritesExecutorImpl(
 
     private fun updateAnimeDetails(listItem: ListItemDomain) {
         updateAnimeDetailsJobMap[listItem.id]?.cancel()
-        updateAnimeDetailsJobMap[listItem.id] = scope.launch {
-            val result = usecases
-                .fetchAnimeDetailsByIdUsecase
-                .execute(listItem.id)
+        updateAnimeDetailsJobMap[listItem.id] =
+            scope.launch(coroutineContextProvider.mainCoroutineContext) {
+                val result = usecases
+                    .fetchAnimeDetailsByIdUsecase
+                    .execute(listItem.id)
 
-            when (result) {
-                is CallResult.Success -> onSuccessUpdateAnimeDetails(
-                    currentListItem = listItem,
-                    updateListItem = result.value
-                )
+                when (result) {
+                    is CallResult.Success -> onSuccessUpdateAnimeDetails(
+                        currentListItem = listItem,
+                        updateListItem = result.value
+                    )
 
-                is CallResult.HttpError,
-                is CallResult.OtherError -> toastProvider.makeConnectionErrorToast()
+                    is CallResult.HttpError,
+                    is CallResult.OtherError -> toastProvider.getMakeConnectionErrorToastCallback()
+                }
             }
-        }
     }
 
     private fun onSuccessUpdateAnimeDetails(

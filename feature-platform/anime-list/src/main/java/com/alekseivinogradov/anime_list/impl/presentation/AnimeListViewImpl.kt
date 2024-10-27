@@ -17,6 +17,8 @@ import com.alekseivinogradov.anime_list.api.presentation.model.UiModel
 import com.alekseivinogradov.anime_list.impl.presentation.adapter.AnimeListAdapter
 import com.alekseivinogradov.anime_list_platform.R
 import com.alekseivinogradov.anime_list_platform.databinding.FragmentAnimeListBinding
+import com.alekseivinogradov.celebrity.api.domain.PAGING_SUBMIT_LIST_DELAY
+import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
@@ -31,7 +33,8 @@ import com.alekseivinogradov.theme.R as theme_R
 internal class AnimeListViewImpl(
     private val viewBinding: FragmentAnimeListBinding,
     dateFormatter: DateFormatter,
-    private val viewScope: CoroutineScope
+    private val viewScope: CoroutineScope,
+    private val coroutineContextProvider: CoroutineContextProvider
 ) : AnimeListView, BaseMviView<UiModel, AnimeListMainStore.Intent>() {
 
     private val context
@@ -249,7 +252,7 @@ internal class AnimeListViewImpl(
     private var contentTypeChangeJob: Job? = null
     private fun setContentType(contentType: ContentTypeUi) {
         contentTypeChangeJob?.cancel()
-        contentTypeChangeJob = viewScope.launch {
+        contentTypeChangeJob = viewScope.launch(coroutineContextProvider.mainCoroutineContext) {
             with(viewBinding) {
                 when (contentType) {
                     ContentTypeUi.LOADED -> {
@@ -257,7 +260,7 @@ internal class AnimeListViewImpl(
                          * The reason for this delay is so that
                          * the list can be updated before the ContentType change
                          */
-                        delay(com.alekseivinogradov.celebrity.api.domain.PAGING_SUBMIT_LIST_DELAY * 4)
+                        delay(PAGING_SUBMIT_LIST_DELAY * 4)
                         connectionStatusImage.isVisible = false
                         animeListRv.isVisible = true
                     }
@@ -289,14 +292,14 @@ internal class AnimeListViewImpl(
     private var submitDataJob: Job? = null
     private fun setListContent(listContent: ListContentUi) {
         submitDataJob?.cancel()
-        submitDataJob = viewScope.launch {
+        submitDataJob = viewScope.launch(coroutineContextProvider.mainCoroutineContext) {
             /**
              * The reason for this delay is that if the list is updated within a few milliseconds,
              * the PagingDataAdapter freezes and does not update the items.
              * Apparently, this is a library bug.
              * This is a big problem in MVI, as state can be updated very often.
              */
-            delay(com.alekseivinogradov.celebrity.api.domain.PAGING_SUBMIT_LIST_DELAY)
+            delay(PAGING_SUBMIT_LIST_DELAY)
             adapter.removeOnPagesUpdatedListener(resetListPositionCallback)
             if (listContent.isNeedToResetListPositon) {
                 adapter.addOnPagesUpdatedListener(resetListPositionCallback)

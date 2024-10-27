@@ -2,6 +2,7 @@ package com.alekseivinogradov.anime_list.impl.domain.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.alekseivinogradov.anime_base.api.domain.ToastProvider
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchOngoingAnimeListUsecase
 import com.alekseivinogradov.celebrity.api.domain.FIRST_PAGING_PAGE
@@ -9,6 +10,7 @@ import com.alekseivinogradov.network.api.domain.model.CallResult
 
 class OngoingListDataSource(
     private val fetchOngoingAnimeListUseCase: FetchOngoingAnimeListUsecase,
+    private val toastProvider: ToastProvider,
     private val initialLoadSuccessCallback: () -> Unit,
     private val initialLoadErrorCallback: () -> Unit
 ) : PagingSource<Int, ListItemDomain>() {
@@ -35,6 +37,7 @@ class OngoingListDataSource(
                 if (page == FIRST_PAGING_PAGE) {
                     initialLoadErrorCallback()
                 }
+                toastProvider.getMakeConnectionErrorToastCallback()
                 LoadResult.Error(usecaseResult.throwable)
             }
 
@@ -42,6 +45,7 @@ class OngoingListDataSource(
                 if (page == FIRST_PAGING_PAGE) {
                     initialLoadErrorCallback()
                 }
+                toastProvider.getMakeConnectionErrorToastCallback()
                 LoadResult.Error(usecaseResult.throwable)
             }
         }

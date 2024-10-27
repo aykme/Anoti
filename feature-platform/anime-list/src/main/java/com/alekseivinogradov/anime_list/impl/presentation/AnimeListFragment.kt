@@ -1,13 +1,15 @@
 package com.alekseivinogradov.anime_list.impl.presentation
 
+import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiServicePlatform
+import com.alekseivinogradov.anime_base.api.domain.ToastProvider
 import com.alekseivinogradov.anime_base.impl.data.service.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anime_list.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anime_list.impl.data.source.AnimeListSourceImpl
@@ -19,28 +21,29 @@ import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.AnnouncedUse
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.OngoingUsecases
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.SearchUsecases
 import com.alekseivinogradov.anime_list_platform.databinding.FragmentAnimeListBinding
+import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
+import com.alekseivinogradov.celebrity.impl.domain.coroutine_context.CoroutineContextProviderPlatform
+import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
+import com.alekseivinogradov.celebrity.impl.presentation.toast.AnotiToast
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.room.impl.data.AnimeDatabase
 import com.alekseivinogradov.database.room.impl.data.repository.AnimeDatabaseRepositoryImpl
-import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
 import com.alekseivinogradov.network.impl.data.SafeApiImpl
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 
 class AnimeListFragment : Fragment() {
-
-    private val tag = "AnimeList"
 
     private var binding: FragmentAnimeListBinding? = null
 
     private val shikimoriService: ShikimoriApiService = ShikimoriApiServiceImpl(
         servicePlatform = ShikimoriApiServicePlatform.instance
     )
+
+    private val coroutineContextProvider: CoroutineContextProvider
+            by lazy(LazyThreadSafetyMode.NONE) {
+                CoroutineContextProviderPlatform(requireContext().applicationContext)
+            }
 
     private val animeListSource: AnimeListSource = AnimeListSourceImpl(
         service = shikimoriService,
@@ -72,19 +75,14 @@ class AnimeListFragment : Fragment() {
         AnimeListController(
             storeFactory = DefaultStoreFactory(),
             lifecycle = essentyLifecycle(),
+            coroutineContextProvider = coroutineContextProvider,
             ongoingUsecases = getOngoingUsecases(),
             announcedUsecases = getAnnouncedUsecases(),
             searchUsecases = getSearchUsecases(),
+            toastProvider = getToastProvider(requireContext().applicationContext),
             databaseRepository = animeDatabaseRepository
         )
     }
-
-    private val viewScope = CoroutineScope(
-        SupervisorJob() + Dispatchers.Main +
-                CoroutineExceptionHandler { _, e ->
-                    Log.e(tag, "$e")
-                }
-    )
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -100,14 +98,14 @@ class AnimeListFragment : Fragment() {
             mainView = AnimeListViewImpl(
                 viewBinding = binding!!,
                 dateFormatter = DateFormatter.getInstance(view.context),
-                viewScope = viewScope
+                viewScope = lifecycleScope,
+                coroutineContextProvider = coroutineContextProvider
             ),
             viewLifecycle = viewLifecycleOwner.essentyLifecycle()
         )
     }
 
     override fun onDestroy() {
-        viewScope.cancel()
         binding = null
         super.onDestroy()
     }
@@ -124,5 +122,10 @@ class AnimeListFragment : Fragment() {
     private fun getSearchUsecases() = SearchUsecases(
         fetchAnimeListBySearchUsecase = fetchAnimeListBySearchUsecase,
         fetchAnimeDetailsByIdUsecase = fetchAnimeDetailsByIdUsecase
+    )
+
+    private fun getToastProvider(context: Context) = ToastProvider(
+        getMakeConnectionErrorToastCallback = { AnotiToast.makeConnectionErrorToast(context) },
+        getMakeUnknownErrorToastCallback = { AnotiToast.makeUnknownErrorToast(context) }
     )
 }

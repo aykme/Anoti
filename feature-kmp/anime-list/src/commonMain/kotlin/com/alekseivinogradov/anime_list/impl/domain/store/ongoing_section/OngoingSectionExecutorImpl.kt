@@ -4,6 +4,7 @@ import app.cash.paging.Pager
 import app.cash.paging.PagingConfig
 import app.cash.paging.PagingData
 import app.cash.paging.cachedIn
+import com.alekseivinogradov.anime_base.api.domain.ToastProvider
 import com.alekseivinogradov.anime_list.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
@@ -15,13 +16,17 @@ import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.OngoingUseca
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.celebrity.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.celebrity.api.domain.PAGING_PREFETCH_DISTANCE
+import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 internal class OngoingSectionExecutorImpl(
-    private val usecases: OngoingUsecases
+    private val coroutineContextProvider: CoroutineContextProvider,
+    private val usecases: OngoingUsecases,
+    private val toastProvider: ToastProvider
 ) : OngoingSectionExecutor() {
 
     private var updateSectionJob: Job? = null
@@ -50,7 +55,7 @@ internal class OngoingSectionExecutorImpl(
 
     private fun updateSection() {
         updateSectionJob?.cancel()
-        updateSectionJob = scope.launch {
+        updateSectionJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
             dispatch(
                 OngoingSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
             )
@@ -81,10 +86,12 @@ internal class OngoingSectionExecutorImpl(
             ) {
             OngoingListDataSource(
                 fetchOngoingAnimeListUseCase = usecases.fetchOngoingAnimeListUsecase,
+                toastProvider = toastProvider,
                 initialLoadSuccessCallback = ::initialLoadSuccessCallback,
                 initialLoadErrorCallback = ::initialLoadErrorCallback
             )
-        }.flow.cachedIn(scope)
+        }.flow.catch { toastProvider.getMakeUnknownErrorToastCallback() }
+            .cachedIn(scope)
     }
 
     private fun initialLoadSuccessCallback() {
@@ -145,7 +152,7 @@ internal class OngoingSectionExecutorImpl(
 
     private fun updateAnimeDetails(id: AnimeId) {
         updateAnimeDetailsJobMap[id]?.cancel()
-        updateAnimeDetailsJobMap[id] = scope.launch {
+        updateAnimeDetailsJobMap[id] = scope.launch(coroutineContextProvider.mainCoroutineContext) {
             val result = usecases
                 .fetchAnimeDetailsByIdUsecase
                 .execute(id)
@@ -156,7 +163,7 @@ internal class OngoingSectionExecutorImpl(
                 )
 
                 is CallResult.HttpError,
-                is CallResult.OtherError -> Unit
+                is CallResult.OtherError -> toastProvider.getMakeConnectionErrorToastCallback()
             }
         }
     }

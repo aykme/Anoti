@@ -36,6 +36,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core-platform:celebrity"))
     implementation(project(":ui-core:theme"))
     implementation(project(":core-platform:database"))
     implementation(project(":feature-kmp:bottom-navigation-bar"))

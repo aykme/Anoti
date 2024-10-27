@@ -15,6 +15,8 @@ import com.alekseivinogradov.anime_favorites.impl.data.source.AnimeFavoritesSour
 import com.alekseivinogradov.anime_favorites.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
 import com.alekseivinogradov.anime_favorites.impl.domain.usecase.wrapper.FavoritesUsecases
 import com.alekseivinogradov.anime_favorites_platform.databinding.FragmentAnimeFavoritesBinding
+import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
+import com.alekseivinogradov.celebrity.impl.domain.coroutine_context.CoroutineContextProviderPlatform
 import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
 import com.alekseivinogradov.celebrity.impl.presentation.toast.AnotiToast
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
@@ -31,6 +33,11 @@ class AnimeFavoritesFragment : Fragment() {
     private val shikimoriService: ShikimoriApiService = ShikimoriApiServiceImpl(
         servicePlatform = ShikimoriApiServicePlatform.instance
     )
+
+    private val coroutineContextProvider: CoroutineContextProvider
+            by lazy(LazyThreadSafetyMode.NONE) {
+                CoroutineContextProviderPlatform(requireContext().applicationContext)
+            }
 
     private val animeFavoritesSource: AnimeFavoritesSource = AnimeFavoritesSourceImpl(
         service = shikimoriService,
@@ -54,8 +61,9 @@ class AnimeFavoritesFragment : Fragment() {
         AnimeFavoritesController(
             storeFactory = DefaultStoreFactory(),
             lifecycle = essentyLifecycle(),
+            coroutineContextProvider = coroutineContextProvider,
             favoritesUsecases = getFavoritesUsecases(),
-            toastProvider = getToastProvider(requireContext()),
+            toastProvider = getToastProvider(requireContext().applicationContext),
             databaseRepository = animeDatabaseRepository
         )
     }
@@ -89,7 +97,7 @@ class AnimeFavoritesFragment : Fragment() {
     )
 
     private fun getToastProvider(context: Context) = ToastProvider(
-        makeConnectionErrorToast = { AnotiToast.makeConnectionErrorToast(context) },
-        makeUnknownErrorToast = { AnotiToast.makeUnknownErrorToast(context) }
+        getMakeConnectionErrorToastCallback = { AnotiToast.makeConnectionErrorToast(context) },
+        getMakeUnknownErrorToastCallback = { AnotiToast.makeUnknownErrorToast(context) }
     )
 }

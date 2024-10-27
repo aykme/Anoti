@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anime_list.impl.presentation
 
+import com.alekseivinogradov.anime_base.api.domain.ToastProvider
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapAnnouncedStoreLabelToMainStoreIntent
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapAnnouncedStoreStateToMainStoreIntent
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapDatabaseStoreStateToMainStoreIntent
@@ -20,6 +21,7 @@ import com.alekseivinogradov.anime_list.impl.domain.store.search_section.SearchS
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.AnnouncedUsecases
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.OngoingUsecases
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.SearchUsecases
+import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.impl.domain.store.DatabaseStoreFactory
 import com.arkivanov.essenty.lifecycle.Lifecycle
@@ -36,9 +38,11 @@ import kotlinx.coroutines.flow.mapNotNull
 class AnimeListController(
     storeFactory: StoreFactory,
     lifecycle: Lifecycle,
+    coroutineContextProvider: CoroutineContextProvider,
     ongoingUsecases: OngoingUsecases,
     announcedUsecases: AnnouncedUsecases,
     searchUsecases: SearchUsecases,
+    toastProvider: ToastProvider,
     databaseRepository: AnimeDatabaseRepository
 ) {
 
@@ -48,22 +52,29 @@ class AnimeListController(
 
     private val databaseStore = DatabaseStoreFactory(
         storeFactory = storeFactory,
+        coroutineContextProvider = coroutineContextProvider,
         repository = databaseRepository
     ).create()
 
     private val ongoingSectionStore = OngoingSectionStoreFactory(
         storeFactory = storeFactory,
-        usecases = ongoingUsecases
+        coroutineContextProvider = coroutineContextProvider,
+        usecases = ongoingUsecases,
+        toastProvider = toastProvider
     ).create()
 
     private val announcedSectionStore = AnnouncedSectionStoreFactory(
         storeFactory = storeFactory,
-        usecases = announcedUsecases
+        coroutineContextProvider = coroutineContextProvider,
+        usecases = announcedUsecases,
+        toastProvider = toastProvider
     ).create()
 
     private val searchSectionStore = SearchSectionStoreFactory(
         storeFactory = storeFactory,
-        usecases = searchUsecases
+        coroutineContextProvider = coroutineContextProvider,
+        usecases = searchUsecases,
+        toastProvider = toastProvider
     ).create()
 
     init {

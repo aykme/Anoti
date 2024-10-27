@@ -4,6 +4,7 @@ import app.cash.paging.Pager
 import app.cash.paging.PagingConfig
 import app.cash.paging.PagingData
 import app.cash.paging.cachedIn
+import com.alekseivinogradov.anime_base.api.domain.ToastProvider
 import com.alekseivinogradov.anime_list.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
@@ -16,17 +17,21 @@ import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.celebrity.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.celebrity.api.domain.PAGING_PREFETCH_DISTANCE
 import com.alekseivinogradov.celebrity.api.domain.SEARCH_DEBOUNCE
+import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 internal class SearchSectionExecutorImpl(
-    private val usecases: SearchUsecases
+    private val coroutineContextProvider: CoroutineContextProvider,
+    private val usecases: SearchUsecases,
+    private val toastProvider: ToastProvider
 ) : SearchSectionExecutor() {
 
     private var searchFlow: MutableStateFlow<String>? = null
@@ -56,7 +61,7 @@ internal class SearchSectionExecutorImpl(
             searchFlow = MutableStateFlow(state().searchText)
         }
         if (changeSearchJob?.isActive == true) return
-        changeSearchJob = scope.launch {
+        changeSearchJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
             searchFlow?.debounce(SEARCH_DEBOUNCE)
                 ?.collect {
                     updateSection()
@@ -66,7 +71,7 @@ internal class SearchSectionExecutorImpl(
 
     private fun updateSection() {
         updateSectionJob?.cancel()
-        updateSectionJob = scope.launch {
+        updateSectionJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
             dispatch(
                 SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
             )
@@ -97,10 +102,12 @@ internal class SearchSectionExecutorImpl(
             SearchListDataSource(
                 fetchAnimeListBySearchUsecase = usecases.fetchAnimeListBySearchUsecase,
                 searchText = state().searchText,
+                toastProvider = toastProvider,
                 initialLoadSuccessCallback = ::initialLoadSuccessCallback,
                 initialLoadErrorCallback = ::initialLoadErrorCallback
             )
-        }.flow.cachedIn(scope)
+        }.flow.catch { toastProvider.getMakeUnknownErrorToastCallback() }
+            .cachedIn(scope)
     }
 
     private fun initialLoadSuccessCallback() {
@@ -166,7 +173,7 @@ internal class SearchSectionExecutorImpl(
 
     private fun updateAnimeDetails(id: Int) {
         updateAnimeDetailsJobMap[id]?.cancel()
-        updateAnimeDetailsJobMap[id] = scope.launch {
+        updateAnimeDetailsJobMap[id] = scope.launch(coroutineContextProvider.mainCoroutineContext) {
             val result = usecases
                 .fetchAnimeDetailsByIdUsecase
                 .execute(id)
@@ -177,7 +184,7 @@ internal class SearchSectionExecutorImpl(
                 )
 
                 is CallResult.HttpError,
-                is CallResult.OtherError -> Unit
+                is CallResult.OtherError -> toastProvider.getMakeConnectionErrorToastCallback()
             }
         }
     }

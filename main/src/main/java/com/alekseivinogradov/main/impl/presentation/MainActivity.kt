@@ -10,6 +10,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.alekseivinogradov.bottom_navigation_bar.impl.presentation.BottomNavigationBarController
+import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
+import com.alekseivinogradov.celebrity.impl.domain.coroutine_context.CoroutineContextProviderPlatform
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.room.impl.data.AnimeDatabase
 import com.alekseivinogradov.database.room.impl.data.repository.AnimeDatabaseRepositoryImpl
@@ -24,6 +26,11 @@ class MainActivity : AppCompatActivity() {
 
     private var binding: ActivityMainBinding? = null
 
+    private val coroutineContextProvider: CoroutineContextProvider
+            by lazy(LazyThreadSafetyMode.NONE) {
+                CoroutineContextProviderPlatform(applicationContext)
+            }
+
     private val animeDatabase: AnimeDatabase by lazy(LazyThreadSafetyMode.NONE) {
         AnimeDatabase.getDatabase(context = applicationContext)
     }
@@ -36,6 +43,7 @@ class MainActivity : AppCompatActivity() {
         BottomNavigationBarController(
             storeFactory = DefaultStoreFactory(),
             lifecycle = essentyLifecycle(),
+            coroutineContextProvider = coroutineContextProvider,
             databaseRepository = animeDatabaseRepository
         )
     }

@@ -1,6 +1,7 @@
 package com.alekseivinogradov.database.impl.domain.store
 
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
+import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.database.api.domain.model.AnimeDb
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.api.domain.store.DatabaseExecutor
@@ -9,6 +10,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 internal class DatabaseExecutorImpl(
+    private val coroutineContextProvider: CoroutineContextProvider,
     private val repository: AnimeDatabaseRepository
 ) : DatabaseExecutor() {
 
@@ -40,7 +42,7 @@ internal class DatabaseExecutorImpl(
 
     private fun subscribeToDatabase() {
         if (fetchAllDatabaseItemsJob?.isActive == true) return
-        fetchAllDatabaseItemsJob = scope.launch {
+        fetchAllDatabaseItemsJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
             repository.getAllItemsFlow()
                 .collect { animeDbList: List<AnimeDb> ->
                     dispatch(
@@ -55,24 +57,27 @@ internal class DatabaseExecutorImpl(
     ) {
         if (insertAnimeDatabaseItemsJobMap[intent.animeDatabaseItem.id]?.isActive == true) return
         if (databaseContainsItem(intent.animeDatabaseItem.id)) return
-        insertAnimeDatabaseItemsJobMap[intent.animeDatabaseItem.id] = scope.launch {
-            repository.insert(intent.animeDatabaseItem)
-        }
+        insertAnimeDatabaseItemsJobMap[intent.animeDatabaseItem.id] =
+            scope.launch(coroutineContextProvider.mainCoroutineContext) {
+                repository.insert(intent.animeDatabaseItem)
+            }
     }
 
     private fun deleteAnimeDatabaseItem(intent: DatabaseStore.Intent.DeleteAnimeDatabaseItem) {
         if (deleteAnimeDatabaseItemsJobMap[intent.id]?.isActive == true) return
         if (!databaseContainsItem(intent.id)) return
-        deleteAnimeDatabaseItemsJobMap[intent.id] = scope.launch {
-            repository.delete(intent.id)
-        }
+        deleteAnimeDatabaseItemsJobMap[intent.id] =
+            scope.launch(coroutineContextProvider.mainCoroutineContext) {
+                repository.delete(intent.id)
+            }
     }
 
     private fun resetAllItemsNewEpisodeStatus() {
         if (resetAllItemsNewEpisodeStatusJob?.isActive == true) return
-        resetAllItemsNewEpisodeStatusJob = scope.launch {
-            repository.resetAllItemsNewEpisodeStatus()
-        }
+        resetAllItemsNewEpisodeStatusJob =
+            scope.launch(coroutineContextProvider.mainCoroutineContext) {
+                repository.resetAllItemsNewEpisodeStatus()
+            }
     }
 
     private fun changeItemNewEpisodeStatus(
@@ -87,20 +92,22 @@ internal class DatabaseExecutorImpl(
 
         if (isItemAlreadyWithoutNewEpisodeLabel) return
 
-        changeItemNewEpisodeStatusJobMap[intent.id] = scope.launch {
-            repository.changeItemNewEpisodeStatus(
-                id = intent.id,
-                isNewEpisode = intent.isNewEpisode
-            )
-        }
+        changeItemNewEpisodeStatusJobMap[intent.id] =
+            scope.launch(coroutineContextProvider.mainCoroutineContext) {
+                repository.changeItemNewEpisodeStatus(
+                    id = intent.id,
+                    isNewEpisode = intent.isNewEpisode
+                )
+            }
     }
 
     private fun updateAnimeDatabaseItem(intent: DatabaseStore.Intent.UpdateAnimeDatabaseItem) {
         if (updateItemJobMap[intent.animeDatabaseItem.id]?.isActive == true) return
         if (!databaseContainsItem(intent.animeDatabaseItem.id)) return
-        updateItemJobMap[intent.animeDatabaseItem.id] = scope.launch {
-            repository.update(intent.animeDatabaseItem)
-        }
+        updateItemJobMap[intent.animeDatabaseItem.id] =
+            scope.launch(coroutineContextProvider.mainCoroutineContext) {
+                repository.update(intent.animeDatabaseItem)
+            }
     }
 
     private fun databaseContainsItem(id: AnimeId): Boolean {

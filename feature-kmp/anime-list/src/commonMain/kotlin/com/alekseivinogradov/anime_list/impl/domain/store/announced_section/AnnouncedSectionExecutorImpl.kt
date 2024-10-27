@@ -4,6 +4,7 @@ import app.cash.paging.Pager
 import app.cash.paging.PagingConfig
 import app.cash.paging.PagingData
 import app.cash.paging.cachedIn
+import com.alekseivinogradov.anime_base.api.domain.ToastProvider
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.store.announced_section.AnnouncedSectionExecutor
@@ -12,12 +13,16 @@ import com.alekseivinogradov.anime_list.impl.domain.paging.AnnouncedListDataSour
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.AnnouncedUsecases
 import com.alekseivinogradov.celebrity.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.celebrity.api.domain.PAGING_PREFETCH_DISTANCE
+import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 internal class AnnouncedSectionExecutorImpl(
-    private val usecases: AnnouncedUsecases
+    private val coroutineContextProvider: CoroutineContextProvider,
+    private val usecases: AnnouncedUsecases,
+    private val toastProvider: ToastProvider
 ) : AnnouncedSectionExecutor() {
 
     private var updateSectionJob: Job? = null
@@ -39,7 +44,7 @@ internal class AnnouncedSectionExecutorImpl(
 
     private fun updateSection() {
         updateSectionJob?.cancel()
-        updateSectionJob = scope.launch {
+        updateSectionJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
             dispatch(
                 AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
             )
@@ -64,10 +69,12 @@ internal class AnnouncedSectionExecutorImpl(
         ) {
             AnnouncedListDataSource(
                 fetchAnnouncedAnimeListUseCase = usecases.fetchAnnouncedAnimeListUsecase,
+                toastProvider = toastProvider,
                 initialLoadSuccessCallback = ::initialLoadSuccessCallback,
                 initialLoadErrorCallback = ::initialLoadErrorCallback
             )
-        }.flow.cachedIn(scope)
+        }.flow.catch { toastProvider.getMakeUnknownErrorToastCallback() }
+            .cachedIn(scope)
     }
 
     private fun initialLoadSuccessCallback() {

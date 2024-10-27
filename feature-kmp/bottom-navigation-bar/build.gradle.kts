@@ -25,6 +25,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":core-kmp:celebrity"))
             implementation(project(":core-kmp:database"))
 
             api(libs.mvikotlin)
