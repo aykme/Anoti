@@ -1,0 +1,4 @@
+<resources>
+    <string name="connection_error">Connection error</string>
+    <string name="unknown_error">Unknown error</string>
+</resources>

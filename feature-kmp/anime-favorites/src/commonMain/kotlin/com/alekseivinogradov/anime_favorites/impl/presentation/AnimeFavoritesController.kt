@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anime_favorites.impl.presentation
 
+import com.alekseivinogradov.anime_base.api.domain.ToastProvider
 import com.alekseivinogradov.anime_favorites.api.domain.mapper.mapDatabaseStoreStateToMainStoreIntent
 import com.alekseivinogradov.anime_favorites.api.domain.mapper.mapMainStoreLabelToDatabaseStoreIntent
 import com.alekseivinogradov.anime_favorites.api.presentation.AnimeFavoritesView
@@ -25,12 +26,14 @@ class AnimeFavoritesController(
     storeFactory: StoreFactory,
     lifecycle: Lifecycle,
     favoritesUsecases: FavoritesUsecases,
+    toastProvider: ToastProvider,
     databaseRepository: AnimeDatabaseRepository
 ) {
 
     private val mainStore = AnimeFavoritesMainStoreFactory(
         storeFactory = storeFactory,
-        usecases = favoritesUsecases
+        usecases = favoritesUsecases,
+        toastProvider = toastProvider
     ).create()
 
     private val databaseStore = DatabaseStoreFactory(

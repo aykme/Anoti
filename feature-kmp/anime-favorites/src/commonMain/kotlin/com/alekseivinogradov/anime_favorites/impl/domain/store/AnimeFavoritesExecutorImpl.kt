@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anime_favorites.impl.domain.store
 
+import com.alekseivinogradov.anime_base.api.domain.ToastProvider
 import com.alekseivinogradov.anime_favorites.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_favorites.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesExecutor
@@ -11,7 +12,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 internal class AnimeFavoritesExecutorImpl(
-    private val usecases: FavoritesUsecases
+    private val usecases: FavoritesUsecases,
+    private var toastProvider: ToastProvider
 ) : AnimeFavoritesExecutor() {
 
     private val updateAnimeDetailsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
@@ -144,7 +146,7 @@ internal class AnimeFavoritesExecutorImpl(
                 )
 
                 is CallResult.HttpError,
-                is CallResult.OtherError -> Unit
+                is CallResult.OtherError -> toastProvider.makeConnectionErrorToast()
             }
         }
     }

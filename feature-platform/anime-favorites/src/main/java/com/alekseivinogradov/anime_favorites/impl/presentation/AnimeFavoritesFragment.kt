@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anime_favorites.impl.presentation
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,16 +8,18 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiServicePlatform
+import com.alekseivinogradov.anime_base.api.domain.ToastProvider
 import com.alekseivinogradov.anime_base.impl.data.service.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anime_favorites.api.domain.source.AnimeFavoritesSource
 import com.alekseivinogradov.anime_favorites.impl.data.source.AnimeFavoritesSourceImpl
 import com.alekseivinogradov.anime_favorites.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
 import com.alekseivinogradov.anime_favorites.impl.domain.usecase.wrapper.FavoritesUsecases
 import com.alekseivinogradov.anime_favorites_platform.databinding.FragmentAnimeFavoritesBinding
+import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
+import com.alekseivinogradov.celebrity.impl.presentation.toast.AnotiToast
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.room.impl.data.AnimeDatabase
 import com.alekseivinogradov.database.room.impl.data.repository.AnimeDatabaseRepositoryImpl
-import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
 import com.alekseivinogradov.network.impl.data.SafeApiImpl
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
@@ -52,6 +55,7 @@ class AnimeFavoritesFragment : Fragment() {
             storeFactory = DefaultStoreFactory(),
             lifecycle = essentyLifecycle(),
             favoritesUsecases = getFavoritesUsecases(),
+            toastProvider = getToastProvider(requireContext()),
             databaseRepository = animeDatabaseRepository
         )
     }
@@ -82,5 +86,10 @@ class AnimeFavoritesFragment : Fragment() {
 
     private fun getFavoritesUsecases() = FavoritesUsecases(
         fetchAnimeDetailsByIdUsecase = fetchAnimeDetailsByIdUsecase
+    )
+
+    private fun getToastProvider(context: Context) = ToastProvider(
+        makeConnectionErrorToast = { AnotiToast.makeConnectionErrorToast(context) },
+        makeUnknownErrorToast = { AnotiToast.makeUnknownErrorToast(context) }
     )
 }
