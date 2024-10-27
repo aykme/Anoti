@@ -10,10 +10,17 @@
         android:layout_height="match_parent"
         android:background="@color/black">
 
+        <include
+            android:id="@+id/anime_favorites_empty_layout"
+            layout="@layout/anime_favorites_empty_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/anime_favorites_rv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="visible"
             tools:listitem="@layout/item_anime_favorites" />
 
     </FrameLayout>

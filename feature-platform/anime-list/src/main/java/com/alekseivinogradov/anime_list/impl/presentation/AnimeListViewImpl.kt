@@ -59,8 +59,8 @@ internal class AnimeListViewImpl(
     )
 
     init {
-        setSwipeToRefresh()
-        setCommonFields()
+        initSwipeToRefresh()
+        initCommonFields()
         initClickListeners()
         initSearchTextChangedListener()
         initRv()
@@ -96,7 +96,7 @@ internal class AnimeListViewImpl(
         dispatch(AnimeListMainStore.Intent.NotificationClick(listItem))
     }
 
-    private fun setSwipeToRefresh() {
+    private fun initSwipeToRefresh() {
         with(viewBinding) {
             swipeRefreshLayout.setProgressViewOffset(
                 /* scale = */ false,
@@ -111,7 +111,7 @@ internal class AnimeListViewImpl(
         }
     }
 
-    private fun setCommonFields() {
+    private fun initCommonFields() {
         with(viewBinding) {
             swipeRefreshLayout.isVisible = true
             animeListLayout.isVisible = true

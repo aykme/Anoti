@@ -7,13 +7,14 @@ import com.alekseivinogradov.anime_favorites.api.presentation.AnimeFavoritesView
 import com.alekseivinogradov.anime_favorites.api.presentation.model.UiModel
 import com.alekseivinogradov.anime_favorites.api.presentation.model.item_content.ListItemUi
 import com.alekseivinogradov.anime_favorites.impl.presentation.adapter.AnimeFavoritesAdapter
+import com.alekseivinogradov.anime_favorites_platform.R
 import com.alekseivinogradov.anime_favorites_platform.databinding.FragmentAnimeFavoritesBinding
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
-import com.alekseivinogradov.theme.R
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer
+import com.alekseivinogradov.theme.R as theme_R
 
 internal class AnimeFavoritesViewImpl(
     private val viewBinding: FragmentAnimeFavoritesBinding,
@@ -33,8 +34,8 @@ internal class AnimeFavoritesViewImpl(
     )
 
     init {
-        setSwipeToRefresh()
-        setCommonFields()
+        initSwipeToRefresh()
+        initCommonFields()
         initRv()
     }
 
@@ -45,14 +46,14 @@ internal class AnimeFavoritesViewImpl(
         )
     }
 
-    private fun setSwipeToRefresh() {
+    private fun initSwipeToRefresh() {
         with(viewBinding) {
             swipeRefreshLayout.setProgressViewOffset(
                 /* scale = */ false,
                 /* start = */ com.alekseivinogradov.celebrity.api.domain.SWIPE_REFRESH_START_OFFSET,
                 /* end = */ com.alekseivinogradov.celebrity.api.domain.SWIPE_REFRESH_END_OFFSET
             )
-            swipeRefreshLayout.setColorSchemeResources(R.color.pink)
+            swipeRefreshLayout.setColorSchemeResources(theme_R.color.pink)
             swipeRefreshLayout.setOnRefreshListener {
                 dispatch(AnimeFavoritesMainStore.Intent.UpdateSection)
                 swipeRefreshLayout.isRefreshing = false
@@ -60,11 +61,13 @@ internal class AnimeFavoritesViewImpl(
         }
     }
 
-    private fun setCommonFields() {
+    private fun initCommonFields() {
         with(viewBinding) {
             swipeRefreshLayout.isVisible = true
             animeFavoritesLayout.isVisible = true
-            animeFavoritesRv.isVisible = true
+            animeFavoritesEmptyLayout.mainImage.contentDescription = context
+                .getString(R.string.empty_list_image_description)
+            animeFavoritesEmptyLayout.mainInfoText.text = context.getString(R.string.empty_list)
         }
     }
 
@@ -85,6 +88,18 @@ internal class AnimeFavoritesViewImpl(
 
     private fun setListItems(listItems: List<ListItemUi>) {
         adapter.submitList(listItems)
+
+        with(viewBinding) {
+            if (listItems.isNotEmpty()) {
+                animeFavoritesEmptyLayout.animeFavoritesEmptyLayout.isVisible = false
+                swipeRefreshLayout.isEnabled = true
+                animeFavoritesRv.isVisible = true
+            } else {
+                swipeRefreshLayout.isEnabled = false
+                animeFavoritesRv.isVisible = false
+                animeFavoritesEmptyLayout.animeFavoritesEmptyLayout.isVisible = true
+            }
+        }
     }
 
     private fun itemClickAdapterCallback(id: AnimeId) {
