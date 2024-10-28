@@ -1,6 +1,5 @@
 package com.alekseivinogradov.anime_favorites.impl.presentation
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -63,7 +62,7 @@ class AnimeFavoritesFragment : Fragment() {
             lifecycle = essentyLifecycle(),
             coroutineContextProvider = coroutineContextProvider,
             favoritesUsecases = getFavoritesUsecases(),
-            toastProvider = getToastProvider(requireContext().applicationContext),
+            toastProvider = getToastProvider(),
             databaseRepository = animeDatabaseRepository
         )
     }
@@ -96,8 +95,12 @@ class AnimeFavoritesFragment : Fragment() {
         fetchAnimeDetailsByIdUsecase = fetchAnimeDetailsByIdUsecase
     )
 
-    private fun getToastProvider(context: Context) = ToastProvider(
-        getMakeConnectionErrorToastCallback = { AnotiToast.makeConnectionErrorToast(context) },
-        getMakeUnknownErrorToastCallback = { AnotiToast.makeUnknownErrorToast(context) }
+    private fun getToastProvider() = ToastProvider(
+        getMakeConnectionErrorToastCallback = {
+            AnotiToast.makeConnectionErrorToast(requireContext().applicationContext)
+        },
+        getMakeUnknownErrorToastCallback = {
+            AnotiToast.makeUnknownErrorToast(requireContext().applicationContext)
+        }
     )
 }

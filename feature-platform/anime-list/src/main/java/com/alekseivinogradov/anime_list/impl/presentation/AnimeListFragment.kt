@@ -1,6 +1,5 @@
 package com.alekseivinogradov.anime_list.impl.presentation
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -79,7 +78,7 @@ class AnimeListFragment : Fragment() {
             ongoingUsecases = getOngoingUsecases(),
             announcedUsecases = getAnnouncedUsecases(),
             searchUsecases = getSearchUsecases(),
-            toastProvider = getToastProvider(requireContext().applicationContext),
+            toastProvider = getToastProvider(),
             databaseRepository = animeDatabaseRepository
         )
     }
@@ -124,8 +123,12 @@ class AnimeListFragment : Fragment() {
         fetchAnimeDetailsByIdUsecase = fetchAnimeDetailsByIdUsecase
     )
 
-    private fun getToastProvider(context: Context) = ToastProvider(
-        getMakeConnectionErrorToastCallback = { AnotiToast.makeConnectionErrorToast(context) },
-        getMakeUnknownErrorToastCallback = { AnotiToast.makeUnknownErrorToast(context) }
+    private fun getToastProvider() = ToastProvider(
+        getMakeConnectionErrorToastCallback = {
+            AnotiToast.makeConnectionErrorToast(requireContext().applicationContext)
+        },
+        getMakeUnknownErrorToastCallback = {
+            AnotiToast.makeUnknownErrorToast(requireContext().applicationContext)
+        }
     )
 }

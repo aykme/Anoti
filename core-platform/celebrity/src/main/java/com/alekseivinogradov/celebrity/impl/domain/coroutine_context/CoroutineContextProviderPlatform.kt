@@ -10,6 +10,6 @@ class CoroutineContextProviderPlatform(context: Context) : CoroutineContextProvi
 
     override val exceptionHandlerCallback: (Throwable) -> Unit = { throwable: Throwable ->
         Log.e(tag, "$throwable")
-        AnotiToast.makeUnknownErrorToast(context)
+        AnotiToast.makeUnknownErrorToast(context.applicationContext)
     }
 }
