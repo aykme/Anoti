@@ -5,13 +5,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.work.OneTimeWorkRequest
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import com.alekseivinogradov.anime_background_update.impl.domain.worker.AnimeUpdateWorker
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiServicePlatform
 import com.alekseivinogradov.anime_base.api.domain.ToastProvider
 import com.alekseivinogradov.anime_base.impl.data.service.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anime_favorites.api.domain.source.AnimeFavoritesSource
+import com.alekseivinogradov.anime_favorites.api.domain.usecase.UpdateAllAnimeInBackgroundUsecase
 import com.alekseivinogradov.anime_favorites.impl.data.source.AnimeFavoritesSourceImpl
 import com.alekseivinogradov.anime_favorites.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
+import com.alekseivinogradov.anime_favorites.impl.domain.usecase.UpdateAllAnimeInBackgroundUsecaseImpl
 import com.alekseivinogradov.anime_favorites.impl.domain.usecase.wrapper.FavoritesUsecases
 import com.alekseivinogradov.anime_favorites_platform.databinding.FragmentAnimeFavoritesBinding
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
@@ -28,6 +34,18 @@ import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 class AnimeFavoritesFragment : Fragment() {
 
     private var binding: FragmentAnimeFavoritesBinding? = null
+
+    private val animeUpdateOnceWork: OneTimeWorkRequest =
+        OneTimeWorkRequestBuilder<AnimeUpdateWorker>().build()
+
+    private val updateAllAnimeInBackgroundUsecase: UpdateAllAnimeInBackgroundUsecase
+            by lazy(LazyThreadSafetyMode.NONE) {
+                UpdateAllAnimeInBackgroundUsecaseImpl(
+                    workManager = WorkManager.getInstance(requireContext().applicationContext),
+                    updateWork = animeUpdateOnceWork,
+                    uniqueWorkName = AnimeUpdateWorker.animeUpdateOnceWorkName
+                )
+            }
 
     private val shikimoriService: ShikimoriApiService = ShikimoriApiServiceImpl(
         servicePlatform = ShikimoriApiServicePlatform.instance
@@ -48,7 +66,7 @@ class AnimeFavoritesFragment : Fragment() {
     )
 
     private val animeDatabase by lazy(LazyThreadSafetyMode.NONE) {
-        AnimeDatabase.getDatabase(requireContext())
+        AnimeDatabase.getDatabase(requireContext().applicationContext)
     }
 
     private val animeDatabaseRepository: AnimeDatabaseRepository
@@ -92,7 +110,8 @@ class AnimeFavoritesFragment : Fragment() {
     }
 
     private fun getFavoritesUsecases() = FavoritesUsecases(
-        fetchAnimeDetailsByIdUsecase = fetchAnimeDetailsByIdUsecase
+        fetchAnimeDetailsByIdUsecase = fetchAnimeDetailsByIdUsecase,
+        updateAllAnimeInBackgroundUsecase = updateAllAnimeInBackgroundUsecase
     )
 
     private fun getToastProvider() = ToastProvider(

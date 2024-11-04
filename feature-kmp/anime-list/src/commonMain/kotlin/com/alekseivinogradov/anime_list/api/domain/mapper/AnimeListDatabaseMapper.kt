@@ -2,10 +2,10 @@ package com.alekseivinogradov.anime_list.api.domain.mapper
 
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ReleaseStatusDomain
-import com.alekseivinogradov.database.api.domain.model.AnimeDb
+import com.alekseivinogradov.database.api.domain.model.AnimeDbDomain
 import com.alekseivinogradov.database.api.domain.model.ReleaseStatusDb
 
-internal fun ListItemDomain.toDb() = AnimeDb(
+internal fun ListItemDomain.toDb() = AnimeDbDomain(
     id = this.id,
     name = this.name,
     imageUrl = this.imageUrl,
@@ -20,7 +20,7 @@ internal fun ListItemDomain.toDb() = AnimeDb(
     isNewEpisode = false
 )
 
-internal fun AnimeDb.toDomain() = ListItemDomain(
+internal fun AnimeDbDomain.toDomain() = ListItemDomain(
     id = this.id,
     name = this.name,
     imageUrl = this.imageUrl,

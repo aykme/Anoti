@@ -62,7 +62,7 @@ class AnimeListFragment : Fragment() {
         FetchAnimeDetailsByIdUsecase(source = animeListSource)
 
     private val animeDatabase by lazy(LazyThreadSafetyMode.NONE) {
-        AnimeDatabase.getDatabase(requireContext())
+        AnimeDatabase.getDatabase(requireContext().applicationContext)
     }
 
     private val animeDatabaseRepository: AnimeDatabaseRepository

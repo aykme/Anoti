@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
             }
 
     private val animeDatabase: AnimeDatabase by lazy(LazyThreadSafetyMode.NONE) {
-        AnimeDatabase.getDatabase(context = applicationContext)
+        AnimeDatabase.getDatabase(appContext = applicationContext)
     }
 
     private val animeDatabaseRepository: AnimeDatabaseRepository by lazy(LazyThreadSafetyMode.NONE) {

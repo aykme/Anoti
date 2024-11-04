@@ -42,6 +42,7 @@ dependencies {
     implementation(project(":core-platform:network"))
     implementation(project(":feature-platform:anime-base"))
     implementation(project(":feature-kmp:anime-favorites"))
+    implementation(project(":feature-platform:anime-background-update"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -50,6 +51,7 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.glide)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.work.runtime.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

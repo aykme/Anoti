@@ -6,24 +6,24 @@ import com.alekseivinogradov.date_platform.R
 
 object AnotiToast {
 
-    fun makeLongToastWithResId(context: Context, resId: Int) {
+    fun makeLongToastWithResId(appContext: Context, resId: Int) {
         Toast.makeText(
-            /* context = */ context,
+            /* context = */ appContext.applicationContext,
             /* resId = */ resId,
             /* duration = */ Toast.LENGTH_LONG
         ).show()
     }
 
-    fun makeConnectionErrorToast(context: Context) {
+    fun makeConnectionErrorToast(appContext: Context) {
         makeLongToastWithResId(
-            context = context,
+            appContext = appContext,
             resId = R.string.connection_error
         )
     }
 
-    fun makeUnknownErrorToast(context: Context) {
+    fun makeUnknownErrorToast(appContext: Context) {
         makeLongToastWithResId(
-            context = context,
+            appContext = appContext,
             resId = R.string.unknown_error
         )
     }

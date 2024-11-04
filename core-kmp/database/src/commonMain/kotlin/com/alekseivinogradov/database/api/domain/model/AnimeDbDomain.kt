@@ -2,7 +2,11 @@ package com.alekseivinogradov.database.api.domain.model
 
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
 
-data class AnimeDb(
+/**
+ * This is the entity of the Store (store for using database).
+ * This is not the database entity, but just a mediator.
+ */
+data class AnimeDbDomain(
     val id: AnimeId,
     val imageUrl: String?,
     val name: String,

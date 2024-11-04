@@ -49,6 +49,7 @@ internal class AnimeFavoritesExecutorImpl(
             )
         )
         publish(AnimeFavoritesMainStore.Label.UpdateSection)
+        usecases.updateAllAnimeInBackgroundUsecase.execute()
     }
 
     private fun itemClick(intent: AnimeFavoritesMainStore.Intent.ItemClick) {

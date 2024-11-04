@@ -2,7 +2,7 @@ package com.alekseivinogradov.database.impl.domain.store
 
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
-import com.alekseivinogradov.database.api.domain.model.AnimeDb
+import com.alekseivinogradov.database.api.domain.model.AnimeDbDomain
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.api.domain.store.DatabaseExecutor
 import com.alekseivinogradov.database.api.domain.store.DatabaseStore
@@ -44,7 +44,7 @@ internal class DatabaseExecutorImpl(
         if (fetchAllDatabaseItemsJob?.isActive == true) return
         fetchAllDatabaseItemsJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
             repository.getAllItemsFlow()
-                .collect { animeDbList: List<AnimeDb> ->
+                .collect { animeDbList: List<AnimeDbDomain> ->
                     dispatch(
                         DatabaseStore.Message.UpdateAnimeDatabaseItems(animeDbList)
                     )
@@ -86,7 +86,7 @@ internal class DatabaseExecutorImpl(
         if (changeItemNewEpisodeStatusJobMap[intent.id]?.isActive == true) return
 
         val isItemAlreadyWithoutNewEpisodeLabel = state().animeDatabaseItems
-            .find { animeDb: AnimeDb ->
+            .find { animeDb: AnimeDbDomain ->
                 animeDb.id == intent.id
             }?.isNewEpisode ?: false == false
 
@@ -111,7 +111,7 @@ internal class DatabaseExecutorImpl(
     }
 
     private fun databaseContainsItem(id: AnimeId): Boolean {
-        return state().animeDatabaseItems.map { animeDb: AnimeDb ->
+        return state().animeDatabaseItems.map { animeDb: AnimeDbDomain ->
             animeDb.id
         }.toSet().contains(id)
     }

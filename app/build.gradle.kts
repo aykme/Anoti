@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -37,9 +38,17 @@ android {
 
 dependencies {
     implementation(project(":ui-core:theme"))
+    implementation(project(":core-platform:celebrity"))
+    implementation(project(":core-platform:database"))
+    implementation(project(":core-platform:network"))
     implementation(project(":main"))
+    implementation(project(":feature-platform:anime-base"))
+    implementation(project(":feature-platform:anime-background-update"))
 
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.work.runtime.ktx)
+    ksp(libs.androidx.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

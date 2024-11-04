@@ -1,7 +1,7 @@
 package com.alekseivinogradov.database.room.impl.data.repository
 
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
-import com.alekseivinogradov.database.api.domain.model.AnimeDb
+import com.alekseivinogradov.database.api.domain.model.AnimeDbDomain
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.room.api.data.AnimeDao
 import com.alekseivinogradov.database.room.api.data.mapper.toKmp
@@ -11,19 +11,19 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class AnimeDatabaseRepositoryImpl(private val animeDao: AnimeDao) : AnimeDatabaseRepository {
-    override suspend fun insert(anime: AnimeDb) {
+    override suspend fun insert(anime: AnimeDbDomain) {
         animeDao.insert(anime.toPlatform())
     }
 
-    override suspend fun update(anime: AnimeDb) {
+    override suspend fun update(anime: AnimeDbDomain) {
         animeDao.update(anime.toPlatform())
     }
 
-    override suspend fun getItem(id: AnimeId): AnimeDb {
+    override suspend fun getItem(id: AnimeId): AnimeDbDomain {
         return animeDao.getItem(id).toKmp()
     }
 
-    override fun getAllItemsFlow(): Flow<List<AnimeDb>> {
+    override fun getAllItemsFlow(): Flow<List<AnimeDbDomain>> {
         return animeDao.getAllItemsFlow().map { animeDbPlatformList: List<AnimeDbPlatform> ->
             animeDbPlatformList.map { animeDbPlatform: AnimeDbPlatform ->
                 animeDbPlatform.toKmp()
@@ -31,7 +31,7 @@ class AnimeDatabaseRepositoryImpl(private val animeDao: AnimeDao) : AnimeDatabas
         }
     }
 
-    override suspend fun getAllItems(): List<AnimeDb> {
+    override suspend fun getAllItems(): List<AnimeDbDomain> {
         return animeDao.getAllItems().map { animeDbPlatform: AnimeDbPlatform ->
             animeDbPlatform.toKmp()
         }

@@ -18,10 +18,10 @@ abstract class AnimeDatabase : RoomDatabase() {
         @Volatile
         private var instance: AnimeDatabase? = null
 
-        fun getDatabase(context: Context): AnimeDatabase {
+        fun getDatabase(appContext: Context): AnimeDatabase {
             return instance ?: synchronized(this) {
                 val newInstance = Room.databaseBuilder(
-                    context.applicationContext,
+                    appContext.applicationContext,
                     AnimeDatabase::class.java,
                     animeTableName
                 )

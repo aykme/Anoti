@@ -1,9 +1,9 @@
 package com.alekseivinogradov.database.room.api.data.mapper
 
-import com.alekseivinogradov.database.api.domain.model.AnimeDb
+import com.alekseivinogradov.database.api.domain.model.AnimeDbDomain
 import com.alekseivinogradov.database.room.api.data.model.AnimeDbPlatform
 
-internal fun AnimeDb.toPlatform() = AnimeDbPlatform(
+internal fun AnimeDbDomain.toPlatform() = AnimeDbPlatform(
     id = this.id,
     name = this.name,
     imageUrl = this.imageUrl,
@@ -18,7 +18,7 @@ internal fun AnimeDb.toPlatform() = AnimeDbPlatform(
     isNewEpisode = this.isNewEpisode
 )
 
-internal fun AnimeDbPlatform.toKmp() = AnimeDb(
+internal fun AnimeDbPlatform.toKmp() = AnimeDbDomain(
     id = this.id,
     name = this.name,
     imageUrl = this.imageUrl,
