@@ -5,7 +5,7 @@ import androidx.paging.PagingState
 import com.alekseivinogradov.anime_base.api.domain.ToastProvider
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnnouncedAnimeListUsecase
-import com.alekseivinogradov.celebrity.api.domain.FIRST_PAGING_PAGE
+import com.alekseivinogradov.celebrity.api.domain.FIRST_PAGE
 import com.alekseivinogradov.network.api.domain.model.CallResult
 
 class AnnouncedListDataSource(
@@ -16,25 +16,25 @@ class AnnouncedListDataSource(
 ) : PagingSource<Int, ListItemDomain>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ListItemDomain> {
-        val page = params.key ?: FIRST_PAGING_PAGE
+        val page = params.key ?: FIRST_PAGE
 
         val usecaseResult: CallResult<List<ListItemDomain>> = fetchAnnouncedAnimeListUseCase
             .execute(page = page)
 
         return when (usecaseResult) {
             is CallResult.Success -> {
-                if (page == FIRST_PAGING_PAGE) {
+                if (page == FIRST_PAGE) {
                     initialLoadSuccessCallback()
                 }
                 LoadResult.Page(
                     data = usecaseResult.value,
-                    prevKey = if (page <= FIRST_PAGING_PAGE) null else (page - 1),
+                    prevKey = if (page <= FIRST_PAGE) null else (page - 1),
                     nextKey = page + 1
                 )
             }
 
             is CallResult.HttpError -> {
-                if (page == FIRST_PAGING_PAGE) {
+                if (page == FIRST_PAGE) {
                     initialLoadErrorCallback()
                 }
                 toastProvider.getMakeConnectionErrorToastCallback()
@@ -42,7 +42,7 @@ class AnnouncedListDataSource(
             }
 
             is CallResult.OtherError -> {
-                if (page == FIRST_PAGING_PAGE) {
+                if (page == FIRST_PAGE) {
                     initialLoadErrorCallback()
                 }
                 toastProvider.getMakeConnectionErrorToastCallback()

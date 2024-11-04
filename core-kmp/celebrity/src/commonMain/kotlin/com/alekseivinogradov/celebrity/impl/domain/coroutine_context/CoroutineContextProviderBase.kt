@@ -15,13 +15,26 @@ abstract class CoroutineContextProviderBase : CoroutineContextProvider {
      */
     abstract val exceptionHandlerCallback: (Throwable) -> Unit
 
-    private val exceptionHandler: CoroutineExceptionHandler =
+    private val superviserJob = SupervisorJob()
+
+    /**
+     * Standart exception handler with toast, log or else platform action
+     */
+    private val standartExceptionHandler: CoroutineExceptionHandler =
         CoroutineExceptionHandler { _: CoroutineContext, trowable: Throwable ->
             exceptionHandlerCallback(trowable)
         }
 
+    /**
+     * Empty exception handler without action
+     */
+    private val emptyExceptionHandler: CoroutineExceptionHandler =
+        CoroutineExceptionHandler { _: CoroutineContext, _: Throwable -> }
+
     override val mainCoroutineContext: CoroutineContext =
-        SupervisorJob() + Dispatchers.Main + exceptionHandler
+        superviserJob + Dispatchers.Main + standartExceptionHandler
+    override val workManagerCoroutineContext: CoroutineContext =
+        superviserJob + Dispatchers.IO + emptyExceptionHandler
 
     override val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
     override val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default

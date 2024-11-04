@@ -33,8 +33,13 @@ android {
 }
 
 dependencies {
+    implementation(project(":feature-kmp:anime-base"))
+    implementation(project(":core-platform:celebrity"))
+    implementation(project(":core-kmp:database"))
+    implementation(project(":core-kmp:network"))
 
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.work.runtime.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
