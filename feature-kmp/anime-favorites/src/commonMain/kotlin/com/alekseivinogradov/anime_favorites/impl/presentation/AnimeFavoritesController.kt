@@ -18,10 +18,7 @@ import com.arkivanov.mvikotlin.extensions.coroutines.bind
 import com.arkivanov.mvikotlin.extensions.coroutines.events
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.extensions.coroutines.states
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 
 class AnimeFavoritesController(
     storeFactory: StoreFactory,
@@ -52,7 +49,6 @@ class AnimeFavoritesController(
     fun onViewCreated(mainView: AnimeFavoritesView, viewLifecycle: Lifecycle) {
         connectAllAuxiliaryStoresToMain(viewLifecycle)
         connectMainStoreToMainView(mainView = mainView, viewLifecycle = viewLifecycle)
-        test()
     }
 
     private fun connectAllAuxiliaryStoresToMain(viewLifecycle: Lifecycle) {
@@ -69,15 +65,6 @@ class AnimeFavoritesController(
         bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
             mainStore.states.map(::mapStateToUiModel) bindTo mainView
             mainView.events bindTo mainStore
-        }
-    }
-
-    private fun test() {
-        val scope = CoroutineScope(Dispatchers.Main)
-        scope.launch {
-            mainStore.states.collect {
-                println("tagtag fetchedItemDetailsIds:${it.fetchedAnimeDetailsIds}")
-            }
         }
     }
 }
