@@ -16,6 +16,7 @@ interface AnimeFavoritesMainStore :
     sealed interface Intent {
         data class UpdateListItems(val listItems: List<ListItemDomain>) : Intent
         data object UpdateSection : Intent
+        data object UpdateAllItemsInBackground : Intent
         data class ItemClick(val id: AnimeId) : Intent
         data class InfoTypeClick(val id: AnimeId) : Intent
         data class NotificationClick(val id: AnimeId) : Intent

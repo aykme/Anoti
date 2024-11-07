@@ -9,7 +9,7 @@ import com.arkivanov.mvikotlin.core.store.SimpleBootstrapper
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 
-internal class SearchSectionStoreFactory(
+class SearchSectionStoreFactory(
     private val storeFactory: StoreFactory,
     coroutineContextProvider: CoroutineContextProvider,
     usecases: SearchUsecases,
@@ -23,7 +23,7 @@ internal class SearchSectionStoreFactory(
         )
     }
 
-    internal fun create(): SearchSectionStore {
+    fun create(): SearchSectionStore {
         return object : SearchSectionStore,
             Store<SearchSectionStore.Intent, SearchSectionStore.State, SearchSectionStore.Label>
             by storeFactory.create(

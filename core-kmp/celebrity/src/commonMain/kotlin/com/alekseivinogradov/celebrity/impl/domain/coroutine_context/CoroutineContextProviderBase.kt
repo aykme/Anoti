@@ -34,7 +34,7 @@ abstract class CoroutineContextProviderBase : CoroutineContextProvider {
     override val mainCoroutineContext: CoroutineContext =
         superviserJob + Dispatchers.Main + standartExceptionHandler
     override val workManagerCoroutineContext: CoroutineContext =
-        superviserJob + Dispatchers.IO + emptyExceptionHandler
+        superviserJob + Dispatchers.Default + emptyExceptionHandler
 
     override val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
     override val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default

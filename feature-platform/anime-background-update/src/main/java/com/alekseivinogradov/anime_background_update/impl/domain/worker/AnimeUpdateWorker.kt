@@ -14,7 +14,8 @@ import com.alekseivinogradov.celebrity.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.celebrity.api.domain.Index
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.database.api.domain.model.AnimeDbDomain
-import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
+import com.alekseivinogradov.database.api.domain.usecase.FetchAllDatabaseItemsUsecase
+import com.alekseivinogradov.database.api.domain.usecase.UpdateDatabaseItemUsecase
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.withContext
 
@@ -23,8 +24,9 @@ class AnimeUpdateWorker(
     appContext: Context,
     params: WorkerParameters,
     private val coroutineContextProvider: CoroutineContextProvider,
-    private val animeDatabaseRepository: AnimeDatabaseRepository,
-    private val fetchAnimeListByIdsUsecase: FetchAnimeListByIdsUsecase
+    private val fetchAllDatabaseItemsUsecase: FetchAllDatabaseItemsUsecase,
+    private val fetchAnimeListByIdsUsecase: FetchAnimeListByIdsUsecase,
+    private val updateDatabaseItemUsecase: UpdateDatabaseItemUsecase,
 ) : CoroutineWorker(appContext, params) {
 
     companion object {
@@ -35,7 +37,7 @@ class AnimeUpdateWorker(
     override suspend fun doWork(): Result {
         return withContext(coroutineContextProvider.workManagerCoroutineContext) {
             try {
-                val databaseItems: List<AnimeDbDomain> = animeDatabaseRepository.getAllItems()
+                val databaseItems: List<AnimeDbDomain> = fetchAllDatabaseItemsUsecase.execute()
                 val remoteItemsWithResult: Map<Index, CallResult<List<ListItemDomain>>> =
                     getRemoteItemsWithResultBySplittedRequests(databaseItems)
 
@@ -59,31 +61,32 @@ class AnimeUpdateWorker(
      */
     private suspend fun getRemoteItemsWithResultBySplittedRequests(
         databaseItems: List<AnimeDbDomain>
-    ): Map<Index, CallResult<List<ListItemDomain>>> {
-        val remoteItemsWithResultIndexed: MutableMap<Index, CallResult<List<ListItemDomain>>> =
-            mutableMapOf()
-        var requestIndex = 0
+    ): Map<Index, CallResult<List<ListItemDomain>>> =
+        withContext(coroutineContextProvider.ioDispacher) {
+            val remoteItemsWithResultIndexed: MutableMap<Index, CallResult<List<ListItemDomain>>> =
+                mutableMapOf()
+            var requestIndex = 0
 
-        val remainingRemoteItemIdsForFetching = databaseItems
-            .map { animeDb: AnimeDbDomain ->
-                animeDb.id
-            }.toMutableSet()
+            val remainingRemoteItemIdsForFetching = databaseItems
+                .map { animeDb: AnimeDbDomain ->
+                    animeDb.id
+                }.toMutableSet()
 
-        while (remainingRemoteItemIdsForFetching.size > 0) {
-            val currentRemouteItemIdsForFetching = remainingRemoteItemIdsForFetching
-                .take(ITEMS_PER_PAGE).toSet()
+            while (remainingRemoteItemIdsForFetching.size > 0) {
+                val currentRemouteItemIdsForFetching = remainingRemoteItemIdsForFetching
+                    .take(ITEMS_PER_PAGE).toSet()
 
-            val remoteItemsWithResult = getRemoteItemsWithResult(
-                itemIds = getItemIdsString(items = currentRemouteItemIdsForFetching)
-            )
+                val remoteItemsWithResult = getRemoteItemsWithResult(
+                    itemIds = getItemIdsString(items = currentRemouteItemIdsForFetching)
+                )
 
-            remoteItemsWithResultIndexed[requestIndex] = remoteItemsWithResult
-            requestIndex++
-            remainingRemoteItemIdsForFetching.removeAll(currentRemouteItemIdsForFetching)
+                remoteItemsWithResultIndexed[requestIndex] = remoteItemsWithResult
+                requestIndex++
+                remainingRemoteItemIdsForFetching.removeAll(currentRemouteItemIdsForFetching)
+            }
+
+            return@withContext remoteItemsWithResultIndexed.toMap()
         }
-
-        return remoteItemsWithResultIndexed.toMap()
-    }
 
     private fun getItemIdsString(items: Set<AnimeId>): String {
         return items.joinToString(separator = ",")
@@ -103,17 +106,17 @@ class AnimeUpdateWorker(
      * @return - If all the results of the Api request are successful,
      * then the result will be "ListenableWorker.Result.success()".
      * If at least 1 Api request was unsuccessful,
-     * the result "ListenableWorker.Result.retry()" will be returned.
-     * In this case, the database will be updated, using only successful results,
-     * but worker will be restarted in the near future and it try again.
+     * the result "ListenableWorker.Result.failure()" will be returned.
+     * In this case, the database will be updated, using only successful remote data,
+     * another will be updated next time.
      * @see ListenableWorker.Result - result from worker.
      */
     private suspend fun updateAnimeWithWorkResult(
         currentDatabaseItems: List<AnimeDbDomain>,
         remoteItemsWithResult: Map<Index, CallResult<List<ListItemDomain>>>
     ): ListenableWorker.Result {
-        var result = ListenableWorker.Result.success()
         val flattenedRemoteItems: MutableList<ListItemDomain> = mutableListOf()
+        var isLeastOneError = false
 
         remoteItemsWithResult.values.forEach { remoteResult: CallResult<List<ListItemDomain>> ->
             when (remoteResult) {
@@ -123,9 +126,15 @@ class AnimeUpdateWorker(
 
                 is CallResult.HttpError,
                 is CallResult.OtherError -> {
-                    result = ListenableWorker.Result.retry()
+                    isLeastOneError = true
                 }
             }
+        }
+
+        val result = if (isLeastOneError.not()) {
+            ListenableWorker.Result.success()
+        } else {
+            ListenableWorker.Result.failure()
         }
 
         updateAnime(
@@ -146,7 +155,7 @@ class AnimeUpdateWorker(
         )
 
         updatedDatabaseItems.forEach { animeDb: AnimeDbDomain ->
-            animeDatabaseRepository.update(animeDb)
+            updateDatabaseItemUsecase.execute(animeDb)
         }
     }
 
@@ -200,8 +209,9 @@ class AnimeUpdateWorker(
 
     class Factory(
         private val coroutineContextProvider: CoroutineContextProvider,
-        private val animeDatabaseRepository: AnimeDatabaseRepository,
-        private val fetchAnimeListByIdsUsecase: FetchAnimeListByIdsUsecase
+        private val fetchAllDatabaseItemsUsecase: FetchAllDatabaseItemsUsecase,
+        private val fetchAnimeListByIdsUsecase: FetchAnimeListByIdsUsecase,
+        private val updateDatabaseItemUsecase: UpdateDatabaseItemUsecase
     ) : WorkerFactory() {
         override fun createWorker(
             appContext: Context,
@@ -209,11 +219,12 @@ class AnimeUpdateWorker(
             workerParameters: WorkerParameters
         ): ListenableWorker {
             return AnimeUpdateWorker(
-                appContext,
-                workerParameters,
-                coroutineContextProvider,
-                animeDatabaseRepository,
-                fetchAnimeListByIdsUsecase
+                appContext = appContext,
+                params = workerParameters,
+                coroutineContextProvider = coroutineContextProvider,
+                fetchAllDatabaseItemsUsecase = fetchAllDatabaseItemsUsecase,
+                fetchAnimeListByIdsUsecase = fetchAnimeListByIdsUsecase,
+                updateDatabaseItemUsecase = updateDatabaseItemUsecase
             )
         }
     }

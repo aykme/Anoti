@@ -9,8 +9,6 @@ interface AnimeDatabaseRepository {
 
     suspend fun update(anime: AnimeDbDomain)
 
-    suspend fun getItem(id: AnimeId): AnimeDbDomain
-
     fun getAllItemsFlow(): Flow<List<AnimeDbDomain>>
 
     suspend fun getAllItems(): List<AnimeDbDomain>

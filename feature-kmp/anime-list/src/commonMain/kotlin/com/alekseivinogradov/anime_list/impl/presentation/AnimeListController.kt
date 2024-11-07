@@ -1,6 +1,5 @@
 package com.alekseivinogradov.anime_list.impl.presentation
 
-import com.alekseivinogradov.anime_base.api.domain.ToastProvider
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapAnnouncedStoreLabelToMainStoreIntent
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapAnnouncedStoreStateToMainStoreIntent
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapDatabaseStoreStateToMainStoreIntent
@@ -12,22 +11,16 @@ import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapOngoingStoreL
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapOngoingStoreStateToMainStoreIntent
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapSearchStoreLabelToMainStoreIntent
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapSearchStoreStateToMainStoreIntent
+import com.alekseivinogradov.anime_list.api.domain.store.announced_section.AnnouncedSectionStore
+import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
+import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.OngoingSectionStore
+import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionStore
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
 import com.alekseivinogradov.anime_list.api.presentation.mapper.model.mapStateToUiModel
-import com.alekseivinogradov.anime_list.impl.domain.store.announced_section.AnnouncedSectionStoreFactory
-import com.alekseivinogradov.anime_list.impl.domain.store.main.AnimeListMainStoreFactory
-import com.alekseivinogradov.anime_list.impl.domain.store.ongoing_section.OngoingSectionStoreFactory
-import com.alekseivinogradov.anime_list.impl.domain.store.search_section.SearchSectionStoreFactory
-import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.AnnouncedUsecases
-import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.OngoingUsecases
-import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.SearchUsecases
-import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
-import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
-import com.alekseivinogradov.database.impl.domain.store.DatabaseStoreFactory
+import com.alekseivinogradov.database.api.domain.store.DatabaseStore
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.mvikotlin.core.binder.BinderLifecycleMode
-import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.bind
 import com.arkivanov.mvikotlin.extensions.coroutines.events
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
@@ -36,46 +29,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 
 class AnimeListController(
-    storeFactory: StoreFactory,
     lifecycle: Lifecycle,
-    coroutineContextProvider: CoroutineContextProvider,
-    ongoingUsecases: OngoingUsecases,
-    announcedUsecases: AnnouncedUsecases,
-    searchUsecases: SearchUsecases,
-    toastProvider: ToastProvider,
-    databaseRepository: AnimeDatabaseRepository
+    private val mainStore: AnimeListMainStore,
+    private val databaseStore: DatabaseStore,
+    private val ongoingSectionStore: OngoingSectionStore,
+    private val announcedSectionStore: AnnouncedSectionStore,
+    private val searchSectionStore: SearchSectionStore
 ) {
-
-    private val mainStore = AnimeListMainStoreFactory(
-        storeFactory = storeFactory
-    ).create()
-
-    private val databaseStore = DatabaseStoreFactory(
-        storeFactory = storeFactory,
-        coroutineContextProvider = coroutineContextProvider,
-        repository = databaseRepository
-    ).create()
-
-    private val ongoingSectionStore = OngoingSectionStoreFactory(
-        storeFactory = storeFactory,
-        coroutineContextProvider = coroutineContextProvider,
-        usecases = ongoingUsecases,
-        toastProvider = toastProvider
-    ).create()
-
-    private val announcedSectionStore = AnnouncedSectionStoreFactory(
-        storeFactory = storeFactory,
-        coroutineContextProvider = coroutineContextProvider,
-        usecases = announcedUsecases,
-        toastProvider = toastProvider
-    ).create()
-
-    private val searchSectionStore = SearchSectionStoreFactory(
-        storeFactory = storeFactory,
-        coroutineContextProvider = coroutineContextProvider,
-        usecases = searchUsecases,
-        toastProvider = toastProvider
-    ).create()
 
     init {
         lifecycle.doOnDestroy { mainStore.dispose() }

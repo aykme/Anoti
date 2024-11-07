@@ -19,10 +19,6 @@ class AnimeDatabaseRepositoryImpl(private val animeDao: AnimeDao) : AnimeDatabas
         animeDao.update(anime.toPlatform())
     }
 
-    override suspend fun getItem(id: AnimeId): AnimeDbDomain {
-        return animeDao.getItem(id).toKmp()
-    }
-
     override fun getAllItemsFlow(): Flow<List<AnimeDbDomain>> {
         return animeDao.getAllItemsFlow().map { animeDbPlatformList: List<AnimeDbPlatform> ->
             animeDbPlatformList.map { animeDbPlatform: AnimeDbPlatform ->

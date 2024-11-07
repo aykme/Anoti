@@ -8,7 +8,7 @@ import com.arkivanov.mvikotlin.core.store.SimpleBootstrapper
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 
-internal class AnimeFavoritesMainStoreFactory(
+class AnimeFavoritesMainStoreFactory(
     private val storeFactory: StoreFactory,
     coroutineContextProvider: CoroutineContextProvider,
     usecases: FavoritesUsecases,
@@ -22,7 +22,7 @@ internal class AnimeFavoritesMainStoreFactory(
         )
     }
 
-    internal fun create(): AnimeFavoritesMainStore {
+    fun create(): AnimeFavoritesMainStore {
         return object : AnimeFavoritesMainStore,
             Store<
                     AnimeFavoritesMainStore.Intent,

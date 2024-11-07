@@ -14,8 +14,10 @@ import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiServicePlat
 import com.alekseivinogradov.anime_base.api.domain.ToastProvider
 import com.alekseivinogradov.anime_base.impl.data.service.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anime_favorites.api.domain.source.AnimeFavoritesSource
+import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anime_favorites.api.domain.usecase.UpdateAllAnimeInBackgroundUsecase
 import com.alekseivinogradov.anime_favorites.impl.data.source.AnimeFavoritesSourceImpl
+import com.alekseivinogradov.anime_favorites.impl.domain.store.AnimeFavoritesMainStoreFactory
 import com.alekseivinogradov.anime_favorites.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
 import com.alekseivinogradov.anime_favorites.impl.domain.usecase.UpdateAllAnimeInBackgroundUsecaseImpl
 import com.alekseivinogradov.anime_favorites.impl.domain.usecase.wrapper.FavoritesUsecases
@@ -25,15 +27,92 @@ import com.alekseivinogradov.celebrity.impl.domain.coroutine_context.CoroutineCo
 import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
 import com.alekseivinogradov.celebrity.impl.presentation.toast.AnotiToast
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
+import com.alekseivinogradov.database.api.domain.store.DatabaseStore
+import com.alekseivinogradov.database.api.domain.usecase.ChangeDatabaseItemNewEpisodeStatusUsecase
+import com.alekseivinogradov.database.api.domain.usecase.DeleteDatabaseItemUsecase
+import com.alekseivinogradov.database.api.domain.usecase.FetchAllDatabaseItemsFlowUsecase
+import com.alekseivinogradov.database.api.domain.usecase.InsertDatabaseItemUsecase
+import com.alekseivinogradov.database.api.domain.usecase.ResetAllDatabaseItemsNewEpisodeStatusUsecase
+import com.alekseivinogradov.database.api.domain.usecase.UpdateDatabaseItemUsecase
+import com.alekseivinogradov.database.api.domain.usecase.wrapper.DatabaseUsecases
+import com.alekseivinogradov.database.impl.domain.store.DatabaseStoreFactory
+import com.alekseivinogradov.database.impl.domain.usecase.ChangeDatabaseItemNewEpisodeStatusUsecaseImpl
+import com.alekseivinogradov.database.impl.domain.usecase.DeleteDatabaseItemUsecaseImpl
+import com.alekseivinogradov.database.impl.domain.usecase.FetchAllDatabaseItemsFlowUsecaseImpl
+import com.alekseivinogradov.database.impl.domain.usecase.InsertDatabaseItemUsecaseImpl
+import com.alekseivinogradov.database.impl.domain.usecase.ResetAllDatabaseItemsNewEpisodeStatusUsecaseImpl
+import com.alekseivinogradov.database.impl.domain.usecase.UpdateDatabaseItemUsecaseImpl
 import com.alekseivinogradov.database.room.impl.data.AnimeDatabase
 import com.alekseivinogradov.database.room.impl.data.repository.AnimeDatabaseRepositoryImpl
 import com.alekseivinogradov.network.impl.data.SafeApiImpl
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
+import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 
 class AnimeFavoritesFragment : Fragment() {
 
     private var binding: FragmentAnimeFavoritesBinding? = null
+
+    private val storeFactory: StoreFactory = DefaultStoreFactory()
+
+    private val coroutineContextProvider: CoroutineContextProvider by lazy {
+        CoroutineContextProviderPlatform(requireContext().applicationContext)
+    }
+
+    private val shikimoriService: ShikimoriApiService = ShikimoriApiServiceImpl(
+        servicePlatform = ShikimoriApiServicePlatform.instance
+    )
+
+    private val animeDatabase: AnimeDatabase by lazy(LazyThreadSafetyMode.NONE) {
+        AnimeDatabase.getDatabase(requireContext().applicationContext)
+    }
+
+    private val animeDatabaseRepository: AnimeDatabaseRepository
+            by lazy(LazyThreadSafetyMode.NONE) {
+                AnimeDatabaseRepositoryImpl(animeDao = animeDatabase.animeDao())
+            }
+
+    private val fetchAllDatabaseItemsFlowUsecase: FetchAllDatabaseItemsFlowUsecase
+            by lazy(LazyThreadSafetyMode.NONE) {
+                FetchAllDatabaseItemsFlowUsecaseImpl(repository = animeDatabaseRepository)
+            }
+
+    private val insertDatabaseItemUsecase: InsertDatabaseItemUsecase
+            by lazy(LazyThreadSafetyMode.NONE) {
+                InsertDatabaseItemUsecaseImpl(repository = animeDatabaseRepository)
+            }
+
+    private val deleteDatabaseItemUsecase: DeleteDatabaseItemUsecase
+            by lazy(LazyThreadSafetyMode.NONE) {
+                DeleteDatabaseItemUsecaseImpl(repository = animeDatabaseRepository)
+            }
+
+    private val resetAllDatabaseItemsNewEpisodeStatusUsecase
+            : ResetAllDatabaseItemsNewEpisodeStatusUsecase by lazy(LazyThreadSafetyMode.NONE) {
+        ResetAllDatabaseItemsNewEpisodeStatusUsecaseImpl(repository = animeDatabaseRepository)
+    }
+
+    private val changeDatabaseItemNewEpisodeStatusUsecase
+            : ChangeDatabaseItemNewEpisodeStatusUsecase by lazy(LazyThreadSafetyMode.NONE) {
+        ChangeDatabaseItemNewEpisodeStatusUsecaseImpl(repository = animeDatabaseRepository)
+    }
+
+    private val updateDatabaseItemUsecase: UpdateDatabaseItemUsecase
+            by lazy(LazyThreadSafetyMode.NONE) {
+                UpdateDatabaseItemUsecaseImpl(repository = animeDatabaseRepository)
+            }
+
+    private val databaseUsecases by lazy(LazyThreadSafetyMode.NONE) {
+        DatabaseUsecases(
+            fetchAllDatabaseItemsFlowUsecase = fetchAllDatabaseItemsFlowUsecase,
+            insertDatabaseItemUsecase = insertDatabaseItemUsecase,
+            deleteDatabaseItemUsecase = deleteDatabaseItemUsecase,
+            resetAllDatabaseItemsNewEpisodeStatusUsecase =
+            resetAllDatabaseItemsNewEpisodeStatusUsecase,
+            changeDatabaseItemNewEpisodeStatusUsecase = changeDatabaseItemNewEpisodeStatusUsecase,
+            updateDatabaseItemUsecase = updateDatabaseItemUsecase
+        )
+    }
 
     private val animeUpdateOnceWork: OneTimeWorkRequest =
         OneTimeWorkRequestBuilder<AnimeUpdateWorker>().build()
@@ -47,15 +126,6 @@ class AnimeFavoritesFragment : Fragment() {
                 )
             }
 
-    private val shikimoriService: ShikimoriApiService = ShikimoriApiServiceImpl(
-        servicePlatform = ShikimoriApiServicePlatform.instance
-    )
-
-    private val coroutineContextProvider: CoroutineContextProvider
-            by lazy(LazyThreadSafetyMode.NONE) {
-                CoroutineContextProviderPlatform(requireContext().applicationContext)
-            }
-
     private val animeFavoritesSource: AnimeFavoritesSource = AnimeFavoritesSourceImpl(
         service = shikimoriService,
         safeApi = SafeApiImpl
@@ -65,23 +135,34 @@ class AnimeFavoritesFragment : Fragment() {
         source = animeFavoritesSource
     )
 
-    private val animeDatabase by lazy(LazyThreadSafetyMode.NONE) {
-        AnimeDatabase.getDatabase(requireContext().applicationContext)
+    private val favoritesUsecases by lazy(LazyThreadSafetyMode.NONE) {
+        createFavoritesUsecases()
     }
 
-    private val animeDatabaseRepository: AnimeDatabaseRepository
-            by lazy(LazyThreadSafetyMode.NONE) {
-                AnimeDatabaseRepositoryImpl(animeDao = animeDatabase.animeDao())
-            }
+    private val toastProvider: ToastProvider = createToastProvider()
+
+    private val mainStore: AnimeFavoritesMainStore by lazy(LazyThreadSafetyMode.NONE) {
+        AnimeFavoritesMainStoreFactory(
+            storeFactory = storeFactory,
+            coroutineContextProvider = coroutineContextProvider,
+            usecases = favoritesUsecases,
+            toastProvider = toastProvider
+        ).create()
+    }
+
+    private val databaseStore: DatabaseStore by lazy(LazyThreadSafetyMode.NONE) {
+        DatabaseStoreFactory(
+            storeFactory = storeFactory,
+            coroutineContextProvider = coroutineContextProvider,
+            usecases = databaseUsecases
+        ).create()
+    }
 
     private val controller: AnimeFavoritesController by lazy {
         AnimeFavoritesController(
-            storeFactory = DefaultStoreFactory(),
             lifecycle = essentyLifecycle(),
-            coroutineContextProvider = coroutineContextProvider,
-            favoritesUsecases = getFavoritesUsecases(),
-            toastProvider = getToastProvider(),
-            databaseRepository = animeDatabaseRepository
+            mainStore = mainStore,
+            databaseStore = databaseStore
         )
     }
 
@@ -109,12 +190,12 @@ class AnimeFavoritesFragment : Fragment() {
         super.onDestroy()
     }
 
-    private fun getFavoritesUsecases() = FavoritesUsecases(
+    private fun createFavoritesUsecases() = FavoritesUsecases(
         fetchAnimeDetailsByIdUsecase = fetchAnimeDetailsByIdUsecase,
         updateAllAnimeInBackgroundUsecase = updateAllAnimeInBackgroundUsecase
     )
 
-    private fun getToastProvider() = ToastProvider(
+    private fun createToastProvider() = ToastProvider(
         getMakeConnectionErrorToastCallback = {
             AnotiToast.makeConnectionErrorToast(requireContext().applicationContext)
         },

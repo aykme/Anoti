@@ -9,16 +9,34 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import com.alekseivinogradov.bottom_navigation_bar.api.domain.store.BottomNavigationBarStore
+import com.alekseivinogradov.bottom_navigation_bar.impl.domain.store.BottomNavigationBarStoreFactory
 import com.alekseivinogradov.bottom_navigation_bar.impl.presentation.BottomNavigationBarController
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.celebrity.impl.domain.coroutine_context.CoroutineContextProviderPlatform
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
+import com.alekseivinogradov.database.api.domain.store.DatabaseStore
+import com.alekseivinogradov.database.api.domain.usecase.ChangeDatabaseItemNewEpisodeStatusUsecase
+import com.alekseivinogradov.database.api.domain.usecase.DeleteDatabaseItemUsecase
+import com.alekseivinogradov.database.api.domain.usecase.FetchAllDatabaseItemsFlowUsecase
+import com.alekseivinogradov.database.api.domain.usecase.InsertDatabaseItemUsecase
+import com.alekseivinogradov.database.api.domain.usecase.ResetAllDatabaseItemsNewEpisodeStatusUsecase
+import com.alekseivinogradov.database.api.domain.usecase.UpdateDatabaseItemUsecase
+import com.alekseivinogradov.database.api.domain.usecase.wrapper.DatabaseUsecases
+import com.alekseivinogradov.database.impl.domain.store.DatabaseStoreFactory
+import com.alekseivinogradov.database.impl.domain.usecase.ChangeDatabaseItemNewEpisodeStatusUsecaseImpl
+import com.alekseivinogradov.database.impl.domain.usecase.DeleteDatabaseItemUsecaseImpl
+import com.alekseivinogradov.database.impl.domain.usecase.FetchAllDatabaseItemsFlowUsecaseImpl
+import com.alekseivinogradov.database.impl.domain.usecase.InsertDatabaseItemUsecaseImpl
+import com.alekseivinogradov.database.impl.domain.usecase.ResetAllDatabaseItemsNewEpisodeStatusUsecaseImpl
+import com.alekseivinogradov.database.impl.domain.usecase.UpdateDatabaseItemUsecaseImpl
 import com.alekseivinogradov.database.room.impl.data.AnimeDatabase
 import com.alekseivinogradov.database.room.impl.data.repository.AnimeDatabaseRepositoryImpl
 import com.alekseivinogradov.main.R
 import com.alekseivinogradov.main.databinding.ActivityMainBinding
 import com.arkivanov.essenty.lifecycle.asEssentyLifecycle
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
+import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import com.alekseivinogradov.theme.R as theme_R
 
@@ -26,10 +44,11 @@ class MainActivity : AppCompatActivity() {
 
     private var binding: ActivityMainBinding? = null
 
-    private val coroutineContextProvider: CoroutineContextProvider
-            by lazy(LazyThreadSafetyMode.NONE) {
-                CoroutineContextProviderPlatform(applicationContext)
-            }
+    private val storeFactory: StoreFactory = DefaultStoreFactory()
+
+    private val coroutineContextProvider: CoroutineContextProvider by lazy {
+        CoroutineContextProviderPlatform(applicationContext)
+    }
 
     private val animeDatabase: AnimeDatabase by lazy(LazyThreadSafetyMode.NONE) {
         AnimeDatabase.getDatabase(appContext = applicationContext)
@@ -39,12 +58,65 @@ class MainActivity : AppCompatActivity() {
         AnimeDatabaseRepositoryImpl(animeDao = animeDatabase.animeDao())
     }
 
+    private val fetchAllDatabaseItemsFlowUsecase: FetchAllDatabaseItemsFlowUsecase
+            by lazy(LazyThreadSafetyMode.NONE) {
+                FetchAllDatabaseItemsFlowUsecaseImpl(repository = animeDatabaseRepository)
+            }
+
+    private val insertDatabaseItemUsecase: InsertDatabaseItemUsecase
+            by lazy(LazyThreadSafetyMode.NONE) {
+                InsertDatabaseItemUsecaseImpl(repository = animeDatabaseRepository)
+            }
+
+    private val deleteDatabaseItemUsecase: DeleteDatabaseItemUsecase
+            by lazy(LazyThreadSafetyMode.NONE) {
+                DeleteDatabaseItemUsecaseImpl(repository = animeDatabaseRepository)
+            }
+
+    private val resetAllDatabaseItemsNewEpisodeStatusUsecase
+            : ResetAllDatabaseItemsNewEpisodeStatusUsecase by lazy(LazyThreadSafetyMode.NONE) {
+        ResetAllDatabaseItemsNewEpisodeStatusUsecaseImpl(repository = animeDatabaseRepository)
+    }
+
+    private val changeDatabaseItemNewEpisodeStatusUsecase
+            : ChangeDatabaseItemNewEpisodeStatusUsecase by lazy(LazyThreadSafetyMode.NONE) {
+        ChangeDatabaseItemNewEpisodeStatusUsecaseImpl(repository = animeDatabaseRepository)
+    }
+
+    private val updateDatabaseItemUsecase: UpdateDatabaseItemUsecase
+            by lazy(LazyThreadSafetyMode.NONE) {
+                UpdateDatabaseItemUsecaseImpl(repository = animeDatabaseRepository)
+            }
+
+    private val databaseUsecases by lazy(LazyThreadSafetyMode.NONE) {
+        DatabaseUsecases(
+            fetchAllDatabaseItemsFlowUsecase = fetchAllDatabaseItemsFlowUsecase,
+            insertDatabaseItemUsecase = insertDatabaseItemUsecase,
+            deleteDatabaseItemUsecase = deleteDatabaseItemUsecase,
+            resetAllDatabaseItemsNewEpisodeStatusUsecase =
+            resetAllDatabaseItemsNewEpisodeStatusUsecase,
+            changeDatabaseItemNewEpisodeStatusUsecase = changeDatabaseItemNewEpisodeStatusUsecase,
+            updateDatabaseItemUsecase = updateDatabaseItemUsecase
+        )
+    }
+
+    private val mainStore: BottomNavigationBarStore = BottomNavigationBarStoreFactory(
+        storeFactory = storeFactory
+    ).create()
+
+    private val databaseStore: DatabaseStore by lazy(LazyThreadSafetyMode.NONE) {
+        DatabaseStoreFactory(
+            storeFactory = storeFactory,
+            coroutineContextProvider = coroutineContextProvider,
+            usecases = databaseUsecases
+        ).create()
+    }
+
     private val controller: BottomNavigationBarController by lazy {
         BottomNavigationBarController(
-            storeFactory = DefaultStoreFactory(),
             lifecycle = essentyLifecycle(),
-            coroutineContextProvider = coroutineContextProvider,
-            databaseRepository = animeDatabaseRepository
+            mainStore = mainStore,
+            databaseStore = databaseStore
         )
     }
 

@@ -17,6 +17,10 @@ import com.alekseivinogradov.celebrity.api.domain.DEFAULT_ANIME_UPDATE_WORK_INTE
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.celebrity.impl.domain.coroutine_context.CoroutineContextProviderPlatform
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
+import com.alekseivinogradov.database.api.domain.usecase.FetchAllDatabaseItemsUsecase
+import com.alekseivinogradov.database.api.domain.usecase.UpdateDatabaseItemUsecase
+import com.alekseivinogradov.database.impl.domain.usecase.FetchAllDatabaseItemsUsecaseImpl
+import com.alekseivinogradov.database.impl.domain.usecase.UpdateDatabaseItemUsecaseImpl
 import com.alekseivinogradov.database.room.impl.data.AnimeDatabase
 import com.alekseivinogradov.database.room.impl.data.repository.AnimeDatabaseRepositoryImpl
 import com.alekseivinogradov.network.impl.data.SafeApiImpl
@@ -24,9 +28,31 @@ import java.util.concurrent.TimeUnit
 
 class AnotiApp : Application() {
 
+    private val coroutineContextProvider: CoroutineContextProvider by lazy {
+        CoroutineContextProviderPlatform(appContext = this)
+    }
+
     private val shikimoriService: ShikimoriApiService = ShikimoriApiServiceImpl(
         servicePlatform = ShikimoriApiServicePlatform.instance
     )
+
+    private val animeDatabase: AnimeDatabase
+            by lazy(LazyThreadSafetyMode.NONE) { AnimeDatabase.getDatabase(appContext = this) }
+
+    private val animeDatabaseRepository: AnimeDatabaseRepository
+            by lazy(LazyThreadSafetyMode.NONE) {
+                AnimeDatabaseRepositoryImpl(animeDao = animeDatabase.animeDao())
+            }
+
+    private val updateDatabaseItemUsecase: UpdateDatabaseItemUsecase
+            by lazy(LazyThreadSafetyMode.NONE) {
+                UpdateDatabaseItemUsecaseImpl(repository = animeDatabaseRepository)
+            }
+
+    private val fetchAllDatabaseItemsUsecase: FetchAllDatabaseItemsUsecase
+            by lazy(LazyThreadSafetyMode.NONE) {
+                FetchAllDatabaseItemsUsecaseImpl(repository = animeDatabaseRepository)
+            }
 
     private val animeBackgroundUpdateSource: AnimeBackgroundUpdateSource =
         AnimeBackgroundUpdateSourceImpl(
@@ -38,25 +64,12 @@ class AnotiApp : Application() {
         source = animeBackgroundUpdateSource
     )
 
-    private val coroutineContextProvider: CoroutineContextProvider
-            by lazy(LazyThreadSafetyMode.NONE) {
-                CoroutineContextProviderPlatform(appContext = this)
-            }
-
-
-    private val animeDatabase: AnimeDatabase
-            by lazy(LazyThreadSafetyMode.NONE) { AnimeDatabase.getDatabase(appContext = this) }
-
-    private val animeDatabaseRepository: AnimeDatabaseRepository
-            by lazy(LazyThreadSafetyMode.NONE) {
-                AnimeDatabaseRepositoryImpl(animeDao = animeDatabase.animeDao())
-            }
-
     private val workerFactory by lazy(LazyThreadSafetyMode.NONE) {
         AnimeUpdateWorker.Factory(
             coroutineContextProvider = coroutineContextProvider,
-            animeDatabaseRepository = animeDatabaseRepository,
-            fetchAnimeListByIdsUsecase = fetchAnimeListByIdsUsecase
+            fetchAllDatabaseItemsUsecase = fetchAllDatabaseItemsUsecase,
+            fetchAnimeListByIdsUsecase = fetchAnimeListByIdsUsecase,
+            updateDatabaseItemUsecase = updateDatabaseItemUsecase,
         )
     }
 

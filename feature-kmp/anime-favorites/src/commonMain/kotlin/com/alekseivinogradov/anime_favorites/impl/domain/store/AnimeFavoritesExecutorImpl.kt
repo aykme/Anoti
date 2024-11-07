@@ -25,6 +25,10 @@ internal class AnimeFavoritesExecutorImpl(
         when (intent) {
             is AnimeFavoritesMainStore.Intent.UpdateListItems -> updateListItems(intent)
             AnimeFavoritesMainStore.Intent.UpdateSection -> updateSection()
+            AnimeFavoritesMainStore.Intent.UpdateAllItemsInBackground -> {
+                updateAllItemsInBackground()
+            }
+
             is AnimeFavoritesMainStore.Intent.ItemClick -> itemClick(intent)
             is AnimeFavoritesMainStore.Intent.InfoTypeClick -> infoTypeClick(intent)
             is AnimeFavoritesMainStore.Intent.NotificationClick -> notificationClick(intent)
@@ -49,6 +53,9 @@ internal class AnimeFavoritesExecutorImpl(
             )
         )
         publish(AnimeFavoritesMainStore.Label.UpdateSection)
+    }
+
+    private fun updateAllItemsInBackground() {
         usecases.updateAllAnimeInBackgroundUsecase.execute()
     }
 

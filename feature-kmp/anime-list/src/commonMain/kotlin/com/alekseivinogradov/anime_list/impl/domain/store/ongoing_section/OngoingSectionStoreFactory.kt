@@ -9,7 +9,7 @@ import com.arkivanov.mvikotlin.core.store.SimpleBootstrapper
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 
-internal class OngoingSectionStoreFactory(
+class OngoingSectionStoreFactory(
     private val storeFactory: StoreFactory,
     coroutineContextProvider: CoroutineContextProvider,
     usecases: OngoingUsecases,
@@ -23,7 +23,7 @@ internal class OngoingSectionStoreFactory(
         )
     }
 
-    internal fun create(): OngoingSectionStore {
+    fun create(): OngoingSectionStore {
         return object : OngoingSectionStore,
             Store<OngoingSectionStore.Intent, OngoingSectionStore.State, OngoingSectionStore.Label>
             by storeFactory.create(

@@ -5,10 +5,10 @@ import com.arkivanov.mvikotlin.core.store.SimpleBootstrapper
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 
-internal class BottomNavigationBarStoreFactory(
+class BottomNavigationBarStoreFactory(
     private val storeFactory: StoreFactory
 ) {
-    internal fun create(): BottomNavigationBarStore {
+    fun create(): BottomNavigationBarStore {
         return object : BottomNavigationBarStore,
             Store<
                     BottomNavigationBarStore.Intent,

@@ -1,19 +1,15 @@
 package com.alekseivinogradov.anime_favorites.impl.presentation
 
-import com.alekseivinogradov.anime_base.api.domain.ToastProvider
+import com.alekseivinogradov.anime_favorites.api.domain.mapper.mapDatabaseStoreLabelToMainStoreIntent
 import com.alekseivinogradov.anime_favorites.api.domain.mapper.mapDatabaseStoreStateToMainStoreIntent
 import com.alekseivinogradov.anime_favorites.api.domain.mapper.mapMainStoreLabelToDatabaseStoreIntent
+import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anime_favorites.api.presentation.AnimeFavoritesView
 import com.alekseivinogradov.anime_favorites.api.presentation.mapper.mapStateToUiModel
-import com.alekseivinogradov.anime_favorites.impl.domain.store.AnimeFavoritesMainStoreFactory
-import com.alekseivinogradov.anime_favorites.impl.domain.usecase.wrapper.FavoritesUsecases
-import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
-import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
-import com.alekseivinogradov.database.impl.domain.store.DatabaseStoreFactory
+import com.alekseivinogradov.database.api.domain.store.DatabaseStore
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.mvikotlin.core.binder.BinderLifecycleMode
-import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.bind
 import com.arkivanov.mvikotlin.extensions.coroutines.events
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
@@ -21,26 +17,10 @@ import com.arkivanov.mvikotlin.extensions.coroutines.states
 import kotlinx.coroutines.flow.map
 
 class AnimeFavoritesController(
-    storeFactory: StoreFactory,
     lifecycle: Lifecycle,
-    coroutineContextProvider: CoroutineContextProvider,
-    favoritesUsecases: FavoritesUsecases,
-    toastProvider: ToastProvider,
-    databaseRepository: AnimeDatabaseRepository
+    private val mainStore: AnimeFavoritesMainStore,
+    private val databaseStore: DatabaseStore,
 ) {
-
-    private val mainStore = AnimeFavoritesMainStoreFactory(
-        storeFactory = storeFactory,
-        coroutineContextProvider = coroutineContextProvider,
-        usecases = favoritesUsecases,
-        toastProvider = toastProvider
-    ).create()
-
-    private val databaseStore = DatabaseStoreFactory(
-        storeFactory = storeFactory,
-        coroutineContextProvider = coroutineContextProvider,
-        repository = databaseRepository
-    ).create()
 
     init {
         lifecycle.doOnDestroy { mainStore.dispose() }
@@ -54,6 +34,7 @@ class AnimeFavoritesController(
     private fun connectAllAuxiliaryStoresToMain(viewLifecycle: Lifecycle) {
         bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
             databaseStore.states.map(::mapDatabaseStoreStateToMainStoreIntent) bindTo mainStore
+            databaseStore.labels.map(::mapDatabaseStoreLabelToMainStoreIntent) bindTo mainStore
             mainStore.labels.map(::mapMainStoreLabelToDatabaseStoreIntent) bindTo databaseStore
         }
     }

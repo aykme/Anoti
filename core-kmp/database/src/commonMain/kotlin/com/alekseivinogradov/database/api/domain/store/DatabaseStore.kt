@@ -23,7 +23,9 @@ interface DatabaseStore
         data class UpdateAnimeDatabaseItem(val animeDatabaseItem: AnimeDbDomain) : Intent
     }
 
-    sealed interface Label
+    sealed interface Label {
+        data object ResetAllItemsNewEpisodeStatusWasFinished : Label
+    }
 
     sealed interface Action {
         data object SubscribeToDatabase : Action
