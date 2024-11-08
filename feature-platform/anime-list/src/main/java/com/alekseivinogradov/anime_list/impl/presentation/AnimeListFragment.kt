@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiServicePlatform
-import com.alekseivinogradov.anime_base.api.domain.ToastProvider
+import com.alekseivinogradov.anime_base.api.domain.provider.ToastProvider
 import com.alekseivinogradov.anime_base.impl.data.service.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anime_list.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anime_list.api.domain.store.announced_section.AnnouncedSectionStore
@@ -16,9 +16,12 @@ import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.OngoingSectionStore
 import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionStore
 import com.alekseivinogradov.anime_list.impl.data.source.AnimeListSourceImpl
+import com.alekseivinogradov.anime_list.impl.domain.store.announced_section.AnnouncedSectionExecutorImpl
 import com.alekseivinogradov.anime_list.impl.domain.store.announced_section.AnnouncedSectionStoreFactory
 import com.alekseivinogradov.anime_list.impl.domain.store.main.AnimeListMainStoreFactory
+import com.alekseivinogradov.anime_list.impl.domain.store.ongoing_section.OngoingSectionExecutorImpl
 import com.alekseivinogradov.anime_list.impl.domain.store.ongoing_section.OngoingSectionStoreFactory
+import com.alekseivinogradov.anime_list.impl.domain.store.search_section.SearchSectionExecutorImpl
 import com.alekseivinogradov.anime_list.impl.domain.store.search_section.SearchSectionStoreFactory
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeListBySearchUsecase
@@ -41,6 +44,7 @@ import com.alekseivinogradov.database.api.domain.usecase.InsertDatabaseItemUseca
 import com.alekseivinogradov.database.api.domain.usecase.ResetAllDatabaseItemsNewEpisodeStatusUsecase
 import com.alekseivinogradov.database.api.domain.usecase.UpdateDatabaseItemUsecase
 import com.alekseivinogradov.database.api.domain.usecase.wrapper.DatabaseUsecases
+import com.alekseivinogradov.database.impl.domain.store.DatabaseExecutorImpl
 import com.alekseivinogradov.database.impl.domain.store.DatabaseStoreFactory
 import com.alekseivinogradov.database.impl.domain.usecase.ChangeDatabaseItemNewEpisodeStatusUsecaseImpl
 import com.alekseivinogradov.database.impl.domain.usecase.DeleteDatabaseItemUsecaseImpl
@@ -50,6 +54,7 @@ import com.alekseivinogradov.database.impl.domain.usecase.ResetAllDatabaseItemsN
 import com.alekseivinogradov.database.impl.domain.usecase.UpdateDatabaseItemUsecaseImpl
 import com.alekseivinogradov.database.room.impl.data.AnimeDatabase
 import com.alekseivinogradov.database.room.impl.data.repository.AnimeDatabaseRepositoryImpl
+import com.alekseivinogradov.network.api.data.SafeApi
 import com.alekseivinogradov.network.impl.data.SafeApiImpl
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import com.arkivanov.mvikotlin.core.store.StoreFactory
@@ -68,6 +73,8 @@ class AnimeListFragment : Fragment() {
     private val shikimoriService: ShikimoriApiService = ShikimoriApiServiceImpl(
         servicePlatform = ShikimoriApiServicePlatform.instance
     )
+
+    private val safeApi: SafeApi = SafeApiImpl
 
     private val animeDatabase: AnimeDatabase by lazy(LazyThreadSafetyMode.NONE) {
         AnimeDatabase.getDatabase(requireContext().applicationContext)
@@ -122,7 +129,7 @@ class AnimeListFragment : Fragment() {
 
     private val animeListSource: AnimeListSource = AnimeListSourceImpl(
         service = shikimoriService,
-        safeApi = SafeApiImpl
+        safeApi = safeApi
     )
 
     private val fetchOngoingAnimeListUsecase =
@@ -149,38 +156,43 @@ class AnimeListFragment : Fragment() {
         storeFactory = storeFactory
     ).create()
 
+    private val databaseExecutorFactory: () -> DatabaseExecutorImpl
+            by lazy(LazyThreadSafetyMode.NONE) { createDatabaseExecutorFactory() }
+
     private val databaseStore: DatabaseStore by lazy(LazyThreadSafetyMode.NONE) {
         DatabaseStoreFactory(
             storeFactory = storeFactory,
-            coroutineContextProvider = coroutineContextProvider,
-            usecases = databaseUsecases
+            executorFactory = databaseExecutorFactory
         ).create()
     }
+
+    private val ongoingSectionExecutorFactory: () -> OngoingSectionExecutorImpl
+            by lazy(LazyThreadSafetyMode.NONE) { createOngoingSectionExecutorFactory() }
 
     private val ongoingSectionStore: OngoingSectionStore by lazy(LazyThreadSafetyMode.NONE) {
         OngoingSectionStoreFactory(
             storeFactory = storeFactory,
-            coroutineContextProvider = coroutineContextProvider,
-            usecases = ongoingUsecases,
-            toastProvider = toastProvider
+            executorFactory = ongoingSectionExecutorFactory
         ).create()
     }
+
+    private val announcedSectionExecutorFactory: () -> AnnouncedSectionExecutorImpl
+            by lazy(LazyThreadSafetyMode.NONE) { createAnnouncedSectionExecutorFactory() }
 
     private val announcedSectionStore: AnnouncedSectionStore by lazy(LazyThreadSafetyMode.NONE) {
         AnnouncedSectionStoreFactory(
             storeFactory = storeFactory,
-            coroutineContextProvider = coroutineContextProvider,
-            usecases = announcedUsecases,
-            toastProvider = toastProvider
+            executorFactory = announcedSectionExecutorFactory
         ).create()
     }
+
+    private val searchSectionExecutorFactory: () -> SearchSectionExecutorImpl
+            by lazy(LazyThreadSafetyMode.NONE) { createSearchSectionExecutorFactory() }
 
     private val searchSectionStore: SearchSectionStore by lazy(LazyThreadSafetyMode.NONE) {
         SearchSectionStoreFactory(
             storeFactory = storeFactory,
-            coroutineContextProvider = coroutineContextProvider,
-            usecases = searchUsecases,
-            toastProvider = toastProvider
+            executorFactory = searchSectionExecutorFactory
         ).create()
     }
 
@@ -243,4 +255,37 @@ class AnimeListFragment : Fragment() {
             AnotiToast.makeUnknownErrorToast(requireContext().applicationContext)
         }
     )
+
+    private fun createDatabaseExecutorFactory(): () -> DatabaseExecutorImpl = {
+        DatabaseExecutorImpl(
+            coroutineContextProvider = coroutineContextProvider,
+            usecases = databaseUsecases
+        )
+    }
+
+    private fun createOngoingSectionExecutorFactory(): () -> OngoingSectionExecutorImpl = {
+        OngoingSectionExecutorImpl(
+            coroutineContextProvider = coroutineContextProvider,
+            usecases = ongoingUsecases,
+            toastProvider = toastProvider
+        )
+    }
+
+
+    private fun createAnnouncedSectionExecutorFactory(): () -> AnnouncedSectionExecutorImpl = {
+        AnnouncedSectionExecutorImpl(
+            coroutineContextProvider = coroutineContextProvider,
+            usecases = announcedUsecases,
+            toastProvider = toastProvider
+        )
+    }
+
+
+    private fun createSearchSectionExecutorFactory(): () -> SearchSectionExecutorImpl = {
+        SearchSectionExecutorImpl(
+            coroutineContextProvider = coroutineContextProvider,
+            usecases = searchUsecases,
+            toastProvider = toastProvider
+        )
+    }
 }

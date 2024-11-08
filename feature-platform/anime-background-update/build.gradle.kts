@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.alekseivinogradov.anime_background_update"
+    namespace = "com.alekseivinogradov.anime_background_update_platform"
     compileSdk = 34
 
     defaultConfig {
@@ -33,10 +33,11 @@ android {
 }
 
 dependencies {
-    implementation(project(":feature-kmp:anime-base"))
+    api(project(":feature-kmp:anime-background-update"))
+    implementation(project(":feature-platform:anime-base"))
     implementation(project(":core-platform:celebrity"))
-    implementation(project(":core-kmp:database"))
-    implementation(project(":core-kmp:network"))
+    implementation(project(":core-platform:database"))
+    implementation(project(":core-platform:network"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.work.runtime.ktx)

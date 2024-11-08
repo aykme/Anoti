@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anime_favorites.api.domain.mapper
 
+import com.alekseivinogradov.anime_base.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_favorites.api.domain.model.ListItemDomain
-import com.alekseivinogradov.anime_favorites.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.database.api.domain.model.AnimeDbDomain
 import com.alekseivinogradov.database.api.domain.model.ReleaseStatusDb
 

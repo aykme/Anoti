@@ -23,6 +23,7 @@ import com.alekseivinogradov.database.api.domain.usecase.InsertDatabaseItemUseca
 import com.alekseivinogradov.database.api.domain.usecase.ResetAllDatabaseItemsNewEpisodeStatusUsecase
 import com.alekseivinogradov.database.api.domain.usecase.UpdateDatabaseItemUsecase
 import com.alekseivinogradov.database.api.domain.usecase.wrapper.DatabaseUsecases
+import com.alekseivinogradov.database.impl.domain.store.DatabaseExecutorImpl
 import com.alekseivinogradov.database.impl.domain.store.DatabaseStoreFactory
 import com.alekseivinogradov.database.impl.domain.usecase.ChangeDatabaseItemNewEpisodeStatusUsecaseImpl
 import com.alekseivinogradov.database.impl.domain.usecase.DeleteDatabaseItemUsecaseImpl
@@ -104,11 +105,13 @@ class MainActivity : AppCompatActivity() {
         storeFactory = storeFactory
     ).create()
 
+    private val databaseExecutorFactory: () -> DatabaseExecutorImpl
+            by lazy(LazyThreadSafetyMode.NONE) { createDatabaseExecutorFactory() }
+
     private val databaseStore: DatabaseStore by lazy(LazyThreadSafetyMode.NONE) {
         DatabaseStoreFactory(
             storeFactory = storeFactory,
-            coroutineContextProvider = coroutineContextProvider,
-            usecases = databaseUsecases
+            executorFactory = databaseExecutorFactory
         ).create()
     }
 
@@ -157,5 +160,12 @@ class MainActivity : AppCompatActivity() {
         window.setStatusBarColor(getColor(theme_R.color.black))
         window.setNavigationBarColor(getColor(theme_R.color.black))
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+    }
+
+    private fun createDatabaseExecutorFactory(): () -> DatabaseExecutorImpl = {
+        DatabaseExecutorImpl(
+            coroutineContextProvider = coroutineContextProvider,
+            usecases = databaseUsecases
+        )
     }
 }

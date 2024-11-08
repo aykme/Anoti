@@ -6,8 +6,10 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.alekseivinogradov.anime_background_update.api.domain.manager.AnimeUpdateManager
 import com.alekseivinogradov.anime_background_update.api.domain.source.AnimeBackgroundUpdateSource
 import com.alekseivinogradov.anime_background_update.impl.data.source.AnimeBackgroundUpdateSourceImpl
+import com.alekseivinogradov.anime_background_update.impl.domain.manager.AnimeUpdateManagerImpl
 import com.alekseivinogradov.anime_background_update.impl.domain.usecase.FetchAnimeListByIdsUsecase
 import com.alekseivinogradov.anime_background_update.impl.domain.worker.AnimeUpdateWorker
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
@@ -23,6 +25,7 @@ import com.alekseivinogradov.database.impl.domain.usecase.FetchAllDatabaseItemsU
 import com.alekseivinogradov.database.impl.domain.usecase.UpdateDatabaseItemUsecaseImpl
 import com.alekseivinogradov.database.room.impl.data.AnimeDatabase
 import com.alekseivinogradov.database.room.impl.data.repository.AnimeDatabaseRepositoryImpl
+import com.alekseivinogradov.network.api.data.SafeApi
 import com.alekseivinogradov.network.impl.data.SafeApiImpl
 import java.util.concurrent.TimeUnit
 
@@ -35,6 +38,8 @@ class AnotiApp : Application() {
     private val shikimoriService: ShikimoriApiService = ShikimoriApiServiceImpl(
         servicePlatform = ShikimoriApiServicePlatform.instance
     )
+
+    private val safeApp: SafeApi = SafeApiImpl
 
     private val animeDatabase: AnimeDatabase
             by lazy(LazyThreadSafetyMode.NONE) { AnimeDatabase.getDatabase(appContext = this) }
@@ -57,19 +62,25 @@ class AnotiApp : Application() {
     private val animeBackgroundUpdateSource: AnimeBackgroundUpdateSource =
         AnimeBackgroundUpdateSourceImpl(
             service = shikimoriService,
-            safeApi = SafeApiImpl
+            safeApi = safeApp
         )
 
     private val fetchAnimeListByIdsUsecase = FetchAnimeListByIdsUsecase(
         source = animeBackgroundUpdateSource
     )
 
-    private val workerFactory by lazy(LazyThreadSafetyMode.NONE) {
-        AnimeUpdateWorker.Factory(
+    private val animeUpdateManager: AnimeUpdateManager by lazy(LazyThreadSafetyMode.NONE) {
+        AnimeUpdateManagerImpl(
             coroutineContextProvider = coroutineContextProvider,
             fetchAllDatabaseItemsUsecase = fetchAllDatabaseItemsUsecase,
             fetchAnimeListByIdsUsecase = fetchAnimeListByIdsUsecase,
-            updateDatabaseItemUsecase = updateDatabaseItemUsecase,
+            updateDatabaseItemUsecase = updateDatabaseItemUsecase
+        )
+    }
+
+    private val workerFactory by lazy(LazyThreadSafetyMode.NONE) {
+        AnimeUpdateWorker.Factory(
+            animeUpdateManager = animeUpdateManager
         )
     }
 

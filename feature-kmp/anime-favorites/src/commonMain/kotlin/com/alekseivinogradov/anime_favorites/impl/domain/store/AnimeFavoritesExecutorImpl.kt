@@ -1,8 +1,8 @@
 package com.alekseivinogradov.anime_favorites.impl.domain.store
 
-import com.alekseivinogradov.anime_base.api.domain.ToastProvider
+import com.alekseivinogradov.anime_base.api.domain.model.ReleaseStatusDomain
+import com.alekseivinogradov.anime_base.api.domain.provider.ToastProvider
 import com.alekseivinogradov.anime_favorites.api.domain.model.ListItemDomain
-import com.alekseivinogradov.anime_favorites.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesExecutor
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anime_favorites.impl.domain.usecase.wrapper.FavoritesUsecases
@@ -12,7 +12,7 @@ import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-internal class AnimeFavoritesExecutorImpl(
+class AnimeFavoritesExecutorImpl(
     private val coroutineContextProvider: CoroutineContextProvider,
     private val usecases: FavoritesUsecases,
     private var toastProvider: ToastProvider
