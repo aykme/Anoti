@@ -2,16 +2,16 @@ package com.alekseivinogradov.database.impl.domain.store
 
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
-import com.alekseivinogradov.database.api.domain.model.AnimeDb
-import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
+import com.alekseivinogradov.database.api.domain.model.AnimeDbDomain
 import com.alekseivinogradov.database.api.domain.store.DatabaseExecutor
 import com.alekseivinogradov.database.api.domain.store.DatabaseStore
+import com.alekseivinogradov.database.api.domain.usecase.wrapper.DatabaseUsecases
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-internal class DatabaseExecutorImpl(
+class DatabaseExecutorImpl(
     private val coroutineContextProvider: CoroutineContextProvider,
-    private val repository: AnimeDatabaseRepository
+    private val usecases: DatabaseUsecases
 ) : DatabaseExecutor() {
 
     private var fetchAllDatabaseItemsJob: Job? = null
@@ -43,8 +43,8 @@ internal class DatabaseExecutorImpl(
     private fun subscribeToDatabase() {
         if (fetchAllDatabaseItemsJob?.isActive == true) return
         fetchAllDatabaseItemsJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
-            repository.getAllItemsFlow()
-                .collect { animeDbList: List<AnimeDb> ->
+            usecases.fetchAllDatabaseItemsFlowUsecase.execute()
+                .collect { animeDbList: List<AnimeDbDomain> ->
                     dispatch(
                         DatabaseStore.Message.UpdateAnimeDatabaseItems(animeDbList)
                     )
@@ -59,7 +59,7 @@ internal class DatabaseExecutorImpl(
         if (databaseContainsItem(intent.animeDatabaseItem.id)) return
         insertAnimeDatabaseItemsJobMap[intent.animeDatabaseItem.id] =
             scope.launch(coroutineContextProvider.mainCoroutineContext) {
-                repository.insert(intent.animeDatabaseItem)
+                usecases.insertDatabaseItemUsecase.execute(intent.animeDatabaseItem)
             }
     }
 
@@ -68,7 +68,7 @@ internal class DatabaseExecutorImpl(
         if (!databaseContainsItem(intent.id)) return
         deleteAnimeDatabaseItemsJobMap[intent.id] =
             scope.launch(coroutineContextProvider.mainCoroutineContext) {
-                repository.delete(intent.id)
+                usecases.deleteDatabaseItemUsecase.execute(intent.id)
             }
     }
 
@@ -76,7 +76,8 @@ internal class DatabaseExecutorImpl(
         if (resetAllItemsNewEpisodeStatusJob?.isActive == true) return
         resetAllItemsNewEpisodeStatusJob =
             scope.launch(coroutineContextProvider.mainCoroutineContext) {
-                repository.resetAllItemsNewEpisodeStatus()
+                usecases.resetAllDatabaseItemsNewEpisodeStatusUsecase.execute()
+                publish(DatabaseStore.Label.ResetAllItemsNewEpisodeStatusWasFinished)
             }
     }
 
@@ -86,7 +87,7 @@ internal class DatabaseExecutorImpl(
         if (changeItemNewEpisodeStatusJobMap[intent.id]?.isActive == true) return
 
         val isItemAlreadyWithoutNewEpisodeLabel = state().animeDatabaseItems
-            .find { animeDb: AnimeDb ->
+            .find { animeDb: AnimeDbDomain ->
                 animeDb.id == intent.id
             }?.isNewEpisode ?: false == false
 
@@ -94,7 +95,7 @@ internal class DatabaseExecutorImpl(
 
         changeItemNewEpisodeStatusJobMap[intent.id] =
             scope.launch(coroutineContextProvider.mainCoroutineContext) {
-                repository.changeItemNewEpisodeStatus(
+                usecases.changeDatabaseItemNewEpisodeStatusUsecase.execute(
                     id = intent.id,
                     isNewEpisode = intent.isNewEpisode
                 )
@@ -106,12 +107,12 @@ internal class DatabaseExecutorImpl(
         if (!databaseContainsItem(intent.animeDatabaseItem.id)) return
         updateItemJobMap[intent.animeDatabaseItem.id] =
             scope.launch(coroutineContextProvider.mainCoroutineContext) {
-                repository.update(intent.animeDatabaseItem)
+                usecases.updateDatabaseItemUsecase.execute(intent.animeDatabaseItem)
             }
     }
 
     private fun databaseContainsItem(id: AnimeId): Boolean {
-        return state().animeDatabaseItems.map { animeDb: AnimeDb ->
+        return state().animeDatabaseItems.map { animeDb: AnimeDbDomain ->
             animeDb.id
         }.toSet().contains(id)
     }

@@ -6,6 +6,7 @@ import kotlin.coroutines.CoroutineContext
 interface CoroutineContextProvider {
 
     val mainCoroutineContext: CoroutineContext
+    val workManagerCoroutineContext: CoroutineContext
 
     val mainDispatcher: CoroutineDispatcher
     val defaultDispatcher: CoroutineDispatcher

@@ -1,8 +1,8 @@
 package com.alekseivinogradov.anime_favorites.impl.domain.store
 
-import com.alekseivinogradov.anime_base.api.domain.ToastProvider
+import com.alekseivinogradov.anime_base.api.domain.model.ReleaseStatusDomain
+import com.alekseivinogradov.anime_base.api.domain.provider.ToastProvider
 import com.alekseivinogradov.anime_favorites.api.domain.model.ListItemDomain
-import com.alekseivinogradov.anime_favorites.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesExecutor
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anime_favorites.impl.domain.usecase.wrapper.FavoritesUsecases
@@ -12,7 +12,7 @@ import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-internal class AnimeFavoritesExecutorImpl(
+class AnimeFavoritesExecutorImpl(
     private val coroutineContextProvider: CoroutineContextProvider,
     private val usecases: FavoritesUsecases,
     private var toastProvider: ToastProvider
@@ -25,6 +25,10 @@ internal class AnimeFavoritesExecutorImpl(
         when (intent) {
             is AnimeFavoritesMainStore.Intent.UpdateListItems -> updateListItems(intent)
             AnimeFavoritesMainStore.Intent.UpdateSection -> updateSection()
+            AnimeFavoritesMainStore.Intent.UpdateAllItemsInBackground -> {
+                updateAllItemsInBackground()
+            }
+
             is AnimeFavoritesMainStore.Intent.ItemClick -> itemClick(intent)
             is AnimeFavoritesMainStore.Intent.InfoTypeClick -> infoTypeClick(intent)
             is AnimeFavoritesMainStore.Intent.NotificationClick -> notificationClick(intent)
@@ -49,6 +53,10 @@ internal class AnimeFavoritesExecutorImpl(
             )
         )
         publish(AnimeFavoritesMainStore.Label.UpdateSection)
+    }
+
+    private fun updateAllItemsInBackground() {
+        usecases.updateAllAnimeInBackgroundUsecase.execute()
     }
 
     private fun itemClick(intent: AnimeFavoritesMainStore.Intent.ItemClick) {
@@ -130,21 +138,21 @@ internal class AnimeFavoritesExecutorImpl(
         val isOngoingStatus = listItem.releaseStatus == ReleaseStatusDomain.ONGOING
 
         if (isOngoingStatus && !state.fetchedAnimeDetailsIds.contains(id)) {
-            updateAnimeDetails(listItem)
+            updateAnimeDetails(id)
         }
     }
 
-    private fun updateAnimeDetails(listItem: ListItemDomain) {
-        updateAnimeDetailsJobMap[listItem.id]?.cancel()
-        updateAnimeDetailsJobMap[listItem.id] =
+    private fun updateAnimeDetails(id: AnimeId) {
+        updateAnimeDetailsJobMap[id]?.cancel()
+        updateAnimeDetailsJobMap[id] =
             scope.launch(coroutineContextProvider.mainCoroutineContext) {
                 val result = usecases
                     .fetchAnimeDetailsByIdUsecase
-                    .execute(listItem.id)
+                    .execute(id)
 
                 when (result) {
                     is CallResult.Success -> onSuccessUpdateAnimeDetails(
-                        currentListItem = listItem,
+                        currentItemId = id,
                         updateListItem = result.value
                     )
 
@@ -155,13 +163,17 @@ internal class AnimeFavoritesExecutorImpl(
     }
 
     private fun onSuccessUpdateAnimeDetails(
-        currentListItem: ListItemDomain,
+        currentItemId: AnimeId,
         updateListItem: ListItemDomain
     ) {
         val newFetchedItemDetailsIds = state().fetchedAnimeDetailsIds
             .toMutableSet().apply {
-                add(currentListItem.id)
+                add(currentItemId)
             }.toSet()
+
+        val currentListItem = state().listItems.find { listItemDomain: ListItemDomain ->
+            listItemDomain.id == currentItemId
+        } ?: return
 
         dispatch(
             AnimeFavoritesMainStore.Message.UpdateFetchedAnimeDetailsIds(

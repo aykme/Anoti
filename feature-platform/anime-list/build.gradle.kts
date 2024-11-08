@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -38,6 +39,7 @@ android {
 dependencies {
     implementation(project(":ui-core:theme"))
     implementation(project(":ui-core:atom"))
+    implementation(project(":core-platform:celebrity"))
     implementation(project(":core-platform:database"))
     implementation(project(":core-platform:network"))
     implementation(project(":feature-platform:anime-base"))
@@ -48,8 +50,10 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.glide)
+    implementation(libs.glide.okhttp3)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.paging.runtime.ktx)
+    ksp(libs.glide.ksp)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

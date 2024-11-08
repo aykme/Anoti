@@ -25,7 +25,8 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            api(project(":core-kmp:celebrity"))
+            implementation(project(":core-kmp:celebrity"))
+            implementation(project(":core-kmp:network"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

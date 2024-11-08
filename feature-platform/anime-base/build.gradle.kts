@@ -34,7 +34,7 @@ android {
 
 dependencies {
     api(project(":feature-kmp:anime-base"))
-    api(project(":core-platform:celebrity"))
+    implementation(project(":core-platform:celebrity"))
     implementation(project(":core-platform:network"))
 
     implementation(libs.androidx.core.ktx)

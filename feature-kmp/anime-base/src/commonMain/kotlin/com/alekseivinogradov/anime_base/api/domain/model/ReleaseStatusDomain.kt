@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anime_list.api.domain.model
+package com.alekseivinogradov.anime_base.api.domain.model
 
 enum class ReleaseStatusDomain {
     UNKNOWN,

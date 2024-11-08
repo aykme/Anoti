@@ -2,10 +2,10 @@ package com.alekseivinogradov.anime_list.api.presentation.mapper.model
 
 import app.cash.paging.PagingData
 import app.cash.paging.map
+import com.alekseivinogradov.anime_base.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_list.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
-import com.alekseivinogradov.anime_list.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_list.api.domain.model.SearchDomain
 import com.alekseivinogradov.anime_list.api.domain.model.SectionHatDomain
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore

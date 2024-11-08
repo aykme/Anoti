@@ -18,9 +18,6 @@ interface AnimeDao {
     @Update
     suspend fun update(anime: AnimeDbPlatform)
 
-    @Query("SELECT * FROM anime_table WHERE id = :id")
-    suspend fun getItem(id: AnimeId): AnimeDbPlatform
-
     @Query("SELECT * FROM anime_table ORDER BY release_status DESC, name ASC")
     fun getAllItemsFlow(): Flow<List<AnimeDbPlatform>>
 
