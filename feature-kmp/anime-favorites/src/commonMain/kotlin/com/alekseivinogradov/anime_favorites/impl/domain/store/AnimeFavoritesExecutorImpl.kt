@@ -10,7 +10,6 @@ import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class AnimeFavoritesExecutorImpl(
@@ -150,8 +149,6 @@ class AnimeFavoritesExecutorImpl(
                 val result = usecases
                     .fetchAnimeDetailsByIdUsecase
                     .execute(id)
-
-                delay(2000)
 
                 when (result) {
                     is CallResult.Success -> onSuccessUpdateAnimeDetails(
