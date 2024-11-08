@@ -10,6 +10,7 @@ import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class AnimeFavoritesExecutorImpl(
@@ -138,21 +139,23 @@ class AnimeFavoritesExecutorImpl(
         val isOngoingStatus = listItem.releaseStatus == ReleaseStatusDomain.ONGOING
 
         if (isOngoingStatus && !state.fetchedAnimeDetailsIds.contains(id)) {
-            updateAnimeDetails(listItem)
+            updateAnimeDetails(id)
         }
     }
 
-    private fun updateAnimeDetails(listItem: ListItemDomain) {
-        updateAnimeDetailsJobMap[listItem.id]?.cancel()
-        updateAnimeDetailsJobMap[listItem.id] =
+    private fun updateAnimeDetails(id: AnimeId) {
+        updateAnimeDetailsJobMap[id]?.cancel()
+        updateAnimeDetailsJobMap[id] =
             scope.launch(coroutineContextProvider.mainCoroutineContext) {
                 val result = usecases
                     .fetchAnimeDetailsByIdUsecase
-                    .execute(listItem.id)
+                    .execute(id)
+
+                delay(2000)
 
                 when (result) {
                     is CallResult.Success -> onSuccessUpdateAnimeDetails(
-                        currentListItem = listItem,
+                        currentItemId = id,
                         updateListItem = result.value
                     )
 
@@ -163,13 +166,17 @@ class AnimeFavoritesExecutorImpl(
     }
 
     private fun onSuccessUpdateAnimeDetails(
-        currentListItem: ListItemDomain,
+        currentItemId: AnimeId,
         updateListItem: ListItemDomain
     ) {
         val newFetchedItemDetailsIds = state().fetchedAnimeDetailsIds
             .toMutableSet().apply {
-                add(currentListItem.id)
+                add(currentItemId)
             }.toSet()
+
+        val currentListItem = state().listItems.find { listItemDomain: ListItemDomain ->
+            listItemDomain.id == currentItemId
+        } ?: return
 
         dispatch(
             AnimeFavoritesMainStore.Message.UpdateFetchedAnimeDetailsIds(
