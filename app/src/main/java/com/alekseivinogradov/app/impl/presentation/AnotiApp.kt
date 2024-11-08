@@ -23,6 +23,7 @@ import com.alekseivinogradov.database.impl.domain.usecase.FetchAllDatabaseItemsU
 import com.alekseivinogradov.database.impl.domain.usecase.UpdateDatabaseItemUsecaseImpl
 import com.alekseivinogradov.database.room.impl.data.AnimeDatabase
 import com.alekseivinogradov.database.room.impl.data.repository.AnimeDatabaseRepositoryImpl
+import com.alekseivinogradov.network.api.data.SafeApi
 import com.alekseivinogradov.network.impl.data.SafeApiImpl
 import java.util.concurrent.TimeUnit
 
@@ -35,6 +36,8 @@ class AnotiApp : Application() {
     private val shikimoriService: ShikimoriApiService = ShikimoriApiServiceImpl(
         servicePlatform = ShikimoriApiServicePlatform.instance
     )
+
+    private val safeApp: SafeApi = SafeApiImpl
 
     private val animeDatabase: AnimeDatabase
             by lazy(LazyThreadSafetyMode.NONE) { AnimeDatabase.getDatabase(appContext = this) }
@@ -57,7 +60,7 @@ class AnotiApp : Application() {
     private val animeBackgroundUpdateSource: AnimeBackgroundUpdateSource =
         AnimeBackgroundUpdateSourceImpl(
             service = shikimoriService,
-            safeApi = SafeApiImpl
+            safeApi = safeApp
         )
 
     private val fetchAnimeListByIdsUsecase = FetchAnimeListByIdsUsecase(

@@ -9,7 +9,7 @@ import com.alekseivinogradov.database.api.domain.usecase.wrapper.DatabaseUsecase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-internal class DatabaseExecutorImpl(
+class DatabaseExecutorImpl(
     private val coroutineContextProvider: CoroutineContextProvider,
     private val usecases: DatabaseUsecases
 ) : DatabaseExecutor() {

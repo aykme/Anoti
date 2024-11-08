@@ -4,11 +4,11 @@ import app.cash.paging.Pager
 import app.cash.paging.PagingConfig
 import app.cash.paging.PagingData
 import app.cash.paging.cachedIn
-import com.alekseivinogradov.anime_base.api.domain.ToastProvider
+import com.alekseivinogradov.anime_base.api.domain.model.ReleaseStatusDomain
+import com.alekseivinogradov.anime_base.api.domain.provider.ToastProvider
 import com.alekseivinogradov.anime_list.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
-import com.alekseivinogradov.anime_list.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.OngoingSectionExecutor
 import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.OngoingSectionStore
 import com.alekseivinogradov.anime_list.impl.domain.paging.OngoingListDataSource
@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
-internal class OngoingSectionExecutorImpl(
+class OngoingSectionExecutorImpl(
     private val coroutineContextProvider: CoroutineContextProvider,
     private val usecases: OngoingUsecases,
     private val toastProvider: ToastProvider

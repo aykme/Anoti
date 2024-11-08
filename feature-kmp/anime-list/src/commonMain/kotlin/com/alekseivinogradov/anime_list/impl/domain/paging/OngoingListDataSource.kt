@@ -2,7 +2,7 @@ package com.alekseivinogradov.anime_list.impl.domain.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.alekseivinogradov.anime_base.api.domain.ToastProvider
+import com.alekseivinogradov.anime_base.api.domain.provider.ToastProvider
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchOngoingAnimeListUsecase
 import com.alekseivinogradov.celebrity.api.domain.FIRST_PAGE

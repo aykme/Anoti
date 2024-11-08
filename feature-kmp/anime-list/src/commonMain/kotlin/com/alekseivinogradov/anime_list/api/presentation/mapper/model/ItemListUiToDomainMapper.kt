@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anime_list.api.presentation.mapper.model
 
+import com.alekseivinogradov.anime_base.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
-import com.alekseivinogradov.anime_list.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_list.api.presentation.model.ListItemUi
 import com.alekseivinogradov.anime_list.api.presentation.model.item_content.ReleaseStatusUi
 
