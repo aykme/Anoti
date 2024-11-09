@@ -204,7 +204,6 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:alpha="0.8"
-        android:src="@drawable/ic_notifications_on_40"
         android:tint="@color/black_transparent"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -212,7 +211,8 @@
         app:maxImageSize="40dp"
         tools:backgroundTint="@color/green"
         tools:contentDescription="@string/notifications_turn_off_description"
-        tools:ignore="ContentDescription,TouchTargetSizeCheck" />
+        tools:ignore="ContentDescription,TouchTargetSizeCheck"
+        tools:src="@drawable/ic_notifications_on_40" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/extra_episodes_info_text"

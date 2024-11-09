@@ -16,7 +16,7 @@ import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.SearchUsecas
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.celebrity.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.celebrity.api.domain.PAGING_PREFETCH_DISTANCE
-import com.alekseivinogradov.celebrity.api.domain.SEARCH_DEBOUNCE
+import com.alekseivinogradov.celebrity.api.domain.SEARCH_DEBOUNCE_MILLISECONDS
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.FlowPreview
@@ -62,7 +62,7 @@ class SearchSectionExecutorImpl(
         }
         if (changeSearchJob?.isActive == true) return
         changeSearchJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
-            searchFlow?.debounce(SEARCH_DEBOUNCE)
+            searchFlow?.debounce(SEARCH_DEBOUNCE_MILLISECONDS)
                 ?.collect {
                     updateSection()
                 }

@@ -29,6 +29,7 @@ kotlin {
             implementation(project(":core-kmp:celebrity"))
             implementation(project(":core-kmp:database"))
             implementation(project(":core-kmp:network"))
+            implementation(project(":feature-kmp:anime-notification"))
 
             implementation(libs.kotlinx.coroutines.core)
         }

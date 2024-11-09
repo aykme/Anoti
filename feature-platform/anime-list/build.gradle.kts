@@ -37,13 +37,12 @@ android {
 }
 
 dependencies {
-    implementation(project(":ui-core:theme"))
-    implementation(project(":ui-core:atom"))
+    api(project(":feature-kmp:anime-list"))
+    implementation(project(":ui-core:res"))
     implementation(project(":core-platform:celebrity"))
     implementation(project(":core-platform:database"))
     implementation(project(":core-platform:network"))
     implementation(project(":feature-platform:anime-base"))
-    implementation(project(":feature-kmp:anime-list"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

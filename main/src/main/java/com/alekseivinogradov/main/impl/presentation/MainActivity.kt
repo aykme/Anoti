@@ -39,7 +39,7 @@ import com.arkivanov.essenty.lifecycle.asEssentyLifecycle
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
-import com.alekseivinogradov.theme.R as theme_R
+import com.alekseivinogradov.res.R as res_R
 
 class MainActivity : AppCompatActivity() {
 
@@ -157,8 +157,8 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        window.setStatusBarColor(getColor(theme_R.color.black))
-        window.setNavigationBarColor(getColor(theme_R.color.black))
+        window.setStatusBarColor(getColor(res_R.color.black))
+        window.setNavigationBarColor(getColor(res_R.color.black))
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
     }
 

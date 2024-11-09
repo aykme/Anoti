@@ -37,13 +37,14 @@ android {
 }
 
 dependencies {
-    implementation(project(":ui-core:theme"))
+    implementation(project(":ui-core:res"))
     implementation(project(":core-platform:celebrity"))
     implementation(project(":core-platform:database"))
     implementation(project(":core-platform:network"))
     implementation(project(":main"))
     implementation(project(":feature-platform:anime-base"))
     implementation(project(":feature-platform:anime-background-update"))
+    implementation(project(":feature-platform:anime-notification"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.room.ktx)

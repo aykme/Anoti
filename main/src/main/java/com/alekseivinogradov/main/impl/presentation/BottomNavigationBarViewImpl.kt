@@ -16,7 +16,7 @@ import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer
 import com.google.android.material.badge.BadgeDrawable
-import com.alekseivinogradov.theme.R as theme_R
+import com.alekseivinogradov.res.R as res_R
 
 internal class BottomNavigationBarViewImpl(
     private val viewBinding: ActivityMainBinding,
@@ -55,7 +55,7 @@ internal class BottomNavigationBarViewImpl(
     }
 
     private fun initFavoritesBadge() {
-        favoritesBadge.backgroundColor = context.getColor(theme_R.color.pink_transperent)
+        favoritesBadge.backgroundColor = context.getColor(res_R.color.pink_transperent)
     }
 
     private fun initOnItemSelectedListener() {

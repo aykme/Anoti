@@ -4,6 +4,7 @@ import com.alekseivinogradov.network.api.data.SafeApi
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.delay
 import retrofit2.HttpException
+import kotlin.coroutines.cancellation.CancellationException
 
 object SafeApiImpl : SafeApi {
     override val maxAttempt: Int = 3
@@ -15,6 +16,8 @@ object SafeApiImpl : SafeApi {
     ): CallResult<T> {
         return try {
             CallResult.Success(apiCall.invoke())
+        } catch (e: CancellationException) {
+            throw e
         } catch (throwable: Throwable) {
             if (callAttempt < maxAttempt) {
                 delay(attemptDelay * callAttempt)

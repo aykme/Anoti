@@ -13,11 +13,12 @@ import com.alekseivinogradov.anime_favorites.api.presentation.model.item_content
 import com.alekseivinogradov.anime_favorites.api.presentation.model.item_content.ReleaseStatusUi
 import com.alekseivinogradov.anime_favorites_platform.R
 import com.alekseivinogradov.anime_favorites_platform.databinding.ItemAnimeFavoritesBinding
+import com.alekseivinogradov.celebrity.api.domain.REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS
+import com.alekseivinogradov.celebrity.api.domain.REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS
 import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
 import com.alekseivinogradov.celebrity.impl.presentation.repeat_listener.RepeatListener
 import com.bumptech.glide.Glide
-import com.alekseivinogradov.atom.R as atom_R
-import com.alekseivinogradov.theme.R as theme_R
+import com.alekseivinogradov.res.R as res_R
 
 internal class AnimeFavoritesViewHolder(
     private val binding: ItemAnimeFavoritesBinding,
@@ -34,10 +35,10 @@ internal class AnimeFavoritesViewHolder(
         get() = binding.root.context
 
     private val disableColor: Int
-        get() = context.getColor(theme_R.color.pink)
+        get() = context.getColor(res_R.color.pink)
 
     private val enableColor: Int
-        get() = context.getColor(theme_R.color.green)
+        get() = context.getColor(res_R.color.green)
 
     private val episodesString: String
         get() = context.getString(R.string.episodes)
@@ -169,8 +170,8 @@ internal class AnimeFavoritesViewHolder(
             }
             episodesViewedMinusButton.setOnTouchListener(
                 RepeatListener(
-                    initialInterval = com.alekseivinogradov.celebrity.api.domain.REPEAT_LISTENER_INITIAL_INTERVAL,
-                    repeatInterval = com.alekseivinogradov.celebrity.api.domain.REPEAT_LISTENER_REPEAT_INTERVAL
+                    initialInterval = REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS,
+                    repeatInterval = REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS
                 ) {
                     if (bindingAdapterPosition == RecyclerView.NO_POSITION) return@RepeatListener
                     episodesViewedMinusClickViewHolderCallback(bindingAdapterPosition)
@@ -178,8 +179,8 @@ internal class AnimeFavoritesViewHolder(
             )
             episodesViewedPlusButton.setOnTouchListener(
                 RepeatListener(
-                    initialInterval = com.alekseivinogradov.celebrity.api.domain.REPEAT_LISTENER_INITIAL_INTERVAL,
-                    repeatInterval = com.alekseivinogradov.celebrity.api.domain.REPEAT_LISTENER_REPEAT_INTERVAL
+                    initialInterval = REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS,
+                    repeatInterval = REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS
                 ) {
                     if (bindingAdapterPosition == RecyclerView.NO_POSITION) return@RepeatListener
                     episodesViewedPlusClickViewHolderCallback(bindingAdapterPosition)
@@ -189,13 +190,11 @@ internal class AnimeFavoritesViewHolder(
     }
 
     private fun bindImageUrl(imageUrl: String?) {
-        imageUrl?.let {
-            Glide.with(binding.posterImage)
-                .load(it)
-                .placeholder(atom_R.drawable.loading_animation)
-                .error(atom_R.drawable.load_image_error_48)
-                .into(binding.posterImage)
-        }
+        Glide.with(binding.posterImage)
+            .load(imageUrl)
+            .placeholder(res_R.drawable.loading_animation)
+            .error(res_R.drawable.load_image_error_48)
+            .into(binding.posterImage)
     }
 
     private fun bindName(name: String) {
@@ -314,19 +313,19 @@ internal class AnimeFavoritesViewHolder(
                 ReleaseStatusUi.ONGOING -> {
                     releaseStatusText.text =
                         context.getString(R.string.ongoing)
-                    releaseStatusText.setTextColor(context.getColor(theme_R.color.green))
+                    releaseStatusText.setTextColor(context.getColor(res_R.color.green))
                 }
 
                 ReleaseStatusUi.ANNOUNCED -> {
                     releaseStatusText.text =
                         context.getString(R.string.announced)
-                    releaseStatusText.setTextColor(context.getColor(theme_R.color.purple_200))
+                    releaseStatusText.setTextColor(context.getColor(res_R.color.purple_200))
                 }
 
                 ReleaseStatusUi.RELEASED -> {
                     releaseStatusText.text =
                         context.getString(R.string.released)
-                    releaseStatusText.setTextColor(context.getColor(theme_R.color.pink))
+                    releaseStatusText.setTextColor(context.getColor(res_R.color.pink))
                 }
 
                 ReleaseStatusUi.UNKNOWN -> {
@@ -343,7 +342,7 @@ internal class AnimeFavoritesViewHolder(
                     notificationButton.setImageDrawable(
                         ContextCompat.getDrawable(
                             context,
-                            atom_R.drawable.ic_notifications_on_40
+                            res_R.drawable.ic_notifications_on_40
                         )
                     )
                     notificationButton.rippleColor = disableColor
@@ -357,7 +356,7 @@ internal class AnimeFavoritesViewHolder(
                     notificationButton.setImageDrawable(
                         ContextCompat.getDrawable(
                             context,
-                            atom_R.drawable.ic_notifications_off_40
+                            res_R.drawable.ic_notifications_off_40
                         )
                     )
                     notificationButton.rippleColor = enableColor
@@ -380,13 +379,13 @@ internal class AnimeFavoritesViewHolder(
                 newEpisodeBackground.isVisible = true
                 newEpisodeText.isVisible = true
                 mainInfoStroke.backgroundTintList = ColorStateList.valueOf(
-                    context.getColor(theme_R.color.silver)
+                    context.getColor(res_R.color.silver)
                 )
             } else {
                 newEpisodeText.isVisible = false
                 newEpisodeBackground.isVisible = false
                 mainInfoStroke.backgroundTintList = ColorStateList.valueOf(
-                    context.getColor(theme_R.color.grey_700)
+                    context.getColor(res_R.color.grey_700)
                 )
             }
         }

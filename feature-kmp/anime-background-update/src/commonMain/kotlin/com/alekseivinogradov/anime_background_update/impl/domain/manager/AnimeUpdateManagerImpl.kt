@@ -5,6 +5,7 @@ import com.alekseivinogradov.anime_background_update.api.domain.mapper.mapReleas
 import com.alekseivinogradov.anime_background_update.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_background_update.api.domain.model.WorkResult
 import com.alekseivinogradov.anime_background_update.impl.domain.usecase.FetchAnimeListByIdsUsecase
+import com.alekseivinogradov.anime_notification.api.domain.notification_manager.AnimeNotificationManager
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.celebrity.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.celebrity.api.domain.Index
@@ -19,7 +20,8 @@ class AnimeUpdateManagerImpl(
     private val coroutineContextProvider: CoroutineContextProvider,
     private val fetchAllDatabaseItemsUsecase: FetchAllDatabaseItemsUsecase,
     private val fetchAnimeListByIdsUsecase: FetchAnimeListByIdsUsecase,
-    private val updateDatabaseItemUsecase: UpdateDatabaseItemUsecase
+    private val updateDatabaseItemUsecase: UpdateDatabaseItemUsecase,
+    private val notificationManager: AnimeNotificationManager
 ) : AnimeUpdateManager {
 
     override suspend fun update(): WorkResult {
@@ -137,13 +139,35 @@ class AnimeUpdateManagerImpl(
         currentDatabaseItems: List<AnimeDbDomain>,
         remoteItems: List<ListItemDomain>
     ) {
+        /**
+         * Transform list into map for a fast id search algorithm
+         */
+        val currentDatabaseItemsWithIds: Map<AnimeId, AnimeDbDomain> = currentDatabaseItems
+            .associateBy { animeDb: AnimeDbDomain ->
+                animeDb.id
+            }
         val updatedDatabaseItems = getUpdatedDatabaseItems(
             currentDatabaseItems = currentDatabaseItems,
             remoteItems = remoteItems
         )
 
-        updatedDatabaseItems.forEach { animeDb: AnimeDbDomain ->
-            updateDatabaseItemUsecase.execute(animeDb)
+        updatedDatabaseItems.forEach { updatedItem: AnimeDbDomain ->
+            updateDatabaseItemUsecase.execute(updatedItem)
+            currentDatabaseItemsWithIds[updatedItem.id]
+                ?.let { currentDatabaseItem: AnimeDbDomain ->
+                    if (
+                        isNotificationNeed(
+                            currentDatabaseItem = currentDatabaseItem,
+                            updatedDatabaseItem = updatedItem
+                        )
+                    ) {
+                        notificationManager.makeNewEpisodeNotification(
+                            animeName = updatedItem.name,
+                            episodesAired = updatedItem.episodesAired,
+                            imageUrl = updatedItem.imageUrl
+                        )
+                    }
+                }
         }
     }
 
@@ -152,7 +176,7 @@ class AnimeUpdateManagerImpl(
         remoteItems: List<ListItemDomain>
     ): List<AnimeDbDomain> {
         /**
-         * Transform List into Map to avoid nested iteration, using indexes for quick access
+         * Transform list into map to avoid nested iteration, using indexes for quick access
          */
         val remoteItemsWithIds: Map<AnimeId, ListItemDomain> = remoteItems
             .associateBy { itemDomain: ListItemDomain ->
@@ -171,7 +195,7 @@ class AnimeUpdateManagerImpl(
                     releasedOn = remoteItemNotNull.releasedOn,
                     score = remoteItemNotNull.score,
                     releaseStatus = mapReleaseStatusDomainToDb(remoteItemNotNull.releaseStatus),
-                    isNewEpisode = isNewEpisode(
+                    isNewEpisode = isNewEpisodeDbStatus(
                         currentDatabaseItem = animeDb,
                         remoteItem = remoteItemNotNull
                     )
@@ -186,12 +210,22 @@ class AnimeUpdateManagerImpl(
         return updatedDatabaseItems
     }
 
-    private fun isNewEpisode(
+    private fun isNewEpisodeDbStatus(
         currentDatabaseItem: AnimeDbDomain,
         remoteItem: ListItemDomain
     ): Boolean {
+        if (currentDatabaseItem.isNewEpisode) return true
         val currentEpisodesAired = currentDatabaseItem.episodesAired ?: 0
         val newEpisodesAired = remoteItem.episodesAired ?: 0
+        return newEpisodesAired > currentEpisodesAired
+    }
+
+    private fun isNotificationNeed(
+        currentDatabaseItem: AnimeDbDomain,
+        updatedDatabaseItem: AnimeDbDomain
+    ): Boolean {
+        val currentEpisodesAired = currentDatabaseItem.episodesAired ?: 0
+        val newEpisodesAired = updatedDatabaseItem.episodesAired ?: 0
         return newEpisodesAired > currentEpisodesAired
     }
 }

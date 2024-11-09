@@ -212,12 +212,12 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:alpha="0.8"
-        android:src="@drawable/ic_notifications_off_40"
         android:tint="@color/black_transparent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:maxImageSize="40dp"
         tools:backgroundTint="@color/pink"
         tools:contentDescription="@string/notifications_turn_on_description"
-        tools:ignore="ContentDescription,ImageContrastCheck,TouchTargetSizeCheck" />
+        tools:ignore="ContentDescription,ImageContrastCheck,TouchTargetSizeCheck"
+        tools:src="@drawable/ic_notifications_off_40" />
 </androidx.constraintlayout.widget.ConstraintLayout>

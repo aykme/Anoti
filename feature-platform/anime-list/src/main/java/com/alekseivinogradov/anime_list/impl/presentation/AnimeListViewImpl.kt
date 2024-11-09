@@ -17,7 +17,7 @@ import com.alekseivinogradov.anime_list.api.presentation.model.UiModel
 import com.alekseivinogradov.anime_list.impl.presentation.adapter.AnimeListAdapter
 import com.alekseivinogradov.anime_list_platform.R
 import com.alekseivinogradov.anime_list_platform.databinding.FragmentAnimeListBinding
-import com.alekseivinogradov.celebrity.api.domain.PAGING_SUBMIT_LIST_DELAY
+import com.alekseivinogradov.celebrity.api.domain.PAGING_SUBMIT_LIST_DELAY_MILLISECONDS
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
 import com.arkivanov.mvikotlin.core.utils.diff
@@ -27,8 +27,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import com.alekseivinogradov.atom.R as atom_R
-import com.alekseivinogradov.theme.R as theme_R
+import com.alekseivinogradov.res.R as res_R
 
 internal class AnimeListViewImpl(
     private val viewBinding: FragmentAnimeListBinding,
@@ -41,10 +40,10 @@ internal class AnimeListViewImpl(
         get() = viewBinding.root.context
 
     private val activeColor
-        get() = context.getColor(theme_R.color.pink)
+        get() = context.getColor(res_R.color.pink)
 
     private val defaultColor
-        get() = context.getColor(theme_R.color.white_transparent)
+        get() = context.getColor(res_R.color.white_transparent)
 
     private val resetListPositionCallback: () -> Unit = {
         viewBinding.animeListRv.scrollToPosition(0)
@@ -106,7 +105,7 @@ internal class AnimeListViewImpl(
                 /* start = */ com.alekseivinogradov.celebrity.api.domain.SWIPE_REFRESH_START_OFFSET,
                 /* end = */ com.alekseivinogradov.celebrity.api.domain.SWIPE_REFRESH_END_OFFSET
             )
-            swipeRefreshLayout.setColorSchemeResources(theme_R.color.pink)
+            swipeRefreshLayout.setColorSchemeResources(res_R.color.pink)
             swipeRefreshLayout.setOnRefreshListener {
                 dispatch(AnimeListMainStore.Intent.UpdateSection)
                 swipeRefreshLayout.isRefreshing = false
@@ -260,14 +259,14 @@ internal class AnimeListViewImpl(
                          * The reason for this delay is so that
                          * the list can be updated before the ContentType change
                          */
-                        delay(PAGING_SUBMIT_LIST_DELAY * 4)
+                        delay(PAGING_SUBMIT_LIST_DELAY_MILLISECONDS * 4)
                         connectionStatusImage.isVisible = false
                         animeListRv.isVisible = true
                     }
 
                     ContentTypeUi.LOADING -> {
                         animeListRv.isVisible = false
-                        connectionStatusImage.setImageResource(atom_R.drawable.loading_animation)
+                        connectionStatusImage.setImageResource(res_R.drawable.loading_animation)
                         connectionStatusImage.contentDescription = context
                             .getString(R.string.loading_in_progress)
                         connectionStatusImage.isVisible = true
@@ -299,7 +298,7 @@ internal class AnimeListViewImpl(
              * Apparently, this is a library bug.
              * This is a big problem in MVI, as state can be updated very often.
              */
-            delay(PAGING_SUBMIT_LIST_DELAY)
+            delay(PAGING_SUBMIT_LIST_DELAY_MILLISECONDS)
             adapter.removeOnPagesUpdatedListener(resetListPositionCallback)
             if (listContent.isNeedToResetListPositon) {
                 adapter.addOnPagesUpdatedListener(resetListPositionCallback)

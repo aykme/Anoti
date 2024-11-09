@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.alekseivinogradov.theme"
+    namespace = "com.alekseivinogradov.res"
     compileSdk = 34
 
     defaultConfig {

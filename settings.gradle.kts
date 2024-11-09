@@ -22,7 +22,7 @@ dependencyResolutionManagement {
 rootProject.name = "Anoti"
 include(":app")
 include(":main")
-include(":ui-core:theme")
+include(":ui-core:res")
 include(":ui-core:atom")
 include(":core-kmp:celebrity")
 include(":core-platform:celebrity")
