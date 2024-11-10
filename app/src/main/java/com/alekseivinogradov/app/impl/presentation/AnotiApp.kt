@@ -1,7 +1,6 @@
 package com.alekseivinogradov.app.impl.presentation
 
 import android.app.Application
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import androidx.work.Configuration
@@ -18,8 +17,9 @@ import com.alekseivinogradov.anime_background_update.impl.domain.worker.AnimeUpd
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiServicePlatform
 import com.alekseivinogradov.anime_base.impl.data.service.ShikimoriApiServiceImpl
-import com.alekseivinogradov.anime_notification.api.domain.notification_manager.AnimeNotificationManager
-import com.alekseivinogradov.anime_notification.impl.presentation.AnimeNotificationManagerImpl
+import com.alekseivinogradov.anime_notification.api.domain.manager.AnimeNotificationManager
+import com.alekseivinogradov.anime_notification.impl.presentation.factory.AnimeNotificationChannelFactory
+import com.alekseivinogradov.anime_notification.impl.presentation.manager.AnimeNotificationManagerImpl
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.celebrity.impl.domain.coroutine_context.CoroutineContextProviderPlatform
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
@@ -104,6 +104,11 @@ class AnotiApp : Application() {
             repeatIntervalTimeUnit = TimeUnit.MINUTES
         ).build()
 
+    private val animeNotificationChannelFactory
+            by lazy(LazyThreadSafetyMode.NONE) {
+                AnimeNotificationChannelFactory()
+            }
+
     override fun onCreate() {
         super.onCreate()
         setupAnimeUpdateWorkManager()
@@ -126,14 +131,9 @@ class AnotiApp : Application() {
     private fun setupAnimeNotificationManager() {
         (getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager)
             ?.let { notificationManager: NotificationManager ->
-                val channel = NotificationChannel(
-                    /* id = */ AnimeNotificationManager.channelId,
-                    /* name = */ AnimeNotificationManager.channelName,
-                    /* importance = */ NotificationManager.IMPORTANCE_DEFAULT
-                ).apply {
-                    description = AnimeNotificationManager.channelDescription
-                }
-                notificationManager.createNotificationChannel(channel)
+                notificationManager.createNotificationChannel(
+                    animeNotificationChannelFactory.create(applicationContext)
+                )
             }
     }
 }

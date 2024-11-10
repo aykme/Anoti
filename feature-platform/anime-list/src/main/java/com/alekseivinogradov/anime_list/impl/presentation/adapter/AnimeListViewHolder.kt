@@ -216,13 +216,13 @@ internal class AnimeListViewHolder(
     ): String {
         val isReleased = releaseStatus == ReleaseStatusUi.RELEASED
 
-        val episodesTotalNotNull = episodesTotal ?: 0
         val episodesAiredString = if (isReleased.not()) {
             episodesAired ?: 0
         } else {
-            episodesTotalNotNull
+            episodesTotal ?: episodesAired ?: 0
         }
 
+        val episodesTotalNotNull = episodesTotal ?: 0
         val episotesTotalString = if (episodesTotalNotNull > 0) {
             episodesTotalNotNull.toString()
         } else "?"

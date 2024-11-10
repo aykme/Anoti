@@ -3,4 +3,9 @@
     <string name="anime_favorites">Anime favorites</string>
     <string name="main">Main</string>
     <string name="favorites">Favorites</string>
+    <string name="dialog_alert_title">Very nyanportant allert ᨐᵉᵒʷ</string>
+    <string name="dialog_alert_negative_button">Angry nya ฅ^•ﻌ•^ฅ</string>
+    <string name="dialog_alert_positive_button">Kawaii nya ≽^•⩊•^≼</string>
+    <string name="dialog_alert_notifications_rationale_message">Turn on nyatifications to instantly find out information about your favorite anime ᓚᘏᗢ</string>
+
 </resources>

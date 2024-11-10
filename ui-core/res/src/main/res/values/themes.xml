@@ -3,12 +3,21 @@
     <style name="Base.Theme.Anoti" parent="Theme.Material3.DayNight.NoActionBar" />
 
     <style name="Theme.Anoti" parent="Base.Theme.Anoti">
-        <item name="colorOnSurface">@color/white</item>
-        <item name="colorPrimary">@color/pink</item>
         <item name="floatingActionButtonStyle">@style/FloatingActionButtomStyle</item>
     </style>
 
     <style name="Theme.Anoti.TextInputEditText.Outlined" parent="">
         <item name="colorPrimary">@color/pink</item>
+    </style>
+
+    <style name="Theme.Anoti.MaterialAlertDialog" parent="MaterialAlertDialog.Material3">
+        <item name="android:backgroundTint">@color/grey_700</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialogTitleTextStyle
+        </item>
+        <item name="materialAlertDialogBodyTextStyle">@style/MaterialAlertDialogBodyTextStyle</item>
+        <item name="buttonBarNegativeButtonStyle">@style/MaterialAlertDialogNegativeButtonStyle
+        </item>
+        <item name="buttonBarPositiveButtonStyle">@style/MaterialAlertDialogPositiveButtonStyle
+        </item>
     </style>
 </resources>

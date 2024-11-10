@@ -34,11 +34,23 @@ android {
 
 dependencies {
     api(project(":core-kmp:network"))
-
+    api(libs.retrofit)
+    api(libs.converter.moshi)
     implementation(libs.androidx.core.ktx)
-    implementation(libs.retrofit)
-    implementation(libs.converter.moshi)
     implementation(libs.moshi.kotlin)
+
+    /**
+     * Necessary dependencies for older android versions.
+     * Without them, the crash "java.lang.NoSuchFieldError:Companion when using okhttp3"
+     * happens during an Internet request, due to some kind of dependency conflict.
+     * https://stackoverflow.com/questions/65828761/java-lang-nosuchfielderror-companion-when-using-okhttp3-and-selenium
+     */
+    // define a BOM and its version
+    implementation(platform(libs.okhttp.bom))
+    // define any required OkHttp artifacts without version
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
