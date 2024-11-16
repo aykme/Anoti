@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.enableEdgeToEdge
@@ -178,7 +179,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestToEnableNotificationsIfNecessary() {
-        if (Build.VERSION.SDK_INT >= 33) {
+        if (Build.VERSION.SDK_INT >= TIRAMISU) {
             when {
                 ContextCompat.checkSelfPermission(
                     /* context = */ this,
@@ -208,7 +209,7 @@ class MainActivity : AppCompatActivity() {
             /* context = */ this,
             /* overrideThemeResId = */ res_R.style.Theme_Anoti_MaterialAlertDialog
         )
-            .setIcon(res_R.drawable.ic_notification_96)
+            .setIcon(res_R.mipmap.ic_launcher)
             .setTitle(applicationContext.getString(R.string.dialog_alert_title))
             .setMessage(
                 applicationContext.getString(R.string.dialog_alert_notifications_rationale_message)
@@ -224,7 +225,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onNotificationRequestApproved() {
-        if (Build.VERSION.SDK_INT >= 33) {
+        if (Build.VERSION.SDK_INT >= TIRAMISU) {
             requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
         } else {
             val intent = Intent().also {

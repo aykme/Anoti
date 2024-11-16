@@ -5,6 +5,7 @@ import android.app.Notification
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.alekseivinogradov.anime_notification.api.domain.manager.AnimeNotificationManager
@@ -18,6 +19,7 @@ import com.alekseivinogradov.res.R as res_R
 class AnimeNotificationManagerImpl(
     appContext: Context
 ) : AnimeNotificationManager {
+    private val tag = "ANIME_NOTIFICATION_MANAGER"
 
     private var resources: Resources? = null
 
@@ -26,6 +28,12 @@ class AnimeNotificationManagerImpl(
 
     private val noDataString: String
         get() = resources?.getString(R.string.no_data) ?: ""
+
+    private val iconColor: Int?
+        get() = resources?.getColor(
+            /* id = */ res_R.color.silver_transpaent,
+            /* theme = */ resources?.newTheme()
+        )
 
     private val newEpisodesString: String
         get() = resources?.getString(R.string.new_episodes) ?: ""
@@ -54,28 +62,38 @@ class AnimeNotificationManagerImpl(
         resources = appContext.resources
         glideRequestManager = Glide.with(appContext)
 
-        singleBuilder = NotificationCompat.Builder(
-            /* context = */ appContext,
-            /* channelId = */ AnimeNotificationChannelFactory.channelId
-        )
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setGroup(newEpisodesGroupKey)
-            .setAutoCancel(true)
-            .setSmallIcon(res_R.drawable.ic_notification_96)
+        singleBuilder = iconColor?.let { notNullIcon: Int ->
+            NotificationCompat.Builder(
+                /* context = */ appContext,
+                /* channelId = */ AnimeNotificationChannelFactory.channelId
+            )
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setGroup(newEpisodesGroupKey)
+                .setAutoCancel(true)
+                .setColor(notNullIcon)
+                .setColorized(true)
+                .setSmallIcon(res_R.mipmap.ic_notification)
+        }
 
-        summaryNotification = NotificationCompat.Builder(
-            /* context = */ appContext,
-            /* channelId = */ AnimeNotificationChannelFactory.channelId
-        )
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setGroup(newEpisodesGroupKey)
-            .setGroupSummary(true)
-            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
-            .setAutoCancel(true)
-            .setContentIntent(null)
-            .setSmallIcon(res_R.drawable.ic_notification_96)
-            .setStyle(summaryNewEpisodesStyle.setSummaryText(newEpisodesString))
-            .build()
+        summaryNotification = iconColor?.let { notNullIcon: Int ->
+            NotificationCompat.Builder(
+                /* context = */ appContext,
+                /* channelId = */ AnimeNotificationChannelFactory.channelId
+            )
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setGroup(newEpisodesGroupKey)
+                .setGroupSummary(true)
+                .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
+                .setAutoCancel(true)
+                .setContentIntent(null)
+                .setColor(notNullIcon)
+                .setColorized(true)
+                .setSmallIcon(res_R.mipmap.ic_notification)
+                .setStyle(summaryNewEpisodesStyle.setSummaryText(newEpisodesString))
+                .build()
+        }
+
+
 
         notificationManager = NotificationManagerCompat.from(appContext)
     }
@@ -87,34 +105,42 @@ class AnimeNotificationManagerImpl(
         imageUrl: String?
     ) {
         val contentText = "${episodeAiredString}: ${airedEpisode ?: noDataString}"
-        singleBuilder!!
-            .setContentTitle(animeName ?: noDataString)
-            .setContentText(contentText)
-            .setLargeIcon(createPosterImageBitmap(imageUrl))
-            .setContentIntent(null)
 
-        notificationManager!!.notify(
-            /* id = */ singleId,
-            /* notification = */ singleBuilder!!.build()
-        )
-        notificationManager!!.notify(
-            /* id = */ newEpisodesSummaryId,
-            /* notification = */ summaryNotification!!
-        )
+        notificationManager?.let { notNullNotificationManager: NotificationManagerCompat ->
+            singleBuilder?.let { notNullSingleBuilder: NotificationCompat.Builder ->
+                notNullSingleBuilder
+                    .setContentTitle(animeName ?: noDataString)
+                    .setContentText(contentText)
+                    .setLargeIcon(createPosterImageBitmap(imageUrl))
+                    .setContentIntent(null)
 
-        changeSingleIdToNext()
+                notNullNotificationManager.notify(
+                    /* id = */ singleId,
+                    /* notification = */ notNullSingleBuilder.build()
+                )
+                changeSingleIdToNext()
+
+                summaryNotification?.let { notNullSummaryNotification: Notification ->
+                    notNullNotificationManager.notify(
+                        /* id = */ newEpisodesSummaryId,
+                        /* notification = */ notNullSummaryNotification
+                    )
+                }
+            }
+        }
     }
 
     private fun createPosterImageBitmap(imageUrl: String?): Bitmap? {
         return try {
-            glideRequestManager!!
-                .asBitmap()
-                .load(imageUrl)
-                .submit()
-                .get()
+            glideRequestManager
+                ?.asBitmap()
+                ?.load(imageUrl)
+                ?.submit()
+                ?.get()
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
+            Log.e(tag, "$e")
             null
         }
     }
