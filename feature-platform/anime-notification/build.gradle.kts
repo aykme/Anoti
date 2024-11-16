@@ -35,6 +35,7 @@ android {
 
 dependencies {
     api(project(":feature-kmp:anime-notification"))
+    api(project(":feature-platform:anime-notification-external"))
     implementation(project(":ui-core:res"))
 
     implementation(libs.androidx.core.ktx)

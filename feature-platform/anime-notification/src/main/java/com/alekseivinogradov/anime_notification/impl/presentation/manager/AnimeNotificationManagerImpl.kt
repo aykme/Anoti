@@ -2,6 +2,7 @@ package com.alekseivinogradov.anime_notification.impl.presentation.manager
 
 import android.annotation.SuppressLint
 import android.app.Notification
+import android.app.PendingIntent
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap
@@ -10,6 +11,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.alekseivinogradov.anime_notification.api.domain.manager.AnimeNotificationManager
 import com.alekseivinogradov.anime_notification.impl.presentation.factory.AnimeNotificationChannelFactory
+import com.alekseivinogradov.anime_notification.impl.presentation.provider.AnimeNotificationIntentProvider
 import com.alekseivinogradov.anime_notification_platform.R
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
@@ -17,9 +19,15 @@ import kotlin.coroutines.cancellation.CancellationException
 import com.alekseivinogradov.res.R as res_R
 
 class AnimeNotificationManagerImpl(
-    appContext: Context
+    appContext: Context,
+    private val animeNotificationIntentProvider: AnimeNotificationIntentProvider
 ) : AnimeNotificationManager {
     private val tag = "ANIME_NOTIFICATION_MANAGER"
+
+    /**
+     * Most of the parameters are initialized in the "init" block,
+     * so as not to save "context" as a property.
+     */
 
     private var resources: Resources? = null
 
@@ -40,6 +48,7 @@ class AnimeNotificationManagerImpl(
 
     private var glideRequestManager: RequestManager? = null
     private var singleBuilder: NotificationCompat.Builder? = null
+    private var intent: PendingIntent? = null
     private var summaryNotification: Notification? = null
     private var notificationManager: NotificationManagerCompat? = null
 
@@ -61,6 +70,7 @@ class AnimeNotificationManagerImpl(
          */
         resources = appContext.resources
         glideRequestManager = Glide.with(appContext)
+        intent = animeNotificationIntentProvider.getNewEpisodeNotificationIntent(appContext)
 
         singleBuilder = iconColor?.let { notNullIcon: Int ->
             NotificationCompat.Builder(
@@ -70,6 +80,7 @@ class AnimeNotificationManagerImpl(
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setGroup(newEpisodesGroupKey)
                 .setAutoCancel(true)
+                .setContentIntent(intent)
                 .setColor(notNullIcon)
                 .setColorized(true)
                 .setSmallIcon(res_R.mipmap.ic_notification)
@@ -84,8 +95,6 @@ class AnimeNotificationManagerImpl(
                 .setGroup(newEpisodesGroupKey)
                 .setGroupSummary(true)
                 .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
-                .setAutoCancel(true)
-                .setContentIntent(null)
                 .setColor(notNullIcon)
                 .setColorized(true)
                 .setSmallIcon(res_R.mipmap.ic_notification)
@@ -112,7 +121,6 @@ class AnimeNotificationManagerImpl(
                     .setContentTitle(animeName ?: noDataString)
                     .setContentText(contentText)
                     .setLargeIcon(createPosterImageBitmap(imageUrl))
-                    .setContentIntent(null)
 
                 notNullNotificationManager.notify(
                     /* id = */ singleId,

@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.alekseivinogradov.main"
+    namespace = "com.alekseivinogradov.anime_notification"
     compileSdk = 34
 
     defaultConfig {
@@ -30,23 +30,13 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-    buildFeatures {
-        viewBinding = true
-    }
 }
 
 dependencies {
-    implementation(project(":core-platform:celebrity"))
+    implementation(project(":main"))
     implementation(project(":core-platform:navigation"))
-    implementation(project(":ui-core:res"))
-    implementation(project(":core-platform:database"))
-    implementation(project(":feature-kmp:bottom-navigation-bar"))
-    implementation(project(":feature-platform:anime-list"))
-    implementation(project(":feature-platform:anime-favorites"))
 
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.room.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

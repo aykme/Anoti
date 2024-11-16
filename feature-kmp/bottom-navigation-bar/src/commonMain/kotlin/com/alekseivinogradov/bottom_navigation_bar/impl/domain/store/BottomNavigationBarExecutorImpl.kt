@@ -1,6 +1,5 @@
 package com.alekseivinogradov.bottom_navigation_bar.impl.domain.store
 
-import com.alekseivinogradov.bottom_navigation_bar.api.domain.model.SectionDomain
 import com.alekseivinogradov.bottom_navigation_bar.api.domain.store.BottomNavigationBarExecutor
 import com.alekseivinogradov.bottom_navigation_bar.api.domain.store.BottomNavigationBarStore
 
@@ -37,14 +36,12 @@ internal class BottomNavigationBarExecutorImpl() : BottomNavigationBarExecutor()
     }
 
     private fun mainSectionClick() {
-        if (state().selectedSection == SectionDomain.MAIN) return
         publish(
             BottomNavigationBarStore.Label.NavigateToMain
         )
     }
 
     private fun favoritesSectionClick() {
-        if (state().selectedSection == SectionDomain.FAVORITES) return
         publish(
             BottomNavigationBarStore.Label.NavigateToFavorites
         )

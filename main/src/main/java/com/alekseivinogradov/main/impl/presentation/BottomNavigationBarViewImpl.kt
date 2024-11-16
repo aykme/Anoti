@@ -7,7 +7,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import com.alekseivinogradov.bottom_navigation_bar.api.domain.model.SectionDomain
 import com.alekseivinogradov.bottom_navigation_bar.api.domain.store.BottomNavigationBarStore
-import com.alekseivinogradov.bottom_navigation_bar.api.presentation.model.SectionUi
 import com.alekseivinogradov.bottom_navigation_bar.api.presentation.model.UiModel
 import com.alekseivinogradov.bottom_navigation_bar.impl.presentation.BottomNavigationBarView
 import com.alekseivinogradov.main.R
@@ -36,11 +35,6 @@ internal class BottomNavigationBarViewImpl(
     }
 
     override val renderer: ViewRenderer<UiModel> = diff {
-        diff(
-            get = ::getSelectedSection,
-            set = ::setSelectedSection
-        )
-
         diff(
             get = ::getFavoritesBadge,
             set = ::setFavoritesBadge
@@ -84,40 +78,34 @@ internal class BottomNavigationBarViewImpl(
                 destination: NavDestination,
                 arguments: Bundle?
             ) {
-                when (destination.id) {
-                    R.id.anime_list -> {
-                        dispatch(
-                            BottomNavigationBarStore.Intent.ChangeSelectedSection(
-                                selectedSection = SectionDomain.MAIN
+                with(viewBinding.bottomNavMenu) {
+                    when (destination.id) {
+                        R.id.anime_list -> {
+                            dispatch(
+                                BottomNavigationBarStore.Intent.ChangeSelectedSection(
+                                    selectedSection = SectionDomain.MAIN
+                                )
                             )
-                        )
-                    }
+                            if (selectedItemId != R.id.anime_list) {
+                                selectedItemId = R.id.anime_list
+                            }
+                        }
 
-                    R.id.anime_favorites -> {
-                        dispatch(
-                            BottomNavigationBarStore.Intent.ChangeSelectedSection(
-                                selectedSection = SectionDomain.FAVORITES
+                        R.id.anime_favorites -> {
+                            dispatch(
+                                BottomNavigationBarStore.Intent.ChangeSelectedSection(
+                                    selectedSection = SectionDomain.FAVORITES
+                                )
                             )
-                        )
+                            if (selectedItemId != R.id.anime_favorites) {
+                                selectedItemId = R.id.anime_favorites
+                            }
+                        }
                     }
                 }
             }
-
         }
         navController.addOnDestinationChangedListener(listener)
-    }
-
-    private fun getSelectedSection(uiModel: UiModel): SectionUi {
-        return uiModel.selectedSection
-    }
-
-    private fun setSelectedSection(section: SectionUi) {
-        with(viewBinding.bottomNavMenu) {
-            when (section) {
-                SectionUi.MAIN -> selectedItemId = R.id.anime_list
-                SectionUi.FAVORITES -> selectedItemId = R.id.anime_favorites
-            }
-        }
     }
 
     private fun getFavoritesBadge(uiModel: UiModel): Int {
@@ -134,10 +122,14 @@ internal class BottomNavigationBarViewImpl(
     }
 
     private fun navigateToMain() {
-        navController.navigate(R.id.anime_list)
+        if (navController.currentDestination?.id != R.id.anime_list) {
+            navController.navigate(R.id.anime_list)
+        }
     }
 
     private fun navigateToFavorites() {
-        navController.navigate(R.id.anime_favorites)
+        if (navController.currentDestination?.id != R.id.anime_favorites) {
+            navController.navigate(R.id.anime_favorites)
+        }
     }
 }

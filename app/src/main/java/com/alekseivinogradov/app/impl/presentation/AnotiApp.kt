@@ -20,6 +20,7 @@ import com.alekseivinogradov.anime_base.impl.data.service.ShikimoriApiServiceImp
 import com.alekseivinogradov.anime_notification.api.domain.manager.AnimeNotificationManager
 import com.alekseivinogradov.anime_notification.impl.presentation.factory.AnimeNotificationChannelFactory
 import com.alekseivinogradov.anime_notification.impl.presentation.manager.AnimeNotificationManagerImpl
+import com.alekseivinogradov.anime_notification.impl.presentation.provider.AnimeNotificationIntentProvider
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.celebrity.impl.domain.coroutine_context.CoroutineContextProviderPlatform
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
@@ -73,9 +74,15 @@ class AnotiApp : Application() {
         source = animeBackgroundUpdateSource
     )
 
+    private val animeNotificationIntentProvider
+            by lazy(LazyThreadSafetyMode.NONE) { AnimeNotificationIntentProvider() }
+
     private val animeNotificationManager: AnimeNotificationManager
             by lazy(LazyThreadSafetyMode.NONE) {
-                AnimeNotificationManagerImpl(appContext = applicationContext)
+                AnimeNotificationManagerImpl(
+                    appContext = applicationContext,
+                    animeNotificationIntentProvider = animeNotificationIntentProvider
+                )
             }
 
     private val animeUpdateManager: AnimeUpdateManager by lazy(LazyThreadSafetyMode.NONE) {
