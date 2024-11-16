@@ -25,4 +25,5 @@
     <color name="light_coral">#F08080</color>
     <color name="salmon">#FA8072</color>
     <color name="transparent">#00000000</color>
+    <color name="red">#fe0000</color>
 </resources>

@@ -100,7 +100,7 @@ class AnotiApp : Application() {
 
     private val animeUpdatePeriodicWork: PeriodicWorkRequest =
         PeriodicWorkRequestBuilder<AnimeUpdateWorker>(
-            repeatInterval = AnimeUpdateManager.defaultAnimeUpdateWorkIntervalMinutes,
+            repeatInterval = AnimeUpdateManager.DEFAULT_ANIME_UPDATE_INTERVAL_MINUTES,
             repeatIntervalTimeUnit = TimeUnit.MINUTES
         ).build()
 

@@ -208,7 +208,7 @@ class MainActivity : AppCompatActivity() {
             /* context = */ this,
             /* overrideThemeResId = */ res_R.style.Theme_Anoti_MaterialAlertDialog
         )
-            .setIcon(res_R.drawable.ic_notification_96)
+            .setIcon(res_R.mipmap.ic_launcher)
             .setTitle(applicationContext.getString(R.string.dialog_alert_title))
             .setMessage(
                 applicationContext.getString(R.string.dialog_alert_notifications_rationale_message)
