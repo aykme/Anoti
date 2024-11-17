@@ -33,7 +33,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":ui-core:theme"))
+    implementation(project(":ui-core:res"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

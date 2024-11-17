@@ -37,7 +37,8 @@ android {
 
 dependencies {
     implementation(project(":core-platform:celebrity"))
-    implementation(project(":ui-core:theme"))
+    implementation(project(":core-platform:navigation"))
+    implementation(project(":ui-core:res"))
     implementation(project(":core-platform:database"))
     implementation(project(":feature-kmp:bottom-navigation-bar"))
     implementation(project(":feature-platform:anime-list"))
@@ -45,8 +46,6 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.room.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

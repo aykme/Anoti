@@ -23,6 +23,7 @@ class AnimeFavoritesController(
 ) {
 
     init {
+        lifecycle.doOnDestroy { databaseStore.dispose() }
         lifecycle.doOnDestroy { mainStore.dispose() }
     }
 

@@ -5,11 +5,14 @@ import com.alekseivinogradov.anime_background_update.api.domain.mapper.mapReleas
 import com.alekseivinogradov.anime_background_update.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_background_update.api.domain.model.WorkResult
 import com.alekseivinogradov.anime_background_update.impl.domain.usecase.FetchAnimeListByIdsUsecase
+import com.alekseivinogradov.anime_base.api.domain.model.ReleaseStatusDomain
+import com.alekseivinogradov.anime_notification.api.domain.manager.AnimeNotificationManager
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.celebrity.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.celebrity.api.domain.Index
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.database.api.domain.model.AnimeDbDomain
+import com.alekseivinogradov.database.api.domain.model.ReleaseStatusDb
 import com.alekseivinogradov.database.api.domain.usecase.FetchAllDatabaseItemsUsecase
 import com.alekseivinogradov.database.api.domain.usecase.UpdateDatabaseItemUsecase
 import com.alekseivinogradov.network.api.domain.model.CallResult
@@ -19,7 +22,8 @@ class AnimeUpdateManagerImpl(
     private val coroutineContextProvider: CoroutineContextProvider,
     private val fetchAllDatabaseItemsUsecase: FetchAllDatabaseItemsUsecase,
     private val fetchAnimeListByIdsUsecase: FetchAnimeListByIdsUsecase,
-    private val updateDatabaseItemUsecase: UpdateDatabaseItemUsecase
+    private val updateDatabaseItemUsecase: UpdateDatabaseItemUsecase,
+    private val notificationManager: AnimeNotificationManager
 ) : AnimeUpdateManager {
 
     override suspend fun update(): WorkResult {
@@ -137,13 +141,27 @@ class AnimeUpdateManagerImpl(
         currentDatabaseItems: List<AnimeDbDomain>,
         remoteItems: List<ListItemDomain>
     ) {
+        /**
+         * Transform list into map for a fast id search algorithm
+         */
+        val currentDatabaseItemsWithIds: Map<AnimeId, AnimeDbDomain> = currentDatabaseItems
+            .associateBy { animeDb: AnimeDbDomain ->
+                animeDb.id
+            }
         val updatedDatabaseItems = getUpdatedDatabaseItems(
             currentDatabaseItems = currentDatabaseItems,
             remoteItems = remoteItems
         )
 
-        updatedDatabaseItems.forEach { animeDb: AnimeDbDomain ->
-            updateDatabaseItemUsecase.execute(animeDb)
+        updatedDatabaseItems.forEach { updatedDatabaseItem: AnimeDbDomain ->
+            updateDatabaseItemUsecase.execute(updatedDatabaseItem)
+            currentDatabaseItemsWithIds[updatedDatabaseItem.id]
+                ?.let { currentDatabaseItem: AnimeDbDomain ->
+                    makeNewEpisodeNotificationIfNecessary(
+                        currentDatabaseItem = currentDatabaseItem,
+                        updatedDatabaseItem = updatedDatabaseItem
+                    )
+                }
         }
     }
 
@@ -152,7 +170,7 @@ class AnimeUpdateManagerImpl(
         remoteItems: List<ListItemDomain>
     ): List<AnimeDbDomain> {
         /**
-         * Transform List into Map to avoid nested iteration, using indexes for quick access
+         * Transform list into map to avoid nested iteration, using indexes for quick access
          */
         val remoteItemsWithIds: Map<AnimeId, ListItemDomain> = remoteItems
             .associateBy { itemDomain: ListItemDomain ->
@@ -171,7 +189,7 @@ class AnimeUpdateManagerImpl(
                     releasedOn = remoteItemNotNull.releasedOn,
                     score = remoteItemNotNull.score,
                     releaseStatus = mapReleaseStatusDomainToDb(remoteItemNotNull.releaseStatus),
-                    isNewEpisode = isNewEpisode(
+                    isNewEpisode = isNewEpisodeDbStatus(
                         currentDatabaseItem = animeDb,
                         remoteItem = remoteItemNotNull
                     )
@@ -186,12 +204,58 @@ class AnimeUpdateManagerImpl(
         return updatedDatabaseItems
     }
 
-    private fun isNewEpisode(
+    private fun isNewEpisodeDbStatus(
         currentDatabaseItem: AnimeDbDomain,
         remoteItem: ListItemDomain
     ): Boolean {
+        if (currentDatabaseItem.isNewEpisode) return true
+        if (
+            currentDatabaseItem.releaseStatus != ReleaseStatusDb.RELEASED &&
+            remoteItem.releaseStatus == ReleaseStatusDomain.RELEASED
+        ) return true
         val currentEpisodesAired = currentDatabaseItem.episodesAired ?: 0
         val newEpisodesAired = remoteItem.episodesAired ?: 0
         return newEpisodesAired > currentEpisodesAired
+    }
+
+    private fun makeNewEpisodeNotificationIfNecessary(
+        currentDatabaseItem: AnimeDbDomain,
+        updatedDatabaseItem: AnimeDbDomain
+    ) {
+        if (
+            isNotificationNecessary(
+                currentDatabaseItem = currentDatabaseItem,
+                updatedDatabaseItem = updatedDatabaseItem
+            )
+        ) {
+            val airedEpisode = getAiredEpisode(updatedDatabaseItem)
+            notificationManager.makeNewEpisodeNotification(
+                animeName = updatedDatabaseItem.name,
+                airedEpisode = airedEpisode,
+                imageUrl = updatedDatabaseItem.imageUrl
+            )
+        }
+    }
+
+    private fun isNotificationNecessary(
+        currentDatabaseItem: AnimeDbDomain,
+        updatedDatabaseItem: AnimeDbDomain
+    ): Boolean {
+        if (
+            currentDatabaseItem.releaseStatus != ReleaseStatusDb.RELEASED &&
+            updatedDatabaseItem.releaseStatus == ReleaseStatusDb.RELEASED
+        ) return true
+        val currentEpisodesAired = currentDatabaseItem.episodesAired ?: 0
+        val newEpisodesAired = updatedDatabaseItem.episodesAired ?: 0
+        return newEpisodesAired > currentEpisodesAired
+    }
+
+    private fun getAiredEpisode(item: AnimeDbDomain): Int {
+        val episodesAired = item.episodesAired ?: 0
+        return if (item.releaseStatus == ReleaseStatusDb.RELEASED) {
+            item.episodesTotal ?: episodesAired
+        } else {
+            episodesAired
+        }
     }
 }

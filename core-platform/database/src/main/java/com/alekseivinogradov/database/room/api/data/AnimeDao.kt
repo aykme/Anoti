@@ -27,7 +27,11 @@ interface AnimeDao {
     @Query("DELETE FROM anime_table WHERE id =:id")
     suspend fun delete(id: AnimeId)
 
-    @Query("UPDATE anime_table SET is_new_episode = false")
+    /**
+     * No using Boolean params in "Query",
+     * otherwise there will be a crash on older versions of android
+     */
+    @Query("UPDATE anime_table SET is_new_episode = 0")
     suspend fun resetAllItemsNewEpisodeStatus()
 
     @Query("UPDATE anime_table SET is_new_episode = :isNewEpisode WHERE id =:id")

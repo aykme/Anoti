@@ -14,7 +14,7 @@ import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer
-import com.alekseivinogradov.theme.R as theme_R
+import com.alekseivinogradov.res.R as res_R
 
 internal class AnimeFavoritesViewImpl(
     private val viewBinding: FragmentAnimeFavoritesBinding,
@@ -53,7 +53,7 @@ internal class AnimeFavoritesViewImpl(
                 /* start = */ com.alekseivinogradov.celebrity.api.domain.SWIPE_REFRESH_START_OFFSET,
                 /* end = */ com.alekseivinogradov.celebrity.api.domain.SWIPE_REFRESH_END_OFFSET
             )
-            swipeRefreshLayout.setColorSchemeResources(theme_R.color.pink)
+            swipeRefreshLayout.setColorSchemeResources(res_R.color.pink)
             swipeRefreshLayout.setOnRefreshListener {
                 dispatch(AnimeFavoritesMainStore.Intent.UpdateSection)
                 swipeRefreshLayout.isRefreshing = false

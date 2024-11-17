@@ -1,0 +1,7 @@
+<resources>
+    <string name="no_data">No data</string>
+    <string name="episode_aired">Episode aired</string>
+    <string name="new_episodes">New Episodes</string>
+    <string name="anime_notification_channel">Anime notification channel</string>
+    <string name="anime_notification_channel_description">Notifications about anime</string>
+</resources>

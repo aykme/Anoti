@@ -1,6 +1,8 @@
 package com.alekseivinogradov.app.impl.presentation
 
 import android.app.Application
+import android.app.NotificationManager
+import android.content.Context
 import androidx.work.Configuration
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
@@ -15,7 +17,10 @@ import com.alekseivinogradov.anime_background_update.impl.domain.worker.AnimeUpd
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiServicePlatform
 import com.alekseivinogradov.anime_base.impl.data.service.ShikimoriApiServiceImpl
-import com.alekseivinogradov.celebrity.api.domain.DEFAULT_ANIME_UPDATE_WORK_INTERVAL
+import com.alekseivinogradov.anime_notification.api.domain.manager.AnimeNotificationManager
+import com.alekseivinogradov.anime_notification.impl.presentation.factory.AnimeNotificationChannelFactory
+import com.alekseivinogradov.anime_notification.impl.presentation.manager.AnimeNotificationManagerImpl
+import com.alekseivinogradov.anime_notification.impl.presentation.provider.AnimeNotificationIntentProvider
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.celebrity.impl.domain.coroutine_context.CoroutineContextProviderPlatform
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
@@ -69,12 +74,24 @@ class AnotiApp : Application() {
         source = animeBackgroundUpdateSource
     )
 
+    private val animeNotificationIntentProvider
+            by lazy(LazyThreadSafetyMode.NONE) { AnimeNotificationIntentProvider() }
+
+    private val animeNotificationManager: AnimeNotificationManager
+            by lazy(LazyThreadSafetyMode.NONE) {
+                AnimeNotificationManagerImpl(
+                    appContext = applicationContext,
+                    animeNotificationIntentProvider = animeNotificationIntentProvider
+                )
+            }
+
     private val animeUpdateManager: AnimeUpdateManager by lazy(LazyThreadSafetyMode.NONE) {
         AnimeUpdateManagerImpl(
             coroutineContextProvider = coroutineContextProvider,
             fetchAllDatabaseItemsUsecase = fetchAllDatabaseItemsUsecase,
             fetchAnimeListByIdsUsecase = fetchAnimeListByIdsUsecase,
-            updateDatabaseItemUsecase = updateDatabaseItemUsecase
+            updateDatabaseItemUsecase = updateDatabaseItemUsecase,
+            notificationManager = animeNotificationManager
         )
     }
 
@@ -90,16 +107,22 @@ class AnotiApp : Application() {
 
     private val animeUpdatePeriodicWork: PeriodicWorkRequest =
         PeriodicWorkRequestBuilder<AnimeUpdateWorker>(
-            repeatInterval = DEFAULT_ANIME_UPDATE_WORK_INTERVAL,
+            repeatInterval = AnimeUpdateManager.DEFAULT_ANIME_UPDATE_INTERVAL_MINUTES,
             repeatIntervalTimeUnit = TimeUnit.MINUTES
         ).build()
 
+    private val animeNotificationChannelFactory
+            by lazy(LazyThreadSafetyMode.NONE) {
+                AnimeNotificationChannelFactory()
+            }
+
     override fun onCreate() {
         super.onCreate()
-        setupWorkManager()
+        setupAnimeUpdateWorkManager()
+        setupAnimeNotificationManager()
     }
 
-    private fun setupWorkManager() {
+    private fun setupAnimeUpdateWorkManager() {
         WorkManager.initialize(
             /* context = */ this,
             /* configuration = */ workManagerConfig
@@ -110,5 +133,14 @@ class AnotiApp : Application() {
                 /* existingPeriodicWorkPolicy = */ ExistingPeriodicWorkPolicy.KEEP,
                 /* periodicWork = */ animeUpdatePeriodicWork
             )
+    }
+
+    private fun setupAnimeNotificationManager() {
+        (getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager)
+            ?.let { notificationManager: NotificationManager ->
+                notificationManager.createNotificationChannel(
+                    animeNotificationChannelFactory.create(applicationContext)
+                )
+            }
     }
 }

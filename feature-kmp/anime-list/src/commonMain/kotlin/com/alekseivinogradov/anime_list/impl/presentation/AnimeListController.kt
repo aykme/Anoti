@@ -38,11 +38,12 @@ class AnimeListController(
 ) {
 
     init {
-        lifecycle.doOnDestroy { mainStore.dispose() }
         lifecycle.doOnDestroy { databaseStore.dispose() }
         lifecycle.doOnDestroy { ongoingSectionStore.dispose() }
         lifecycle.doOnDestroy { announcedSectionStore.dispose() }
         lifecycle.doOnDestroy { searchSectionStore.dispose() }
+        lifecycle.doOnDestroy { databaseStore.dispose() }
+        lifecycle.doOnDestroy { mainStore.dispose() }
     }
 
     fun onViewCreated(mainView: AnimeListView, viewLifecycle: Lifecycle) {

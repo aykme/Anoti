@@ -1,10 +1,21 @@
 package com.alekseivinogradov.main.impl.presentation
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.NavController
@@ -39,9 +50,13 @@ import com.arkivanov.essenty.lifecycle.asEssentyLifecycle
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
-import com.alekseivinogradov.theme.R as theme_R
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.alekseivinogradov.res.R as res_R
 
 class MainActivity : AppCompatActivity() {
+
+    private val requestPermissionLauncher: ActivityResultLauncher<String> =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
     private var binding: ActivityMainBinding? = null
 
@@ -135,6 +150,7 @@ class MainActivity : AppCompatActivity() {
             ),
             viewLifecycle = lifecycle.asEssentyLifecycle(),
         )
+        requestToEnableNotificationsIfNecessary()
     }
 
     private fun getNavController(): NavController {
@@ -157,9 +173,70 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        window.setStatusBarColor(getColor(theme_R.color.black))
-        window.setNavigationBarColor(getColor(theme_R.color.black))
+        window.setStatusBarColor(getColor(res_R.color.black))
+        window.setNavigationBarColor(getColor(res_R.color.black))
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+    }
+
+    private fun requestToEnableNotificationsIfNecessary() {
+        if (Build.VERSION.SDK_INT >= TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    /* context = */ this,
+                    /* permission = */ Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED -> Unit
+
+                ActivityCompat.shouldShowRequestPermissionRationale(
+                    /* activity = */ this,
+                    /* permission = */ Manifest.permission.POST_NOTIFICATIONS
+                ) -> {
+                    showNotificationsRationale()
+                }
+
+                else -> {
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        } else {
+            if (NotificationManagerCompat.from(this).areNotificationsEnabled().not()) {
+                showNotificationsRationale()
+            }
+        }
+    }
+
+    private fun showNotificationsRationale() {
+        MaterialAlertDialogBuilder(
+            /* context = */ this,
+            /* overrideThemeResId = */ res_R.style.Theme_Anoti_MaterialAlertDialog
+        )
+            .setIcon(res_R.mipmap.ic_launcher)
+            .setTitle(applicationContext.getString(R.string.dialog_alert_title))
+            .setMessage(
+                applicationContext.getString(R.string.dialog_alert_notifications_rationale_message)
+            )
+            .setNegativeButton(
+                /* text = */ applicationContext.getString(R.string.dialog_alert_negative_button),
+                /* listener = */ null
+            )
+            .setPositiveButton(
+                applicationContext.getString(R.string.dialog_alert_positive_button)
+            ) { _, _ -> onNotificationRequestApproved() }
+            .show()
+    }
+
+    private fun onNotificationRequestApproved() {
+        if (Build.VERSION.SDK_INT >= TIRAMISU) {
+            requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            val intent = Intent().also {
+                it.action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
+                it.putExtra(
+                    /* name = */ Settings.EXTRA_APP_PACKAGE,
+                    /* value = */ this.packageName
+                )
+            }
+            this.startActivity(intent)
+        }
     }
 
     private fun createDatabaseExecutorFactory(): () -> DatabaseExecutorImpl = {

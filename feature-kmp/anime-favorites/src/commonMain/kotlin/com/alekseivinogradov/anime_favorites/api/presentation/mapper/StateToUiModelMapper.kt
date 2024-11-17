@@ -48,13 +48,13 @@ private fun getInfoTypeUi(id: AnimeId, enabledExtraInfoIds: Set<AnimeId>): InfoT
 private fun getAvailableEpisodesInfo(listItemDomain: ListItemDomain): String {
     val isReleased = listItemDomain.releaseStatus == ReleaseStatusDomain.RELEASED
 
-    val episodesTotalNotNull = listItemDomain.episodesTotal ?: 0
     val episodesAiredString = if (isReleased.not()) {
         listItemDomain.episodesAired ?: 0
     } else {
-        episodesTotalNotNull
+        listItemDomain.episodesTotal ?: listItemDomain.episodesAired ?: 0
     }
 
+    val episodesTotalNotNull = listItemDomain.episodesTotal ?: 0
     val episotesTotalString = if (episodesTotalNotNull > 0) {
         episodesTotalNotNull.toString()
     } else "?"
