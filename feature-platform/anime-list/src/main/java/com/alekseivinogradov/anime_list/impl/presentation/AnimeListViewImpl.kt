@@ -45,7 +45,7 @@ internal class AnimeListViewImpl(
     private val defaultColor
         get() = context.getColor(res_R.color.white_transparent)
 
-    private val resetListPositionCallback: () -> Unit = {
+    private val cancelResetListPositionCallback: () -> Unit = {
         viewBinding.animeListRv.scrollToPosition(0)
         dispatch(
             AnimeListMainStore.Intent.ChangeResetListPositionAfterUpdateStatus(
@@ -255,11 +255,6 @@ internal class AnimeListViewImpl(
             with(viewBinding) {
                 when (contentType) {
                     ContentTypeUi.LOADED -> {
-                        /**
-                         * The reason for this delay is so that
-                         * the list can be updated before the ContentType change
-                         */
-                        delay(PAGING_SUBMIT_LIST_DELAY_MILLISECONDS * 4)
                         connectionStatusImage.isVisible = false
                         animeListRv.isVisible = true
                     }
@@ -299,9 +294,9 @@ internal class AnimeListViewImpl(
              * This is a big problem in MVI, as state can be updated very often.
              */
             delay(PAGING_SUBMIT_LIST_DELAY_MILLISECONDS)
-            adapter.removeOnPagesUpdatedListener(resetListPositionCallback)
+            adapter.removeOnPagesUpdatedListener(cancelResetListPositionCallback)
             if (listContent.isNeedToResetListPositon) {
-                adapter.addOnPagesUpdatedListener(resetListPositionCallback)
+                adapter.addOnPagesUpdatedListener(cancelResetListPositionCallback)
             }
             adapter.submitData(listContent.listItems)
         }

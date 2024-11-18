@@ -7,8 +7,8 @@ import com.alekseivinogradov.anime_favorites.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesExecutor
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anime_favorites.impl.domain.usecase.wrapper.FavoritesUsecases
+import com.alekseivinogradov.celebrity.api.domain.ANIMATION_DURATION_SHORT
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
-import com.alekseivinogradov.celebrity.api.domain.LOADING_BETWEEN_STATES_MILLISECONDS
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.Job
@@ -57,7 +57,7 @@ class AnimeFavoritesExecutorImpl(
                         ContentTypeDomain.LOADING
                     )
                 )
-                delay(LOADING_BETWEEN_STATES_MILLISECONDS)
+                delay(ANIMATION_DURATION_SHORT)
                 dispatch(
                     AnimeFavoritesMainStore.Message.ChangeContentType(
                         ContentTypeDomain.EMPTY

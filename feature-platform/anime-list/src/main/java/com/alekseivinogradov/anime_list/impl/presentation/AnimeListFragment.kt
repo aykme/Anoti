@@ -18,6 +18,7 @@ import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSe
 import com.alekseivinogradov.anime_list.impl.data.source.AnimeListSourceImpl
 import com.alekseivinogradov.anime_list.impl.domain.store.announced_section.AnnouncedSectionExecutorImpl
 import com.alekseivinogradov.anime_list.impl.domain.store.announced_section.AnnouncedSectionStoreFactory
+import com.alekseivinogradov.anime_list.impl.domain.store.main.AnimeListExecutorImpl
 import com.alekseivinogradov.anime_list.impl.domain.store.main.AnimeListMainStoreFactory
 import com.alekseivinogradov.anime_list.impl.domain.store.ongoing_section.OngoingSectionExecutorImpl
 import com.alekseivinogradov.anime_list.impl.domain.store.ongoing_section.OngoingSectionStoreFactory
@@ -152,9 +153,15 @@ class AnimeListFragment : Fragment() {
 
     private val toastProvider: ToastProvider = createToastProvider()
 
-    private val mainStore: AnimeListMainStore = AnimeListMainStoreFactory(
-        storeFactory = storeFactory
-    ).create()
+    private val animeListExecutorFactory: () -> AnimeListExecutorImpl
+            by lazy(LazyThreadSafetyMode.NONE) { createAnimeListExecutorFactory() }
+
+    private val mainStore: AnimeListMainStore by lazy(LazyThreadSafetyMode.NONE) {
+        AnimeListMainStoreFactory(
+            storeFactory = storeFactory,
+            executorFactory = animeListExecutorFactory
+        ).create()
+    }
 
     private val databaseExecutorFactory: () -> DatabaseExecutorImpl
             by lazy(LazyThreadSafetyMode.NONE) { createDatabaseExecutorFactory() }
@@ -255,6 +262,12 @@ class AnimeListFragment : Fragment() {
             AnotiToast.makeUnknownErrorToast(requireContext().applicationContext)
         }
     )
+
+    private fun createAnimeListExecutorFactory(): () -> AnimeListExecutorImpl = {
+        AnimeListExecutorImpl(
+            coroutineContextProvider = coroutineContextProvider
+        )
+    }
 
     private fun createDatabaseExecutorFactory(): () -> DatabaseExecutorImpl = {
         DatabaseExecutorImpl(
