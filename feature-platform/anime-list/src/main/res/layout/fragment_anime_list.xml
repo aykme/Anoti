@@ -21,12 +21,14 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:contentDescription="@string/loading_in_progress" />
+            tools:contentDescription="@string/loading_in_progress"
+            tools:src="@drawable/loading_img" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/anime_list_rv"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

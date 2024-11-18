@@ -1,4 +1,5 @@
 <resources>
+    <string name="loading_in_progress">Loading in progress</string>
     <string name="empty_list">You haven\'t subscribed to notifications about new anime series yet. Click on the \"Main\" menu and select something (≧◡≦) ♡</string>
     <string name="empty_list_image_description">The image of the character in the form of a cute anime girl. She is wearing a white shirt and black glasses in a simple style. She has blue hair, light white skin, long cat ears and sky-blue eyes. She opened her mouth slightly, as if trying to explain something. Cute upper fangs stick out of her mouth. Cuteee!</string>
     <string name="score_image_description">The image of the rating in the form of a star</string>

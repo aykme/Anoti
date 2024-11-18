@@ -2,14 +2,17 @@ package com.alekseivinogradov.anime_favorites.impl.domain.store
 
 import com.alekseivinogradov.anime_base.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_base.api.domain.provider.ToastProvider
+import com.alekseivinogradov.anime_favorites.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_favorites.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesExecutor
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anime_favorites.impl.domain.usecase.wrapper.FavoritesUsecases
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
+import com.alekseivinogradov.celebrity.api.domain.LOADING_BETWEEN_STATES_MILLISECONDS
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class AnimeFavoritesExecutorImpl(
@@ -18,12 +21,14 @@ class AnimeFavoritesExecutorImpl(
     private var toastProvider: ToastProvider
 ) : AnimeFavoritesExecutor() {
 
+    private var updateListItemsJob: Job? = null
     private val updateAnimeDetailsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
     private val changeEpisodesViewedJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
 
     override fun executeIntent(intent: AnimeFavoritesMainStore.Intent) {
         when (intent) {
             is AnimeFavoritesMainStore.Intent.UpdateListItems -> updateListItems(intent)
+            is AnimeFavoritesMainStore.Intent.ItemsSubmittedToList -> itemsSubmittedToList()
             AnimeFavoritesMainStore.Intent.UpdateSection -> updateSection()
             AnimeFavoritesMainStore.Intent.UpdateAllItemsInBackground -> {
                 updateAllItemsInBackground()
@@ -43,7 +48,27 @@ class AnimeFavoritesExecutorImpl(
     }
 
     private fun updateListItems(intent: AnimeFavoritesMainStore.Intent.UpdateListItems) {
-        dispatch(AnimeFavoritesMainStore.Message.UpdateListItems(intent.listItems))
+        updateListItemsJob?.cancel()
+        updateListItemsJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+            dispatch(AnimeFavoritesMainStore.Message.UpdateListItems(intent.listItems))
+            if (intent.listItems.isEmpty() && state().contentType != ContentTypeDomain.EMPTY) {
+                dispatch(
+                    AnimeFavoritesMainStore.Message.ChangeContentType(
+                        ContentTypeDomain.LOADING
+                    )
+                )
+                delay(LOADING_BETWEEN_STATES_MILLISECONDS)
+                dispatch(
+                    AnimeFavoritesMainStore.Message.ChangeContentType(
+                        ContentTypeDomain.EMPTY
+                    )
+                )
+            }
+        }
+    }
+
+    private fun itemsSubmittedToList() {
+        dispatch(AnimeFavoritesMainStore.Message.ChangeContentType(ContentTypeDomain.LOADED))
     }
 
     private fun updateSection() {

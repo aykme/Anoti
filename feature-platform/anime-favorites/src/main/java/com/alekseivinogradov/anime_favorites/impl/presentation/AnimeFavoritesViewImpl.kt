@@ -4,6 +4,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anime_favorites.api.presentation.AnimeFavoritesView
+import com.alekseivinogradov.anime_favorites.api.presentation.model.ContentTypeUi
 import com.alekseivinogradov.anime_favorites.api.presentation.model.UiModel
 import com.alekseivinogradov.anime_favorites.api.presentation.model.item_content.ListItemUi
 import com.alekseivinogradov.anime_favorites.impl.presentation.adapter.AnimeFavoritesAdapter
@@ -41,6 +42,10 @@ internal class AnimeFavoritesViewImpl(
 
     override val renderer: ViewRenderer<UiModel> = diff {
         diff(
+            get = ::getContentType,
+            set = ::setContentType
+        )
+        diff(
             get = ::getListItems,
             set = ::setListItems
         )
@@ -65,9 +70,9 @@ internal class AnimeFavoritesViewImpl(
         with(viewBinding) {
             swipeRefreshLayout.isVisible = true
             animeFavoritesLayout.isVisible = true
-            animeFavoritesEmptyLayout.mainImage.contentDescription = context
+            animeFavoritesEmptyContainer.mainImage.contentDescription = context
                 .getString(R.string.empty_list_image_description)
-            animeFavoritesEmptyLayout.mainInfoText.text = context.getString(R.string.empty_list)
+            animeFavoritesEmptyContainer.mainInfoText.text = context.getString(R.string.empty_list)
         }
     }
 
@@ -82,22 +87,45 @@ internal class AnimeFavoritesViewImpl(
         }
     }
 
+    private fun getContentType(uiModel: UiModel): ContentTypeUi {
+        return uiModel.contentType
+    }
+
+    private fun setContentType(contentType: ContentTypeUi) {
+        with(viewBinding) {
+            when (contentType) {
+                ContentTypeUi.LOADED -> {
+                    animeFavoritesEmptyContainer.animeFavoritesEmptyLayout.isVisible = false
+                    connectionStatusImage.isVisible = false
+                    swipeRefreshLayout.isEnabled = true
+                    animeFavoritesRv.isVisible = true
+                }
+
+                ContentTypeUi.LOADING -> {
+                    animeFavoritesEmptyContainer.animeFavoritesEmptyLayout.isVisible = false
+                    animeFavoritesRv.isVisible = false
+                    swipeRefreshLayout.isEnabled = false
+                    connectionStatusImage.isVisible = true
+                }
+
+                ContentTypeUi.EMPTY -> {
+                    animeFavoritesRv.isVisible = false
+                    swipeRefreshLayout.isEnabled = false
+                    connectionStatusImage.isVisible = false
+                    animeFavoritesEmptyContainer.animeFavoritesEmptyLayout.isVisible = true
+                }
+            }
+        }
+    }
+
     private fun getListItems(uiModel: UiModel): List<ListItemUi> {
         return uiModel.listItems
     }
 
     private fun setListItems(listItems: List<ListItemUi>) {
-        adapter.submitList(listItems)
-
-        with(viewBinding) {
+        adapter.submitList(listItems) {
             if (listItems.isNotEmpty()) {
-                animeFavoritesEmptyLayout.animeFavoritesEmptyLayout.isVisible = false
-                swipeRefreshLayout.isEnabled = true
-                animeFavoritesRv.isVisible = true
-            } else {
-                swipeRefreshLayout.isEnabled = false
-                animeFavoritesRv.isVisible = false
-                animeFavoritesEmptyLayout.animeFavoritesEmptyLayout.isVisible = true
+                dispatch(AnimeFavoritesMainStore.Intent.ItemsSubmittedToList)
             }
         }
     }

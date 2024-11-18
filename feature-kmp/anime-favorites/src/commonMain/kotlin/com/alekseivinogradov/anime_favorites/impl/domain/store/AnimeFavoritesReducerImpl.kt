@@ -14,6 +14,10 @@ internal class AnimeFavoritesReducerImpl :
                 listItems = msg.listItems
             )
 
+            is AnimeFavoritesMainStore.Message.ChangeContentType -> copy(
+                contentType = msg.contentType
+            )
+
             is AnimeFavoritesMainStore.Message.UpdateEnabledExtraInfoIds -> copy(
                 enabledExtraInfoIds = msg.enabledExtraInfoIds
             )

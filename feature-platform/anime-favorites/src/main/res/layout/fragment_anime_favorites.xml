@@ -10,11 +10,20 @@
         android:layout_height="match_parent"
         android:background="@color/black">
 
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/connection_status_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="64dp"
+            android:contentDescription="@string/loading_in_progress"
+            android:src="@drawable/loading_animation" />
+
         <include
-            android:id="@+id/anime_favorites_empty_layout"
+            android:id="@+id/anime_favorites_empty_container"
             layout="@layout/anime_favorites_empty_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/anime_favorites_rv"

@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anime_favorites.api.domain.store
 
+import com.alekseivinogradov.anime_favorites.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_favorites.api.domain.model.ListItemDomain
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.arkivanov.mvikotlin.core.store.Store
@@ -9,12 +10,14 @@ interface AnimeFavoritesMainStore :
 
     data class State(
         val listItems: List<ListItemDomain> = listOf(),
+        val contentType: ContentTypeDomain = ContentTypeDomain.LOADING,
         val enabledExtraInfoIds: Set<AnimeId> = setOf(),
         val fetchedAnimeDetailsIds: Set<AnimeId> = setOf()
     )
 
     sealed interface Intent {
         data class UpdateListItems(val listItems: List<ListItemDomain>) : Intent
+        data object ItemsSubmittedToList : Intent
         data object UpdateSection : Intent
         data object UpdateAllItemsInBackground : Intent
         data class ItemClick(val id: AnimeId) : Intent
@@ -35,6 +38,7 @@ interface AnimeFavoritesMainStore :
 
     sealed interface Message {
         data class UpdateListItems(val listItems: List<ListItemDomain>) : Message
+        data class ChangeContentType(val contentType: ContentTypeDomain) : Message
         data class UpdateEnabledExtraInfoIds(val enabledExtraInfoIds: Set<AnimeId>) : Message
         data class UpdateFetchedAnimeDetailsIds(val fetchedAnimeDetailsIds: Set<AnimeId>) : Message
     }

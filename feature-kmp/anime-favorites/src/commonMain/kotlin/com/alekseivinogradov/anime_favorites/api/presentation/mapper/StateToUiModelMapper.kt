@@ -1,8 +1,10 @@
 package com.alekseivinogradov.anime_favorites.api.presentation.mapper
 
 import com.alekseivinogradov.anime_base.api.domain.model.ReleaseStatusDomain
+import com.alekseivinogradov.anime_favorites.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_favorites.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesMainStore
+import com.alekseivinogradov.anime_favorites.api.presentation.model.ContentTypeUi
 import com.alekseivinogradov.anime_favorites.api.presentation.model.UiModel
 import com.alekseivinogradov.anime_favorites.api.presentation.model.item_content.InfoTypeUi
 import com.alekseivinogradov.anime_favorites.api.presentation.model.item_content.ListItemUi
@@ -12,7 +14,8 @@ import com.alekseivinogradov.celebrity.api.domain.AnimeId
 
 internal fun mapStateToUiModel(state: AnimeFavoritesMainStore.State): UiModel {
     return UiModel(
-        listItems = getListItemsUi(state)
+        listItems = getListItemsUi(state),
+        contentType = mapContentTypeDomainToUi(state)
     )
 }
 
@@ -77,5 +80,13 @@ private fun getExtraEpisodesInfo(listItemDomain: ListItemDomain): String? {
         ReleaseStatusDomain.ANNOUNCED -> listItemDomain.airedOn
         ReleaseStatusDomain.RELEASED -> listItemDomain.releasedOn
         ReleaseStatusDomain.UNKNOWN -> null
+    }
+}
+
+private fun mapContentTypeDomainToUi(state: AnimeFavoritesMainStore.State): ContentTypeUi {
+    return when (state.contentType) {
+        ContentTypeDomain.LOADING -> ContentTypeUi.LOADING
+        ContentTypeDomain.LOADED -> ContentTypeUi.LOADED
+        ContentTypeDomain.EMPTY -> ContentTypeUi.EMPTY
     }
 }

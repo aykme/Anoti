@@ -2,6 +2,7 @@ package com.alekseivinogradov.celebrity.api.domain
 
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 const val LIST_FIRST_INDEX = 0
 const val FIRST_PAGE = 1
@@ -13,3 +14,4 @@ const val SWIPE_REFRESH_START_OFFSET = 45
 const val SWIPE_REFRESH_END_OFFSET = 245
 const val REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS = 500L
 const val REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS = 200L
+val LOADING_BETWEEN_STATES_MILLISECONDS = 2.seconds
