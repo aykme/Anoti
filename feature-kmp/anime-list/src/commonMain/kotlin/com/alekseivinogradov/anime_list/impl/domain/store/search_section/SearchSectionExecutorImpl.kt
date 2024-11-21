@@ -86,6 +86,7 @@ class SearchSectionExecutorImpl(
                 )
             )
             getPagingDataFlow().collect { listItems: PagingData<ListItemDomain> ->
+                publish(SearchSectionStore.Label.ResetListPositionAfterUpdate)
                 dispatch(SearchSectionStore.Message.UpdateListItems(listItems))
             }
         }

@@ -18,7 +18,7 @@ internal class AnimeListReducerImpl :
                 search = msg.search
             )
 
-            is AnimeListMainStore.Message.ChangeResetListPositionAfterUpdateStatus -> copy(
+            is AnimeListMainStore.Message.ChangeResetListPositionFlag -> copy(
                 isNeedToResetListPositon = msg.isNeedToResetListPosition
             )
 

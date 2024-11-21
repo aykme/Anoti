@@ -27,8 +27,8 @@ class AnimeListExecutorImpl(
             AnimeListMainStore.Intent.SearchSectionClick -> searchSectionClick()
             AnimeListMainStore.Intent.CancelSearchClick -> cancelSearchClick()
             is AnimeListMainStore.Intent.ChangeSearchText -> changeSearchText(intent)
-            is AnimeListMainStore.Intent.ChangeResetListPositionAfterUpdateStatus -> {
-                changeResetListPositionAfterUpdateStatus(intent)
+            is AnimeListMainStore.Intent.ChangeResetListPositionFlag -> {
+                changeResetListPositionFlag(intent)
             }
 
             AnimeListMainStore.Intent.UpdateSection -> updateSection()
@@ -219,11 +219,11 @@ class AnimeListExecutorImpl(
         }
     }
 
-    private fun changeResetListPositionAfterUpdateStatus(
-        intent: AnimeListMainStore.Intent.ChangeResetListPositionAfterUpdateStatus
+    private fun changeResetListPositionFlag(
+        intent: AnimeListMainStore.Intent.ChangeResetListPositionFlag
     ) {
         dispatch(
-            AnimeListMainStore.Message.ChangeResetListPositionAfterUpdateStatus(
+            AnimeListMainStore.Message.ChangeResetListPositionFlag(
                 isNeedToResetListPosition = intent.isNeedToResetListPosition
             )
         )

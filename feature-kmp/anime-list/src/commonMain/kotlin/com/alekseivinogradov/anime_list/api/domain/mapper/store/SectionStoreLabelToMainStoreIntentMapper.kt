@@ -10,7 +10,7 @@ fun mapOngoingStoreLabelToMainStoreIntent(
 ): AnimeListMainStore.Intent {
     return when (label) {
         OngoingSectionStore.Label.ResetListPositionAfterUpdate -> {
-            AnimeListMainStore.Intent.ChangeResetListPositionAfterUpdateStatus(
+            AnimeListMainStore.Intent.ChangeResetListPositionFlag(
                 isNeedToResetListPosition = true
             )
         }
@@ -22,7 +22,7 @@ internal fun mapAnnouncedStoreLabelToMainStoreIntent(
 ): AnimeListMainStore.Intent {
     return when (label) {
         AnnouncedSectionStore.Label.ResetListPositionAfterUpdate -> {
-            AnimeListMainStore.Intent.ChangeResetListPositionAfterUpdateStatus(
+            AnimeListMainStore.Intent.ChangeResetListPositionFlag(
                 isNeedToResetListPosition = true
             )
         }
@@ -34,7 +34,7 @@ internal fun mapSearchStoreLabelToMainStoreIntent(
 ): AnimeListMainStore.Intent {
     return when (label) {
         SearchSectionStore.Label.ResetListPositionAfterUpdate -> {
-            AnimeListMainStore.Intent.ChangeResetListPositionAfterUpdateStatus(
+            AnimeListMainStore.Intent.ChangeResetListPositionFlag(
                 isNeedToResetListPosition = true
             )
         }

@@ -45,10 +45,10 @@ internal class AnimeListViewImpl(
     private val defaultColor
         get() = context.getColor(res_R.color.white_transparent)
 
-    private val cancelResetListPositionCallback: () -> Unit = {
+    private val resetListPositionCallback: () -> Unit = {
         viewBinding.animeListRv.scrollToPosition(0)
         dispatch(
-            AnimeListMainStore.Intent.ChangeResetListPositionAfterUpdateStatus(
+            AnimeListMainStore.Intent.ChangeResetListPositionFlag(
                 isNeedToResetListPosition = false
             )
         )
@@ -294,9 +294,9 @@ internal class AnimeListViewImpl(
              * This is a big problem in MVI, as state can be updated very often.
              */
             delay(PAGING_SUBMIT_LIST_DELAY_MILLISECONDS)
-            adapter.removeOnPagesUpdatedListener(cancelResetListPositionCallback)
+            adapter.removeOnPagesUpdatedListener(resetListPositionCallback)
             if (listContent.isNeedToResetListPositon) {
-                adapter.addOnPagesUpdatedListener(cancelResetListPositionCallback)
+                adapter.addOnPagesUpdatedListener(resetListPositionCallback)
             }
             adapter.submitData(listContent.listItems)
         }
