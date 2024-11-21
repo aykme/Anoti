@@ -24,46 +24,57 @@
     <View
         android:id="@+id/info_background"
         android:layout_width="0dp"
-        android:layout_height="165dp"
+        android:layout_height="0dp"
         android:alpha="0.5"
         android:background="@drawable/rectangle_background_4dp_radius"
         android:backgroundTint="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/name_text" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/name_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="11dp"
-        android:layout_marginTop="8dp"
         android:layout_marginEnd="11dp"
         android:ellipsize="end"
-        android:maxLines="2"
+        android:maxLines="5"
+        android:paddingTop="8dp"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
         android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/episodes_info_barrier"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/info_background"
         tools:text="Attack on Titan: Final. Part 2" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/episodes_info_barrier"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        android:visibility="invisible"
+        app:barrierDirection="top"
+        app:constraint_referenced_ids="available_episodes_info_text, available_episodes_info_button, extra_episodes_info_text, extra_episodes_info_button" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/available_episodes_info_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:ellipsize="end"
         android:maxLines="1"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
         android:textColor="@color/white"
         android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@id/notification_button"
+        app:layout_constraintBottom_toTopOf="@id/bottom_info_barrier"
         app:layout_constraintEnd_toStartOf="@id/extra_episodes_info_button"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="@id/name_text"
-        app:layout_constraintTop_toBottomOf="@id/name_text"
         app:layout_constraintVertical_bias="0"
         tools:text="Episodes: 2 / ?" />
 
@@ -92,18 +103,17 @@
         android:id="@+id/extra_episodes_info_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
+        android:layout_marginBottom="10.5dp"
         android:ellipsize="end"
         android:maxLines="2"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
         android:textColor="@color/white"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/notification_button"
+        app:layout_constraintBottom_toTopOf="@id/bottom_info_barrier"
         app:layout_constraintEnd_toStartOf="@id/available_episodes_info_button"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="@id/name_text"
-        app:layout_constraintTop_toBottomOf="@id/name_text"
         app:layout_constraintVertical_bias="0"
         tools:text="Next episode:\n 20 feb. 2022" />
 
@@ -129,13 +139,13 @@
         tools:ignore="ContentDescription" />
 
     <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/notification_button_barrier"
+        android:id="@+id/bottom_info_barrier"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:visibility="invisible"
-        app:barrierDirection="left"
-        app:constraint_referenced_ids="notification_button" />
+        app:barrierDirection="top"
+        app:constraint_referenced_ids="score_image, score_text, vertical_divider_after_score, release_status_text, vertical_divider_after_status" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/score_image"
@@ -203,6 +213,15 @@
         app:layout_constraintEnd_toStartOf="@id/notification_button"
         app:layout_constraintStart_toEndOf="@id/release_status_text"
         app:layout_constraintTop_toTopOf="@id/release_status_text" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/notification_button_barrier"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:visibility="invisible"
+        app:barrierDirection="left"
+        app:constraint_referenced_ids="notification_button" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/notification_button"

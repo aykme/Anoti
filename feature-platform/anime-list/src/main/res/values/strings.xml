@@ -9,8 +9,8 @@
     <string name="connection_error">Connection error</string>
     <string name="search_on_description">Move to search section and/or open search input field</string>
     <string name="search_off_description">Close search input field</string>
-    <string name="ongoings">Ongoings</string>
-    <string name="announced">Announced</string>
+    <string name="on_air">On air</string>
+    <string name="soon">Soon</string>
     <string name="search_hint">Enter the name of anime</string>
     <string name="episodes">Episodes</string>
     <string name="next_episode">Next episode</string>
@@ -20,4 +20,5 @@
     <string name="inaccurate">Inaccurate</string>
     <string name="ongoing">Ongoing</string>
     <string name="released">Released</string>
+    <string name="announced">Announced</string>
 </resources>

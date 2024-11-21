@@ -117,8 +117,8 @@ internal class AnimeListViewImpl(
         with(viewBinding) {
             swipeRefreshLayout.isVisible = true
             animeListLayout.isVisible = true
-            ongoingButton.text = context.getString(R.string.ongoings)
-            announcedButton.text = context.getString(R.string.announced)
+            ongoingButton.text = context.getString(R.string.on_air)
+            announcedButton.text = context.getString(R.string.soon)
             searchButton.contentDescription = context.getString(R.string.search_on_description)
             searchCancelButton.contentDescription = context
                 .getString(R.string.search_off_description)
