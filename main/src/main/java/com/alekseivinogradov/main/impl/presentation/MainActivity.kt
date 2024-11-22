@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Build.VERSION_CODES.Q
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import android.provider.Settings
@@ -161,7 +162,15 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SourceLockedOrientationActivity")
     private fun setSystemSettings() {
-        enableEdgeToEdge()
+        if (Build.VERSION.SDK_INT >= Q) {
+            /**
+             * It does not work correctly with
+             * "window.setStatusBarColor" and window.setNavigationBarColor
+             * before 29 api level.
+             */
+            enableEdgeToEdge()
+        }
+
         ViewCompat.setOnApplyWindowInsetsListener(binding!!.mainLayout) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(
