@@ -66,7 +66,7 @@
         android:layout_height="32dp"
         android:alpha="0.8"
         android:src="@drawable/ic_score_42"
-        android:tint="@color/pink"
+        android:tint="@color/cinnabar_500"
         app:layout_constraintBottom_toBottomOf="@id/image_info_background"
         app:layout_constraintEnd_toStartOf="@id/score_text"
         app:layout_constraintStart_toStartOf="@id/image_info_background"
@@ -96,7 +96,7 @@
         android:foreground="?android:attr/selectableItemBackground"
         android:padding="4dp"
         android:src="@drawable/ic_details_on_24"
-        android:tint="@color/pink"
+        android:tint="@color/cinnabar_500"
         app:layout_constraintBottom_toBottomOf="@id/image_info_background"
         app:layout_constraintEnd_toEndOf="@id/image_info_background"
         app:layout_constraintStart_toEndOf="@id/score_text"
@@ -270,7 +270,7 @@
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="@id/main_info_stroke"
-        app:tint="@color/pink"
+        app:tint="@color/cinnabar_500"
         tools:contentDescription="@string/episodes_viewed_minus_description" />
 
     <com.google.android.material.textview.MaterialTextView
@@ -308,7 +308,7 @@
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toEndOf="@id/episodes_viewed_number"
-        app:tint="@color/pink"
+        app:tint="@color/cinnabar_500"
         tools:contentDescription="@string/episodes_viewed_plus_description" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

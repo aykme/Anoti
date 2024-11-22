@@ -4,10 +4,12 @@
 
     <style name="Theme.Anoti" parent="Base.Theme.Anoti">
         <item name="floatingActionButtonStyle">@style/FloatingActionButtomStyle</item>
+        <item name="android:navigationBarColor">@color/black</item>
+        <item name="android:statusBarColor">@color/black</item>
     </style>
 
     <style name="Theme.Anoti.TextInputEditText.Outlined" parent="">
-        <item name="colorPrimary">@color/pink</item>
+        <item name="colorPrimary">@color/cinnabar_500</item>
     </style>
 
     <style name="Theme.Anoti.MaterialAlertDialog" parent="MaterialAlertDialog.Material3">

@@ -40,7 +40,7 @@ internal class AnimeListViewImpl(
         get() = viewBinding.root.context
 
     private val activeColor
-        get() = context.getColor(res_R.color.pink)
+        get() = context.getColor(res_R.color.cinnabar_500)
 
     private val defaultColor
         get() = context.getColor(res_R.color.white_transparent)
@@ -105,7 +105,7 @@ internal class AnimeListViewImpl(
                 /* start = */ com.alekseivinogradov.celebrity.api.domain.SWIPE_REFRESH_START_OFFSET,
                 /* end = */ com.alekseivinogradov.celebrity.api.domain.SWIPE_REFRESH_END_OFFSET
             )
-            swipeRefreshLayout.setColorSchemeResources(res_R.color.pink)
+            swipeRefreshLayout.setColorSchemeResources(res_R.color.cinnabar_500)
             swipeRefreshLayout.setOnRefreshListener {
                 dispatch(AnimeListMainStore.Intent.UpdateSection)
                 swipeRefreshLayout.isRefreshing = false

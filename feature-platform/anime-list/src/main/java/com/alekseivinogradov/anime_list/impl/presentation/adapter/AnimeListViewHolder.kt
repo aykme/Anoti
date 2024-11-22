@@ -28,7 +28,7 @@ internal class AnimeListViewHolder(
         get() = binding.root.context
 
     private val disableColor: Int
-        get() = context.getColor(res_R.color.pink)
+        get() = context.getColor(res_R.color.cinnabar_500)
 
     private val enableColor: Int
         get() = context.getColor(res_R.color.green)
@@ -314,7 +314,7 @@ internal class AnimeListViewHolder(
                 ReleaseStatusUi.RELEASED -> {
                     releaseStatusText.text =
                         context.getString(R.string.released)
-                    releaseStatusText.setTextColor(context.getColor(res_R.color.pink))
+                    releaseStatusText.setTextColor(context.getColor(res_R.color.cinnabar_500))
                     releaseStatusText.isVisible = true
                 }
 

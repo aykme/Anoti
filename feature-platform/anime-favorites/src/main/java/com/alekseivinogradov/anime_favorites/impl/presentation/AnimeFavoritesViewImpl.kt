@@ -58,7 +58,7 @@ internal class AnimeFavoritesViewImpl(
                 /* start = */ com.alekseivinogradov.celebrity.api.domain.SWIPE_REFRESH_START_OFFSET,
                 /* end = */ com.alekseivinogradov.celebrity.api.domain.SWIPE_REFRESH_END_OFFSET
             )
-            swipeRefreshLayout.setColorSchemeResources(res_R.color.pink)
+            swipeRefreshLayout.setColorSchemeResources(res_R.color.cinnabar_500)
             swipeRefreshLayout.setOnRefreshListener {
                 dispatch(AnimeFavoritesMainStore.Intent.UpdateSection)
                 swipeRefreshLayout.isRefreshing = false

@@ -5,9 +5,10 @@
         <item name="android:fontFamily">@font/amiko</item>
         <item name="android:textSize">29sp</item>
         <item name="android:shadowColor">@color/black</item>
-        <item name="android:shadowRadius">16</item>
-        <item name="android:shadowDx">4</item>
+        <item name="android:shadowRadius">4</item>
+        <item name="android:shadowDx">-4</item>
         <item name="android:shadowDy">4</item>
+        <item name="android:textColorHighlight">@color/black</item>
     </style>
 
     <style name="AccentTextAppearance" parent="TextAppearance.AppCompat">
@@ -40,6 +41,6 @@
     <style name="MaterialAlertDialogPositiveButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Subtitle1
         </item>
-        <item name="android:textColor">@color/pink</item>
+        <item name="android:textColor">@color/cinnabar_500</item>
     </style>
 </resources>

@@ -9,9 +9,15 @@
     <color name="white">#FFFFFFFF</color>
     <color name="dark_blue">#24364C</color>
     <color name="grey_700">#222222</color>
+    <color name="cinnabar_500">#E84b3d</color>
+    <color name="cinnabar_500_transparent">#D5E84b3d</color>
     <color name="pink">#F34375</color>
     <color name="pink_transperent">#D5F34375</color>
+    <color name="cherry_kiss_200">#EE1E52</color>
+    <color name="cherry_kiss_500">#D20A2E</color>
+    <color name="rosey_red_500">#fA003F</color>
     <color name="green">#81F343</color>
+    <color name="screamin_green">#97FF7D</color>
     <color name="black_transparent">#D5000000</color>
     <color name="white_transparent">#D5FFFFFF</color>
     <color name="gold">#FFD700</color>

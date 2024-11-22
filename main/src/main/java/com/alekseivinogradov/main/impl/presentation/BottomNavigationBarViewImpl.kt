@@ -49,7 +49,7 @@ internal class BottomNavigationBarViewImpl(
     }
 
     private fun initFavoritesBadge() {
-        favoritesBadge.backgroundColor = context.getColor(res_R.color.pink_transperent)
+        favoritesBadge.backgroundColor = context.getColor(res_R.color.cinnabar_500_transparent)
         favoritesBadge.badgeTextColor = context.getColor(res_R.color.black)
     }
 
