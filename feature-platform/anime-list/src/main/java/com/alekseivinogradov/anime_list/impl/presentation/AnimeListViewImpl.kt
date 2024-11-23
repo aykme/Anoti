@@ -1,9 +1,13 @@
 package com.alekseivinogradov.anime_list.impl.presentation
 
 import android.content.Context
+import android.os.Build
+import android.os.Build.VERSION_CODES.Q
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.inputmethod.InputMethodManager
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
@@ -61,6 +65,7 @@ internal class AnimeListViewImpl(
     )
 
     init {
+        initUpperMenuInsetsListenerIfNeeded()
         initSwipeToRefresh()
         initCommonFields()
         initClickListeners()
@@ -98,6 +103,23 @@ internal class AnimeListViewImpl(
         dispatch(AnimeListMainStore.Intent.NotificationClick(listItem))
     }
 
+    private fun initUpperMenuInsetsListenerIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Q) {
+            ViewCompat.setOnApplyWindowInsetsListener(viewBinding.upperMenuLayout)
+            { view, insets ->
+                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                view.setPadding(
+                    /* left = */ view.paddingLeft,
+                    /* top = */systemBars.top,
+                    /* right = */view.paddingRight,
+                    /* bottom = */view.paddingBottom
+                )
+
+                insets
+            }
+        }
+    }
+
     private fun initSwipeToRefresh() {
         with(viewBinding) {
             swipeRefreshLayout.setProgressViewOffset(
@@ -117,6 +139,7 @@ internal class AnimeListViewImpl(
         with(viewBinding) {
             swipeRefreshLayout.isVisible = true
             animeListLayout.isVisible = true
+            upperMenuLayout.isVisible = true
             ongoingButton.text = context.getString(R.string.on_air)
             announcedButton.text = context.getString(R.string.soon)
             searchButton.contentDescription = context.getString(R.string.search_on_description)

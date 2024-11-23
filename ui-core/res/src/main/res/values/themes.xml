@@ -4,9 +4,15 @@
 
     <style name="Theme.Anoti" parent="Base.Theme.Anoti">
         <item name="floatingActionButtonStyle">@style/FloatingActionButtomStyle</item>
+        <!-- Navigation bar color -->
         <item name="android:navigationBarColor">@color/black</item>
+        <!-- Application loading window color
+            (With enableEdgeToEdge() for 30 api level or lower. Use Splash screens after -->
         <item name="android:windowBackground">@color/black</item>
+        <!-- Status bar color -->
         <item name="android:statusBarColor">@color/black</item>
+        <!-- Title highlight color on application background window -->
+        <item name="android:colorPrimary">@color/black</item>
     </style>
 
     <style name="Theme.Anoti.TextInputEditText.Outlined" parent="">

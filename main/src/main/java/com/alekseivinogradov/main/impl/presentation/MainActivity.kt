@@ -5,11 +5,14 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Build
+import android.os.Build.VERSION_CODES.P
 import android.os.Build.VERSION_CODES.Q
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import android.provider.Settings
+import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -162,28 +165,43 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SourceLockedOrientationActivity")
     private fun setSystemSettings() {
+        /**
+         * enableEdgeToEdge() doesn't work correctly with BottomNavigationView
+         * and window.navigationBarColor() or android:statusBarColor (xml)
+         * on 28 api level or lower.
+         * There is a bug with navigation bar elements color on light theme.
+         */
         if (Build.VERSION.SDK_INT >= Q) {
-            /**
-             * It does not work correctly with
-             * "window.setStatusBarColor" and window.setNavigationBarColor
-             * before 29 api level.
-             */
-            enableEdgeToEdge()
-        }
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding!!.mainLayout) { view, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(
-                /* left = */ systemBars.left,
-                /* top = */systemBars.top,
-                /* right = */systemBars.right,
-                /* bottom = */0
+            enableEdgeToEdge(
+                statusBarStyle = SystemBarStyle.dark(
+                    Color.TRANSPARENT
+                )
             )
-            insets
+            ViewCompat.setOnApplyWindowInsetsListener(binding!!.mainLayout) { view, insets ->
+                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                view.setPadding(
+                    /* left = */ systemBars.left,
+                    /* top = */0,
+                    /* right = */systemBars.right,
+                    /** systemBars.bottom works uncorrectly with BottomNavigationView.
+                     * It makes double padding and
+                     * status bar color elements problems on light theme
+                     */
+                    /* bottom = */0
+                )
+                insets
+            }
         }
 
-        window.setStatusBarColor(getColor(res_R.color.black))
-        window.setNavigationBarColor(getColor(res_R.color.black))
+        /**
+         * window.setNavigationBarColor() and window.setStatusBarColor() doesn't work correctly
+         * with BottomNavigationView on 27 api level or lower.
+         * Use android:navigationBarColor and android:statusBarColor from xml instead
+         */
+        if (Build.VERSION.SDK_INT >= P) {
+            window.setNavigationBarColor(getColor(res_R.color.black))
+        }
+
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
     }
 

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <FrameLayout
         android:id="@+id/anime_list_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -14,182 +14,181 @@
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/connection_status_image"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_margin="64dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             tools:contentDescription="@string/loading_in_progress"
             tools:src="@drawable/loading_img" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/anime_list_rv"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="match_parent"
             android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             tools:listitem="@layout/item_anime_list" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/filter_button"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:clickable="false"
-            android:elevation="2dp"
-            android:focusable="false"
-            android:padding="12dp"
-            android:tint="@color/white_transparent"
-            android:visibility="invisible"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:contentDescription="Filter button in the future" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/ongoing_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:elevation="2dp"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:maxLines="1"
-            android:paddingStart="0dp"
-            android:paddingTop="12dp"
-            android:paddingEnd="0dp"
-            android:paddingBottom="12dp"
-            android:textAppearance="@style/UpperMenuTextAppearance"
-            android:textColor="@color/white_transparent"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="@id/search_button"
-            app:layout_constraintEnd_toStartOf="@id/vertical_divider"
-            app:layout_constraintStart_toEndOf="@id/filter_button"
-            app:layout_constraintTop_toTopOf="@id/search_button"
-            tools:text="@string/on_air"
-            tools:textColor="@color/cinnabar_500" />
-
-        <View
-            android:id="@+id/vertical_divider"
-            android:layout_width="3dp"
-            android:layout_height="9dp"
-            android:background="@color/white_transparent"
-            android:elevation="2dp"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="@id/search_button"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/search_button" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/announced_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:maxLines="1"
-            android:paddingStart="0dp"
-            android:paddingTop="12dp"
-            android:paddingEnd="0dp"
-            android:paddingBottom="12dp"
-            android:textAppearance="@style/UpperMenuTextAppearance"
-            android:textColor="@color/white_transparent"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="@id/search_button"
-            app:layout_constraintEnd_toStartOf="@id/search_button"
-            app:layout_constraintStart_toEndOf="@id/vertical_divider"
-            app:layout_constraintTop_toTopOf="@id/search_button"
-            tools:text="@string/soon" />
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/search_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:elevation="2dp"
-            android:padding="12dp"
-            android:src="@drawable/ic_search_32"
-            android:tint="@color/white_transparent"
-            android:visibility="visible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:contentDescription="@string/search_on_description" />
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/search_button_shadow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:elevation="1dp"
-            android:importantForAccessibility="no"
-            android:padding="12dp"
-            android:src="@drawable/ic_search_34"
-            android:tint="@color/black_transparent"
-            android:visibility="visible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/search_input_layout"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/upper_menu_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:elevation="1dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:textColorHint="@color/white_transparent"
-            android:theme="@style/Theme.Anoti.TextInputEditText.Outlined"
-            android:visibility="gone"
-            app:boxBackgroundColor="@color/black_transparent"
-            app:boxStrokeColor="@color/cinnabar_500"
-            app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_height="wrap_content">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/search_edit_text"
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/filter_button"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:clickable="false"
+                android:elevation="2dp"
+                android:focusable="false"
+                android:padding="12dp"
+                android:tint="@color/white_transparent"
+                android:visibility="invisible"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:contentDescription="Filter button in the future" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/ongoing_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:elevation="2dp"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLines="1"
+                android:paddingStart="0dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="0dp"
+                android:paddingBottom="12dp"
+                android:textAppearance="@style/UpperMenuTextAppearance"
+                android:textColor="@color/white_transparent"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="@id/search_button"
+                app:layout_constraintEnd_toStartOf="@id/vertical_divider"
+                app:layout_constraintStart_toEndOf="@id/filter_button"
+                app:layout_constraintTop_toTopOf="@id/search_button"
+                tools:text="@string/on_air"
+                tools:textColor="@color/cinnabar_500" />
+
+            <View
+                android:id="@+id/vertical_divider"
+                android:layout_width="3dp"
+                android:layout_height="9dp"
+                android:background="@color/white_transparent"
+                android:elevation="2dp"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="@id/search_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/search_button" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/announced_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLines="1"
+                android:paddingStart="0dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="0dp"
+                android:paddingBottom="12dp"
+                android:textAppearance="@style/UpperMenuTextAppearance"
+                android:textColor="@color/white_transparent"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="@id/search_button"
+                app:layout_constraintEnd_toStartOf="@id/search_button"
+                app:layout_constraintStart_toEndOf="@id/vertical_divider"
+                app:layout_constraintTop_toTopOf="@id/search_button"
+                tools:text="@string/soon" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/search_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:elevation="2dp"
+                android:padding="12dp"
+                android:src="@drawable/ic_search_32"
+                android:tint="@color/white_transparent"
+                android:visibility="visible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:contentDescription="@string/search_on_description" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/search_button_shadow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:elevation="1dp"
+                android:importantForAccessibility="no"
+                android:padding="12dp"
+                android:src="@drawable/ic_search_34"
+                android:tint="@color/black_transparent"
+                android:visibility="visible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/search_input_layout"
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:elevation="1dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:textColorHint="@color/white_transparent"
+                android:theme="@style/Theme.Anoti.TextInputEditText.Outlined"
+                android:visibility="gone"
+                app:boxBackgroundColor="@color/black_transparent"
+                app:boxStrokeColor="@color/cinnabar_500"
+                app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/search_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="8dp"
+                    android:elevation="1dp"
+                    android:ellipsize="end"
+                    android:inputType="text"
+                    android:maxLength="@integer/material_motion_duration_short_1"
+                    android:maxLines="1"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="56dp"
+                    android:textColor="@color/white"
+                    tools:background="@color/black_transparent"
+                    tools:hint="Enter the name of anime"
+                    tools:ignore="VisualLintTextFieldSize"
+                    tools:textColorHint="@color/white_transparent" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/search_cancel_button"
+                android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:layout_marginTop="8dp"
-                android:elevation="1dp"
-                android:ellipsize="end"
-                android:inputType="text"
-                android:maxLength="@integer/material_motion_duration_short_1"
-                android:maxLines="1"
-                android:paddingStart="16dp"
-                android:paddingEnd="56dp"
-                android:textColor="@color/white"
-                tools:background="@color/black_transparent"
-                tools:hint="Enter the name of anime"
-                tools:ignore="VisualLintTextFieldSize"
-                tools:textColorHint="@color/white_transparent" />
+                android:layout_marginEnd="8dp"
+                android:background="@android:color/transparent"
+                android:elevation="2dp"
+                android:padding="12dp"
+                android:src="@drawable/ic_search_cancel_32"
+                android:tint="@color/cinnabar_500"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:contentDescription="@string/search_off_description" />
 
-        </com.google.android.material.textfield.TextInputLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/search_cancel_button"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:background="@android:color/transparent"
-            android:elevation="2dp"
-            android:padding="12dp"
-            android:src="@drawable/ic_search_cancel_32"
-            android:tint="@color/cinnabar_500"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:contentDescription="@string/search_off_description" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </FrameLayout>
 
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
