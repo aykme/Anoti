@@ -1,7 +1,11 @@
 package com.alekseivinogradov.anime_favorites.impl.presentation
 
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.alekseivinogradov.anime_base.impl.presentation.adapter.decorator.BottomSpaceLastItemDecorator
+import com.alekseivinogradov.anime_base.impl.presentation.adapter.decorator.EdgeToEdgeItemDecorator
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anime_favorites.api.presentation.AnimeFavoritesView
 import com.alekseivinogradov.anime_favorites.api.presentation.model.ContentTypeUi
@@ -11,6 +15,7 @@ import com.alekseivinogradov.anime_favorites.impl.presentation.adapter.AnimeFavo
 import com.alekseivinogradov.anime_favorites_platform.R
 import com.alekseivinogradov.anime_favorites_platform.databinding.FragmentAnimeFavoritesBinding
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
+import com.alekseivinogradov.celebrity.impl.presentation.edge_to_edge.isEdgeToEdgeEnabled
 import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
@@ -34,7 +39,10 @@ internal class AnimeFavoritesViewImpl(
         dateFormatter = dateFormatter
     )
 
+    private var itemDecorator: EdgeToEdgeItemDecorator? = null
+
     init {
+        initEdgeToEdgeListenerIfNeeded()
         initSwipeToRefresh()
         initCommonFields()
         initRv()
@@ -49,6 +57,34 @@ internal class AnimeFavoritesViewImpl(
             get = ::getListItems,
             set = ::setListItems
         )
+    }
+
+    private fun initEdgeToEdgeListenerIfNeeded() {
+        if (isEdgeToEdgeEnabled()) {
+            ViewCompat.setOnApplyWindowInsetsListener(viewBinding.root)
+            { _, insets ->
+                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+                val animeFavoritesEmptyLayout =
+                    viewBinding.animeFavoritesEmptyContainer.animeFavoritesEmptyLayout
+                animeFavoritesEmptyLayout.setPadding(
+                    /* left = */animeFavoritesEmptyLayout.paddingLeft,
+                    /* top = */systemBars.top,
+                    /* right = */animeFavoritesEmptyLayout.paddingRight,
+                    /* bottom = */animeFavoritesEmptyLayout.paddingBottom
+                )
+
+                itemDecorator?.let { oldItemDecorator: EdgeToEdgeItemDecorator ->
+                    viewBinding.animeFavoritesRv.removeItemDecoration(oldItemDecorator)
+                }
+                itemDecorator = EdgeToEdgeItemDecorator(systemBarTopOffset = systemBars.top)
+                itemDecorator?.let { newItemDecorator: EdgeToEdgeItemDecorator ->
+                    viewBinding.animeFavoritesRv.addItemDecoration(newItemDecorator)
+                }
+
+                insets
+            }
+        }
     }
 
     private fun initSwipeToRefresh() {
@@ -84,6 +120,7 @@ internal class AnimeFavoritesViewImpl(
                 /* orientation = */ LinearLayoutManager.VERTICAL,
                 /* reverseLayout = */ false
             )
+            animeFavoritesRv.addItemDecoration(BottomSpaceLastItemDecorator())
         }
     }
 

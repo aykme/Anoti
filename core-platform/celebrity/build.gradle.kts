@@ -34,7 +34,7 @@ android {
 
 dependencies {
     api(project(":core-kmp:celebrity"))
-
+    implementation(libs.androidx.annotation.jvm)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

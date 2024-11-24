@@ -1,8 +1,6 @@
 package com.alekseivinogradov.anime_list.impl.presentation
 
 import android.content.Context
-import android.os.Build
-import android.os.Build.VERSION_CODES.Q
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.inputmethod.InputMethodManager
@@ -10,6 +8,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.alekseivinogradov.anime_base.impl.presentation.adapter.decorator.BottomSpaceLastItemDecorator
+import com.alekseivinogradov.anime_base.impl.presentation.adapter.decorator.EdgeToEdgeItemDecorator
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
@@ -23,6 +23,7 @@ import com.alekseivinogradov.anime_list_platform.R
 import com.alekseivinogradov.anime_list_platform.databinding.FragmentAnimeListBinding
 import com.alekseivinogradov.celebrity.api.domain.PAGING_SUBMIT_LIST_DELAY_MILLISECONDS
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
+import com.alekseivinogradov.celebrity.impl.presentation.edge_to_edge.isEdgeToEdgeEnabled
 import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
@@ -64,8 +65,10 @@ internal class AnimeListViewImpl(
         dateFormatter = dateFormatter
     )
 
+    private var itemDecorator: EdgeToEdgeItemDecorator? = null
+
     init {
-        initUpperMenuInsetsListenerIfNeeded()
+        initEdgeToEdgeListenerIfNeeded()
         initSwipeToRefresh()
         initCommonFields()
         initClickListeners()
@@ -103,17 +106,27 @@ internal class AnimeListViewImpl(
         dispatch(AnimeListMainStore.Intent.NotificationClick(listItem))
     }
 
-    private fun initUpperMenuInsetsListenerIfNeeded() {
-        if (Build.VERSION.SDK_INT >= Q) {
-            ViewCompat.setOnApplyWindowInsetsListener(viewBinding.upperMenuLayout)
-            { view, insets ->
+    private fun initEdgeToEdgeListenerIfNeeded() {
+        if (isEdgeToEdgeEnabled()) {
+            ViewCompat.setOnApplyWindowInsetsListener(viewBinding.root)
+            { _, insets ->
                 val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-                view.setPadding(
-                    /* left = */ view.paddingLeft,
+
+                val upperMenu = viewBinding.upperMenuLayout
+                upperMenu.setPadding(
+                    /* left = */upperMenu.paddingLeft,
                     /* top = */systemBars.top,
-                    /* right = */view.paddingRight,
-                    /* bottom = */view.paddingBottom
+                    /* right = */upperMenu.paddingRight,
+                    /* bottom = */upperMenu.paddingBottom
                 )
+
+                itemDecorator?.let { oldItemDecorator: EdgeToEdgeItemDecorator ->
+                    viewBinding.animeListRv.removeItemDecoration(oldItemDecorator)
+                }
+                itemDecorator = EdgeToEdgeItemDecorator(systemBarTopOffset = systemBars.top)
+                itemDecorator?.let { newItemDecorator: EdgeToEdgeItemDecorator ->
+                    viewBinding.animeListRv.addItemDecoration(newItemDecorator)
+                }
 
                 insets
             }
@@ -199,6 +212,7 @@ internal class AnimeListViewImpl(
                 /* reverseLayout = */ false
             )
             animeListRv.itemAnimator = null
+            animeListRv.addItemDecoration(BottomSpaceLastItemDecorator())
         }
     }
 
@@ -319,6 +333,7 @@ internal class AnimeListViewImpl(
             delay(PAGING_SUBMIT_LIST_DELAY_MILLISECONDS)
             adapter.removeOnPagesUpdatedListener(resetListPositionCallback)
             if (listContent.isNeedToResetListPositon) {
+                viewBinding.animeListRv.stopScroll()
                 adapter.addOnPagesUpdatedListener(resetListPositionCallback)
             }
             adapter.submitData(listContent.listItems)

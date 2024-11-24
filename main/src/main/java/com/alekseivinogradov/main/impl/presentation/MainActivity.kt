@@ -8,7 +8,6 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
 import android.os.Build.VERSION_CODES.P
-import android.os.Build.VERSION_CODES.Q
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import android.provider.Settings
@@ -29,6 +28,7 @@ import com.alekseivinogradov.bottom_navigation_bar.impl.domain.store.BottomNavig
 import com.alekseivinogradov.bottom_navigation_bar.impl.presentation.BottomNavigationBarController
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.celebrity.impl.domain.coroutine_context.CoroutineContextProviderPlatform
+import com.alekseivinogradov.celebrity.impl.presentation.edge_to_edge.isEdgeToEdgeEnabled
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.api.domain.store.DatabaseStore
 import com.alekseivinogradov.database.api.domain.usecase.ChangeDatabaseItemNewEpisodeStatusUsecase
@@ -165,13 +165,7 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SourceLockedOrientationActivity")
     private fun setSystemSettings() {
-        /**
-         * enableEdgeToEdge() doesn't work correctly with BottomNavigationView
-         * and window.navigationBarColor() or android:statusBarColor (xml)
-         * on 28 api level or lower.
-         * There is a bug with navigation bar elements color on light theme.
-         */
-        if (Build.VERSION.SDK_INT >= Q) {
+        if (isEdgeToEdgeEnabled()) {
             enableEdgeToEdge(
                 statusBarStyle = SystemBarStyle.dark(
                     Color.TRANSPARENT
@@ -180,7 +174,7 @@ class MainActivity : AppCompatActivity() {
             ViewCompat.setOnApplyWindowInsetsListener(binding!!.mainLayout) { view, insets ->
                 val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
                 view.setPadding(
-                    /* left = */ systemBars.left,
+                    /* left = */systemBars.left,
                     /* top = */0,
                     /* right = */systemBars.right,
                     /** systemBars.bottom works uncorrectly with BottomNavigationView.

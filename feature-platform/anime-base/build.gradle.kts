@@ -36,6 +36,7 @@ dependencies {
     api(project(":feature-kmp:anime-base"))
     implementation(project(":core-platform:celebrity"))
     implementation(project(":core-platform:network"))
+    implementation(libs.androidx.recyclerview)
 
     implementation(libs.androidx.core.ktx)
     testImplementation(libs.junit)
