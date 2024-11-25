@@ -13,9 +13,9 @@ internal class UpdateAllAnimeInBackgroundUsecaseImpl(
 
     override fun execute() {
         workManager.enqueueUniqueWork(
-            /* uniqueWorkName = */ uniqueWorkName,
-            /* existingWorkPolicy = */ ExistingWorkPolicy.KEEP,
-            /* work = */ updateWork
+            uniqueWorkName = uniqueWorkName,
+            existingWorkPolicy = ExistingWorkPolicy.KEEP,
+            request = updateWork
         )
     }
 }

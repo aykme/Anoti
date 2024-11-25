@@ -18,22 +18,22 @@ interface AnimeDao {
     @Update
     suspend fun update(anime: AnimeDbPlatform)
 
-    @Query("SELECT * FROM anime_table ORDER BY release_status DESC, name ASC")
+    @Query("SELECT * FROM $animeTableName ORDER BY release_status DESC, name ASC")
     fun getAllItemsFlow(): Flow<List<AnimeDbPlatform>>
 
-    @Query("SELECT * FROM anime_table ORDER BY release_status DESC, name ASC")
+    @Query("SELECT * FROM $animeTableName ORDER BY release_status DESC, name ASC")
     suspend fun getAllItems(): List<AnimeDbPlatform>
 
-    @Query("DELETE FROM anime_table WHERE id =:id")
+    @Query("DELETE FROM $animeTableName WHERE id =:id")
     suspend fun delete(id: AnimeId)
 
     /**
      * No using Boolean params in "Query",
      * otherwise there will be a crash on older versions of android
      */
-    @Query("UPDATE anime_table SET is_new_episode = 0")
+    @Query("UPDATE $animeTableName SET is_new_episode = 0")
     suspend fun resetAllItemsNewEpisodeStatus()
 
-    @Query("UPDATE anime_table SET is_new_episode = :isNewEpisode WHERE id =:id")
+    @Query("UPDATE $animeTableName SET is_new_episode = :isNewEpisode WHERE id =:id")
     suspend fun changeItemNewEpisodeStatus(id: AnimeId, isNewEpisode: Boolean)
 }

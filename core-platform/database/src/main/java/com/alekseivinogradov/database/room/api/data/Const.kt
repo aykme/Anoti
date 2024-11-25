@@ -1,3 +1,3 @@
 package com.alekseivinogradov.database.room.api.data
 
-internal const val animeTableName = "anime_table"
+internal const val animeTableName = "anoti_anime_table"

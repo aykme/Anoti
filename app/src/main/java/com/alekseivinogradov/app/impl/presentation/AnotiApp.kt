@@ -124,14 +124,14 @@ class AnotiApp : Application() {
 
     private fun setupAnimeUpdateWorkManager() {
         WorkManager.initialize(
-            /* context = */ this,
-            /* configuration = */ workManagerConfig
+            context = this,
+            configuration = workManagerConfig
         )
-        WorkManager.getInstance(/* context = */ this)
+        WorkManager.getInstance(context = this)
             .enqueueUniquePeriodicWork(
-                /* uniqueWorkName = */ AnimeUpdateWorker.animeUpdatePeriodicWorkName,
-                /* existingPeriodicWorkPolicy = */ ExistingPeriodicWorkPolicy.KEEP,
-                /* periodicWork = */ animeUpdatePeriodicWork
+                uniqueWorkName = AnimeUpdateWorker.animeUpdatePeriodicWorkName,
+                existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.KEEP,
+                request = animeUpdatePeriodicWork
             )
     }
 
