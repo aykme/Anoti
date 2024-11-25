@@ -2,8 +2,7 @@
 agp = "8.5.2"
 glide = "4.16.0"
 kotlin = "2.0.0"
-#noinspection GradleDependency (version 1.15 demands compile SDK 35)
-coreKtx = "1.13.1"
+coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -24,8 +23,7 @@ coroutines = "1.9.0-RC"
 essenty = "2.1.0"
 mviKotlin = "4.0.0"
 ksp = "2.0.20-1.0.24"
-#noinspection GradleDependency (version 2.10.0 demands compile SDK 35)
-workRuntimeKtx = "2.9.1"
+workRuntimeKtx = "2.10.0"
 annotationJvm = "1.9.1"
 
 [libraries]
