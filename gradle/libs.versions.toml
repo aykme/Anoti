@@ -1,4 +1,10 @@
 [versions]
+targetSdk = "35"
+compileSdk = "35"
+minSdk = "26"
+versionCode = "1"
+versionName = "1.0"
+
 agp = "8.5.2"
 glide = "4.16.0"
 kotlin = "2.0.0"
