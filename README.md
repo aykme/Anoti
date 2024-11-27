@@ -9,4 +9,4 @@ Anoti allows you to always be aware of the release of new episodes!
 ■ Keep a record of the episodes you've watched so you don't forget where you left off
 
 ![1. Main - On air](https://github.com/user-attachments/assets/dee9275c-b37f-40d3-b33a-25f3e9d4fc22)
-<img src="1. Main - On air" width="50" />
+<img src="[1. Main - On air](https://github.com/user-attachments/assets/dee9275c-b37f-40d3-b33a-25f3e9d4fc22)" width="50" />
