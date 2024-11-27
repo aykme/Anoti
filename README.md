@@ -8,4 +8,4 @@ Anoti allows you to always be aware of the release of new episodes!
 ■ Use the convenient "Favorites" section to control all subscriptions
 ■ Keep a record of the episodes you've watched so you don't forget where you left off
 
-![https://drive.google.com/file/d/1XTky0ayKMpndXst-9gnyMySo328ab45V/view?usp=sharing]
+<img src="https://drive.google.com/file/d/1XTky0ayKMpndXst-9gnyMySo328ab45V/view?usp=sharing" width="300" />
