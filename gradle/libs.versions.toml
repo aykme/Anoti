@@ -2,8 +2,8 @@
 targetSdk = "35"
 compileSdk = "35"
 minSdk = "26"
-versionCode = "2"
-versionName = "1.02"
+versionCode = "3"
+versionName = "1.03"
 
 agp = "8.5.2"
 glide = "4.16.0"
