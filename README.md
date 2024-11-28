@@ -1,3 +1,5 @@
+Please review the ![license](https://github.com/aykme/Anoti/blob/develop/LICENSE) before using
+
 Anoti - anime info & notifs
 
 Anoti allows you to always be aware of the release of new episodes!
