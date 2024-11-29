@@ -21,8 +21,9 @@ import com.alekseivinogradov.anime_notification.api.domain.manager.AnimeNotifica
 import com.alekseivinogradov.anime_notification.impl.presentation.factory.AnimeNotificationChannelFactory
 import com.alekseivinogradov.anime_notification.impl.presentation.manager.AnimeNotificationManagerImpl
 import com.alekseivinogradov.anime_notification.impl.presentation.provider.AnimeNotificationIntentProvider
+import com.alekseivinogradov.app.impl.presentation.di.AppComponent
+import com.alekseivinogradov.app.impl.presentation.di.DaggerAppComponent
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
-import com.alekseivinogradov.celebrity.impl.domain.coroutine_context.CoroutineContextProviderPlatform
 import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.database.api.domain.usecase.FetchAllDatabaseItemsUsecase
 import com.alekseivinogradov.database.api.domain.usecase.UpdateDatabaseItemUsecase
@@ -33,16 +34,18 @@ import com.alekseivinogradov.database.room.impl.data.repository.AnimeDatabaseRep
 import com.alekseivinogradov.network.api.data.SafeApi
 import com.alekseivinogradov.network.impl.data.SafeApiImpl
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 class AnotiApp : Application() {
 
-    private val coroutineContextProvider: CoroutineContextProvider by lazy {
-        CoroutineContextProviderPlatform(appContext = this)
-    }
+    internal lateinit var appComponent: AppComponent
+        private set
 
-    private val shikimoriService: ShikimoriApiService = ShikimoriApiServiceImpl(
-        servicePlatform = ShikimoriApiServicePlatform.instance
-    )
+    @Inject
+    internal lateinit var coroutineContextProvider: CoroutineContextProvider
+
+    @Inject
+    internal lateinit var shikimoriApiService: ShikimoriApiService
 
     private val safeApp: SafeApi = SafeApiImpl
 
@@ -66,7 +69,9 @@ class AnotiApp : Application() {
 
     private val animeBackgroundUpdateSource: AnimeBackgroundUpdateSource =
         AnimeBackgroundUpdateSourceImpl(
-            service = shikimoriService,
+            service = ShikimoriApiServiceImpl(
+                servicePlatform = ShikimoriApiServicePlatform.instance
+            ),
             safeApi = safeApp
         )
 
@@ -117,6 +122,9 @@ class AnotiApp : Application() {
             }
 
     override fun onCreate() {
+        appComponent = DaggerAppComponent.factory().create(appContext = this).also {
+            it.inject(app = this)
+        }
         super.onCreate()
         setupAnimeUpdateWorkManager()
         setupAnimeNotificationManager()
