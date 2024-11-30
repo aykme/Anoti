@@ -17,7 +17,7 @@ import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.Ongoing
 import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionStore
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
 import com.alekseivinogradov.anime_list.api.presentation.mapper.model.mapStateToUiModel
-import com.alekseivinogradov.database.api.domain.store.DatabaseStore
+import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseStore
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.mvikotlin.core.binder.BinderLifecycleMode
@@ -31,18 +31,17 @@ import kotlinx.coroutines.flow.mapNotNull
 class AnimeListController(
     lifecycle: Lifecycle,
     private val mainStore: AnimeListMainStore,
-    private val databaseStore: DatabaseStore,
+    private val animeDatabaseStore: AnimeDatabaseStore,
     private val ongoingSectionStore: OngoingSectionStore,
     private val announcedSectionStore: AnnouncedSectionStore,
     private val searchSectionStore: SearchSectionStore
 ) {
 
     init {
-        lifecycle.doOnDestroy { databaseStore.dispose() }
         lifecycle.doOnDestroy { ongoingSectionStore.dispose() }
         lifecycle.doOnDestroy { announcedSectionStore.dispose() }
         lifecycle.doOnDestroy { searchSectionStore.dispose() }
-        lifecycle.doOnDestroy { databaseStore.dispose() }
+        lifecycle.doOnDestroy { animeDatabaseStore.dispose() }
         lifecycle.doOnDestroy { mainStore.dispose() }
     }
 
@@ -53,13 +52,13 @@ class AnimeListController(
 
     private fun connectAllAuxiliaryStoresToMain(viewLifecycle: Lifecycle) {
         bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
-            databaseStore.states.map(
+            animeDatabaseStore.states.map(
                 ::mapDatabaseStoreStateToMainStoreIntent
             ) bindTo mainStore
 
             mainStore.labels.mapNotNull(
                 ::mapMainStoreLabelToDatabaseStoreIntent
-            ) bindTo databaseStore
+            ) bindTo animeDatabaseStore
 
             ongoingSectionStore.states.map(
                 ::mapOngoingStoreStateToMainStoreIntent

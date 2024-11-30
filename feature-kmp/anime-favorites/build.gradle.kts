@@ -32,13 +32,10 @@ kotlin {
             implementation(project(":feature-kmp:anime-base"))
             implementation(project(":core-kmp:celebrity"))
             implementation(project(":core-kmp:network"))
-            implementation(project(":core-kmp:database"))
+            implementation(project(":core-kmp:anime-database"))
 
-            api(libs.mvikotlin)
-            api(libs.mvikotlin.main)
+            implementation(libs.mvikotlin)
             implementation(libs.kotlinx.coroutines.core)
-            implementation(libs.mvikotlin.logger)
-            implementation(libs.mvikotlin.timetravel)
             implementation(libs.mvikotlin.extensions.coroutines)
         }
         commonTest.dependencies {

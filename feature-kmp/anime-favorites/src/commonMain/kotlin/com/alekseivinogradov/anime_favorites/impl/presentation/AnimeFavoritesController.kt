@@ -6,7 +6,7 @@ import com.alekseivinogradov.anime_favorites.api.domain.mapper.mapMainStoreLabel
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anime_favorites.api.presentation.AnimeFavoritesView
 import com.alekseivinogradov.anime_favorites.api.presentation.mapper.mapStateToUiModel
-import com.alekseivinogradov.database.api.domain.store.DatabaseStore
+import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseStore
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.mvikotlin.core.binder.BinderLifecycleMode
@@ -19,11 +19,11 @@ import kotlinx.coroutines.flow.map
 class AnimeFavoritesController(
     lifecycle: Lifecycle,
     private val mainStore: AnimeFavoritesMainStore,
-    private val databaseStore: DatabaseStore,
+    private val animeDatabaseStore: AnimeDatabaseStore,
 ) {
 
     init {
-        lifecycle.doOnDestroy { databaseStore.dispose() }
+        lifecycle.doOnDestroy { animeDatabaseStore.dispose() }
         lifecycle.doOnDestroy { mainStore.dispose() }
     }
 
@@ -34,9 +34,15 @@ class AnimeFavoritesController(
 
     private fun connectAllAuxiliaryStoresToMain(viewLifecycle: Lifecycle) {
         bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
-            databaseStore.states.map(::mapDatabaseStoreStateToMainStoreIntent) bindTo mainStore
-            databaseStore.labels.map(::mapDatabaseStoreLabelToMainStoreIntent) bindTo mainStore
-            mainStore.labels.map(::mapMainStoreLabelToDatabaseStoreIntent) bindTo databaseStore
+            animeDatabaseStore.states.map(
+                ::mapDatabaseStoreStateToMainStoreIntent
+            ) bindTo mainStore
+            animeDatabaseStore.labels.map(
+                ::mapDatabaseStoreLabelToMainStoreIntent
+            ) bindTo mainStore
+            mainStore.labels.map(
+                ::mapMainStoreLabelToDatabaseStoreIntent
+            ) bindTo animeDatabaseStore
         }
     }
 

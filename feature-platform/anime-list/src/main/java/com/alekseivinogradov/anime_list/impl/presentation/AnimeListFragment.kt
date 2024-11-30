@@ -10,6 +10,25 @@ import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiServicePlatform
 import com.alekseivinogradov.anime_base.api.domain.provider.ToastProvider
 import com.alekseivinogradov.anime_base.impl.data.service.ShikimoriApiServiceImpl
+import com.alekseivinogradov.anime_database.api.domain.repository.AnimeDatabaseRepository
+import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseStore
+import com.alekseivinogradov.anime_database.api.domain.usecase.ChangeAnimeDatabaseItemNewEpisodeStatusUsecase
+import com.alekseivinogradov.anime_database.api.domain.usecase.DeleteAnimeDatabaseItemUsecase
+import com.alekseivinogradov.anime_database.api.domain.usecase.FetchAllAnimeDatabaseItemsFlowUsecase
+import com.alekseivinogradov.anime_database.api.domain.usecase.InsertAnimeDatabaseItemUsecase
+import com.alekseivinogradov.anime_database.api.domain.usecase.ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecase
+import com.alekseivinogradov.anime_database.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
+import com.alekseivinogradov.anime_database.api.domain.usecase.wrapper.AnimeDatabaseUsecases
+import com.alekseivinogradov.anime_database.impl.domain.store.AnimeDatabaseExecutorImpl
+import com.alekseivinogradov.anime_database.impl.domain.store.AnimeDatabaseStoreFactory
+import com.alekseivinogradov.anime_database.impl.domain.usecase.ChangeAnimeDatabaseItemNewEpisodeStatusUsecaseImpl
+import com.alekseivinogradov.anime_database.impl.domain.usecase.DeleteAnimeDatabaseItemUsecaseImpl
+import com.alekseivinogradov.anime_database.impl.domain.usecase.FetchAllAnimeDatabaseItemsFlowUsecaseImpl
+import com.alekseivinogradov.anime_database.impl.domain.usecase.InsertAnimeDatabaseItemUsecaseImpl
+import com.alekseivinogradov.anime_database.impl.domain.usecase.ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecaseImpl
+import com.alekseivinogradov.anime_database.impl.domain.usecase.UpdateAnimeDatabaseItemUsecaseImpl
+import com.alekseivinogradov.anime_database.room.impl.data.AnimeDatabase
+import com.alekseivinogradov.anime_database.room.impl.data.repository.AnimeDatabaseRepositoryImpl
 import com.alekseivinogradov.anime_list.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anime_list.api.domain.store.announced_section.AnnouncedSectionStore
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
@@ -36,30 +55,12 @@ import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineCon
 import com.alekseivinogradov.celebrity.impl.domain.coroutine_context.CoroutineContextProviderPlatform
 import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
 import com.alekseivinogradov.celebrity.impl.presentation.toast.AnotiToast
-import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
-import com.alekseivinogradov.database.api.domain.store.DatabaseStore
-import com.alekseivinogradov.database.api.domain.usecase.ChangeDatabaseItemNewEpisodeStatusUsecase
-import com.alekseivinogradov.database.api.domain.usecase.DeleteDatabaseItemUsecase
-import com.alekseivinogradov.database.api.domain.usecase.FetchAllDatabaseItemsFlowUsecase
-import com.alekseivinogradov.database.api.domain.usecase.InsertDatabaseItemUsecase
-import com.alekseivinogradov.database.api.domain.usecase.ResetAllDatabaseItemsNewEpisodeStatusUsecase
-import com.alekseivinogradov.database.api.domain.usecase.UpdateDatabaseItemUsecase
-import com.alekseivinogradov.database.api.domain.usecase.wrapper.DatabaseUsecases
-import com.alekseivinogradov.database.impl.domain.store.DatabaseExecutorImpl
-import com.alekseivinogradov.database.impl.domain.store.DatabaseStoreFactory
-import com.alekseivinogradov.database.impl.domain.usecase.ChangeDatabaseItemNewEpisodeStatusUsecaseImpl
-import com.alekseivinogradov.database.impl.domain.usecase.DeleteDatabaseItemUsecaseImpl
-import com.alekseivinogradov.database.impl.domain.usecase.FetchAllDatabaseItemsFlowUsecaseImpl
-import com.alekseivinogradov.database.impl.domain.usecase.InsertDatabaseItemUsecaseImpl
-import com.alekseivinogradov.database.impl.domain.usecase.ResetAllDatabaseItemsNewEpisodeStatusUsecaseImpl
-import com.alekseivinogradov.database.impl.domain.usecase.UpdateDatabaseItemUsecaseImpl
-import com.alekseivinogradov.database.room.impl.data.AnimeDatabase
-import com.alekseivinogradov.database.room.impl.data.repository.AnimeDatabaseRepositoryImpl
 import com.alekseivinogradov.network.api.data.SafeApi
 import com.alekseivinogradov.network.impl.data.SafeApiImpl
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
+import kotlin.time.Duration.Companion.milliseconds
 
 class AnimeListFragment : Fragment() {
 
@@ -75,7 +76,10 @@ class AnimeListFragment : Fragment() {
         servicePlatform = ShikimoriApiServicePlatform.instance
     )
 
-    private val safeApi: SafeApi = SafeApiImpl
+    private val safeApi: SafeApi = SafeApiImpl(
+        maxAttempt = 3,
+        attemptDelay = 2500.milliseconds
+    )
 
     private val animeDatabase: AnimeDatabase by lazy(LazyThreadSafetyMode.NONE) {
         AnimeDatabase.getDatabase(requireContext().applicationContext)
@@ -86,45 +90,52 @@ class AnimeListFragment : Fragment() {
                 AnimeDatabaseRepositoryImpl(animeDao = animeDatabase.animeDao())
             }
 
-    private val fetchAllDatabaseItemsFlowUsecase: FetchAllDatabaseItemsFlowUsecase
+    private val fetchAllAnimeDatabaseItemsFlowUsecase: FetchAllAnimeDatabaseItemsFlowUsecase
             by lazy(LazyThreadSafetyMode.NONE) {
-                FetchAllDatabaseItemsFlowUsecaseImpl(repository = animeDatabaseRepository)
+                FetchAllAnimeDatabaseItemsFlowUsecaseImpl(repository = animeDatabaseRepository)
             }
 
-    private val insertDatabaseItemUsecase: InsertDatabaseItemUsecase
+    private val insertAnimeDatabaseItemUsecase: InsertAnimeDatabaseItemUsecase
             by lazy(LazyThreadSafetyMode.NONE) {
-                InsertDatabaseItemUsecaseImpl(repository = animeDatabaseRepository)
+                InsertAnimeDatabaseItemUsecaseImpl(repository = animeDatabaseRepository)
             }
 
-    private val deleteDatabaseItemUsecase: DeleteDatabaseItemUsecase
+    private val deleteAnimeDatabaseItemUsecase: DeleteAnimeDatabaseItemUsecase
             by lazy(LazyThreadSafetyMode.NONE) {
-                DeleteDatabaseItemUsecaseImpl(repository = animeDatabaseRepository)
+                DeleteAnimeDatabaseItemUsecaseImpl(repository = animeDatabaseRepository)
             }
 
-    private val resetAllDatabaseItemsNewEpisodeStatusUsecase
-            : ResetAllDatabaseItemsNewEpisodeStatusUsecase by lazy(LazyThreadSafetyMode.NONE) {
-        ResetAllDatabaseItemsNewEpisodeStatusUsecaseImpl(repository = animeDatabaseRepository)
-    }
-
-    private val changeDatabaseItemNewEpisodeStatusUsecase
-            : ChangeDatabaseItemNewEpisodeStatusUsecase by lazy(LazyThreadSafetyMode.NONE) {
-        ChangeDatabaseItemNewEpisodeStatusUsecaseImpl(repository = animeDatabaseRepository)
-    }
-
-    private val updateDatabaseItemUsecase: UpdateDatabaseItemUsecase
+    private val resetAllAnimeDatabaseItemsNewEpisodeStatusUsecase
+            : ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecase
             by lazy(LazyThreadSafetyMode.NONE) {
-                UpdateDatabaseItemUsecaseImpl(repository = animeDatabaseRepository)
+                ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecaseImpl(
+                    repository = animeDatabaseRepository
+                )
             }
 
-    private val databaseUsecases by lazy(LazyThreadSafetyMode.NONE) {
-        DatabaseUsecases(
-            fetchAllDatabaseItemsFlowUsecase = fetchAllDatabaseItemsFlowUsecase,
-            insertDatabaseItemUsecase = insertDatabaseItemUsecase,
-            deleteDatabaseItemUsecase = deleteDatabaseItemUsecase,
-            resetAllDatabaseItemsNewEpisodeStatusUsecase =
-            resetAllDatabaseItemsNewEpisodeStatusUsecase,
-            changeDatabaseItemNewEpisodeStatusUsecase = changeDatabaseItemNewEpisodeStatusUsecase,
-            updateDatabaseItemUsecase = updateDatabaseItemUsecase
+    private val changeAnimeDatabaseItemNewEpisodeStatusUsecase
+            : ChangeAnimeDatabaseItemNewEpisodeStatusUsecase
+            by lazy(LazyThreadSafetyMode.NONE) {
+                ChangeAnimeDatabaseItemNewEpisodeStatusUsecaseImpl(
+                    repository = animeDatabaseRepository
+                )
+            }
+
+    private val updateAnimeDatabaseItemUsecase: UpdateAnimeDatabaseItemUsecase
+            by lazy(LazyThreadSafetyMode.NONE) {
+                UpdateAnimeDatabaseItemUsecaseImpl(repository = animeDatabaseRepository)
+            }
+
+    private val animeDatabaseUsecases by lazy(LazyThreadSafetyMode.NONE) {
+        AnimeDatabaseUsecases(
+            fetchAllAnimeDatabaseItemsFlowUsecase = fetchAllAnimeDatabaseItemsFlowUsecase,
+            insertAnimeDatabaseItemUsecase = insertAnimeDatabaseItemUsecase,
+            deleteAnimeDatabaseItemUsecase = deleteAnimeDatabaseItemUsecase,
+            resetAllAnimeDatabaseItemsNewEpisodeStatusUsecase =
+            resetAllAnimeDatabaseItemsNewEpisodeStatusUsecase,
+            changeAnimeDatabaseItemNewEpisodeStatusUsecase =
+            changeAnimeDatabaseItemNewEpisodeStatusUsecase,
+            updateAnimeDatabaseItemUsecase = updateAnimeDatabaseItemUsecase
         )
     }
 
@@ -163,13 +174,13 @@ class AnimeListFragment : Fragment() {
         ).create()
     }
 
-    private val databaseExecutorFactory: () -> DatabaseExecutorImpl
-            by lazy(LazyThreadSafetyMode.NONE) { createDatabaseExecutorFactory() }
+    private val animeDatabaseExecutorFactory: () -> AnimeDatabaseExecutorImpl
+            by lazy(LazyThreadSafetyMode.NONE) { createAnimeDatabaseExecutorFactory() }
 
-    private val databaseStore: DatabaseStore by lazy(LazyThreadSafetyMode.NONE) {
-        DatabaseStoreFactory(
+    private val animeDatabaseStore: AnimeDatabaseStore by lazy(LazyThreadSafetyMode.NONE) {
+        AnimeDatabaseStoreFactory(
             storeFactory = storeFactory,
-            executorFactory = databaseExecutorFactory
+            executorFactory = animeDatabaseExecutorFactory
         ).create()
     }
 
@@ -207,7 +218,7 @@ class AnimeListFragment : Fragment() {
         AnimeListController(
             lifecycle = essentyLifecycle(),
             mainStore = mainStore,
-            databaseStore = databaseStore,
+            animeDatabaseStore = animeDatabaseStore,
             ongoingSectionStore = ongoingSectionStore,
             announcedSectionStore = announcedSectionStore,
             searchSectionStore = searchSectionStore
@@ -235,9 +246,9 @@ class AnimeListFragment : Fragment() {
         )
     }
 
-    override fun onDestroy() {
+    override fun onDestroyView() {
+        super.onDestroyView()
         binding = null
-        super.onDestroy()
     }
 
     private fun createOngoingUsecases() = OngoingUsecases(
@@ -269,10 +280,10 @@ class AnimeListFragment : Fragment() {
         )
     }
 
-    private fun createDatabaseExecutorFactory(): () -> DatabaseExecutorImpl = {
-        DatabaseExecutorImpl(
+    private fun createAnimeDatabaseExecutorFactory(): () -> AnimeDatabaseExecutorImpl = {
+        AnimeDatabaseExecutorImpl(
             coroutineContextProvider = coroutineContextProvider,
-            usecases = databaseUsecases
+            usecases = animeDatabaseUsecases
         )
     }
 

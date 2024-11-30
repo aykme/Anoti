@@ -31,7 +31,7 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":feature-kmp:anime-base"))
             implementation(project(":core-kmp:celebrity"))
-            implementation(project(":core-kmp:database"))
+            implementation(project(":core-kmp:anime-database"))
             implementation(project(":core-kmp:network"))
             implementation(project(":feature-kmp:anime-notification"))
 

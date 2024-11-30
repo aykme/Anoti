@@ -1,13 +1,13 @@
 package com.alekseivinogradov.anime_favorites.api.domain.mapper
 
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesMainStore
-import com.alekseivinogradov.database.api.domain.store.DatabaseStore
+import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseStore
 
 internal fun mapDatabaseStoreLabelToMainStoreIntent(
-    label: DatabaseStore.Label
+    label: AnimeDatabaseStore.Label
 ): AnimeFavoritesMainStore.Intent {
     return when (label) {
-        DatabaseStore.Label.ResetAllItemsNewEpisodeStatusWasFinished -> {
+        AnimeDatabaseStore.Label.ResetAllItemsNewEpisodeStatusWasFinished -> {
             AnimeFavoritesMainStore.Intent.UpdateAllItemsInBackground
         }
     }

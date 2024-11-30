@@ -5,11 +5,12 @@ import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.delay
 import retrofit2.HttpException
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration
 
-object SafeApiImpl : SafeApi {
-    override val maxAttempt: Int = 3
-    override val attemptDelay: Long = 2500L
-
+class SafeApiImpl(
+    private val maxAttempt: Int,
+    private val attemptDelay: Duration
+) : SafeApi {
     override suspend fun <T> call(
         callAttempt: Int,
         apiCall: suspend () -> T

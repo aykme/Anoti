@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -36,7 +37,9 @@ dependencies {
     implementation(project(":main"))
     implementation(project(":core-platform:navigation"))
 
+    implementation(libs.dagger)
     implementation(libs.androidx.core.ktx)
+    ksp(libs.dagger.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
