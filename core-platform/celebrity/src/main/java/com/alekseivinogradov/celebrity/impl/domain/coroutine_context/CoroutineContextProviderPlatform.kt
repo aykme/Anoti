@@ -5,7 +5,9 @@ import android.util.Log
 import com.alekseivinogradov.celebrity.impl.presentation.toast.AnotiToast
 import com.alekseivinogradov.di.api.presentation.AppContext
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class CoroutineContextProviderPlatform @Inject constructor(
     @AppContext appContext: Context
 ) : CoroutineContextProviderBase() {

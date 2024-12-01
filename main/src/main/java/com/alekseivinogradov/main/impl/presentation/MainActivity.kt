@@ -30,6 +30,7 @@ import com.alekseivinogradov.celebrity.impl.presentation.edge_to_edge.isEdgeToEd
 import com.alekseivinogradov.di.api.presentation.app.ApplicationExternal
 import com.alekseivinogradov.di.api.presentation.main.MainActivityExternal
 import com.alekseivinogradov.di.api.presentation.main.MainComponent
+import com.alekseivinogradov.di.api.presentation.scope.ActivityScope
 import com.alekseivinogradov.main.R
 import com.alekseivinogradov.main.databinding.ActivityMainBinding
 import com.alekseivinogradov.main.impl.presentation.di.DaggerMainComponentInternal
@@ -39,6 +40,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import javax.inject.Inject
 import com.alekseivinogradov.res.R as res_R
 
+@ActivityScope
 class MainActivity : AppCompatActivity(), MainActivityExternal {
 
     override lateinit var mainComponent: MainComponent
@@ -65,10 +67,9 @@ class MainActivity : AppCompatActivity(), MainActivityExternal {
     override fun onCreate(savedInstanceState: Bundle?) {
         mainComponent = DaggerMainComponentInternal.factory().create(
             appComponent = (this.application as ApplicationExternal).appComponent
-        ).also {
-            it.inject(activity = this)
-        }
+        ).also { it.inject(activity = this) }
         super.onCreate(savedInstanceState)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding!!.root)
         setSystemSettings()

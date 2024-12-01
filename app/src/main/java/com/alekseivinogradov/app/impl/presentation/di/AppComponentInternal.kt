@@ -1,7 +1,9 @@
 package com.alekseivinogradov.app.impl.presentation.di
 
 import android.content.Context
+import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.app.impl.presentation.AnotiApp
+import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.di.api.presentation.AppContext
 import com.alekseivinogradov.di.api.presentation.app.AppComponent
 import com.arkivanov.mvikotlin.core.store.StoreFactory
@@ -25,7 +27,11 @@ interface AppComponentInternal : AppComponent {
     fun inject(app: AnotiApp)
 
     @AppContext
-    override fun provideAppContextFromApplication(): Context
+    override fun provideAppContext(): Context
 
     override fun provideStoreFactory(): StoreFactory
+
+    override fun provideCoroutineContextProvider(): CoroutineContextProvider
+
+    override fun provideAnimeDatabaseStore(): AnimeDatabaseStore
 }

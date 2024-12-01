@@ -1,15 +1,15 @@
-package com.alekseivinogradov.anime_favorites.impl.domain.usecase
+package com.alekseivinogradov.anime_background_update.impl.domain.usecase
 
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
-import com.alekseivinogradov.anime_favorites.api.domain.usecase.UpdateAllAnimeInBackgroundUsecase
+import com.alekseivinogradov.anime_background_update.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
 
-internal class UpdateAllAnimeInBackgroundUsecaseImpl(
+class UpdateAllAnimeInBackgroundOnceUsecaseImpl(
     private val workManager: WorkManager,
     private val updateWork: OneTimeWorkRequest,
     private val uniqueWorkName: String
-) : UpdateAllAnimeInBackgroundUsecase {
+) : UpdateAllAnimeInBackgroundOnceUsecase {
 
     override fun execute() {
         workManager.enqueueUniqueWork(

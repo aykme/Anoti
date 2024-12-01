@@ -34,6 +34,9 @@ android {
 }
 
 dependencies {
+    implementation(project(":core-kmp:celebrity"))
+    implementation(project(":core-kmp:anime-database"))
+
     implementation(libs.mvikotlin)
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)

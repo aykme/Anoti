@@ -81,7 +81,7 @@ class AnimeFavoritesExecutorImpl(
     }
 
     private fun updateAllItemsInBackground() {
-        usecases.updateAllAnimeInBackgroundUsecase.execute()
+        usecases.updateAllAnimeInBackgroundOnceUsecase.execute()
     }
 
     private fun itemClick(intent: AnimeFavoritesMainStore.Intent.ItemClick) {

@@ -7,3 +7,6 @@ annotation class AppContext
 
 @Qualifier
 annotation class ActivityContext
+
+@Qualifier
+annotation class AnimeBackgroundUpdate

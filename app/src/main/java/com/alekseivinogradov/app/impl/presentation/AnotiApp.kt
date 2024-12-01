@@ -10,6 +10,7 @@ import androidx.work.WorkManager
 import com.alekseivinogradov.anime_background_update.impl.domain.worker.AnimeUpdateWorker
 import com.alekseivinogradov.anime_notification.impl.presentation.factory.AnimeNotificationChannelFactory
 import com.alekseivinogradov.app.impl.presentation.di.DaggerAppComponentInternal
+import com.alekseivinogradov.di.api.presentation.AnimeBackgroundUpdate
 import com.alekseivinogradov.di.api.presentation.app.AppComponent
 import com.alekseivinogradov.di.api.presentation.app.ApplicationExternal
 import javax.inject.Inject
@@ -21,19 +22,21 @@ class AnotiApp : Application(), ApplicationExternal {
     override lateinit var appComponent: AppComponent
 
     @Inject
+    @AnimeBackgroundUpdate
     internal lateinit var workManagerConfig: Configuration
 
     @Inject
+    @AnimeBackgroundUpdate
     internal lateinit var animeUpdatePeriodicWork: PeriodicWorkRequest
 
     @Inject
     internal lateinit var animeNotificationChannelFactory: AnimeNotificationChannelFactory
 
     override fun onCreate() {
-        appComponent = DaggerAppComponentInternal.factory().create(appContext = this).also {
-            it.inject(app = this)
-        }
+        appComponent = DaggerAppComponentInternal.factory().create(appContext = this)
+            .also { it.inject(app = this) }
         super.onCreate()
+
         setupAnimeUpdateWorkManager()
         setupAnimeNotificationManager()
     }
