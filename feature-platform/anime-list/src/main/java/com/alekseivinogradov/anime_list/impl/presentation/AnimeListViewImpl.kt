@@ -23,8 +23,8 @@ import com.alekseivinogradov.anime_list_platform.R
 import com.alekseivinogradov.anime_list_platform.databinding.FragmentAnimeListBinding
 import com.alekseivinogradov.celebrity.api.domain.PAGING_SUBMIT_LIST_DELAY_MILLISECONDS
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
+import com.alekseivinogradov.celebrity.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.celebrity.impl.presentation.edge_to_edge.isEdgeToEdgeEnabled
-import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer

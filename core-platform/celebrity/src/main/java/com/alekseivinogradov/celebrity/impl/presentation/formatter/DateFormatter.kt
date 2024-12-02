@@ -1,36 +1,18 @@
 package com.alekseivinogradov.celebrity.impl.presentation.formatter
 
 import android.content.Context
+import com.alekseivinogradov.celebrity.api.domain.formatter.DateFormatter
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class DateFormatter private constructor(
-    context: Context,
+class DateFormatterImpl(
+    activityContext: Context,
     isAutomaticLanguageDetection: Boolean
-) {
-
-    companion object {
-        @Volatile
-        private var instance: DateFormatter? = null
-
-        fun getInstance(
-            context: Context,
-            isAutomaticLanguageDetection: Boolean = false
-        ): DateFormatter {
-            return instance ?: synchronized(this) {
-                val newInstance = DateFormatter(
-                    context = context,
-                    isAutomaticLanguageDetection = isAutomaticLanguageDetection
-                )
-                instance = newInstance
-                newInstance
-            }
-        }
-    }
+) : DateFormatter {
 
     private val locale = if (isAutomaticLanguageDetection) {
-        context.resources.configuration.locales.get(0) ?: Locale("en")
+        activityContext.resources.configuration.locales.get(0) ?: Locale("en")
     } else {
         Locale("en")
     }
@@ -44,7 +26,7 @@ class DateFormatter private constructor(
         /* locale = */ locale
     )
 
-    fun getFormattedDate(
+    override fun getFormattedDate(
         inputText: String,
         fallbackText: String,
     ): String {

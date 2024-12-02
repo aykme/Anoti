@@ -12,7 +12,7 @@ import com.alekseivinogradov.anime_list.api.presentation.model.item_content.Noti
 import com.alekseivinogradov.anime_list.api.presentation.model.item_content.ReleaseStatusUi
 import com.alekseivinogradov.anime_list_platform.R
 import com.alekseivinogradov.anime_list_platform.databinding.ItemAnimeListBinding
-import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
+import com.alekseivinogradov.celebrity.api.domain.formatter.DateFormatter
 import com.bumptech.glide.Glide
 import com.alekseivinogradov.res.R as res_R
 

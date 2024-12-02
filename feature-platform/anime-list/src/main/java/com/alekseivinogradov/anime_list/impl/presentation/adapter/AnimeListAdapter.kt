@@ -7,7 +7,7 @@ import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.presentation.mapper.model.toDomain
 import com.alekseivinogradov.anime_list.api.presentation.model.ListItemUi
 import com.alekseivinogradov.anime_list_platform.databinding.ItemAnimeListBinding
-import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
+import com.alekseivinogradov.celebrity.api.domain.formatter.DateFormatter
 
 internal class AnimeListAdapter(
     private val episodesInfoClickAdapterCallback: (ListItemDomain) -> Unit,

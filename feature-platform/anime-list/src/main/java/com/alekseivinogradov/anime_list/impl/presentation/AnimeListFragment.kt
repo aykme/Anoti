@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiServicePlatform
-import com.alekseivinogradov.anime_base.api.domain.provider.ToastProvider
 import com.alekseivinogradov.anime_base.impl.data.service.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anime_database.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseStore
@@ -52,9 +51,11 @@ import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.OngoingUseca
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.SearchUsecases
 import com.alekseivinogradov.anime_list_platform.databinding.FragmentAnimeListBinding
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
+import com.alekseivinogradov.celebrity.api.domain.formatter.DateFormatter
+import com.alekseivinogradov.celebrity.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.celebrity.impl.domain.coroutine_context.CoroutineContextProviderPlatform
-import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
-import com.alekseivinogradov.celebrity.impl.presentation.toast.AnotiToast
+import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatterImpl
+import com.alekseivinogradov.celebrity.impl.presentation.toast.manager.ToastManager
 import com.alekseivinogradov.network.api.data.SafeApi
 import com.alekseivinogradov.network.impl.data.SafeApiImpl
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
@@ -214,6 +215,13 @@ class AnimeListFragment : Fragment() {
         ).create()
     }
 
+    private val dateFormatter: DateFormatter by lazy(LazyThreadSafetyMode.NONE) {
+        DateFormatterImpl(
+            activityContext = requireContext(),
+            isAutomaticLanguageDetection = false
+        )
+    }
+
     private val controller: AnimeListController by lazy {
         AnimeListController(
             lifecycle = essentyLifecycle(),
@@ -238,7 +246,7 @@ class AnimeListFragment : Fragment() {
         controller.onViewCreated(
             mainView = AnimeListViewImpl(
                 viewBinding = binding!!,
-                dateFormatter = DateFormatter.getInstance(view.context),
+                dateFormatter = dateFormatter,
                 viewScope = lifecycleScope,
                 coroutineContextProvider = coroutineContextProvider
             ),
@@ -266,11 +274,11 @@ class AnimeListFragment : Fragment() {
     )
 
     private fun createToastProvider() = ToastProvider(
-        getMakeConnectionErrorToastCallback = {
-            AnotiToast.makeConnectionErrorToast(requireContext().applicationContext)
+        makeConnectionErrorToast = {
+            ToastManager.makeConnectionErrorToast(requireContext().applicationContext)
         },
-        getMakeUnknownErrorToastCallback = {
-            AnotiToast.makeUnknownErrorToast(requireContext().applicationContext)
+        makeUnknownErrorToast = {
+            ToastManager.makeUnknownErrorToast(requireContext().applicationContext)
         }
     )
 

@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.ListAdapter
 import com.alekseivinogradov.anime_favorites.api.presentation.model.item_content.ListItemUi
 import com.alekseivinogradov.anime_favorites_platform.databinding.ItemAnimeFavoritesBinding
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
-import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
+import com.alekseivinogradov.celebrity.api.domain.formatter.DateFormatter
 
 internal class AnimeFavoritesAdapter(
     private val itemClickAdapterCallback: (AnimeId) -> Unit,

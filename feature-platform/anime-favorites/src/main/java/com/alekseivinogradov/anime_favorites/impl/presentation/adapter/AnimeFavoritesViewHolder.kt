@@ -15,7 +15,7 @@ import com.alekseivinogradov.anime_favorites_platform.R
 import com.alekseivinogradov.anime_favorites_platform.databinding.ItemAnimeFavoritesBinding
 import com.alekseivinogradov.celebrity.api.domain.REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS
 import com.alekseivinogradov.celebrity.api.domain.REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS
-import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
+import com.alekseivinogradov.celebrity.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.celebrity.impl.presentation.repeat_listener.RepeatListener
 import com.bumptech.glide.Glide
 import com.alekseivinogradov.res.R as res_R

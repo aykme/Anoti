@@ -12,17 +12,14 @@ import com.alekseivinogradov.anime_database.room.impl.presentation.di.AnimeDatab
 import com.alekseivinogradov.anime_notification.api.domain.manager.AnimeNotificationManager
 import com.alekseivinogradov.anime_notification.impl.presentation.di.AnimeNotificationModule
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
-import com.alekseivinogradov.celebrity.impl.domain.coroutine_context.CoroutineContextProviderPlatform
+import com.alekseivinogradov.celebrity.impl.presentation.di.CelebrityAppModule
 import com.alekseivinogradov.network.impl.presentation.di.NetworkModule
-import com.arkivanov.mvikotlin.core.store.StoreFactory
-import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import javax.inject.Singleton
 
 @Module(
     includes = [
+        CelebrityAppModule::class,
         AnimeDatabaseCompletedModule::class,
         AnimeBaseModule::class,
         NetworkModule::class,
@@ -32,12 +29,6 @@ import javax.inject.Singleton
     ]
 )
 internal interface AppModule {
-    @Binds
-    @Singleton
-    fun bindCoroutineContextProvider(
-        impl: CoroutineContextProviderPlatform
-    ): CoroutineContextProvider
-
     companion object {
         @Provides
         fun prvideAnimeUpdateManager(
@@ -55,9 +46,5 @@ internal interface AppModule {
                 notificationManager = notificationManager
             )
         }
-
-        @Provides
-        @Singleton
-        fun provideStoreFactory(): StoreFactory = DefaultStoreFactory()
     }
 }

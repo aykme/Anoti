@@ -33,8 +33,9 @@ class AnotiApp : Application(), ApplicationExternal {
     internal lateinit var animeNotificationChannelFactory: AnimeNotificationChannelFactory
 
     override fun onCreate() {
-        appComponent = DaggerAppComponentInternal.factory().create(appContext = this)
-            .also { it.inject(app = this) }
+        appComponent = DaggerAppComponentInternal.factory().create(
+            appContext = this.applicationContext
+        ).also { it.inject(app = this) }
         super.onCreate()
 
         setupAnimeUpdateWorkManager()
@@ -43,10 +44,10 @@ class AnotiApp : Application(), ApplicationExternal {
 
     private fun setupAnimeUpdateWorkManager() {
         WorkManager.initialize(
-            context = this,
+            context = this.applicationContext,
             configuration = workManagerConfig
         )
-        WorkManager.getInstance(context = this)
+        WorkManager.getInstance(context = this.applicationContext)
             .enqueueUniquePeriodicWork(
                 uniqueWorkName = AnimeUpdateWorker.animeUpdatePeriodicWorkName,
                 existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.KEEP,

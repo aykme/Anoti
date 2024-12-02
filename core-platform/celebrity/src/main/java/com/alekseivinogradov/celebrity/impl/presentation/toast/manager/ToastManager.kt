@@ -1,10 +1,10 @@
-package com.alekseivinogradov.celebrity.impl.presentation.toast
+package com.alekseivinogradov.celebrity.impl.presentation.toast.manager
 
 import android.content.Context
 import android.widget.Toast
 import com.alekseivinogradov.date_platform.R
 
-object AnotiToast {
+object ToastManager {
 
     fun makeLongToastWithResId(appContext: Context, resId: Int) {
         Toast.makeText(

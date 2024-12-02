@@ -2,6 +2,7 @@ package com.alekseivinogradov.main.impl.presentation
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
@@ -66,6 +67,7 @@ class MainActivity : AppCompatActivity(), MainActivityExternal {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainComponent = DaggerMainComponentInternal.factory().create(
+            activityContext = this as Context,
             appComponent = (this.application as ApplicationExternal).appComponent
         ).also { it.inject(activity = this) }
         super.onCreate(savedInstanceState)

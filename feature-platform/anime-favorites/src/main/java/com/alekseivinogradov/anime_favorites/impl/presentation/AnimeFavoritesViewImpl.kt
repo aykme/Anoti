@@ -15,8 +15,8 @@ import com.alekseivinogradov.anime_favorites.impl.presentation.adapter.AnimeFavo
 import com.alekseivinogradov.anime_favorites_platform.R
 import com.alekseivinogradov.anime_favorites_platform.databinding.FragmentAnimeFavoritesBinding
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
+import com.alekseivinogradov.celebrity.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.celebrity.impl.presentation.edge_to_edge.isEdgeToEdgeEnabled
-import com.alekseivinogradov.celebrity.impl.presentation.formatter.DateFormatter
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer

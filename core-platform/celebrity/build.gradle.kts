@@ -37,6 +37,8 @@ dependencies {
     api(project(":core-kmp:celebrity"))
     implementation(project(":core-platform:di"))
     implementation(libs.androidx.annotation.jvm)
+    implementation(libs.mvikotlin)
+    implementation(libs.mvikotlin.main)
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)
     testImplementation(libs.junit)

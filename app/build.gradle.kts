@@ -48,7 +48,6 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.mvikotlin)
-    implementation(libs.mvikotlin.main)
     implementation(libs.mvikotlin.logger)
     implementation(libs.mvikotlin.timetravel)
     implementation(libs.dagger)
