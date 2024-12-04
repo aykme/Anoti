@@ -34,7 +34,7 @@ interface AppComponentInternal : AppComponent {
 
     override fun provideCoroutineContextProvider(): CoroutineContextProvider
 
-    override fun provideAnimeDatabaseStore(): AnimeDatabaseStore
-
     override fun provideToastProvider(): ToastProvider
+
+    override fun provideAnimeDatabaseStore(): AnimeDatabaseStore
 }

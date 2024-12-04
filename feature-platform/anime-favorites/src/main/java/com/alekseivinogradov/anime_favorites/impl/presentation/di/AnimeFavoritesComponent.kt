@@ -14,7 +14,7 @@ interface AnimeFavoritesComponent {
 
     @Component.Factory
     interface Factory {
-        fun create(appComponent: MainComponent): AnimeFavoritesComponent
+        fun create(mainComponent: MainComponent): AnimeFavoritesComponent
     }
 
     fun inject(fragment: AnimeFavoritesFragment)

@@ -7,7 +7,7 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 
 class SearchSectionStoreFactory(
     private val storeFactory: StoreFactory,
-    private val executorFactory: () -> SearchSectionExecutorImpl,
+    private val executorFactory: SearchSectionExecutorFactory,
 ) {
 
     fun create(): SearchSectionStore {

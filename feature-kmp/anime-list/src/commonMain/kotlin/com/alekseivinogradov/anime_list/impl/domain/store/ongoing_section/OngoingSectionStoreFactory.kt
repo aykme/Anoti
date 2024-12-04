@@ -7,7 +7,7 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 
 class OngoingSectionStoreFactory(
     private val storeFactory: StoreFactory,
-    private val executorFactory: () -> OngoingSectionExecutorImpl
+    private val executorFactory: OngoingSectionExecutorFactory
 ) {
 
     fun create(): OngoingSectionStore {

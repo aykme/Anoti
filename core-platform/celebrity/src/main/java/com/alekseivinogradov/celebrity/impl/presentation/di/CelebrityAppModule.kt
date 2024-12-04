@@ -43,6 +43,7 @@ interface CelebrityAppModule {
         ): MakeUnknownErrorToast = { ToastManager.makeUnknownErrorToast(appContext) }
 
         @Provides
+        @Singleton
         fun provideToastProvider(
             @ConnectionError makeConnectionErrorToast: MakeConnectionErrorToast,
             @UnknownError makeUnknownErrorToast: MakeUnknownErrorToast

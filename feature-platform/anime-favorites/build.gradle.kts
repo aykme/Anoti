@@ -49,8 +49,6 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.mvikotlin)
-    //TODO Delete after DI
-    implementation(libs.mvikotlin.main)
     implementation(libs.dagger)
     implementation(libs.material)
     implementation(libs.androidx.swiperefreshlayout)

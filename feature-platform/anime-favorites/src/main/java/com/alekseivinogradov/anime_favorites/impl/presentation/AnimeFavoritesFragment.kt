@@ -43,7 +43,7 @@ class AnimeFavoritesFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         animeFavoritesComponent = DaggerAnimeFavoritesComponent.factory().create(
-            appComponent = (this.activity as MainActivityExternal).mainComponent
+            mainComponent = (this.activity as MainActivityExternal).mainComponent
         ).also { it.inject(fragment = this) }
         super.onAttach(context)
     }

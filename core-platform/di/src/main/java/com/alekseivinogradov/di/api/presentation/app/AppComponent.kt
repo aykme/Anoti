@@ -15,7 +15,7 @@ interface AppComponent {
 
     fun provideCoroutineContextProvider(): CoroutineContextProvider
 
-    fun provideAnimeDatabaseStore(): AnimeDatabaseStore
-
     fun provideToastProvider(): ToastProvider
+
+    fun provideAnimeDatabaseStore(): AnimeDatabaseStore
 }
