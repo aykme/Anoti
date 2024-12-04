@@ -2,18 +2,18 @@ package com.alekseivinogradov.anime_list.api.domain.mapper.store
 
 import com.alekseivinogradov.anime_list.api.domain.mapper.toDb
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
-import com.alekseivinogradov.database.api.domain.store.DatabaseStore
+import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseStore
 
 internal fun mapMainStoreLabelToDatabaseStoreIntent(
     label: AnimeListMainStore.Label
-): DatabaseStore.Intent? {
+): AnimeDatabaseStore.Intent? {
     return when (label) {
         is AnimeListMainStore.Label.EnableNotificationClick -> {
-            DatabaseStore.Intent.InsertAnimeDatabaseItem(label.listItem.toDb())
+            AnimeDatabaseStore.Intent.InsertAnimeDatabaseItem(label.listItem.toDb())
         }
 
         is AnimeListMainStore.Label.DisableNotificationClick -> {
-            DatabaseStore.Intent.DeleteAnimeDatabaseItem(label.id)
+            AnimeDatabaseStore.Intent.DeleteAnimeDatabaseItem(label.id)
         }
 
         AnimeListMainStore.Label.OpenAnnouncedSection,

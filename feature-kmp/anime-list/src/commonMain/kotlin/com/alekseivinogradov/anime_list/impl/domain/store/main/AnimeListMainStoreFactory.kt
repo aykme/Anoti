@@ -7,7 +7,7 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 
 class AnimeListMainStoreFactory(
     private val storeFactory: StoreFactory,
-    private val executorFactory: () -> AnimeListExecutorImpl
+    private val executorFactory: AnimeListExecutorFactory
 ) {
     fun create(): AnimeListMainStore {
         return object : AnimeListMainStore,

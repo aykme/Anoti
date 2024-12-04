@@ -8,6 +8,7 @@ import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import com.alekseivinogradov.anime_background_update.api.domain.manager.AnimeUpdateManager
 import com.alekseivinogradov.anime_background_update.api.domain.model.WorkResult
+import javax.inject.Inject
 
 @WorkerThread
 class AnimeUpdateWorker(
@@ -28,7 +29,9 @@ class AnimeUpdateWorker(
         }
     }
 
-    class Factory(private val animeUpdateManager: AnimeUpdateManager) : WorkerFactory() {
+    class Factory @Inject constructor(
+        private val animeUpdateManager: AnimeUpdateManager
+    ) : WorkerFactory() {
         override fun createWorker(
             appContext: Context,
             workerClassName: String,

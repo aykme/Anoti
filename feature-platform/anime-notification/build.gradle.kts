@@ -36,11 +36,15 @@ android {
 dependencies {
     api(project(":feature-kmp:anime-notification"))
     api(project(":feature-platform:anime-notification-external"))
+    implementation(project(":core-platform:celebrity"))
+    implementation(project(":core-platform:di"))
     implementation(project(":ui-core:res"))
 
     implementation(libs.androidx.core.ktx)
+    implementation(libs.dagger)
     implementation(libs.glide)
     implementation(libs.glide.okhttp3)
+    ksp(libs.dagger.compiler)
     ksp(libs.glide.ksp)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

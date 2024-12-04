@@ -1,7 +1,6 @@
 package com.alekseivinogradov.anime_favorites.impl.domain.store
 
 import com.alekseivinogradov.anime_base.api.domain.model.ReleaseStatusDomain
-import com.alekseivinogradov.anime_base.api.domain.provider.ToastProvider
 import com.alekseivinogradov.anime_favorites.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_favorites.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesExecutor
@@ -10,6 +9,7 @@ import com.alekseivinogradov.anime_favorites.impl.domain.usecase.wrapper.Favorit
 import com.alekseivinogradov.celebrity.api.domain.ANIMATION_DURATION_SHORT
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
+import com.alekseivinogradov.celebrity.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -81,7 +81,7 @@ class AnimeFavoritesExecutorImpl(
     }
 
     private fun updateAllItemsInBackground() {
-        usecases.updateAllAnimeInBackgroundUsecase.execute()
+        usecases.updateAllAnimeInBackgroundOnceUsecase.execute()
     }
 
     private fun itemClick(intent: AnimeFavoritesMainStore.Intent.ItemClick) {
@@ -182,7 +182,7 @@ class AnimeFavoritesExecutorImpl(
                     )
 
                     is CallResult.HttpError,
-                    is CallResult.OtherError -> toastProvider.getMakeConnectionErrorToastCallback()
+                    is CallResult.OtherError -> toastProvider.makeConnectionErrorToast()
                 }
             }
     }

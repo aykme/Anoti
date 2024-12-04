@@ -32,10 +32,9 @@ kotlin {
             implementation(project(":feature-kmp:anime-base"))
             implementation(project(":core-kmp:celebrity"))
             implementation(project(":core-kmp:network"))
-            implementation(project(":core-kmp:database"))
+            implementation(project(":core-kmp:anime-database"))
 
-            api(libs.mvikotlin)
-            api(libs.mvikotlin.main)
+            implementation(libs.mvikotlin)
             api(libs.paging.common)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.mvikotlin.logger)

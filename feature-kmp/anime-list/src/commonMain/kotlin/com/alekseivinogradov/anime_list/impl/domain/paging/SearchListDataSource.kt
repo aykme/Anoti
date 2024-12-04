@@ -2,10 +2,10 @@ package com.alekseivinogradov.anime_list.impl.domain.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.alekseivinogradov.anime_base.api.domain.provider.ToastProvider
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeListBySearchUsecase
 import com.alekseivinogradov.celebrity.api.domain.FIRST_PAGE
+import com.alekseivinogradov.celebrity.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.network.api.domain.model.CallResult
 
 class SearchListDataSource(
@@ -38,7 +38,7 @@ class SearchListDataSource(
                 if (page == FIRST_PAGE) {
                     initialLoadErrorCallback()
                 }
-                toastProvider.getMakeConnectionErrorToastCallback()
+                toastProvider.makeConnectionErrorToast()
                 LoadResult.Error(usecaseResult.throwable)
             }
 
@@ -46,7 +46,7 @@ class SearchListDataSource(
                 if (page == FIRST_PAGE) {
                     initialLoadErrorCallback()
                 }
-                toastProvider.getMakeConnectionErrorToastCallback()
+                toastProvider.makeConnectionErrorToast()
                 LoadResult.Error(usecaseResult.throwable)
             }
         }

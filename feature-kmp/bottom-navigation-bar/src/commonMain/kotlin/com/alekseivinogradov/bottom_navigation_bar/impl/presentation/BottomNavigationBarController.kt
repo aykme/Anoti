@@ -3,7 +3,7 @@ package com.alekseivinogradov.bottom_navigation_bar.impl.presentation
 import com.alekseivinogradov.bottom_navigation_bar.api.domain.mapper.mapDatabaseStoreStateToMainStoreIntent
 import com.alekseivinogradov.bottom_navigation_bar.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.bottom_navigation_bar.api.presentation.mapper.mapStateToUiModel
-import com.alekseivinogradov.database.api.domain.store.DatabaseStore
+import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseStore
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.mvikotlin.core.binder.BinderLifecycleMode
@@ -16,12 +16,12 @@ import kotlinx.coroutines.flow.map
 class BottomNavigationBarController(
     lifecycle: Lifecycle,
     private val mainStore: BottomNavigationBarStore,
-    private val databaseStore: DatabaseStore
+    private val animeDatabaseStore: AnimeDatabaseStore
 ) {
 
     init {
-        lifecycle.doOnDestroy { databaseStore.dispose() }
         lifecycle.doOnDestroy { mainStore.dispose() }
+        lifecycle.doOnDestroy { animeDatabaseStore.dispose() }
     }
 
     fun onViewCreated(mainView: BottomNavigationBarView, viewLifecycle: Lifecycle) {
@@ -31,7 +31,7 @@ class BottomNavigationBarController(
 
     private fun connectAllAuxiliaryStoresToMain(viewLifecycle: Lifecycle) {
         bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
-            databaseStore.states.map(::mapDatabaseStoreStateToMainStoreIntent) bindTo mainStore
+            animeDatabaseStore.states.map(::mapDatabaseStoreStateToMainStoreIntent) bindTo mainStore
         }
     }
 

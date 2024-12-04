@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -36,18 +37,25 @@ android {
 }
 
 dependencies {
+    implementation(project(":feature-kmp:anime-base"))
     implementation(project(":core-platform:celebrity"))
     implementation(project(":core-platform:navigation"))
+    implementation(project(":core-kmp:network"))
     implementation(project(":ui-core:res"))
-    implementation(project(":core-platform:database"))
+    implementation(project(":core-platform:anime-database"))
+    implementation(project(":core-platform:di"))
     implementation(project(":feature-kmp:bottom-navigation-bar"))
     implementation(project(":feature-platform:anime-list"))
     implementation(project(":feature-platform:anime-favorites"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(libs.mvikotlin)
+    implementation(libs.mvikotlin.main)
+    implementation(libs.dagger)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.room.ktx)
+    ksp(libs.dagger.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

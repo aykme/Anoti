@@ -11,25 +11,26 @@ import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.celebrity.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.celebrity.api.domain.Index
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
-import com.alekseivinogradov.database.api.domain.model.AnimeDbDomain
-import com.alekseivinogradov.database.api.domain.model.ReleaseStatusDb
-import com.alekseivinogradov.database.api.domain.usecase.FetchAllDatabaseItemsUsecase
-import com.alekseivinogradov.database.api.domain.usecase.UpdateDatabaseItemUsecase
+import com.alekseivinogradov.anime_database.api.domain.model.AnimeDbDomain
+import com.alekseivinogradov.anime_database.api.domain.model.ReleaseStatusDb
+import com.alekseivinogradov.anime_database.api.domain.usecase.FetchAllAnimeDatabaseItemsUsecase
+import com.alekseivinogradov.anime_database.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.withContext
 
 class AnimeUpdateManagerImpl(
     private val coroutineContextProvider: CoroutineContextProvider,
-    private val fetchAllDatabaseItemsUsecase: FetchAllDatabaseItemsUsecase,
+    private val fetchAllAnimeDatabaseItemsUsecase: FetchAllAnimeDatabaseItemsUsecase,
     private val fetchAnimeListByIdsUsecase: FetchAnimeListByIdsUsecase,
-    private val updateDatabaseItemUsecase: UpdateDatabaseItemUsecase,
+    private val updateAnimeDatabaseItemUsecase: UpdateAnimeDatabaseItemUsecase,
     private val notificationManager: AnimeNotificationManager
 ) : AnimeUpdateManager {
 
     override suspend fun update(): WorkResult {
         return withContext(coroutineContextProvider.workManagerCoroutineContext) {
             try {
-                val databaseItems: List<AnimeDbDomain> = fetchAllDatabaseItemsUsecase.execute()
+                val databaseItems: List<AnimeDbDomain> = fetchAllAnimeDatabaseItemsUsecase
+                    .execute()
                 val remoteItemsWithResult: Map<Index, CallResult<List<ListItemDomain>>> =
                     getRemoteItemsWithResultBySplittedRequests(databaseItems)
 
@@ -65,8 +66,8 @@ class AnimeUpdateManagerImpl(
                 }.toMutableSet()
 
             while (remainingRemoteItemIdsForFetching.size > 0) {
-                val currentRemouteItemIdsForFetching = remainingRemoteItemIdsForFetching
-                    .take(ITEMS_PER_PAGE).toSet()
+                val currentRemouteItemIdsForFetching =
+                    remainingRemoteItemIdsForFetching.take(ITEMS_PER_PAGE).toSet()
 
                 val remoteItemsWithResult = getRemoteItemsWithResult(
                     itemIds = getItemIdsString(items = currentRemouteItemIdsForFetching)
@@ -154,7 +155,7 @@ class AnimeUpdateManagerImpl(
         )
 
         updatedDatabaseItems.forEach { updatedDatabaseItem: AnimeDbDomain ->
-            updateDatabaseItemUsecase.execute(updatedDatabaseItem)
+            updateAnimeDatabaseItemUsecase.execute(updatedDatabaseItem)
             currentDatabaseItemsWithIds[updatedDatabaseItem.id]
                 ?.let { currentDatabaseItem: AnimeDbDomain ->
                     makeNewEpisodeNotificationIfNecessary(
@@ -177,29 +178,31 @@ class AnimeUpdateManagerImpl(
                 itemDomain.id
             }
 
-        val updatedDatabaseItems = currentDatabaseItems.map { animeDb: AnimeDbDomain ->
-            val remoteItem = remoteItemsWithIds[animeDb.id]
-            remoteItem?.let { remoteItemNotNull: ListItemDomain ->
-                val updatedDatabaseItem = animeDb.copy(
-                    imageUrl = remoteItemNotNull.imageUrl,
-                    name = remoteItemNotNull.name,
-                    episodesAired = remoteItemNotNull.episodesAired,
-                    episodesTotal = remoteItemNotNull.episodesTotal,
-                    airedOn = remoteItemNotNull.airedOn,
-                    releasedOn = remoteItemNotNull.releasedOn,
-                    score = remoteItemNotNull.score,
-                    releaseStatus = mapReleaseStatusDomainToDb(remoteItemNotNull.releaseStatus),
-                    isNewEpisode = isNewEpisodeDbStatus(
-                        currentDatabaseItem = animeDb,
-                        remoteItem = remoteItemNotNull
+        val updatedDatabaseItems = currentDatabaseItems
+            .map { animeDb: AnimeDbDomain ->
+                val remoteItem = remoteItemsWithIds[animeDb.id]
+                remoteItem?.let { remoteItemNotNull: ListItemDomain ->
+                    val updatedDatabaseItem = animeDb.copy(
+                        imageUrl = remoteItemNotNull.imageUrl,
+                        name = remoteItemNotNull.name,
+                        episodesAired = remoteItemNotNull.episodesAired,
+                        episodesTotal = remoteItemNotNull.episodesTotal,
+                        airedOn = remoteItemNotNull.airedOn,
+                        releasedOn = remoteItemNotNull.releasedOn,
+                        score = remoteItemNotNull.score,
+                        releaseStatus =
+                        mapReleaseStatusDomainToDb(remoteItemNotNull.releaseStatus),
+                        isNewEpisode = isNewEpisodeDbStatus(
+                            currentDatabaseItem = animeDb,
+                            remoteItem = remoteItemNotNull
+                        )
                     )
-                )
 
-                if (updatedDatabaseItem != animeDb) {
-                    updatedDatabaseItem
-                } else null
-            }
-        }.filterNotNull()
+                    if (updatedDatabaseItem != animeDb) {
+                        updatedDatabaseItem
+                    } else null
+                }
+            }.filterNotNull()
 
         return updatedDatabaseItems
     }

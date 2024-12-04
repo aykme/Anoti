@@ -4,8 +4,9 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import com.alekseivinogradov.anime_notification_platform.R
+import javax.inject.Inject
 
-class AnimeNotificationChannelFactory {
+class AnimeNotificationChannelFactory @Inject constructor() {
 
     companion object {
         const val channelId = "ANIME_NOTIFICATION_CHANNEL_ID"

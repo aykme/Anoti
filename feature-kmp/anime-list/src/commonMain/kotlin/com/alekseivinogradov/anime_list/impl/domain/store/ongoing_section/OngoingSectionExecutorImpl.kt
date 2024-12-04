@@ -5,7 +5,6 @@ import app.cash.paging.PagingConfig
 import app.cash.paging.PagingData
 import app.cash.paging.cachedIn
 import com.alekseivinogradov.anime_base.api.domain.model.ReleaseStatusDomain
-import com.alekseivinogradov.anime_base.api.domain.provider.ToastProvider
 import com.alekseivinogradov.anime_list.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
@@ -17,6 +16,7 @@ import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.celebrity.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.celebrity.api.domain.PAGING_PREFETCH_DISTANCE
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
+import com.alekseivinogradov.celebrity.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -90,7 +90,7 @@ class OngoingSectionExecutorImpl(
                 initialLoadSuccessCallback = ::initialLoadSuccessCallback,
                 initialLoadErrorCallback = ::initialLoadErrorCallback
             )
-        }.flow.catch { toastProvider.getMakeUnknownErrorToastCallback() }
+        }.flow.catch { toastProvider.makeUnknownErrorToast() }
             .cachedIn(scope)
     }
 
@@ -163,7 +163,7 @@ class OngoingSectionExecutorImpl(
                 )
 
                 is CallResult.HttpError,
-                is CallResult.OtherError -> toastProvider.getMakeConnectionErrorToastCallback()
+                is CallResult.OtherError -> toastProvider.makeConnectionErrorToast()
             }
         }
     }

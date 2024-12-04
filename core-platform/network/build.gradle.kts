@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -34,8 +35,10 @@ android {
 
 dependencies {
     api(project(":core-kmp:network"))
+
     api(libs.retrofit)
     api(libs.converter.moshi)
+    implementation(libs.dagger)
     implementation(libs.androidx.core.ktx)
     implementation(libs.moshi.kotlin)
 
@@ -50,7 +53,7 @@ dependencies {
     // define any required OkHttp artifacts without version
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
-
+    ksp(libs.dagger.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

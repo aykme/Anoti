@@ -2,6 +2,7 @@ package com.alekseivinogradov.main.impl.presentation
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
@@ -23,127 +24,54 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.bottom_navigation_bar.api.domain.store.BottomNavigationBarStore
-import com.alekseivinogradov.bottom_navigation_bar.impl.domain.store.BottomNavigationBarStoreFactory
 import com.alekseivinogradov.bottom_navigation_bar.impl.presentation.BottomNavigationBarController
-import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
-import com.alekseivinogradov.celebrity.impl.domain.coroutine_context.CoroutineContextProviderPlatform
 import com.alekseivinogradov.celebrity.impl.presentation.edge_to_edge.isEdgeToEdgeEnabled
-import com.alekseivinogradov.database.api.domain.repository.AnimeDatabaseRepository
-import com.alekseivinogradov.database.api.domain.store.DatabaseStore
-import com.alekseivinogradov.database.api.domain.usecase.ChangeDatabaseItemNewEpisodeStatusUsecase
-import com.alekseivinogradov.database.api.domain.usecase.DeleteDatabaseItemUsecase
-import com.alekseivinogradov.database.api.domain.usecase.FetchAllDatabaseItemsFlowUsecase
-import com.alekseivinogradov.database.api.domain.usecase.InsertDatabaseItemUsecase
-import com.alekseivinogradov.database.api.domain.usecase.ResetAllDatabaseItemsNewEpisodeStatusUsecase
-import com.alekseivinogradov.database.api.domain.usecase.UpdateDatabaseItemUsecase
-import com.alekseivinogradov.database.api.domain.usecase.wrapper.DatabaseUsecases
-import com.alekseivinogradov.database.impl.domain.store.DatabaseExecutorImpl
-import com.alekseivinogradov.database.impl.domain.store.DatabaseStoreFactory
-import com.alekseivinogradov.database.impl.domain.usecase.ChangeDatabaseItemNewEpisodeStatusUsecaseImpl
-import com.alekseivinogradov.database.impl.domain.usecase.DeleteDatabaseItemUsecaseImpl
-import com.alekseivinogradov.database.impl.domain.usecase.FetchAllDatabaseItemsFlowUsecaseImpl
-import com.alekseivinogradov.database.impl.domain.usecase.InsertDatabaseItemUsecaseImpl
-import com.alekseivinogradov.database.impl.domain.usecase.ResetAllDatabaseItemsNewEpisodeStatusUsecaseImpl
-import com.alekseivinogradov.database.impl.domain.usecase.UpdateDatabaseItemUsecaseImpl
-import com.alekseivinogradov.database.room.impl.data.AnimeDatabase
-import com.alekseivinogradov.database.room.impl.data.repository.AnimeDatabaseRepositoryImpl
+import com.alekseivinogradov.di.api.presentation.app.ApplicationExternal
+import com.alekseivinogradov.di.api.presentation.main.MainActivityExternal
+import com.alekseivinogradov.di.api.presentation.main.MainComponent
+import com.alekseivinogradov.di.api.presentation.scope.ActivityScope
 import com.alekseivinogradov.main.R
 import com.alekseivinogradov.main.databinding.ActivityMainBinding
+import com.alekseivinogradov.main.impl.presentation.di.DaggerMainComponentInternal
 import com.arkivanov.essenty.lifecycle.asEssentyLifecycle
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
-import com.arkivanov.mvikotlin.core.store.StoreFactory
-import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import javax.inject.Inject
 import com.alekseivinogradov.res.R as res_R
 
-class MainActivity : AppCompatActivity() {
+@ActivityScope
+class MainActivity : AppCompatActivity(), MainActivityExternal {
+
+    override lateinit var mainComponent: MainComponent
 
     private val requestPermissionLauncher: ActivityResultLauncher<String> =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
     private var binding: ActivityMainBinding? = null
 
-    private val storeFactory: StoreFactory = DefaultStoreFactory()
+    @Inject
+    internal lateinit var mainStore: BottomNavigationBarStore
 
-    private val coroutineContextProvider: CoroutineContextProvider by lazy {
-        CoroutineContextProviderPlatform(applicationContext)
-    }
-
-    private val animeDatabase: AnimeDatabase by lazy(LazyThreadSafetyMode.NONE) {
-        AnimeDatabase.getDatabase(appContext = applicationContext)
-    }
-
-    private val animeDatabaseRepository: AnimeDatabaseRepository by lazy(LazyThreadSafetyMode.NONE) {
-        AnimeDatabaseRepositoryImpl(animeDao = animeDatabase.animeDao())
-    }
-
-    private val fetchAllDatabaseItemsFlowUsecase: FetchAllDatabaseItemsFlowUsecase
-            by lazy(LazyThreadSafetyMode.NONE) {
-                FetchAllDatabaseItemsFlowUsecaseImpl(repository = animeDatabaseRepository)
-            }
-
-    private val insertDatabaseItemUsecase: InsertDatabaseItemUsecase
-            by lazy(LazyThreadSafetyMode.NONE) {
-                InsertDatabaseItemUsecaseImpl(repository = animeDatabaseRepository)
-            }
-
-    private val deleteDatabaseItemUsecase: DeleteDatabaseItemUsecase
-            by lazy(LazyThreadSafetyMode.NONE) {
-                DeleteDatabaseItemUsecaseImpl(repository = animeDatabaseRepository)
-            }
-
-    private val resetAllDatabaseItemsNewEpisodeStatusUsecase
-            : ResetAllDatabaseItemsNewEpisodeStatusUsecase by lazy(LazyThreadSafetyMode.NONE) {
-        ResetAllDatabaseItemsNewEpisodeStatusUsecaseImpl(repository = animeDatabaseRepository)
-    }
-
-    private val changeDatabaseItemNewEpisodeStatusUsecase
-            : ChangeDatabaseItemNewEpisodeStatusUsecase by lazy(LazyThreadSafetyMode.NONE) {
-        ChangeDatabaseItemNewEpisodeStatusUsecaseImpl(repository = animeDatabaseRepository)
-    }
-
-    private val updateDatabaseItemUsecase: UpdateDatabaseItemUsecase
-            by lazy(LazyThreadSafetyMode.NONE) {
-                UpdateDatabaseItemUsecaseImpl(repository = animeDatabaseRepository)
-            }
-
-    private val databaseUsecases by lazy(LazyThreadSafetyMode.NONE) {
-        DatabaseUsecases(
-            fetchAllDatabaseItemsFlowUsecase = fetchAllDatabaseItemsFlowUsecase,
-            insertDatabaseItemUsecase = insertDatabaseItemUsecase,
-            deleteDatabaseItemUsecase = deleteDatabaseItemUsecase,
-            resetAllDatabaseItemsNewEpisodeStatusUsecase =
-            resetAllDatabaseItemsNewEpisodeStatusUsecase,
-            changeDatabaseItemNewEpisodeStatusUsecase = changeDatabaseItemNewEpisodeStatusUsecase,
-            updateDatabaseItemUsecase = updateDatabaseItemUsecase
-        )
-    }
-
-    private val mainStore: BottomNavigationBarStore = BottomNavigationBarStoreFactory(
-        storeFactory = storeFactory
-    ).create()
-
-    private val databaseExecutorFactory: () -> DatabaseExecutorImpl
-            by lazy(LazyThreadSafetyMode.NONE) { createDatabaseExecutorFactory() }
-
-    private val databaseStore: DatabaseStore by lazy(LazyThreadSafetyMode.NONE) {
-        DatabaseStoreFactory(
-            storeFactory = storeFactory,
-            executorFactory = databaseExecutorFactory
-        ).create()
-    }
+    @Inject
+    internal lateinit var animeDatabaseStore: AnimeDatabaseStore
 
     private val controller: BottomNavigationBarController by lazy {
         BottomNavigationBarController(
             lifecycle = essentyLifecycle(),
             mainStore = mainStore,
-            databaseStore = databaseStore
+            animeDatabaseStore = animeDatabaseStore
         )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        mainComponent = DaggerMainComponentInternal.factory().create(
+            activityContext = this as Context,
+            appComponent = (this.application as ApplicationExternal).appComponent
+        ).also { it.inject(activity = this) }
         super.onCreate(savedInstanceState)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding!!.root)
         setSystemSettings()
@@ -155,6 +83,11 @@ class MainActivity : AppCompatActivity() {
             viewLifecycle = lifecycle.asEssentyLifecycle(),
         )
         requestToEnableNotificationsIfNecessary()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding = null
     }
 
     private fun getNavController(): NavController {
@@ -193,6 +126,12 @@ class MainActivity : AppCompatActivity() {
          * Use android:navigationBarColor and android:statusBarColor from xml instead
          */
         if (Build.VERSION.SDK_INT >= P) {
+            /**
+             * It's deprecated for api 35 and above, because edge to edge always on.
+             * But changing navigation bar color using edge to edge is not working correctry
+             * with BottomNavigationView. So this method needed before problem will be fixed
+             */
+            @Suppress("DEPRECATION")
             window.setNavigationBarColor(getColor(res_R.color.black))
         }
 
@@ -258,12 +197,5 @@ class MainActivity : AppCompatActivity() {
             }
             this.startActivity(intent)
         }
-    }
-
-    private fun createDatabaseExecutorFactory(): () -> DatabaseExecutorImpl = {
-        DatabaseExecutorImpl(
-            coroutineContextProvider = coroutineContextProvider,
-            usecases = databaseUsecases
-        )
     }
 }
