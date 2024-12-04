@@ -1,7 +1,6 @@
 package com.alekseivinogradov.anime_list.impl.presentation.di
 
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
-import com.alekseivinogradov.anime_base.impl.presentation.di.AnimeBaseModule
 import com.alekseivinogradov.anime_list.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anime_list.impl.data.source.AnimeListSourceImpl
@@ -18,7 +17,6 @@ import dagger.Provides
 
 @Module(
     includes = [
-        AnimeBaseModule::class,
         NetworkModule::class,
         OngoingSectionModule::class,
         AnnouncedSectionModule::class,

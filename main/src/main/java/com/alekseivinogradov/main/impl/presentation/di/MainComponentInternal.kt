@@ -1,6 +1,7 @@
 package com.alekseivinogradov.main.impl.presentation.di
 
 import android.content.Context
+import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.celebrity.api.domain.formatter.DateFormatter
@@ -44,9 +45,11 @@ interface MainComponentInternal : MainComponent {
 
     override fun provideCoroutineContextProvider(): CoroutineContextProvider
 
+    override fun provideToastProvider(): ToastProvider
+
     override fun provideAnimeDatabaseStore(): AnimeDatabaseStore
 
-    override fun provideToastProvider(): ToastProvider
+    override fun provideShikimoriApiService(): ShikimoriApiService
 
     override fun provideDateFormatter(): DateFormatter
 }

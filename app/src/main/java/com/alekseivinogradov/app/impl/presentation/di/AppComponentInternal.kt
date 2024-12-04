@@ -1,6 +1,7 @@
 package com.alekseivinogradov.app.impl.presentation.di
 
 import android.content.Context
+import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.app.impl.presentation.AnotiApp
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
@@ -37,4 +38,6 @@ interface AppComponentInternal : AppComponent {
     override fun provideToastProvider(): ToastProvider
 
     override fun provideAnimeDatabaseStore(): AnimeDatabaseStore
+
+    override fun provideShikimoriApiService(): ShikimoriApiService
 }

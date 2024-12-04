@@ -37,6 +37,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":feature-kmp:anime-base"))
     implementation(project(":core-platform:celebrity"))
     implementation(project(":core-platform:navigation"))
     implementation(project(":ui-core:res"))
