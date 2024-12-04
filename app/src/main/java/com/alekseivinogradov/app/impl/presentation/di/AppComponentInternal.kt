@@ -8,6 +8,7 @@ import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineCon
 import com.alekseivinogradov.celebrity.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.di.api.presentation.AppContext
 import com.alekseivinogradov.di.api.presentation.app.AppComponent
+import com.alekseivinogradov.network.api.data.SafeApi
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import dagger.BindsInstance
 import dagger.Component
@@ -40,4 +41,6 @@ interface AppComponentInternal : AppComponent {
     override fun provideAnimeDatabaseStore(): AnimeDatabaseStore
 
     override fun provideShikimoriApiService(): ShikimoriApiService
+
+    override fun provideSafeApi(): SafeApi
 }

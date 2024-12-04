@@ -40,6 +40,7 @@ dependencies {
     implementation(project(":feature-kmp:anime-base"))
     implementation(project(":core-platform:celebrity"))
     implementation(project(":core-platform:navigation"))
+    implementation(project(":core-kmp:network"))
     implementation(project(":ui-core:res"))
     implementation(project(":core-platform:anime-database"))
     implementation(project(":core-platform:di"))

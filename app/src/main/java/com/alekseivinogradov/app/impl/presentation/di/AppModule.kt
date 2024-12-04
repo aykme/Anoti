@@ -21,8 +21,8 @@ import dagger.Provides
     includes = [
         CelebrityAppModule::class,
         AnimeDatabaseCompletedModule::class,
-        AnimeBaseModule::class,
         NetworkModule::class,
+        AnimeBaseModule::class,
         AnimeBaseBackgroundUpdateModule::class,
         AnimePeriodicBackgroundUpdateModule::class,
         AnimeNotificationModule::class

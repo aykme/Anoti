@@ -8,6 +8,7 @@ import com.alekseivinogradov.celebrity.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.celebrity.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.di.api.presentation.ActivityContext
 import com.alekseivinogradov.di.api.presentation.AppContext
+import com.alekseivinogradov.network.api.data.SafeApi
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 
 interface MainComponent {
@@ -26,6 +27,8 @@ interface MainComponent {
     fun provideAnimeDatabaseStore(): AnimeDatabaseStore
 
     fun provideShikimoriApiService(): ShikimoriApiService
+
+    fun provideSafeApi(): SafeApi
 
     fun provideDateFormatter(): DateFormatter
 }

@@ -10,14 +10,12 @@ import com.alekseivinogradov.anime_list.impl.domain.store.main.AnimeListMainStor
 import com.alekseivinogradov.anime_list.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.network.api.data.SafeApi
-import com.alekseivinogradov.network.impl.presentation.di.NetworkModule
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import dagger.Module
 import dagger.Provides
 
 @Module(
     includes = [
-        NetworkModule::class,
         OngoingSectionModule::class,
         AnnouncedSectionModule::class,
         SearchSectionModule::class

@@ -14,17 +14,11 @@ import com.alekseivinogradov.anime_favorites.impl.domain.usecase.wrapper.Favorit
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.celebrity.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.network.api.data.SafeApi
-import com.alekseivinogradov.network.impl.presentation.di.NetworkModule
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import dagger.Module
 import dagger.Provides
 
-@Module(
-    includes = [
-        NetworkModule::class,
-        AnimeOnceBackgroundUpdateModule::class
-    ]
-)
+@Module(includes = [AnimeOnceBackgroundUpdateModule::class])
 interface AnimeFavoritesModule {
     companion object {
         @Provides

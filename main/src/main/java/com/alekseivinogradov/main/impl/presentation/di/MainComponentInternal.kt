@@ -12,6 +12,7 @@ import com.alekseivinogradov.di.api.presentation.app.AppComponent
 import com.alekseivinogradov.di.api.presentation.main.MainComponent
 import com.alekseivinogradov.di.api.presentation.scope.ActivityScope
 import com.alekseivinogradov.main.impl.presentation.MainActivity
+import com.alekseivinogradov.network.api.data.SafeApi
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import dagger.BindsInstance
 import dagger.Component
@@ -50,6 +51,8 @@ interface MainComponentInternal : MainComponent {
     override fun provideAnimeDatabaseStore(): AnimeDatabaseStore
 
     override fun provideShikimoriApiService(): ShikimoriApiService
+
+    override fun provideSafeApi(): SafeApi
 
     override fun provideDateFormatter(): DateFormatter
 }

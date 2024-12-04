@@ -36,6 +36,7 @@ android {
 dependencies {
     implementation(project(":feature-kmp:anime-base"))
     implementation(project(":core-kmp:celebrity"))
+    implementation(project(":core-kmp:network"))
     implementation(project(":core-kmp:anime-database"))
 
     implementation(libs.mvikotlin)
