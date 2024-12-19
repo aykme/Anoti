@@ -1,6 +1,8 @@
 Please review the ![license](https://github.com/aykme/Anoti/blob/develop/LICENSE) before using
 
-Anoti - anime info & notifs ![Google play](https://play.google.com/store/apps/details?id=com.alekseivinogradov.anoti)
+Anoti - anime info & notifs 
+
+Download the app via ![Google play](https://play.google.com/store/apps/details?id=com.alekseivinogradov.anoti)
 
 Anoti allows you to always be aware of the release of new episodes!
 
