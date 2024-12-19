@@ -29,7 +29,7 @@ Technology stack:
 2. Multi-modularity. The business logic is located in the KMP modules. The UI and some frameworks are located in the android modules.
 3. Kotlin Coroutines and Flow.
 4. The local database is implemented via [Room](https://developer.android.com/training/data-storage/room). I plan to try replace it with [Realm Kotlin](https://github.com/realm/realm-kotlin) in the future for KMP supporting.
-5. Api services are implemented via ![Retrofit](https://github.com/square/retrofit). In the future, I will replace it with [Ktor](https://github.com/ktorio/ktor) for KMP supporting.
+5. Api services are implemented via [Retrofit](https://github.com/square/retrofit). In the future, I will replace it with [Ktor](https://github.com/ktorio/ktor) for KMP supporting.
 6. [Multiplatform paging](https://github.com/cashapp/multiplatform-paging). It has some problems on iOS, as it only supports UIKit, but not SwiftUI. It is also not very suitable for MVI and UDF architectures. I will think about how to solve these issues.
 7. Based on Views and Fragments. I plan to rewrite the UI to [Compose](https://developer.android.com/compose) in the future, and then to [Compose Multiplatform](https://www.jetbrains.com/compose-multiplatform) in the very distant future ^_^.
 8. DI is implemented through [Dagger 2](https://github.com/google/dagger), and injections are performed through the UI. I plan to use [Koin](https://github.com/InsertKoinIO/koin) in the future for KMP supporting.
