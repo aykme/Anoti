@@ -26,6 +26,14 @@ class FetchAnimeDetailsByIdUsecaseTest {
         randomId = Random.nextInt(Int.MAX_VALUE)
     }
 
+    @AfterTest
+    fun cleanUp() {
+        randomDelay = null
+        randomId = null
+        source = null
+        usecase = null
+    }
+
     @Test
     fun testFetchAnimeDetailsByIdUsecaseSuccessResult() = runTest {
         //Given
@@ -76,14 +84,6 @@ class FetchAnimeDetailsByIdUsecaseTest {
                     result is CallResult.OtherError &&
                     result.throwable == expectedResult.throwable
         }
-    }
-
-    @AfterTest
-    fun afterTest() {
-        randomDelay = null
-        randomId = null
-        source = null
-        usecase = null
     }
 
     private fun initSourceAndUsecase(desiredResult: DesiredResult) {
