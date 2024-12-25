@@ -26,14 +26,6 @@ class FetchAnimeDetailsByIdUsecaseTest {
         randomId = Random.nextInt(Int.MAX_VALUE)
     }
 
-    @AfterTest
-    fun cleanUp() {
-        randomDelay = null
-        randomId = null
-        source = null
-        usecase = null
-    }
-
     @Test
     fun testFetchAnimeDetailsByIdUsecaseSuccessResult() = runTest {
         //Given
@@ -92,5 +84,13 @@ class FetchAnimeDetailsByIdUsecaseTest {
             desiredDelay = randomDelay!!
         )
         usecase = FetchAnimeDetailsByIdUsecase(source!!)
+    }
+
+    @AfterTest
+    fun cleanUp() {
+        randomDelay = null
+        randomId = null
+        source = null
+        usecase = null
     }
 }
