@@ -17,8 +17,8 @@ class FetchAnimeDetailsByIdUsecaseTest {
     private val maxDelay = 600000 //10 minutes
     private var randomDelay: Duration? = null
     private var randomId: Int? = null
-    private var source: AnimeFavoritesSource? = null
-    private var usecase: FetchAnimeDetailsByIdUsecase? = null
+    private lateinit var source: AnimeFavoritesSource
+    private lateinit var usecase: FetchAnimeDetailsByIdUsecase
 
     @BeforeTest
     fun setup() {
@@ -30,10 +30,10 @@ class FetchAnimeDetailsByIdUsecaseTest {
     fun testFetchAnimeDetailsByIdUsecaseSuccessResult() = runTest {
         //Given
         initSourceAndUsecase(desiredResult = DesiredResult.SUCCESS)
-        val expectedResult = source!!.getItemById(randomId!!)
+        val expectedResult = source.getItemById(randomId!!)
 
         //When
-        val result = usecase!!.execute(randomId!!)
+        val result = usecase.execute(randomId!!)
 
         //Then
         assertTrue {
@@ -47,10 +47,10 @@ class FetchAnimeDetailsByIdUsecaseTest {
     fun testFetchAnimeDetailsByIdUsecaseHttpErrorResult() = runTest {
         //Given
         initSourceAndUsecase(desiredResult = DesiredResult.HTTP_ERROR)
-        val expectedResult = source!!.getItemById(randomId!!)
+        val expectedResult = source.getItemById(randomId!!)
 
         //When
-        val result = usecase!!.execute(randomId!!)
+        val result = usecase.execute(randomId!!)
 
         //Then
         assertTrue {
@@ -65,10 +65,10 @@ class FetchAnimeDetailsByIdUsecaseTest {
     fun testFetchAnimeDetailsByIdUsecaseOtherErrorResult() = runTest {
         //Given
         initSourceAndUsecase(desiredResult = DesiredResult.OTHER_ERROR)
-        val expectedResult = source!!.getItemById(randomId!!)
+        val expectedResult = source.getItemById(randomId!!)
 
         //When
-        val result = usecase!!.execute(randomId!!)
+        val result = usecase.execute(randomId!!)
 
         //Then
         assertTrue {
@@ -83,14 +83,12 @@ class FetchAnimeDetailsByIdUsecaseTest {
             desiredResult = desiredResult,
             desiredDelay = randomDelay!!
         )
-        usecase = FetchAnimeDetailsByIdUsecase(source!!)
+        usecase = FetchAnimeDetailsByIdUsecase(source)
     }
 
     @AfterTest
     fun cleanUp() {
         randomDelay = null
         randomId = null
-        source = null
-        usecase = null
     }
 }
