@@ -2,7 +2,7 @@ package com.alekseivinogradov.anime_favorites.impl.domain.usecase
 
 import com.alekseivinogradov.anime_favorites.api.domain.source.AnimeFavoritesSource
 import com.alekseivinogradov.anime_favorites.impl.data.source.AnimeFavoritesSourceImplFake
-import com.alekseivinogradov.anime_favorites.impl.data.source.DesiredResult
+import com.alekseivinogradov.anime_favorites.impl.data.source.DesiredCallResult
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
@@ -18,7 +18,7 @@ class FetchAnimeDetailsByIdUsecaseTest {
     @Test
     fun testFetchAnimeDetailsByIdUsecaseSuccessResult() = runTest {
         //Given
-        initSourceAndUsecase(desiredResult = DesiredResult.SUCCESS)
+        initSourceAndUsecase(desiredCallResult = DesiredCallResult.SUCCESS)
         val randomId = getRandomId()
         val expectedResult = source.getItemById(randomId)
 
@@ -36,7 +36,7 @@ class FetchAnimeDetailsByIdUsecaseTest {
     @Test
     fun testFetchAnimeDetailsByIdUsecaseHttpErrorResult() = runTest {
         //Given
-        initSourceAndUsecase(desiredResult = DesiredResult.HTTP_ERROR)
+        initSourceAndUsecase(desiredCallResult = DesiredCallResult.HTTP_ERROR)
         val randomId = getRandomId()
         val expectedResult = source.getItemById(randomId)
 
@@ -55,7 +55,7 @@ class FetchAnimeDetailsByIdUsecaseTest {
     @Test
     fun testFetchAnimeDetailsByIdUsecaseOtherErrorResult() = runTest {
         //Given
-        initSourceAndUsecase(desiredResult = DesiredResult.OTHER_ERROR)
+        initSourceAndUsecase(desiredCallResult = DesiredCallResult.OTHER_ERROR)
         val randomId = getRandomId()
         val expectedResult = source.getItemById(randomId)
 
@@ -70,9 +70,9 @@ class FetchAnimeDetailsByIdUsecaseTest {
         }
     }
 
-    private fun initSourceAndUsecase(desiredResult: DesiredResult) {
+    private fun initSourceAndUsecase(desiredCallResult: DesiredCallResult) {
         source = AnimeFavoritesSourceImplFake(
-            desiredResult = desiredResult,
+            desiredCallResult = desiredCallResult,
             desiredDelay = Random.nextInt(maxDelay).milliseconds
         )
         usecase = FetchAnimeDetailsByIdUsecase(source)

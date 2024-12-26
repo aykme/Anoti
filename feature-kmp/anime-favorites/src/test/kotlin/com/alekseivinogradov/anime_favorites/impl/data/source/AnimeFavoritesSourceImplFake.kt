@@ -9,18 +9,18 @@ import kotlinx.coroutines.delay
 import kotlin.time.Duration
 
 class AnimeFavoritesSourceImplFake(
-    private val desiredResult: DesiredResult,
+    private val desiredCallResult: DesiredCallResult,
     private val desiredDelay: Duration
 ) : AnimeFavoritesSource {
 
-    private val testErrror = Throwable()
+    private val testError = Throwable()
 
     override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
         delay(desiredDelay)
-        return when (desiredResult) {
-            DesiredResult.SUCCESS -> createTestSuccessResult(id)
-            DesiredResult.HTTP_ERROR -> createTestHttpErrorResult()
-            DesiredResult.OTHER_ERROR -> createTestOtherErrorResult()
+        return when (desiredCallResult) {
+            DesiredCallResult.SUCCESS -> createTestSuccessResult(id)
+            DesiredCallResult.HTTP_ERROR -> createTestHttpErrorResult()
+            DesiredCallResult.OTHER_ERROR -> createTestOtherErrorResult()
         }
     }
 
@@ -46,13 +46,13 @@ class AnimeFavoritesSourceImplFake(
     private fun createTestHttpErrorResult(): CallResult.HttpError {
         return CallResult.HttpError(
             code = 404,
-            throwable = testErrror
+            throwable = testError
         )
     }
 
     private fun createTestOtherErrorResult(): CallResult.OtherError {
         return CallResult.OtherError(
-            throwable = testErrror
+            throwable = testError
         )
     }
 }
