@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anime_favorites.impl.domain.usecase
 
+import com.alekseivinogradov.anime_favorites.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_favorites.api.domain.source.AnimeFavoritesSource
 import com.alekseivinogradov.anime_favorites.impl.data.source.fake.AnimeFavoritesSourceImplFake
 import com.alekseivinogradov.network.api.domain.model.CallResult
@@ -19,17 +20,17 @@ class FetchAnimeDetailsByIdUsecaseTest {
     fun testFetchAnimeDetailsByIdUsecaseSuccessResult() = runTest {
         //Given
         initSourceAndUsecase(desiredCallResult = DesiredCallResult.SUCCESS)
-        val randomId = getRandomId()
-        val expectedResult = source.getItemById(randomId)
+        val randomId: Int = createRandomId()
+        val expectedResult: CallResult<ListItemDomain> = source.getItemById(randomId)
 
         //When
-        val result = usecase.execute(randomId)
+        val actualResult: CallResult<ListItemDomain> = usecase.execute(randomId)
 
         //Then
         assertTrue {
             expectedResult is CallResult.Success &&
-                    result is CallResult.Success &&
-                    result.value == expectedResult.value
+                    actualResult is CallResult.Success &&
+                    actualResult.value == expectedResult.value
         }
     }
 
@@ -37,18 +38,18 @@ class FetchAnimeDetailsByIdUsecaseTest {
     fun testFetchAnimeDetailsByIdUsecaseHttpErrorResult() = runTest {
         //Given
         initSourceAndUsecase(desiredCallResult = DesiredCallResult.HTTP_ERROR)
-        val randomId = getRandomId()
-        val expectedResult = source.getItemById(randomId)
+        val randomId: Int = createRandomId()
+        val expectedResult: CallResult<ListItemDomain> = source.getItemById(randomId)
 
         //When
-        val result = usecase.execute(randomId)
+        val actualResult: CallResult<ListItemDomain> = usecase.execute(randomId)
 
         //Then
         assertTrue {
             expectedResult is CallResult.HttpError &&
-                    result is CallResult.HttpError &&
-                    result.code == expectedResult.code &&
-                    result.throwable == expectedResult.throwable
+                    actualResult is CallResult.HttpError &&
+                    actualResult.code == expectedResult.code &&
+                    actualResult.throwable == expectedResult.throwable
         }
     }
 
@@ -56,17 +57,17 @@ class FetchAnimeDetailsByIdUsecaseTest {
     fun testFetchAnimeDetailsByIdUsecaseOtherErrorResult() = runTest {
         //Given
         initSourceAndUsecase(desiredCallResult = DesiredCallResult.OTHER_ERROR)
-        val randomId = getRandomId()
-        val expectedResult = source.getItemById(randomId)
+        val randomId: Int = createRandomId()
+        val expectedResult: CallResult<ListItemDomain> = source.getItemById(randomId)
 
         //When
-        val result = usecase.execute(randomId)
+        val actualResult: CallResult<ListItemDomain> = usecase.execute(randomId)
 
         //Then
         assertTrue {
             expectedResult is CallResult.OtherError &&
-                    result is CallResult.OtherError &&
-                    result.throwable == expectedResult.throwable
+                    actualResult is CallResult.OtherError &&
+                    actualResult.throwable == expectedResult.throwable
         }
     }
 
@@ -78,5 +79,5 @@ class FetchAnimeDetailsByIdUsecaseTest {
         usecase = FetchAnimeDetailsByIdUsecase(source)
     }
 
-    private fun getRandomId() = Random.nextInt(Int.MAX_VALUE)
+    private fun createRandomId(): Int = Random.nextInt(Int.MAX_VALUE)
 }

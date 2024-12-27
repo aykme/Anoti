@@ -3,6 +3,7 @@ package com.alekseivinogradov.anime_favorites.impl.data.source
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anime_base.impl.data.service.fake.ShikimoriApiServiceImplFake
 import com.alekseivinogradov.anime_favorites.api.data.mapper.toListItemDomain
+import com.alekseivinogradov.anime_favorites.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_favorites.api.domain.source.AnimeFavoritesSource
 import com.alekseivinogradov.network.api.data.SafeApi
 import com.alekseivinogradov.network.api.domain.model.CallResult
@@ -30,16 +31,16 @@ class AnimeFavoritesSourceImplTest {
     fun testAnimeFavoritesSourceGetAnimeByIdSuccess() = runTest {
         //Given
         initServiceAndSource(desiredCallResult = DesiredCallResult.SUCCESS)
-        val randomId = getRandomId()
-        val expectedResult = service.getAnimeById(randomId).toListItemDomain()
+        val randomId: Int = createRandomId()
+        val expectedResult: ListItemDomain = service.getAnimeById(randomId).toListItemDomain()
 
         //When
-        val result = source.getItemById(randomId)
+        val actualResult: CallResult<ListItemDomain> = source.getItemById(randomId)
 
         //Then
         assertTrue {
-            result is CallResult.Success &&
-                    result.value == expectedResult
+            actualResult is CallResult.Success &&
+                    actualResult.value == expectedResult
         }
 
     }
@@ -48,8 +49,8 @@ class AnimeFavoritesSourceImplTest {
     fun testAnimeFavoritesSourceGetAnimeByIdError() = runTest {
         //Given
         initServiceAndSource(desiredCallResult = DesiredCallResult.OTHER_ERROR)
-        val randomId = getRandomId()
-        val expectedResult = try {
+        val randomId: Int = createRandomId()
+        val expectedResult: CallResult.OtherError? = try {
             service.getAnimeById(randomId)
             null
         } catch (e: Throwable) {
@@ -57,13 +58,13 @@ class AnimeFavoritesSourceImplTest {
         }
 
         //When
-        val result = source.getItemById(randomId)
+        val actualResult: CallResult<ListItemDomain> = source.getItemById(randomId)
 
         //Then
         assertTrue {
             expectedResult is CallResult.OtherError &&
-                    result is CallResult.OtherError &&
-                    result.throwable == expectedResult.throwable
+                    actualResult is CallResult.OtherError &&
+                    actualResult.throwable == expectedResult.throwable
         }
     }
 
@@ -78,5 +79,5 @@ class AnimeFavoritesSourceImplTest {
         )
     }
 
-    private fun getRandomId() = Random.nextInt(Int.MAX_VALUE)
+    private fun createRandomId(): Int = Random.nextInt(Int.MAX_VALUE)
 }
