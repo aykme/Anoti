@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anime_favorites.impl.data.source
+package com.alekseivinogradov.network.impl.data.fake
 
 import com.alekseivinogradov.network.api.data.SafeApi
 import com.alekseivinogradov.network.api.domain.model.CallResult

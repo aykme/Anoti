@@ -1,10 +1,11 @@
-package com.alekseivinogradov.anime_favorites.impl.data.source
+package com.alekseivinogradov.anime_favorites.impl.data.source.fake
 
 import com.alekseivinogradov.anime_base.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_favorites.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_favorites.api.domain.source.AnimeFavoritesSource
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.network.api.domain.model.CallResult
+import com.alekseivinogradov.network.api.domain.model.test.DesiredCallResult
 import kotlinx.coroutines.delay
 import kotlin.time.Duration
 

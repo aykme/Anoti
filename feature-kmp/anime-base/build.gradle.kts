@@ -31,6 +31,8 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":core-kmp:celebrity"))
             implementation(project(":core-kmp:network"))
+
+            implementation(libs.kotlinx.coroutines.core)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

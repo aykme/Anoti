@@ -1,10 +1,13 @@
 package com.alekseivinogradov.anime_favorites.impl.data.source
 
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
+import com.alekseivinogradov.anime_base.impl.data.service.fake.ShikimoriApiServiceImplFake
 import com.alekseivinogradov.anime_favorites.api.data.mapper.toListItemDomain
 import com.alekseivinogradov.anime_favorites.api.domain.source.AnimeFavoritesSource
 import com.alekseivinogradov.network.api.data.SafeApi
 import com.alekseivinogradov.network.api.domain.model.CallResult
+import com.alekseivinogradov.network.api.domain.model.test.DesiredCallResult
+import com.alekseivinogradov.network.impl.data.fake.SafeApiFake
 import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.BeforeTest

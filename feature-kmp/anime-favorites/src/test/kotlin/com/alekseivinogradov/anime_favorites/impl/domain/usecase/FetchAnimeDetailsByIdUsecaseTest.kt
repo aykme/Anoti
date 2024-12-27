@@ -1,9 +1,9 @@
 package com.alekseivinogradov.anime_favorites.impl.domain.usecase
 
 import com.alekseivinogradov.anime_favorites.api.domain.source.AnimeFavoritesSource
-import com.alekseivinogradov.anime_favorites.impl.data.source.AnimeFavoritesSourceImplFake
-import com.alekseivinogradov.anime_favorites.impl.data.source.DesiredCallResult
+import com.alekseivinogradov.anime_favorites.impl.data.source.fake.AnimeFavoritesSourceImplFake
 import com.alekseivinogradov.network.api.domain.model.CallResult
+import com.alekseivinogradov.network.api.domain.model.test.DesiredCallResult
 import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.Test
