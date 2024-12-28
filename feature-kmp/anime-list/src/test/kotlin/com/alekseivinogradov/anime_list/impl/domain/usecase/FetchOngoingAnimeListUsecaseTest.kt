@@ -12,29 +12,24 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 
-class FetchAnimeListBySearchUsecaseTest {
+class FetchOngoingAnimeListUsecaseTest {
     private val maxDelay = 60000 //1 minute
     private val page = 1
-    private val searchText = ""
     private val sort = SortData.SCORE.value
     private lateinit var source: AnimeListSource
-    private lateinit var usecase: FetchAnimeListBySearchUsecase
+    private lateinit var usecase: FetchOngoingAnimeListUsecase
 
     @Test
-    fun testFetchAnimeListBySearchUsecaseSuccessResult() = runTest {
+    fun testFetchOngoingAnimeListUsecaseSuccessResult() = runTest {
         //Given
         initSourceAndUsecase(desiredCallResult = DesiredCallResult.SUCCESS)
-        val expectedResult: CallResult<List<ListItemDomain>> = source.getListBySearch(
+        val expectedResult: CallResult<List<ListItemDomain>> = source.getOngoingList(
             page = page,
-            search = searchText,
             sort = sort
         )
 
         //When
-        val actualResult: CallResult<List<ListItemDomain>> = usecase.execute(
-            page = page,
-            searchText = searchText
-        )
+        val actualResult: CallResult<List<ListItemDomain>> = usecase.execute(page)
 
         //Then
         assertTrue {
@@ -45,20 +40,16 @@ class FetchAnimeListBySearchUsecaseTest {
     }
 
     @Test
-    fun testFetchAnimeListBySearchUsecaseHttpErrorResult() = runTest {
+    fun testFetchOngoingAnimeListUsecaseHttpErrorResult() = runTest {
         //Given
         initSourceAndUsecase(desiredCallResult = DesiredCallResult.HTTP_ERROR)
-        val expectedResult: CallResult<List<ListItemDomain>> = source.getListBySearch(
+        val expectedResult: CallResult<List<ListItemDomain>> = source.getOngoingList(
             page = page,
-            search = searchText,
             sort = sort
         )
 
         //When
-        val actualResult: CallResult<List<ListItemDomain>> = usecase.execute(
-            page = page,
-            searchText = searchText
-        )
+        val actualResult: CallResult<List<ListItemDomain>> = usecase.execute(page)
 
         //Then
         assertTrue {
@@ -69,20 +60,16 @@ class FetchAnimeListBySearchUsecaseTest {
     }
 
     @Test
-    fun testFetchAnimeListBySearchUsecaseOtherErrorResult() = runTest {
+    fun testFetchOngoingAnimeListUsecaseOtherErrorResult() = runTest {
         //Given
         initSourceAndUsecase(desiredCallResult = DesiredCallResult.OTHER_ERROR)
-        val expectedResult: CallResult<List<ListItemDomain>> = source.getListBySearch(
+        val expectedResult: CallResult<List<ListItemDomain>> = source.getOngoingList(
             page = page,
-            search = searchText,
             sort = sort
         )
 
         //When
-        val actualResult: CallResult<List<ListItemDomain>> = usecase.execute(
-            page = page,
-            searchText = searchText
-        )
+        val actualResult: CallResult<List<ListItemDomain>> = usecase.execute(page)
 
         //Then
         assertTrue {
@@ -97,6 +84,6 @@ class FetchAnimeListBySearchUsecaseTest {
             desiredCallResult = desiredCallResult,
             desiredDelay = Random.nextInt(maxDelay).milliseconds
         )
-        usecase = FetchAnimeListBySearchUsecase(source)
+        usecase = FetchOngoingAnimeListUsecase(source)
     }
 }

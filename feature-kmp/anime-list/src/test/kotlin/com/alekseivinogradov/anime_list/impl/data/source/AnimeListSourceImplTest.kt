@@ -1,10 +1,10 @@
-package com.alekseivinogradov.anime_favorites.impl.data.source
+package com.alekseivinogradov.anime_list.impl.data.source
 
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anime_base.impl.data.service.fake.ShikimoriApiServiceImplFake
-import com.alekseivinogradov.anime_favorites.api.data.mapper.toListItemDomain
-import com.alekseivinogradov.anime_favorites.api.domain.model.ListItemDomain
-import com.alekseivinogradov.anime_favorites.api.domain.source.AnimeFavoritesSource
+import com.alekseivinogradov.anime_list.api.data.mapper.toListItemDomain
+import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
+import com.alekseivinogradov.anime_list.api.domain.source.AnimeListSource
 import com.alekseivinogradov.network.api.data.SafeApi
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import com.alekseivinogradov.network.api.domain.model.test.DesiredCallResult
@@ -16,11 +16,11 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 
-class AnimeFavoritesSourceImplTest {
+class AnimeListSourceImplTest {
     private val maxDelay = 60000 //1 minute
     private lateinit var safeApi: SafeApi
     private lateinit var service: ShikimoriApiService
-    private lateinit var source: AnimeFavoritesSource
+    private lateinit var source: AnimeListSource
 
     @BeforeTest
     fun setup() {
@@ -28,7 +28,7 @@ class AnimeFavoritesSourceImplTest {
     }
 
     @Test
-    fun testAnimeFavoritesSourceGetItemByIdSuccess() = runTest {
+    fun testAnimeListSourceGetItemByIdSuccess() = runTest {
         //Given
         initServiceAndSource(desiredCallResult = DesiredCallResult.SUCCESS)
         val randomId: Int = createRandomId()
@@ -46,7 +46,7 @@ class AnimeFavoritesSourceImplTest {
     }
 
     @Test
-    fun testAnimeFavoritesSourceGetItemByIdError() = runTest {
+    fun testAnimeListSourceGetItemByIdError() = runTest {
         //Given
         initServiceAndSource(desiredCallResult = DesiredCallResult.OTHER_ERROR)
         val randomId: Int = createRandomId()
@@ -62,7 +62,7 @@ class AnimeFavoritesSourceImplTest {
 
         //Then
         assertTrue {
-            expectedResult is CallResult.OtherError &&
+            expectedResult != null &&
                     actualResult is CallResult.OtherError &&
                     actualResult.throwable == expectedResult.throwable
         }
@@ -73,7 +73,7 @@ class AnimeFavoritesSourceImplTest {
             desiredCallResult = desiredCallResult,
             desiredDelay = Random.nextInt(maxDelay).milliseconds
         )
-        source = AnimeFavoritesSourceImpl(
+        source = AnimeListSourceImpl(
             service = service,
             safeApi = safeApi
         )

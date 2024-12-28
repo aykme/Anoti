@@ -14,18 +14,18 @@ class AnimeFavoritesSourceImplFake(
     private val desiredDelay: Duration
 ) : AnimeFavoritesSource {
 
-    private val testError = Throwable()
+    private val error = Throwable()
 
     override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
         delay(desiredDelay)
         return when (desiredCallResult) {
-            DesiredCallResult.SUCCESS -> createTestSuccessResult(id)
-            DesiredCallResult.HTTP_ERROR -> createTestHttpErrorResult()
-            DesiredCallResult.OTHER_ERROR -> createTestOtherErrorResult()
+            DesiredCallResult.SUCCESS -> createSuccessResult(id)
+            DesiredCallResult.HTTP_ERROR -> createHttpErrorResult()
+            DesiredCallResult.OTHER_ERROR -> createOtherErrorResult()
         }
     }
 
-    private fun createTestSuccessResult(id: AnimeId): CallResult.Success<ListItemDomain> {
+    private fun createSuccessResult(id: AnimeId): CallResult.Success<ListItemDomain> {
         return CallResult.Success<ListItemDomain>(
             ListItemDomain(
                 id = id,
@@ -44,16 +44,16 @@ class AnimeFavoritesSourceImplFake(
         )
     }
 
-    private fun createTestHttpErrorResult(): CallResult.HttpError {
+    private fun createHttpErrorResult(): CallResult.HttpError {
         return CallResult.HttpError(
             code = 404,
-            throwable = testError
+            throwable = error
         )
     }
 
-    private fun createTestOtherErrorResult(): CallResult.OtherError {
+    private fun createOtherErrorResult(): CallResult.OtherError {
         return CallResult.OtherError(
-            throwable = testError
+            throwable = error
         )
     }
 }
