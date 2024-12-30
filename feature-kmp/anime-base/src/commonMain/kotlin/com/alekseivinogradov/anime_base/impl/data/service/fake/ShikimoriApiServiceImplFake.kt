@@ -14,7 +14,7 @@ class ShikimoriApiServiceImplFake(
     private val desiredDelay: Duration
 ) : ShikimoriApiService {
 
-    private val testError = Throwable()
+    private val error = Throwable()
 
     override suspend fun getAnimeList(
         page: Int,
@@ -23,15 +23,53 @@ class ShikimoriApiServiceImplFake(
         search: String?,
         ids: String?
     ): List<AnimeShortResponse> {
-        throw NotImplementedError()
+        return when (desiredCallResult) {
+            DesiredCallResult.SUCCESS -> createAnimeList(
+                itemNumber = 10,
+                releaseStatus = releaseStatus
+            )
+
+            else -> throw error
+        }
     }
 
     override suspend fun getAnimeById(id: AnimeId): AnimeDetailsResponse {
         delay(desiredDelay)
         return when (desiredCallResult) {
             DesiredCallResult.SUCCESS -> createAnimeDetailsResponse(id)
-            else -> throw testError
+            else -> throw error
         }
+    }
+
+    private fun createAnimeList(
+        itemNumber: Int,
+        releaseStatus: String?
+    ): List<AnimeShortResponse> {
+        return mutableListOf<AnimeShortResponse>().apply {
+            repeat(itemNumber) { repeatNumber: Int ->
+                add(createAnimeShortResponse(id = repeatNumber, releaseStatus = releaseStatus))
+            }
+        }.toList()
+    }
+
+    private fun createAnimeShortResponse(
+        id: AnimeId,
+        releaseStatus: String?
+    ): AnimeShortResponse {
+        return AnimeShortResponse(
+            id = id,
+            englishName = "Shingeki no Kyojin: The Final Season",
+            russianName = "Атака титанов: Финал",
+            pageUrl = "/animes/51535-shingeki-no-kyojin-the-final-season-kanketsu-hen",
+            imageResponse = createImageResponse(),
+            episodesAired = 1,
+            episodesTotal = 0,
+            airedOn = "2024-11-08",
+            releasedOn = null,
+            score = 7.88F,
+            releaseStatus = releaseStatus,
+            kind = "tv_special"
+        )
     }
 
     private fun createAnimeDetailsResponse(id: AnimeId): AnimeDetailsResponse {

@@ -33,7 +33,7 @@ class AnimeFavoritesSourceImplFake(
                 imageUrl = "https://shikimori.one/system/animes/original/40028.jpg?1711973445",
                 episodesAired = 16,
                 episodesTotal = 16,
-                nextEpisodeAt = null,
+                nextEpisodeAt = "2020-19-07",
                 airedOn = "2020-12-07",
                 releasedOn = "2021-03-29",
                 score = 8.779999732971191F,

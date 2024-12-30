@@ -1,5 +1,7 @@
 package com.alekseivinogradov.anime_list.impl.data.source
 
+import com.alekseivinogradov.anime_base.api.data.model.ReleaseStatusData
+import com.alekseivinogradov.anime_base.api.data.model.SortData
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anime_base.impl.data.service.fake.ShikimoriApiServiceImplFake
 import com.alekseivinogradov.anime_list.api.data.mapper.toListItemDomain
@@ -18,6 +20,8 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class AnimeListSourceImplTest {
     private val maxDelay = 60000 //1 minute
+    private val page = 1
+    private val searchText = ""
     private lateinit var safeApi: SafeApi
     private lateinit var service: ShikimoriApiService
     private lateinit var source: AnimeListSource
@@ -65,6 +69,34 @@ class AnimeListSourceImplTest {
             expectedResult != null &&
                     actualResult is CallResult.OtherError &&
                     actualResult.throwable == expectedResult.throwable
+        }
+    }
+
+    @Test
+    fun testAnimeListSourceGetOngoingListSuccess() = runTest {
+        //Given
+        initServiceAndSource(desiredCallResult = DesiredCallResult.SUCCESS)
+        val sort = SortData.SCORE
+        val expectedResult: List<ListItemDomain> = service.getAnimeList(
+            page = page,
+            releaseStatus = ReleaseStatusData.ONGOING.value,
+            sort = sort.value,
+            search = searchText,
+            ids = null
+        ).map {
+            it.toListItemDomain()
+        }
+
+        //When
+        val actualResult: CallResult<List<ListItemDomain>> = source.getOngoingList(
+            page = page,
+            sort = sort
+        )
+
+        //Then
+        assertTrue {
+            actualResult is CallResult.Success &&
+                    actualResult.value == expectedResult
         }
     }
 
