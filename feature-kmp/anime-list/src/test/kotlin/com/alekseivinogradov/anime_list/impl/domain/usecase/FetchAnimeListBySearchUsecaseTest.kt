@@ -15,7 +15,7 @@ import kotlin.time.Duration.Companion.milliseconds
 class FetchAnimeListBySearchUsecaseTest {
     private val maxDelay = 60000 //1 minute
     private val page = 1
-    private val searchText = ""
+    private val searchText = "search"
     private val sort = SortData.SCORE
     private lateinit var source: AnimeListSource
     private lateinit var usecase: FetchAnimeListBySearchUsecase

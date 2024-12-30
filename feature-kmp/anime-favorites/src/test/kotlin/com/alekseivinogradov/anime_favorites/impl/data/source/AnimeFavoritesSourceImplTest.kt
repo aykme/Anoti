@@ -64,7 +64,7 @@ class AnimeFavoritesSourceImplTest {
         assertTrue {
             expectedResult is CallResult.OtherError &&
                     actualResult is CallResult.OtherError &&
-                    actualResult.throwable == expectedResult.throwable
+                    actualResult == expectedResult
         }
     }
 

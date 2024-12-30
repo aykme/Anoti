@@ -30,7 +30,7 @@ class FetchAnimeDetailsByIdUsecaseTest {
         assertTrue {
             expectedResult is CallResult.Success &&
                     actualResult is CallResult.Success &&
-                    actualResult.value == expectedResult.value
+                    actualResult == expectedResult
         }
     }
 
@@ -48,8 +48,7 @@ class FetchAnimeDetailsByIdUsecaseTest {
         assertTrue {
             expectedResult is CallResult.HttpError &&
                     actualResult is CallResult.HttpError &&
-                    actualResult.code == expectedResult.code &&
-                    actualResult.throwable == expectedResult.throwable
+                    actualResult == expectedResult
         }
     }
 
@@ -67,7 +66,7 @@ class FetchAnimeDetailsByIdUsecaseTest {
         assertTrue {
             expectedResult is CallResult.OtherError &&
                     actualResult is CallResult.OtherError &&
-                    actualResult.throwable == expectedResult.throwable
+                    actualResult == expectedResult
         }
     }
 

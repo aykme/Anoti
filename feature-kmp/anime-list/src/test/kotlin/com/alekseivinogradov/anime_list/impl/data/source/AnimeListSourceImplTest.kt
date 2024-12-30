@@ -21,7 +21,6 @@ import kotlin.time.Duration.Companion.milliseconds
 class AnimeListSourceImplTest {
     private val maxDelay = 60000 //1 minute
     private val page = 1
-    private val searchText = ""
     private lateinit var safeApi: SafeApi
     private lateinit var service: ShikimoriApiService
     private lateinit var source: AnimeListSource
@@ -68,7 +67,7 @@ class AnimeListSourceImplTest {
         assertTrue {
             expectedResult != null &&
                     actualResult is CallResult.OtherError &&
-                    actualResult.throwable == expectedResult.throwable
+                    actualResult == expectedResult
         }
     }
 
@@ -81,7 +80,7 @@ class AnimeListSourceImplTest {
             page = page,
             releaseStatus = ReleaseStatusData.ONGOING.value,
             sort = sort.value,
-            search = searchText,
+            search = null,
             ids = null
         ).map {
             it.toListItemDomain()
@@ -97,6 +96,162 @@ class AnimeListSourceImplTest {
         assertTrue {
             actualResult is CallResult.Success &&
                     actualResult.value == expectedResult
+        }
+    }
+
+    @Test
+    fun testAnimeListSourceGetOngoingListError() = runTest {
+        //Given
+        initServiceAndSource(desiredCallResult = DesiredCallResult.OTHER_ERROR)
+        val sort = SortData.SCORE
+        val expectedResult: CallResult.OtherError? = try {
+            service.getAnimeList(
+                page = page,
+                releaseStatus = ReleaseStatusData.ONGOING.value,
+                sort = sort.value,
+                search = null,
+                ids = null
+            )
+            null
+        } catch (e: Throwable) {
+            CallResult.OtherError(e)
+        }
+
+        //When
+        val actualResult: CallResult<List<ListItemDomain>> = source.getOngoingList(
+            page = page,
+            sort = sort
+        )
+
+        //Then
+        assertTrue {
+            expectedResult != null &&
+                    actualResult is CallResult.OtherError &&
+                    actualResult == expectedResult
+        }
+    }
+
+    @Test
+    fun testAnimeListSourceGetAnnouncedListSuccess() = runTest {
+        //Given
+        initServiceAndSource(desiredCallResult = DesiredCallResult.SUCCESS)
+        val sort = SortData.POPULARITY
+        val expectedResult: List<ListItemDomain> = service.getAnimeList(
+            page = page,
+            releaseStatus = ReleaseStatusData.ANNOUNCED.value,
+            sort = sort.value,
+            search = null,
+            ids = null
+        ).map {
+            it.toListItemDomain()
+        }
+
+        //When
+        val actualResult: CallResult<List<ListItemDomain>> = source.getAnnouncedList(
+            page = page,
+            sort = sort
+        )
+
+        //Then
+        assertTrue {
+            actualResult is CallResult.Success &&
+                    actualResult.value == expectedResult
+        }
+    }
+
+    @Test
+    fun testAnimeListSourceGetAnnouncedListError() = runTest {
+        //Given
+        initServiceAndSource(desiredCallResult = DesiredCallResult.OTHER_ERROR)
+        val sort = SortData.POPULARITY
+        val expectedResult: CallResult.OtherError? = try {
+            service.getAnimeList(
+                page = page,
+                releaseStatus = ReleaseStatusData.ANNOUNCED.value,
+                sort = sort.value,
+                search = null,
+                ids = null
+            )
+            null
+        } catch (e: Throwable) {
+            CallResult.OtherError(e)
+        }
+
+        //When
+        val actualResult: CallResult<List<ListItemDomain>> = source.getAnnouncedList(
+            page = page,
+            sort = sort
+        )
+
+        //Then
+        assertTrue {
+            expectedResult != null &&
+                    actualResult is CallResult.OtherError &&
+                    actualResult == expectedResult
+        }
+    }
+
+    @Test
+    fun testAnimeListSourceGetListBySearchSuccess() = runTest {
+        //Given
+        initServiceAndSource(desiredCallResult = DesiredCallResult.SUCCESS)
+        val sort = SortData.SCORE
+        val search = "search"
+        val expectedResult: List<ListItemDomain> = service.getAnimeList(
+            page = page,
+            releaseStatus = null,
+            sort = sort.value,
+            search = search,
+            ids = null
+        ).map {
+            it.toListItemDomain()
+        }
+
+        //When
+        val actualResult: CallResult<List<ListItemDomain>> = source.getListBySearch(
+            page = page,
+            search = search,
+            sort = sort
+        )
+
+        //Then
+        assertTrue {
+            actualResult is CallResult.Success &&
+                    actualResult.value == expectedResult
+        }
+    }
+
+    @Test
+    fun testAnimeListSourceGetListBySearchError() = runTest {
+        //Given
+        initServiceAndSource(desiredCallResult = DesiredCallResult.OTHER_ERROR)
+        val sort = SortData.SCORE
+        val search = "search"
+        val expectedResult: CallResult.OtherError? = try {
+            service.getAnimeList(
+                page = page,
+                releaseStatus = null,
+                sort = sort.value,
+                search = search,
+                ids = null
+            )
+            null
+        } catch (e: Throwable) {
+            CallResult.OtherError(e)
+        }
+
+        //When
+        val actualResult: CallResult<List<ListItemDomain>> = source.getListBySearch(
+            page = page,
+            search = search,
+            sort = sort
+        )
+
+        //Then
+        assertTrue {
+            expectedResult != null &&
+                    actualResult is CallResult.OtherError &&
+                    actualResult == expectedResult
         }
     }
 
