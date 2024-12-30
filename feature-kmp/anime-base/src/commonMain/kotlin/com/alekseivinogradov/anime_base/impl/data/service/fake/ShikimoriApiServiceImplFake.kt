@@ -29,12 +29,12 @@ class ShikimoriApiServiceImplFake(
     override suspend fun getAnimeById(id: AnimeId): AnimeDetailsResponse {
         delay(desiredDelay)
         return when (desiredCallResult) {
-            DesiredCallResult.SUCCESS -> createTestResponse(id)
+            DesiredCallResult.SUCCESS -> createAnimeDetailsResponse(id)
             else -> throw testError
         }
     }
 
-    private fun createTestResponse(id: AnimeId): AnimeDetailsResponse {
+    private fun createAnimeDetailsResponse(id: AnimeId): AnimeDetailsResponse {
         return AnimeDetailsResponse(
             id = id,
             englishName = "Bleach: Sennen Kessen-hen - Soukoku-tan",

@@ -12,7 +12,7 @@ class FetchOngoingAnimeListUsecase(
     suspend fun execute(page: Int): CallResult<List<ListItemDomain>> {
         return source.getOngoingList(
             page = page,
-            sort = SortData.SCORE.value
+            sort = SortData.SCORE
         )
     }
 }

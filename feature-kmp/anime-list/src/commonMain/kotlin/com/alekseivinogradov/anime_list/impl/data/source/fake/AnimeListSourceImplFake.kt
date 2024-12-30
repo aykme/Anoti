@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anime_list.impl.data.source.fake
 
+import com.alekseivinogradov.anime_base.api.data.model.SortData
 import com.alekseivinogradov.anime_base.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.source.AnimeListSource
@@ -18,11 +19,11 @@ class AnimeListSourceImplFake(
 
     override suspend fun getOngoingList(
         page: Int,
-        sort: String
+        sort: SortData
     ): CallResult<List<ListItemDomain>> {
         delay(desiredDelay)
         return when (desiredCallResult) {
-            DesiredCallResult.SUCCESS -> createSuccessResultWithList(
+            DesiredCallResult.SUCCESS -> createAnimeListSuccessResult(
                 itemNumber = 5,
                 releaseStatus = ReleaseStatusDomain.ONGOING
             )
@@ -34,11 +35,11 @@ class AnimeListSourceImplFake(
 
     override suspend fun getAnnouncedList(
         page: Int,
-        sort: String
+        sort: SortData
     ): CallResult<List<ListItemDomain>> {
         delay(desiredDelay)
         return when (desiredCallResult) {
-            DesiredCallResult.SUCCESS -> createSuccessResultWithList(
+            DesiredCallResult.SUCCESS -> createAnimeListSuccessResult(
                 itemNumber = 5,
                 releaseStatus = ReleaseStatusDomain.ANNOUNCED
             )
@@ -51,11 +52,11 @@ class AnimeListSourceImplFake(
     override suspend fun getListBySearch(
         page: Int,
         search: String,
-        sort: String
+        sort: SortData
     ): CallResult<List<ListItemDomain>> {
         delay(desiredDelay)
         return when (desiredCallResult) {
-            DesiredCallResult.SUCCESS -> createSuccessResultWithList(itemNumber = 5)
+            DesiredCallResult.SUCCESS -> createAnimeListSuccessResult(itemNumber = 5)
             DesiredCallResult.HTTP_ERROR -> createHttpErrorResult()
             DesiredCallResult.OTHER_ERROR -> createOtherErrorResult()
         }
@@ -64,31 +65,31 @@ class AnimeListSourceImplFake(
     override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
         delay(desiredDelay)
         return when (desiredCallResult) {
-            DesiredCallResult.SUCCESS -> createSuccessResultWithSingleItem(id)
+            DesiredCallResult.SUCCESS -> createAnimeDetailsSuccessResult(id)
             DesiredCallResult.HTTP_ERROR -> createHttpErrorResult()
             DesiredCallResult.OTHER_ERROR -> createOtherErrorResult()
         }
     }
 
-    private fun createSuccessResultWithSingleItem(
+    private fun createAnimeDetailsSuccessResult(
         id: AnimeId,
         releaseStatus: ReleaseStatusDomain = ReleaseStatusDomain.RELEASED
     ): CallResult.Success<ListItemDomain> {
         return CallResult.Success<ListItemDomain>(
-            value = createItem(
+            value = createAnimeItem(
                 id = id,
                 releaseStatus = releaseStatus
             )
         )
     }
 
-    private fun createSuccessResultWithList(
+    private fun createAnimeListSuccessResult(
         itemNumber: Int,
         releaseStatus: ReleaseStatusDomain = ReleaseStatusDomain.RELEASED
     ): CallResult.Success<List<ListItemDomain>> {
         val list = mutableListOf<ListItemDomain>().apply {
             repeat(itemNumber) { repeatNumber: Int ->
-                add(createItem(id = repeatNumber, releaseStatus = releaseStatus))
+                add(createAnimeItem(id = repeatNumber, releaseStatus = releaseStatus))
             }
         }
         return CallResult.Success<List<ListItemDomain>>(
@@ -109,7 +110,7 @@ class AnimeListSourceImplFake(
         )
     }
 
-    private fun createItem(
+    private fun createAnimeItem(
         id: AnimeId,
         releaseStatus: ReleaseStatusDomain
     ): ListItemDomain {

@@ -15,7 +15,7 @@ class FetchAnimeListBySearchUsecase(
     ): CallResult<List<ListItemDomain>> {
         return source.getListBySearch(
             page = page,
-            sort = SortData.SCORE.value,
+            sort = SortData.SCORE,
             search = searchText
         )
     }

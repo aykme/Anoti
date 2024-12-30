@@ -15,7 +15,7 @@ import kotlin.time.Duration.Companion.milliseconds
 class FetchAnnouncedAnimeListUsecaseTest {
     private val maxDelay = 60000 //1 minute
     private val page = 1
-    private val sort = SortData.POPULARITY.value
+    private val sort = SortData.POPULARITY
     private lateinit var source: AnimeListSource
     private lateinit var usecase: FetchAnnouncedAnimeListUsecase
 

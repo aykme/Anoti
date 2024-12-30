@@ -1,6 +1,7 @@
 package com.alekseivinogradov.anime_list.impl.data.source
 
 import com.alekseivinogradov.anime_base.api.data.model.ReleaseStatusData
+import com.alekseivinogradov.anime_base.api.data.model.SortData
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anime_list.api.data.mapper.toListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
@@ -16,13 +17,13 @@ class AnimeListSourceImpl(
 
     override suspend fun getOngoingList(
         page: Int,
-        sort: String
+        sort: SortData
     ): CallResult<List<ListItemDomain>> {
         return safeApi.call {
             service.getAnimeList(
                 page = page,
                 releaseStatus = ReleaseStatusData.ONGOING.value,
-                sort = sort,
+                sort = sort.value,
                 search = null,
                 ids = null,
             ).filter {
@@ -35,13 +36,13 @@ class AnimeListSourceImpl(
 
     override suspend fun getAnnouncedList(
         page: Int,
-        sort: String
+        sort: SortData
     ): CallResult<List<ListItemDomain>> {
         return safeApi.call {
             service.getAnimeList(
                 page = page,
                 releaseStatus = ReleaseStatusData.ANNOUNCED.value,
-                sort = sort,
+                sort = sort.value,
                 search = null,
                 ids = null,
             ).filter {
@@ -55,13 +56,13 @@ class AnimeListSourceImpl(
     override suspend fun getListBySearch(
         page: Int,
         search: String,
-        sort: String
+        sort: SortData
     ): CallResult<List<ListItemDomain>> {
         return safeApi.call {
             service.getAnimeList(
                 page = page,
                 releaseStatus = null,
-                sort = sort,
+                sort = sort.value,
                 search = search,
                 ids = null,
             ).filter {

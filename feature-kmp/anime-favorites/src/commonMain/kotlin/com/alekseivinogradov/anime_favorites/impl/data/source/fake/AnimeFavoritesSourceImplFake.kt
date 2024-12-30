@@ -19,13 +19,13 @@ class AnimeFavoritesSourceImplFake(
     override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
         delay(desiredDelay)
         return when (desiredCallResult) {
-            DesiredCallResult.SUCCESS -> createSuccessResult(id)
+            DesiredCallResult.SUCCESS -> createAnimeDetailsSuccessResult(id)
             DesiredCallResult.HTTP_ERROR -> createHttpErrorResult()
             DesiredCallResult.OTHER_ERROR -> createOtherErrorResult()
         }
     }
 
-    private fun createSuccessResult(id: AnimeId): CallResult.Success<ListItemDomain> {
+    private fun createAnimeDetailsSuccessResult(id: AnimeId): CallResult.Success<ListItemDomain> {
         return CallResult.Success<ListItemDomain>(
             ListItemDomain(
                 id = id,

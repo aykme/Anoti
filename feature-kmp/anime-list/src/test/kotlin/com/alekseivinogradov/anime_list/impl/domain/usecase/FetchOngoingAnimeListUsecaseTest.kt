@@ -15,7 +15,7 @@ import kotlin.time.Duration.Companion.milliseconds
 class FetchOngoingAnimeListUsecaseTest {
     private val maxDelay = 60000 //1 minute
     private val page = 1
-    private val sort = SortData.SCORE.value
+    private val sort = SortData.SCORE
     private lateinit var source: AnimeListSource
     private lateinit var usecase: FetchOngoingAnimeListUsecase
 

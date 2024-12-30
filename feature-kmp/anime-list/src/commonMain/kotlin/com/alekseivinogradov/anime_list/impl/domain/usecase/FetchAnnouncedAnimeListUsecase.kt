@@ -12,7 +12,7 @@ class FetchAnnouncedAnimeListUsecase(
     suspend fun execute(page: Int): CallResult<List<ListItemDomain>> {
         return source.getAnnouncedList(
             page = page,
-            sort = SortData.POPULARITY.value
+            sort = SortData.POPULARITY
         )
     }
 }
