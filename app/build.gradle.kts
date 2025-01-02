@@ -45,8 +45,10 @@ dependencies {
     implementation(project(":feature-platform:anime-base"))
     implementation(project(":feature-platform:anime-background-update"))
     implementation(project(":feature-platform:anime-notification"))
+    androidTestImplementation(project(":main"))
 
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
     implementation(libs.mvikotlin)
     implementation(libs.mvikotlin.logger)
     implementation(libs.mvikotlin.timetravel)
@@ -58,5 +60,8 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.junit.ktx)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.androidx.rules)
 }
