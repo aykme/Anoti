@@ -46,6 +46,7 @@ dependencies {
     implementation(project(":feature-platform:anime-background-update"))
     implementation(project(":feature-platform:anime-notification"))
     androidTestImplementation(project(":main"))
+    androidTestImplementation(project(":core-platform:test-utils"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -58,10 +59,10 @@ dependencies {
     implementation(libs.play.services.appset)
     ksp(libs.dagger.compiler)
     ksp(libs.androidx.room.compiler)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.junit.ktx)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.espresso.contrib)
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.rules)
+    androidTestImplementation(libs.androidx.recyclerview)
 }

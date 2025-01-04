@@ -1,0 +1,32 @@
+package com.alekseivinogradov.test_utils
+
+import androidx.test.espresso.ViewInteraction
+import kotlinx.coroutines.delay
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+
+suspend fun safeInteraction(
+    maxAttempt: Int = 20,
+    attemptDelay: Duration = 500.milliseconds,
+    interactionCall: () -> ViewInteraction
+): ViewInteraction {
+    while (true) {
+        return try {
+            interactionCall()
+        } catch (e: Throwable) {
+            if (maxAttempt <= 0) {
+                throw Throwable(
+                    "The number of attempts in Safe Interaction() method " +
+                            "has ended with error result: $e"
+                )
+            } else {
+                delay(attemptDelay)
+                safeInteraction(
+                    maxAttempt = maxAttempt - 1,
+                    attemptDelay = attemptDelay,
+                    interactionCall = interactionCall
+                )
+            }
+        }
+    }
+}

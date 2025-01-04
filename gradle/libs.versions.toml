@@ -15,6 +15,7 @@ constraintlayout = "2.2.0"
 coreKtx = "1.15.0"
 coroutines = "1.9.0-RC"
 dagger = "2.51"
+espressoContrib = "3.6.1"
 espressoCore = "3.6.1"
 essenty = "2.1.0"
 glide = "4.16.0"
@@ -88,6 +89,7 @@ play-services-appset = { module = "com.google.android.gms:play-services-appset",
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
 androidx-rules = { group = "androidx.test", name = "rules", version.ref = "rules" }
+androidx-espresso-contrib = { group = "androidx.test.espresso", name = "espresso-contrib", version.ref = "espressoContrib" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
