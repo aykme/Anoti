@@ -59,7 +59,4 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     ksp(libs.dagger.compiler)
     ksp(libs.glide.ksp)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
 }

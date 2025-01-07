@@ -42,7 +42,4 @@ dependencies {
     implementation(libs.dagger)
     implementation(libs.androidx.recyclerview)
     ksp(libs.dagger.compiler)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
 }

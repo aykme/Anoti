@@ -46,7 +46,4 @@ dependencies {
     implementation(libs.glide.okhttp3)
     ksp(libs.dagger.compiler)
     ksp(libs.glide.ksp)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
 }

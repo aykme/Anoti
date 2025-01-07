@@ -1,8 +1,8 @@
 package com.alekseivinogradov.celebrity.impl.presentation.edge_to_edge
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Build.VERSION_CODES.Q
-import androidx.annotation.ChecksSdkIntAtLeast
 
 /**
  * enableEdgeToEdge() doesn't work correctly with BottomNavigationView
@@ -10,7 +10,7 @@ import androidx.annotation.ChecksSdkIntAtLeast
  * on 28 api level or lower.
  * There is a bug with navigation bar elements color on light theme.
  */
-@ChecksSdkIntAtLeast(api = Q)
+@SuppressLint("AnnotateVersionCheck")
 fun isEdgeToEdgeEnabled(): Boolean {
     return Build.VERSION.SDK_INT >= Q
 }

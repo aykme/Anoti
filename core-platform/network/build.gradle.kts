@@ -54,7 +54,4 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
     ksp(libs.dagger.compiler)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
 }
