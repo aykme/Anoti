@@ -26,11 +26,19 @@ class AnnouncedListDataSource(
                 if (page == FIRST_PAGE) {
                     initialLoadSuccessCallback()
                 }
-                LoadResult.Page(
-                    data = usecaseResult.value,
-                    prevKey = if (page <= FIRST_PAGE) null else (page - 1),
-                    nextKey = page + 1
-                )
+                if (usecaseResult.value.isNotEmpty()) {
+                    LoadResult.Page(
+                        data = usecaseResult.value,
+                        prevKey = if (page <= FIRST_PAGE) null else (page - 1),
+                        nextKey = page + 1
+                    )
+                } else {
+                    LoadResult.Page(
+                        data = listOf(),
+                        prevKey = null,
+                        nextKey = null
+                    )
+                }
             }
 
             is CallResult.HttpError -> {
