@@ -6,7 +6,9 @@
 
 **Architecture:** All 25 Gradle modules read `compileSdk`/`targetSdk`/`minSdk`/`agp` from the single version catalog `gradle/libs.versions.toml` — no module hardcodes these values (verified by repo-wide grep). The upgrade is therefore: (1) bump the catalog + Gradle wrapper to the minimum versions that officially support API 36, (2) neutralize the one behavior-change that would otherwise visibly alter the app (large-screen orientation/resizability enforcement), (3) verify nothing else regresses via full build/test + targeted manual QA on both a phone-size and a tablet-size Android 16 emulator.
 
-**Tech Stack:** Gradle 8.13, AGP 8.13.0, Kotlin 2.0.0 (unchanged), KSP 2.0.20-1.0.24 (unchanged), Android SDK Platform 36.1 (already installed locally at `F:\Programing\AndroidSDK\platforms\android-36.1`).
+**Tech Stack:** Gradle 8.13, AGP 8.12.0 (amended during execution — see below), Kotlin 2.0.0 (unchanged), KSP 2.0.20-1.0.24 (unchanged), Android SDK Platform 36.1 (already installed locally at `F:\Programing\AndroidSDK\platforms\android-36.1`).
+
+**Amendment (2026-08-02, during Task 2 execution):** The plan originally specified AGP 8.13.0. That version has a confirmed upstream bug — [Google Issue Tracker #443587266](https://issuetracker.google.com/issues/443587266), "AGP 8.13.0 fails to verify nav graph in a module" — which deterministically breaks `:main:verifyReleaseResources` (`AAPT: error: resource navigation/nav_graph ... not found`) even though the resource genuinely exists. Reproduced independently twice (by the Task 2 implementer and by the controller, including with `--no-build-cache` to rule out cache staleness, and with the latest 8.13.x patch, 8.13.2 — still fails). Google's only documented fix is AGP 9.0-alpha6+, a pre-release. The human partner approved switching to **AGP 8.12.0** instead: it officially supports compileSdk 36, requires the same Gradle 8.13 floor already in place from Task 1, and was verified (isolated `:main:verifyReleaseResources` run) to build clean. Every occurrence of "AGP 8.13.0" below should be read as **AGP 8.12.0**.
 
 ## Global Constraints
 
@@ -106,7 +108,7 @@ agp = "8.5.2"
 ```
 to:
 ```toml
-agp = "8.13.0"
+agp = "8.12.0"
 ```
 
 - [ ] **Step 2: Update the manifest's `tools:targetApi` lint hint to match**
@@ -120,19 +122,19 @@ to:
         tools:targetApi="36">
 ```
 
-- [ ] **Step 3: Sync and build to confirm AGP 8.13.0 + compileSdk 36 resolve cleanly**
+- [ ] **Step 3: Sync and build to confirm AGP 8.12.0 + compileSdk 36 resolve cleanly**
 
 ```bash
 ./gradlew clean build --stacktrace
 ```
 
-Expected: `BUILD SUCCESSFUL`. If any module fails to compile because a *specific* library is incompatible with AGP 8.13.0/compileSdk 36 (not Kotlin/KSP — those are pre-verified compatible), read the exact error, identify the minimum version of that one library that resolves it, bump only that single `[versions]` entry in `gradle/libs.versions.toml`, and re-run this step. Do not preemptively bump any other dependency.
+Expected: `BUILD SUCCESSFUL`. If any module fails to compile because a *specific* library is incompatible with AGP 8.12.0/compileSdk 36 (not Kotlin/KSP — those are pre-verified compatible), read the exact error, identify the minimum version of that one library that resolves it, bump only that single `[versions]` entry in `gradle/libs.versions.toml`, and re-run this step. Do not preemptively bump any other dependency.
 
 - [ ] **Step 4: Commit**
 
 ```bash
 git add gradle/libs.versions.toml app/src/main/AndroidManifest.xml
-git commit -m "AGP was upgraded to 8.13.0 and compileSdk/targetSdk were raised to 36"
+git commit -m "AGP was upgraded to 8.12.0 and compileSdk/targetSdk were raised to 36"
 ```
 
 ---
