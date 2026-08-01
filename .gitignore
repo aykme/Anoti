@@ -74,3 +74,5 @@ lint/reports/
 app/release/output.json
 # Local git worktrees
 .worktrees/
+# Subagent-driven-development scratch workspace
+.superpowers/
