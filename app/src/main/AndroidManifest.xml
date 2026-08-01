@@ -15,6 +15,10 @@
         android:theme="@style/Theme.Anoti"
         tools:targetApi="36">
 
+        <property
+            android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+            android:value="true" />
+
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
