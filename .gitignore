@@ -72,3 +72,5 @@ lint/reports/
 .DS_Store
 # App Specific cases
 app/release/output.json
+# Local git worktrees
+.worktrees/
