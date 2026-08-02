@@ -74,5 +74,3 @@ lint/reports/
 app/release/output.json
 # Local git worktrees
 .worktrees/
-# Agent planning docs (local reference only, not tracked)
-docs/superpowers/
