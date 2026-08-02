@@ -76,3 +76,5 @@ app/release/output.json
 .worktrees/
 # Subagent-driven-development scratch workspace
 .superpowers/
+# Agent planning docs (local reference only, not tracked)
+docs/superpowers/
