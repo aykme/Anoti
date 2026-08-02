@@ -55,7 +55,7 @@ dependencies {
     implementation(libs.mvikotlin.timetravel)
     implementation(libs.dagger)
     implementation(libs.androidx.room.ktx)
-    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.work.runtime)
     implementation(libs.play.services.appset)
     ksp(libs.dagger.compiler)
     ksp(libs.androidx.room.compiler)

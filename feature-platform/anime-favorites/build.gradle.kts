@@ -56,7 +56,7 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.glide.okhttp3)
     implementation(libs.androidx.room.ktx)
-    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.work.runtime)
     ksp(libs.dagger.compiler)
     ksp(libs.glide.ksp)
 }

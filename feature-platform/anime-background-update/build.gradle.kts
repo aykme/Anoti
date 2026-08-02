@@ -43,6 +43,6 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.dagger)
-    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.work.runtime)
     ksp(libs.dagger.compiler)
 }
