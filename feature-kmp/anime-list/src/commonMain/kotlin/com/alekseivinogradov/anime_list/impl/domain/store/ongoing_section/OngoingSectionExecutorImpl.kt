@@ -1,26 +1,20 @@
 package com.alekseivinogradov.anime_list.impl.domain.store.ongoing_section
 
-import app.cash.paging.Pager
-import app.cash.paging.PagingConfig
-import app.cash.paging.PagingData
-import app.cash.paging.cachedIn
 import com.alekseivinogradov.anime_base.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_list.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.OngoingSectionExecutor
 import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.OngoingSectionStore
-import com.alekseivinogradov.anime_list.impl.domain.paging.OngoingListDataSource
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.OngoingUsecases
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
-import com.alekseivinogradov.celebrity.api.domain.ITEMS_PER_PAGE
-import com.alekseivinogradov.celebrity.api.domain.PAGING_PREFETCH_DISTANCE
+import com.alekseivinogradov.celebrity.api.domain.FIRST_PAGE
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
+import com.alekseivinogradov.celebrity.api.domain.paging.PageLoadResult
+import com.alekseivinogradov.celebrity.api.domain.paging.Paginator
 import com.alekseivinogradov.celebrity.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 class OngoingSectionExecutorImpl(
@@ -31,6 +25,7 @@ class OngoingSectionExecutorImpl(
 
     private var updateSectionJob: Job? = null
     private val updateAnimeDetailsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
+    private var paginator: Paginator<ListItemDomain> = createPaginator()
 
     override fun executeAction(action: OngoingSectionStore.Action) {
         when (action) {
@@ -42,8 +37,16 @@ class OngoingSectionExecutorImpl(
         when (intent) {
             OngoingSectionStore.Intent.OpenSection -> openSection()
             OngoingSectionStore.Intent.UpdateSection -> updateSection()
+            OngoingSectionStore.Intent.LoadNextPage -> loadNextPage()
             is OngoingSectionStore.Intent.EpisodesInfoClick -> episodeInfoClick(intent)
         }
+    }
+
+    private fun createPaginator(): Paginator<ListItemDomain> {
+        return Paginator(
+            firstPage = FIRST_PAGE,
+            loadPage = { page -> usecases.fetchOngoingAnimeListUsecase.execute(page = page) }
+        )
     }
 
     private fun openSection() {
@@ -55,6 +58,7 @@ class OngoingSectionExecutorImpl(
 
     private fun updateSection() {
         updateSectionJob?.cancel()
+        paginator = createPaginator()
         updateSectionJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
             dispatch(
                 OngoingSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
@@ -69,48 +73,53 @@ class OngoingSectionExecutorImpl(
                     animeDetails = AnimeDetails()
                 )
             )
-            getPagingDataFlow().collect { listItems: PagingData<ListItemDomain> ->
-                dispatch(OngoingSectionStore.Message.UpdateListItems(listItems))
+            when (val result = paginator.loadFirstPage()) {
+                is PageLoadResult.Success -> {
+                    dispatch(OngoingSectionStore.Message.UpdateListItems(result.items))
+                    dispatch(
+                        OngoingSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADED)
+                    )
+                }
+
+                is PageLoadResult.Error -> {
+                    toastProvider.makeConnectionErrorToast()
+                    dispatch(
+                        OngoingSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR)
+                    )
+                }
+
+                is PageLoadResult.UnexpectedError -> {
+                    toastProvider.makeUnknownErrorToast()
+                    dispatch(
+                        OngoingSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR)
+                    )
+                }
             }
         }
     }
 
-    private fun getPagingDataFlow(): Flow<PagingData<ListItemDomain>> {
-        return Pager(
-            config = PagingConfig(
-                pageSize = ITEMS_PER_PAGE,
-                prefetchDistance = PAGING_PREFETCH_DISTANCE,
-                enablePlaceholders = true
-            ),
+    private fun loadNextPage() {
+        scope.launch(coroutineContextProvider.mainCoroutineContext) {
+            when (val result = paginator.loadNextPage()) {
+                is PageLoadResult.Success -> dispatch(
+                    OngoingSectionStore.Message.UpdateListItems(
+                        state().sectionContent.listItems + result.items
+                    )
+                )
 
-            ) {
-            OngoingListDataSource(
-                fetchOngoingAnimeListUseCase = usecases.fetchOngoingAnimeListUsecase,
-                toastProvider = toastProvider,
-                initialLoadSuccessCallback = ::initialLoadSuccessCallback,
-                initialLoadErrorCallback = ::initialLoadErrorCallback
-            )
-        }.flow.catch { toastProvider.makeUnknownErrorToast() }
-            .cachedIn(scope)
-    }
-
-    private fun initialLoadSuccessCallback() {
-        dispatch(
-            OngoingSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADED)
-        )
-    }
-
-    private fun initialLoadErrorCallback() {
-        dispatch(
-            OngoingSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR)
-        )
+                is PageLoadResult.Error -> toastProvider.makeConnectionErrorToast()
+                is PageLoadResult.UnexpectedError -> toastProvider.makeUnknownErrorToast()
+                null -> Unit
+            }
+        }
     }
 
     private fun episodeInfoClick(intent: OngoingSectionStore.Intent.EpisodesInfoClick) {
-        if (state().sectionContent.enabledExtraEpisodesInfoIds.contains(intent.listItem.id)) {
-            availableEpisodesInfoClick(intent.listItem)
+        val listItem = state().sectionContent.listItems.find { it.id == intent.id } ?: return
+        if (state().sectionContent.enabledExtraEpisodesInfoIds.contains(listItem.id)) {
+            availableEpisodesInfoClick(listItem)
         } else {
-            extraEpisodesInfoClick(intent.listItem)
+            extraEpisodesInfoClick(listItem)
         }
     }
 
