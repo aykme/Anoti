@@ -9,42 +9,37 @@ class Paginator<T>(
 ) {
     private var nextPage: Int = firstPage
     private var endReached: Boolean = false
-    private var isLoadingNextPage: Boolean = false
-    private var hasLoadedFirstPageBefore: Boolean = false
+    private var isLoading: Boolean = false
 
     suspend fun loadFirstPage(): PageLoadResult<T> {
         nextPage = firstPage
         endReached = false
-        val result = load(page = firstPage, isFirstPage = true)
-        if (!hasLoadedFirstPageBefore && result is PageLoadResult.Success && result.items.isEmpty()) {
-            endReached = true
-        }
-        hasLoadedFirstPageBefore = true
-        return result
+        return load(page = firstPage, isFirstPage = true)
     }
 
     suspend fun loadNextPage(): PageLoadResult<T>? {
-        if (endReached || isLoadingNextPage) return null
+        if (endReached || isLoading) return null
         return load(page = nextPage, isFirstPage = false)
     }
 
     private suspend fun load(page: Int, isFirstPage: Boolean): PageLoadResult<T> {
-        isLoadingNextPage = true
+        isLoading = true
         val outcome = try {
             loadPage(page)
         } catch (cancellation: CancellationException) {
-            isLoadingNextPage = false
+            isLoading = false
             throw cancellation
         } catch (throwable: Throwable) {
-            isLoadingNextPage = false
+            isLoading = false
             return PageLoadResult.UnexpectedError(throwable = throwable, isFirstPage = isFirstPage)
         }
-        isLoadingNextPage = false
+        isLoading = false
         return when (outcome) {
             is CallResult.Success -> {
-                nextPage = page + 1
-                if (outcome.value.isEmpty() && !isFirstPage) {
+                if (outcome.value.isEmpty()) {
                     endReached = true
+                } else {
+                    nextPage = page + 1
                 }
                 PageLoadResult.Success(items = outcome.value, isFirstPage = isFirstPage)
             }

@@ -1,10 +1,12 @@
 package com.alekseivinogradov.celebrity.api.domain.paging
 
 import com.alekseivinogradov.network.api.domain.model.CallResult
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
@@ -64,19 +66,24 @@ class PaginatorTest {
     fun loadNextPageDoesNotAdvancePageOnError() = runTest {
         val requestedPages = mutableListOf<Int>()
         var shouldFail = true
+        val error = Throwable("boom")
         val paginator = Paginator(
             firstPage = 1,
             loadPage = { page ->
                 requestedPages.add(page)
                 if (page == 2 && shouldFail) {
-                    CallResult.OtherError(Throwable("boom"))
+                    CallResult.OtherError(error)
                 } else {
                     CallResult.Success(listOf("item$page"))
                 }
             }
         )
         paginator.loadFirstPage()
-        paginator.loadNextPage() // page 2 fails, does not advance
+        val firstAttemptResult = paginator.loadNextPage() // page 2 fails, does not advance
+        assertEquals(
+            PageLoadResult.Error(throwable = error, isFirstPage = false),
+            firstAttemptResult
+        )
 
         shouldFail = false
         val retryResult = paginator.loadNextPage() // retries page 2
@@ -91,17 +98,23 @@ class PaginatorTest {
     @Test
     fun loadFirstPageResetsEndReachedAndPageCounter() = runTest {
         val requestedPages = mutableListOf<Int>()
+        var firstPageIsEmpty = true
         val paginator = Paginator<String>(
             firstPage = 1,
             loadPage = { page ->
                 requestedPages.add(page)
-                if (page == 1) CallResult.Success(emptyList()) else CallResult.Success(listOf("item"))
+                if (page == 1 && firstPageIsEmpty) {
+                    CallResult.Success(emptyList())
+                } else {
+                    CallResult.Success(listOf("item$page"))
+                }
             }
         )
         paginator.loadFirstPage() // page 1 -> empty -> endReached = true
         assertNull(paginator.loadNextPage()) // blocked by endReached
 
-        paginator.loadFirstPage() // reset
+        firstPageIsEmpty = false
+        paginator.loadFirstPage() // reset: page 1 now has data
         requestedPages.clear()
         paginator.loadNextPage()
 
@@ -160,5 +173,17 @@ class PaginatorTest {
         val result = paginator.loadFirstPage()
 
         assertEquals(PageLoadResult.UnexpectedError(throwable = error, isFirstPage = true), result)
+    }
+
+    @Test
+    fun loadFirstPageDoesNotSwallowCancellation() = runTest {
+        val paginator = Paginator<String>(
+            firstPage = 1,
+            loadPage = { throw CancellationException("cancelled") }
+        )
+
+        assertFailsWith<CancellationException> {
+            paginator.loadFirstPage()
+        }
     }
 }
