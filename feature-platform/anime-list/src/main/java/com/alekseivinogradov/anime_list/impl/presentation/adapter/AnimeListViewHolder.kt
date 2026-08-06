@@ -223,11 +223,11 @@ internal class AnimeListViewHolder(
         }
 
         val episodesTotalNotNull = episodesTotal ?: 0
-        val episotesTotalString = if (episodesTotalNotNull > 0) {
+        val episodesTotalString = if (episodesTotalNotNull > 0) {
             episodesTotalNotNull.toString()
         } else "?"
 
-        return "$episodesString: $episodesAiredString / $episotesTotalString"
+        return "$episodesString: $episodesAiredString / $episodesTotalString"
     }
 
     private fun bindExtraEpisodesInfo(
