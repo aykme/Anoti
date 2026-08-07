@@ -31,8 +31,9 @@ class SearchSectionExecutorImpl(
     private var searchFlow: MutableStateFlow<String>? = null
     private var changeSearchJob: Job? = null
     private var updateSectionJob: Job? = null
+    private var loadNextPageJob: Job? = null
     private val updateAnimeDetailsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
-    private var paginator: Paginator<ListItemDomain> = createPaginator()
+    private var paginator: Paginator<ListItemDomain> = createPaginator(searchText = "")
 
     override fun executeIntent(intent: SearchSectionStore.Intent) {
         when (intent) {
@@ -46,13 +47,13 @@ class SearchSectionExecutorImpl(
         }
     }
 
-    private fun createPaginator(): Paginator<ListItemDomain> {
+    private fun createPaginator(searchText: String = state().searchText): Paginator<ListItemDomain> {
         return Paginator(
             firstPage = FIRST_PAGE,
             loadPage = { page ->
                 usecases.fetchAnimeListBySearchUsecase.execute(
                     page = page,
-                    searchText = state().searchText
+                    searchText = searchText
                 )
             }
         )
@@ -79,6 +80,7 @@ class SearchSectionExecutorImpl(
 
     private fun updateSection() {
         updateSectionJob?.cancel()
+        loadNextPageJob?.cancel()
         paginator = createPaginator()
         updateSectionJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
             dispatch(
@@ -121,7 +123,7 @@ class SearchSectionExecutorImpl(
     }
 
     private fun loadNextPage() {
-        scope.launch(coroutineContextProvider.mainCoroutineContext) {
+        loadNextPageJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
             when (val result = paginator.loadNextPage()) {
                 is PageLoadResult.Success -> dispatch(
                     SearchSectionStore.Message.UpdateListItems(

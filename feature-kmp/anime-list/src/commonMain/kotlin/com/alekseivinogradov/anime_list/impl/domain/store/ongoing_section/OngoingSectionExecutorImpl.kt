@@ -24,6 +24,7 @@ class OngoingSectionExecutorImpl(
 ) : OngoingSectionExecutor() {
 
     private var updateSectionJob: Job? = null
+    private var loadNextPageJob: Job? = null
     private val updateAnimeDetailsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
     private var paginator: Paginator<ListItemDomain> = createPaginator()
 
@@ -58,6 +59,7 @@ class OngoingSectionExecutorImpl(
 
     private fun updateSection() {
         updateSectionJob?.cancel()
+        loadNextPageJob?.cancel()
         paginator = createPaginator()
         updateSectionJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
             dispatch(
@@ -99,7 +101,7 @@ class OngoingSectionExecutorImpl(
     }
 
     private fun loadNextPage() {
-        scope.launch(coroutineContextProvider.mainCoroutineContext) {
+        loadNextPageJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
             when (val result = paginator.loadNextPage()) {
                 is PageLoadResult.Success -> dispatch(
                     OngoingSectionStore.Message.UpdateListItems(

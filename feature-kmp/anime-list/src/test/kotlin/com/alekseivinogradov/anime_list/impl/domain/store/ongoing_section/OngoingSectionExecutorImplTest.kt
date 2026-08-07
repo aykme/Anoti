@@ -151,6 +151,26 @@ class OngoingSectionExecutorImplTest {
     }
 
     @Test
+    fun loadNextPageOnHttpErrorLeavesListAndContentTypeUnchanged() = runTest(testDispatcher) {
+        var toastCount = 0
+        val item = testListItem(id = 1)
+        val store = createStore(
+            pages = mapOf(
+                1 to CallResult.Success(listOf(item)),
+                2 to CallResult.HttpError(code = 500, throwable = Throwable())
+            ),
+            onConnectionErrorToast = { toastCount++ }
+        )
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+        store.accept(OngoingSectionStore.Intent.LoadNextPage)
+        store.states.first { toastCount == 1 }
+
+        assertEquals(listOf(item), store.state.sectionContent.listItems)
+        assertEquals(ContentTypeDomain.LOADED, store.state.sectionContent.contentType)
+    }
+
+    @Test
     fun loadNextPageAtEndOfListDoesNothing() = runTest(testDispatcher) {
         val item = testListItem(id = 1)
         val store = createStore(

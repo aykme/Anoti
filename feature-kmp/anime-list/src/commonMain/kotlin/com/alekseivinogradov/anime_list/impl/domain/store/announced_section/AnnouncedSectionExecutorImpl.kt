@@ -20,6 +20,7 @@ class AnnouncedSectionExecutorImpl(
 ) : AnnouncedSectionExecutor() {
 
     private var updateSectionJob: Job? = null
+    private var loadNextPageJob: Job? = null
     private var paginator: Paginator<ListItemDomain> = createPaginator()
 
     override fun executeIntent(intent: AnnouncedSectionStore.Intent) {
@@ -47,6 +48,7 @@ class AnnouncedSectionExecutorImpl(
 
     private fun updateSection() {
         updateSectionJob?.cancel()
+        loadNextPageJob?.cancel()
         paginator = createPaginator()
         updateSectionJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
             dispatch(
@@ -83,7 +85,7 @@ class AnnouncedSectionExecutorImpl(
     }
 
     private fun loadNextPage() {
-        scope.launch(coroutineContextProvider.mainCoroutineContext) {
+        loadNextPageJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
             when (val result = paginator.loadNextPage()) {
                 is PageLoadResult.Success -> dispatch(
                     AnnouncedSectionStore.Message.UpdateListItems(

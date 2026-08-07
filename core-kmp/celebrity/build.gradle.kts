@@ -29,7 +29,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":core-kmp:network"))
+            api(project(":core-kmp:network"))
             implementation(libs.kotlinx.coroutines.core)
         }
         commonTest.dependencies {
