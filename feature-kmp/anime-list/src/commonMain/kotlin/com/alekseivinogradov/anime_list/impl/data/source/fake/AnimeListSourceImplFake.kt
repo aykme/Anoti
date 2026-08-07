@@ -7,8 +7,8 @@ import com.alekseivinogradov.anime_list.api.domain.source.AnimeListSource
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import com.alekseivinogradov.network.api.domain.model.test.DesiredCallResult
-import kotlinx.coroutines.delay
 import kotlin.time.Duration
+import kotlinx.coroutines.delay
 
 class AnimeListSourceImplFake(
     private val desiredCallResult: DesiredCallResult,

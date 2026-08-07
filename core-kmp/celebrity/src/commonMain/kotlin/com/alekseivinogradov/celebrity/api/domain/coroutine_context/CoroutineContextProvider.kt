@@ -1,7 +1,7 @@
 package com.alekseivinogradov.celebrity.api.domain.coroutine_context
 
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineDispatcher
 
 interface CoroutineContextProvider {
 

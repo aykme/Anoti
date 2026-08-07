@@ -6,8 +6,8 @@ import com.alekseivinogradov.anime_base.api.data.response.ImageResponse
 import com.alekseivinogradov.anime_base.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.network.api.domain.model.test.DesiredCallResult
-import kotlinx.coroutines.delay
 import kotlin.time.Duration
+import kotlinx.coroutines.delay
 
 class ShikimoriApiServiceImplFake(
     private val desiredCallResult: DesiredCallResult,
@@ -87,7 +87,11 @@ class ShikimoriApiServiceImplFake(
             score = 8.97F,
             releaseStatus = "ongoing",
             kind = "tv",
-            description = "Борьба с «Ванденрейхом» не прекращается ни на минуту, Сообщество душ всеми силами пытается остановить врага, но [character=68537]Яхве[/character] всё же удаётся заполучить неимоверную силу, пробравшись во владения Короля душ. Теперь [character=68537]Яхве[/character] стал намного сильнее, а шансы на победу синигами приблизились к нулю."
+            description = "Борьба с «Ванденрейхом» не прекращается ни на минуту, Сообщество душ " +
+                "всеми силами пытается остановить врага, но [character=68537]Яхве[/character] " +
+                "всё же удаётся заполучить неимоверную силу, пробравшись во владения Короля душ. " +
+                "Теперь [character=68537]Яхве[/character] стал намного сильнее, а шансы на победу " +
+                "синигами приблизились к нулю."
         )
     }
 

@@ -38,6 +38,5 @@ dependencies {
     implementation(project(":core-platform:navigation"))
 
     implementation(libs.dagger)
-    implementation(libs.androidx.core.ktx)
     ksp(libs.dagger.compiler)
 }

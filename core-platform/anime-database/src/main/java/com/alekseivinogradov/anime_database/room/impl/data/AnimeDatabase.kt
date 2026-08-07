@@ -25,7 +25,7 @@ abstract class AnimeDatabase : RoomDatabase() {
                     AnimeDatabase::class.java,
                     animeTableName
                 )
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration(dropAllTables = true)
                     .build()
                 instance = newInstance
                 newInstance

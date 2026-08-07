@@ -1,9 +1,9 @@
 package com.alekseivinogradov.test_utils
 
 import androidx.test.espresso.ViewInteraction
-import kotlinx.coroutines.delay
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.delay
 
 suspend fun safeInteraction(
     maxAttempt: Int = 20,

@@ -38,7 +38,6 @@ dependencies {
     implementation(project(":core-platform:celebrity"))
     implementation(project(":core-platform:network"))
 
-    implementation(libs.androidx.core.ktx)
     implementation(libs.dagger)
     implementation(libs.androidx.recyclerview)
     ksp(libs.dagger.compiler)

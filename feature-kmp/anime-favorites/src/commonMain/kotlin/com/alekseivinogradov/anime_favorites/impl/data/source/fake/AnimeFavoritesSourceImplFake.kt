@@ -6,8 +6,8 @@ import com.alekseivinogradov.anime_favorites.api.domain.source.AnimeFavoritesSou
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import com.alekseivinogradov.network.api.domain.model.test.DesiredCallResult
-import kotlinx.coroutines.delay
 import kotlin.time.Duration
+import kotlinx.coroutines.delay
 
 class AnimeFavoritesSourceImplFake(
     private val desiredCallResult: DesiredCallResult,

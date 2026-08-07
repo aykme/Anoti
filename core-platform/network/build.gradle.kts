@@ -52,6 +52,5 @@ dependencies {
     implementation(platform(libs.okhttp.bom))
     // define any required OkHttp artifacts without version
     implementation(libs.okhttp)
-    implementation(libs.logging.interceptor)
     ksp(libs.dagger.compiler)
 }

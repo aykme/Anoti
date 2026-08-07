@@ -35,11 +35,11 @@ import com.alekseivinogradov.di.api.presentation.scope.ActivityScope
 import com.alekseivinogradov.main.R
 import com.alekseivinogradov.main.databinding.ActivityMainBinding
 import com.alekseivinogradov.main.impl.presentation.di.DaggerMainComponentInternal
+import com.alekseivinogradov.res.R as res_R
 import com.arkivanov.essenty.lifecycle.asEssentyLifecycle
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import javax.inject.Inject
-import com.alekseivinogradov.res.R as res_R
 
 @ActivityScope
 class MainActivity : AppCompatActivity(), MainActivityExternal {

@@ -54,9 +54,6 @@ dependencies {
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.recyclerview)
     implementation(libs.glide)
-    implementation(libs.glide.okhttp3)
-    implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.work.runtime)
     ksp(libs.dagger.compiler)
-    ksp(libs.glide.ksp)
 }

@@ -12,9 +12,9 @@ class DateFormatterImpl(
 ) : DateFormatter {
 
     private val locale = if (isAutomaticLanguageDetection) {
-        activityContext.resources.configuration.locales.get(0) ?: Locale("en")
+        activityContext.resources.configuration.locales.get(0) ?: Locale.forLanguageTag("en")
     } else {
-        Locale("en")
+        Locale.forLanguageTag("en")
     }
 
     private val inputDateParseFormatter = SimpleDateFormat(

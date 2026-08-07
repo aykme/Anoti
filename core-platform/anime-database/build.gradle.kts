@@ -38,7 +38,6 @@ dependencies {
     implementation(project(":core-platform:celebrity"))
     implementation(project(":core-platform:di"))
 
-    implementation(libs.androidx.core.ktx)
     implementation(libs.mvikotlin)
     implementation(libs.dagger)
     implementation(libs.androidx.room.ktx)

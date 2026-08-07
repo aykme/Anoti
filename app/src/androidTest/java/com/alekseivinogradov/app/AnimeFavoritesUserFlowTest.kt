@@ -16,10 +16,14 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import com.alekseivinogradov.anime_favorites_platform.R as anime_favorites_R
+import com.alekseivinogradov.anime_list_platform.R as anime_list_R
+import com.alekseivinogradov.main.R as main_R
 import com.alekseivinogradov.main.impl.presentation.MainActivity
 import com.alekseivinogradov.test_utils.action.clickOnChildView
 import com.alekseivinogradov.test_utils.matcher.AtRecyclerPositionMatcher
 import com.alekseivinogradov.test_utils.safeInteraction
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.allOf
@@ -28,10 +32,6 @@ import org.hamcrest.Matchers.startsWith
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import kotlin.time.Duration.Companion.seconds
-import com.alekseivinogradov.anime_favorites_platform.R as anime_favorites_R
-import com.alekseivinogradov.anime_list_platform.R as anime_list_R
-import com.alekseivinogradov.main.R as main_R
 
 class AnimeFavoritesUserFlowTest {
 
@@ -56,7 +56,6 @@ class AnimeFavoritesUserFlowTest {
     fun setup() {
         resources = InstrumentationRegistry.getInstrumentation().targetContext.resources
     }
-
 
     // "Run Blocking" because of don't need to skip delay with interaction retry
     @Test

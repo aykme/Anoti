@@ -5,8 +5,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.anime_database.room.api.data.model.AnimeDbPlatform
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import kotlinx.coroutines.flow.Flow
 
 @Dao

@@ -2,10 +2,10 @@ package com.alekseivinogradov.network.impl.data
 
 import com.alekseivinogradov.network.api.data.SafeApi
 import com.alekseivinogradov.network.api.domain.model.CallResult
-import kotlinx.coroutines.delay
-import retrofit2.HttpException
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration
+import kotlinx.coroutines.delay
+import retrofit2.HttpException
 
 class SafeApiImpl(
     private val maxAttempt: Int,

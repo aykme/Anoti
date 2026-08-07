@@ -6,15 +6,15 @@ import com.alekseivinogradov.anime_background_update.api.domain.model.ListItemDo
 import com.alekseivinogradov.anime_background_update.api.domain.model.WorkResult
 import com.alekseivinogradov.anime_background_update.impl.domain.usecase.FetchAnimeListByIdsUsecase
 import com.alekseivinogradov.anime_base.api.domain.model.ReleaseStatusDomain
+import com.alekseivinogradov.anime_database.api.domain.model.AnimeDbDomain
+import com.alekseivinogradov.anime_database.api.domain.model.ReleaseStatusDb
+import com.alekseivinogradov.anime_database.api.domain.usecase.FetchAllAnimeDatabaseItemsUsecase
+import com.alekseivinogradov.anime_database.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
 import com.alekseivinogradov.anime_notification.api.domain.manager.AnimeNotificationManager
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.celebrity.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.celebrity.api.domain.Index
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
-import com.alekseivinogradov.anime_database.api.domain.model.AnimeDbDomain
-import com.alekseivinogradov.anime_database.api.domain.model.ReleaseStatusDb
-import com.alekseivinogradov.anime_database.api.domain.usecase.FetchAllAnimeDatabaseItemsUsecase
-import com.alekseivinogradov.anime_database.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.withContext
 

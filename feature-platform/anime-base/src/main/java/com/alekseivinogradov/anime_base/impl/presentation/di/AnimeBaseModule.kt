@@ -6,8 +6,8 @@ import com.alekseivinogradov.anime_base.impl.data.service.ShikimoriApiServiceImp
 import com.alekseivinogradov.network.api.domain.SHIKIMORI_BASE_URL
 import dagger.Module
 import dagger.Provides
-import retrofit2.Retrofit
 import javax.inject.Singleton
+import retrofit2.Retrofit
 
 @Module
 interface AnimeBaseModule {

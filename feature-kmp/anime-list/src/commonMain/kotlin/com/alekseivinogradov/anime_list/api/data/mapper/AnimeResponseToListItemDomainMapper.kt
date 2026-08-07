@@ -23,7 +23,6 @@ internal fun AnimeShortResponse.toListItemDomain() = ListItemDomain(
     releaseStatus = mapReleaseStatusDataToDomain(this.releaseStatus)
 )
 
-
 /**
  * @param id - Anime id.
  * id == -1 is fallback. Need to filter null values before using this method

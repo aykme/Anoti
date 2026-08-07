@@ -37,7 +37,7 @@ kotlin {
 
             implementation(libs.mvikotlin)
             implementation(libs.kotlinx.coroutines.core)
-            implementation(libs.mvikotlin.extensions.coroutines)
+            api(libs.mvikotlin.extensions.coroutines)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

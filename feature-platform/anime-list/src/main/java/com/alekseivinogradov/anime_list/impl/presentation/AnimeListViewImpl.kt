@@ -26,13 +26,13 @@ import com.alekseivinogradov.celebrity.api.domain.PAGING_PREFETCH_DISTANCE
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.celebrity.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.celebrity.impl.presentation.edge_to_edge.isEdgeToEdgeEnabled
+import com.alekseivinogradov.res.R as res_R
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import com.alekseivinogradov.res.R as res_R
 
 internal class AnimeListViewImpl(
     private val viewBinding: FragmentAnimeListBinding,

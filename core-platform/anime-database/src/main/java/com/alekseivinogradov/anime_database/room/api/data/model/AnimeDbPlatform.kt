@@ -3,9 +3,9 @@ package com.alekseivinogradov.anime_database.room.api.data.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.anime_database.api.domain.model.ReleaseStatusDb
 import com.alekseivinogradov.anime_database.room.api.data.animeTableName
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
 
 @Entity(tableName = animeTableName)
 data class AnimeDbPlatform(

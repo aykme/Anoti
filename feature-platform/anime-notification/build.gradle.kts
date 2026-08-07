@@ -43,7 +43,5 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.dagger)
     implementation(libs.glide)
-    implementation(libs.glide.okhttp3)
     ksp(libs.dagger.compiler)
-    ksp(libs.glide.ksp)
 }

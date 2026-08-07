@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anime_database.api.domain.store
 
-import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.anime_database.api.domain.model.AnimeDbDomain
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.arkivanov.mvikotlin.core.store.Store
 
 interface AnimeDatabaseStore

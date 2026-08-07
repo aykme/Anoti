@@ -34,12 +34,7 @@ kotlin {
 
             implementation(libs.mvikotlin)
             implementation(libs.kotlinx.coroutines.core)
-            implementation(libs.mvikotlin.logger)
-            implementation(libs.mvikotlin.timetravel)
             implementation(libs.mvikotlin.extensions.coroutines)
-        }
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
         }
     }
 }

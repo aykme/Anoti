@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anime_favorites.api.domain.mapper
 
-import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseStore
+import com.alekseivinogradov.anime_favorites.api.domain.store.AnimeFavoritesMainStore
 
 internal fun mapMainStoreLabelToDatabaseStoreIntent(
     label: AnimeFavoritesMainStore.Label

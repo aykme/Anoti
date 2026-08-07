@@ -41,7 +41,6 @@ dependencies {
     implementation(project(":core-platform:di"))
     implementation(project(":core-platform:network"))
 
-    implementation(libs.androidx.core.ktx)
     implementation(libs.dagger)
     implementation(libs.androidx.work.runtime)
     ksp(libs.dagger.compiler)

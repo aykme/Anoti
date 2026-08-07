@@ -13,10 +13,10 @@ import com.alekseivinogradov.anime_notification.api.domain.manager.AnimeNotifica
 import com.alekseivinogradov.anime_notification.impl.presentation.factory.AnimeNotificationChannelFactory
 import com.alekseivinogradov.anime_notification.impl.presentation.provider.AnimeNotificationIntentProvider
 import com.alekseivinogradov.anime_notification_platform.R
+import com.alekseivinogradov.res.R as res_R
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import kotlin.coroutines.cancellation.CancellationException
-import com.alekseivinogradov.res.R as res_R
 
 class AnimeNotificationManagerImpl(
     appContext: Context,
@@ -101,8 +101,6 @@ class AnimeNotificationManagerImpl(
                 .setStyle(summaryNewEpisodesStyle.setSummaryText(newEpisodesString))
                 .build()
         }
-
-
 
         notificationManager = NotificationManagerCompat.from(appContext)
     }

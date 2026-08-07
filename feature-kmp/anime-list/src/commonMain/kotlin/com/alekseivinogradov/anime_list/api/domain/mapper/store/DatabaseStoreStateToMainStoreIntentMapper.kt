@@ -1,8 +1,8 @@
 package com.alekseivinogradov.anime_list.api.domain.mapper.store
 
+import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
-import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseStore
 
 internal fun mapDatabaseStoreStateToMainStoreIntent(
     state: AnimeDatabaseStore.State

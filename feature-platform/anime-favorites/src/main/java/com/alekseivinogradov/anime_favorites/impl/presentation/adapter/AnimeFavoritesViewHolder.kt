@@ -17,8 +17,8 @@ import com.alekseivinogradov.celebrity.api.domain.REPEAT_LISTENER_INITIAL_INTERV
 import com.alekseivinogradov.celebrity.api.domain.REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS
 import com.alekseivinogradov.celebrity.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.celebrity.impl.presentation.repeat_listener.RepeatListener
-import com.bumptech.glide.Glide
 import com.alekseivinogradov.res.R as res_R
+import com.bumptech.glide.Glide
 
 internal class AnimeFavoritesViewHolder(
     private val binding: ItemAnimeFavoritesBinding,

@@ -1,11 +1,11 @@
 package com.alekseivinogradov.anime_database.impl.domain.store
 
-import com.alekseivinogradov.celebrity.api.domain.AnimeId
-import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.anime_database.api.domain.model.AnimeDbDomain
 import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseExecutor
 import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anime_database.api.domain.usecase.wrapper.AnimeDatabaseUsecases
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
+import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 

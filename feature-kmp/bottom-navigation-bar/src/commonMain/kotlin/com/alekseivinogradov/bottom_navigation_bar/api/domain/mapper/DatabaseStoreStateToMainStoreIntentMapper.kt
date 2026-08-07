@@ -1,7 +1,7 @@
 package com.alekseivinogradov.bottom_navigation_bar.api.domain.mapper
 
-import com.alekseivinogradov.bottom_navigation_bar.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseStore
+import com.alekseivinogradov.bottom_navigation_bar.api.domain.store.BottomNavigationBarStore
 
 internal fun mapDatabaseStoreStateToMainStoreIntent(
     state: AnimeDatabaseStore.State

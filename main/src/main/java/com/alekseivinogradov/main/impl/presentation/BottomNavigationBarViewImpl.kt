@@ -11,11 +11,11 @@ import com.alekseivinogradov.bottom_navigation_bar.api.presentation.model.UiMode
 import com.alekseivinogradov.bottom_navigation_bar.impl.presentation.BottomNavigationBarView
 import com.alekseivinogradov.main.R
 import com.alekseivinogradov.main.databinding.ActivityMainBinding
+import com.alekseivinogradov.res.R as res_R
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer
 import com.google.android.material.badge.BadgeDrawable
-import com.alekseivinogradov.res.R as res_R
 
 internal class BottomNavigationBarViewImpl(
     private val viewBinding: ActivityMainBinding,

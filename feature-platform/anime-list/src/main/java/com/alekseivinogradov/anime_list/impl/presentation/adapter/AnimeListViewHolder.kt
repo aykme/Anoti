@@ -13,8 +13,8 @@ import com.alekseivinogradov.anime_list.api.presentation.model.item_content.Rele
 import com.alekseivinogradov.anime_list_platform.R
 import com.alekseivinogradov.anime_list_platform.databinding.ItemAnimeListBinding
 import com.alekseivinogradov.celebrity.api.domain.formatter.DateFormatter
-import com.bumptech.glide.Glide
 import com.alekseivinogradov.res.R as res_R
+import com.bumptech.glide.Glide
 
 internal class AnimeListViewHolder(
     private val binding: ItemAnimeListBinding,

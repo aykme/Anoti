@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anime_database.api.domain.repository
 
-import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.anime_database.api.domain.model.AnimeDbDomain
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import kotlinx.coroutines.flow.Flow
 
 interface AnimeDatabaseRepository {

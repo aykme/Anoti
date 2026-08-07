@@ -34,7 +34,6 @@ android {
 
 dependencies {
 
-    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.recyclerview)
 }

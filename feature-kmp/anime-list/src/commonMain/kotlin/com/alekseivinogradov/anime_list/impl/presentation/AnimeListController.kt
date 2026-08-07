@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anime_list.impl.presentation
 
+import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapAnnouncedStoreLabelToMainStoreIntent
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapAnnouncedStoreStateToMainStoreIntent
 import com.alekseivinogradov.anime_list.api.domain.mapper.store.mapDatabaseStoreStateToMainStoreIntent
@@ -17,7 +18,6 @@ import com.alekseivinogradov.anime_list.api.domain.store.ongoing_section.Ongoing
 import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionStore
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
 import com.alekseivinogradov.anime_list.api.presentation.mapper.model.mapStateToUiModel
-import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseStore
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.mvikotlin.core.binder.BinderLifecycleMode

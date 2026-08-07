@@ -1,9 +1,9 @@
 package com.alekseivinogradov.bottom_navigation_bar.impl.presentation
 
+import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.bottom_navigation_bar.api.domain.mapper.mapDatabaseStoreStateToMainStoreIntent
 import com.alekseivinogradov.bottom_navigation_bar.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.bottom_navigation_bar.api.presentation.mapper.mapStateToUiModel
-import com.alekseivinogradov.anime_database.api.domain.store.AnimeDatabaseStore
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.mvikotlin.core.binder.BinderLifecycleMode

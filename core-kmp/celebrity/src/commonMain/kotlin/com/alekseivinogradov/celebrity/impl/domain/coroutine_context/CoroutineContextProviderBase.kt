@@ -1,12 +1,12 @@
 package com.alekseivinogradov.celebrity.impl.domain.coroutine_context
 
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
-import kotlin.coroutines.CoroutineContext
 
 abstract class CoroutineContextProviderBase : CoroutineContextProvider {
 
