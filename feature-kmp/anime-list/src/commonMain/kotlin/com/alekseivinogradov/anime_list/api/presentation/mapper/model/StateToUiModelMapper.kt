@@ -1,7 +1,5 @@
 package com.alekseivinogradov.anime_list.api.presentation.mapper.model
 
-import app.cash.paging.PagingData
-import app.cash.paging.map
 import com.alekseivinogradov.anime_base.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_list.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
@@ -68,7 +66,7 @@ private fun getListContentUi(state: AnimeListMainStore.State): ListContentUi {
 
 private fun getListItemsUi(
     state: AnimeListMainStore.State
-): PagingData<ListItemUi> {
+): List<ListItemUi> {
     val listItemsContent = when (state.selectedSection) {
         SectionHatDomain.ONGOINGS -> state.ongoingContent
         SectionHatDomain.ANNOUNCED -> state.announcedContent

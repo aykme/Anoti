@@ -1,8 +1,6 @@
 package com.alekseivinogradov.anime_list.api.presentation.model
 
-import app.cash.paging.PagingData
-
 data class ListContentUi(
-    val listItems: PagingData<ListItemUi> = PagingData.empty(),
+    val listItems: List<ListItemUi> = emptyList(),
     val isNeedToResetListPositon: Boolean = false
 )
