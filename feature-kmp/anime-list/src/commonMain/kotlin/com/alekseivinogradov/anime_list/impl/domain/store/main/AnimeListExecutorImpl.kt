@@ -7,6 +7,7 @@ import com.alekseivinogradov.anime_list.api.domain.model.SectionHatDomain
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListExecutor
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.celebrity.api.domain.ANIMATION_DURATION_VERY_SHORT
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -270,33 +271,44 @@ class AnimeListExecutorImpl(
     private fun episodeInfoClick(intent: AnimeListMainStore.Intent.EpisodesInfoClick) {
         when (state().selectedSection) {
             SectionHatDomain.ONGOINGS -> publish(
-                AnimeListMainStore.Label.OngoingEpisodeInfoClick(intent.listItem)
+                AnimeListMainStore.Label.OngoingEpisodeInfoClick(intent.id)
             )
 
             SectionHatDomain.ANNOUNCED -> publish(
-                AnimeListMainStore.Label.AnnouncedEpisodeInfoClick(intent.listItem)
+                AnimeListMainStore.Label.AnnouncedEpisodeInfoClick(intent.id)
             )
 
             SectionHatDomain.SEARCH -> publish(
-                AnimeListMainStore.Label.SearchEpisodeInfoClick(intent.listItem)
+                AnimeListMainStore.Label.SearchEpisodeInfoClick(intent.id)
             )
         }
     }
 
     private fun notificationClick(intent: AnimeListMainStore.Intent.NotificationClick) {
-        if (state().enabledNotificationIds.contains(intent.listItem.id).not()) {
-            enableNotification(intent.listItem)
+        if (state().enabledNotificationIds.contains(intent.id).not()) {
+            enableNotification(intent.id)
         } else {
-            disableNotification(intent.listItem.id)
+            disableNotification(intent.id)
         }
     }
 
-    private fun enableNotification(listItem: ListItemDomain) {
+    private fun enableNotification(id: AnimeId) {
+        val listItem = findSelectedSectionListItem(id) ?: return
         publish(AnimeListMainStore.Label.EnableNotificationClick(listItem))
     }
 
-    private fun disableNotification(id: Int) {
+    private fun disableNotification(id: AnimeId) {
         publish(AnimeListMainStore.Label.DisableNotificationClick(id))
+    }
+
+    private fun findSelectedSectionListItem(id: AnimeId): ListItemDomain? {
+        val state = state()
+        val content = when (state.selectedSection) {
+            SectionHatDomain.ONGOINGS -> state.ongoingContent
+            SectionHatDomain.ANNOUNCED -> state.announcedContent
+            SectionHatDomain.SEARCH -> state.searchContent
+        }
+        return content.listItems.find { it.id == id }
     }
 
     private fun updateEnabledNotificationIds(
