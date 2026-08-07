@@ -1,29 +1,23 @@
 package com.alekseivinogradov.anime_list.impl.domain.store.search_section
 
-import app.cash.paging.Pager
-import app.cash.paging.PagingConfig
-import app.cash.paging.PagingData
-import app.cash.paging.cachedIn
 import com.alekseivinogradov.anime_base.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anime_list.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anime_list.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionExecutor
 import com.alekseivinogradov.anime_list.api.domain.store.search_section.SearchSectionStore
-import com.alekseivinogradov.anime_list.impl.domain.paging.SearchListDataSource
 import com.alekseivinogradov.anime_list.impl.domain.usecase.wrapper.SearchUsecases
 import com.alekseivinogradov.celebrity.api.domain.AnimeId
-import com.alekseivinogradov.celebrity.api.domain.ITEMS_PER_PAGE
-import com.alekseivinogradov.celebrity.api.domain.PAGING_PREFETCH_DISTANCE
+import com.alekseivinogradov.celebrity.api.domain.FIRST_PAGE
 import com.alekseivinogradov.celebrity.api.domain.SEARCH_DEBOUNCE_MILLISECONDS
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
+import com.alekseivinogradov.celebrity.api.domain.paging.PageLoadResult
+import com.alekseivinogradov.celebrity.api.domain.paging.Paginator
 import com.alekseivinogradov.celebrity.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.network.api.domain.model.CallResult
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -38,16 +32,30 @@ class SearchSectionExecutorImpl(
     private var changeSearchJob: Job? = null
     private var updateSectionJob: Job? = null
     private val updateAnimeDetailsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
+    private var paginator: Paginator<ListItemDomain> = createPaginator()
 
     override fun executeIntent(intent: SearchSectionStore.Intent) {
         when (intent) {
             SearchSectionStore.Intent.OpenSection -> openSection()
             SearchSectionStore.Intent.UpdateSection -> updateSection()
+            SearchSectionStore.Intent.LoadNextPage -> loadNextPage()
 
             is SearchSectionStore.Intent.ChangeSearchText -> ChangesearchText(intent)
 
             is SearchSectionStore.Intent.EpisodesInfoClick -> episodeInfoClick(intent)
         }
+    }
+
+    private fun createPaginator(): Paginator<ListItemDomain> {
+        return Paginator(
+            firstPage = FIRST_PAGE,
+            loadPage = { page ->
+                usecases.fetchAnimeListBySearchUsecase.execute(
+                    page = page,
+                    searchText = state().searchText
+                )
+            }
+        )
     }
 
     private fun openSection() {
@@ -71,6 +79,7 @@ class SearchSectionExecutorImpl(
 
     private fun updateSection() {
         updateSectionJob?.cancel()
+        paginator = createPaginator()
         updateSectionJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
             dispatch(
                 SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
@@ -85,42 +94,46 @@ class SearchSectionExecutorImpl(
                     animeDetails = AnimeDetails()
                 )
             )
-            getPagingDataFlow().collect { listItems: PagingData<ListItemDomain> ->
-                publish(SearchSectionStore.Label.ResetListPositionAfterUpdate)
-                dispatch(SearchSectionStore.Message.UpdateListItems(listItems))
+            publish(SearchSectionStore.Label.ResetListPositionAfterUpdate)
+            when (val result = paginator.loadFirstPage()) {
+                is PageLoadResult.Success -> {
+                    dispatch(SearchSectionStore.Message.UpdateListItems(result.items))
+                    dispatch(
+                        SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADED)
+                    )
+                }
+
+                is PageLoadResult.Error -> {
+                    toastProvider.makeConnectionErrorToast()
+                    dispatch(
+                        SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR)
+                    )
+                }
+
+                is PageLoadResult.UnexpectedError -> {
+                    toastProvider.makeUnknownErrorToast()
+                    dispatch(
+                        SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR)
+                    )
+                }
             }
         }
     }
 
-    private fun getPagingDataFlow(): Flow<PagingData<ListItemDomain>> {
-        return Pager(
-            config = PagingConfig(
-                pageSize = ITEMS_PER_PAGE,
-                prefetchDistance = PAGING_PREFETCH_DISTANCE,
-                enablePlaceholders = true
-            )
-        ) {
-            SearchListDataSource(
-                fetchAnimeListBySearchUsecase = usecases.fetchAnimeListBySearchUsecase,
-                searchText = state().searchText,
-                toastProvider = toastProvider,
-                initialLoadSuccessCallback = ::initialLoadSuccessCallback,
-                initialLoadErrorCallback = ::initialLoadErrorCallback
-            )
-        }.flow.catch { toastProvider.makeUnknownErrorToast() }
-            .cachedIn(scope)
-    }
+    private fun loadNextPage() {
+        scope.launch(coroutineContextProvider.mainCoroutineContext) {
+            when (val result = paginator.loadNextPage()) {
+                is PageLoadResult.Success -> dispatch(
+                    SearchSectionStore.Message.UpdateListItems(
+                        state().sectionContent.listItems + result.items
+                    )
+                )
 
-    private fun initialLoadSuccessCallback() {
-        dispatch(
-            SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADED)
-        )
-    }
-
-    private fun initialLoadErrorCallback() {
-        dispatch(
-            SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR)
-        )
+                is PageLoadResult.Error -> toastProvider.makeConnectionErrorToast()
+                is PageLoadResult.UnexpectedError -> toastProvider.makeUnknownErrorToast()
+                null -> Unit
+            }
+        }
     }
 
     private fun ChangesearchText(intent: SearchSectionStore.Intent.ChangeSearchText) {
@@ -129,10 +142,11 @@ class SearchSectionExecutorImpl(
     }
 
     private fun episodeInfoClick(intent: SearchSectionStore.Intent.EpisodesInfoClick) {
-        if (state().sectionContent.enabledExtraEpisodesInfoIds.contains(intent.listItem.id)) {
-            availableEpisodesInfoClick(intent.listItem)
+        val listItem = state().sectionContent.listItems.find { it.id == intent.id } ?: return
+        if (state().sectionContent.enabledExtraEpisodesInfoIds.contains(listItem.id)) {
+            availableEpisodesInfoClick(listItem)
         } else {
-            extraEpisodesInfoClick(intent.listItem)
+            extraEpisodesInfoClick(listItem)
         }
     }
 
