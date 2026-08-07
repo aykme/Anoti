@@ -25,6 +25,9 @@ internal fun mapMainStoreLabelToDatabaseStoreIntent(
         is AnimeListMainStore.Label.AnnouncedEpisodeInfoClick,
         is AnimeListMainStore.Label.OngoingEpisodeInfoClick,
         is AnimeListMainStore.Label.SearchEpisodeInfoClick,
-        is AnimeListMainStore.Label.ChangeSearchText -> null
+        is AnimeListMainStore.Label.ChangeSearchText,
+        AnimeListMainStore.Label.LoadNextPageOngoingSection,
+        AnimeListMainStore.Label.LoadNextPageAnnouncedSection,
+        AnimeListMainStore.Label.LoadNextPageSearchSection -> null
     }
 }

@@ -143,4 +143,21 @@ class AnimeListExecutorImplTest {
         )
         collectJob.cancel()
     }
+
+    @Test
+    fun loadNextPagePublishesLabelForCurrentlySelectedSection() = runTest(testDispatcher) {
+        val store = createStore()
+        store.accept(AnimeListMainStore.Intent.AnnouncedSectionClick)
+
+        val emittedLabels = mutableListOf<AnimeListMainStore.Label>()
+        val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
+
+        store.accept(AnimeListMainStore.Intent.LoadNextPage)
+
+        assertTrue(
+            emittedLabels.contains(AnimeListMainStore.Label.LoadNextPageAnnouncedSection),
+            "Expected LoadNextPageAnnouncedSection among $emittedLabels"
+        )
+        collectJob.cancel()
+    }
 }

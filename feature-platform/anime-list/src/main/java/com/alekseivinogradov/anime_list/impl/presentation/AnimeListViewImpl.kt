@@ -8,9 +8,9 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.alekseivinogradov.anime_base.impl.presentation.adapter.decorator.BottomSpaceLastItemDecorator
 import com.alekseivinogradov.anime_base.impl.presentation.adapter.decorator.EdgeToEdgeItemDecorator
-import com.alekseivinogradov.anime_list.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anime_list.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anime_list.api.presentation.AnimeListView
 import com.alekseivinogradov.anime_list.api.presentation.model.ContentTypeUi
@@ -21,7 +21,8 @@ import com.alekseivinogradov.anime_list.api.presentation.model.UiModel
 import com.alekseivinogradov.anime_list.impl.presentation.adapter.AnimeListAdapter
 import com.alekseivinogradov.anime_list_platform.R
 import com.alekseivinogradov.anime_list_platform.databinding.FragmentAnimeListBinding
-import com.alekseivinogradov.celebrity.api.domain.PAGING_SUBMIT_LIST_DELAY_MILLISECONDS
+import com.alekseivinogradov.celebrity.api.domain.AnimeId
+import com.alekseivinogradov.celebrity.api.domain.PAGING_PREFETCH_DISTANCE
 import com.alekseivinogradov.celebrity.api.domain.coroutine_context.CoroutineContextProvider
 import com.alekseivinogradov.celebrity.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.celebrity.impl.presentation.edge_to_edge.isEdgeToEdgeEnabled
@@ -30,7 +31,6 @@ import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.alekseivinogradov.res.R as res_R
 
@@ -50,15 +50,6 @@ internal class AnimeListViewImpl(
     private val defaultColor
         get() = context.getColor(res_R.color.white_transparent)
 
-    private val resetListPositionCallback: () -> Unit = {
-        viewBinding.animeListRv.scrollToPosition(0)
-        dispatch(
-            AnimeListMainStore.Intent.ChangeResetListPositionFlag(
-                isNeedToResetListPosition = false
-            )
-        )
-    }
-
     private val adapter = AnimeListAdapter(
         episodesInfoClickAdapterCallback = ::episodesInfoClickAdapterCallback,
         notificationClickAdapterCallback = ::notificationClickAdapterCallback,
@@ -66,6 +57,18 @@ internal class AnimeListViewImpl(
     )
 
     private var itemDecorator: EdgeToEdgeItemDecorator? = null
+
+    private val loadNextPageScrollListener = object : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            if (dy <= 0) return
+            val layoutManager = recyclerView.layoutManager as? LinearLayoutManager ?: return
+            val totalItemCount = layoutManager.itemCount
+            val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
+            if (lastVisibleItemPosition >= totalItemCount - PAGING_PREFETCH_DISTANCE) {
+                dispatch(AnimeListMainStore.Intent.LoadNextPage)
+            }
+        }
+    }
 
     init {
         initEdgeToEdgeListenerIfNeeded()
@@ -98,12 +101,12 @@ internal class AnimeListViewImpl(
         )
     }
 
-    private fun episodesInfoClickAdapterCallback(listItem: ListItemDomain) {
-        dispatch(AnimeListMainStore.Intent.EpisodesInfoClick(listItem))
+    private fun episodesInfoClickAdapterCallback(id: AnimeId) {
+        dispatch(AnimeListMainStore.Intent.EpisodesInfoClick(id))
     }
 
-    private fun notificationClickAdapterCallback(listItem: ListItemDomain) {
-        dispatch(AnimeListMainStore.Intent.NotificationClick(listItem))
+    private fun notificationClickAdapterCallback(id: AnimeId) {
+        dispatch(AnimeListMainStore.Intent.NotificationClick(id))
     }
 
     private fun initEdgeToEdgeListenerIfNeeded() {
@@ -213,6 +216,7 @@ internal class AnimeListViewImpl(
             )
             animeListRv.itemAnimator = null
             animeListRv.addItemDecoration(BottomSpaceLastItemDecorator())
+            animeListRv.addOnScrollListener(loadNextPageScrollListener)
         }
     }
 
@@ -320,23 +324,23 @@ internal class AnimeListViewImpl(
         return uiModel.listContent
     }
 
-    private var submitDataJob: Job? = null
+    private var submitListJob: Job? = null
     private fun setListContent(listContent: ListContentUi) {
-        submitDataJob?.cancel()
-        submitDataJob = viewScope.launch(coroutineContextProvider.mainCoroutineContext) {
-            /**
-             * The reason for this delay is that if the list is updated within a few milliseconds,
-             * the PagingDataAdapter freezes and does not update the items.
-             * Apparently, this is a library bug.
-             * This is a big problem in MVI, as state can be updated very often.
-             */
-            delay(PAGING_SUBMIT_LIST_DELAY_MILLISECONDS)
-            adapter.removeOnPagesUpdatedListener(resetListPositionCallback)
+        submitListJob?.cancel()
+        submitListJob = viewScope.launch(coroutineContextProvider.mainCoroutineContext) {
             if (listContent.isNeedToResetListPositon) {
                 viewBinding.animeListRv.stopScroll()
-                adapter.addOnPagesUpdatedListener(resetListPositionCallback)
             }
-            adapter.submitData(listContent.listItems)
+            adapter.submitList(listContent.listItems) {
+                if (listContent.isNeedToResetListPositon) {
+                    viewBinding.animeListRv.scrollToPosition(0)
+                    dispatch(
+                        AnimeListMainStore.Intent.ChangeResetListPositionFlag(
+                            isNeedToResetListPosition = false
+                        )
+                    )
+                }
+            }
         }
     }
 }

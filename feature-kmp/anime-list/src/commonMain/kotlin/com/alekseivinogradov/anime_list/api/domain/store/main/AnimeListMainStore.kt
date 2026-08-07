@@ -35,6 +35,7 @@ interface AnimeListMainStore
         data class EpisodesInfoClick(val id: AnimeId) : Intent
         data class NotificationClick(val id: AnimeId) : Intent
         data class UpdateEnabledNotificationIds(val enabledNotificationIds: Set<AnimeId>) : Intent
+        data object LoadNextPage : Intent
     }
 
     sealed interface Label {
@@ -44,6 +45,9 @@ interface AnimeListMainStore
         data object UpdateOngoingSection : Label
         data object UpdateAnnouncedSection : Label
         data object UpdateSearchSection : Label
+        data object LoadNextPageOngoingSection : Label
+        data object LoadNextPageAnnouncedSection : Label
+        data object LoadNextPageSearchSection : Label
         data class ChangeSearchText(val searchText: String) : Label
         data class OngoingEpisodeInfoClick(val id: AnimeId) : Label
         data class AnnouncedEpisodeInfoClick(val id: AnimeId) : Label

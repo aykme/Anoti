@@ -21,6 +21,10 @@ internal fun mapMainStoreLabelToOngoingStoreIntent(
             OngoingSectionStore.Intent.EpisodesInfoClick(label.id)
         }
 
+        AnimeListMainStore.Label.LoadNextPageOngoingSection -> {
+            OngoingSectionStore.Intent.LoadNextPage
+        }
+
         AnimeListMainStore.Label.OpenAnnouncedSection,
         AnimeListMainStore.Label.UpdateAnnouncedSection,
         AnimeListMainStore.Label.OpenSearchSection,
@@ -29,7 +33,9 @@ internal fun mapMainStoreLabelToOngoingStoreIntent(
         is AnimeListMainStore.Label.AnnouncedEpisodeInfoClick,
         is AnimeListMainStore.Label.SearchEpisodeInfoClick,
         is AnimeListMainStore.Label.DisableNotificationClick,
-        is AnimeListMainStore.Label.EnableNotificationClick -> null
+        is AnimeListMainStore.Label.EnableNotificationClick,
+        AnimeListMainStore.Label.LoadNextPageAnnouncedSection,
+        AnimeListMainStore.Label.LoadNextPageSearchSection -> null
     }
 }
 
@@ -49,6 +55,10 @@ internal fun mapMainStoreLabelToAnnouncedStoreIntent(
             AnnouncedSectionStore.Intent.EpisodesInfoClick(label.id)
         }
 
+        AnimeListMainStore.Label.LoadNextPageAnnouncedSection -> {
+            AnnouncedSectionStore.Intent.LoadNextPage
+        }
+
         AnimeListMainStore.Label.OpenOngoingSection,
         AnimeListMainStore.Label.UpdateOngoingSection,
         AnimeListMainStore.Label.OpenSearchSection,
@@ -57,7 +67,9 @@ internal fun mapMainStoreLabelToAnnouncedStoreIntent(
         is AnimeListMainStore.Label.OngoingEpisodeInfoClick,
         is AnimeListMainStore.Label.SearchEpisodeInfoClick,
         is AnimeListMainStore.Label.DisableNotificationClick,
-        is AnimeListMainStore.Label.EnableNotificationClick -> null
+        is AnimeListMainStore.Label.EnableNotificationClick,
+        AnimeListMainStore.Label.LoadNextPageOngoingSection,
+        AnimeListMainStore.Label.LoadNextPageSearchSection -> null
     }
 }
 
@@ -81,6 +93,10 @@ internal fun mapMainStoreLabelToSearchStoreIntent(
             SearchSectionStore.Intent.ChangeSearchText(label.searchText)
         }
 
+        AnimeListMainStore.Label.LoadNextPageSearchSection -> {
+            SearchSectionStore.Intent.LoadNextPage
+        }
+
         AnimeListMainStore.Label.OpenOngoingSection,
         AnimeListMainStore.Label.UpdateOngoingSection,
         AnimeListMainStore.Label.OpenAnnouncedSection,
@@ -88,6 +104,8 @@ internal fun mapMainStoreLabelToSearchStoreIntent(
         is AnimeListMainStore.Label.AnnouncedEpisodeInfoClick,
         is AnimeListMainStore.Label.OngoingEpisodeInfoClick,
         is AnimeListMainStore.Label.DisableNotificationClick,
-        is AnimeListMainStore.Label.EnableNotificationClick -> null
+        is AnimeListMainStore.Label.EnableNotificationClick,
+        AnimeListMainStore.Label.LoadNextPageOngoingSection,
+        AnimeListMainStore.Label.LoadNextPageAnnouncedSection -> null
     }
 }

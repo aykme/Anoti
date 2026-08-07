@@ -41,6 +41,8 @@ class AnimeListExecutorImpl(
             is AnimeListMainStore.Intent.UpdateEnabledNotificationIds -> {
                 updateEnabledNotificationIds(intent)
             }
+
+            AnimeListMainStore.Intent.LoadNextPage -> loadNextPage()
         }
     }
 
@@ -319,5 +321,13 @@ class AnimeListExecutorImpl(
                 intent.enabledNotificationIds
             )
         )
+    }
+
+    private fun loadNextPage() {
+        when (state().selectedSection) {
+            SectionHatDomain.ONGOINGS -> publish(AnimeListMainStore.Label.LoadNextPageOngoingSection)
+            SectionHatDomain.ANNOUNCED -> publish(AnimeListMainStore.Label.LoadNextPageAnnouncedSection)
+            SectionHatDomain.SEARCH -> publish(AnimeListMainStore.Label.LoadNextPageSearchSection)
+        }
     }
 }
