@@ -35,7 +35,6 @@ kotlin {
             implementation(project(":core-kmp:anime-database"))
 
             implementation(libs.mvikotlin)
-            api(libs.paging.common)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.mvikotlin.logger)
             implementation(libs.mvikotlin.timetravel)
