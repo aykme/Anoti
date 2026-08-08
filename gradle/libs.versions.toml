@@ -1,10 +1,16 @@
 [versions]
 #Suppressed: App versions — all used via libs.versions.<name>.get() in build.gradle.kts, Studio's unused-entry inspection just doesn't recognize that accessor pattern
+#noinspection GradleDependency,UnusedVersionCatalogEntry
 compileSdk = "36"
+#noinspection UnusedVersionCatalogEntry
 jvmTarget = "17"
+#noinspection UnusedVersionCatalogEntry
 minSdk = "26"
+#noinspection OldTargetApi,UnusedVersionCatalogEntry
 targetSdk = "36"
+#noinspection UnusedVersionCatalogEntry
 versionCode = "9"
+#noinspection UnusedVersionCatalogEntry
 versionName = "1.09"
 
 #Library versions
@@ -79,10 +85,15 @@ okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version.ref = "okhttp
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 
 # Suppressed: not used anywhere yet, but plausibly useful later — kept on purpose instead of deleted.
+#noinspection UnusedVersionCatalogEntry
 essenty-instance-keeper = { group = "com.arkivanov.essenty", name = "instance-keeper", version.ref = "essenty" }
+#noinspection UnusedVersionCatalogEntry
 essenty-statekeeper = { group = "com.arkivanov.essenty", name = "state-keeper", version.ref = "essenty" }
+#noinspection UnusedVersionCatalogEntry
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+#noinspection UnusedVersionCatalogEntry
 mvikotlin-logger = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-logging", version.ref = "mviKotlin" }
+#noinspection UnusedVersionCatalogEntry
 mvikotlin-timetravel = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-timetravel", version.ref = "mviKotlin" }
 
 [plugins]
