@@ -114,8 +114,9 @@ dependencies {
 
 val extractSqliteNativeForHostTests: TaskProvider<Copy> =
     tasks.register<Copy>("extractSqliteNativeForHostTests") {
-        description = "Extracts the host OS/arch BundledSQLiteDriver native library " +
-                "for androidHostTest to load via system properties (Robolectric has no APK to unpack it from)."
+        description = "Extracts the host OS/arch BundledSQLiteDriver native library for " +
+                "androidHostTest to load via system properties (Robolectric has no APK to " +
+                "unpack it from)."
         from(provider { zipTree(sqliteBundledJvmNatives.singleFile) }) {
             include("natives/${sqliteHostOs}_$sqliteHostArch/$sqliteHostNativeFileName")
             eachFile { path = name }
