@@ -37,9 +37,8 @@ Technology stack:
    future for KMP supporting.
 5. Api services are implemented via [Retrofit](https://github.com/square/retrofit). In the
    future, I will replace it with [Ktor](https://github.com/ktorio/ktor) for KMP supporting.
-6. [Multiplatform paging](https://github.com/cashapp/multiplatform-paging). It has some problems
-   on iOS, as it only supports UIKit, but not SwiftUI. It is also not very suitable for MVI
-   and UDF architectures. I will think about how to solve these issues.
+6. Custom pagination implemented in pure KMP, without third-party libraries, designed to fit
+   MVI and UDF architectures.
 7. Based on Views and Fragments. I plan to rewrite the UI to
    [Compose](https://developer.android.com/compose) in the future, and then to
    [Compose Multiplatform](https://www.jetbrains.com/compose-multiplatform) in the very distant
