@@ -8,6 +8,7 @@ plugins {
 kotlin {
     android {
         namespace = "com.alekseivinogradov.anime_database"
+        //noinspection GradleDependency
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()
 

@@ -6,6 +6,7 @@ plugins {
 
 android {
     namespace = "com.alekseivinogradov.atom"
+    //noinspection GradleDependency
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {

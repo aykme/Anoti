@@ -8,6 +8,7 @@ plugins {
 kotlin {
     android {
         namespace = "com.alekseivinogradov.bottom_navigation_bar"
+        //noinspection GradleDependency
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()
 

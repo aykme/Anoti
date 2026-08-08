@@ -1,5 +1,6 @@
 [versions]
-#Suppressed: App versions — all used via libs.versions.<name>.get() in build.gradle.kts, Studio's unused-entry inspection just doesn't recognize that accessor pattern
+#Suppressed: App versions — all used via libs.versions.<name>.get() in build.gradle.kts,
+#Studio's unused-entry inspection just doesn't recognize that accessor pattern
 #noinspection GradleDependency,UnusedVersionCatalogEntry
 compileSdk = "36"
 #noinspection UnusedVersionCatalogEntry
@@ -42,9 +43,11 @@ workRuntimeKtx = "2.11.2"
 
 # 1.19.0 requires compileSdk 37 (AGP requirement already satisfied since 9.1) —
 # 1.18.0 is the max compatible with the current compileSdk 36.
+#noinspection GradleDependency
 coreKtx = "1.18.0"
 # 5.0.9 requires compileSdk 37 — 5.0.7 is the max compatible with the
 # current compileSdk 36.
+#noinspection GradleDependency
 glide = "5.0.7"
 
 [libraries]

@@ -7,6 +7,7 @@ plugins {
 
 android {
     namespace = "com.alekseivinogradov.anime_notification_external"
+    //noinspection GradleDependency
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
