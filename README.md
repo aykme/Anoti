@@ -3,7 +3,7 @@ Please review the [license](https://github.com/aykme/Anoti/blob/develop/LICENSE)
 Anoti - anime info & notifs
 
 Download the app
-via [Google play](https://play.google.com/store/apps/details?id=com.alekseivinogradov.anoti)
+via [Google Play](https://play.google.com/store/apps/details?id=com.alekseivinogradov.anoti)
 
 Anoti allows you to always be aware of the release of new episodes!
 
@@ -46,6 +46,6 @@ Technology stack:
 8. DI is implemented through [Dagger 2](https://github.com/google/dagger), and injections are
    performed through the UI. I plan to use [Koin](https://github.com/InsertKoinIO/koin) in the
    future for KMP supporting.
-9. [Kotlin Tests](https://kotlinlang.org/api/core/kotlin-test) library is used for Unit testing
-   of KMP modules. I used a "Fakes" approach, but I try to find a good KMP mock library in the
-   future.
+9. Unit testing of KMP modules is done with
+   [kotlin-test](https://github.com/JetBrains/kotlin/tree/master/libraries/kotlin.test). For test
+   doubles I mostly use a "mock" approach, with a "fake" approach used less often.
