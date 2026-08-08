@@ -19,6 +19,21 @@ Read this before doing any task in this repository.
   the change can't be summarized that briefly, use a short general phrase instead of trying to
   list everything — don't add a multi-line body to fit more detail in.
 
+## After finishing a task
+
+- Verify that the logic you wrote actually works correctly — don't just assume it from reading
+  the code.
+- If the task was a refactor, ask the developer whether the resulting behavior must match the
+  previous behavior exactly. If yes, verify there's no difference in the final result; if some
+  difference turns out to be unavoidable, agree on it with the developer before proceeding.
+- Make sure the tests cover every case that can realistically occur, without duplicate tests or
+  clearly excessive coverage that adds nothing. Don't forget concurrency tests where they're
+  needed. Tests are only written for KMP code.
+- Run the tests in every affected module and confirm they're all green.
+- For any test that's new or was fixed, confirm it doesn't flake, doesn't rely on real time
+  (highly undesirable — acceptable only in exceptional cases agreed with the developer), and
+  never makes real API calls (this is forbidden).
+
 ## Before committing
 
 - Go through every changed file before committing:
