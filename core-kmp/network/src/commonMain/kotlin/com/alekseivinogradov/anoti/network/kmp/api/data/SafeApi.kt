@@ -3,12 +3,15 @@ package com.alekseivinogradov.anoti.network.kmp.api.data
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 
 /**
- * Runs a network call and returns its outcome as [CallResult] instead of throwing.
+ * Safe API calls with retries.
  */
 interface SafeApi {
     /**
-     * Runs [apiCall], retrying retryable failures (5xx, network errors) with increasing delay.
-     * [callAttempt] is managed internally — callers should not pass it.
+     * Runs [apiCall] and returns its outcome as [CallResult]. Retries retryable failures
+     * (5xx, network errors) with an increasing delay between attempts.
+     *
+     * @param callAttempt current attempt number; managed internally, don't pass it explicitly.
+     * @param apiCall the network call to run.
      */
     suspend fun <T> call(
         callAttempt: Int = 1,

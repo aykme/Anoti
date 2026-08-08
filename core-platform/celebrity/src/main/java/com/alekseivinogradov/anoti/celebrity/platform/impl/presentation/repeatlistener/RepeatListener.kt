@@ -14,7 +14,7 @@ class RepeatListener(
 
     private val handler = Handler(Looper.getMainLooper())
     private var touchedView: View? = null
-    private lateinit var handlerRunnable: Runnable
+    private var handlerRunnable: Runnable
 
     init {
         if (initialInterval < 0 || repeatInterval <= 0)

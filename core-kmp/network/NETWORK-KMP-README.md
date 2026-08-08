@@ -1,46 +1,21 @@
-KMP network layer: a small, DI-framework-agnostic layer for making safe HTTP calls with Ktor and
-classifying their outcome uniformly across the app.
-
-## Why this module exists
-
-Every feature module that talks to a backend needs the same two things: a way to turn "the call
-might throw" into "the call returns a typed result", and a shared `HttpClient` configuration. This
-module is fully in `commonMain` — nothing here is platform-specific, so it compiles and runs the
-same way on Android and iOS. Only the choice of Ktor engine (OkHttp, Darwin, ...) is left to the
-caller.
-
-This module has no dependency on any DI framework. Callers construct
-[SafeApiImpl](src/commonMain/kotlin/com/alekseivinogradov/anoti/network/kmp/impl/data/SafeApiImpl.kt)
-and the `HttpClient` themselves (typically from their platform's DI setup) and pass them down.
+Shared network layer: safe API calls with retries, and a common `HttpClient` setup, for the whole
+app.
 
 ## Entities
 
 - [SafeApi](src/commonMain/kotlin/com/alekseivinogradov/anoti/network/kmp/api/data/SafeApi.kt) —
-  the contract every network call should go through. See its KDoc for the retry/classification
-  rules.
+  safe API calls with retries.
 - [CallResult](src/commonMain/kotlin/com/alekseivinogradov/anoti/network/kmp/api/domain/model/CallResult.kt) —
-  the result type `SafeApi.call` returns: `Success`, or one of the `Failure` subtypes
-  (`HttpError`, `NetworkError`, `OtherError`). See its KDoc for what each variant means and when
-  to use the `Failure` marker instead of listing all three.
-- [SafeApiImpl](src/commonMain/kotlin/com/alekseivinogradov/anoti/network/kmp/impl/data/SafeApiImpl.kt) —
-  the real, Ktor-based `SafeApi` implementation used in production.
-- [SafeApiFake](src/commonMain/kotlin/com/alekseivinogradov/anoti/network/kmp/impl/data/fake/SafeApiFake.kt) —
-  a test/preview `SafeApi` double.
+  outcome of a call made through `SafeApi`: success or a typed failure.
 - [createHttpClient](src/commonMain/kotlin/com/alekseivinogradov/anoti/network/kmp/impl/data/client/HttpClientFactory.kt) —
-  builds the `HttpClient` every API service should use (JSON content negotiation,
-  `expectSuccess = true`). Takes an already-constructed `HttpClientEngine`; this module does not
-  select or depend on a specific engine.
-- [DesiredCallResult](src/commonMain/kotlin/com/alekseivinogradov/anoti/network/kmp/api/domain/model/test/DesiredCallResult.kt) —
-  drives fake service implementations (`SUCCESS`/`HTTP_ERROR`/`OTHER_ERROR`) in tests.
+  creates the `HttpClient` API services should use.
 - [SHIKIMORI_BASE_URL](src/commonMain/kotlin/com/alekseivinogradov/anoti/network/kmp/api/domain/Const.kt) —
-  base URL of the backend the app currently talks to.
+  base Shikimori URL of the backend.
 
 ## How to use it
 
-Building the client and wrapping a call:
-
 ```kotlin
-val httpClient = createHttpClient(engine = /* platform HttpClientEngine, e.g. OkHttp.create() */)
+val httpClient = createHttpClient(engine = /* e.g. OkHttp.create() */)
 val safeApi: SafeApi = SafeApiImpl(maxAttempt = 3, attemptDelay = 2500.milliseconds)
 
 suspend fun fetchSomething(): CallResult<SomeResponse> = safeApi.call {
@@ -48,30 +23,7 @@ suspend fun fetchSomething(): CallResult<SomeResponse> = safeApi.call {
 }
 ```
 
-Handling the result — match on `Failure` when the caller doesn't need to distinguish *why* it
-failed, otherwise match on the specific subtype (e.g. to show a different message for
-`NetworkError`/`HttpError` — a genuine connectivity problem — versus `OtherError`, which is not):
-
-```kotlin
-when (val result = fetchSomething()) {
-    is CallResult.Success -> handle(result.value)
-    is CallResult.HttpError,
-    is CallResult.NetworkError -> toastProvider.makeConnectionErrorToast()
-    is CallResult.OtherError -> toastProvider.makeUnknownErrorToast()
-}
-```
-
-## Note on `SafeApiImpl`'s classification
-
-`SafeApiImpl.call`'s failure classification only recognizes Ktor's own exception types
-(`ResponseException`, `kotlinx.io.IOException`) — the underlying HTTP call must go through a Ktor
-`HttpClient` for `CallResult` to come out right. All real API services in the app now do (Retrofit
-has been fully removed from the project).
-
 ## What's intentionally not here
 
-- **No DI wiring.** `core-platform/network` provides `SafeApi`/`HttpClient` through Dagger for the
-  Android app; this module stays framework-agnostic so it can be consumed the same way from any DI
-  setup (including a future KMP-native one).
-- **No engine selection.** `createHttpClient` takes an `HttpClientEngine`; picking OkHttp, Darwin,
-  etc. is the caller's responsibility.
+- No DI wiring — callers get `SafeApi`/`HttpClient` from their own DI setup.
+- No engine selection — `createHttpClient` takes an already-built `HttpClientEngine`.
