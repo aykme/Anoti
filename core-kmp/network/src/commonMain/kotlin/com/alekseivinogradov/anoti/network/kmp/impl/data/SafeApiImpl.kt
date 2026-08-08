@@ -9,15 +9,8 @@ import kotlinx.coroutines.delay
 import kotlinx.io.IOException
 
 /**
- * Ktor-based [SafeApi]. Classifies [kotlinx.io.IOException] (connection failures, all of Ktor's
- * timeout exceptions) as [CallResult.NetworkError], and any [ResponseException] as
- * [CallResult.HttpError] using its actual HTTP status code. Everything else becomes
- * [CallResult.OtherError].
- *
- * @param maxAttempt total number of attempts before giving up on a retryable failure (1 = never
- * retry).
- * @param attemptDelay base delay between retries; the actual wait grows linearly with the attempt
- * number (`attemptDelay * callAttempt`).
+ * Ktor-based [SafeApi]. [maxAttempt] is the total number of attempts (1 = never retry);
+ * [attemptDelay] is the base delay between retries, growing linearly with the attempt number.
  */
 class SafeApiImpl(
     private val maxAttempt: Int,

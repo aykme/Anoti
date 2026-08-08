@@ -44,7 +44,9 @@ class HttpClientFactoryTest {
     fun throwsResponseExceptionOnNonSuccessStatus() = runTest {
         //Given
         val client = createHttpClient(
-            MockEngine { respond(content = ByteReadChannel(""), status = HttpStatusCode.NotFound) }
+            MockEngine {
+                respond(content = ByteReadChannel(""), status = HttpStatusCode.NotFound)
+            }
         )
 
         //When / Then

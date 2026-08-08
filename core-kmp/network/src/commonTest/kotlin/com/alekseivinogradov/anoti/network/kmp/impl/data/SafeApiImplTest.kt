@@ -96,8 +96,11 @@ class SafeApiImplTest {
         var attempts = 0
         val client = mockClient(MockEngine {
             attempts++
-            if (attempts < 2) respond(content = ByteReadChannel(""), status = HttpStatusCode.InternalServerError)
-            else respond(content = ByteReadChannel(""), status = HttpStatusCode.OK)
+            if (attempts < 2) {
+                respond(content = ByteReadChannel(""), status = HttpStatusCode.InternalServerError)
+            } else {
+                respond(content = ByteReadChannel(""), status = HttpStatusCode.OK)
+            }
         })
 
         //When
@@ -186,7 +189,8 @@ class SafeApiImplTest {
         safeApi.call { throw IOException("timeout") }
 
         //Then
-        // attempt1 fails at t=0 -> delay 100ms*1; attempt2 fails at t=100 -> delay 100ms*2; attempt3 fails, no more delay
+        // attempt1 fails at t=0 -> delay 100ms*1; attempt2 fails at t=100 -> delay 100ms*2;
+        // attempt3 fails, no more delay
         assertEquals(300, testScheduler.currentTime)
     }
 
