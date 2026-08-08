@@ -10,7 +10,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.alekseivinogradov.anime_notification.api.domain.manager.AnimeNotificationManager
-import com.alekseivinogradov.anime_notification.impl.presentation.factory.AnimeNotificationChannelFactory
+import com.alekseivinogradov.anime_notification.impl.presentation.factory.channelId
 import com.alekseivinogradov.anime_notification.impl.presentation.provider.AnimeNotificationIntentProvider
 import com.alekseivinogradov.anime_notification_platform.R
 import com.alekseivinogradov.res.R as res_R
@@ -20,7 +20,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class AnimeNotificationManagerImpl(
     appContext: Context,
-    private val animeNotificationIntentProvider: AnimeNotificationIntentProvider
+    animeNotificationIntentProvider: AnimeNotificationIntentProvider
 ) : AnimeNotificationManager {
     private val tag = "ANIME_NOTIFICATION_MANAGER"
 
@@ -39,7 +39,7 @@ class AnimeNotificationManagerImpl(
 
     private val iconColor: Int?
         get() = resources?.getColor(
-            /* id = */ res_R.color.silver_transpaent,
+            /* id = */ res_R.color.silver_transparent,
             /* theme = */ resources?.newTheme()
         )
 
@@ -75,7 +75,7 @@ class AnimeNotificationManagerImpl(
         singleBuilder = iconColor?.let { notNullIcon: Int ->
             NotificationCompat.Builder(
                 /* context = */ appContext,
-                /* channelId = */ AnimeNotificationChannelFactory.channelId
+                /* channelId = */ channelId
             )
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setGroup(newEpisodesGroupKey)
@@ -89,7 +89,7 @@ class AnimeNotificationManagerImpl(
         summaryNotification = iconColor?.let { notNullIcon: Int ->
             NotificationCompat.Builder(
                 /* context = */ appContext,
-                /* channelId = */ AnimeNotificationChannelFactory.channelId
+                /* channelId = */ channelId
             )
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setGroup(newEpisodesGroupKey)

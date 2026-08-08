@@ -124,7 +124,7 @@ class AnimeListExecutorImpl(
         dispatch(
             AnimeListMainStore.Message.ChangeSearch(
                 search = state().search.copy(
-                    type = SearchDomain.Type.HIDEN
+                    type = SearchDomain.Type.HIDDEN
                 )
             )
         )

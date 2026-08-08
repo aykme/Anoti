@@ -7,7 +7,8 @@
     android:foreground="?android:attr/selectableItemBackground"
     android:minHeight="146dp"
     android:padding="8dp"
-    tools:background="@color/black">
+    tools:background="@color/black"
+    tools:theme="@style/Theme.Anoti">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/poster_image"
@@ -101,7 +102,8 @@
         app:layout_constraintEnd_toEndOf="@id/image_info_background"
         app:layout_constraintStart_toEndOf="@id/score_text"
         app:layout_constraintTop_toTopOf="@id/image_info_background"
-        tools:contentDescription="@string/extra_info_on_description" />
+        tools:contentDescription="@string/extra_info_on_description"
+        tools:ignore="TouchTargetSizeCheck" />
 
     <View
         android:id="@+id/main_info_stroke"
@@ -199,7 +201,7 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/notification_button"
-        style="@style/FloatingActionButtomStyle"
+        style="@style/FloatingActionButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -212,7 +214,7 @@
         app:maxImageSize="40dp"
         tools:backgroundTint="@color/green"
         tools:contentDescription="@string/notifications_turn_off_description"
-        tools:ignore="ContentDescription,TouchTargetSizeCheck"
+        tools:ignore="ContentDescription,ClassNameCheck"
         tools:src="@drawable/ic_notifications_on_40" />
 
     <com.google.android.material.textview.MaterialTextView

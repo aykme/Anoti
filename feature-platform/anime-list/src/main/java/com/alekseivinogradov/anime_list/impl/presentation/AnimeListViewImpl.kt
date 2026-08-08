@@ -255,7 +255,7 @@ internal class AnimeListViewImpl(
     private fun setSearch(search: SearchUi) {
         with(viewBinding) {
             when (search) {
-                SearchUi.HIDEN -> {
+                SearchUi.HIDDEN -> {
                     hideKeyboard()
                     searchInputLayout.isVisible = false
                     searchCancelButton.isVisible = false

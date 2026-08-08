@@ -110,7 +110,7 @@ class MainActivity : AppCompatActivity(), MainActivityExternal {
                     /* left = */systemBars.left,
                     /* top = */0,
                     /* right = */systemBars.right,
-                    /** systemBars.bottom works uncorrectly with BottomNavigationView.
+                    /** systemBars.bottom works incorrectly with BottomNavigationView.
                      * It makes double padding and
                      * status bar color elements problems on light theme
                      */
@@ -123,19 +123,19 @@ class MainActivity : AppCompatActivity(), MainActivityExternal {
         /**
          * window.setNavigationBarColor() and window.setStatusBarColor() doesn't work correctly
          * with BottomNavigationView on 27 api level or lower.
-         * Use android:navigationBarColor and android:statusBarColor from xml instead
+         * Use android:navigationBarColor and android:statusBarColor from XML instead
          */
         if (Build.VERSION.SDK_INT >= P) {
             /**
              * It's deprecated for api 35 and above, because edge to edge always on.
-             * But changing navigation bar color using edge to edge is not working correctry
+             * But changing navigation bar color using edge to edge is not working correctly
              * with BottomNavigationView. So this method needed before problem will be fixed
              */
             @Suppress("DEPRECATION")
-            window.setNavigationBarColor(getColor(res_R.color.black))
+            window.navigationBarColor = getColor(res_R.color.black)
         }
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }
 
     private fun requestToEnableNotificationsIfNecessary() {
@@ -186,7 +186,7 @@ class MainActivity : AppCompatActivity(), MainActivityExternal {
 
     private fun onNotificationRequestApproved() {
         if (Build.VERSION.SDK_INT >= TIRAMISU) {
-            requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         } else {
             val intent = Intent().also {
                 it.action = Settings.ACTION_APP_NOTIFICATION_SETTINGS

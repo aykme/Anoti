@@ -23,7 +23,6 @@ class AnimeFavoritesExecutorImpl(
 
     private var updateListItemsJob: Job? = null
     private val updateAnimeDetailsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
-    private val changeEpisodesViewedJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
 
     override fun executeIntent(intent: AnimeFavoritesMainStore.Intent) {
         when (intent) {

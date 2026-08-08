@@ -34,7 +34,7 @@ interface SearchSectionModule {
         }
 
         @Provides
-        fun povideSearchSectionExecutorFactory(
+        fun provideSearchSectionExecutorFactory(
             coroutineContextProvider: CoroutineContextProvider,
             usecases: SearchUsecases,
             toastProvider: ToastProvider

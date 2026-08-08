@@ -201,9 +201,9 @@ internal class AnimeFavoritesViewHolder(
         binding.nameText.text = name
     }
 
-    private fun bindInfoType(InfoType: InfoTypeUi) {
+    private fun bindInfoType(infoType: InfoTypeUi) {
         with(binding) {
-            when (InfoType) {
+            when (infoType) {
                 InfoTypeUi.MAIN -> {
                     infoTypeButton.setImageDrawable(
                         ContextCompat.getDrawable(

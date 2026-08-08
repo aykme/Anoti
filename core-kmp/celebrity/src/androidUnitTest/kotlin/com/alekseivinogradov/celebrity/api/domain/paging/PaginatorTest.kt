@@ -47,7 +47,7 @@ class PaginatorTest {
     @Test
     fun loadNextPageReturnsNullAfterEmptyPageMarksEndReached() = runTest {
         var callCount = 0
-        val paginator = Paginator<String>(
+        val paginator = Paginator(
             firstPage = 1,
             loadPage = { page ->
                 callCount++
@@ -99,7 +99,7 @@ class PaginatorTest {
     fun loadFirstPageResetsEndReachedAndPageCounter() = runTest {
         val requestedPages = mutableListOf<Int>()
         var firstPageIsEmpty = true
-        val paginator = Paginator<String>(
+        val paginator = Paginator(
             firstPage = 1,
             loadPage = { page ->
                 requestedPages.add(page)
@@ -126,7 +126,7 @@ class PaginatorTest {
         val callStarted = CompletableDeferred<Unit>()
         val releaseFirstCall = CompletableDeferred<Unit>()
         var callCount = 0
-        val paginator = Paginator<String>(
+        val paginator = Paginator(
             firstPage = 1,
             loadPage = { page ->
                 callCount++

@@ -31,7 +31,7 @@ interface AnnouncedSectionModule {
         }
 
         @Provides
-        fun povideAnnouncedSectionExecutorFactory(
+        fun provideAnnouncedSectionExecutorFactory(
             coroutineContextProvider: CoroutineContextProvider,
             usecases: AnnouncedUsecases,
             toastProvider: ToastProvider

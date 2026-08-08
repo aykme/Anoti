@@ -34,7 +34,7 @@ interface OngoingSectionModule {
         }
 
         @Provides
-        fun povideOngoingSectionExecutorFactory(
+        fun provideOngoingSectionExecutorFactory(
             coroutineContextProvider: CoroutineContextProvider,
             usecases: OngoingUsecases,
             toastProvider: ToastProvider

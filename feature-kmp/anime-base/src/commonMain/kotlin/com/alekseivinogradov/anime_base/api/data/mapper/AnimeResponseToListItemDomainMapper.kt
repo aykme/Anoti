@@ -5,7 +5,7 @@ import com.alekseivinogradov.anime_base.api.data.response.ImageResponse
 import com.alekseivinogradov.anime_base.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.network.api.domain.SHIKIMORI_BASE_URL
 
-public fun mapImageUrlDataToDomain(imageResponse: ImageResponse?): String? {
+fun mapImageUrlDataToDomain(imageResponse: ImageResponse?): String? {
     val additionalImageUrl =
         imageResponse?.originalSizeUrl ?: imageResponse?.previewSizeUrl
     val fullImageUrl = additionalImageUrl?.let {
@@ -14,7 +14,7 @@ public fun mapImageUrlDataToDomain(imageResponse: ImageResponse?): String? {
     return fullImageUrl
 }
 
-public fun mapReleaseStatusDataToDomain(releaseStatus: String?): ReleaseStatusDomain {
+fun mapReleaseStatusDataToDomain(releaseStatus: String?): ReleaseStatusDomain {
     return when (releaseStatus) {
         ReleaseStatusData.ONGOING.value -> ReleaseStatusDomain.ONGOING
         ReleaseStatusData.ANNOUNCED.value -> ReleaseStatusDomain.ANNOUNCED

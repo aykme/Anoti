@@ -17,11 +17,6 @@ class AnimeUpdateWorker(
     private val animeUpdateManager: AnimeUpdateManager
 ) : CoroutineWorker(appContext, params) {
 
-    companion object {
-        const val animeUpdatePeriodicWorkName = "ANIME_UPDATE_PERIODIC_WORK"
-        const val animeUpdateOnceWorkName = "ANIME_UPDATE_ONCE_WORK"
-    }
-
     override suspend fun doWork(): Result {
         return when (animeUpdateManager.update()) {
             WorkResult.Success -> Result.success()
@@ -45,3 +40,6 @@ class AnimeUpdateWorker(
         }
     }
 }
+
+const val animeUpdatePeriodicWorkName = "ANIME_UPDATE_PERIODIC_WORK"
+const val animeUpdateOnceWorkName = "ANIME_UPDATE_ONCE_WORK"

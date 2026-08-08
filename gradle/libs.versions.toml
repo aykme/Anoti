@@ -1,6 +1,7 @@
 [versions]
 #App versions
 compileSdk = "36"
+jvmTarget = "17"
 minSdk = "26"
 targetSdk = "36"
 versionCode = "9"

@@ -100,10 +100,10 @@ class AnimeDatabaseExecutorImpl(
     ) {
         if (changeItemNewEpisodeStatusJobMap[intent.id]?.isActive == true) return
 
-        val isItemAlreadyWithoutNewEpisodeLabel = state().animeDatabaseItems
+        val isItemAlreadyWithoutNewEpisodeLabel = !(state().animeDatabaseItems
             .find { animeDb: AnimeDbDomain ->
                 animeDb.id == intent.id
-            }?.isNewEpisode ?: false == false
+            }?.isNewEpisode ?: false)
 
         if (isItemAlreadyWithoutNewEpisodeLabel) return
 

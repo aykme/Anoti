@@ -8,10 +8,6 @@ import javax.inject.Inject
 
 class AnimeNotificationChannelFactory @Inject constructor() {
 
-    companion object {
-        const val channelId = "ANIME_NOTIFICATION_CHANNEL_ID"
-    }
-
     fun create(appContext: Context): NotificationChannel {
         return NotificationChannel(
             /* id = */ channelId,
@@ -23,3 +19,5 @@ class AnimeNotificationChannelFactory @Inject constructor() {
         }
     }
 }
+
+const val channelId = "ANIME_NOTIFICATION_CHANNEL_ID"

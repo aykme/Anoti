@@ -5,11 +5,11 @@ import com.alekseivinogradov.anime_base.api.data.mapper.mapReleaseStatusDataToDo
 import com.alekseivinogradov.anime_base.api.data.response.AnimeDetailsResponse
 import com.alekseivinogradov.anime_favorites.api.domain.model.ListItemDomain
 
-/**
- * @param id - Anime id.
- * id == -1 is fallback. Need to filter null values before using this method
- */
 internal fun AnimeDetailsResponse.toListItemDomain() = ListItemDomain(
+    /**
+     * id - Anime id.
+     * id == -1 is fallback. Need to filter null values before using this method
+     */
     id = this.id ?: -1,
     name = this.englishName ?: "",
     imageUrl = mapImageUrlDataToDomain(this.imageResponse),

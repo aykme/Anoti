@@ -39,7 +39,7 @@ private fun mapSelectedSectionDomainToUi(selectedSection: SectionHatDomain): Sec
 
 private fun mapSearchDomainToUi(search: SearchDomain): SearchUi {
     return when (search.type) {
-        SearchDomain.Type.HIDEN -> SearchUi.HIDEN
+        SearchDomain.Type.HIDDEN -> SearchUi.HIDDEN
         SearchDomain.Type.SHOWN -> SearchUi.SHOWN
     }
 }

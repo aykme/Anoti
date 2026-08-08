@@ -7,7 +7,7 @@ import androidx.work.Configuration
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
-import com.alekseivinogradov.anime_background_update.impl.domain.worker.AnimeUpdateWorker
+import com.alekseivinogradov.anime_background_update.impl.domain.worker.animeUpdatePeriodicWorkName
 import com.alekseivinogradov.anime_notification.impl.presentation.factory.AnimeNotificationChannelFactory
 import com.alekseivinogradov.app.impl.presentation.di.DaggerAppComponentInternal
 import com.alekseivinogradov.di.api.presentation.AnimeBackgroundUpdate
@@ -49,7 +49,7 @@ class AnotiApp : Application(), ApplicationExternal {
         )
         WorkManager.getInstance(context = this.applicationContext)
             .enqueueUniquePeriodicWork(
-                uniqueWorkName = AnimeUpdateWorker.animeUpdatePeriodicWorkName,
+                uniqueWorkName = animeUpdatePeriodicWorkName,
                 existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.KEEP,
                 request = animeUpdatePeriodicWork
             )

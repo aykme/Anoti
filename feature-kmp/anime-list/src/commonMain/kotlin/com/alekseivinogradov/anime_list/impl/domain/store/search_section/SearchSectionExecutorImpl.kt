@@ -41,7 +41,7 @@ class SearchSectionExecutorImpl(
             SearchSectionStore.Intent.UpdateSection -> updateSection()
             SearchSectionStore.Intent.LoadNextPage -> loadNextPage()
 
-            is SearchSectionStore.Intent.ChangeSearchText -> ChangesearchText(intent)
+            is SearchSectionStore.Intent.ChangeSearchText -> changeSearchText(intent)
 
             is SearchSectionStore.Intent.EpisodesInfoClick -> episodeInfoClick(intent)
         }
@@ -138,7 +138,7 @@ class SearchSectionExecutorImpl(
         }
     }
 
-    private fun ChangesearchText(intent: SearchSectionStore.Intent.ChangeSearchText) {
+    private fun changeSearchText(intent: SearchSectionStore.Intent.ChangeSearchText) {
         dispatch(SearchSectionStore.Message.ChangeSearchText(intent.searchText))
         searchFlow?.update { state().searchText }
     }

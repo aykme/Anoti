@@ -26,7 +26,7 @@ class AnimeFavoritesSourceImplFake(
     }
 
     private fun createAnimeDetailsSuccessResult(id: AnimeId): CallResult.Success<ListItemDomain> {
-        return CallResult.Success<ListItemDomain>(
+        return CallResult.Success(
             ListItemDomain(
                 id = id,
                 name = "Shingeki no Kyojin: The Final Season",
@@ -36,7 +36,7 @@ class AnimeFavoritesSourceImplFake(
                 nextEpisodeAt = "2020-19-07",
                 airedOn = "2020-12-07",
                 releasedOn = "2021-03-29",
-                score = 8.779999732971191F,
+                score = 8.78F,
                 releaseStatus = ReleaseStatusDomain.RELEASED,
                 episodesViewed = 0,
                 isNewEpisode = false

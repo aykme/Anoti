@@ -3,7 +3,7 @@
     <style name="Base.Theme.Anoti" parent="Theme.Material3.DayNight.NoActionBar" />
 
     <style name="Theme.Anoti" parent="Base.Theme.Anoti">
-        <item name="floatingActionButtonStyle">@style/FloatingActionButtomStyle</item>
+        <item name="floatingActionButtonStyle">@style/FloatingActionButtonStyle</item>
         <!-- Navigation bar color -->
         <item name="android:navigationBarColor">@color/black</item>
         <!-- Application loading window color

@@ -1,10 +1,8 @@
 package com.alekseivinogradov.main.impl.presentation
 
 import android.content.Context
-import android.os.Bundle
 import android.view.MenuItem
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination
 import com.alekseivinogradov.bottom_navigation_bar.api.domain.model.SectionDomain
 import com.alekseivinogradov.bottom_navigation_bar.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.bottom_navigation_bar.api.presentation.model.UiModel
@@ -72,12 +70,8 @@ internal class BottomNavigationBarViewImpl(
     }
 
     private fun initOnDestinationChangeListener() {
-        val listener = object : NavController.OnDestinationChangedListener {
-            override fun onDestinationChanged(
-                controller: NavController,
-                destination: NavDestination,
-                arguments: Bundle?
-            ) {
+        val listener =
+            NavController.OnDestinationChangedListener { _, destination, _ ->
                 with(viewBinding.bottomNavMenu) {
                     when (destination.id) {
                         R.id.anime_list -> {
@@ -104,7 +98,6 @@ internal class BottomNavigationBarViewImpl(
                     }
                 }
             }
-        }
         navController.addOnDestinationChangedListener(listener)
     }
 

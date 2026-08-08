@@ -75,7 +75,7 @@ class AnimeListSourceImplFake(
         id: AnimeId,
         releaseStatus: ReleaseStatusDomain = ReleaseStatusDomain.RELEASED
     ): CallResult.Success<ListItemDomain> {
-        return CallResult.Success<ListItemDomain>(
+        return CallResult.Success(
             value = createAnimeItem(
                 id = id,
                 releaseStatus = releaseStatus
@@ -92,7 +92,7 @@ class AnimeListSourceImplFake(
                 add(createAnimeItem(id = repeatNumber, releaseStatus = releaseStatus))
             }
         }
-        return CallResult.Success<List<ListItemDomain>>(
+        return CallResult.Success(
             value = list.toList()
         )
     }
@@ -123,7 +123,7 @@ class AnimeListSourceImplFake(
             nextEpisodeAt = null,
             airedOn = "2020-12-07",
             releasedOn = "2021-03-29",
-            score = 8.779999732971191F,
+            score = 8.78F,
             releaseStatus = releaseStatus
         )
     }

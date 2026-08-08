@@ -25,7 +25,6 @@ class ShikimoriApiServiceImplFake(
     ): List<AnimeShortResponse> {
         return when (desiredCallResult) {
             DesiredCallResult.SUCCESS -> createAnimeList(
-                itemNumber = 10,
                 releaseStatus = releaseStatus
             )
 
@@ -42,11 +41,10 @@ class ShikimoriApiServiceImplFake(
     }
 
     private fun createAnimeList(
-        itemNumber: Int,
         releaseStatus: String?
     ): List<AnimeShortResponse> {
         return mutableListOf<AnimeShortResponse>().apply {
-            repeat(itemNumber) { repeatNumber: Int ->
+            repeat(10) { repeatNumber: Int ->
                 add(createAnimeShortResponse(id = repeatNumber, releaseStatus = releaseStatus))
             }
         }.toList()

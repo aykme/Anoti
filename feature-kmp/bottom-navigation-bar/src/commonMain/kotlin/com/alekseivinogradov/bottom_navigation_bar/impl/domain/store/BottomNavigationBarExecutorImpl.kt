@@ -3,7 +3,7 @@ package com.alekseivinogradov.bottom_navigation_bar.impl.domain.store
 import com.alekseivinogradov.bottom_navigation_bar.api.domain.store.BottomNavigationBarExecutor
 import com.alekseivinogradov.bottom_navigation_bar.api.domain.store.BottomNavigationBarStore
 
-internal class BottomNavigationBarExecutorImpl() : BottomNavigationBarExecutor() {
+internal class BottomNavigationBarExecutorImpl : BottomNavigationBarExecutor() {
     override fun executeIntent(intent: BottomNavigationBarStore.Intent) {
         when (intent) {
             is BottomNavigationBarStore.Intent.ChangeSelectedSection -> {
