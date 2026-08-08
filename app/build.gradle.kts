@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.mvikotlin)
     implementation(libs.dagger)
     implementation(libs.androidx.work.runtime)
+    implementation(libs.play.services.appset)
     ksp(libs.dagger.compiler)
     androidTestImplementation(libs.androidx.junit.ktx)
     androidTestImplementation(libs.androidx.espresso.core)
