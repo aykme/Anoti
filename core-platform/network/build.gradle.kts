@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.alekseivinogradov.anoti.animebackgroundupdate.platform"
+    namespace = "com.alekseivinogradov.anoti.network.platform"
     //noinspection GradleDependency
     compileSdk = libs.versions.compileSdk.get().toInt()
 
@@ -39,15 +39,21 @@ kotlin {
 }
 
 dependencies {
-    api(project(":feature-kmp:anime-background-update"))
-    implementation(project(":feature-platform:anime-base"))
-    implementation(project(":core-platform:celebrity"))
-    implementation(project(":core-platform:anime-database"))
-    implementation(project(":core-platform:di"))
-    implementation(project(":core-platform:network"))
+    api(project(":core-kmp:network"))
 
     implementation(libs.dagger)
-    implementation(libs.androidx.work.runtime)
-    implementation(libs.androidx.annotation.jvm)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.ktor.client.okhttp)
+
+    /**
+     * Necessary dependencies for older android versions.
+     * Without them, the crash "java.lang.NoSuchFieldError:Companion when using okhttp3"
+     * happens during an Internet request, due to some kind of dependency conflict.
+     * https://stackoverflow.com/questions/65828761/java-lang-nosuchfielderror-companion-when-using-okhttp3-and-selenium
+     */
+    // define a BOM and its version
+    implementation(platform(libs.okhttp.bom))
+    // define any required OkHttp artifacts without version
+    implementation(libs.okhttp)
     ksp(libs.dagger.compiler)
 }

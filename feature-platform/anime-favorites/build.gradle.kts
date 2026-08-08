@@ -47,7 +47,7 @@ dependencies {
     implementation(project(":core-platform:celebrity"))
     implementation(project(":core-platform:anime-database"))
     implementation(project(":core-platform:di"))
-    implementation(project(":core-kmp:network"))
+    implementation(project(":core-platform:network"))
     implementation(project(":feature-platform:anime-base"))
     implementation(project(":feature-platform:anime-background-update"))
 
