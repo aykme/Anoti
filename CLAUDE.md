@@ -32,7 +32,7 @@ Read this before doing any task in this repository.
 - Make sure the tests cover every case that can realistically occur, without duplicate tests or
   clearly excessive coverage that adds nothing. Don't forget concurrency tests where they're
   needed. Tests are only written for KMP code, and all of them belong in `commonTest` — don't
-  write platform-specific tests.
+  write platform-specific tests, unless an exception is made for them.
 - Run the tests in every affected module and confirm they're all green.
 - For any test that's new or was fixed, confirm it doesn't flake, doesn't rely on real time
   (highly undesirable — acceptable only in exceptional cases agreed with the developer), and
