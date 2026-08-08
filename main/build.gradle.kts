@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.alekseivinogradov.main"
+    namespace = "com.alekseivinogradov.anoti.main"
     //noinspection GradleDependency
     compileSdk = libs.versions.compileSdk.get().toInt()
 

@@ -7,7 +7,7 @@ plugins {
 
 kotlin {
     android {
-        namespace = "com.alekseivinogradov.anime_background_update"
+        namespace = "com.alekseivinogradov.anoti.animebackgroundupdate.kmp"
         //noinspection GradleDependency
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()

@@ -1,0 +1,27 @@
+package com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store
+
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
+import com.arkivanov.mvikotlin.core.store.SimpleBootstrapper
+import com.arkivanov.mvikotlin.core.store.Store
+import com.arkivanov.mvikotlin.core.store.StoreFactory
+
+class AnimeFavoritesMainStoreFactory(
+    private val storeFactory: StoreFactory,
+    private val executorFactory: AnimeFavoritesExecutorFactory,
+) {
+    fun create(): AnimeFavoritesMainStore {
+        return object : AnimeFavoritesMainStore,
+            Store<
+                    AnimeFavoritesMainStore.Intent,
+                    AnimeFavoritesMainStore.State,
+                    AnimeFavoritesMainStore.Label
+                    >
+            by storeFactory.create(
+                name = "AnimeFavoritesMainStore",
+                initialState = AnimeFavoritesMainStore.State(),
+                bootstrapper = SimpleBootstrapper(),
+                executorFactory = executorFactory,
+                reducer = AnimeFavoritesReducerImpl()
+            ) {}
+    }
+}

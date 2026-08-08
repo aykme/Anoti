@@ -1,0 +1,111 @@
+package com.alekseivinogradov.anoti.animelist.kmp.api.domain.mapper.store
+
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsection.AnnouncedSectionStore
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.ongoingsection.OngoingSectionStore
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.SearchSectionStore
+
+internal fun mapMainStoreLabelToOngoingStoreIntent(
+    label: AnimeListMainStore.Label
+): OngoingSectionStore.Intent? {
+    return when (label) {
+        AnimeListMainStore.Label.OpenOngoingSection -> {
+            OngoingSectionStore.Intent.OpenSection
+        }
+
+        AnimeListMainStore.Label.UpdateOngoingSection -> {
+            OngoingSectionStore.Intent.UpdateSection
+        }
+
+        is AnimeListMainStore.Label.OngoingEpisodeInfoClick -> {
+            OngoingSectionStore.Intent.EpisodesInfoClick(label.id)
+        }
+
+        AnimeListMainStore.Label.LoadNextPageOngoingSection -> {
+            OngoingSectionStore.Intent.LoadNextPage
+        }
+
+        AnimeListMainStore.Label.OpenAnnouncedSection,
+        AnimeListMainStore.Label.UpdateAnnouncedSection,
+        AnimeListMainStore.Label.OpenSearchSection,
+        AnimeListMainStore.Label.UpdateSearchSection,
+        is AnimeListMainStore.Label.ChangeSearchText,
+        is AnimeListMainStore.Label.AnnouncedEpisodeInfoClick,
+        is AnimeListMainStore.Label.SearchEpisodeInfoClick,
+        is AnimeListMainStore.Label.DisableNotificationClick,
+        is AnimeListMainStore.Label.EnableNotificationClick,
+        AnimeListMainStore.Label.LoadNextPageAnnouncedSection,
+        AnimeListMainStore.Label.LoadNextPageSearchSection -> null
+    }
+}
+
+internal fun mapMainStoreLabelToAnnouncedStoreIntent(
+    label: AnimeListMainStore.Label
+): AnnouncedSectionStore.Intent? {
+    return when (label) {
+        AnimeListMainStore.Label.OpenAnnouncedSection -> {
+            AnnouncedSectionStore.Intent.OpenSection
+        }
+
+        AnimeListMainStore.Label.UpdateAnnouncedSection -> {
+            AnnouncedSectionStore.Intent.UpdateSection
+        }
+
+        is AnimeListMainStore.Label.AnnouncedEpisodeInfoClick -> {
+            AnnouncedSectionStore.Intent.EpisodesInfoClick(label.id)
+        }
+
+        AnimeListMainStore.Label.LoadNextPageAnnouncedSection -> {
+            AnnouncedSectionStore.Intent.LoadNextPage
+        }
+
+        AnimeListMainStore.Label.OpenOngoingSection,
+        AnimeListMainStore.Label.UpdateOngoingSection,
+        AnimeListMainStore.Label.OpenSearchSection,
+        AnimeListMainStore.Label.UpdateSearchSection,
+        is AnimeListMainStore.Label.ChangeSearchText,
+        is AnimeListMainStore.Label.OngoingEpisodeInfoClick,
+        is AnimeListMainStore.Label.SearchEpisodeInfoClick,
+        is AnimeListMainStore.Label.DisableNotificationClick,
+        is AnimeListMainStore.Label.EnableNotificationClick,
+        AnimeListMainStore.Label.LoadNextPageOngoingSection,
+        AnimeListMainStore.Label.LoadNextPageSearchSection -> null
+    }
+}
+
+internal fun mapMainStoreLabelToSearchStoreIntent(
+    label: AnimeListMainStore.Label
+): SearchSectionStore.Intent? {
+    return when (label) {
+        AnimeListMainStore.Label.OpenSearchSection -> {
+            SearchSectionStore.Intent.OpenSection
+        }
+
+        AnimeListMainStore.Label.UpdateSearchSection -> {
+            SearchSectionStore.Intent.UpdateSection
+        }
+
+        is AnimeListMainStore.Label.SearchEpisodeInfoClick -> {
+            SearchSectionStore.Intent.EpisodesInfoClick(label.id)
+        }
+
+        is AnimeListMainStore.Label.ChangeSearchText -> {
+            SearchSectionStore.Intent.ChangeSearchText(label.searchText)
+        }
+
+        AnimeListMainStore.Label.LoadNextPageSearchSection -> {
+            SearchSectionStore.Intent.LoadNextPage
+        }
+
+        AnimeListMainStore.Label.OpenOngoingSection,
+        AnimeListMainStore.Label.UpdateOngoingSection,
+        AnimeListMainStore.Label.OpenAnnouncedSection,
+        AnimeListMainStore.Label.UpdateAnnouncedSection,
+        is AnimeListMainStore.Label.AnnouncedEpisodeInfoClick,
+        is AnimeListMainStore.Label.OngoingEpisodeInfoClick,
+        is AnimeListMainStore.Label.DisableNotificationClick,
+        is AnimeListMainStore.Label.EnableNotificationClick,
+        AnimeListMainStore.Label.LoadNextPageOngoingSection,
+        AnimeListMainStore.Label.LoadNextPageAnnouncedSection -> null
+    }
+}

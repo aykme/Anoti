@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.alekseivinogradov.anime_base_platform"
+    namespace = "com.alekseivinogradov.anoti.animebase.platform"
     //noinspection GradleDependency
     compileSdk = libs.versions.compileSdk.get().toInt()
 

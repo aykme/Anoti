@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.alekseivinogradov.test_utils"
+    namespace = "com.alekseivinogradov.anoti.testutils.platform"
     //noinspection GradleDependency
     compileSdk = libs.versions.compileSdk.get().toInt()
 

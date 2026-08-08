@@ -1,0 +1,92 @@
+package com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main
+
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.AnimeDetails
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SearchDomain
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SectionContentDomain
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SectionHatDomain
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
+import com.arkivanov.mvikotlin.core.store.Store
+
+interface AnimeListMainStore
+    : Store<AnimeListMainStore.Intent, AnimeListMainStore.State, AnimeListMainStore.Label> {
+    data class State(
+        val selectedSection: SectionHatDomain = SectionHatDomain.ONGOINGS,
+        val search: SearchDomain = SearchDomain(),
+        val ongoingContent: SectionContentDomain = SectionContentDomain(),
+        val announcedContent: SectionContentDomain = SectionContentDomain(),
+        val searchContent: SectionContentDomain = SectionContentDomain(),
+        val enabledNotificationIds: Set<AnimeId> = setOf(),
+        val isNeedToResetListPositon: Boolean = false
+    )
+
+    sealed interface Intent {
+        data object OngoingsSectionClick : Intent
+        data object AnnouncedSectionClick : Intent
+        data object SearchSectionClick : Intent
+        data object CancelSearchClick : Intent
+        data class ChangeSearchText(val searchText: String) : Intent
+        data class ChangeResetListPositionFlag(val isNeedToResetListPosition: Boolean) : Intent
+        data object UpdateSection : Intent
+        data class UpdateOngoingContent(val content: SectionContentDomain) : Intent
+        data class UpdateAnnouncedContent(val content: SectionContentDomain) : Intent
+        data class UpdateSearchContent(val content: SectionContentDomain) : Intent
+        data class EpisodesInfoClick(val id: AnimeId) : Intent
+        data class NotificationClick(val id: AnimeId) : Intent
+        data class UpdateEnabledNotificationIds(val enabledNotificationIds: Set<AnimeId>) : Intent
+        data object LoadNextPage : Intent
+    }
+
+    sealed interface Label {
+        data object OpenOngoingSection : Label
+        data object OpenAnnouncedSection : Label
+        data object OpenSearchSection : Label
+        data object UpdateOngoingSection : Label
+        data object UpdateAnnouncedSection : Label
+        data object UpdateSearchSection : Label
+        data object LoadNextPageOngoingSection : Label
+        data object LoadNextPageAnnouncedSection : Label
+        data object LoadNextPageSearchSection : Label
+        data class ChangeSearchText(val searchText: String) : Label
+        data class OngoingEpisodeInfoClick(val id: AnimeId) : Label
+        data class AnnouncedEpisodeInfoClick(val id: AnimeId) : Label
+        data class SearchEpisodeInfoClick(val id: AnimeId) : Label
+        data class EnableNotificationClick(val listItem: ListItemDomain) : Label
+        data class DisableNotificationClick(val id: AnimeId) : Label
+    }
+
+    sealed interface Action
+
+    sealed interface Message {
+        data class ChangeSelectedSection(val selectedSection: SectionHatDomain) : Message
+        data class ChangeSearch(val search: SearchDomain) : Message
+        data class ChangeOngoingContentType(val contentType: ContentTypeDomain) : Message
+        data class ChangeAnnouncedContentType(val contentType: ContentTypeDomain) : Message
+        data class ChangeSearchContentType(val contentType: ContentTypeDomain) : Message
+        data class ChangeResetListPositionFlag(val isNeedToResetListPosition: Boolean) : Message
+        data class UpdateOngoingListItems(val listItems: List<ListItemDomain>) : Message
+        data class UpdateAnnouncedListItems(val listItems: List<ListItemDomain>) : Message
+        data class UpdateSearchListItems(val listItems: List<ListItemDomain>) : Message
+        data class UpdateEnabledNotificationIds(val enabledNotificationIds: Set<AnimeId>) : Message
+        data class UpdateOngoingEnabledExtraEpisodesInfoIds(
+            val enabledExtraEpisodesInfoId: Set<AnimeId>
+        ) : Message
+
+        data class UpdateAnnouncedEnabledExtraEpisodesInfoIds(
+            val enabledExtraEpisodesInfoId: Set<AnimeId>
+        ) : Message
+
+        data class UpdateSearchEnabledExtraEpisodesInfoIds(
+            val enabledExtraEpisodesInfoId: Set<AnimeId>
+        ) : Message
+
+        data class UpdateOngoingAnimeDetails(
+            val animeDetails: AnimeDetails
+        ) : Message
+
+        data class UpdateSearchAnimeDetails(
+            val animeDetails: AnimeDetails
+        ) : Message
+    }
+}

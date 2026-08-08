@@ -7,7 +7,7 @@ plugins {
 
 kotlin {
     android {
-        namespace = "com.alekseivinogradov.anime_favorites"
+        namespace = "com.alekseivinogradov.anoti.animefavorites.kmp"
         //noinspection GradleDependency
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()

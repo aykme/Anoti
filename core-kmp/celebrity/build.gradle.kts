@@ -7,7 +7,7 @@ plugins {
 
 kotlin {
     android {
-        namespace = "com.alekseivinogradov.celebrity"
+        namespace = "com.alekseivinogradov.anoti.celebrity.kmp"
         //noinspection GradleDependency
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()

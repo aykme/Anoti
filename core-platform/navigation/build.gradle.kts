@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.alekseivinogradov.navigation"
+    namespace = "com.alekseivinogradov.anoti.navigation.platform"
     //noinspection GradleDependency
     compileSdk = libs.versions.compileSdk.get().toInt()
 
