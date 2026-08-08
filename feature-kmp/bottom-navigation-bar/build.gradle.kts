@@ -2,18 +2,20 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.androidKotlinMultiplatformLibrary)
 }
 
 kotlin {
-    androidTarget {
-        compilations.all {
-            compileTaskProvider.configure {
-                compilerOptions {
-                    jvmTarget.set(JvmTarget.fromTarget(libs.versions.jvmTarget.get()))
-                }
-            }
+    android {
+        namespace = "com.alekseivinogradov.bottom_navigation_bar"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+        minSdk = libs.versions.minSdk.get().toInt()
+
+        compilerOptions {
+            jvmTarget.set(JvmTarget.fromTarget(libs.versions.jvmTarget.get()))
         }
+
+        withHostTestBuilder {}.configure {}
     }
 
     listOf(
@@ -37,17 +39,5 @@ kotlin {
             implementation(libs.essenty.lifecycle)
             implementation(libs.mvikotlin.extensions.coroutines)
         }
-    }
-}
-
-android {
-    namespace = "com.alekseivinogradov.bottom_navigation_bar"
-    compileSdk = libs.versions.compileSdk.get().toInt()
-    defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInt()
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.toVersion(libs.versions.jvmTarget.get())
-        targetCompatibility = JavaVersion.toVersion(libs.versions.jvmTarget.get())
     }
 }
