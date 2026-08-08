@@ -72,7 +72,7 @@ class PaginatorTest {
             loadPage = { page ->
                 requestedPages.add(page)
                 if (page == 2 && shouldFail) {
-                    CallResult.OtherError(error)
+                    CallResult.NetworkError(error)
                 } else {
                     CallResult.Success(listOf("item$page"))
                 }
@@ -160,6 +160,19 @@ class PaginatorTest {
         val result = paginator.loadFirstPage()
 
         assertEquals(PageLoadResult.Error(throwable = error, isFirstPage = true), result)
+    }
+
+    @Test
+    fun firstPageOtherErrorIsReportedAsUnexpectedErrorNotAsConnectionError() = runTest {
+        val error = IllegalStateException("unexpected")
+        val paginator = Paginator<String>(
+            firstPage = 1,
+            loadPage = { CallResult.OtherError(error) }
+        )
+
+        val result = paginator.loadFirstPage()
+
+        assertEquals(PageLoadResult.UnexpectedError(throwable = error, isFirstPage = true), result)
     }
 
     @Test

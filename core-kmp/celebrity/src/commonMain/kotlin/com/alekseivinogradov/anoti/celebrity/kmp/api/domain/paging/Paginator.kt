@@ -44,12 +44,13 @@ class Paginator<T>(
                 PageLoadResult.Success(items = outcome.value, isFirstPage = isFirstPage)
             }
 
-            is CallResult.HttpError -> PageLoadResult.Error(
+            is CallResult.HttpError,
+            is CallResult.NetworkError -> PageLoadResult.Error(
                 throwable = outcome.throwable,
                 isFirstPage = isFirstPage
             )
 
-            is CallResult.OtherError -> PageLoadResult.Error(
+            is CallResult.OtherError -> PageLoadResult.UnexpectedError(
                 throwable = outcome.throwable,
                 isFirstPage = isFirstPage
             )

@@ -117,8 +117,7 @@ class AnimeUpdateManagerImpl(
                     flattenedRemoteItems.addAll(remoteResult.value)
                 }
 
-                is CallResult.HttpError,
-                is CallResult.OtherError -> {
+                is CallResult.Failure -> {
                     isLeastOneError = true
                 }
             }

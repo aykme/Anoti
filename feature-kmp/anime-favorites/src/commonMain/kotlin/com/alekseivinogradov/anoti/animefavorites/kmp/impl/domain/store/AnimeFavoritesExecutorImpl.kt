@@ -181,7 +181,9 @@ class AnimeFavoritesExecutorImpl(
                     )
 
                     is CallResult.HttpError,
-                    is CallResult.OtherError -> toastProvider.makeConnectionErrorToast()
+                    is CallResult.NetworkError -> toastProvider.makeConnectionErrorToast()
+
+                    is CallResult.OtherError -> toastProvider.makeUnknownErrorToast()
                 }
             }
     }
