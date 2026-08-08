@@ -15,6 +15,7 @@ versionName = "1.09"
 
 #Library versions
 activity = "1.13.0"
+agp = "9.3.1"
 annotationJvm = "1.10.0"
 appcompat = "1.7.1"
 constraintlayout = "2.2.2"
@@ -39,15 +40,11 @@ rules = "1.7.0"
 swiperefreshlayout = "1.2.0"
 workRuntimeKtx = "2.11.2"
 
-# Suppressed: deliberately pinned below the latest available version.
-# 9.x requires migrating the KMP modules off the combined
-# kotlinMultiplatform+androidLibrary plugin setup first — see project notes.
-agp = "8.13.2"
-# 1.19.0 requires compileSdk 37 and AGP 9.1+ — 1.18.0 is the max compatible
-# with the current compileSdk 36 / AGP 8.x setup.
+# 1.19.0 requires compileSdk 37 (AGP requirement already satisfied since 9.1) —
+# 1.18.0 is the max compatible with the current compileSdk 36.
 coreKtx = "1.18.0"
 # 5.0.9 requires compileSdk 37 — 5.0.7 is the max compatible with the
-# current compileSdk 36 setup.
+# current compileSdk 36.
 glide = "5.0.7"
 
 [libraries]
@@ -100,6 +97,5 @@ mvikotlin-timetravel = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-ti
 android-application = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

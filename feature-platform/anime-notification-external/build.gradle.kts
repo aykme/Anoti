@@ -2,12 +2,11 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.ksp)
 }
 
 android {
-    namespace = "com.alekseivinogradov.anime_notification"
+    namespace = "com.alekseivinogradov.anime_notification_external"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
