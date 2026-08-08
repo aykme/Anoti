@@ -38,6 +38,6 @@ abstract class CoroutineContextProviderBase : CoroutineContextProvider {
 
     override val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
     override val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
-    override val ioDispacher: CoroutineContext = Dispatchers.IO
+    override val ioDispatcher: CoroutineContext = Dispatchers.IO
     override val unconfinedDispatcher: CoroutineDispatcher = Dispatchers.Unconfined
 }

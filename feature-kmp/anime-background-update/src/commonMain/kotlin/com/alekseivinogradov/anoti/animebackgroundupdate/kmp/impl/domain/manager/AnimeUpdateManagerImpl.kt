@@ -55,7 +55,7 @@ class AnimeUpdateManagerImpl(
     private suspend fun getRemoteItemsWithResultBySplittedRequests(
         databaseItems: List<AnimeDbDomain>
     ): Map<Index, CallResult<List<ListItemDomain>>> =
-        withContext(coroutineContextProvider.ioDispacher) {
+        withContext(coroutineContextProvider.ioDispatcher) {
             val remoteItemsWithResultIndexed: MutableMap<Index, CallResult<List<ListItemDomain>>> =
                 mutableMapOf()
             var requestIndex = 0

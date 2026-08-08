@@ -3,6 +3,13 @@ package com.alekseivinogradov.anoti.celebrity.kmp.api.domain.paging
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import kotlinx.coroutines.CancellationException
 
+/**
+ * Pages through [loadPage] results one page at a time, tracking the next page number and
+ * whether the end of the list has been reached.
+ *
+ * @param firstPage page number to start from.
+ * @param loadPage loads one page of items; wraps failures in [CallResult].
+ */
 class Paginator<T>(
     private val firstPage: Int,
     private val loadPage: suspend (page: Int) -> CallResult<List<T>>
@@ -11,12 +18,14 @@ class Paginator<T>(
     private var endReached: Boolean = false
     private var isLoading: Boolean = false
 
+    /** Resets to [firstPage] and loads it. */
     suspend fun loadFirstPage(): PageLoadResult<T> {
         nextPage = firstPage
         endReached = false
         return load(page = firstPage, isFirstPage = true)
     }
 
+    /** Loads the next page, or returns null if the end was reached or a load is already in flight. */
     suspend fun loadNextPage(): PageLoadResult<T>? {
         if (endReached || isLoading) return null
         return load(page = nextPage, isFirstPage = false)
@@ -56,10 +65,4 @@ class Paginator<T>(
             )
         }
     }
-}
-
-sealed interface PageLoadResult<T> {
-    data class Success<T>(val items: List<T>, val isFirstPage: Boolean) : PageLoadResult<T>
-    data class Error<T>(val throwable: Throwable, val isFirstPage: Boolean) : PageLoadResult<T>
-    data class UnexpectedError<T>(val throwable: Throwable, val isFirstPage: Boolean) : PageLoadResult<T>
 }
