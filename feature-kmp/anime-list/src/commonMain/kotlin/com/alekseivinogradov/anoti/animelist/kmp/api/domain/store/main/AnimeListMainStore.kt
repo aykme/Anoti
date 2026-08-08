@@ -35,6 +35,7 @@ interface AnimeListMainStore
         val isNeedToResetListPositon: Boolean = false
     )
 
+    /** Actions a caller can dispatch via [accept]. */
     sealed interface Intent {
         /** The user tapped the ongoing tab. */
         data object OngoingsSectionClick : Intent
@@ -79,6 +80,7 @@ interface AnimeListMainStore
         data object LoadNextPage : Intent
     }
 
+    /** One-off events the store publishes for callers to react to. */
     sealed interface Label {
         /** Ask the ongoing section's store for a section update. */
         data object OpenOngoingSection : Label
@@ -134,32 +136,117 @@ interface AnimeListMainStore
 
     /** Internal executor plumbing; a consumer never dispatches this. */
     sealed interface Message {
+        /**
+         * Replaces [State.selectedSection].
+         *
+         * @param selectedSection the newly selected section.
+         */
         data class ChangeSelectedSection(val selectedSection: SectionHatDomain) : Message
+
+        /**
+         * Replaces [State.search].
+         *
+         * @param search the search bar's new state.
+         */
         data class ChangeSearch(val search: SearchDomain) : Message
+
+        /**
+         * Replaces [State.ongoingContent]'s content type.
+         *
+         * @param contentType the ongoing section's new loading state.
+         */
         data class ChangeOngoingContentType(val contentType: ContentTypeDomain) : Message
+
+        /**
+         * Replaces [State.announcedContent]'s content type.
+         *
+         * @param contentType the announced section's new loading state.
+         */
         data class ChangeAnnouncedContentType(val contentType: ContentTypeDomain) : Message
+
+        /**
+         * Replaces [State.searchContent]'s content type.
+         *
+         * @param contentType the search section's new loading state.
+         */
         data class ChangeSearchContentType(val contentType: ContentTypeDomain) : Message
+
+        /**
+         * Replaces [State.isNeedToResetListPositon].
+         *
+         * @param isNeedToResetListPosition whether the list's scroll position should reset.
+         */
         data class ChangeResetListPositionFlag(val isNeedToResetListPosition: Boolean) : Message
+
+        /**
+         * Replaces [State.ongoingContent]'s list items.
+         *
+         * @param listItems the ongoing section's full, up-to-date list of items.
+         */
         data class UpdateOngoingListItems(val listItems: List<ListItemDomain>) : Message
+
+        /**
+         * Replaces [State.announcedContent]'s list items.
+         *
+         * @param listItems the announced section's full, up-to-date list of items.
+         */
         data class UpdateAnnouncedListItems(val listItems: List<ListItemDomain>) : Message
+
+        /**
+         * Replaces [State.searchContent]'s list items.
+         *
+         * @param listItems the search section's full, up-to-date list of items.
+         */
         data class UpdateSearchListItems(val listItems: List<ListItemDomain>) : Message
+
+        /**
+         * Replaces [State.enabledNotificationIds] wholesale.
+         *
+         * @param enabledNotificationIds ids with the "new episode" notification enabled.
+         */
         data class UpdateEnabledNotificationIds(val enabledNotificationIds: Set<AnimeId>) : Message
+
+        /**
+         * Replaces [State.ongoingContent]'s extra-episode-info-enabled ids.
+         *
+         * @param enabledExtraEpisodesInfoId ids showing the extra episode-info variant.
+         */
         data class UpdateOngoingEnabledExtraEpisodesInfoIds(
             val enabledExtraEpisodesInfoId: Set<AnimeId>
         ) : Message
 
+        /**
+         * Replaces [State.announcedContent]'s extra-episode-info-enabled ids.
+         *
+         * @param enabledExtraEpisodesInfoId ids showing the extra episode-info variant.
+         */
         data class UpdateAnnouncedEnabledExtraEpisodesInfoIds(
             val enabledExtraEpisodesInfoId: Set<AnimeId>
         ) : Message
 
+        /**
+         * Replaces [State.searchContent]'s extra-episode-info-enabled ids.
+         *
+         * @param enabledExtraEpisodesInfoId ids showing the extra episode-info variant.
+         */
         data class UpdateSearchEnabledExtraEpisodesInfoIds(
             val enabledExtraEpisodesInfoId: Set<AnimeId>
         ) : Message
 
+        /**
+         * Replaces [State.ongoingContent]'s fetched anime details.
+         *
+         * @param animeDetails extra per-item details fetched for the ongoing section.
+         */
         data class UpdateOngoingAnimeDetails(
             val animeDetails: AnimeDetails
         ) : Message
 
+        /**
+         * Replaces [State.searchContent]'s fetched anime details.
+         *
+         * @param animeDetails extra per-item details fetched for the search section.
+         */
         data class UpdateSearchAnimeDetails(
             val animeDetails: AnimeDetails
         ) : Message

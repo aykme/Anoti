@@ -24,6 +24,7 @@ interface AnimeFavoritesMainStore :
         val fetchedAnimeDetailsIds: Set<AnimeId> = setOf()
     )
 
+    /** Actions a caller can dispatch via [accept]. */
     sealed interface Intent {
         /** Replace the list items with [listItems] (from the database store). */
         data class UpdateListItems(val listItems: List<ListItemDomain>) : Intent
@@ -53,6 +54,7 @@ interface AnimeFavoritesMainStore :
         data class EpisodesViewedPlusClick(val id: AnimeId) : Intent
     }
 
+    /** One-off events the store publishes for callers to react to. */
     sealed interface Label {
         /** Ask the database store for a fresh section update. */
         data object UpdateSection : Label
@@ -72,9 +74,32 @@ interface AnimeFavoritesMainStore :
 
     /** Internal executor plumbing; a consumer never dispatches this. */
     sealed interface Message {
+        /**
+         * Replaces [State.listItems] wholesale.
+         *
+         * @param listItems the full, up-to-date list of favorites items.
+         */
         data class UpdateListItems(val listItems: List<ListItemDomain>) : Message
+
+        /**
+         * Replaces [State.contentType].
+         *
+         * @param contentType the list's new loading state.
+         */
         data class ChangeContentType(val contentType: ContentTypeDomain) : Message
+
+        /**
+         * Replaces [State.enabledExtraInfoIds] wholesale.
+         *
+         * @param enabledExtraInfoIds ids that should show the extra episode-info variant.
+         */
         data class UpdateEnabledExtraInfoIds(val enabledExtraInfoIds: Set<AnimeId>) : Message
+
+        /**
+         * Replaces [State.fetchedAnimeDetailsIds] wholesale.
+         *
+         * @param fetchedAnimeDetailsIds ids whose extra details have been fetched.
+         */
         data class UpdateFetchedAnimeDetailsIds(val fetchedAnimeDetailsIds: Set<AnimeId>) : Message
     }
 }

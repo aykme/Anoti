@@ -20,6 +20,7 @@ interface AnnouncedSectionStore : Store<
         val sectionContent: SectionContentDomain = SectionContentDomain()
     )
 
+    /** Actions a caller can dispatch via [accept]. */
     sealed interface Intent {
         /** The section became selected. */
         data object OpenSection : Intent
@@ -34,6 +35,7 @@ interface AnnouncedSectionStore : Store<
         data class EpisodesInfoClick(val id: AnimeId) : Intent
     }
 
+    /** One-off events the store publishes for callers to react to. */
     sealed interface Label {
         /** Ask the main store to reset the list's scroll position. */
         data object ResetListPositionAfterUpdate : Label
@@ -44,8 +46,25 @@ interface AnnouncedSectionStore : Store<
 
     /** Internal executor plumbing; a consumer never dispatches this. */
     sealed interface Message {
+        /**
+         * Replaces [State.sectionContent]'s content type.
+         *
+         * @param contentType the section's new loading state.
+         */
         data class ChangeContentType(val contentType: ContentTypeDomain) : Message
+
+        /**
+         * Replaces [State.sectionContent]'s list items.
+         *
+         * @param listItems the section's full, up-to-date list of items.
+         */
         data class UpdateListItems(val listItems: List<ListItemDomain>) : Message
+
+        /**
+         * Replaces [State.sectionContent]'s extra-episode-info-enabled ids.
+         *
+         * @param enabledExtraEpisodesInfoIds ids showing the extra episode-info variant.
+         */
         data class UpdateEnabledExtraEpisodesInfoIds(
             val enabledExtraEpisodesInfoIds: Set<AnimeId>
         ) : Message

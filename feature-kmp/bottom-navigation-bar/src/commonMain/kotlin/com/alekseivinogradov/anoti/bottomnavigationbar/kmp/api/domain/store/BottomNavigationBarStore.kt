@@ -21,6 +21,7 @@ interface BottomNavigationBarStore : Store<
         val favoritesBadgeNumber: Int = 0
     )
 
+    /** Actions a caller can dispatch via [accept]. */
     sealed interface Intent {
         /** External navigation moved to [selectedSection]; sync the bar's selection. */
         data class ChangeSelectedSection(val selectedSection: SectionDomain) : Intent
@@ -35,6 +36,7 @@ interface BottomNavigationBarStore : Store<
         data object FavoritesSectionClick : Intent
     }
 
+    /** One-off events the store publishes for callers to react to. */
     sealed interface Label {
         /** Navigate to the main section. */
         data object NavigateToMain : Label
@@ -48,7 +50,18 @@ interface BottomNavigationBarStore : Store<
 
     /** Internal executor plumbing; a consumer never dispatches this. */
     sealed interface Message {
+        /**
+         * Replaces [State.selectedSection].
+         *
+         * @param selectedSection the newly selected section.
+         */
         data class ChangeSelectedSection(val selectedSection: SectionDomain) : Message
+
+        /**
+         * Replaces [State.favoritesBadgeNumber].
+         *
+         * @param favoritesBadgeNumber the badge's new number.
+         */
         data class UpdateFavoritesBadgeNumber(val favoritesBadgeNumber: Int) : Message
     }
 }
