@@ -76,3 +76,5 @@ app/release/output.json
 .worktrees/
 # Agent planning docs (local reference only, not tracked)
 docs/superpowers/
+# Subagent-driven-development workspace (ledgers, briefs, review packages)
+.superpowers/
