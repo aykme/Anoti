@@ -36,6 +36,9 @@ Read this before doing any task in this repository.
 
 ## Before committing
 
+- Everything below applies only to the files actually being committed. If other files were
+  touched or are otherwise affected but aren't part of this commit, none of this applies to
+  them.
 - Go through every changed file before committing:
   - If the project has a static code analyzer/linter configured, run it, fix what it flags,
     then run it again to confirm the fixes actually resolved the issues.
