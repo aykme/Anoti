@@ -47,7 +47,7 @@ workRuntimeKtx = "2.11.2"
 coreKtx = "1.18.0"
 # 5.0.9 requires compileSdk 37 — 5.0.7 is the max compatible with the
 # current compileSdk 36.
-#noinspection GradleDependency
+#noinspection NewerVersionAvailable
 glide = "5.0.7"
 
 [libraries]
