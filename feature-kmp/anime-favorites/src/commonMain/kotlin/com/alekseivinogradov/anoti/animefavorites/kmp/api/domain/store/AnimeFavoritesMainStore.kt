@@ -9,7 +9,11 @@ import com.arkivanov.mvikotlin.core.store.Store
  * The store for the favorites screen.
  */
 interface AnimeFavoritesMainStore :
-    Store<AnimeFavoritesMainStore.Intent, AnimeFavoritesMainStore.State, AnimeFavoritesMainStore.Label> {
+    Store<
+            AnimeFavoritesMainStore.Intent,
+            AnimeFavoritesMainStore.State,
+            AnimeFavoritesMainStore.Label
+            > {
 
     /**
      * @param listItems favorites list items.
