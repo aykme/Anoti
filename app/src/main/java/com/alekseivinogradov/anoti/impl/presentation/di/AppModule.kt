@@ -13,7 +13,6 @@ import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.Anim
 import com.alekseivinogradov.anoti.animenotification.platform.impl.presentation.di.AnimeNotificationModule
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.platform.impl.presentation.di.CelebrityAppModule
-import com.alekseivinogradov.anoti.network.platform.impl.presentation.di.NetworkModule
 import dagger.Module
 import dagger.Provides
 

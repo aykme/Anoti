@@ -3,7 +3,7 @@ package com.alekseivinogradov.anoti.network.kmp.api.data
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 
 /**
- * Runs a network call and returns its outcome as [CallResult] instead of throwing.
+ * Safe API calls with retries.
  */
 interface SafeApi {
     /**

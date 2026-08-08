@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.network.platform.impl.presentation.di
+package com.alekseivinogradov.anoti.impl.presentation.di
 
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.alekseivinogradov.anoti.network.kmp.impl.data.SafeApiImpl
@@ -11,7 +11,7 @@ import javax.inject.Singleton
 import kotlin.time.Duration.Companion.milliseconds
 
 @Module
-interface NetworkModule {
+internal interface NetworkModule {
     companion object {
         @Provides
         @Singleton
