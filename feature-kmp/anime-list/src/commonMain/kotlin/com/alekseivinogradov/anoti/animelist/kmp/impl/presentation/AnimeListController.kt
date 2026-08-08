@@ -28,6 +28,17 @@ import com.arkivanov.mvikotlin.extensions.coroutines.states
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 
+/**
+ * Wires the main store, its three section stores, and [AnimeDatabaseStore] to the view for the
+ * screen's lifecycle.
+ *
+ * @param lifecycle screen lifecycle the store bindings are tied to.
+ * @param mainStore the anime list screen's top-level store.
+ * @param animeDatabaseStore saved-anime database store; drives notification state.
+ * @param ongoingSectionStore the "ongoing" section's own store.
+ * @param announcedSectionStore the "announced" section's own store.
+ * @param searchSectionStore the search section's own store.
+ */
 class AnimeListController(
     lifecycle: Lifecycle,
     private val mainStore: AnimeListMainStore,
@@ -45,6 +56,12 @@ class AnimeListController(
         lifecycle.doOnDestroy { mainStore.dispose() }
     }
 
+    /**
+     * Binds [mainView] to the main store for [viewLifecycle]'s duration.
+     *
+     * @param mainView view instance created for this lifecycle.
+     * @param viewLifecycle the view's own lifecycle.
+     */
     fun onViewCreated(mainView: AnimeListView, viewLifecycle: Lifecycle) {
         connectAllAuxiliaryStoresToMain(viewLifecycle)
         connectMainStoreToMainView(mainView = mainView, viewLifecycle = viewLifecycle)

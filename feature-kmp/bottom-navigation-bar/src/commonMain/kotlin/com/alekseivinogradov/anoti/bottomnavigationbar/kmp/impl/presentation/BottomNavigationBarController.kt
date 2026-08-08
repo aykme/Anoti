@@ -13,6 +13,14 @@ import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.extensions.coroutines.states
 import kotlinx.coroutines.flow.map
 
+/**
+ * Wires [BottomNavigationBarStore] to its view and to [AnimeDatabaseStore] for the bar's
+ * lifecycle.
+ *
+ * @param lifecycle screen lifecycle the store bindings are tied to.
+ * @param mainStore the bottom navigation bar's own store.
+ * @param animeDatabaseStore saved-anime database store; drives the favorites badge number.
+ */
 class BottomNavigationBarController(
     lifecycle: Lifecycle,
     private val mainStore: BottomNavigationBarStore,
@@ -24,6 +32,12 @@ class BottomNavigationBarController(
         lifecycle.doOnDestroy { animeDatabaseStore.dispose() }
     }
 
+    /**
+     * Binds [mainView] to the store for [viewLifecycle]'s duration.
+     *
+     * @param mainView view instance created for this lifecycle.
+     * @param viewLifecycle the view's own lifecycle.
+     */
     fun onViewCreated(mainView: BottomNavigationBarView, viewLifecycle: Lifecycle) {
         connectAllAuxiliaryStoresToMain(viewLifecycle)
         connectMainStoreToMainView(mainView = mainView, viewLifecycle = viewLifecycle)

@@ -16,6 +16,14 @@ import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.extensions.coroutines.states
 import kotlinx.coroutines.flow.map
 
+/**
+ * Wires [AnimeFavoritesMainStore] to its view and to [AnimeDatabaseStore] for the screen's
+ * lifecycle.
+ *
+ * @param lifecycle screen lifecycle the store bindings are tied to.
+ * @param mainStore the favorites screen's own store.
+ * @param animeDatabaseStore saved-anime database store; the source of the favorites list.
+ */
 class AnimeFavoritesController(
     lifecycle: Lifecycle,
     private val mainStore: AnimeFavoritesMainStore,
@@ -27,6 +35,12 @@ class AnimeFavoritesController(
         lifecycle.doOnDestroy { mainStore.dispose() }
     }
 
+    /**
+     * Binds [mainView] to the store for [viewLifecycle]'s duration.
+     *
+     * @param mainView view instance created for this lifecycle.
+     * @param viewLifecycle the view's own lifecycle.
+     */
     fun onViewCreated(mainView: AnimeFavoritesView, viewLifecycle: Lifecycle) {
         connectAllAuxiliaryStoresToMain(viewLifecycle)
         connectMainStoreToMainView(mainView = mainView, viewLifecycle = viewLifecycle)
