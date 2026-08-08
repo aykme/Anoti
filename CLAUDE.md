@@ -54,6 +54,12 @@ Read this before doing any task in this repository.
   compiler errors. This includes spelling/grammar warnings in prose and comments: fix them when
   the issue is clearly a real mistake; if there's genuine doubt, or the fix would mean adding a
   word to a dictionary, ask the developer instead of guessing.
+  - Check this with the `mcp__ide__getDiagnostics` tool, called with `uri` set to each changed
+    file's `file:///<absolute-path>`. Do this for every file being committed, not a sample.
+  - If the tool times out or errors instead of returning diagnostics, that's an infrastructure
+    problem, not a signal the file is clean — don't treat a timeout as "no warnings". Retry once;
+    if it still fails, say so explicitly instead of silently skipping the check or committing
+    anyway.
 - This applies to `README.md` and every other `*.md` file in the repo, including skill files
   under `.claude/skills/**` — try to keep them as clean as source code.
 - This also applies to Gradle files (`build.gradle.kts`, `settings.gradle.kts`, version catalog
