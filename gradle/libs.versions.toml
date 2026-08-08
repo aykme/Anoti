@@ -1,5 +1,5 @@
 [versions]
-#App versions
+#Suppressed: App versions — all used via libs.versions.<name>.get() in build.gradle.kts, Studio's unused-entry inspection just doesn't recognize that accessor pattern
 compileSdk = "36"
 jvmTarget = "17"
 minSdk = "26"
@@ -9,29 +9,21 @@ versionName = "1.09"
 
 #Library versions
 activity = "1.13.0"
-agp = "8.12.3"
 annotationJvm = "1.10.0"
 appcompat = "1.7.1"
 constraintlayout = "2.2.2"
-coreKtx = "1.18.0"
 coroutines = "1.11.0"
 dagger = "2.60.1"
 espressoContrib = "3.7.0"
 espressoCore = "3.7.0"
 essenty = "2.5.0"
-glide = "5.0.7"
-junit = "4.13.2"
 junitKtx = "1.3.0"
-junitVersion = "1.3.0"
-kotlin = "2.2.21"
 ksp = "2.2.21-2.0.5"
 material = "1.14.0"
 mockk = "1.14.11"
 moshiKotlin = "1.15.2"
 mviKotlin = "4.4.0"
 navigationKtx = "2.9.8"
-okhttpBom = "4.12.0"
-playServicesAppset = "16.1.0"
 recyclerview = "1.4.0"
 retrofit = "3.0.0"
 room = "2.8.4"
@@ -39,53 +31,53 @@ rules = "1.7.0"
 swiperefreshlayout = "1.2.0"
 workRuntimeKtx = "2.11.2"
 
+# Suppressed: deliberately pinned below the latest available version.
+agp = "8.12.3"
+okhttpBom = "4.12.0"
+coreKtx = "1.18.0"
+glide = "5.0.7"
+kotlin = "2.2.21"
+
 [libraries]
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-annotation-jvm = { group = "androidx.annotation", name = "annotation-jvm", version.ref = "annotationJvm" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-espresso-contrib = { group = "androidx.test.espresso", name = "espresso-contrib", version.ref = "espressoContrib" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationKtx" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationKtx" }
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
-androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
+androidx-rules = { group = "androidx.test", name = "rules", version.ref = "rules" }
 androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
 androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "workRuntimeKtx" }
-androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "workRuntimeKtx" }
 converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }
-dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
-essenty-instance-keeper = { group = "com.arkivanov.essenty", name = "instance-keeper", version.ref = "essenty" }
+dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
 essenty-lifecycle = { group = "com.arkivanov.essenty", name = "lifecycle", version.ref = "essenty" }
-essenty-statekeeper = { group = "com.arkivanov.essenty", name = "state-keeper", version.ref = "essenty" }
-glide-ksp = { group = "com.github.bumptech.glide", name = "ksp", version.ref = "glide" }
-glide-okhttp3 = { group = "com.github.bumptech.glide", name = "okhttp3-integration", version.ref = "glide" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshiKotlin" }
-mvikotlin-extensions-coroutines = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-extensions-coroutines", version.ref = "mviKotlin" }
-mvikotlin-logger = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-logging", version.ref = "mviKotlin" }
-mvikotlin-main = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-main", version.ref = "mviKotlin" }
-mvikotlin-timetravel = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-timetravel", version.ref = "mviKotlin" }
-mvikotlin-utils-internal = { group = "com.arkivanov.mvikotlin", name = "utils-internal", version.ref = "mviKotlin" }
 mvikotlin = { group = "com.arkivanov.mvikotlin", name = "mvikotlin", version.ref = "mviKotlin" }
-okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version.ref = "okhttpBom" }
+mvikotlin-extensions-coroutines = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-extensions-coroutines", version.ref = "mviKotlin" }
+mvikotlin-main = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-main", version.ref = "mviKotlin" }
 okhttp = { module = "com.squareup.okhttp3:okhttp" }
-play-services-appset = { module = "com.google.android.gms:play-services-appset", version.ref = "playServicesAppset" }
+okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version.ref = "okhttpBom" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
-androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
-androidx-rules = { group = "androidx.test", name = "rules", version.ref = "rules" }
-androidx-espresso-contrib = { group = "androidx.test.espresso", name = "espresso-contrib", version.ref = "espressoContrib" }
+
+# Suppressed: not used anywhere yet, but plausibly useful later — kept on purpose instead of deleted.
+essenty-instance-keeper = { group = "com.arkivanov.essenty", name = "instance-keeper", version.ref = "essenty" }
+essenty-statekeeper = { group = "com.arkivanov.essenty", name = "state-keeper", version.ref = "essenty" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+mvikotlin-logger = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-logging", version.ref = "mviKotlin" }
+mvikotlin-timetravel = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-timetravel", version.ref = "mviKotlin" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -55,7 +55,9 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.activity)
     implementation(libs.mvikotlin)
+    implementation(libs.essenty.lifecycle)
     implementation(libs.dagger)
     implementation(libs.androidx.constraintlayout)
     ksp(libs.dagger.compiler)

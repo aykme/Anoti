@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.mvikotlin)
+    implementation(libs.essenty.lifecycle)
     implementation(libs.dagger)
     implementation(libs.material)
     implementation(libs.androidx.swiperefreshlayout)

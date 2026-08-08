@@ -48,5 +48,6 @@ dependencies {
 
     implementation(libs.dagger)
     implementation(libs.androidx.work.runtime)
+    implementation(libs.androidx.annotation.jvm)
     ksp(libs.dagger.compiler)
 }

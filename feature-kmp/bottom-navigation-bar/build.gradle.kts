@@ -34,6 +34,7 @@ kotlin {
 
             implementation(libs.mvikotlin)
             implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.essenty.lifecycle)
             implementation(libs.mvikotlin.extensions.coroutines)
         }
     }
