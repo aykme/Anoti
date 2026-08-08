@@ -21,6 +21,9 @@ Read this before doing any task in this repository.
 
 ## After finishing a task
 
+- This is a final stage that runs only once the overall task is fully done — not after each
+  individual subtask generated along the way. Don't run through this checklist after every
+  subtask.
 - Verify that the logic you wrote actually works correctly — don't just assume it from reading
   the code.
 - If the task was a refactor, ask the developer whether the resulting behavior must match the
