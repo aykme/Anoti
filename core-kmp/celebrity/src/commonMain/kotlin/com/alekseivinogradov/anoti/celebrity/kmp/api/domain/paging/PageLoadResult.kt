@@ -24,5 +24,8 @@ sealed interface PageLoadResult<T> {
      * @param throwable the underlying error.
      * @param isFirstPage whether this was the first page (vs. a subsequent one).
      */
-    data class UnexpectedError<T>(val throwable: Throwable, val isFirstPage: Boolean) : PageLoadResult<T>
+    data class UnexpectedError<T>(
+        val throwable: Throwable,
+        val isFirstPage: Boolean
+    ) : PageLoadResult<T>
 }

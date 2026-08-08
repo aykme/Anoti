@@ -61,7 +61,9 @@ interface AnimeDatabaseStore
         data object ResetAllItemsNewEpisodeStatusWasFinished : Label
     }
 
-    /** Internal bootstrap signal consumed by the store's executor — callers never dispatch this. */
+    /**
+     * Internal bootstrap signal consumed by the store's executor — callers never dispatch this.
+     */
     sealed interface Action {
         /** Triggers the executor's subscription to the underlying repository on store creation. */
         data object SubscribeToDatabase : Action

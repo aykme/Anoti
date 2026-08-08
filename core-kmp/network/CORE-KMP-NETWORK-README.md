@@ -13,8 +13,8 @@ app.
 ## How to include it
 
 - Gradle: `implementation(project(":core-kmp:network"))`
-- `SafeApi`/`HttpClient` instances are provided via `app`'s own Dagger `NetworkModule` — inject
-  them, don't construct them yourself.
+- `SafeApi`/`HttpClient` instances are provided via the platform module's Dagger `NetworkModule`
+  (`core-platform:network`) — inject them, don't construct them yourself.
 
 ## How to use it
 

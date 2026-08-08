@@ -18,7 +18,10 @@ fun mapImageUrlDataToDomain(imageResponse: ImageResponse?): String? {
     return fullImageUrl
 }
 
-/** Maps a raw Shikimori [releaseStatus] string to [ReleaseStatusDomain], defaulting to [ReleaseStatusDomain.UNKNOWN]. */
+/**
+ * Maps a raw Shikimori [releaseStatus] string to [ReleaseStatusDomain], defaulting to
+ * [ReleaseStatusDomain.UNKNOWN].
+ */
 fun mapReleaseStatusDataToDomain(releaseStatus: String?): ReleaseStatusDomain {
     return when (releaseStatus) {
         ReleaseStatusData.ONGOING.value -> ReleaseStatusDomain.ONGOING

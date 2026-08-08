@@ -22,17 +22,55 @@ class ShikimoriApiServiceImplTest {
 
     private lateinit var lastRequest: HttpRequestData
 
+    private val animeListJsonResponse = """
+        [
+          {
+            "id": 1,
+            "name": "Attack on Titan",
+            "russian": "Атака титанов",
+            "url": "/animes/1",
+            "image": {
+              "original": "/o.jpg",
+              "preview": "/p.jpg",
+              "x96": "/x96.jpg",
+              "x48": "/x48.jpg"
+            },
+            "episodes_aired": 12,
+            "episodes": 25,
+            "aired_on": "2013-04-07",
+            "released_on": "2013-09-28",
+            "score": 8.53,
+            "status": "released",
+            "kind": "tv"
+          }
+        ]
+    """.trimIndent()
+
+    private val emptyAnimeListJsonResponse = "[]"
+
+    private val animeDetailsJsonResponse = """
+        {
+          "id": 5,
+          "name": "Bleach",
+          "russian": "Блич",
+          "url": "/animes/5",
+          "image": null,
+          "episodes_aired": 10,
+          "episodes": null,
+          "next_episode_at": "2024-12-28T17:00:00+03:00",
+          "aired_on": "2004-10-05",
+          "released_on": null,
+          "score": 8.97,
+          "status": "ongoing",
+          "kind": "tv",
+          "description": "desc"
+        }
+    """.trimIndent()
+
     @Test
     fun getAnimeListSendsQueryParamsAndDecodesResponse() = runTest {
         //Given
-        val service = createService(
-            """
-            [{"id":1,"name":"Attack on Titan","russian":"Атака титанов","url":"/animes/1",
-            "image":{"original":"/o.jpg","preview":"/p.jpg","x96":"/x96.jpg","x48":"/x48.jpg"},
-            "episodes_aired":12,"episodes":25,"aired_on":"2013-04-07","released_on":"2013-09-28",
-            "score":8.53,"status":"released","kind":"tv"}]
-            """.trimIndent()
-        )
+        val service = createService(animeListJsonResponse)
 
         //When
         val result = service.getAnimeList(
@@ -79,7 +117,7 @@ class ShikimoriApiServiceImplTest {
     @Test
     fun getAnimeListOmitsNullOptionalParams() = runTest {
         //Given
-        val service = createService("[]")
+        val service = createService(emptyAnimeListJsonResponse)
 
         //When
         service.getAnimeList(page = 1, releaseStatus = null, sort = null, search = null, ids = null)
@@ -95,14 +133,7 @@ class ShikimoriApiServiceImplTest {
     @Test
     fun getAnimeByIdRequestsExpectedPathAndDecodesResponse() = runTest {
         //Given
-        val service = createService(
-            """
-            {"id":5,"name":"Bleach","russian":"Блич","url":"/animes/5","image":null,
-            "episodes_aired":10,"episodes":null,"next_episode_at":"2024-12-28T17:00:00+03:00",
-            "aired_on":"2004-10-05","released_on":null,"score":8.97,"status":"ongoing","kind":"tv",
-            "description":"desc"}
-            """.trimIndent()
-        )
+        val service = createService(animeDetailsJsonResponse)
 
         //When
         val result = service.getAnimeById(5)

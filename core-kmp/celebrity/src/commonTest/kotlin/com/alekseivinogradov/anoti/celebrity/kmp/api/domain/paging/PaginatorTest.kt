@@ -22,7 +22,10 @@ class PaginatorTest {
         val result = paginator.loadFirstPage()
 
         assertEquals(
-            PageLoadResult.Success(items = listOf("page1-item1", "page1-item2"), isFirstPage = true),
+            PageLoadResult.Success(
+                items = listOf("page1-item1", "page1-item2"),
+                isFirstPage = true
+            ),
             result
         )
     }
@@ -51,7 +54,11 @@ class PaginatorTest {
             firstPage = 1,
             loadPage = { page ->
                 callCount++
-                if (page == 1) CallResult.Success(emptyList()) else CallResult.Success(listOf("unreachable"))
+                if (page == 1) {
+                    CallResult.Success(emptyList())
+                } else {
+                    CallResult.Success(listOf("unreachable"))
+                }
             }
         )
         paginator.loadFirstPage()

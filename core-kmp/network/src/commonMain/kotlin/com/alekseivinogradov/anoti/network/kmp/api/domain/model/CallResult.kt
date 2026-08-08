@@ -1,7 +1,8 @@
 package com.alekseivinogradov.anoti.network.kmp.api.domain.model
 
 /**
- * The outcome of a network call made through [com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi].
+ * The outcome of a network call made through
+ * [SafeApi][com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi].
  */
 sealed class CallResult<out T> {
     data class Success<out T>(val value: T) : CallResult<T>()

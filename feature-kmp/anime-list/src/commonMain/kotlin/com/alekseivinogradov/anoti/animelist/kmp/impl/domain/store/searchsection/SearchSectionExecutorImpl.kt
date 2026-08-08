@@ -47,7 +47,9 @@ class SearchSectionExecutorImpl(
         }
     }
 
-    private fun createPaginator(searchText: String = state().searchText): Paginator<ListItemDomain> {
+    private fun createPaginator(
+        searchText: String = state().searchText
+    ): Paginator<ListItemDomain> {
         return Paginator(
             firstPage = FIRST_PAGE,
             loadPage = { page ->

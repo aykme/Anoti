@@ -25,7 +25,10 @@ class Paginator<T>(
         return load(page = firstPage, isFirstPage = true)
     }
 
-    /** Loads the next page, or returns null if the end was reached or a load is already in flight. */
+    /**
+     * Loads the next page, or returns null if the end was reached or a load is already in
+     * flight.
+     */
     suspend fun loadNextPage(): PageLoadResult<T>? {
         if (endReached || isLoading) return null
         return load(page = nextPage, isFirstPage = false)

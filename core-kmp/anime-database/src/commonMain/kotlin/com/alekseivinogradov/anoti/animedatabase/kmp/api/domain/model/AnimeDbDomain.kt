@@ -1,9 +1,10 @@
 package com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model
 
+import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 
 /**
- * A saved anime entry, as read from and written to [AnimeDatabaseStore][com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore].
+ * A saved anime entry, as read from and written to [AnimeDatabaseStore].
  * Not the database entity itself, just the mediator type the store/usecases operate on.
  *
  * @param id id of the anime.

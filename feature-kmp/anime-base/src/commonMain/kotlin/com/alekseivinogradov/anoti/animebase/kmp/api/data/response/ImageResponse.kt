@@ -13,8 +13,8 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class ImageResponse(
-    @SerialName("original") val originalSizeUrl: String?,
-    @SerialName("preview") val previewSizeUrl: String?,
-    @SerialName("x96") val x96SizeUrl: String?,
-    @SerialName("x48") val x48SizeUrl: String?
+    @SerialName("original") val originalSizeUrl: String? = null,
+    @SerialName("preview") val previewSizeUrl: String? = null,
+    @SerialName("x96") val x96SizeUrl: String? = null,
+    @SerialName("x48") val x48SizeUrl: String? = null
 )
