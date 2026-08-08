@@ -35,10 +35,8 @@ Technology stack:
    via [Room](https://developer.android.com/training/data-storage/room).
    I plan try to replace it with [Realm Kotlin](https://github.com/realm/realm-kotlin) in the
    future for KMP supporting.
-5. Api services are still implemented via [Retrofit](https://github.com/square/retrofit), but the
-   shared network layer (safe calls, retries, error classification, HTTP client) has been migrated
-   to [Ktor](https://github.com/ktorio/ktor) in the KMP modules. Migrating the API services
-   themselves to Ktor is next.
+5. Api services are implemented via [Ktor](https://github.com/ktorio/ktor), fully in the KMP
+   modules.
 6. Custom pagination implemented in pure KMP, without third-party libraries, designed to fit
    MVI and UDF architectures.
 7. Based on Views and Fragments. I plan to rewrite the UI to

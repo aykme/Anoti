@@ -41,11 +41,9 @@ kotlin {
 dependencies {
     api(project(":core-kmp:network"))
 
-    api(libs.retrofit)
-    api(libs.converter.moshi)
     implementation(libs.dagger)
     implementation(libs.androidx.core.ktx)
-    implementation(libs.moshi.kotlin)
+    implementation(libs.ktor.client.okhttp)
 
     /**
      * Necessary dependencies for older android versions.

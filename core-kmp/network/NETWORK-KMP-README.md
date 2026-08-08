@@ -61,19 +61,12 @@ when (val result = fetchSomething()) {
 }
 ```
 
-## Current rollout state — read before wiring `SafeApiImpl` in anywhere new
+## Note on `SafeApiImpl`'s classification
 
 `SafeApiImpl.call`'s failure classification only recognizes Ktor's own exception types
-(`ResponseException`, `kotlinx.io.IOException`). It does **not** understand `retrofit2.HttpException`
-or any other HTTP client's exceptions.
-
-As of this writing, `core-platform/network`'s DI still wires the old Retrofit-aware
-`SafeApiImpl` (`com.alekseivinogradov.anoti.network.platform.impl.data.SafeApiImpl`), because the
-only real API service in the app (`ShikimoriApiServicePlatform`, in `feature-platform/anime-base`)
-still makes its calls through Retrofit. Swapping the DI-provided `SafeApi` to this module's
-`SafeApiImpl` before that service is migrated to Ktor would silently misclassify every real HTTP
-error as `CallResult.OtherError` (and stop retrying 5xx responses) instead of breaking loudly — do
-not do that swap until the API service itself calls through a Ktor `HttpClient`.
+(`ResponseException`, `kotlinx.io.IOException`) — the underlying HTTP call must go through a Ktor
+`HttpClient` for `CallResult` to come out right. All real API services in the app now do (Retrofit
+has been fully removed from the project).
 
 ## What's intentionally not here
 
