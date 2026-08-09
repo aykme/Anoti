@@ -11,7 +11,7 @@ class AnimeDaoFake : AnimeDao {
 
     override suspend fun insert(anime: AnimeDbEntity) {
         if (items.value.none { it.id == anime.id }) {
-            items.value = items.value + anime
+            items.value += anime
         }
     }
 
