@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.alekseivinogradov.anoti.celebrity.platform.impl.presentation.formatter
 
 import android.content.res.Resources
