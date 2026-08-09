@@ -48,6 +48,7 @@ class AnimeDatabaseContinuityTest {
                 "INSERT OR REPLACE INTO room_master_table (id, identity_hash) " +
                         "VALUES(42, 'e7837677d3018c28ecf262fc6782a530')"
             )
+            connection.execSQL("PRAGMA user_version = 1")
             connection.execSQL(
                 "INSERT INTO anoti_anime_table (id, name, image_url, episodes_aired, " +
                         "episodes_total, next_episode_at, aired_on, released_on, score, " +
