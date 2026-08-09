@@ -49,50 +49,11 @@ Read this before doing any task in this repository.
   - If there's no static analyzer for a given file, do the equivalent by hand: reformat the
     code, optimize imports, and check that formatting matches the codebase's established
     conventions.
-- Regardless of whether a static analyzer exists, also go through every warning the IDE reports
-  on changed files, of any severity (red, yellow, and weak/green hints alike) — not just
-  compiler errors. This includes spelling/grammar warnings in prose and comments: fix them when
-  the issue is clearly a real mistake; if there's genuine doubt, or the fix would mean adding a
-  word to a dictionary, ask the developer instead of guessing.
-  - Check this with the `mcp__ide__getDiagnostics` tool, called with `uri` set to each changed
-    file's `file:///<absolute-path>`. Do this for every file being committed, not a sample —
-    including files that feel trivial (a one-line docs edit, a `CLAUDE.md`/skill-file change, a
-    Gradle tweak) and files in a commit that's mostly about something else. "This one's small" or
-    "I already verified it a different way (e.g. the build passed)" is not a reason to skip it —
-    a successful build proves the code compiles, it does not prove there's no IDE-only inspection
-    warning (unused import, unnecessary `@Suppress`, a style hint), which is a different and
-    non-overlapping check.
-  - **The `getDiagnostics` call (with its retry, if needed) is the last tool call before
-    `git commit`, every time, with no exceptions carved out for any category of file.** If
-    something happens after that call and before the commit — another edit, a build, a detour —
-    the check is stale; call it again immediately before committing, don't rely on an earlier
-    call in the same turn.
-  - If the tool times out or errors instead of returning diagnostics, that's an infrastructure
-    problem, not a signal the file is clean — don't treat a timeout as "no warnings". Retry once;
-    if it still fails, say so explicitly instead of silently skipping the check or committing
-    anyway.
-  - **Hard rule, no exceptions: do not commit a file with any diagnostic still open on it.**
-    "It's expected"/"it's inherent to this task"/"nothing calls this yet" are not valid reasons
-    to leave a warning unresolved — they're reasons to pick the correct fix (e.g. an explicit,
-    justified `@Suppress` with a comment saying why, not a silent shrug), not a reason to skip
-    fixing it. An unused-but-intentionally-public-API warning gets suppressed explicitly with a
-    comment explaining why it's intentional; it does not get left as a bare warning because the
-    reason is "obvious" to whoever wrote the code.
 - This applies to `README.md` and every other `*.md` file in the repo, including skill files
   under `.claude/skills/**` — try to keep them as clean as source code.
 - This also applies to Gradle files (`build.gradle.kts`, `settings.gradle.kts`, version catalog
-  TOML files, and similar) — they're code too, not exempt from the reformat/warnings pass.
-- If fixing a warning leads to an unresolvable contradiction (e.g. two conventions that can't
-  both be satisfied), or the fix is a change that could actually break something rather than
-  just quiet the IDE, stop and ask the developer instead of guessing which way to go.
-- Any global change, or a version bump/change (dependency, Gradle, Kotlin, etc.) — even one
-  suggested by a linter or an IDE quick-fix — also needs the developer's sign-off before you
-  make it; don't fold it silently into a warnings-cleanup pass.
-- Exception: example content inside a skill (illustrative code snippets, example READMEs meant
-  to demonstrate a pattern) is allowed to trip warnings about unresolved packages/paths or
-  similar — that's inherent to being a standalone example, not a bug. As a rule, don't edit
-  example content just to silence IDE noise; leave examples alone unless the warning points to
-  a genuine, fixable problem in the surrounding prose.
+  TOML files, and similar) — they're code too, so reformat them and check that their formatting
+  matches established conventions the same as any other file.
 
 ## Module READMEs
 
