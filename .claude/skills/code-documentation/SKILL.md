@@ -97,13 +97,21 @@ Don't default to a code block. Decide based on what kind of entry point the modu
   usually the clearest option. Base it on an actual caller in the codebase (grep for where the
   type is used) rather than inventing plausible-looking code. A snippet that doesn't match how
   the type is really called is worse than no snippet, because it reads as authoritative.
-- **A Store + View + Controller trio** (a screen-level MVI module — see "Store-shaped modules"
-  below) — prefer a **short prose description over a code block**. The wiring pattern is
-  mechanically identical across every such module: implement the view, dispatch intents from
-  UI callbacks, render the model, construct the controller on the hosting screen, call
-  `onViewCreated`. A code block just repeats that same shape with different names — it reads
-  as filler rather than help, and it's one more place that can silently drift from the real
-  `*ViewImpl`/`*Controller` if either changes. Say it in one or two sentences instead:
+- **A Store alone, or a Store + View + Controller trio** (any Store-shaped module — see
+  "Store-shaped modules" below) — prefer a **short prose description over a code block**, in
+  both variants, not just the View+Controller one. The wiring pattern is mechanically identical
+  across every such module: subscribe to `states`/`labels`, call `accept(Intent)`, and — if a
+  View/Controller exists — implement the view, dispatch intents from UI callbacks, render the
+  model, construct the controller, call `onViewCreated`. A hand-written code block just repeats
+  that same shape with different names — it reads as filler rather than help, and it's one more
+  place that can silently drift from the real consumer if the Store's `Intent`/`Label`/`State`
+  shape changes, exactly the "second source of truth" problem this whole skill exists to avoid.
+  Say it in one or two sentences instead:
+
+  > Subscribe to `XStore.states`/`labels` and call `accept(Intent)` to read and mutate
+  > [what the store owns].
+
+  or, with a View/Controller:
 
   > Implement `XView` (an `XViewImpl`): render `UiModel` in `render()` and call
   > `dispatch(Intent)` from the relevant UI callbacks. On the screen hosting it, construct
@@ -208,9 +216,7 @@ For **Variant A**, follow the original shape:
 - **Entities list**: just the Store, one line: `- [XStore](path) — <what it's the store for>.`
 - **"How to include it"**: the Gradle coordinate plus how the Store instance itself is
   obtained.
-- **Usage example**: a code snippet showing a consumer subscribing to `store.states`/
-  `store.labels` and calling `store.accept(Intent)` — this is genuinely the module's whole
-  public surface, so a real example earns its place here.
+- **"How to use it"**: prose, not a code block — see "Code example vs. prose" above.
 
 For **Variant B**, extend it:
 

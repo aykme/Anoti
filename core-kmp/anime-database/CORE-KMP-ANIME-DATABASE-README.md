@@ -10,32 +10,12 @@ episode progress, "new episode" flags).
 
 - Gradle: `implementation(project(":core-kmp:anime-database"))`
 - The `AnimeDatabaseStore` instance is provided via the platform module's Dagger setup
-  (`core-platform/anime-database`) — inject it, don't construct it yourself.
+  (`core-platform/anime-database`) — inject it, don't construct it yourself. The Room-KMP
+  persistence behind it (DAO, entity, database, mapper, repository) lives entirely inside this
+  module now; `core-platform/anime-database` only holds the DI wiring, not the implementation.
 
 ## How to use it
 
-```kotlin
-class AnimeListController(
-    private val animeDatabaseStore: AnimeDatabaseStore,
-    // ...
-) {
-    init {
-        animeDatabaseStore.states
-            .map { it.animeDatabaseItems }
-            .subscribe { items -> /* ... */ }
-
-        animeDatabaseStore.labels
-            .subscribe { label ->
-                when (label) {
-                    AnimeDatabaseStore.Label.ResetAllItemsNewEpisodeStatusWasFinished -> { /* ... */ }
-                }
-            }
-    }
-
-    fun onEpisodeWatched(id: AnimeId) {
-        animeDatabaseStore.accept(
-            AnimeDatabaseStore.Intent.ChangeItemNewEpisodeStatus(id = id, isNewEpisode = false)
-        )
-    }
-}
-```
+Subscribe to `AnimeDatabaseStore.states`/`labels` and call `accept(Intent)` to read and mutate
+the saved anime list — see the Store's own KDoc for what each `Intent`/`Label`/`State` field
+means.

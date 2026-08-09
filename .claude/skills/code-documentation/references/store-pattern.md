@@ -160,9 +160,9 @@ Everything behind the Store — the repository, the six usecase interfaces, `Ani
 and every `*Impl`/`Executor`/`Reducer`/`Factory` class — is left out. A consumer never imports
 any of them; they only ever get an `AnimeDatabaseStore` handed to them by DI. The domain model
 (`AnimeDbDomain`, `ReleaseStatusDb`) doesn't get its own bullet either — a reader reaches it by
-following `AnimeDatabaseStore`'s own KDoc, not by scanning the README. Because this variant's
-whole public surface really is "get a Store, subscribe to it," a real usage example earns its
-place:
+following `AnimeDatabaseStore`'s own KDoc, not by scanning the README. "How to use it" is prose,
+not a code block — same reasoning as Variant B below: a hand-written `AnimeListController`
+snippet is one more place that can drift from the real caller if the Store's shape changes:
 
 ```markdown
 Local anime database for the app — an MVI store over the user's saved anime (subscriptions,
@@ -181,35 +181,12 @@ episode progress, "new episode" flags).
 
 ## How to use it
 
-\`\`\`kotlin
-class AnimeListController(
-private val animeDatabaseStore: AnimeDatabaseStore,
-// ...
-) {
-init {
-animeDatabaseStore.states
-.map { it.animeDatabaseItems }
-.subscribe { items -> /* ... */ }
-
-        animeDatabaseStore.labels
-            .subscribe { label ->
-                when (label) {
-                    AnimeDatabaseStore.Label.ResetAllItemsNewEpisodeStatusWasFinished -> { /* ... */ }
-                }
-            }
-    }
-
-    fun onEpisodeWatched(id: AnimeId) {
-        animeDatabaseStore.accept(
-            AnimeDatabaseStore.Intent.ChangeItemNewEpisodeStatus(id = id, isNewEpisode = false)
-        )
-    }
-
-}
-\`\`\`
+Subscribe to `AnimeDatabaseStore.states`/`labels` and call `accept(Intent)` to read and mutate
+the saved anime list — see the Store's own KDoc for what each `Intent`/`Label`/`State` field
+means.
 ```
 
-~20 lines instead of the 230+ you get from walking the DI graph and describing every class you
+~15 lines instead of the 230+ you get from walking the DI graph and describing every class you
 find along the way.
 
 ## Variant B: Store + View + Controller — `feature-kmp/bottom-navigation-bar`
