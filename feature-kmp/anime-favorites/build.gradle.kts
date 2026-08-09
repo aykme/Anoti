@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
+    alias(libs.plugins.ksp)
 }
 
 kotlin {
@@ -14,6 +15,10 @@ kotlin {
 
         compilerOptions {
             jvmTarget.set(JvmTarget.fromTarget(libs.versions.jvmTarget.get()))
+        }
+
+        androidResources {
+            enable = true
         }
 
         withHostTestBuilder {}.configure {}
@@ -47,5 +52,24 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
         }
+        androidMain.dependencies {
+            implementation(libs.dagger)
+            implementation(libs.androidx.core.ktx)
+            implementation(libs.androidx.appcompat)
+            implementation(libs.material)
+            implementation(libs.androidx.swiperefreshlayout)
+            implementation(libs.androidx.recyclerview)
+            implementation(libs.glide)
+            implementation(libs.androidx.work.runtime)
+            implementation(project(":ui-core:res"))
+            implementation(project(":core-platform:di"))
+            implementation(project(":core-platform:celebrity"))
+            implementation(project(":feature-platform:anime-base"))
+            implementation(project(":feature-platform:anime-background-update"))
+        }
     }
+}
+
+dependencies {
+    add("kspAndroid", libs.dagger.compiler)
 }
