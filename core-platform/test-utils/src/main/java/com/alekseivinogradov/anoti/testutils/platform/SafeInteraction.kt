@@ -5,8 +5,11 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 
+// Default budget covers the app's own network-retry envelope (SafeApiImpl: up to 3 attempts,
+// backoff growing to 7.5s) plus real request/render latency, so a slow-but-successful load
+// doesn't flake the assertion.
 suspend fun safeInteraction(
-    maxAttempt: Int = 20,
+    maxAttempt: Int = 60,
     attemptDelay: Duration = 500.milliseconds,
     interactionCall: () -> ViewInteraction
 ): ViewInteraction {

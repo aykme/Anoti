@@ -3,6 +3,7 @@ package com.alekseivinogradov.anoti
 import android.content.res.Resources
 import android.os.Build
 import android.os.Build.VERSION_CODES.TIRAMISU
+import android.os.ParcelFileDescriptor
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -23,8 +24,6 @@ import com.alekseivinogradov.anoti.main.impl.presentation.MainActivity
 import com.alekseivinogradov.anoti.testutils.platform.action.clickOnChildView
 import com.alekseivinogradov.anoti.testutils.platform.matcher.AtRecyclerPositionMatcher
 import com.alekseivinogradov.anoti.testutils.platform.safeInteraction
-import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.not
@@ -55,6 +54,23 @@ class AnimeFavoritesUserFlowTest {
     @Before
     fun setup() {
         resources = InstrumentationRegistry.getInstrumentation().targetContext.resources
+        // Real-device animations (item removal, ripples, transitions) race with Espresso's
+        // synchronization and are a known source of instrumented-test flakiness; disable them.
+        // A device-wide font scale/density override (e.g. large accessibility text) reflows
+        // list items enough to overlap other views, which can make a child-view click land on
+        // stale/misbound content; reset both to defaults so the test doesn't depend on whatever
+        // the device happens to be configured with.
+        runShellCommand("settings put global window_animation_scale 0")
+        runShellCommand("settings put global transition_animation_scale 0")
+        runShellCommand("settings put global animator_duration_scale 0")
+        runShellCommand("settings put system font_scale 1.0")
+        runShellCommand("wm density reset")
+    }
+
+    private fun runShellCommand(command: String) {
+        val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        ParcelFileDescriptor.AutoCloseInputStream(uiAutomation.executeShellCommand(command))
+            .use { it.readBytes() }
     }
 
     // "Run Blocking" because of don't need to skip delay with interaction retry
@@ -177,8 +193,6 @@ class AnimeFavoritesUserFlowTest {
 
         // Turn off notifications for the first element in "Anime favorites"
         clickOnNotificationButtonInAnimeFavorites(rvPosition)
-        // Very rarely test can flake without real delay
-        delay(1.seconds)
 
         // Then
         // Check the first element of a Recycler View was removed
@@ -257,7 +271,7 @@ class AnimeFavoritesUserFlowTest {
                 .perform(
                     actionOnItemAtPosition<RecyclerView.ViewHolder>(
                         /* position = */ rvPosition,
-                        /* viewAction = */ clickOnChildView(anime_list_R.id.notification_button)
+                        /* viewAction = */ clickOnChildView(anime_favorites_R.id.notification_button)
                     )
                 )
         }
