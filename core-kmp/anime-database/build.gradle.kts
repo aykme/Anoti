@@ -50,7 +50,7 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.mvikotlin)
             api(libs.mvikotlin.extensions.coroutines)
-            implementation(libs.androidx.room.runtime)
+            api(libs.androidx.room.runtime)
             implementation(libs.androidx.sqlite.bundled)
         }
         commonTest.dependencies {
