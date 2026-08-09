@@ -1,34 +1,56 @@
-package com.alekseivinogradov.anoti.animefavorites.platform.impl.presentation
+package com.alekseivinogradov.anoti.animefavorites.android.impl.presentation
 
+import android.view.View
+import android.widget.FrameLayout
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.alekseivinogradov.anoti.animebase.platform.impl.presentation.adapter.decorator.BottomSpaceLastItemDecorator
 import com.alekseivinogradov.anoti.animebase.platform.impl.presentation.adapter.decorator.EdgeToEdgeItemDecorator
+import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.adapter.AnimeFavoritesAdapter
+import com.alekseivinogradov.anoti.animefavorites.kmp.R
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.AnimeFavoritesView
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.ContentTypeUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.UiModel
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.ListItemUi
-import com.alekseivinogradov.anoti.animefavorites.platform.impl.presentation.adapter.AnimeFavoritesAdapter
-import com.alekseivinogradov.anoti.animefavorites.platform.R
-import com.alekseivinogradov.anoti.animefavorites.platform.databinding.FragmentAnimeFavoritesBinding
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SWIPE_REFRESH_END_OFFSET
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SWIPE_REFRESH_START_OFFSET
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.platform.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
 import com.alekseivinogradov.anoti.res.R as res_R
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer
+import com.google.android.material.imageview.ShapeableImageView
+import com.google.android.material.textview.MaterialTextView
 
 internal class AnimeFavoritesViewImpl(
-    private val viewBinding: FragmentAnimeFavoritesBinding,
+    private val rootView: View,
     dateFormatter: DateFormatter
 ) : AnimeFavoritesView, BaseMviView<UiModel, AnimeFavoritesMainStore.Intent>() {
 
     private val context
-        get() = viewBinding.root.context
+        get() = rootView.context
+
+    private val swipeRefreshLayout: SwipeRefreshLayout =
+        rootView.findViewById(R.id.swipe_refresh_layout)
+    private val animeFavoritesLayout: FrameLayout = rootView.findViewById(R.id.anime_favorites_layout)
+    private val connectionStatusImage: AppCompatImageView =
+        rootView.findViewById(R.id.connection_status_image)
+    private val animeFavoritesEmptyLayout: ConstraintLayout =
+        rootView.findViewById(R.id.anime_favorites_empty_container)
+    private val emptyMainImage: ShapeableImageView =
+        animeFavoritesEmptyLayout.findViewById(R.id.main_image)
+    private val emptyMainInfoText: MaterialTextView =
+        animeFavoritesEmptyLayout.findViewById(R.id.main_info_text)
+    private val animeFavoritesRv: RecyclerView = rootView.findViewById(R.id.anime_favorites_rv)
 
     private val adapter = AnimeFavoritesAdapter(
         itemClickAdapterCallback = ::itemClickAdapterCallback,
@@ -61,12 +83,10 @@ internal class AnimeFavoritesViewImpl(
 
     private fun initEdgeToEdgeListenerIfNeeded() {
         if (isEdgeToEdgeEnabled()) {
-            ViewCompat.setOnApplyWindowInsetsListener(viewBinding.root)
+            ViewCompat.setOnApplyWindowInsetsListener(rootView)
             { _, insets ->
                 val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
 
-                val animeFavoritesEmptyLayout =
-                    viewBinding.animeFavoritesEmptyContainer.animeFavoritesEmptyLayout
                 animeFavoritesEmptyLayout.setPadding(
                     /* left = */animeFavoritesEmptyLayout.paddingLeft,
                     /* top = */systemBars.top,
@@ -75,11 +95,11 @@ internal class AnimeFavoritesViewImpl(
                 )
 
                 itemDecorator?.let { oldItemDecorator: EdgeToEdgeItemDecorator ->
-                    viewBinding.animeFavoritesRv.removeItemDecoration(oldItemDecorator)
+                    animeFavoritesRv.removeItemDecoration(oldItemDecorator)
                 }
                 itemDecorator = EdgeToEdgeItemDecorator(systemBarTopOffset = systemBars.top)
                 itemDecorator?.let { newItemDecorator: EdgeToEdgeItemDecorator ->
-                    viewBinding.animeFavoritesRv.addItemDecoration(newItemDecorator)
+                    animeFavoritesRv.addItemDecoration(newItemDecorator)
                 }
 
                 insets
@@ -88,40 +108,34 @@ internal class AnimeFavoritesViewImpl(
     }
 
     private fun initSwipeToRefresh() {
-        with(viewBinding) {
-            swipeRefreshLayout.setProgressViewOffset(
-                /* scale = */ false,
-                /* start = */ com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SWIPE_REFRESH_START_OFFSET,
-                /* end = */ com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SWIPE_REFRESH_END_OFFSET
-            )
-            swipeRefreshLayout.setColorSchemeResources(res_R.color.cinnabar_500)
-            swipeRefreshLayout.setOnRefreshListener {
-                dispatch(AnimeFavoritesMainStore.Intent.UpdateSection)
-                swipeRefreshLayout.isRefreshing = false
-            }
+        swipeRefreshLayout.setProgressViewOffset(
+            /* scale = */ false,
+            /* start = */ SWIPE_REFRESH_START_OFFSET,
+            /* end = */ SWIPE_REFRESH_END_OFFSET
+        )
+        swipeRefreshLayout.setColorSchemeResources(res_R.color.cinnabar_500)
+        swipeRefreshLayout.setOnRefreshListener {
+            dispatch(AnimeFavoritesMainStore.Intent.UpdateSection)
+            swipeRefreshLayout.isRefreshing = false
         }
     }
 
     private fun initCommonFields() {
-        with(viewBinding) {
-            swipeRefreshLayout.isVisible = true
-            animeFavoritesLayout.isVisible = true
-            animeFavoritesEmptyContainer.mainImage.contentDescription = context
-                .getString(R.string.empty_list_image_description)
-            animeFavoritesEmptyContainer.mainInfoText.text = context.getString(R.string.empty_list)
-        }
+        swipeRefreshLayout.isVisible = true
+        animeFavoritesLayout.isVisible = true
+        emptyMainImage.contentDescription = context
+            .getString(R.string.empty_list_image_description)
+        emptyMainInfoText.text = context.getString(R.string.empty_list)
     }
 
     private fun initRv() {
-        with(viewBinding) {
-            animeFavoritesRv.adapter = adapter
-            animeFavoritesRv.layoutManager = LinearLayoutManager(
-                /* context = */ context,
-                /* orientation = */ LinearLayoutManager.VERTICAL,
-                /* reverseLayout = */ false
-            )
-            animeFavoritesRv.addItemDecoration(BottomSpaceLastItemDecorator())
-        }
+        animeFavoritesRv.adapter = adapter
+        animeFavoritesRv.layoutManager = LinearLayoutManager(
+            /* context = */ context,
+            /* orientation = */ LinearLayoutManager.VERTICAL,
+            /* reverseLayout = */ false
+        )
+        animeFavoritesRv.addItemDecoration(BottomSpaceLastItemDecorator())
     }
 
     private fun getContentType(uiModel: UiModel): ContentTypeUi {
@@ -129,28 +143,26 @@ internal class AnimeFavoritesViewImpl(
     }
 
     private fun setContentType(contentType: ContentTypeUi) {
-        with(viewBinding) {
-            when (contentType) {
-                ContentTypeUi.LOADED -> {
-                    animeFavoritesEmptyContainer.animeFavoritesEmptyLayout.isVisible = false
-                    connectionStatusImage.isVisible = false
-                    swipeRefreshLayout.isEnabled = true
-                    animeFavoritesRv.isVisible = true
-                }
+        when (contentType) {
+            ContentTypeUi.LOADED -> {
+                animeFavoritesEmptyLayout.isVisible = false
+                connectionStatusImage.isVisible = false
+                swipeRefreshLayout.isEnabled = true
+                animeFavoritesRv.isVisible = true
+            }
 
-                ContentTypeUi.LOADING -> {
-                    animeFavoritesEmptyContainer.animeFavoritesEmptyLayout.isVisible = false
-                    animeFavoritesRv.isVisible = false
-                    swipeRefreshLayout.isEnabled = false
-                    connectionStatusImage.isVisible = true
-                }
+            ContentTypeUi.LOADING -> {
+                animeFavoritesEmptyLayout.isVisible = false
+                animeFavoritesRv.isVisible = false
+                swipeRefreshLayout.isEnabled = false
+                connectionStatusImage.isVisible = true
+            }
 
-                ContentTypeUi.EMPTY -> {
-                    animeFavoritesRv.isVisible = false
-                    swipeRefreshLayout.isEnabled = false
-                    connectionStatusImage.isVisible = false
-                    animeFavoritesEmptyContainer.animeFavoritesEmptyLayout.isVisible = true
-                }
+            ContentTypeUi.EMPTY -> {
+                animeFavoritesRv.isVisible = false
+                swipeRefreshLayout.isEnabled = false
+                connectionStatusImage.isVisible = false
+                animeFavoritesEmptyLayout.isVisible = true
             }
         }
     }
