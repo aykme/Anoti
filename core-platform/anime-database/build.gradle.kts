@@ -45,7 +45,5 @@ dependencies {
 
     implementation(libs.mvikotlin)
     implementation(libs.dagger)
-    implementation(libs.androidx.room.ktx)
     ksp(libs.dagger.compiler)
-    ksp(libs.androidx.room.compiler)
 }
