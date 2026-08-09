@@ -31,10 +31,9 @@ Technology stack:
 2. Multi-modularity. The business logic is located in the KMP modules. The UI and some
    frameworks are located in the android modules.
 3. Kotlin Coroutines and Flow.
-4. The local database is implemented
-   via [Room](https://developer.android.com/training/data-storage/room).
-   I plan try to replace it with [Realm Kotlin](https://github.com/realm/realm-kotlin) in the
-   future for KMP supporting.
+4. The local database is implemented via
+   [Room](https://developer.android.com/kotlin/multiplatform/room), which now natively supports
+   Kotlin Multiplatform.
 5. Api services are implemented via [Ktor](https://github.com/ktorio/ktor), fully in the KMP
    modules.
 6. Custom pagination implemented in pure KMP, without third-party libraries, designed to fit
