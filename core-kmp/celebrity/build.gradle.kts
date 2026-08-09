@@ -33,6 +33,7 @@ kotlin {
         commonMain.dependencies {
             api(project(":core-kmp:network"))
             implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.kotlinx.datetime)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

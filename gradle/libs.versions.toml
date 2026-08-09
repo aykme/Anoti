@@ -27,6 +27,7 @@ espressoCore = "3.7.0"
 essenty = "2.5.0"
 junitKtx = "1.3.0"
 kotlin = "2.4.10"
+kotlinxDatetime = "0.8.0"
 kotlinxSerialization = "1.11.0"
 ksp = "2.3.11"
 ktor = "3.5.2"
@@ -77,6 +78,7 @@ essenty-lifecycle = { group = "com.arkivanov.essenty", name = "lifecycle", versi
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
