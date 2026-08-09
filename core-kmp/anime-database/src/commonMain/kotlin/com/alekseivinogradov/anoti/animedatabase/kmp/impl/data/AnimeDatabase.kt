@@ -14,7 +14,6 @@ abstract class AnimeDatabase : RoomDatabase() {
     abstract fun animeDao(): AnimeDao
 }
 
-@Suppress("KotlinNoActualForExpect")
 expect object AnimeDatabaseConstructor : RoomDatabaseConstructor<AnimeDatabase> {
     override fun initialize(): AnimeDatabase
 }
