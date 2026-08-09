@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.animedatabase.kmp.impl.data
+package com.alekseivinogradov.anoti.animedatabase.android.impl.data
 
 import android.content.Context
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
@@ -10,6 +10,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.animeTableName
 
 @RunWith(RobolectricTestRunner::class)
 class AnimeDatabaseContinuityTest {

@@ -1,8 +1,11 @@
-package com.alekseivinogradov.anoti.animedatabase.kmp.impl.data
+package com.alekseivinogradov.anoti.animedatabase.android.impl.data
 
 import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.AnimeDatabase
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.animeTableName
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.getRoomDatabase
 
 private object AnimeDatabaseHolder {
     @Volatile
