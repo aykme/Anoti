@@ -103,8 +103,8 @@ Don't default to a code block. Decide based on what kind of entry point the modu
   both variants, not just the View+Controller one. The wiring pattern is mechanically identical
   across every such module: subscribe to `states`/`labels`, call `accept(Intent)`, and — if a
   View/Controller exists — implement the view, dispatch intents from UI callbacks, render the
-  model, construct the controller, call `onViewCreated`. A hand-written code block just repeats
-  that same shape with different names — it reads as filler rather than help, and it's one more
+  model, construct the controller, call `onViewCreated`. A handwritten code block just repeats
+  that same shape with different names — it reads as filler rather than help. It's also one more
   place that can silently drift from the real consumer if the Store's `Intent`/`Label`/`State`
   shape changes, exactly the "second source of truth" problem this whole skill exists to avoid.
   Say it in one or two sentences instead:
