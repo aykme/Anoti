@@ -55,7 +55,18 @@ Read this before doing any task in this repository.
   the issue is clearly a real mistake; if there's genuine doubt, or the fix would mean adding a
   word to a dictionary, ask the developer instead of guessing.
   - Check this with the `mcp__ide__getDiagnostics` tool, called with `uri` set to each changed
-    file's `file:///<absolute-path>`. Do this for every file being committed, not a sample.
+    file's `file:///<absolute-path>`. Do this for every file being committed, not a sample —
+    including files that feel trivial (a one-line docs edit, a `CLAUDE.md`/skill-file change, a
+    Gradle tweak) and files in a commit that's mostly about something else. "This one's small" or
+    "I already verified it a different way (e.g. the build passed)" is not a reason to skip it —
+    a successful build proves the code compiles, it does not prove there's no IDE-only inspection
+    warning (unused import, unnecessary `@Suppress`, a style hint), which is a different and
+    non-overlapping check.
+  - **The `getDiagnostics` call (with its retry, if needed) is the last tool call before
+    `git commit`, every time, with no exceptions carved out for any category of file.** If
+    something happens after that call and before the commit — another edit, a build, a detour —
+    the check is stale; call it again immediately before committing, don't rely on an earlier
+    call in the same turn.
   - If the tool times out or errors instead of returning diagnostics, that's an infrastructure
     problem, not a signal the file is clean — don't treat a timeout as "no warnings". Retry once;
     if it still fails, say so explicitly instead of silently skipping the check or committing
