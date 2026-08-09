@@ -1,10 +1,10 @@
-package com.alekseivinogradov.anoti.animefavorites.platform.impl.presentation.adapter
+package com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
+import com.alekseivinogradov.anoti.animefavorites.kmp.R
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.ListItemUi
-import com.alekseivinogradov.anoti.animefavorites.platform.databinding.ItemAnimeFavoritesBinding
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 
@@ -19,8 +19,8 @@ internal class AnimeFavoritesAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnimeFavoritesViewHolder {
         return AnimeFavoritesViewHolder(
-            binding = ItemAnimeFavoritesBinding.inflate(
-                LayoutInflater.from(parent.context),
+            itemView = LayoutInflater.from(parent.context).inflate(
+                R.layout.item_anime_favorites,
                 parent,
                 false
             ),
