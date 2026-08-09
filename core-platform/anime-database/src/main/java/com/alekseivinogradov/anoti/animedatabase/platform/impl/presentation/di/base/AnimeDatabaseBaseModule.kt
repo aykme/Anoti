@@ -1,9 +1,9 @@
 package com.alekseivinogradov.anoti.animedatabase.platform.impl.presentation.di.base
 
 import android.content.Context
+import com.alekseivinogradov.anoti.animedatabase.android.impl.data.getAnimeDatabase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.AnimeDatabase
-import com.alekseivinogradov.anoti.animedatabase.android.impl.data.getAnimeDatabase
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.repository.AnimeDatabaseRepositoryImpl
 import com.alekseivinogradov.anoti.di.platform.api.presentation.AppContext
 import dagger.Module
