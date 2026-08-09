@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.animefavorites.platform.impl.presentation.adapter
+package com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.adapter
 
 import androidx.recyclerview.widget.DiffUtil
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.ListItemUi
