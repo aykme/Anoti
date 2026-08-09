@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.animefavorites.platform.impl.presentation.di
+package com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
 import com.alekseivinogradov.anoti.animebackgroundupdate.platform.impl.presentation.di.AnimeOnceBackgroundUpdateModule

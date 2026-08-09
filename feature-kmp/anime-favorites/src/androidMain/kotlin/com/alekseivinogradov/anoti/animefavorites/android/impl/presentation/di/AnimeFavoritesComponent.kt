@@ -1,6 +1,6 @@
-package com.alekseivinogradov.anoti.animefavorites.platform.impl.presentation.di
+package com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di
 
-import com.alekseivinogradov.anoti.animefavorites.platform.impl.presentation.AnimeFavoritesFragment
+import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.AnimeFavoritesFragment
 import com.alekseivinogradov.anoti.di.platform.api.presentation.main.MainComponent
 import com.alekseivinogradov.anoti.di.platform.api.presentation.scope.FeatureScope
 import dagger.Component
