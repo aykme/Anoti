@@ -7,6 +7,7 @@ import androidx.room.RoomDatabaseConstructor
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.model.AnimeDbEntity
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 
 @Database(entities = [AnimeDbEntity::class], version = 1, exportSchema = false)
 @ConstructedBy(AnimeDatabaseConstructor::class)
@@ -21,6 +22,6 @@ expect object AnimeDatabaseConstructor : RoomDatabaseConstructor<AnimeDatabase> 
 internal fun getRoomDatabase(builder: RoomDatabase.Builder<AnimeDatabase>): AnimeDatabase {
     return builder
         .setDriver(BundledSQLiteDriver())
-        .setQueryCoroutineContext(Dispatchers.Default)
+        .setQueryCoroutineContext(Dispatchers.IO)
         .build()
 }
