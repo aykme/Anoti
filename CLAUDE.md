@@ -60,6 +60,13 @@ Read this before doing any task in this repository.
     problem, not a signal the file is clean — don't treat a timeout as "no warnings". Retry once;
     if it still fails, say so explicitly instead of silently skipping the check or committing
     anyway.
+  - **Hard rule, no exceptions: do not commit a file with any diagnostic still open on it.**
+    "It's expected"/"it's inherent to this task"/"nothing calls this yet" are not valid reasons
+    to leave a warning unresolved — they're reasons to pick the correct fix (e.g. an explicit,
+    justified `@Suppress` with a comment saying why, not a silent shrug), not a reason to skip
+    fixing it. An unused-but-intentionally-public-API warning gets suppressed explicitly with a
+    comment explaining why it's intentional; it does not get left as a bare warning because the
+    reason is "obvious" to whoever wrote the code.
 - This applies to `README.md` and every other `*.md` file in the repo, including skill files
   under `.claude/skills/**` — try to keep them as clean as source code.
 - This also applies to Gradle files (`build.gradle.kts`, `settings.gradle.kts`, version catalog
