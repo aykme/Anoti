@@ -36,11 +36,12 @@ and the root `README.md` exception.
 
 ## Before you write anything: confirm the entity list
 
-Survey the module's public types, and apply "What counts as major" (below) to shortlist
-candidates. Then show the user a table before touching any file — don't jump straight to
-writing KDoc or the README. Getting the entity list wrong is the most common way this goes
-sideways: too many entities, an impl class snuck in, a Store's internals listed separately.
-It's cheap to check up front and expensive to unwind after the fact.
+Survey the module's public types **in `commonMain` only**, and apply "What counts as major"
+(below) to shortlist candidates. Then show the user a table before touching any file — don't
+jump straight to writing KDoc or the README. Getting the entity list wrong is the most common
+way this goes sideways: too many entities, an impl class snuck in, a Store's internals listed
+separately, a platform-only type pulled in from `androidMain`/`iosMain`. It's cheap to check up
+front and expensive to unwind after the fact.
 
 | Entity             | File                                 | Proposed one-liner                        | Notes                                 |
 |--------------------|--------------------------------------|-------------------------------------------|---------------------------------------|
@@ -174,6 +175,12 @@ this shows up in most often, and its refinement for when a Store *isn't* alone.
 - **Design rationale, history, "why we didn't do X instead."** Worth capturing somewhere —
   a design doc, an ADR, a commit message — but not in a module README. A module README is a
   map, not an essay.
+- **Anything defined only in a platform-specific source set** (`androidMain`, `iosMain`,
+  `jvmMain`, and similar), including `actual` declarations. The README indexes the module's
+  `commonMain` contract; platform code has no line of its own, even if it's public. This
+  includes the "How to use it" example — see "Marking a platform-specific example" above for
+  the one exception (a `commonMain` entity whose *only current usage example* happens to come
+  from one platform).
 
 If you're unsure whether something crosses the line, read `references/before-after.md` — a
 real before/after of the same README, with the specific things that got cut and why.
