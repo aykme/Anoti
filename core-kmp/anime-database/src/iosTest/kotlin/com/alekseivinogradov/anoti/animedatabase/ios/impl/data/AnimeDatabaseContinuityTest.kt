@@ -1,8 +1,10 @@
-package com.alekseivinogradov.anoti.animedatabase.kmp.impl.data
+package com.alekseivinogradov.anoti.animedatabase.ios.impl.data
 
 import androidx.room.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.AnimeDatabase
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.getRoomDatabase
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.test.runTest

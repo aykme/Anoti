@@ -1,7 +1,10 @@
-package com.alekseivinogradov.anoti.animedatabase.kmp.impl.data
+package com.alekseivinogradov.anoti.animedatabase.ios.impl.data
 
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.AnimeDatabase
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.animeTableName
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.getRoomDatabase
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
