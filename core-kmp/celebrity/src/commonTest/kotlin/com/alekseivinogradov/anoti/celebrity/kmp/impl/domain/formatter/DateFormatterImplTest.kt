@@ -18,6 +18,30 @@ class DateFormatterImplTest {
     }
 
     @Test
+    fun formatsDateTimeWithMillisecondsAndOffsetByTakingOnlyTheDatePart() {
+        assertEquals(
+            "28 Dec 2024",
+            formatter.getFormattedDate("2024-12-28T17:00:00.000+03:00", "fallback")
+        )
+    }
+
+    @Test
+    fun formatsDateTimeWithOffsetByTakingOnlyTheDatePart() {
+        assertEquals(
+            "28 Dec 2024",
+            formatter.getFormattedDate("2024-12-28T17:00:00+03:00", "fallback")
+        )
+    }
+
+    @Test
+    fun formatsDateTimeWithUtcSuffixByTakingOnlyTheDatePart() {
+        assertEquals(
+            "16 Aug 2026",
+            formatter.getFormattedDate("2026-08-16T12:00:00Z", "fallback")
+        )
+    }
+
+    @Test
     fun returnsFallbackForMalformedInput() {
         assertEquals("fallback", formatter.getFormattedDate("not-a-date", "fallback"))
     }

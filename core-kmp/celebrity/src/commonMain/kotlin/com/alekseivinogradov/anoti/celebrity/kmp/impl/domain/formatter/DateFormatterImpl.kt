@@ -6,7 +6,11 @@ import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.Padding
 import kotlinx.datetime.format.char
 
-/** Parses ISO `yyyy-MM-dd` dates and formats them as `d MMM yyyy`, e.g. `5 Jan 2024`. */
+/**
+ * Parses ISO `yyyy-MM-dd` dates — or the date part of an ISO `yyyy-MM-ddTHH:mm:ss[...]`
+ * date-time, e.g. the API's `next_episode_at` — and formats them as `d MMM yyyy`, e.g.
+ * `5 Jan 2024`.
+ */
 class DateFormatterImpl : DateFormatter {
 
     private val outputFormat = LocalDate.Format {
@@ -22,7 +26,8 @@ class DateFormatterImpl : DateFormatter {
         fallbackText: String,
     ): String {
         return try {
-            outputFormat.format(LocalDate.parse(inputText))
+            val datePart = inputText.substringBefore('T')
+            outputFormat.format(LocalDate.parse(datePart))
         } catch (_: IllegalArgumentException) {
             fallbackText
         }
