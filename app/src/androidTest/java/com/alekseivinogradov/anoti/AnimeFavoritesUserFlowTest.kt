@@ -35,8 +35,8 @@ import org.junit.Test
 
 class AnimeFavoritesUserFlowTest {
 
-    @get:Rule()
-    val grantPermissionRule = if (Build.VERSION.SDK_INT >= TIRAMISU) {
+    @get:Rule
+    val grantPermissionRule: GrantPermissionRule = if (Build.VERSION.SDK_INT >= TIRAMISU) {
         GrantPermissionRule.grant(android.Manifest.permission.POST_NOTIFICATIONS)
     } else {
         GrantPermissionRule.grant()
@@ -177,7 +177,7 @@ class AnimeFavoritesUserFlowTest {
 
         // Turn off notifications for the first element in "Anime favorites"
         clickOnNotificationButtonInAnimeFavorites(rvPosition)
-        // Very rarely test can flaking without real delay
+        // Very rarely test can flake without real delay
         delay(1.seconds)
 
         // Then
