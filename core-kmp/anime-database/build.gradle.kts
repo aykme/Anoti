@@ -45,12 +45,13 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            api(libs.mvikotlin.extensions.coroutines)
+            api(libs.androidx.room.runtime)
+
             implementation(project(":core-kmp:celebrity"))
 
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.mvikotlin)
-            api(libs.mvikotlin.extensions.coroutines)
-            api(libs.androidx.room.runtime)
             implementation(libs.androidx.sqlite.bundled)
         }
         commonTest.dependencies {

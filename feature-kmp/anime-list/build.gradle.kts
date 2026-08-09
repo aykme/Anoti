@@ -31,6 +31,8 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            api(libs.mvikotlin.extensions.coroutines)
+
             implementation(project(":feature-kmp:anime-base"))
             implementation(project(":core-kmp:celebrity"))
             implementation(project(":core-kmp:network"))
@@ -39,7 +41,6 @@ kotlin {
             implementation(libs.mvikotlin)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.essenty.lifecycle)
-            api(libs.mvikotlin.extensions.coroutines)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
