@@ -20,9 +20,9 @@ main screen's dependency graphs without depending on `:app`/`:main` concrete cla
   `@Component`-annotated internal components with `AppComponent`/`MainComponent`; feature modules
   read the component off the `Activity`/`Application` via those two `External` interfaces.
 - The `@AppContext`/`@ActivityContext` qualifier annotations these contracts' methods carry live
-  in `:core-kmp:celebrity`, not here (celebrity is the leaf every consumer already depends on, so
-  hosting them there avoids a dependency cycle back into this module) — this module re-exports
-  that dependency via `api`, so depending on `:core-kmp:di` alone is enough to see them too.
+  in `:core-kmp:celebrity`, not here. Celebrity is the leaf every consumer already depends on, so
+  hosting them there avoids a dependency cycle back into this module. This module re-exports that
+  dependency via `api`, so depending on `:core-kmp:di` alone is enough to see them too.
 
 ## How to use it
 

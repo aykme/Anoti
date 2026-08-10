@@ -33,7 +33,7 @@ import dagger.Provides
 internal interface AppModule {
     companion object {
         @Provides
-        fun prvideAnimeUpdateManager(
+        fun provideAnimeUpdateManager(
             coroutineContextProvider: CoroutineContextProvider,
             fetchAllAnimeDatabaseItemsUsecase: FetchAllAnimeDatabaseItemsUsecase,
             fetchAnimeListByIdsUsecase: FetchAnimeListByIdsUsecase,
