@@ -46,11 +46,7 @@ kotlin {
             implementation(libs.dagger)
             implementation(libs.androidx.work.runtime)
             implementation(libs.androidx.annotation.jvm)
-            implementation(project(":feature-kmp:anime-base"))
-            implementation(project(":core-platform:celebrity"))
-            implementation(project(":core-platform:anime-database"))
             implementation(project(":core-platform:di"))
-            implementation(project(":core-platform:network"))
         }
     }
 }

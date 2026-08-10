@@ -52,7 +52,6 @@ dependencies {
     implementation(project(":feature-kmp:anime-background-update"))
     implementation(project(":feature-kmp:anime-notification"))
     implementation(project(":main"))
-    androidTestImplementation(project(":main"))
     androidTestImplementation(project(":core-platform:test-utils"))
 
     implementation(libs.mvikotlin)
