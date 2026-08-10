@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.toast.manager.ToastManager
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
-import com.alekseivinogradov.anoti.di.android.api.presentation.AppContext
+import com.alekseivinogradov.anoti.celebrity.android.api.presentation.di.AppContext
 import javax.inject.Inject
 import javax.inject.Singleton
 

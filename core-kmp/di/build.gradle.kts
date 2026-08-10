@@ -35,10 +35,11 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(project(":feature-kmp:anime-base"))
-            implementation(project(":core-kmp:celebrity"))
+            api(project(":core-kmp:celebrity"))
             implementation(project(":core-kmp:network"))
             implementation(project(":core-kmp:anime-database"))
 
+            implementation(libs.dagger)
             implementation(libs.mvikotlin)
         }
     }

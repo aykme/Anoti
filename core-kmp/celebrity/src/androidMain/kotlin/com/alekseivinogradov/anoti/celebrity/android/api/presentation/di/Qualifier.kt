@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.di.android.api.presentation
+package com.alekseivinogradov.anoti.celebrity.android.api.presentation.di
 
 import javax.inject.Qualifier
 

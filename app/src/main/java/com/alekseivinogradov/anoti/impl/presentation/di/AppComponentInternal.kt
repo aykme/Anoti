@@ -6,7 +6,7 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatab
 import com.alekseivinogradov.anoti.impl.presentation.AnotiApp
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
-import com.alekseivinogradov.anoti.di.android.api.presentation.AppContext
+import com.alekseivinogradov.anoti.celebrity.android.api.presentation.di.AppContext
 import com.alekseivinogradov.anoti.di.android.api.presentation.app.AppComponent
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.arkivanov.mvikotlin.core.store.StoreFactory

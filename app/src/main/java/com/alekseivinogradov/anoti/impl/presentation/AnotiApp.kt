@@ -10,7 +10,7 @@ import androidx.work.WorkManager
 import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.worker.animeUpdatePeriodicWorkName
 import com.alekseivinogradov.anoti.animenotification.android.impl.presentation.factory.AnimeNotificationChannelFactory
 import com.alekseivinogradov.anoti.impl.presentation.di.DaggerAppComponentInternal
-import com.alekseivinogradov.anoti.di.android.api.presentation.AnimeBackgroundUpdate
+import com.alekseivinogradov.anoti.celebrity.android.api.presentation.di.AnimeBackgroundUpdate
 import com.alekseivinogradov.anoti.di.android.api.presentation.app.AppComponent
 import com.alekseivinogradov.anoti.di.android.api.presentation.app.ApplicationExternal
 import javax.inject.Inject

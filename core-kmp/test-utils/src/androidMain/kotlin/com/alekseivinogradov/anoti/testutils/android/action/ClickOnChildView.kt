@@ -4,7 +4,7 @@ import android.view.View
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
 
-/** An [ViewAction] that clicks the child view with id [childId] inside the matched view. */
+/** A [ViewAction] that clicks the child view with id [childId] inside the matched view. */
 fun clickOnChildView(childId: Int) = object : ViewAction {
     override fun getConstraints() = null
 

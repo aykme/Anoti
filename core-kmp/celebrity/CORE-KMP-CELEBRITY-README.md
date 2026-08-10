@@ -1,4 +1,8 @@
-Shared core utilities used across Anoti's KMP feature modules.
+Shared core utilities used across Anoti's KMP feature modules. Its `androidMain` also hosts the
+app's shared Android resources (theme, launcher icons, common drawables/fonts) and the Dagger
+qualifier/scope annotations (`@AppContext`, `@ActivityScope`, etc.) — both live here because this
+is the one module every consumer already depends on, which keeps the Gradle dependency graph
+acyclic. Neither is listed below since this README indexes `commonMain` only.
 
 ## Entities
 

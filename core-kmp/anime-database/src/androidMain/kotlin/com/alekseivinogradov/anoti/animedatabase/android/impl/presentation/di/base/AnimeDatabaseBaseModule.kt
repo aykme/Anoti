@@ -5,7 +5,7 @@ import com.alekseivinogradov.anoti.animedatabase.android.impl.data.getAnimeDatab
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.repository.AnimeDatabaseRepository
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.AnimeDatabase
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.repository.AnimeDatabaseRepositoryImpl
-import com.alekseivinogradov.anoti.di.android.api.presentation.AppContext
+import com.alekseivinogradov.anoti.celebrity.android.api.presentation.di.AppContext
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton

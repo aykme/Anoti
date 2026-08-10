@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.di.android.api.presentation.scope
+package com.alekseivinogradov.anoti.celebrity.android.api.presentation.di.scope
 
 import javax.inject.Scope
 

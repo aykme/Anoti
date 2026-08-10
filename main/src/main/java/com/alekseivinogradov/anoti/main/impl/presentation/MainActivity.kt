@@ -31,7 +31,7 @@ import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.edgetoedg
 import com.alekseivinogradov.anoti.di.android.api.presentation.app.ApplicationExternal
 import com.alekseivinogradov.anoti.di.android.api.presentation.main.MainActivityExternal
 import com.alekseivinogradov.anoti.di.android.api.presentation.main.MainComponent
-import com.alekseivinogradov.anoti.di.android.api.presentation.scope.ActivityScope
+import com.alekseivinogradov.anoti.celebrity.android.api.presentation.di.scope.ActivityScope
 import com.alekseivinogradov.anoti.main.R
 import com.alekseivinogradov.anoti.main.databinding.ActivityMainBinding
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DaggerMainComponentInternal

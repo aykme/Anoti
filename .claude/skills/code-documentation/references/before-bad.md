@@ -70,8 +70,8 @@ has been fully removed from the project).
 
 ## What's intentionally not here
 
-- **No DI wiring.** `core-platform/network` provides `SafeApi`/`HttpClient` through Dagger for the
-  Android app; this module stays framework-agnostic so it can be consumed the same way from any DI
-  setup (including a future KMP-native one).
+- **No DI wiring.** This module's own androidMain provides `SafeApi`/`HttpClient` through Dagger
+  for the Android app; the commonMain contract stays framework-agnostic so it can be consumed the
+  same way from any DI setup (including a future KMP-native one).
 - **No engine selection.** `createHttpClient` takes an `HttpClientEngine`; picking OkHttp, Darwin,
   etc. is the caller's responsibility.

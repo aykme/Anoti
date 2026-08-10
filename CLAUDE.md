@@ -69,7 +69,7 @@ Read this before doing any task in this repository.
   changes are otherwise finished — documenting it is part of finishing the task, not a
   separate follow-up to do later.
 - READMEs are only for KMP modules (`core-kmp/*`, `feature-kmp/*`). Non-KMP modules
-  (`core-platform/*`, `feature-platform/*`, app-level modules, etc.) don't get one.
+  (app-level modules such as `app`/`main`, etc.) don't get one.
 - File name: the module's full Gradle path, uppercase, colons replaced with dashes, suffixed
   `-README.md` (e.g. `:core-kmp:celebrity` → `CORE-KMP-CELEBRITY-README.md`), placed at the
   module's root.

@@ -48,8 +48,17 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.dagger)
-            implementation(libs.androidx.core.ktx)
             implementation(libs.ktor.client.okhttp)
+
+            /**
+             * Necessary dependencies for older android versions.
+             * Without them, the crash "java.lang.NoSuchFieldError:Companion when using okhttp3"
+             * happens during an Internet request, due to some kind of dependency conflict.
+             * https://stackoverflow.com/questions/65828761/java-lang-nosuchfielderror-companion-when-using-okhttp3-and-selenium
+             * The BOM itself can't be declared here — this DSL has no `platform()` — so it's
+             * added below via the top-level `dependencies` block instead.
+             */
+            // define any required OkHttp artifacts without version
             implementation(libs.okhttp)
         }
     }
@@ -58,13 +67,7 @@ kotlin {
 dependencies {
     add("kspAndroid", libs.dagger.compiler)
 
-    /**
-     * Necessary dependencies for older android versions.
-     * Without them, the crash "java.lang.NoSuchFieldError:Companion when using okhttp3"
-     * happens during an Internet request, due to some kind of dependency conflict.
-     * https://stackoverflow.com/questions/65828761/java-lang-nosuchfielderror-companion-when-using-okhttp3-and-selenium
-     */
-    // define a BOM and its version
+    // define a BOM and its version for the okhttp workaround explained in androidMain.dependencies above
     add("androidMainImplementation", platform(libs.okhttp.bom))
 }
 
