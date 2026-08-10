@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/anime_list"
-        android:name="com.alekseivinogradov.anoti.animelist.platform.impl.presentation.AnimeListFragment"
+        android:name="com.alekseivinogradov.anoti.animelist.android.impl.presentation.AnimeListFragment"
         android:label="@string/anime_list"
         tools:layout="@layout/fragment_anime_list" />
 

@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.animelist.platform.impl.presentation
+package com.alekseivinogradov.anoti.animelist.android.impl.presentation
 
 import android.content.Context
 import android.os.Bundle
@@ -8,14 +8,14 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
+import com.alekseivinogradov.anoti.animelist.android.impl.presentation.di.AnimeListComponent
+import com.alekseivinogradov.anoti.animelist.android.impl.presentation.di.DaggerAnimeListComponent
+import com.alekseivinogradov.anoti.animelist.kmp.R
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsection.AnnouncedSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.ongoingsection.OngoingSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.SearchSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.AnimeListController
-import com.alekseivinogradov.anoti.animelist.platform.impl.presentation.di.AnimeListComponent
-import com.alekseivinogradov.anoti.animelist.platform.impl.presentation.di.DaggerAnimeListComponent
-import com.alekseivinogradov.anoti.animelist.platform.databinding.FragmentAnimeListBinding
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.di.platform.api.presentation.main.MainActivityExternal
@@ -28,7 +28,7 @@ class AnimeListFragment : Fragment() {
 
     private lateinit var animeListComponent: AnimeListComponent
 
-    private var binding: FragmentAnimeListBinding? = null
+    private var rootView: View? = null
 
     @Inject
     lateinit var coroutineContextProvider: CoroutineContextProvider
@@ -73,15 +73,14 @@ class AnimeListFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ) = FragmentAnimeListBinding.inflate(inflater, container, false)
-        .also { binding = it }
-        .root
+    ): View = inflater.inflate(R.layout.fragment_anime_list, container, false)
+        .also { rootView = it }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         controller.onViewCreated(
             mainView = AnimeListViewImpl(
-                viewBinding = binding!!,
+                rootView = rootView!!,
                 dateFormatter = dateFormatter,
                 viewScope = lifecycleScope,
                 coroutineContextProvider = coroutineContextProvider
@@ -92,6 +91,6 @@ class AnimeListFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding = null
+        rootView = null
     }
 }

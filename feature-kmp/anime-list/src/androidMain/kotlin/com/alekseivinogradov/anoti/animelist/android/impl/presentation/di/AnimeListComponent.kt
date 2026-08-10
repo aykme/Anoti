@@ -1,6 +1,6 @@
-package com.alekseivinogradov.anoti.animelist.platform.impl.presentation.di
+package com.alekseivinogradov.anoti.animelist.android.impl.presentation.di
 
-import com.alekseivinogradov.anoti.animelist.platform.impl.presentation.AnimeListFragment
+import com.alekseivinogradov.anoti.animelist.android.impl.presentation.AnimeListFragment
 import com.alekseivinogradov.anoti.di.platform.api.presentation.main.MainComponent
 import com.alekseivinogradov.anoti.di.platform.api.presentation.scope.FeatureScope
 import dagger.Component

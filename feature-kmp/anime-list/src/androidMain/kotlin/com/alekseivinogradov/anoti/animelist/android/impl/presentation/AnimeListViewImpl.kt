@@ -1,16 +1,21 @@
-package com.alekseivinogradov.anoti.animelist.platform.impl.presentation
+package com.alekseivinogradov.anoti.animelist.android.impl.presentation
 
 import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
 import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.alekseivinogradov.anoti.animebase.platform.impl.presentation.adapter.decorator.BottomSpaceLastItemDecorator
 import com.alekseivinogradov.anoti.animebase.platform.impl.presentation.adapter.decorator.EdgeToEdgeItemDecorator
+import com.alekseivinogradov.anoti.animelist.android.impl.presentation.adapter.AnimeListAdapter
+import com.alekseivinogradov.anoti.animelist.kmp.R
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.AnimeListView
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ContentTypeUi
@@ -18,9 +23,6 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ListCont
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.SearchUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.SectionHatUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.UiModel
-import com.alekseivinogradov.anoti.animelist.platform.impl.presentation.adapter.AnimeListAdapter
-import com.alekseivinogradov.anoti.animelist.platform.R
-import com.alekseivinogradov.anoti.animelist.platform.databinding.FragmentAnimeListBinding
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.PAGING_PREFETCH_DISTANCE
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
@@ -30,25 +32,55 @@ import com.alekseivinogradov.anoti.res.R as res_R
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 internal class AnimeListViewImpl(
-    private val viewBinding: FragmentAnimeListBinding,
+    private val rootView: View,
     dateFormatter: DateFormatter,
     private val viewScope: CoroutineScope,
     private val coroutineContextProvider: CoroutineContextProvider
 ) : AnimeListView, BaseMviView<UiModel, AnimeListMainStore.Intent>() {
 
     private val context
-        get() = viewBinding.root.context
+        get() = rootView.context
 
     private val activeColor
         get() = context.getColor(res_R.color.cinnabar_500)
 
     private val defaultColor
         get() = context.getColor(res_R.color.white_transparent)
+
+    private val swipeRefreshLayout: SwipeRefreshLayout =
+        rootView.findViewById(R.id.swipe_refresh_layout)
+    private val animeListLayout: View =
+        rootView.findViewById(R.id.anime_list_layout)
+    private val connectionStatusImage: AppCompatImageView =
+        rootView.findViewById(R.id.connection_status_image)
+    private val animeListRv: RecyclerView =
+        rootView.findViewById(R.id.anime_list_rv)
+    private val upperMenuLayout: View =
+        rootView.findViewById(R.id.upper_menu_layout)
+    private val ongoingButton: MaterialButton =
+        rootView.findViewById(R.id.ongoing_button)
+    private val verticalDivider: View =
+        rootView.findViewById(R.id.vertical_divider)
+    private val announcedButton: MaterialButton =
+        rootView.findViewById(R.id.announced_button)
+    private val searchButton: AppCompatImageView =
+        rootView.findViewById(R.id.search_button)
+    private val searchButtonShadow: AppCompatImageView =
+        rootView.findViewById(R.id.search_button_shadow)
+    private val searchInputLayout: TextInputLayout =
+        rootView.findViewById(R.id.search_input_layout)
+    private val searchEditText: TextInputEditText =
+        rootView.findViewById(R.id.search_edit_text)
+    private val searchCancelButton: AppCompatImageView =
+        rootView.findViewById(R.id.search_cancel_button)
 
     private val adapter = AnimeListAdapter(
         episodesInfoClickAdapterCallback = ::episodesInfoClickAdapterCallback,
@@ -111,24 +143,23 @@ internal class AnimeListViewImpl(
 
     private fun initEdgeToEdgeListenerIfNeeded() {
         if (isEdgeToEdgeEnabled()) {
-            ViewCompat.setOnApplyWindowInsetsListener(viewBinding.root)
+            ViewCompat.setOnApplyWindowInsetsListener(rootView)
             { _, insets ->
                 val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
 
-                val upperMenu = viewBinding.upperMenuLayout
-                upperMenu.setPadding(
-                    /* left = */upperMenu.paddingLeft,
+                upperMenuLayout.setPadding(
+                    /* left = */upperMenuLayout.paddingLeft,
                     /* top = */systemBars.top,
-                    /* right = */upperMenu.paddingRight,
-                    /* bottom = */upperMenu.paddingBottom
+                    /* right = */upperMenuLayout.paddingRight,
+                    /* bottom = */upperMenuLayout.paddingBottom
                 )
 
                 itemDecorator?.let { oldItemDecorator: EdgeToEdgeItemDecorator ->
-                    viewBinding.animeListRv.removeItemDecoration(oldItemDecorator)
+                    animeListRv.removeItemDecoration(oldItemDecorator)
                 }
                 itemDecorator = EdgeToEdgeItemDecorator(systemBarTopOffset = systemBars.top)
                 itemDecorator?.let { newItemDecorator: EdgeToEdgeItemDecorator ->
-                    viewBinding.animeListRv.addItemDecoration(newItemDecorator)
+                    animeListRv.addItemDecoration(newItemDecorator)
                 }
 
                 insets
@@ -137,53 +168,47 @@ internal class AnimeListViewImpl(
     }
 
     private fun initSwipeToRefresh() {
-        with(viewBinding) {
-            swipeRefreshLayout.setProgressViewOffset(
-                /* scale = */ false,
-                /* start = */ com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SWIPE_REFRESH_START_OFFSET,
-                /* end = */ com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SWIPE_REFRESH_END_OFFSET
-            )
-            swipeRefreshLayout.setColorSchemeResources(res_R.color.cinnabar_500)
-            swipeRefreshLayout.setOnRefreshListener {
-                dispatch(AnimeListMainStore.Intent.UpdateSection)
-                swipeRefreshLayout.isRefreshing = false
-            }
+        swipeRefreshLayout.setProgressViewOffset(
+            /* scale = */ false,
+            /* start = */ com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SWIPE_REFRESH_START_OFFSET,
+            /* end = */ com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SWIPE_REFRESH_END_OFFSET
+        )
+        swipeRefreshLayout.setColorSchemeResources(res_R.color.cinnabar_500)
+        swipeRefreshLayout.setOnRefreshListener {
+            dispatch(AnimeListMainStore.Intent.UpdateSection)
+            swipeRefreshLayout.isRefreshing = false
         }
     }
 
     private fun initCommonFields() {
-        with(viewBinding) {
-            swipeRefreshLayout.isVisible = true
-            animeListLayout.isVisible = true
-            upperMenuLayout.isVisible = true
-            ongoingButton.text = context.getString(R.string.on_air)
-            announcedButton.text = context.getString(R.string.soon)
-            searchButton.contentDescription = context.getString(R.string.search_on_description)
-            searchCancelButton.contentDescription = context
-                .getString(R.string.search_off_description)
-            searchInputLayout.hint = context.getString(R.string.search_hint)
-        }
+        swipeRefreshLayout.isVisible = true
+        animeListLayout.isVisible = true
+        upperMenuLayout.isVisible = true
+        ongoingButton.text = context.getString(R.string.on_air)
+        announcedButton.text = context.getString(R.string.soon)
+        searchButton.contentDescription = context.getString(R.string.search_on_description)
+        searchCancelButton.contentDescription = context
+            .getString(R.string.search_off_description)
+        searchInputLayout.hint = context.getString(R.string.search_hint)
     }
 
     private fun initClickListeners() {
-        with(viewBinding) {
-            ongoingButton.setOnClickListener {
-                dispatch(AnimeListMainStore.Intent.OngoingsSectionClick)
-            }
-            announcedButton.setOnClickListener {
-                dispatch(AnimeListMainStore.Intent.AnnouncedSectionClick)
-            }
-            searchButton.setOnClickListener {
-                dispatch(AnimeListMainStore.Intent.SearchSectionClick)
-            }
-            searchCancelButton.setOnClickListener {
-                dispatch(AnimeListMainStore.Intent.CancelSearchClick)
-            }
+        ongoingButton.setOnClickListener {
+            dispatch(AnimeListMainStore.Intent.OngoingsSectionClick)
+        }
+        announcedButton.setOnClickListener {
+            dispatch(AnimeListMainStore.Intent.AnnouncedSectionClick)
+        }
+        searchButton.setOnClickListener {
+            dispatch(AnimeListMainStore.Intent.SearchSectionClick)
+        }
+        searchCancelButton.setOnClickListener {
+            dispatch(AnimeListMainStore.Intent.CancelSearchClick)
         }
     }
 
     private fun initSearchTextChangedListener() {
-        viewBinding.searchEditText.addTextChangedListener(
+        searchEditText.addTextChangedListener(
             object : TextWatcher {
                 override fun beforeTextChanged(
                     s: CharSequence?,
@@ -207,17 +232,15 @@ internal class AnimeListViewImpl(
     }
 
     private fun initRv() {
-        with(viewBinding) {
-            animeListRv.adapter = adapter
-            animeListRv.layoutManager = LinearLayoutManager(
-                /* context = */ context,
-                /* orientation = */ LinearLayoutManager.VERTICAL,
-                /* reverseLayout = */ false
-            )
-            animeListRv.itemAnimator = null
-            animeListRv.addItemDecoration(BottomSpaceLastItemDecorator())
-            animeListRv.addOnScrollListener(loadNextPageScrollListener)
-        }
+        animeListRv.adapter = adapter
+        animeListRv.layoutManager = LinearLayoutManager(
+            /* context = */ context,
+            /* orientation = */ LinearLayoutManager.VERTICAL,
+            /* reverseLayout = */ false
+        )
+        animeListRv.itemAnimator = null
+        animeListRv.addItemDecoration(BottomSpaceLastItemDecorator())
+        animeListRv.addOnScrollListener(loadNextPageScrollListener)
     }
 
     private fun getSelectedSection(uiModel: UiModel): SectionHatUi {
@@ -225,25 +248,23 @@ internal class AnimeListViewImpl(
     }
 
     private fun setSelectedSection(selectedSection: SectionHatUi) {
-        with(viewBinding) {
-            when (selectedSection) {
-                SectionHatUi.ONGOINGS -> {
-                    ongoingButton.setTextColor(activeColor)
-                    announcedButton.setTextColor(defaultColor)
-                    searchButton.setColorFilter(defaultColor)
-                }
+        when (selectedSection) {
+            SectionHatUi.ONGOINGS -> {
+                ongoingButton.setTextColor(activeColor)
+                announcedButton.setTextColor(defaultColor)
+                searchButton.setColorFilter(defaultColor)
+            }
 
-                SectionHatUi.ANNOUNCED -> {
-                    announcedButton.setTextColor(activeColor)
-                    ongoingButton.setTextColor(defaultColor)
-                    searchButton.setColorFilter(defaultColor)
-                }
+            SectionHatUi.ANNOUNCED -> {
+                announcedButton.setTextColor(activeColor)
+                ongoingButton.setTextColor(defaultColor)
+                searchButton.setColorFilter(defaultColor)
+            }
 
-                SectionHatUi.SEARCH -> {
-                    searchButton.setColorFilter(activeColor)
-                    announcedButton.setTextColor(defaultColor)
-                    ongoingButton.setTextColor(defaultColor)
-                }
+            SectionHatUi.SEARCH -> {
+                searchButton.setColorFilter(activeColor)
+                announcedButton.setTextColor(defaultColor)
+                ongoingButton.setTextColor(defaultColor)
             }
         }
     }
@@ -253,28 +274,26 @@ internal class AnimeListViewImpl(
     }
 
     private fun setSearch(search: SearchUi) {
-        with(viewBinding) {
-            when (search) {
-                SearchUi.HIDDEN -> {
-                    hideKeyboard()
-                    searchInputLayout.isVisible = false
-                    searchCancelButton.isVisible = false
-                    ongoingButton.isVisible = true
-                    verticalDivider.isVisible = true
-                    announcedButton.isVisible = true
-                    searchButton.isVisible = true
-                    searchButtonShadow.isVisible = true
-                }
+        when (search) {
+            SearchUi.HIDDEN -> {
+                hideKeyboard()
+                searchInputLayout.isVisible = false
+                searchCancelButton.isVisible = false
+                ongoingButton.isVisible = true
+                verticalDivider.isVisible = true
+                announcedButton.isVisible = true
+                searchButton.isVisible = true
+                searchButtonShadow.isVisible = true
+            }
 
-                SearchUi.SHOWN -> {
-                    ongoingButton.isVisible = false
-                    verticalDivider.isVisible = false
-                    announcedButton.isVisible = false
-                    searchButton.isVisible = false
-                    searchButtonShadow.isVisible = false
-                    searchInputLayout.isVisible = true
-                    searchCancelButton.isVisible = true
-                }
+            SearchUi.SHOWN -> {
+                ongoingButton.isVisible = false
+                verticalDivider.isVisible = false
+                announcedButton.isVisible = false
+                searchButton.isVisible = false
+                searchButtonShadow.isVisible = false
+                searchInputLayout.isVisible = true
+                searchCancelButton.isVisible = true
             }
         }
     }
@@ -282,7 +301,7 @@ internal class AnimeListViewImpl(
     private fun hideKeyboard() {
         val inputMethodManager =
             context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(viewBinding.root.windowToken, 0)
+        inputMethodManager.hideSoftInputFromWindow(rootView.windowToken, 0)
     }
 
     private fun getContentType(uiModel: UiModel): ContentTypeUi {
@@ -293,28 +312,26 @@ internal class AnimeListViewImpl(
     private fun setContentType(contentType: ContentTypeUi) {
         contentTypeChangeJob?.cancel()
         contentTypeChangeJob = viewScope.launch(coroutineContextProvider.mainCoroutineContext) {
-            with(viewBinding) {
-                when (contentType) {
-                    ContentTypeUi.LOADED -> {
-                        connectionStatusImage.isVisible = false
-                        animeListRv.isVisible = true
-                    }
+            when (contentType) {
+                ContentTypeUi.LOADED -> {
+                    connectionStatusImage.isVisible = false
+                    animeListRv.isVisible = true
+                }
 
-                    ContentTypeUi.LOADING -> {
-                        animeListRv.isVisible = false
-                        connectionStatusImage.setImageResource(res_R.drawable.loading_animation)
-                        connectionStatusImage.contentDescription = context
-                            .getString(R.string.loading_in_progress)
-                        connectionStatusImage.isVisible = true
-                    }
+                ContentTypeUi.LOADING -> {
+                    animeListRv.isVisible = false
+                    connectionStatusImage.setImageResource(res_R.drawable.loading_animation)
+                    connectionStatusImage.contentDescription = context
+                        .getString(R.string.loading_in_progress)
+                    connectionStatusImage.isVisible = true
+                }
 
-                    ContentTypeUi.ERROR -> {
-                        animeListRv.isVisible = false
-                        connectionStatusImage.setImageResource(R.drawable.connection_error_48)
-                        connectionStatusImage.contentDescription = context
-                            .getString(R.string.connection_error)
-                        connectionStatusImage.isVisible = true
-                    }
+                ContentTypeUi.ERROR -> {
+                    animeListRv.isVisible = false
+                    connectionStatusImage.setImageResource(R.drawable.connection_error_48)
+                    connectionStatusImage.contentDescription = context
+                        .getString(R.string.connection_error)
+                    connectionStatusImage.isVisible = true
                 }
             }
         }
@@ -329,11 +346,11 @@ internal class AnimeListViewImpl(
         submitListJob?.cancel()
         submitListJob = viewScope.launch(coroutineContextProvider.mainCoroutineContext) {
             if (listContent.isNeedToResetListPositon) {
-                viewBinding.animeListRv.stopScroll()
+                animeListRv.stopScroll()
             }
             adapter.submitList(listContent.listItems) {
                 if (listContent.isNeedToResetListPositon) {
-                    viewBinding.animeListRv.scrollToPosition(0)
+                    animeListRv.scrollToPosition(0)
                     dispatch(
                         AnimeListMainStore.Intent.ChangeResetListPositionFlag(
                             isNeedToResetListPosition = false

@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.animelist.platform.impl.presentation.adapter
+package com.alekseivinogradov.anoti.animelist.android.impl.presentation.adapter
 
 import androidx.recyclerview.widget.DiffUtil
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ListItemUi

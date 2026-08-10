@@ -50,7 +50,7 @@ dependencies {
     implementation(project(":core-platform:anime-database"))
     implementation(project(":core-platform:di"))
     implementation(project(":feature-kmp:bottom-navigation-bar"))
-    implementation(project(":feature-platform:anime-list"))
+    implementation(project(":feature-kmp:anime-list"))
     implementation(project(":feature-kmp:anime-favorites"))
 
     implementation(libs.androidx.core.ktx)

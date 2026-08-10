@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.animelist.platform.impl.presentation.di
+package com.alekseivinogradov.anoti.animelist.android.impl.presentation.di
 
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsection.AnnouncedSectionStore

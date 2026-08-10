@@ -19,16 +19,17 @@ coordinated by a top-level store.
 ## How to include it
 
 - Gradle: `implementation(project(":feature-kmp:anime-list"))`
-- All four stores are provided via the platform module's Dagger setup
-  (`feature-platform/anime-list`) — inject them, don't construct them yourself. `AnimeListView`
-  has no DI wiring; the consumer implements it directly (see `feature-platform/anime-list`'s
-  `AnimeListViewImpl`). `AnimeListController` has no DI wiring either; construct it directly with
-  the stores and lifecycle.
+- All four stores and the view container are provided via Dagger setup in the KMP module's
+  `androidMain` source set (`AnimeListComponent` and related modules) — construct
+  `AnimeListFragment` directly or have Dagger inject it. `AnimeListView` has no DI wiring; the
+  platform layer (`AnimeListViewImpl` in `androidMain`) implements it directly. `AnimeListController`
+  has no DI wiring either; construct it directly with the stores and lifecycle.
 
 ## How to use it
 
-Implement `AnimeListView` (an `AnimeListViewImpl`): render `UiModel` in `render()` and call
-`dispatch(Intent)` from the relevant UI callbacks (tab clicks, search text changes, pagination).
-On the anime list screen, construct `AnimeListController` with the main store, the three section
-stores, `AnimeDatabaseStore`, and the screen's lifecycle, then call
-`controller.onViewCreated(viewImpl, viewLifecycle)`.
+Use `AnimeListFragment` as your screen's fragment; the fragment wires the stores, view, and
+controller internally. Alternatively, implement `AnimeListView` (as `AnimeListViewImpl` does):
+render `UiModel` in `render()` and call `dispatch(Intent)` from the relevant UI callbacks
+(tab clicks, search text changes, pagination). On the screen hosting it, construct
+`AnimeListController` with the main store, the three section stores, `AnimeDatabaseStore`,
+and the screen's lifecycle, then call `controller.onViewCreated(viewImpl, viewLifecycle)`.

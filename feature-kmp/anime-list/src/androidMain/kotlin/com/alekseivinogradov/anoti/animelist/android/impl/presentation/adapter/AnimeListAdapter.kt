@@ -1,10 +1,10 @@
-package com.alekseivinogradov.anoti.animelist.platform.impl.presentation.adapter
+package com.alekseivinogradov.anoti.animelist.android.impl.presentation.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
+import com.alekseivinogradov.anoti.animelist.kmp.R
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ListItemUi
-import com.alekseivinogradov.anoti.animelist.platform.databinding.ItemAnimeListBinding
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 
@@ -16,8 +16,8 @@ internal class AnimeListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnimeListViewHolder {
         return AnimeListViewHolder(
-            binding = ItemAnimeListBinding.inflate(
-                LayoutInflater.from(parent.context),
+            itemView = LayoutInflater.from(parent.context).inflate(
+                R.layout.item_anime_list,
                 parent,
                 false
             ),

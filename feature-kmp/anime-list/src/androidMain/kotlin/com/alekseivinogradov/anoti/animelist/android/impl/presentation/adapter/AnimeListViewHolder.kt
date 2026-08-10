@@ -1,31 +1,63 @@
-package com.alekseivinogradov.anoti.animelist.platform.impl.presentation.adapter
+package com.alekseivinogradov.anoti.animelist.android.impl.presentation.adapter
 
 import android.content.Context
 import android.content.res.ColorStateList
+import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import com.alekseivinogradov.anoti.animelist.kmp.R
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ListItemUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.EpisodesInfoTypeUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.NotificationUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.ReleaseStatusUi
-import com.alekseivinogradov.anoti.animelist.platform.R
-import com.alekseivinogradov.anoti.animelist.platform.databinding.ItemAnimeListBinding
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.res.R as res_R
 import com.bumptech.glide.Glide
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.imageview.ShapeableImageView
+import com.google.android.material.textview.MaterialTextView
 
 internal class AnimeListViewHolder(
-    private val binding: ItemAnimeListBinding,
+    itemView: View,
     private val episodesInfoClickViewHolderCallback: (Int) -> Unit,
     private val notificationClickViewHolderCallback: (Int) -> Unit,
     private val dateFormatter: DateFormatter
 ) :
-    RecyclerView.ViewHolder(binding.root) {
+    RecyclerView.ViewHolder(itemView) {
 
     private val context: Context
-        get() = binding.root.context
+        get() = itemView.context
+
+    private val posterImage: ShapeableImageView =
+        itemView.findViewById(R.id.poster_image)
+    private val infoBackground: View =
+        itemView.findViewById(R.id.info_background)
+    private val nameText: MaterialTextView =
+        itemView.findViewById(R.id.name_text)
+    private val availableEpisodesInfoText: MaterialTextView =
+        itemView.findViewById(R.id.available_episodes_info_text)
+    private val extraEpisodesInfoButton: FloatingActionButton =
+        itemView.findViewById(R.id.extra_episodes_info_button)
+    private val extraEpisodesInfoText: MaterialTextView =
+        itemView.findViewById(R.id.extra_episodes_info_text)
+    private val availableEpisodesInfoButton: FloatingActionButton =
+        itemView.findViewById(R.id.available_episodes_info_button)
+    private val notificationButtonBarrier: View =
+        itemView.findViewById(R.id.notification_button_barrier)
+    private val scoreImage: View =
+        itemView.findViewById(R.id.score_image)
+    private val scoreText: MaterialTextView =
+        itemView.findViewById(R.id.score_text)
+    private val verticalDividerAfterScore: View =
+        itemView.findViewById(R.id.vertical_divider_after_score)
+    private val verticalDividerAfterStatus: View =
+        itemView.findViewById(R.id.vertical_divider_after_status)
+    private val releaseStatusText: MaterialTextView =
+        itemView.findViewById(R.id.release_status_text)
+    private val notificationButton: FloatingActionButton =
+        itemView.findViewById(R.id.notification_button)
 
     private val disableColor: Int
         get() = context.getColor(res_R.color.cinnabar_500)
@@ -122,77 +154,71 @@ internal class AnimeListViewHolder(
     }
 
     private fun bindCommonFields() {
-        with(binding) {
-            itemAnimeListLayout.isVisible = true
-            posterImage.contentDescription = context.getString(R.string.poster_image_description)
-            posterImage.isVisible = true
-            infoBackground.isVisible = true
-            nameText.isVisible = true
-            extraEpisodesInfoButton.backgroundTintList = ColorStateList.valueOf(
-                context.getColor(res_R.color.black)
-            )
-            extraEpisodesInfoButton.contentDescription = context
-                .getString(R.string.extra_episodes_info_description)
-            availableEpisodesInfoButton.backgroundTintList = ColorStateList.valueOf(
-                context.getColor(res_R.color.black)
-            )
-            availableEpisodesInfoButton.contentDescription = context
-                .getString(R.string.available_episodes_info_discription)
-            notificationButtonBarrier.isInvisible = true
-            scoreImage.contentDescription = context.getString(R.string.score_image_description)
-            scoreImage.isVisible = true
-            scoreText.isVisible = true
-            verticalDividerAfterScore.isVisible = true
-            verticalDividerAfterStatus.isVisible = true
-            notificationButton.isVisible = true
-        }
+        itemView.isVisible = true
+        posterImage.contentDescription = context.getString(R.string.poster_image_description)
+        posterImage.isVisible = true
+        infoBackground.isVisible = true
+        nameText.isVisible = true
+        extraEpisodesInfoButton.backgroundTintList = ColorStateList.valueOf(
+            context.getColor(res_R.color.black)
+        )
+        extraEpisodesInfoButton.contentDescription = context
+            .getString(R.string.extra_episodes_info_description)
+        availableEpisodesInfoButton.backgroundTintList = ColorStateList.valueOf(
+            context.getColor(res_R.color.black)
+        )
+        availableEpisodesInfoButton.contentDescription = context
+            .getString(R.string.available_episodes_info_discription)
+        notificationButtonBarrier.isInvisible = true
+        scoreImage.contentDescription = context.getString(R.string.score_image_description)
+        scoreImage.isVisible = true
+        scoreText.isVisible = true
+        verticalDividerAfterScore.isVisible = true
+        verticalDividerAfterStatus.isVisible = true
+        notificationButton.isVisible = true
     }
 
     private fun setClickListeners() {
-        with(binding) {
-            availableEpisodesInfoButton.setOnClickListener {
-                if (bindingAdapterPosition == RecyclerView.NO_POSITION) return@setOnClickListener
-                episodesInfoClickViewHolderCallback(bindingAdapterPosition)
-            }
-            extraEpisodesInfoButton.setOnClickListener {
-                if (bindingAdapterPosition == RecyclerView.NO_POSITION) return@setOnClickListener
-                episodesInfoClickViewHolderCallback(bindingAdapterPosition)
-            }
-            notificationButton.setOnClickListener {
-                if (bindingAdapterPosition == RecyclerView.NO_POSITION) return@setOnClickListener
-                notificationClickViewHolderCallback(bindingAdapterPosition)
-            }
+        availableEpisodesInfoButton.setOnClickListener {
+            if (bindingAdapterPosition == RecyclerView.NO_POSITION) return@setOnClickListener
+            episodesInfoClickViewHolderCallback(bindingAdapterPosition)
+        }
+        extraEpisodesInfoButton.setOnClickListener {
+            if (bindingAdapterPosition == RecyclerView.NO_POSITION) return@setOnClickListener
+            episodesInfoClickViewHolderCallback(bindingAdapterPosition)
+        }
+        notificationButton.setOnClickListener {
+            if (bindingAdapterPosition == RecyclerView.NO_POSITION) return@setOnClickListener
+            notificationClickViewHolderCallback(bindingAdapterPosition)
         }
     }
 
     private fun bindImageUrl(imageUrl: String?) {
-        Glide.with(binding.posterImage)
+        Glide.with(posterImage)
             .load(imageUrl)
             .placeholder(res_R.drawable.loading_animation)
             .error(res_R.drawable.load_image_error_48)
-            .into(binding.posterImage)
+            .into(posterImage)
     }
 
     private fun bindName(name: String) {
-        binding.nameText.text = name
+        nameText.text = name
     }
 
     private fun bindEpisodesInfoType(episodesInfoType: EpisodesInfoTypeUi) {
-        with(binding) {
-            when (episodesInfoType) {
-                EpisodesInfoTypeUi.AVAILABLE -> {
-                    extraEpisodesInfoText.isVisible = false
-                    availableEpisodesInfoButton.isVisible = false
-                    availableEpisodesInfoText.isVisible = true
-                    extraEpisodesInfoButton.isVisible = true
-                }
+        when (episodesInfoType) {
+            EpisodesInfoTypeUi.AVAILABLE -> {
+                extraEpisodesInfoText.isVisible = false
+                availableEpisodesInfoButton.isVisible = false
+                availableEpisodesInfoText.isVisible = true
+                extraEpisodesInfoButton.isVisible = true
+            }
 
-                EpisodesInfoTypeUi.EXTRA -> {
-                    availableEpisodesInfoText.isVisible = false
-                    extraEpisodesInfoButton.isVisible = false
-                    extraEpisodesInfoText.isVisible = true
-                    availableEpisodesInfoButton.isVisible = true
-                }
+            EpisodesInfoTypeUi.EXTRA -> {
+                availableEpisodesInfoText.isVisible = false
+                extraEpisodesInfoButton.isVisible = false
+                extraEpisodesInfoText.isVisible = true
+                availableEpisodesInfoButton.isVisible = true
             }
         }
     }
@@ -202,7 +228,7 @@ internal class AnimeListViewHolder(
         episodesTotal: Int?,
         releaseStatus: ReleaseStatusUi
     ) {
-        binding.availableEpisodesInfoText.text = getAvailableEpisodesInfo(
+        availableEpisodesInfoText.text = getAvailableEpisodesInfo(
             episodesAired = episodesAired,
             episodesTotal = episodesTotal,
             releaseStatus = releaseStatus
@@ -236,7 +262,7 @@ internal class AnimeListViewHolder(
         releasedOn: String?,
         releaseStatus: ReleaseStatusUi
     ) {
-        binding.extraEpisodesInfoText.text = getExtraEpisodesInfo(
+        extraEpisodesInfoText.text = getExtraEpisodesInfo(
             nextEpisodeAt = nextEpisodeAt,
             airedOn = airedOn,
             releasedOn = releasedOn,
@@ -291,70 +317,66 @@ internal class AnimeListViewHolder(
     }
 
     private fun bindScore(score: String) {
-        binding.scoreText.text = score
+        scoreText.text = score
     }
 
     private fun bindReleaseStatus(releaseStatus: ReleaseStatusUi) {
-        with(binding) {
-            when (releaseStatus) {
-                ReleaseStatusUi.ONGOING -> {
-                    releaseStatusText.text =
-                        context.getString(R.string.ongoing)
-                    releaseStatusText.setTextColor(context.getColor(res_R.color.green))
-                    releaseStatusText.isVisible = true
-                }
+        when (releaseStatus) {
+            ReleaseStatusUi.ONGOING -> {
+                releaseStatusText.text =
+                    context.getString(R.string.ongoing)
+                releaseStatusText.setTextColor(context.getColor(res_R.color.green))
+                releaseStatusText.isVisible = true
+            }
 
-                ReleaseStatusUi.ANNOUNCED -> {
-                    releaseStatusText.text =
-                        context.getString(R.string.announced)
-                    releaseStatusText.setTextColor(context.getColor(res_R.color.purple_200))
-                    releaseStatusText.isVisible = true
-                }
+            ReleaseStatusUi.ANNOUNCED -> {
+                releaseStatusText.text =
+                    context.getString(R.string.announced)
+                releaseStatusText.setTextColor(context.getColor(res_R.color.purple_200))
+                releaseStatusText.isVisible = true
+            }
 
-                ReleaseStatusUi.RELEASED -> {
-                    releaseStatusText.text =
-                        context.getString(R.string.released)
-                    releaseStatusText.setTextColor(context.getColor(res_R.color.cinnabar_500))
-                    releaseStatusText.isVisible = true
-                }
+            ReleaseStatusUi.RELEASED -> {
+                releaseStatusText.text =
+                    context.getString(R.string.released)
+                releaseStatusText.setTextColor(context.getColor(res_R.color.cinnabar_500))
+                releaseStatusText.isVisible = true
+            }
 
-                ReleaseStatusUi.UNKNOWN -> {
-                    releaseStatusText.isVisible = false
-                }
+            ReleaseStatusUi.UNKNOWN -> {
+                releaseStatusText.isVisible = false
             }
         }
     }
 
     private fun bindNotification(notification: NotificationUi) {
-        with(binding) {
-            when (notification) {
-                NotificationUi.ENABLED -> {
-                    notificationButton.setImageDrawable(
-                        ContextCompat.getDrawable(
-                            context,
-                            res_R.drawable.ic_notifications_on_40
-                        )
+        when (notification) {
+            NotificationUi.ENABLED -> {
+                notificationButton.setImageDrawable(
+                    ContextCompat.getDrawable(
+                        context,
+                        res_R.drawable.ic_notifications_on_40
                     )
-                    notificationButton.rippleColor = disableColor
-                    notificationButton.backgroundTintList = ColorStateList.valueOf(enableColor)
-                    notificationButton.contentDescription = context.resources.getString(
-                        R.string.notifications_turn_off_description
-                    )
-                }
+                )
+                notificationButton.rippleColor = disableColor
+                notificationButton.backgroundTintList = ColorStateList.valueOf(enableColor)
+                notificationButton.contentDescription = context.resources.getString(
+                    R.string.notifications_turn_off_description
+                )
+            }
 
-                NotificationUi.DISABLED -> {
-                    notificationButton.setImageDrawable(
-                        ContextCompat.getDrawable(
-                            context,
-                            res_R.drawable.ic_notifications_off_40
-                        )
+            NotificationUi.DISABLED -> {
+                notificationButton.setImageDrawable(
+                    ContextCompat.getDrawable(
+                        context,
+                        res_R.drawable.ic_notifications_off_40
                     )
-                    notificationButton.rippleColor = enableColor
-                    notificationButton.backgroundTintList = ColorStateList.valueOf(disableColor)
-                    notificationButton.contentDescription = context.resources.getString(
-                        R.string.notifications_turn_on_description
-                    )
-                }
+                )
+                notificationButton.rippleColor = enableColor
+                notificationButton.backgroundTintList = ColorStateList.valueOf(disableColor)
+                notificationButton.contentDescription = context.resources.getString(
+                    R.string.notifications_turn_on_description
+                )
             }
         }
     }
