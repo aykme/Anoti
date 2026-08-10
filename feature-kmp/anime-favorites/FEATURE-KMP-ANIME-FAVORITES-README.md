@@ -13,11 +13,11 @@ and per-item notification toggles.
 ## How to include it
 
 - Gradle: `implementation(project(":feature-kmp:anime-favorites"))`
-- `AnimeFavoritesMainStore` is provided via the platform module's Dagger setup
-  (`feature-platform/anime-favorites`) — inject it, don't construct it yourself.
-  `AnimeFavoritesView` has no DI wiring; the consumer implements it directly (see
-  `feature-platform/anime-favorites`'s `AnimeFavoritesViewImpl`). `AnimeFavoritesController` has
-  no DI wiring either; construct it directly with the store and lifecycle.
+- `AnimeFavoritesMainStore` is provided via this module's own Dagger setup in `androidMain`
+  (`AnimeFavoritesModule`) — inject it, don't construct it yourself. `AnimeFavoritesView` has no
+  DI wiring; the consumer implements it directly (see this module's `androidMain`
+  `AnimeFavoritesViewImpl`). `AnimeFavoritesController` has no DI wiring either; construct it
+  directly with the store and lifecycle.
 
 ## How to use it
 
