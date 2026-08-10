@@ -75,3 +75,12 @@ kotlin {
 dependencies {
     add("kspAndroid", libs.dagger.compiler)
 }
+
+// Lint's androidHostTest-related tasks read kspAndroidHostTest's generated sources without
+// Gradle inferring that dependency on its own, so the full aggregate `build` can schedule them
+// first (Gradle's own implicit-dependency validation flags exactly this).
+tasks.matching {
+    it.name == "generateAndroidHostTestLintModel" || it.name == "lintAnalyzeAndroidHostTest"
+}.configureEach {
+    dependsOn("kspAndroidHostTest")
+}
