@@ -26,9 +26,10 @@ Read this before doing any task in this repository.
   subtask.
 - Verify that the logic you wrote actually works correctly — don't just assume it from reading
   the code.
-- If the task was a refactor, ask the developer whether the resulting behavior must match the
-  previous behavior exactly. If yes, verify there's no difference in the final result; if some
-  difference turns out to be unavoidable, agree on it with the developer before proceeding.
+- If the task was a refactor or a migration, ask the developer whether the resulting behavior
+  must match the previous behavior exactly. If yes, verify there's no difference in the final
+  result; if some difference turns out to be unavoidable, agree on it with the developer before
+  proceeding.
 - Make sure the tests cover every case that can realistically occur, without duplicate tests or
   clearly excessive coverage that adds nothing. Don't forget concurrency tests where they're
   needed. Tests are only written for KMP code, and all of them belong in `commonTest` — don't
