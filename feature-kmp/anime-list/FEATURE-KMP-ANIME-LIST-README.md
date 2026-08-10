@@ -12,7 +12,7 @@ coordinated by a top-level store.
 - [SearchSectionStore](src/commonMain/kotlin/com/alekseivinogradov/anoti/animelist/kmp/api/domain/store/searchsection/SearchSectionStore.kt) —
   the store for the search section's list.
 - [AnimeListView](src/commonMain/kotlin/com/alekseivinogradov/anoti/animelist/kmp/api/presentation/AnimeListView.kt) —
-  the view contract the platform layer implements to render the main store's state.
+  the view contract the androidMain layer implements to render the main store's state.
 - [AnimeListController](src/commonMain/kotlin/com/alekseivinogradov/anoti/animelist/kmp/impl/presentation/AnimeListController.kt) —
   wires all four stores and `AnimeDatabaseStore` to the view.
 
@@ -22,7 +22,7 @@ coordinated by a top-level store.
 - All four stores and the view container are provided via Dagger setup in the KMP module's
   `androidMain` source set (`AnimeListComponent` and related modules) — construct
   `AnimeListFragment` directly or have Dagger inject it. `AnimeListView` has no DI wiring; the
-  platform layer (`AnimeListViewImpl` in `androidMain`) implements it directly. `AnimeListController`
+  `androidMain` layer (`AnimeListViewImpl`) implements it directly. `AnimeListController`
   has no DI wiring either; construct it directly with the stores and lifecycle.
 
 ## How to use it

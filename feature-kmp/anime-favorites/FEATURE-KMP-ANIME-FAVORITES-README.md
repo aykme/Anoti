@@ -6,7 +6,7 @@ and per-item notification toggles.
 - [AnimeFavoritesMainStore](src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/api/domain/store/AnimeFavoritesMainStore.kt) —
   the store. `State`/`Intent`/`Label` are documented on the type itself.
 - [AnimeFavoritesView](src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/api/presentation/AnimeFavoritesView.kt) —
-  the view contract the platform layer implements to render the store's state.
+  the view contract the androidMain layer implements to render the store's state.
 - [AnimeFavoritesController](src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/impl/presentation/AnimeFavoritesController.kt) —
   wires the store to its view and to `AnimeDatabaseStore`.
 
