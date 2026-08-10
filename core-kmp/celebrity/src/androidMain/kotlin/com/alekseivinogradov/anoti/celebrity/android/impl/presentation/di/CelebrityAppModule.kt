@@ -18,8 +18,8 @@ import javax.inject.Singleton
 
 @Module
 interface CelebrityAppModule {
-    // Used by Dagger to bind CoroutineContextProvider wherever it's injected (e.g.
-    // AnimeListFragment, AnimeDatabaseStoreModule) — the IDE flags it as unused regardless.
+    // Used by Dagger to bind CoroutineContextProvider wherever it's injected
+    // The IDE flags it as unused regardless.
     @Suppress("unused")
     @Binds
     fun bindCoroutineContextProvider(
