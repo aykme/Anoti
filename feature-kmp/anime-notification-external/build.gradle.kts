@@ -38,7 +38,6 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.dagger)
-            implementation(project(":main"))
             implementation(project(":core-platform:navigation"))
         }
     }

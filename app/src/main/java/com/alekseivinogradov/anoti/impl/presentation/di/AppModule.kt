@@ -13,6 +13,7 @@ import com.alekseivinogradov.anoti.animenotification.android.impl.presentation.d
 import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.platform.impl.presentation.di.CelebrityAppModule
+import com.alekseivinogradov.anoti.main.impl.presentation.di.AnimeFavoritesDeepLinkNavigatorModule
 import com.alekseivinogradov.anoti.network.platform.impl.presentation.di.NetworkModule
 import dagger.Module
 import dagger.Provides
@@ -25,7 +26,8 @@ import dagger.Provides
         AnimeBaseModule::class,
         AnimeBaseBackgroundUpdateModule::class,
         AnimePeriodicBackgroundUpdateModule::class,
-        AnimeNotificationModule::class
+        AnimeNotificationModule::class,
+        AnimeFavoritesDeepLinkNavigatorModule::class
     ]
 )
 internal interface AppModule {

@@ -2,21 +2,17 @@ package com.alekseivinogradov.anoti.animenotification.external.android.impl.pres
 
 import android.app.PendingIntent
 import android.content.Context
-import androidx.navigation.NavDeepLinkBuilder
-import com.alekseivinogradov.anoti.main.R as main_R
-import com.alekseivinogradov.anoti.main.impl.presentation.MainActivity
+import com.alekseivinogradov.anoti.navigation.platform.api.presentation.AnimeFavoritesDeepLinkNavigator
 import javax.inject.Inject
 
 /**
  * A class for representing dependencies on the "main" module for the "anime-notification" module.
  * It is necessary that the target module does not know directly about "main".
  */
-class AnimeNotificationIntentProvider @Inject constructor() {
+class AnimeNotificationIntentProvider @Inject constructor(
+    private val animeFavoritesDeepLinkNavigator: AnimeFavoritesDeepLinkNavigator
+) {
     fun getNewEpisodeNotificationIntent(appContext: Context): PendingIntent {
-        return NavDeepLinkBuilder(appContext)
-            .setComponentName(MainActivity::class.java)
-            .setGraph(main_R.navigation.nav_graph)
-            .setDestination(main_R.id.anime_favorites)
-            .createPendingIntent()
+        return animeFavoritesDeepLinkNavigator.getAnimeFavoritesDeepLinkIntent(appContext)
     }
 }
