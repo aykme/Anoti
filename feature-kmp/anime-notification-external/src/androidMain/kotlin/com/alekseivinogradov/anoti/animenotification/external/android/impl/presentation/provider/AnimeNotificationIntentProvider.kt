@@ -2,17 +2,12 @@ package com.alekseivinogradov.anoti.animenotification.external.android.impl.pres
 
 import android.app.PendingIntent
 import android.content.Context
-import com.alekseivinogradov.anoti.navigation.platform.api.presentation.AnimeFavoritesDeepLinkNavigator
-import javax.inject.Inject
 
 /**
- * A class for representing dependencies on the "main" module for the "anime-notification" module.
- * It is necessary that the target module does not know directly about "main".
+ * Builds the notification's deep-link intent. Implemented by the module that owns
+ * the navigation graph and the target activity ("main"), so this module and its
+ * consumers don't need a compile-time dependency on it.
  */
-class AnimeNotificationIntentProvider @Inject constructor(
-    private val animeFavoritesDeepLinkNavigator: AnimeFavoritesDeepLinkNavigator
-) {
-    fun getNewEpisodeNotificationIntent(appContext: Context): PendingIntent {
-        return animeFavoritesDeepLinkNavigator.getAnimeFavoritesDeepLinkIntent(appContext)
-    }
+interface AnimeNotificationIntentProvider {
+    fun getNewEpisodeNotificationIntent(appContext: Context): PendingIntent
 }

@@ -52,6 +52,7 @@ dependencies {
     implementation(project(":feature-kmp:bottom-navigation-bar"))
     implementation(project(":feature-kmp:anime-list"))
     implementation(project(":feature-kmp:anime-favorites"))
+    implementation(project(":feature-kmp:anime-notification-external"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
