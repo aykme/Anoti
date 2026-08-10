@@ -43,16 +43,15 @@ kotlin {
 }
 
 dependencies {
-    implementation(project(":ui-core:res"))
-    implementation(project(":core-platform:celebrity"))
-    implementation(project(":core-platform:anime-database"))
-    implementation(project(":core-platform:di"))
-    implementation(project(":core-platform:network"))
+    implementation(project(":core-kmp:celebrity"))
+    implementation(project(":core-kmp:anime-database"))
+    implementation(project(":core-kmp:di"))
+    implementation(project(":core-kmp:network"))
     implementation(project(":feature-kmp:anime-base"))
     implementation(project(":feature-kmp:anime-background-update"))
     implementation(project(":feature-kmp:anime-notification"))
     implementation(project(":main"))
-    androidTestImplementation(project(":core-platform:test-utils"))
+    androidTestImplementation(project(":core-kmp:test-utils"))
 
     implementation(libs.mvikotlin)
     implementation(libs.dagger)

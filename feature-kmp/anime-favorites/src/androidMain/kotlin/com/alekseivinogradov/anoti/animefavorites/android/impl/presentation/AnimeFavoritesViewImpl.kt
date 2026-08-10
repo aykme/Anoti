@@ -23,8 +23,8 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SWIPE_REFRESH_END_OFFSET
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SWIPE_REFRESH_START_OFFSET
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
-import com.alekseivinogradov.anoti.celebrity.platform.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
-import com.alekseivinogradov.anoti.res.R as res_R
+import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
+import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer

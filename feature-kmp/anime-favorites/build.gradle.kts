@@ -64,9 +64,8 @@ kotlin {
             implementation(libs.androidx.recyclerview)
             implementation(libs.glide)
             implementation(libs.androidx.work.runtime)
-            implementation(project(":ui-core:res"))
-            implementation(project(":core-platform:di"))
-            implementation(project(":core-platform:celebrity"))
+            implementation(project(":core-kmp:di"))
+            implementation(project(":core-kmp:celebrity"))
             implementation(project(":feature-kmp:anime-base"))
             implementation(project(":feature-kmp:anime-background-update"))
         }

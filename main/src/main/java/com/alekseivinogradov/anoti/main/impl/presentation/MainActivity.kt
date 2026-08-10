@@ -27,15 +27,15 @@ import androidx.navigation.fragment.NavHostFragment
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarController
-import com.alekseivinogradov.anoti.celebrity.platform.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
-import com.alekseivinogradov.anoti.di.platform.api.presentation.app.ApplicationExternal
-import com.alekseivinogradov.anoti.di.platform.api.presentation.main.MainActivityExternal
-import com.alekseivinogradov.anoti.di.platform.api.presentation.main.MainComponent
-import com.alekseivinogradov.anoti.di.platform.api.presentation.scope.ActivityScope
+import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
+import com.alekseivinogradov.anoti.di.android.api.presentation.app.ApplicationExternal
+import com.alekseivinogradov.anoti.di.android.api.presentation.main.MainActivityExternal
+import com.alekseivinogradov.anoti.di.android.api.presentation.main.MainComponent
+import com.alekseivinogradov.anoti.di.android.api.presentation.scope.ActivityScope
 import com.alekseivinogradov.anoti.main.R
 import com.alekseivinogradov.anoti.main.databinding.ActivityMainBinding
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DaggerMainComponentInternal
-import com.alekseivinogradov.anoti.res.R as res_R
+import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.arkivanov.essenty.lifecycle.asEssentyLifecycle
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder

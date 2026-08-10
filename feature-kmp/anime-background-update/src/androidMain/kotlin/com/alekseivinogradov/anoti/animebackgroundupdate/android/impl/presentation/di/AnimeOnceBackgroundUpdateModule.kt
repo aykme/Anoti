@@ -8,8 +8,8 @@ import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.use
 import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.worker.AnimeUpdateWorker
 import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.worker.animeUpdateOnceWorkName
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
-import com.alekseivinogradov.anoti.di.platform.api.presentation.AnimeBackgroundUpdate
-import com.alekseivinogradov.anoti.di.platform.api.presentation.AppContext
+import com.alekseivinogradov.anoti.di.android.api.presentation.AnimeBackgroundUpdate
+import com.alekseivinogradov.anoti.di.android.api.presentation.AppContext
 import dagger.Module
 import dagger.Provides
 

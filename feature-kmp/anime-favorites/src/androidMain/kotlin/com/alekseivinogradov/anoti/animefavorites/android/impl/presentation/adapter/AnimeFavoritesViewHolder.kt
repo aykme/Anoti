@@ -19,8 +19,8 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.ite
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
-import com.alekseivinogradov.anoti.celebrity.platform.impl.presentation.repeatlistener.RepeatListener
-import com.alekseivinogradov.anoti.res.R as res_R
+import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.repeatlistener.RepeatListener
+import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.bumptech.glide.Glide
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.imageview.ShapeableImageView

@@ -1,0 +1,12 @@
+package com.alekseivinogradov.anoti.di.android.api.presentation
+
+import javax.inject.Qualifier
+
+@Qualifier
+annotation class AppContext
+
+@Qualifier
+annotation class ActivityContext
+
+@Qualifier
+annotation class AnimeBackgroundUpdate

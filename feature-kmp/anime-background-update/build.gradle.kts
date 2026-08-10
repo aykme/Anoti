@@ -46,7 +46,6 @@ kotlin {
             implementation(libs.dagger)
             implementation(libs.androidx.work.runtime)
             implementation(libs.androidx.annotation.jvm)
-            implementation(project(":core-platform:di"))
         }
     }
 }

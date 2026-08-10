@@ -13,7 +13,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcont
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.NotificationUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.ReleaseStatusUi
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
-import com.alekseivinogradov.anoti.res.R as res_R
+import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.bumptech.glide.Glide
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.imageview.ShapeableImageView

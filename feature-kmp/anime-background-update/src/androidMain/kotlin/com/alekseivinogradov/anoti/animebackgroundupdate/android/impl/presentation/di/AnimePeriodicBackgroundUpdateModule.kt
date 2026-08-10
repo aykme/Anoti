@@ -5,7 +5,7 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.worker.AnimeUpdateWorker
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.manager.AnimeUpdateManager
-import com.alekseivinogradov.anoti.di.platform.api.presentation.AnimeBackgroundUpdate
+import com.alekseivinogradov.anoti.di.android.api.presentation.AnimeBackgroundUpdate
 import dagger.Module
 import dagger.Provides
 import java.util.concurrent.TimeUnit

@@ -8,13 +8,13 @@ import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase
 import com.alekseivinogradov.anoti.animebase.android.impl.presentation.di.AnimeBaseModule
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animedatabase.platform.impl.presentation.di.AnimeDatabaseCompletedModule
+import com.alekseivinogradov.anoti.animedatabase.android.impl.presentation.di.AnimeDatabaseCompletedModule
 import com.alekseivinogradov.anoti.animenotification.android.impl.presentation.di.AnimeNotificationModule
 import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
-import com.alekseivinogradov.anoti.celebrity.platform.impl.presentation.di.CelebrityAppModule
+import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.di.CelebrityAppModule
 import com.alekseivinogradov.anoti.main.impl.presentation.di.AnimeNotificationIntentProviderModule
-import com.alekseivinogradov.anoti.network.platform.impl.presentation.di.NetworkModule
+import com.alekseivinogradov.anoti.network.android.impl.presentation.di.NetworkModule
 import dagger.Module
 import dagger.Provides
 

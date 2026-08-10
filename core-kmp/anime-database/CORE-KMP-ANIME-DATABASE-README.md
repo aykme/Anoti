@@ -9,10 +9,9 @@ episode progress, "new episode" flags).
 ## How to include it
 
 - Gradle: `implementation(project(":core-kmp:anime-database"))`
-- The `AnimeDatabaseStore` instance is provided via the platform module's Dagger setup
-  (`core-platform/anime-database`) — inject it, don't construct it yourself. The Room-KMP
-  persistence behind it (DAO, entity, database, mapper, repository) lives entirely inside this
-  module now; `core-platform/anime-database` only holds the DI wiring, not the implementation.
+- The `AnimeDatabaseStore` instance is provided via this module's own androidMain Dagger setup —
+  inject it, don't construct it yourself. The Room-KMP persistence behind it (DAO, entity,
+  database, mapper, repository) and the DI wiring both live entirely inside this module now.
 
 ## How to use it
 

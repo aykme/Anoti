@@ -21,9 +21,9 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.R as anime_favorites_R
 import com.alekseivinogradov.anoti.animelist.kmp.R as anime_list_R
 import com.alekseivinogradov.anoti.main.R as main_R
 import com.alekseivinogradov.anoti.main.impl.presentation.MainActivity
-import com.alekseivinogradov.anoti.testutils.platform.action.clickOnChildView
-import com.alekseivinogradov.anoti.testutils.platform.matcher.AtRecyclerPositionMatcher
-import com.alekseivinogradov.anoti.testutils.platform.safeInteraction
+import com.alekseivinogradov.anoti.testutils.android.action.clickOnChildView
+import com.alekseivinogradov.anoti.testutils.android.matcher.AtRecyclerPositionMatcher
+import com.alekseivinogradov.anoti.testutils.android.safeInteraction
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.not

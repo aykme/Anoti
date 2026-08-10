@@ -13,8 +13,8 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.R
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.AnimeFavoritesController
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
-import com.alekseivinogradov.anoti.di.platform.api.presentation.main.MainActivityExternal
-import com.alekseivinogradov.anoti.di.platform.api.presentation.scope.FeatureScope
+import com.alekseivinogradov.anoti.di.android.api.presentation.main.MainActivityExternal
+import com.alekseivinogradov.anoti.di.android.api.presentation.scope.FeatureScope
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import javax.inject.Inject
 

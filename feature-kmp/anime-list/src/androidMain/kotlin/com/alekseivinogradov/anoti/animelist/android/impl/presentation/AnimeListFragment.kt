@@ -18,8 +18,8 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.AnimeListController
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
-import com.alekseivinogradov.anoti.di.platform.api.presentation.main.MainActivityExternal
-import com.alekseivinogradov.anoti.di.platform.api.presentation.scope.FeatureScope
+import com.alekseivinogradov.anoti.di.android.api.presentation.main.MainActivityExternal
+import com.alekseivinogradov.anoti.di.android.api.presentation.scope.FeatureScope
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import javax.inject.Inject
 

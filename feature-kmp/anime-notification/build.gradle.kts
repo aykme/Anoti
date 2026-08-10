@@ -45,8 +45,7 @@ kotlin {
             implementation(libs.androidx.core.ktx)
             implementation(libs.glide)
             api(project(":feature-kmp:anime-notification-external"))
-            implementation(project(":core-platform:di"))
-            implementation(project(":ui-core:res"))
+            implementation(project(":core-kmp:celebrity"))
         }
     }
 }

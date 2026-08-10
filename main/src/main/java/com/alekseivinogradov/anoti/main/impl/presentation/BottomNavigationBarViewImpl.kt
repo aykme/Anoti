@@ -9,7 +9,7 @@ import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.mode
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarView
 import com.alekseivinogradov.anoti.main.R
 import com.alekseivinogradov.anoti.main.databinding.ActivityMainBinding
-import com.alekseivinogradov.anoti.res.R as res_R
+import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer

@@ -30,6 +30,8 @@ kotlin {
             jvmTarget.set(JvmTarget.fromTarget(libs.versions.jvmTarget.get()))
         }
 
+        withJava()
+
         withHostTestBuilder {}.configure {}
     }
 
@@ -61,11 +63,15 @@ kotlin {
         getByName("androidHostTest").dependencies {
             implementation(libs.robolectric)
         }
+        androidMain.dependencies {
+            implementation(libs.dagger)
+        }
     }
 }
 
 dependencies {
     add("kspAndroid", libs.androidx.room.compiler)
+    add("kspAndroid", libs.dagger.compiler)
     add("kspIosArm64", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
 }

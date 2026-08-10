@@ -16,6 +16,6 @@ Shared core utilities used across Anoti's KMP feature modules.
 ## How to include it
 
 - Gradle: `implementation(project(":core-kmp:celebrity"))`
-- `CoroutineContextProvider`, `DateFormatter` and `ToastProvider` are provided via the platform
-  module's Dagger setup (`core-platform/celebrity`) — inject them, don't construct them
-  yourself. `Paginator` has no DI wiring; callers construct it directly.
+- `CoroutineContextProvider`, `DateFormatter` and `ToastProvider` are provided via this module's
+  own androidMain Dagger setup — inject them, don't construct them yourself. `Paginator` has no
+  DI wiring; callers construct it directly.

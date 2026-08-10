@@ -13,7 +13,7 @@ import com.alekseivinogradov.anoti.animenotification.android.impl.presentation.f
 import com.alekseivinogradov.anoti.animenotification.external.android.impl.presentation.provider.AnimeNotificationIntentProvider
 import com.alekseivinogradov.anoti.animenotification.kmp.R
 import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
-import com.alekseivinogradov.anoti.res.R as res_R
+import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import kotlin.coroutines.cancellation.CancellationException

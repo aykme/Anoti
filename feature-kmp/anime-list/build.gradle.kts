@@ -63,9 +63,8 @@ kotlin {
             implementation(libs.androidx.swiperefreshlayout)
             implementation(libs.androidx.recyclerview)
             implementation(libs.glide)
-            implementation(project(":ui-core:res"))
-            implementation(project(":core-platform:celebrity"))
-            implementation(project(":core-platform:di"))
+            implementation(project(":core-kmp:celebrity"))
+            implementation(project(":core-kmp:di"))
         }
     }
 }

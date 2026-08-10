@@ -43,11 +43,10 @@ kotlin {
 
 dependencies {
     implementation(project(":feature-kmp:anime-base"))
-    implementation(project(":core-platform:celebrity"))
+    implementation(project(":core-kmp:celebrity"))
     implementation(project(":core-kmp:network"))
-    implementation(project(":ui-core:res"))
-    implementation(project(":core-platform:anime-database"))
-    implementation(project(":core-platform:di"))
+    implementation(project(":core-kmp:anime-database"))
+    implementation(project(":core-kmp:di"))
     implementation(project(":feature-kmp:bottom-navigation-bar"))
     implementation(project(":feature-kmp:anime-list"))
     implementation(project(":feature-kmp:anime-favorites"))
