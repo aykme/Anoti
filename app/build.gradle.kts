@@ -49,8 +49,8 @@ dependencies {
     implementation(project(":core-platform:di"))
     implementation(project(":core-platform:network"))
     implementation(project(":feature-platform:anime-base"))
-    implementation(project(":feature-platform:anime-background-update"))
-    implementation(project(":feature-platform:anime-notification"))
+    implementation(project(":feature-kmp:anime-background-update"))
+    implementation(project(":feature-kmp:anime-notification"))
     androidTestImplementation(project(":main"))
     androidTestImplementation(project(":core-platform:test-utils"))
 
