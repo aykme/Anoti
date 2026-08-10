@@ -1,9 +1,9 @@
-package com.alekseivinogradov.anoti.animenotification.platform.impl.presentation.factory
+package com.alekseivinogradov.anoti.animenotification.android.impl.presentation.factory
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import com.alekseivinogradov.anoti.animenotification.platform.R
+import com.alekseivinogradov.anoti.animenotification.kmp.R
 import javax.inject.Inject
 
 class AnimeNotificationChannelFactory @Inject constructor() {

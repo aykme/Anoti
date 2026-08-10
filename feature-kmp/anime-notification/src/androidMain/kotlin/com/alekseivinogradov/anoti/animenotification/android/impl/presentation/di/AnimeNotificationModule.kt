@@ -1,9 +1,9 @@
-package com.alekseivinogradov.anoti.animenotification.platform.impl.presentation.di
+package com.alekseivinogradov.anoti.animenotification.android.impl.presentation.di
 
 import android.content.Context
-import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
-import com.alekseivinogradov.anoti.animenotification.platform.impl.presentation.manager.AnimeNotificationManagerImpl
+import com.alekseivinogradov.anoti.animenotification.android.impl.presentation.manager.AnimeNotificationManagerImpl
 import com.alekseivinogradov.anoti.animenotification.external.platform.impl.presentation.provider.AnimeNotificationIntentProvider
+import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
 import com.alekseivinogradov.anoti.di.platform.api.presentation.AppContext
 import dagger.Module
 import dagger.Provides

@@ -8,8 +8,8 @@ Shows the "new episode aired" notification for anime in the user's favorites.
 ## How to include it
 
 - Gradle: `implementation(project(":feature-kmp:anime-notification"))`
-- `AnimeNotificationManager` is provided via the platform module's Dagger setup
-  (`feature-platform/anime-notification`) — inject it, don't construct it yourself.
+- `AnimeNotificationManager` is provided via Dagger (see `AnimeNotificationModule` in the
+  `androidMain` source set) — inject it, don't construct it yourself.
 
 ## How to use it
 
