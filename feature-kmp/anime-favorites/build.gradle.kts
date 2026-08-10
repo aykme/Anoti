@@ -21,6 +21,8 @@ kotlin {
             enable = true
         }
 
+        withJava()
+
         withHostTestBuilder {}.configure {}
     }
 
