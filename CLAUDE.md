@@ -21,9 +21,9 @@ Read this before doing any task in this repository.
 
 ## After finishing a task
 
-- This is a final stage that runs only once the overall task is fully done — not after each
-  individual subtask generated along the way. Don't run through this checklist after every
-  subtask.
+- This is a final stage — run it at the point the task is being finished, e.g. during a final
+  code review or the final step of the work — not after each individual subtask generated along
+  the way. Don't run through this checklist after every subtask.
 - Verify that the logic you wrote actually works correctly — don't just assume it from reading
   the code.
 - If the task was a refactor or a migration, ask the developer whether the resulting behavior
@@ -38,6 +38,8 @@ Read this before doing any task in this repository.
 - For any test that's new or was fixed, confirm it doesn't flake, doesn't rely on real time
   (highly undesirable — acceptable only in exceptional cases agreed with the developer), and
   never makes real API calls (this is forbidden).
+- Report back on every check from this list that was actually performed, so the developer can
+  see what was verified without having to re-check it themselves.
 
 ## Before committing
 
