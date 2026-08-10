@@ -70,7 +70,7 @@
                 app:layout_constraintEnd_toStartOf="@id/vertical_divider"
                 app:layout_constraintStart_toEndOf="@id/filter_button"
                 app:layout_constraintTop_toTopOf="@id/search_button"
-                tools:ignore="VisualLintButtonSize,TextContrastCheck"
+                tools:ignore="VisualLintButtonSize,TextContrastCheck,VisualLintSystemUi"
                 tools:text="@string/on_air"
                 tools:textColor="@color/cinnabar_500" />
 
@@ -105,7 +105,7 @@
                 app:layout_constraintEnd_toStartOf="@id/search_button"
                 app:layout_constraintStart_toEndOf="@id/vertical_divider"
                 app:layout_constraintTop_toTopOf="@id/search_button"
-                tools:ignore="VisualLintButtonSize,TextContrastCheck"
+                tools:ignore="VisualLintButtonSize,TextContrastCheck,VisualLintSystemUi"
                 tools:text="@string/soon" />
 
             <androidx.appcompat.widget.AppCompatImageView
