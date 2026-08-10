@@ -68,7 +68,7 @@ kotlin {
             implementation(project(":core-platform:anime-database"))
             implementation(project(":core-platform:di"))
             implementation(project(":core-platform:network"))
-            implementation(project(":feature-platform:anime-base"))
+            implementation(project(":feature-kmp:anime-base"))
         }
     }
 }

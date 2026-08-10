@@ -67,8 +67,8 @@ kotlin {
             implementation(project(":ui-core:res"))
             implementation(project(":core-platform:di"))
             implementation(project(":core-platform:celebrity"))
-            implementation(project(":feature-platform:anime-base"))
-            implementation(project(":feature-platform:anime-background-update"))
+            implementation(project(":feature-kmp:anime-base"))
+            implementation(project(":feature-kmp:anime-background-update"))
         }
     }
 }

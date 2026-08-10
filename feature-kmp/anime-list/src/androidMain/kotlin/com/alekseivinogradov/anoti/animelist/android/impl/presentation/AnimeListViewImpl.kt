@@ -12,8 +12,8 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.alekseivinogradov.anoti.animebase.platform.impl.presentation.adapter.decorator.BottomSpaceLastItemDecorator
-import com.alekseivinogradov.anoti.animebase.platform.impl.presentation.adapter.decorator.EdgeToEdgeItemDecorator
+import com.alekseivinogradov.anoti.animebase.android.impl.presentation.adapter.decorator.BottomSpaceLastItemDecorator
+import com.alekseivinogradov.anoti.animebase.android.impl.presentation.adapter.decorator.EdgeToEdgeItemDecorator
 import com.alekseivinogradov.anoti.animelist.android.impl.presentation.adapter.AnimeListAdapter
 import com.alekseivinogradov.anoti.animelist.kmp.R
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore

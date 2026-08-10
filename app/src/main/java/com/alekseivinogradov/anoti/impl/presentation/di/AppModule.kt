@@ -5,7 +5,7 @@ import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.presentati
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.manager.AnimeUpdateManager
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.manager.AnimeUpdateManagerImpl
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.FetchAnimeListByIdsUsecase
-import com.alekseivinogradov.anoti.animebase.platform.impl.presentation.di.AnimeBaseModule
+import com.alekseivinogradov.anoti.animebase.android.impl.presentation.di.AnimeBaseModule
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
 import com.alekseivinogradov.anoti.animedatabase.platform.impl.presentation.di.AnimeDatabaseCompletedModule
