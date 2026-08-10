@@ -44,7 +44,6 @@ kotlin {
 dependencies {
     implementation(project(":feature-kmp:anime-base"))
     implementation(project(":core-platform:celebrity"))
-    implementation(project(":core-platform:navigation"))
     implementation(project(":core-kmp:network"))
     implementation(project(":ui-core:res"))
     implementation(project(":core-platform:anime-database"))
@@ -61,5 +60,7 @@ dependencies {
     implementation(libs.essenty.lifecycle)
     implementation(libs.dagger)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
     ksp(libs.dagger.compiler)
 }
