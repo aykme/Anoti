@@ -49,7 +49,6 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.dagger)
             implementation(libs.androidx.recyclerview)
-            implementation(project(":core-platform:celebrity"))
             implementation(project(":core-platform:network"))
         }
     }

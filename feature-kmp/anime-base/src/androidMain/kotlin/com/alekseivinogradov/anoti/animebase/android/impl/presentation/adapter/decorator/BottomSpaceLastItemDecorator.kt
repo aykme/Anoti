@@ -3,8 +3,8 @@ package com.alekseivinogradov.anoti.animebase.android.impl.presentation.adapter.
 import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
+import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.formatter.px
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.LIST_LAST_ITEM_BOTTOM_PADDING_DP
-import com.alekseivinogradov.anoti.celebrity.platform.impl.presentation.formatter.px
 
 /**
  * Adds bottom padding to the last item in a RecyclerView.
