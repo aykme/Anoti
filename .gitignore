@@ -78,3 +78,4 @@ app/release/output.json
 docs/superpowers/
 # Subagent-driven-development workspace (ledgers, briefs, review packages)
 .superpowers/
+.worktrees/
