@@ -19,7 +19,7 @@ Read this before doing any task in this repository.
   the change can't be summarized that briefly, use a short general phrase instead of trying to
   list everything — don't add a multi-line body to fit more detail in.
 
-## After finishing a task
+## Finishing a task
 
 - This is a final stage — run it at the point the task is being finished, e.g. during a final
   code review or the final step of the work — not after each individual subtask generated along
