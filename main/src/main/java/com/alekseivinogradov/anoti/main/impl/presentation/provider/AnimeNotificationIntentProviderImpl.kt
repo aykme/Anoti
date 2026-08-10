@@ -8,6 +8,10 @@ import com.alekseivinogradov.anoti.main.R as main_R
 import com.alekseivinogradov.anoti.main.impl.presentation.MainActivity
 import javax.inject.Inject
 
+/**
+ * The "main"-side implementation of [AnimeNotificationIntentProvider], bound into
+ * `:app`'s Dagger graph by `AnimeNotificationIntentProviderModule`.
+ */
 class AnimeNotificationIntentProviderImpl @Inject constructor() : AnimeNotificationIntentProvider {
     override fun getNewEpisodeNotificationIntent(appContext: Context): PendingIntent {
         return NavDeepLinkBuilder(appContext)
