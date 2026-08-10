@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.animebackgroundupdate.platform.impl.domain.worker
+package com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.worker
 
 import android.content.Context
 import androidx.annotation.WorkerThread

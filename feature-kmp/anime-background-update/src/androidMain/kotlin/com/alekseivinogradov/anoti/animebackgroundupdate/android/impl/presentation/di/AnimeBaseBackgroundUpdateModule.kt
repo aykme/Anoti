@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.animebackgroundupdate.platform.impl.presentation.di
+package com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.presentation.di
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.source.AnimeBackgroundUpdateSource
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.data.source.AnimeBackgroundUpdateSourceImpl

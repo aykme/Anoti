@@ -1,10 +1,10 @@
-package com.alekseivinogradov.anoti.animebackgroundupdate.platform.impl.presentation.di
+package com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.presentation.di
 
 import androidx.work.Configuration
 import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
+import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.worker.AnimeUpdateWorker
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.manager.AnimeUpdateManager
-import com.alekseivinogradov.anoti.animebackgroundupdate.platform.impl.domain.worker.AnimeUpdateWorker
 import com.alekseivinogradov.anoti.di.platform.api.presentation.AnimeBackgroundUpdate
 import dagger.Module
 import dagger.Provides

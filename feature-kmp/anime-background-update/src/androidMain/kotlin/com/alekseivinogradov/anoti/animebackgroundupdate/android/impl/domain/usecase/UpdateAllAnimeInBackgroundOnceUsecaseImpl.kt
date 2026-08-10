@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.animebackgroundupdate.platform.impl.domain.usecase
+package com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.usecase
 
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest

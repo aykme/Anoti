@@ -1,13 +1,13 @@
-package com.alekseivinogradov.anoti.animebackgroundupdate.platform.impl.presentation.di
+package com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.presentation.di
 
 import android.content.Context
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecaseImpl
+import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.worker.AnimeUpdateWorker
+import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.worker.animeUpdateOnceWorkName
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
-import com.alekseivinogradov.anoti.animebackgroundupdate.platform.impl.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecaseImpl
-import com.alekseivinogradov.anoti.animebackgroundupdate.platform.impl.domain.worker.AnimeUpdateWorker
-import com.alekseivinogradov.anoti.animebackgroundupdate.platform.impl.domain.worker.animeUpdateOnceWorkName
 import com.alekseivinogradov.anoti.di.platform.api.presentation.AnimeBackgroundUpdate
 import com.alekseivinogradov.anoti.di.platform.api.presentation.AppContext
 import dagger.Module
