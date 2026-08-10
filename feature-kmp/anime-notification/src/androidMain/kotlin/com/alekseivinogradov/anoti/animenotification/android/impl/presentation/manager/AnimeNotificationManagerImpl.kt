@@ -10,7 +10,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.alekseivinogradov.anoti.animenotification.android.impl.presentation.factory.channelId
-import com.alekseivinogradov.anoti.animenotification.external.platform.impl.presentation.provider.AnimeNotificationIntentProvider
+import com.alekseivinogradov.anoti.animenotification.external.android.impl.presentation.provider.AnimeNotificationIntentProvider
 import com.alekseivinogradov.anoti.animenotification.kmp.R
 import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
 import com.alekseivinogradov.anoti.res.R as res_R

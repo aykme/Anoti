@@ -8,17 +8,13 @@ plugins {
 
 kotlin {
     android {
-        namespace = "com.alekseivinogradov.anoti.animenotification.kmp"
+        namespace = "com.alekseivinogradov.anoti.animenotification.external.kmp"
         //noinspection GradleDependency
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()
 
         compilerOptions {
             jvmTarget.set(JvmTarget.fromTarget(libs.versions.jvmTarget.get()))
-        }
-
-        androidResources {
-            enable = true
         }
 
         withJava()
@@ -31,7 +27,7 @@ kotlin {
         iosSimulatorArm64()
     ).forEach {
         it.binaries.framework {
-            baseName = "anime-notification"
+            baseName = "anime-notification-external"
             isStatic = true
         }
     }
@@ -42,12 +38,8 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.dagger)
-            implementation(libs.androidx.core.ktx)
-            implementation(libs.glide)
-            api(project(":feature-kmp:anime-notification-external"))
-            implementation(project(":core-platform:celebrity"))
-            implementation(project(":core-platform:di"))
-            implementation(project(":ui-core:res"))
+            implementation(project(":main"))
+            implementation(project(":core-platform:navigation"))
         }
     }
 }

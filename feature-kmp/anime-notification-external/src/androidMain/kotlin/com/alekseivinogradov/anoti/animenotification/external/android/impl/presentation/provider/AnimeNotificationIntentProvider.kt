@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.animenotification.external.platform.impl.presentation.provider
+package com.alekseivinogradov.anoti.animenotification.external.android.impl.presentation.provider
 
 import android.app.PendingIntent
 import android.content.Context
