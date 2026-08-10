@@ -35,6 +35,9 @@ Read this before doing any task in this repository.
   needed. Tests are only written for KMP code, and all of them belong in `commonTest` — don't
   write platform-specific tests, unless an exception is made for them.
 - Run the tests in every affected module and confirm they're all green.
+- When running UI (instrumented/`androidTest`) tests, always do a clean installation of the app
+  first — uninstall it from the device/emulator before installing and running, so a stale build
+  doesn't mask a failure or fake a pass.
 - For any test that's new or was fixed, confirm it doesn't flake, doesn't rely on real time
   (highly undesirable — acceptable only in exceptional cases agreed with the developer), and
   never makes real API calls (this is forbidden).
