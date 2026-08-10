@@ -18,7 +18,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.alekseivinogradov.anoti.animefavorites.kmp.R as anime_favorites_R
-import com.alekseivinogradov.anoti.animelist.platform.R as anime_list_R
+import com.alekseivinogradov.anoti.animelist.kmp.R as anime_list_R
 import com.alekseivinogradov.anoti.main.R as main_R
 import com.alekseivinogradov.anoti.main.impl.presentation.MainActivity
 import com.alekseivinogradov.anoti.testutils.platform.action.clickOnChildView

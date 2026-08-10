@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di
 
+import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.presentation.di.AnimeOnceBackgroundUpdateModule
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
-import com.alekseivinogradov.anoti.animebackgroundupdate.platform.impl.presentation.di.AnimeOnceBackgroundUpdateModule
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.source.AnimeFavoritesSource
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
