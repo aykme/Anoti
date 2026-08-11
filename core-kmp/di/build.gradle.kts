@@ -3,9 +3,14 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
+    alias(libs.plugins.ksp)
 }
 
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
     android {
         namespace = "com.alekseivinogradov.anoti.di.kmp"
         //noinspection GradleDependency
@@ -15,6 +20,8 @@ kotlin {
         compilerOptions {
             jvmTarget.set(JvmTarget.fromTarget(libs.versions.jvmTarget.get()))
         }
+
+        withJava()
 
         withHostTestBuilder {}.configure {}
     }
@@ -31,7 +38,9 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            //put your multiplatform dependencies here
+            implementation(libs.kotlin.inject.runtime)
+            implementation(libs.kotlin.inject.anvil.runtime)
+            implementation(libs.kotlin.inject.anvil.runtime.optional)
         }
         androidMain.dependencies {
             implementation(project(":feature-kmp:anime-base"))
@@ -43,4 +52,21 @@ kotlin {
             implementation(libs.mvikotlin)
         }
     }
+}
+
+dependencies {
+    val kspTargets = listOf("Android", "IosArm64", "IosSimulatorArm64")
+    kspTargets.forEach { target ->
+        add("ksp$target", libs.kotlin.inject.compiler.ksp)
+        add("ksp$target", libs.kotlin.inject.anvil.compiler)
+    }
+}
+
+// Lint's androidHostTest-related tasks read kspAndroidHostTest's generated sources without
+// Gradle inferring that dependency on its own, so the full aggregate `build` can schedule them
+// first (Gradle's own implicit-dependency validation flags exactly this).
+tasks.matching {
+    it.name == "generateAndroidHostTestLintModel" || it.name == "lintAnalyzeAndroidHostTest"
+}.configureEach {
+    dependsOn("kspAndroidHostTest")
 }
