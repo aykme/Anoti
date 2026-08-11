@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearanceOverlay="@style/RoundedImageView8percentStyle"
         app:srcCompat="@drawable/main_character_image"
-        tools:contentDescription="@string/empty_list_image_description" />
+        tools:contentDescription="The image of the character in the form of a cute anime girl. She is wearing a white shirt and black glasses in a simple style. She has blue hair, light white skin, long cat ears and sky-blue eyes. She opened her mouth slightly, as if trying to explain something. Cute upper fangs stick out of her mouth. Cuteee!" />
 
     <View
         android:id="@+id/main_info_background"
@@ -46,6 +46,6 @@
         app:layout_constraintTop_toTopOf="@id/main_info_background"
         app:layout_constraintVertical_bias="0"
         tools:ignore="VisualLintLongText"
-        tools:text="@string/empty_list" />
+        tools:text="You haven't subscribed to notifications about new anime series yet. Click on the &quot;Main&quot; menu and select something (≧◡≦) ♡" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
