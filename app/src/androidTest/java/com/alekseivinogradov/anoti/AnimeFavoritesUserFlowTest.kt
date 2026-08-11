@@ -1,6 +1,5 @@
 package com.alekseivinogradov.anoti
 
-import android.content.res.Resources
 import android.os.Build
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.ParcelFileDescriptor
@@ -17,7 +16,16 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as base_Res
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.episodes
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.notifications_turn_off_description
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.notifications_turn_on_description
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.ongoing
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.score_image_description
 import com.alekseivinogradov.anoti.animefavorites.kmp.R as anime_favorites_R
+import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.Res as favorites_Res
+import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.extra_info_on_description
+import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.new_episode
 import com.alekseivinogradov.anoti.animelist.kmp.R as anime_list_R
 import com.alekseivinogradov.anoti.main.R as main_R
 import com.alekseivinogradov.anoti.main.impl.presentation.MainActivity
@@ -28,6 +36,7 @@ import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.not
 import org.hamcrest.Matchers.startsWith
+import org.jetbrains.compose.resources.getString
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -44,16 +53,14 @@ class AnimeFavoritesUserFlowTest {
     @get:Rule
     val activityRule = ActivityScenarioRule(MainActivity::class.java)
 
-    private lateinit var resources: Resources
-    private val notificationButtonTurnOnDescription
-        get() = resources.getString(anime_favorites_R.string.notifications_turn_on_description)
-    private val notificationButtonTurnOffDescription
-        get() = resources.getString(anime_favorites_R.string.notifications_turn_off_description)
-    private val ongoingStatusText get() = anime_favorites_R.string.ongoing
+    private suspend fun notificationButtonTurnOnDescription() =
+        getString(base_Res.string.notifications_turn_on_description)
+    private suspend fun notificationButtonTurnOffDescription() =
+        getString(base_Res.string.notifications_turn_off_description)
+    private suspend fun ongoingStatusText() = getString(base_Res.string.ongoing)
 
     @Before
     fun setup() {
-        resources = InstrumentationRegistry.getInstrumentation().targetContext.resources
         // Real-device animations (item removal, ripples, transitions) race with Espresso's
         // synchronization and are a known source of instrumented-test flakiness; disable them.
         // A device-wide font scale/density override (e.g. large accessibility text) reflows
@@ -78,16 +85,13 @@ class AnimeFavoritesUserFlowTest {
     fun addOngoingToAnimeFavorites() = runBlocking {
         // Given
         val rvPosition = 0
-        val expectedNewEpisodeText =
-            resources.getString(anime_favorites_R.string.new_episode)
-        val expectedScoreImageDescription =
-            resources.getString(anime_favorites_R.string.score_image_description)
+        val expectedNewEpisodeText = getString(favorites_Res.string.new_episode)
+        val expectedScoreImageDescription = getString(base_Res.string.score_image_description)
         val expectedExtraInfoButtonDescription =
-            resources.getString(anime_favorites_R.string.extra_info_on_description)
-        val expectedAvailableEpisodesInfoStartWithText =
-            resources.getString(anime_favorites_R.string.episodes)
-        val expectedReleaseStatusText = ongoingStatusText
-        val expectedNotificationButtonDescription = notificationButtonTurnOffDescription
+            getString(favorites_Res.string.extra_info_on_description)
+        val expectedAvailableEpisodesInfoStartWithText = getString(base_Res.string.episodes)
+        val expectedReleaseStatusText = ongoingStatusText()
+        val expectedNotificationButtonDescription = notificationButtonTurnOffDescription()
 
         // When
         goToOngoingSection()
@@ -173,6 +177,8 @@ class AnimeFavoritesUserFlowTest {
         // Check that ongoing was added to "Anime favorites":
         // It is displayed, has "ongoing" status text,
         // and description for turned on notification button
+        val expectedReleaseStatusText = ongoingStatusText()
+        val expectedNotificationButtonDescription = notificationButtonTurnOffDescription()
         safeInteraction {
             onView(withId(anime_favorites_R.id.anime_favorites_rv))
                 .check(
@@ -181,9 +187,9 @@ class AnimeFavoritesUserFlowTest {
                             position = rvPosition,
                             viewMather = allOf(
                                 isDisplayed(),
-                                hasDescendant(withText(ongoingStatusText)),
+                                hasDescendant(withText(expectedReleaseStatusText)),
                                 hasDescendant(
-                                    withContentDescription(notificationButtonTurnOffDescription)
+                                    withContentDescription(expectedNotificationButtonDescription)
                                 )
                             )
                         )
@@ -222,6 +228,7 @@ class AnimeFavoritesUserFlowTest {
     }
 
     private suspend fun checkNotificationButtonIsTurnedOff(rvPosition: Int) {
+        val expectedDescription = notificationButtonTurnOnDescription()
         safeInteraction {
             onView(withId(anime_list_R.id.anime_list_rv))
                 .check(
@@ -229,7 +236,7 @@ class AnimeFavoritesUserFlowTest {
                         AtRecyclerPositionMatcher(
                             position = rvPosition,
                             viewMather = hasDescendant(
-                                withContentDescription(notificationButtonTurnOnDescription)
+                                withContentDescription(expectedDescription)
                             )
                         )
                     )
@@ -238,6 +245,7 @@ class AnimeFavoritesUserFlowTest {
     }
 
     private suspend fun checkNotificationButtonIsTurnedOn(rvPosition: Int) {
+        val expectedDescription = notificationButtonTurnOffDescription()
         safeInteraction {
             onView(withId(anime_list_R.id.anime_list_rv))
                 .check(
@@ -245,7 +253,7 @@ class AnimeFavoritesUserFlowTest {
                         AtRecyclerPositionMatcher(
                             position = rvPosition,
                             viewMather = hasDescendant(
-                                withContentDescription(notificationButtonTurnOffDescription)
+                                withContentDescription(expectedDescription)
                             )
                         )
                     )

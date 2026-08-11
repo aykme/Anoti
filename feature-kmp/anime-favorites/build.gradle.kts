@@ -9,7 +9,7 @@ plugins {
 }
 
 compose.resources {
-    publicResClass = false
+    publicResClass = true
     packageOfResClass = "com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources"
 }
 

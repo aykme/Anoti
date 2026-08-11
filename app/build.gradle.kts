@@ -52,6 +52,8 @@ dependencies {
     implementation(project(":feature-kmp:anime-notification"))
     implementation(project(":main"))
     androidTestImplementation(project(":core-kmp:test-utils"))
+    androidTestImplementation(project(":feature-kmp:anime-favorites"))
+    androidTestImplementation(libs.compose.components.resources)
 
     implementation(libs.mvikotlin)
     implementation(libs.dagger)
