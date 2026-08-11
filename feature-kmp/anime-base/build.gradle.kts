@@ -25,6 +25,10 @@ kotlin {
             jvmTarget.set(JvmTarget.fromTarget(libs.versions.jvmTarget.get()))
         }
 
+        androidResources {
+            enable = true
+        }
+
         withJava()
 
         withHostTestBuilder {}.configure {}
