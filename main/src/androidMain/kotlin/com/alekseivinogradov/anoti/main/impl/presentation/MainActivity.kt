@@ -17,6 +17,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -28,18 +29,25 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatab
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarController
 import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.di.android.api.presentation.app.ApplicationExternal
 import com.alekseivinogradov.anoti.di.android.api.presentation.main.MainActivityExternal
 import com.alekseivinogradov.anoti.di.android.api.presentation.main.MainComponent
 import com.alekseivinogradov.anoti.celebrity.android.api.presentation.di.scope.ActivityScope
 import com.alekseivinogradov.anoti.main.R
-import com.alekseivinogradov.anoti.main.databinding.ActivityMainBinding
+import com.alekseivinogradov.anoti.main.generated.resources.Res
+import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_negative_button
+import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_notifications_rationale_message
+import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_positive_button
+import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_title
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DaggerMainComponentInternal
 import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.arkivanov.essenty.lifecycle.asEssentyLifecycle
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import javax.inject.Inject
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.getString
 
 @ActivityScope
 class MainActivity : AppCompatActivity(), MainActivityExternal {
@@ -49,13 +57,16 @@ class MainActivity : AppCompatActivity(), MainActivityExternal {
     private val requestPermissionLauncher: ActivityResultLauncher<String> =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
-    private var binding: ActivityMainBinding? = null
+    private var mainLayout: ConstraintLayout? = null
 
     @Inject
     internal lateinit var mainStore: BottomNavigationBarStore
 
     @Inject
     internal lateinit var animeDatabaseStore: AnimeDatabaseStore
+
+    @Inject
+    internal lateinit var coroutineContextProvider: CoroutineContextProvider
 
     private val controller: BottomNavigationBarController by lazy {
         BottomNavigationBarController(
@@ -72,12 +83,12 @@ class MainActivity : AppCompatActivity(), MainActivityExternal {
         ).also { it.inject(activity = this) }
         super.onCreate(savedInstanceState)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding!!.root)
+        setContentView(R.layout.activity_main)
+        mainLayout = findViewById(R.id.main_layout)
         setSystemSettings()
         controller.onViewCreated(
             mainView = BottomNavigationBarViewImpl(
-                viewBinding = binding!!,
+                rootView = mainLayout!!,
                 navController = getNavController()
             ),
             viewLifecycle = lifecycle.asEssentyLifecycle(),
@@ -87,7 +98,7 @@ class MainActivity : AppCompatActivity(), MainActivityExternal {
 
     override fun onDestroy() {
         super.onDestroy()
-        binding = null
+        mainLayout = null
     }
 
     private fun getNavController(): NavController {
@@ -104,7 +115,7 @@ class MainActivity : AppCompatActivity(), MainActivityExternal {
                     Color.TRANSPARENT
                 )
             )
-            ViewCompat.setOnApplyWindowInsetsListener(binding!!.mainLayout) { view, insets ->
+            ViewCompat.setOnApplyWindowInsetsListener(mainLayout!!) { view, insets ->
                 val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
                 view.setPadding(
                     /* left = */systemBars.left,
@@ -165,22 +176,32 @@ class MainActivity : AppCompatActivity(), MainActivityExternal {
     }
 
     private fun showNotificationsRationale() {
+        val dialogTitle = runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(Res.string.dialog_alert_title)
+        }
+        val dialogNegativeButton = runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(Res.string.dialog_alert_negative_button)
+        }
+        val dialogPositiveButton = runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(Res.string.dialog_alert_positive_button)
+        }
+        val dialogNotificationsRationaleMessage =
+            runBlocking(coroutineContextProvider.ioDispatcher) {
+                getString(Res.string.dialog_alert_notifications_rationale_message)
+            }
+
         MaterialAlertDialogBuilder(
             /* context = */ this,
             /* overrideThemeResId = */ res_R.style.Theme_Anoti_MaterialAlertDialog
         )
             .setIcon(res_R.mipmap.ic_launcher)
-            .setTitle(applicationContext.getString(R.string.dialog_alert_title))
-            .setMessage(
-                applicationContext.getString(R.string.dialog_alert_notifications_rationale_message)
-            )
+            .setTitle(dialogTitle)
+            .setMessage(dialogNotificationsRationaleMessage)
             .setNegativeButton(
-                /* text = */ applicationContext.getString(R.string.dialog_alert_negative_button),
+                /* text = */ dialogNegativeButton,
                 /* listener = */ null
             )
-            .setPositiveButton(
-                applicationContext.getString(R.string.dialog_alert_positive_button)
-            ) { _, _ -> onNotificationRequestApproved() }
+            .setPositiveButton(dialogPositiveButton) { _, _ -> onNotificationRequestApproved() }
             .show()
     }
 
