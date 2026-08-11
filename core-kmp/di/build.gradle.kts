@@ -38,6 +38,8 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":core-kmp:di-scope"))
+
             implementation(libs.kotlin.inject.runtime)
             implementation(libs.kotlin.inject.anvil.runtime)
             implementation(libs.kotlin.inject.anvil.runtime.optional)
