@@ -11,20 +11,44 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as baseRes
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.announced
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.beginning_of_the_show
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.episodes
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.inaccurate
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.next_episode
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.notifications_turn_off_description
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.notifications_turn_on_description
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.ongoing
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.released
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.score_image_description
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.show_is_finished
 import com.alekseivinogradov.anoti.animefavorites.kmp.R
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.InfoTypeUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.ListItemUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.NotificationUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.ReleaseStatusUi
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
+import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.Res
+import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.episodes_viewed
+import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.episodes_viewed_minus_description
+import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.episodes_viewed_plus_description
+import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.extra_info_off_description
+import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.extra_info_on_description
+import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.new_episode
 import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.repeatlistener.RepeatListener
 import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
+import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as celebrityRes
+import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.no_data
 import com.bumptech.glide.Glide
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.getString
 
 internal class AnimeFavoritesViewHolder(
     itemView: View,
@@ -33,7 +57,8 @@ internal class AnimeFavoritesViewHolder(
     private val notificationClickViewHolderCallback: (Int) -> Unit,
     private val episodesViewedMinusClickViewHolderCallback: (Int) -> Unit,
     private val episodesViewedPlusClickViewHolderCallback: (Int) -> Unit,
-    private val dateFormatter: DateFormatter
+    private val dateFormatter: DateFormatter,
+    private val coroutineContextProvider: CoroutineContextProvider
 ) : RecyclerView.ViewHolder(itemView) {
 
     private val posterImage: ShapeableImageView = itemView.findViewById(R.id.poster_image)
@@ -73,23 +98,78 @@ internal class AnimeFavoritesViewHolder(
     private val enableColor: Int
         get() = context.getColor(res_R.color.green)
 
-    private val episodesString: String
-        get() = context.getString(R.string.episodes)
-
-    private val nextEpisodeString: String
-        get() = context.getString(R.string.next_episode)
-
-    private val beginningOfTheShowString: String
-        get() = context.getString(R.string.beginning_of_the_show)
-
-    private val showIsFinishedString: String
-        get() = context.getString(R.string.show_is_finished)
-
-    private val noDataString: String
-        get() = context.getString(R.string.no_data)
-
-    private val inaccurateString: String
-        get() = context.getString(R.string.inaccurate)
+    private val newEpisodeString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(Res.string.new_episode)
+        }
+    private val scoreImageDescriptionString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.score_image_description)
+        }
+    private val episodesViewedString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(Res.string.episodes_viewed)
+        }
+    private val episodesViewedMinusDescriptionString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(Res.string.episodes_viewed_minus_description)
+        }
+    private val episodesViewedPlusDescriptionString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(Res.string.episodes_viewed_plus_description)
+        }
+    private val extraInfoOnDescriptionString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(Res.string.extra_info_on_description)
+        }
+    private val extraInfoOffDescriptionString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(Res.string.extra_info_off_description)
+        }
+    private val episodesString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.episodes)
+        }
+    private val nextEpisodeString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.next_episode)
+        }
+    private val beginningOfTheShowString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.beginning_of_the_show)
+        }
+    private val showIsFinishedString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.show_is_finished)
+        }
+    private val noDataString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(celebrityRes.string.no_data)
+        }
+    private val inaccurateString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.inaccurate)
+        }
+    private val ongoingString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.ongoing)
+        }
+    private val announcedString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.announced)
+        }
+    private val releasedString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.released)
+        }
+    private val notificationsTurnOffDescriptionString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.notifications_turn_off_description)
+        }
+    private val notificationsTurnOnDescriptionString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.notifications_turn_on_description)
+        }
 
     init {
         setClickListeners()
@@ -161,21 +241,19 @@ internal class AnimeFavoritesViewHolder(
 
     private fun bindCommonFields() {
         posterImage.isVisible = true
-        newEpisodeText.text = context.getString(R.string.new_episode)
+        newEpisodeText.text = newEpisodeString
         imageInfoBackground.isVisible = true
-        scoreImage.contentDescription = context.getString(R.string.score_image_description)
+        scoreImage.contentDescription = scoreImageDescriptionString
         scoreImage.isVisible = true
         scoreText.isVisible = true
         infoTypeButton.isVisible = true
         mainInfoStroke.isVisible = true
         mainInfoBackground.isVisible = true
         releaseStatusBarrier.isInvisible = true
-        val episodesViewedText = "${context.getString(R.string.episodes_viewed)}:"
+        val episodesViewedText = "${episodesViewedString}:"
         episodesViewedTitle.text = episodesViewedText
-        episodesViewedMinusButton.contentDescription = context
-            .getString(R.string.episodes_viewed_minus_description)
-        episodesViewedPlusButton.contentDescription = context
-            .getString(R.string.episodes_viewed_plus_description)
+        episodesViewedMinusButton.contentDescription = episodesViewedMinusDescriptionString
+        episodesViewedPlusButton.contentDescription = episodesViewedPlusDescriptionString
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -239,9 +317,7 @@ internal class AnimeFavoritesViewHolder(
                         R.drawable.ic_details_on_24
                     )
                 )
-                infoTypeButton.contentDescription = context.getString(
-                    R.string.extra_info_on_description
-                )
+                infoTypeButton.contentDescription = extraInfoOnDescriptionString
                 extraEpisodesInfoText.isVisible = false
                 episodesViewedTitle.isVisible = false
                 episodesViewedMinusButton.isVisible = false
@@ -260,9 +336,7 @@ internal class AnimeFavoritesViewHolder(
                         R.drawable.ic_details_off_24
                     )
                 )
-                infoTypeButton.contentDescription = context.getString(
-                    R.string.extra_info_off_description
-                )
+                infoTypeButton.contentDescription = extraInfoOffDescriptionString
                 nameText.isVisible = false
                 availableEpisodesInfoText.isVisible = false
                 releaseStatusText.isVisible = false
@@ -337,20 +411,17 @@ internal class AnimeFavoritesViewHolder(
     private fun bindReleaseStatus(releaseStatus: ReleaseStatusUi) {
         when (releaseStatus) {
             ReleaseStatusUi.ONGOING -> {
-                releaseStatusText.text =
-                    context.getString(R.string.ongoing)
+                releaseStatusText.text = ongoingString
                 releaseStatusText.setTextColor(context.getColor(res_R.color.green))
             }
 
             ReleaseStatusUi.ANNOUNCED -> {
-                releaseStatusText.text =
-                    context.getString(R.string.announced)
+                releaseStatusText.text = announcedString
                 releaseStatusText.setTextColor(context.getColor(res_R.color.purple_200))
             }
 
             ReleaseStatusUi.RELEASED -> {
-                releaseStatusText.text =
-                    context.getString(R.string.released)
+                releaseStatusText.text = releasedString
                 releaseStatusText.setTextColor(context.getColor(res_R.color.cinnabar_500))
             }
 
@@ -371,9 +442,7 @@ internal class AnimeFavoritesViewHolder(
                 )
                 notificationButton.rippleColor = disableColor
                 notificationButton.backgroundTintList = ColorStateList.valueOf(enableColor)
-                notificationButton.contentDescription = context.resources.getString(
-                    R.string.notifications_turn_off_description
-                )
+                notificationButton.contentDescription = notificationsTurnOffDescriptionString
             }
 
             NotificationUi.DISABLED -> {
@@ -385,9 +454,7 @@ internal class AnimeFavoritesViewHolder(
                 )
                 notificationButton.rippleColor = enableColor
                 notificationButton.backgroundTintList = ColorStateList.valueOf(disableColor)
-                notificationButton.contentDescription = context.resources.getString(
-                    R.string.notifications_turn_on_description
-                )
+                notificationButton.contentDescription = notificationsTurnOnDescriptionString
             }
         }
     }

@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.ListAdapter
 import com.alekseivinogradov.anoti.animefavorites.kmp.R
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.ListItemUi
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 
 internal class AnimeFavoritesAdapter(
@@ -14,7 +15,8 @@ internal class AnimeFavoritesAdapter(
     private val notificationClickAdapterCallback: (AnimeId) -> Unit,
     private val episodesViewedMinusClickAdapterCallback: (AnimeId) -> Unit,
     private val episodesViewedPlusClickAdapterCallback: (AnimeId) -> Unit,
-    private val dateFormatter: DateFormatter
+    private val dateFormatter: DateFormatter,
+    private val coroutineContextProvider: CoroutineContextProvider
 ) : ListAdapter<ListItemUi, AnimeFavoritesViewHolder>(AnimeFavoritesDiffUtilCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnimeFavoritesViewHolder {
@@ -29,7 +31,8 @@ internal class AnimeFavoritesAdapter(
             notificationClickViewHolderCallback = ::notificationClickViewHolderCallback,
             episodesViewedMinusClickViewHolderCallback = ::episodesViewedMinusClickViewHolderCallback,
             episodesViewedPlusClickViewHolderCallback = ::episodesViewedPlusClickViewHolderCallback,
-            dateFormatter = dateFormatter
+            dateFormatter = dateFormatter,
+            coroutineContextProvider = coroutineContextProvider
         )
     }
 

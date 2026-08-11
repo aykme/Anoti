@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.alekseivinogradov.anoti.animebase.android.impl.presentation.adapter.decorator.BottomSpaceLastItemDecorator
 import com.alekseivinogradov.anoti.animebase.android.impl.presentation.adapter.decorator.EdgeToEdgeItemDecorator
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as baseRes
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.loading_in_progress
 import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.adapter.AnimeFavoritesAdapter
 import com.alekseivinogradov.anoti.animefavorites.kmp.R
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
@@ -19,21 +21,28 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.AnimeFavo
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.ContentTypeUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.UiModel
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.ListItemUi
+import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.Res
+import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_list
+import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_list_image_description
+import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
+import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SWIPE_REFRESH_END_OFFSET
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SWIPE_REFRESH_START_OFFSET
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
-import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
-import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.getString
 
 internal class AnimeFavoritesViewImpl(
     private val rootView: View,
-    dateFormatter: DateFormatter
+    dateFormatter: DateFormatter,
+    private val coroutineContextProvider: CoroutineContextProvider
 ) : AnimeFavoritesView, BaseMviView<UiModel, AnimeFavoritesMainStore.Intent>() {
 
     private val context
@@ -41,7 +50,8 @@ internal class AnimeFavoritesViewImpl(
 
     private val swipeRefreshLayout: SwipeRefreshLayout =
         rootView.findViewById(R.id.swipe_refresh_layout)
-    private val animeFavoritesLayout: FrameLayout = rootView.findViewById(R.id.anime_favorites_layout)
+    private val animeFavoritesLayout: FrameLayout =
+        rootView.findViewById(R.id.anime_favorites_layout)
     private val connectionStatusImage: AppCompatImageView =
         rootView.findViewById(R.id.connection_status_image)
     private val animeFavoritesEmptyLayout: ConstraintLayout =
@@ -52,13 +62,27 @@ internal class AnimeFavoritesViewImpl(
         animeFavoritesEmptyLayout.findViewById(R.id.main_info_text)
     private val animeFavoritesRv: RecyclerView = rootView.findViewById(R.id.anime_favorites_rv)
 
+    private val emptyListImageDescriptionString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(Res.string.empty_list_image_description)
+        }
+    private val emptyListString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(Res.string.empty_list)
+        }
+    private val loadingInProgressString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.loading_in_progress)
+        }
+
     private val adapter = AnimeFavoritesAdapter(
         itemClickAdapterCallback = ::itemClickAdapterCallback,
         infoTypeClickAdapterCallback = ::infoTypeClickAdapterCallback,
         notificationClickAdapterCallback = ::notificationClickAdapterCallback,
         episodesViewedMinusClickAdapterCallback = ::episodesViewedMinusClickAdapterCallback,
         episodesViewedPlusClickAdapterCallback = ::episodesViewedPlusClickAdapterCallback,
-        dateFormatter = dateFormatter
+        dateFormatter = dateFormatter,
+        coroutineContextProvider = coroutineContextProvider
     )
 
     private var itemDecorator: EdgeToEdgeItemDecorator? = null
@@ -123,9 +147,9 @@ internal class AnimeFavoritesViewImpl(
     private fun initCommonFields() {
         swipeRefreshLayout.isVisible = true
         animeFavoritesLayout.isVisible = true
-        emptyMainImage.contentDescription = context
-            .getString(R.string.empty_list_image_description)
-        emptyMainInfoText.text = context.getString(R.string.empty_list)
+        emptyMainImage.contentDescription = emptyListImageDescriptionString
+        emptyMainInfoText.text = emptyListString
+        connectionStatusImage.contentDescription = loadingInProgressString
     }
 
     private fun initRv() {

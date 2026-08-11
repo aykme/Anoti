@@ -12,8 +12,9 @@ import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di.D
 import com.alekseivinogradov.anoti.animefavorites.kmp.R
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.AnimeFavoritesController
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.android.api.presentation.di.scope.FeatureScope
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.di.android.api.presentation.main.MainActivityExternal
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import javax.inject.Inject
@@ -34,6 +35,9 @@ class AnimeFavoritesFragment : Fragment() {
     @Inject
     lateinit var dateFormatter: DateFormatter
 
+    @Inject
+    internal lateinit var coroutineContextProvider: CoroutineContextProvider
+
     private val controller: AnimeFavoritesController by lazy {
         AnimeFavoritesController(
             lifecycle = essentyLifecycle(),
@@ -52,7 +56,8 @@ class AnimeFavoritesFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.fragment_anime_favorites, container, false)
+    ): View = inflater
+        .inflate(R.layout.fragment_anime_favorites, container, false)
         .also { rootView = it }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -60,7 +65,8 @@ class AnimeFavoritesFragment : Fragment() {
         controller.onViewCreated(
             mainView = AnimeFavoritesViewImpl(
                 rootView = rootView!!,
-                dateFormatter = dateFormatter
+                dateFormatter = dateFormatter,
+                coroutineContextProvider = coroutineContextProvider
             ),
             viewLifecycle = viewLifecycleOwner.essentyLifecycle()
         )
