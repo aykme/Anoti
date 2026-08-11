@@ -4,52 +4,53 @@ import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.alekseivinogradov.anoti.animenotification.android.impl.presentation.factory.channelId
 import com.alekseivinogradov.anoti.animenotification.external.android.impl.presentation.provider.AnimeNotificationIntentProvider
-import com.alekseivinogradov.anoti.animenotification.kmp.R
 import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
+import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.Res
+import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.episode_aired
+import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.new_episodes
 import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as celebrityRes
+import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.no_data
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.getString
 
 class AnimeNotificationManagerImpl(
     appContext: Context,
-    animeNotificationIntentProvider: AnimeNotificationIntentProvider
+    animeNotificationIntentProvider: AnimeNotificationIntentProvider,
+    coroutineContextProvider: CoroutineContextProvider
 ) : AnimeNotificationManager {
     private val tag = "ANIME_NOTIFICATION_MANAGER"
 
-    /**
-     * Most of the parameters are initialized in the "init" block,
-     * so as not to save "context" as a property.
-     */
+    private val episodeAiredString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(Res.string.episode_aired)
+        }
 
-    private var resources: Resources? = null
+    private val noDataString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(celebrityRes.string.no_data)
+        }
 
-    private val episodeAiredString: String
-        get() = resources?.getString(R.string.episode_aired) ?: ""
-
-    private val noDataString: String
-        get() = resources?.getString(R.string.no_data) ?: ""
-
-    private val iconColor: Int?
-        get() = resources?.getColor(
+    private val iconColor: Int =
+        appContext.resources.getColor(
             /* id = */ res_R.color.silver_transparent,
-            /* theme = */ resources?.newTheme()
+            /* theme = */ appContext.resources.newTheme()
         )
 
-    private val newEpisodesString: String
-        get() = resources?.getString(R.string.new_episodes) ?: ""
-
     private var glideRequestManager: RequestManager? = null
-    private var singleBuilder: NotificationCompat.Builder? = null
+    private var singleBuilder: NotificationCompat.Builder
     private var intent: PendingIntent? = null
-    private var summaryNotification: Notification? = null
+    private var summaryNotification: Notification
     private var notificationManager: NotificationManagerCompat? = null
 
     private val summaryNewEpisodesStyle = NotificationCompat.InboxStyle()
@@ -64,45 +65,40 @@ class AnimeNotificationManagerImpl(
     private val newEpisodesSummaryId = 0
 
     init {
-        /**
-         * These operations are performed in the "init block"
-         * so as not to save the "context" as a variable.
-         */
-        resources = appContext.resources
         glideRequestManager = Glide.with(appContext)
         intent = animeNotificationIntentProvider.getNewEpisodeNotificationIntent(appContext)
-
-        singleBuilder = iconColor?.let { notNullIcon: Int ->
-            NotificationCompat.Builder(
-                /* context = */ appContext,
-                /* channelId = */ channelId
-            )
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setGroup(newEpisodesGroupKey)
-                .setAutoCancel(true)
-                .setContentIntent(intent)
-                .setColor(notNullIcon)
-                .setColorized(true)
-                .setSmallIcon(res_R.mipmap.ic_notification)
-        }
-
-        summaryNotification = iconColor?.let { notNullIcon: Int ->
-            NotificationCompat.Builder(
-                /* context = */ appContext,
-                /* channelId = */ channelId
-            )
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setGroup(newEpisodesGroupKey)
-                .setGroupSummary(true)
-                .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
-                .setColor(notNullIcon)
-                .setColorized(true)
-                .setSmallIcon(res_R.mipmap.ic_notification)
-                .setStyle(summaryNewEpisodesStyle.setSummaryText(newEpisodesString))
-                .build()
-        }
-
         notificationManager = NotificationManagerCompat.from(appContext)
+
+        val newEpisodesString =
+            runBlocking(coroutineContextProvider.ioDispatcher) {
+                getString(Res.string.new_episodes)
+            }
+
+        singleBuilder = NotificationCompat.Builder(
+            /* context = */ appContext,
+            /* channelId = */ channelId
+        )
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setGroup(newEpisodesGroupKey)
+            .setAutoCancel(true)
+            .setContentIntent(intent)
+            .setColor(iconColor)
+            .setColorized(true)
+            .setSmallIcon(res_R.mipmap.ic_notification)
+
+        summaryNotification = NotificationCompat.Builder(
+            /* context = */ appContext,
+            /* channelId = */ channelId
+        )
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setGroup(newEpisodesGroupKey)
+            .setGroupSummary(true)
+            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
+            .setColor(iconColor)
+            .setColorized(true)
+            .setSmallIcon(res_R.mipmap.ic_notification)
+            .setStyle(summaryNewEpisodesStyle.setSummaryText(newEpisodesString))
+            .build()
     }
 
     @SuppressLint("MissingPermission")
@@ -114,25 +110,21 @@ class AnimeNotificationManagerImpl(
         val contentText = "${episodeAiredString}: ${airedEpisode ?: noDataString}"
 
         notificationManager?.let { notNullNotificationManager: NotificationManagerCompat ->
-            singleBuilder?.let { notNullSingleBuilder: NotificationCompat.Builder ->
-                notNullSingleBuilder
-                    .setContentTitle(animeName ?: noDataString)
-                    .setContentText(contentText)
-                    .setLargeIcon(createPosterImageBitmap(imageUrl))
+            singleBuilder
+                .setContentTitle(animeName ?: noDataString)
+                .setContentText(contentText)
+                .setLargeIcon(createPosterImageBitmap(imageUrl))
 
-                notNullNotificationManager.notify(
-                    /* id = */ singleId,
-                    /* notification = */ notNullSingleBuilder.build()
-                )
-                changeSingleIdToNext()
+            notNullNotificationManager.notify(
+                /* id = */ singleId,
+                /* notification = */ singleBuilder.build()
+            )
+            changeSingleIdToNext()
 
-                summaryNotification?.let { notNullSummaryNotification: Notification ->
-                    notNullNotificationManager.notify(
-                        /* id = */ newEpisodesSummaryId,
-                        /* notification = */ notNullSummaryNotification
-                    )
-                }
-            }
+            notNullNotificationManager.notify(
+                /* id = */ newEpisodesSummaryId,
+                /* notification = */ summaryNotification
+            )
         }
     }
 

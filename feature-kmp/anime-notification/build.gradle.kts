@@ -3,7 +3,14 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
+    alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.kotlinCompose)
     alias(libs.plugins.ksp)
+}
+
+compose.resources {
+    publicResClass = false
+    packageOfResClass = "com.alekseivinogradov.anoti.animenotification.kmp.generated.resources"
 }
 
 kotlin {
@@ -38,7 +45,8 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            //put your multiplatform dependencies here
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.components.resources)
         }
         androidMain.dependencies {
             implementation(libs.dagger)
