@@ -6,12 +6,14 @@ import androidx.recyclerview.widget.ListAdapter
 import com.alekseivinogradov.anoti.animelist.kmp.R
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ListItemUi
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 
 internal class AnimeListAdapter(
     private val episodesInfoClickAdapterCallback: (AnimeId) -> Unit,
     private val notificationClickAdapterCallback: (AnimeId) -> Unit,
-    private val dateFormatter: DateFormatter
+    private val dateFormatter: DateFormatter,
+    private val coroutineContextProvider: CoroutineContextProvider
 ) : ListAdapter<ListItemUi, AnimeListViewHolder>(AnimeListDiffUtilCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnimeListViewHolder {
@@ -23,7 +25,8 @@ internal class AnimeListAdapter(
             ),
             episodesInfoClickViewHolderCallback = ::episodesInfoClickViewHolderCallback,
             notificationClickViewHolderCallback = ::notificationClickViewHolderCallback,
-            dateFormatter = dateFormatter
+            dateFormatter = dateFormatter,
+            coroutineContextProvider = coroutineContextProvider
         )
     }
 

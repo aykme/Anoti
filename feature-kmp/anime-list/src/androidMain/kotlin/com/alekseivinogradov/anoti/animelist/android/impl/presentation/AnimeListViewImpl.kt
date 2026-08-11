@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.alekseivinogradov.anoti.animebase.android.impl.presentation.adapter.decorator.BottomSpaceLastItemDecorator
 import com.alekseivinogradov.anoti.animebase.android.impl.presentation.adapter.decorator.EdgeToEdgeItemDecorator
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as baseRes
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.loading_in_progress
 import com.alekseivinogradov.anoti.animelist.android.impl.presentation.adapter.AnimeListAdapter
 import com.alekseivinogradov.anoti.animelist.kmp.R
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
@@ -23,12 +25,20 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ListCont
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.SearchUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.SectionHatUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.UiModel
+import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.Res
+import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.on_air
+import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.search_hint
+import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.search_off_description
+import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.search_on_description
+import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.soon
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.PAGING_PREFETCH_DISTANCE
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
 import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
+import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as celebrityRes
+import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.connection_error
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer
@@ -38,6 +48,8 @@ import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.getString
 
 internal class AnimeListViewImpl(
     private val rootView: View,
@@ -54,6 +66,34 @@ internal class AnimeListViewImpl(
 
     private val defaultColor
         get() = context.getColor(res_R.color.white_transparent)
+
+    private val onAirString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(Res.string.on_air)
+        }
+    private val soonString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(Res.string.soon)
+        }
+    private val searchOnDescriptionString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(Res.string.search_on_description)
+        }
+    private val searchOffDescriptionString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(Res.string.search_off_description)
+        }
+    private val searchHintString: String = runBlocking(coroutineContextProvider.ioDispatcher) {
+        getString(Res.string.search_hint)
+    }
+    private val loadingInProgressString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.loading_in_progress)
+        }
+    private val connectionErrorString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(celebrityRes.string.connection_error)
+        }
 
     private val swipeRefreshLayout: SwipeRefreshLayout =
         rootView.findViewById(R.id.swipe_refresh_layout)
@@ -85,7 +125,8 @@ internal class AnimeListViewImpl(
     private val adapter = AnimeListAdapter(
         episodesInfoClickAdapterCallback = ::episodesInfoClickAdapterCallback,
         notificationClickAdapterCallback = ::notificationClickAdapterCallback,
-        dateFormatter = dateFormatter
+        dateFormatter = dateFormatter,
+        coroutineContextProvider = coroutineContextProvider
     )
 
     private var itemDecorator: EdgeToEdgeItemDecorator? = null
@@ -170,8 +211,10 @@ internal class AnimeListViewImpl(
     private fun initSwipeToRefresh() {
         swipeRefreshLayout.setProgressViewOffset(
             /* scale = */ false,
-            /* start = */ com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SWIPE_REFRESH_START_OFFSET,
-            /* end = */ com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SWIPE_REFRESH_END_OFFSET
+            /* start = */
+            com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SWIPE_REFRESH_START_OFFSET,
+            /* end = */
+            com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SWIPE_REFRESH_END_OFFSET
         )
         swipeRefreshLayout.setColorSchemeResources(res_R.color.cinnabar_500)
         swipeRefreshLayout.setOnRefreshListener {
@@ -184,12 +227,11 @@ internal class AnimeListViewImpl(
         swipeRefreshLayout.isVisible = true
         animeListLayout.isVisible = true
         upperMenuLayout.isVisible = true
-        ongoingButton.text = context.getString(R.string.on_air)
-        announcedButton.text = context.getString(R.string.soon)
-        searchButton.contentDescription = context.getString(R.string.search_on_description)
-        searchCancelButton.contentDescription = context
-            .getString(R.string.search_off_description)
-        searchInputLayout.hint = context.getString(R.string.search_hint)
+        ongoingButton.text = onAirString
+        announcedButton.text = soonString
+        searchButton.contentDescription = searchOnDescriptionString
+        searchCancelButton.contentDescription = searchOffDescriptionString
+        searchInputLayout.hint = searchHintString
     }
 
     private fun initClickListeners() {
@@ -321,16 +363,14 @@ internal class AnimeListViewImpl(
                 ContentTypeUi.LOADING -> {
                     animeListRv.isVisible = false
                     connectionStatusImage.setImageResource(res_R.drawable.loading_animation)
-                    connectionStatusImage.contentDescription = context
-                        .getString(R.string.loading_in_progress)
+                    connectionStatusImage.contentDescription = loadingInProgressString
                     connectionStatusImage.isVisible = true
                 }
 
                 ContentTypeUi.ERROR -> {
                     animeListRv.isVisible = false
                     connectionStatusImage.setImageResource(R.drawable.connection_error_48)
-                    connectionStatusImage.contentDescription = context
-                        .getString(R.string.connection_error)
+                    connectionStatusImage.contentDescription = connectionErrorString
                     connectionStatusImage.isVisible = true
                 }
             }

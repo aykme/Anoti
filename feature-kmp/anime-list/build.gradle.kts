@@ -3,7 +3,14 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
+    alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.kotlinCompose)
     alias(libs.plugins.ksp)
+}
+
+compose.resources {
+    publicResClass = false
+    packageOfResClass = "com.alekseivinogradov.anoti.animelist.kmp.generated.resources"
 }
 
 kotlin {
@@ -48,6 +55,8 @@ kotlin {
             implementation(libs.mvikotlin)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.essenty.lifecycle)
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.components.resources)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

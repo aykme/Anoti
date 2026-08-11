@@ -7,23 +7,45 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as baseRes
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.announced
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.beginning_of_the_show
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.episodes
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.inaccurate
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.next_episode
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.notifications_turn_off_description
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.notifications_turn_on_description
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.ongoing
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.released
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.score_image_description
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.show_is_finished
 import com.alekseivinogradov.anoti.animelist.kmp.R
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ListItemUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.EpisodesInfoTypeUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.NotificationUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.ReleaseStatusUi
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
+import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.Res
+import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.available_episodes_info_discription
+import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.extra_episodes_info_description
+import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.poster_image_description
 import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
+import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as celebrityRes
+import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.no_data
 import com.bumptech.glide.Glide
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.getString
 
 internal class AnimeListViewHolder(
     itemView: View,
     private val episodesInfoClickViewHolderCallback: (Int) -> Unit,
     private val notificationClickViewHolderCallback: (Int) -> Unit,
-    private val dateFormatter: DateFormatter
+    private val dateFormatter: DateFormatter,
+    coroutineContextProvider: CoroutineContextProvider
 ) :
     RecyclerView.ViewHolder(itemView) {
 
@@ -65,23 +87,66 @@ internal class AnimeListViewHolder(
     private val enableColor: Int
         get() = context.getColor(res_R.color.green)
 
-    private val episodesString: String
-        get() = context.getString(R.string.episodes)
-
-    private val nextEpisodeString: String
-        get() = context.getString(R.string.next_episode)
-
-    private val beginningOfTheShowString: String
-        get() = context.getString(R.string.beginning_of_the_show)
-
-    private val showIsFinishedString: String
-        get() = context.getString(R.string.show_is_finished)
-
-    private val noDataString: String
-        get() = context.getString(R.string.no_data)
-
-    private val inaccurateString: String
-        get() = context.getString(R.string.inaccurate)
+    private val posterImageDescriptionString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(Res.string.poster_image_description)
+        }
+    private val extraEpisodesInfoDescriptionString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(Res.string.extra_episodes_info_description)
+        }
+    private val availableEpisodesInfoDescriptionString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(Res.string.available_episodes_info_discription)
+        }
+    private val scoreImageDescriptionString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.score_image_description)
+        }
+    private val episodesString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.episodes)
+        }
+    private val nextEpisodeString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.next_episode)
+        }
+    private val beginningOfTheShowString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.beginning_of_the_show)
+        }
+    private val showIsFinishedString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.show_is_finished)
+        }
+    private val noDataString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(celebrityRes.string.no_data)
+        }
+    private val inaccurateString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.inaccurate)
+        }
+    private val ongoingString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.ongoing)
+        }
+    private val announcedString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.announced)
+        }
+    private val releasedString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.released)
+        }
+    private val notificationsTurnOffDescriptionString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.notifications_turn_off_description)
+        }
+    private val notificationsTurnOnDescriptionString: String =
+        runBlocking(coroutineContextProvider.ioDispatcher) {
+            getString(baseRes.string.notifications_turn_on_description)
+        }
 
     init {
         setClickListeners()
@@ -155,22 +220,20 @@ internal class AnimeListViewHolder(
 
     private fun bindCommonFields() {
         itemView.isVisible = true
-        posterImage.contentDescription = context.getString(R.string.poster_image_description)
+        posterImage.contentDescription = posterImageDescriptionString
         posterImage.isVisible = true
         infoBackground.isVisible = true
         nameText.isVisible = true
         extraEpisodesInfoButton.backgroundTintList = ColorStateList.valueOf(
             context.getColor(res_R.color.black)
         )
-        extraEpisodesInfoButton.contentDescription = context
-            .getString(R.string.extra_episodes_info_description)
+        extraEpisodesInfoButton.contentDescription = extraEpisodesInfoDescriptionString
         availableEpisodesInfoButton.backgroundTintList = ColorStateList.valueOf(
             context.getColor(res_R.color.black)
         )
-        availableEpisodesInfoButton.contentDescription = context
-            .getString(R.string.available_episodes_info_discription)
+        availableEpisodesInfoButton.contentDescription = availableEpisodesInfoDescriptionString
         notificationButtonBarrier.isInvisible = true
-        scoreImage.contentDescription = context.getString(R.string.score_image_description)
+        scoreImage.contentDescription = scoreImageDescriptionString
         scoreImage.isVisible = true
         scoreText.isVisible = true
         verticalDividerAfterScore.isVisible = true
@@ -323,22 +386,19 @@ internal class AnimeListViewHolder(
     private fun bindReleaseStatus(releaseStatus: ReleaseStatusUi) {
         when (releaseStatus) {
             ReleaseStatusUi.ONGOING -> {
-                releaseStatusText.text =
-                    context.getString(R.string.ongoing)
+                releaseStatusText.text = ongoingString
                 releaseStatusText.setTextColor(context.getColor(res_R.color.green))
                 releaseStatusText.isVisible = true
             }
 
             ReleaseStatusUi.ANNOUNCED -> {
-                releaseStatusText.text =
-                    context.getString(R.string.announced)
+                releaseStatusText.text = announcedString
                 releaseStatusText.setTextColor(context.getColor(res_R.color.purple_200))
                 releaseStatusText.isVisible = true
             }
 
             ReleaseStatusUi.RELEASED -> {
-                releaseStatusText.text =
-                    context.getString(R.string.released)
+                releaseStatusText.text = releasedString
                 releaseStatusText.setTextColor(context.getColor(res_R.color.cinnabar_500))
                 releaseStatusText.isVisible = true
             }
@@ -360,9 +420,7 @@ internal class AnimeListViewHolder(
                 )
                 notificationButton.rippleColor = disableColor
                 notificationButton.backgroundTintList = ColorStateList.valueOf(enableColor)
-                notificationButton.contentDescription = context.resources.getString(
-                    R.string.notifications_turn_off_description
-                )
+                notificationButton.contentDescription = notificationsTurnOffDescriptionString
             }
 
             NotificationUi.DISABLED -> {
@@ -374,9 +432,7 @@ internal class AnimeListViewHolder(
                 )
                 notificationButton.rippleColor = enableColor
                 notificationButton.backgroundTintList = ColorStateList.valueOf(disableColor)
-                notificationButton.contentDescription = context.resources.getString(
-                    R.string.notifications_turn_on_description
-                )
+                notificationButton.contentDescription = notificationsTurnOnDescriptionString
             }
         }
     }
