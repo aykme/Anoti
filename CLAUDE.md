@@ -11,6 +11,18 @@ Read this before doing any task in this repository.
   covering both module READMEs and KDoc/code-comment conventions. Use it before writing a
   README or documenting code — see "Module READMEs" below for when it must be called.
 
+## Branching
+
+- Never do task work directly on `develop`. Work must happen on a separate branch.
+- If we're currently on `develop` and no dedicated branch has been created yet for the task,
+  remind the developer of this before proceeding with the work.
+- This refers to an actual git branch, not a worktree — an agent creating a worktree does not
+  satisfy this requirement.
+- When an agent performs tasks, maximize parallelism by using git worktrees wherever it's
+  useful for isolating concurrent work.
+- When finishing a task, if worktrees were used, clean them up once their branches have been
+  merged.
+
 ## Git commits
 
 - Never add a `Co-Authored-By: Claude ...` trailer (or any co-author trailer) to commit
