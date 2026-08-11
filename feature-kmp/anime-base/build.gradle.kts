@@ -4,7 +4,14 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.kotlinCompose)
     alias(libs.plugins.ksp)
+}
+
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "com.alekseivinogradov.anoti.animebase.kmp.generated.resources"
 }
 
 kotlin {
@@ -40,6 +47,8 @@ kotlin {
 
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.components.resources)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
