@@ -19,7 +19,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearanceOverlay="@style/RoundedImageView3percentStyle"
-        tools:contentDescription="@string/poster_image_description"
+        tools:contentDescription="The image of the anime poster"
         tools:srcCompat="@drawable/anime_poster_sample" />
 
     <View
@@ -97,7 +97,7 @@
         app:layout_constraintTop_toTopOf="@id/available_episodes_info_text"
         app:maxImageSize="28dp"
         app:rippleColor="@color/black"
-        tools:contentDescription="@string/extra_episodes_info_description"
+        tools:contentDescription="Display extra episodes info"
         tools:ignore="ContentDescription,TouchTargetSizeCheck,ClassNameCheck" />
 
     <com.google.android.material.textview.MaterialTextView
@@ -136,7 +136,7 @@
         app:layout_constraintTop_toTopOf="@id/extra_episodes_info_text"
         app:maxImageSize="28dp"
         app:rippleColor="@color/black"
-        tools:contentDescription="@string/available_episodes_info_discription"
+        tools:contentDescription="Display information about the available episodes"
         tools:ignore="ContentDescription" />
 
     <androidx.constraintlayout.widget.Barrier
@@ -159,7 +159,7 @@
         app:layout_constraintBottom_toBottomOf="@id/notification_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/notification_button"
-        tools:contentDescription="@string/score_image_description" />
+        tools:contentDescription="The image of the rating in the form of a star" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/score_text"
@@ -200,7 +200,7 @@
         app:layout_constraintEnd_toStartOf="@id/vertical_divider_after_status"
         app:layout_constraintStart_toEndOf="@id/vertical_divider_after_score"
         app:layout_constraintTop_toTopOf="@id/notification_button"
-        tools:text="@string/ongoing" />
+        tools:text="Ongoing" />
 
     <View
         android:id="@+id/vertical_divider_after_status"
@@ -237,7 +237,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:maxImageSize="40dp"
         tools:backgroundTint="@color/cinnabar_500"
-        tools:contentDescription="@string/notifications_turn_on_description"
+        tools:contentDescription="Turn on notifications"
         tools:ignore="ContentDescription,ImageContrastCheck,TouchTargetSizeCheck,ClassNameCheck"
         tools:src="@drawable/ic_notifications_off_40" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="64dp"
-            tools:contentDescription="@string/loading_in_progress"
+            tools:contentDescription="Loading in progress"
             tools:src="@drawable/loading_img" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -71,7 +71,7 @@
                 app:layout_constraintStart_toEndOf="@id/filter_button"
                 app:layout_constraintTop_toTopOf="@id/search_button"
                 tools:ignore="VisualLintButtonSize,TextContrastCheck,VisualLintSystemUi"
-                tools:text="@string/on_air"
+                tools:text="On air"
                 tools:textColor="@color/cinnabar_500" />
 
             <View
@@ -106,7 +106,7 @@
                 app:layout_constraintStart_toEndOf="@id/vertical_divider"
                 app:layout_constraintTop_toTopOf="@id/search_button"
                 tools:ignore="VisualLintButtonSize,TextContrastCheck,VisualLintSystemUi"
-                tools:text="@string/soon" />
+                tools:text="Soon" />
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/search_button"
@@ -121,7 +121,7 @@
                 android:visibility="visible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:contentDescription="@string/search_on_description" />
+                tools:contentDescription="Move to search section and/or open search input field" />
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/search_button_shadow"
@@ -189,7 +189,7 @@
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:contentDescription="@string/search_off_description" />
+                tools:contentDescription="Close search input field" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
