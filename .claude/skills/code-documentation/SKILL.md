@@ -172,6 +172,12 @@ this shows up in most often, and its refinement for when a Store *isn't* alone.
 - **Implementation/configuration internals.** Which flags a factory function sets, what
   plugins it installs, the exact retry-backoff formula. That belongs in the function's own
   KDoc (a line or two), never in the README.
+- **Where a resource/asset is physically stored, or which mechanism reads it** (e.g. string
+  resources living in `commonMain/composeResources` and being read via Compose Multiplatform
+  Resources instead of classic Android `res/values`/`R.string`). This is true even when it's a
+  project-wide convention change worth remembering somewhere — it belongs in the commit that
+  made the change or a design doc, not repeated in every module's README as the migration
+  touches it.
 - **Design rationale, history, "why we didn't do X instead."** Worth capturing somewhere —
   a design doc, an ADR, a commit message — but not in a module README. A module README is a
   map, not an essay.

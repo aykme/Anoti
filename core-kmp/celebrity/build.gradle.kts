@@ -3,7 +3,14 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
+    alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.kotlinCompose)
     alias(libs.plugins.ksp)
+}
+
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "com.alekseivinogradov.anoti.celebrity.kmp.generated.resources"
 }
 
 kotlin {
@@ -41,6 +48,8 @@ kotlin {
             api(project(":core-kmp:network"))
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.components.resources)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
