@@ -45,7 +45,7 @@
         app:layout_constraintStart_toStartOf="@id/main_info_background"
         app:layout_constraintTop_toTopOf="@id/main_info_background"
         app:layout_constraintVertical_bias="0"
-        tools:ignore="VisualLintLongText"
+        tools:ignore="VisualLintLongText,VisualLintSystemUi"
         tools:text="You haven't subscribed to notifications about new anime series yet. Click on the &quot;Main&quot; menu and select something (≧◡≦) ♡" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
