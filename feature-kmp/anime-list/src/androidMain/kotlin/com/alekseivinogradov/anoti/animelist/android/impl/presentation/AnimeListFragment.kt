@@ -8,8 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
-import com.alekseivinogradov.anoti.animelist.android.impl.presentation.di.AnimeListComponent
-import com.alekseivinogradov.anoti.animelist.android.impl.presentation.di.DaggerAnimeListComponent
+import com.alekseivinogradov.anoti.animelist.android.impl.presentation.di.AnimeListComponentFactoryHolder
 import com.alekseivinogradov.anoti.animelist.kmp.R
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsection.AnnouncedSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
@@ -18,38 +17,25 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.AnimeListController
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
-import com.alekseivinogradov.anoti.celebrity.android.api.presentation.di.scope.FeatureScope
-import com.alekseivinogradov.anoti.di.android.api.presentation.main.MainActivityExternal
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
-import javax.inject.Inject
 
-@FeatureScope
 class AnimeListFragment : Fragment() {
-
-    private lateinit var animeListComponent: AnimeListComponent
 
     private var rootView: View? = null
 
-    @Inject
-    lateinit var coroutineContextProvider: CoroutineContextProvider
+    private lateinit var coroutineContextProvider: CoroutineContextProvider
 
-    @Inject
-    lateinit var mainStore: AnimeListMainStore
+    private lateinit var mainStore: AnimeListMainStore
 
-    @Inject
-    lateinit var animeDatabaseStore: AnimeDatabaseStore
+    private lateinit var animeDatabaseStore: AnimeDatabaseStore
 
-    @Inject
-    lateinit var ongoingSectionStore: OngoingSectionStore
+    private lateinit var ongoingSectionStore: OngoingSectionStore
 
-    @Inject
-    lateinit var announcedSectionStore: AnnouncedSectionStore
+    private lateinit var announcedSectionStore: AnnouncedSectionStore
 
-    @Inject
-    lateinit var searchSectionStore: SearchSectionStore
+    private lateinit var searchSectionStore: SearchSectionStore
 
-    @Inject
-    lateinit var dateFormatter: DateFormatter
+    private lateinit var dateFormatter: DateFormatter
 
     private val controller: AnimeListController by lazy {
         AnimeListController(
@@ -63,9 +49,16 @@ class AnimeListFragment : Fragment() {
     }
 
     override fun onAttach(context: Context) {
-        animeListComponent = DaggerAnimeListComponent.factory().create(
-            mainComponent = (this.activity as MainActivityExternal).mainComponent
-        ).also { it.inject(fragment = this) }
+        val animeListComponent = (this.activity as AnimeListComponentFactoryHolder)
+            .animeListComponentFactory
+            .createAnimeListComponent()
+        coroutineContextProvider = animeListComponent.coroutineContextProvider
+        dateFormatter = animeListComponent.dateFormatter
+        animeDatabaseStore = animeListComponent.animeDatabaseStore
+        mainStore = animeListComponent.mainStore
+        ongoingSectionStore = animeListComponent.ongoingSectionStore
+        announcedSectionStore = animeListComponent.announcedSectionStore
+        searchSectionStore = animeListComponent.searchSectionStore
         super.onAttach(context)
     }
 

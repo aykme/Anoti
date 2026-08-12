@@ -1,21 +1,43 @@
 package com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di
 
-import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.AnimeFavoritesFragment
-import com.alekseivinogradov.anoti.celebrity.android.api.presentation.di.scope.FeatureScope
-import com.alekseivinogradov.anoti.di.android.api.presentation.main.MainComponent
-import dagger.Component
+import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
+import com.alekseivinogradov.anoti.di.kmp.scope.ActivityScope
+import com.alekseivinogradov.anoti.di.kmp.scope.FeatureScope
+import software.amazon.lastmile.kotlin.inject.anvil.ContributesSubcomponent
+import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
-@Component(
-    dependencies = [MainComponent::class],
-    modules = [AnimeFavoritesModule::class]
-)
-@FeatureScope
+/**
+ * The anime-favorites screen's [FeatureScope] graph — one instance per `AnimeFavoritesFragment`,
+ * created from the hosting Activity's [ActivityScope] graph through [Factory]. Merges this
+ * module's commonMain `AnimeFavoritesComponent` contributions (the source, its usecases and the
+ * main store).
+ */
+@ContributesSubcomponent(FeatureScope::class)
+@SingleIn(FeatureScope::class)
 interface AnimeFavoritesComponent {
+    /** The app-wide [CoroutineContextProvider], inherited from the app-scope graph. */
+    val coroutineContextProvider: CoroutineContextProvider
 
-    @Component.Factory
+    /** The [DateFormatter], inherited from the app-scope graph. */
+    val dateFormatter: DateFormatter
+
+    /** The app-wide [AnimeDatabaseStore], inherited from the app-scope graph. */
+    val animeDatabaseStore: AnimeDatabaseStore
+
+    /** The screen's [AnimeFavoritesMainStore], see commonMain's `AnimeFavoritesComponent`. */
+    val mainStore: AnimeFavoritesMainStore
+
+    /**
+     * Builds [AnimeFavoritesComponent]s; contributed to the hosting [ActivityScope] graph. The
+     * function name has to be unique across every subcomponent factory merged into that graph —
+     * they all end up on one generated interface, where same-named functions returning different
+     * component types would clash.
+     */
+    @ContributesSubcomponent.Factory(ActivityScope::class)
     interface Factory {
-        fun create(mainComponent: MainComponent): AnimeFavoritesComponent
+        fun createAnimeFavoritesComponent(): AnimeFavoritesComponent
     }
-
-    fun inject(fragment: AnimeFavoritesFragment)
 }

@@ -26,47 +26,52 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
+import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di.AnimeFavoritesComponent
+import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di.AnimeFavoritesComponentFactoryHolder
+import com.alekseivinogradov.anoti.animelist.android.impl.presentation.di.AnimeListComponent
+import com.alekseivinogradov.anoti.animelist.android.impl.presentation.di.AnimeListComponentFactoryHolder
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarController
 import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
-import com.alekseivinogradov.anoti.di.android.api.presentation.app.ApplicationExternal
-import com.alekseivinogradov.anoti.di.android.api.presentation.main.MainActivityExternal
-import com.alekseivinogradov.anoti.di.android.api.presentation.main.MainComponent
-import com.alekseivinogradov.anoti.celebrity.android.api.presentation.di.scope.ActivityScope
 import com.alekseivinogradov.anoti.main.R
 import com.alekseivinogradov.anoti.main.generated.resources.Res
 import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_negative_button
 import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_notifications_rationale_message
 import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_positive_button
 import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_title
-import com.alekseivinogradov.anoti.main.impl.presentation.di.DaggerMainComponentInternal
+import com.alekseivinogradov.anoti.main.impl.presentation.di.MainComponent
+import com.alekseivinogradov.anoti.main.impl.presentation.di.MainComponentFactoryHolder
 import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.arkivanov.essenty.lifecycle.asEssentyLifecycle
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import javax.inject.Inject
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.getString
 
-@ActivityScope
-class MainActivity : AppCompatActivity(), MainActivityExternal {
+class MainActivity :
+    AppCompatActivity(),
+    AnimeListComponentFactoryHolder,
+    AnimeFavoritesComponentFactoryHolder {
 
-    override lateinit var mainComponent: MainComponent
+    private lateinit var mainComponent: MainComponent
+
+    override val animeListComponentFactory: AnimeListComponent.Factory
+        get() = mainComponent.animeListComponentFactory
+
+    override val animeFavoritesComponentFactory: AnimeFavoritesComponent.Factory
+        get() = mainComponent.animeFavoritesComponentFactory
 
     private val requestPermissionLauncher: ActivityResultLauncher<String> =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
     private var mainLayout: ConstraintLayout? = null
 
-    @Inject
-    internal lateinit var mainStore: BottomNavigationBarStore
+    private lateinit var mainStore: BottomNavigationBarStore
 
-    @Inject
-    internal lateinit var animeDatabaseStore: AnimeDatabaseStore
+    private lateinit var animeDatabaseStore: AnimeDatabaseStore
 
-    @Inject
-    internal lateinit var coroutineContextProvider: CoroutineContextProvider
+    private lateinit var coroutineContextProvider: CoroutineContextProvider
 
     private val controller: BottomNavigationBarController by lazy {
         BottomNavigationBarController(
@@ -77,10 +82,12 @@ class MainActivity : AppCompatActivity(), MainActivityExternal {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainComponent = DaggerMainComponentInternal.factory().create(
-            activityContext = this as Context,
-            appComponent = (this.application as ApplicationExternal).appComponent
-        ).also { it.inject(activity = this) }
+        mainComponent = (this.application as MainComponentFactoryHolder)
+            .mainComponentFactory
+            .createMainComponent(activityContext = this as Context)
+        mainStore = mainComponent.bottomNavigationBarStore
+        animeDatabaseStore = mainComponent.animeDatabaseStore
+        coroutineContextProvider = mainComponent.coroutineContextProvider
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)

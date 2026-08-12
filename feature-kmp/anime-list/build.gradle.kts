@@ -69,7 +69,6 @@ kotlin {
             implementation(libs.mvikotlin.main)
         }
         androidMain.dependencies {
-            implementation(libs.dagger)
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.appcompat)
             implementation(libs.androidx.constraintlayout)
@@ -78,14 +77,11 @@ kotlin {
             implementation(libs.androidx.recyclerview)
             implementation(libs.glide)
             implementation(project(":core-kmp:celebrity"))
-            implementation(project(":core-kmp:di"))
         }
     }
 }
 
 dependencies {
-    add("kspAndroid", libs.dagger.compiler)
-
     val kspTargets = listOf("Android", "IosArm64", "IosSimulatorArm64")
     kspTargets.forEach { target ->
         add("ksp$target", libs.kotlin.inject.compiler.ksp)

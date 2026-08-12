@@ -49,15 +49,20 @@ kotlin {
             implementation(libs.compose.components.resources)
         }
         androidMain.dependencies {
+            // `MainComponent`'s accessors expose types from these three modules, so they're part
+            // of this module's own API surface, not just an implementation detail — and `:app`,
+            // which hosts the `@MergeComponent` that generates `MainComponent`, needs them on
+            // its compile classpath for the merge to resolve.
+            api(project(":feature-kmp:bottom-navigation-bar"))
+            api(project(":feature-kmp:anime-list"))
+            api(project(":feature-kmp:anime-favorites"))
+
             implementation(project(":navigation"))
             implementation(project(":feature-kmp:anime-base"))
             implementation(project(":core-kmp:celebrity"))
             implementation(project(":core-kmp:network"))
             implementation(project(":core-kmp:anime-database"))
-            implementation(project(":core-kmp:di"))
-            implementation(project(":feature-kmp:bottom-navigation-bar"))
-            implementation(project(":feature-kmp:anime-list"))
-            implementation(project(":feature-kmp:anime-favorites"))
+            implementation(project(":core-kmp:di-scope"))
             implementation(project(":feature-kmp:anime-notification-external"))
 
             implementation(libs.androidx.core.ktx)
@@ -65,16 +70,20 @@ kotlin {
             implementation(libs.androidx.activity)
             implementation(libs.mvikotlin)
             implementation(libs.essenty.lifecycle)
-            implementation(libs.dagger)
             implementation(libs.androidx.constraintlayout)
             implementation(libs.androidx.navigation.fragment.ktx)
             implementation(libs.androidx.navigation.ui.ktx)
+
+            implementation(libs.kotlin.inject.runtime)
+            implementation(libs.kotlin.inject.anvil.runtime)
+            implementation(libs.kotlin.inject.anvil.runtime.optional)
         }
     }
 }
 
 dependencies {
-    add("kspAndroid", libs.dagger.compiler)
+    add("kspAndroid", libs.kotlin.inject.compiler.ksp)
+    add("kspAndroid", libs.kotlin.inject.anvil.compiler)
 }
 
 // Lint's androidHostTest-related tasks read kspAndroidHostTest's generated sources without

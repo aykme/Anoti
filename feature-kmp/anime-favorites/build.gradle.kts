@@ -69,7 +69,6 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
         }
         androidMain.dependencies {
-            implementation(libs.dagger)
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.appcompat)
             implementation(libs.androidx.constraintlayout)
@@ -78,7 +77,6 @@ kotlin {
             implementation(libs.androidx.recyclerview)
             implementation(libs.glide)
             implementation(libs.androidx.work.runtime)
-            implementation(project(":core-kmp:di"))
             implementation(project(":core-kmp:celebrity"))
             implementation(project(":feature-kmp:anime-base"))
             implementation(project(":feature-kmp:anime-background-update"))
@@ -87,8 +85,6 @@ kotlin {
 }
 
 dependencies {
-    add("kspAndroid", libs.dagger.compiler)
-
     val kspTargets = listOf("Android", "IosArm64", "IosSimulatorArm64")
     kspTargets.forEach { target ->
         add("ksp$target", libs.kotlin.inject.compiler.ksp)

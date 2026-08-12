@@ -22,7 +22,6 @@ appcompat = "1.7.1"
 composeMultiplatform = "1.11.1"
 constraintlayout = "2.2.2"
 coroutines = "1.11.0"
-dagger = "2.60.1"
 espressoContrib = "3.7.0"
 espressoCore = "3.7.0"
 essenty = "2.5.0"
@@ -77,8 +76,6 @@ androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefre
 androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "workRuntimeKtx" }
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
-dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
-dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
 essenty-lifecycle = { group = "com.arkivanov.essenty", name = "lifecycle", version.ref = "essenty" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 kotlin-inject-anvil-compiler = { module = "software.amazon.lastmile.kotlin.inject.anvil:compiler", version.ref = "kotlinInjectAnvil" }

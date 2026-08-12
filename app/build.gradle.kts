@@ -45,7 +45,7 @@ kotlin {
 dependencies {
     implementation(project(":core-kmp:celebrity"))
     implementation(project(":core-kmp:anime-database"))
-    implementation(project(":core-kmp:di"))
+    implementation(project(":core-kmp:di-scope"))
     implementation(project(":core-kmp:network"))
     implementation(project(":feature-kmp:anime-base"))
     implementation(project(":feature-kmp:anime-background-update"))
@@ -56,10 +56,18 @@ dependencies {
     androidTestImplementation(libs.compose.components.resources)
 
     implementation(libs.mvikotlin)
-    implementation(libs.dagger)
+    // Compose Multiplatform's compiler stamps @StabilityInferred on classes in the KMP modules
+    // whose contributions this module's @MergeComponent merges; KSP has to be able to resolve
+    // that annotation while reading them.
+    implementation(libs.compose.runtime)
     implementation(libs.androidx.work.runtime)
     implementation(libs.play.services.appset)
-    ksp(libs.dagger.compiler)
+
+    implementation(libs.kotlin.inject.runtime)
+    implementation(libs.kotlin.inject.anvil.runtime)
+    implementation(libs.kotlin.inject.anvil.runtime.optional)
+    ksp(libs.kotlin.inject.compiler.ksp)
+    ksp(libs.kotlin.inject.anvil.compiler)
     androidTestImplementation(libs.androidx.junit.ktx)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.espresso.contrib)
