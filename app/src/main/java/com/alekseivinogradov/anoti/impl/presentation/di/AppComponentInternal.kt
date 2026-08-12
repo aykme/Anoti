@@ -8,6 +8,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.Cor
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.anoti.celebrity.android.api.presentation.di.AppContext
 import com.alekseivinogradov.anoti.di.android.api.presentation.app.AppComponent
+import com.alekseivinogradov.anoti.di.kmp.TransitionalAppGraph
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import dagger.BindsInstance
@@ -43,4 +44,6 @@ interface AppComponentInternal : AppComponent {
     override fun provideShikimoriApiService(): ShikimoriApiService
 
     override fun provideSafeApi(): SafeApi
+
+    override fun provideTransitionalAppGraph(): TransitionalAppGraph
 }

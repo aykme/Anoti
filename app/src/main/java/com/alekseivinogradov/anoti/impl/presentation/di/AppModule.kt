@@ -12,14 +12,12 @@ import com.alekseivinogradov.anoti.animedatabase.android.impl.presentation.di.An
 import com.alekseivinogradov.anoti.animenotification.android.impl.presentation.di.AnimeNotificationModule
 import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
-import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.di.CelebrityAppModule
 import com.alekseivinogradov.anoti.main.impl.presentation.di.AnimeNotificationIntentProviderModule
 import dagger.Module
 import dagger.Provides
 
 @Module(
     includes = [
-        CelebrityAppModule::class,
         AnimeDatabaseCompletedModule::class,
         TransitionalAppGraphBridgeModule::class,
         AnimeBaseModule::class,

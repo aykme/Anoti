@@ -1,8 +1,12 @@
 package com.alekseivinogradov.anoti.di.kmp
 
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.anoti.di.kmp.qualifier.AppContext
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
+import com.arkivanov.mvikotlin.core.store.StoreFactory
 import io.ktor.client.HttpClient
 import me.tatarka.inject.annotations.Provides
 import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
@@ -26,4 +30,22 @@ abstract class TransitionalAppGraph(
 
     /** The app-wide [SafeApi], see `core-kmp:network`'s `NetworkComponent`. */
     abstract val safeApi: SafeApi
+
+    /** The app-wide [StoreFactory], see `core-kmp:celebrity`'s `CelebrityComponent`. */
+    abstract val storeFactory: StoreFactory
+
+    /**
+     * The app-wide [CoroutineContextProvider], see `core-kmp:celebrity`'s
+     * `CelebrityPlatformComponent`.
+     */
+    abstract val coroutineContextProvider: CoroutineContextProvider
+
+    /** The app-wide [ToastProvider], see `core-kmp:celebrity`'s `CelebrityPlatformComponent`. */
+    abstract val toastProvider: ToastProvider
+
+    /**
+     * The (temporarily app-scoped, see `core-kmp:celebrity`'s Phase 3 note) [DateFormatter], see
+     * `core-kmp:celebrity`'s `CelebrityPlatformComponent`.
+     */
+    abstract val dateFormatter: DateFormatter
 }

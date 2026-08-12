@@ -6,6 +6,7 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatab
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.anoti.celebrity.android.api.presentation.di.AppContext
+import com.alekseivinogradov.anoti.di.kmp.TransitionalAppGraph
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 
@@ -29,4 +30,7 @@ interface AppComponent {
     fun provideShikimoriApiService(): ShikimoriApiService
 
     fun provideSafeApi(): SafeApi
+
+    /** Exposed so `main`'s Dagger graph can reach `dateFormatter` off the bridge graph. */
+    fun provideTransitionalAppGraph(): TransitionalAppGraph
 }

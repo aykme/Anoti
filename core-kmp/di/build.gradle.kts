@@ -40,6 +40,9 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":core-kmp:di-scope"))
             implementation(project(":core-kmp:network"))
+            implementation(project(":core-kmp:celebrity"))
+
+            implementation(libs.mvikotlin)
 
             implementation(libs.kotlin.inject.runtime)
             implementation(libs.kotlin.inject.anvil.runtime)
@@ -51,7 +54,6 @@ kotlin {
             implementation(project(":core-kmp:anime-database"))
 
             implementation(libs.dagger)
-            implementation(libs.mvikotlin)
         }
     }
 }

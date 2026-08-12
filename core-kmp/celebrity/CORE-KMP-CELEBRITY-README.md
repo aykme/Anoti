@@ -1,8 +1,10 @@
 Shared core utilities used across Anoti's KMP feature modules. Its `androidMain` also hosts the
-app's shared Android resources (theme, launcher icons, common drawables/fonts) and the Dagger
-qualifier/scope annotations (`@AppContext`, `@ActivityScope`, etc.) — both live here because this
-is the one module every consumer already depends on, which keeps the Gradle dependency graph
-acyclic. Neither is listed below since this README indexes `commonMain` only.
+app's shared Android resources (theme, launcher icons, common drawables/fonts) and legacy Dagger
+qualifier/scope annotations (`@AppContext`, `@ActivityScope`, etc., under
+`celebrity.android.api.presentation.di`) — kept only for not-yet-migrated Dagger consumers
+elsewhere in the repo; the kotlin-inject-anvil equivalents now live in
+[`core-kmp:di-scope`](../di-scope/CORE-KMP-DI-SCOPE-README.md). Neither is listed below since this
+README indexes `commonMain` only.
 
 ## Entities
 
@@ -21,5 +23,6 @@ acyclic. Neither is listed below since this README indexes `commonMain` only.
 
 - Gradle: `implementation(project(":core-kmp:celebrity"))`
 - `CoroutineContextProvider`, `DateFormatter` and `ToastProvider` are provided via this module's
-  own androidMain Dagger setup — inject them, don't construct them yourself. `Paginator` has no
-  DI wiring; callers construct it directly.
+  kotlin-inject-anvil contributions (`CelebrityComponent`, `CelebrityPlatformComponent`), merged
+  into [`core-kmp:di`](../di/CORE-KMP-DI-README.md)'s `TransitionalAppGraph` — inject them, don't
+  construct them yourself. `Paginator` has no DI wiring; callers construct it directly.

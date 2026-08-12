@@ -46,26 +46,41 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(project(":core-kmp:network"))
+            implementation(project(":core-kmp:di-scope"))
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)
             implementation(libs.compose.runtime)
             implementation(libs.compose.components.resources)
+            implementation(libs.mvikotlin)
+            implementation(libs.mvikotlin.main)
+
+            implementation(libs.kotlin.inject.runtime)
+            implementation(libs.kotlin.inject.anvil.runtime)
+            implementation(libs.kotlin.inject.anvil.runtime.optional)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
         }
         androidMain.dependencies {
+            // Not this module's own DI anymore (see commonMain/androidMain/iosMain `di`
+            // packages above), kept only because `android/api/presentation/di/Qualifier.kt`
+            // and `.../scope/ComponentScope.kt` are still in place for not-yet-migrated
+            // Dagger modules elsewhere in the repo that import them (see Phase 3's migration
+            // notes) — those two files need `javax.inject.*` on the classpath. Drop this once
+            // every consumer of those two files has migrated off Dagger and they're deleted.
             implementation(libs.dagger)
-            implementation(libs.mvikotlin)
-            implementation(libs.mvikotlin.main)
             implementation(libs.material)
         }
     }
 }
 
 dependencies {
-    add("kspAndroid", libs.dagger.compiler)
+    val kspTargets = listOf("Android", "IosArm64", "IosSimulatorArm64")
+    kspTargets.forEach { target ->
+        add("ksp$target", libs.kotlin.inject.compiler.ksp)
+        add("ksp$target", libs.kotlin.inject.anvil.compiler)
+    }
 }
 
 // Lint's androidHostTest-related tasks read kspAndroidHostTest's generated sources without
