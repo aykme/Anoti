@@ -16,24 +16,13 @@ import platform.Foundation.dateByAddingTimeInterval
 private const val ANIME_UPDATE_TASK_IDENTIFIER = "com.alekseivinogradov.anoti.animeupdate.refresh"
 
 /**
- * Registers the BGAppRefreshTask handler and schedules the next run. The task identifier
- * above MUST also be listed in the iOS app target's Info.plist under
- * `BGTaskSchedulerPermittedIdentifiers` — that file doesn't exist in this repo yet (no iOS
- * app shell has been created), so this class compiles and is ready to use, but scheduling
- * will silently fail at runtime until an iOS host app registers the identifier. This is a
- * hard external dependency this plan cannot close by itself; tracked here so it isn't
- * forgotten when iOS app work starts.
+ * [AnimeBackgroundScheduler] backed by `BGTaskScheduler`.
  *
- * The launch handler below fulfills the `BGTaskScheduler` completion contract: it calls
- * `setTaskCompletedWithSuccess` when the update finishes (or fails) and installs an
- * `expirationHandler` that cancels the in-flight work and reports failure if iOS revokes
- * background time first. `job.cancel()` only requests cooperative cancellation and the
- * `expirationHandler` can run on a different queue than the coroutine's dispatcher, so both
- * paths race to complete the same task; an `AtomicBoolean` guard ensures
- * `setTaskCompletedWithSuccess` is invoked at most once per task invocation, whichever path
- * wins. This can only be exercised end-to-end on a real iOS host app under an actual
- * background execution grant — there is no way to verify it at runtime without one, same
- * limitation as the Info.plist registration gap above.
+ * The task identifier below must also be listed in the iOS app target's Info.plist under
+ * `BGTaskSchedulerPermittedIdentifiers`.
+ *
+ * @param animeUpdateManager runs the update when the background task fires.
+ * @param coroutineScope scope the update work runs in.
  */
 @OptIn(ExperimentalForeignApi::class, ExperimentalAtomicApi::class)
 class AnimeBackgroundSchedulerImpl(
@@ -48,6 +37,7 @@ class AnimeBackgroundSchedulerImpl(
         ) { task ->
             if (task == null) return@registerForTaskWithIdentifier
 
+            // Guards against a double completion: the coroutine and expirationHandler can race.
             val isCompleted = AtomicBoolean(false)
             fun completeOnce(success: Boolean) {
                 if (isCompleted.compareAndSet(expectedValue = false, newValue = true)) {
@@ -62,7 +52,7 @@ class AnimeBackgroundSchedulerImpl(
                     completeOnce(success = true)
                 } catch (exception: CancellationException) {
                     throw exception
-                } catch (exception: Throwable) {
+                } catch (_: Throwable) {
                     completeOnce(success = false)
                 }
             }
