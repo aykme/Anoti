@@ -93,9 +93,12 @@ class MainActivity :
         setContentView(R.layout.activity_main)
         mainLayout = findViewById(R.id.main_layout)
         setSystemSettings()
+        // mainLayout is always non-null here: assigned right above, cleared only in onDestroy().
+        @Suppress("UnsafeCallOnNullableType")
+        val nonNullMainLayout = mainLayout!!
         controller.onViewCreated(
             mainView = BottomNavigationBarViewImpl(
-                rootView = mainLayout!!,
+                rootView = nonNullMainLayout,
                 navController = getNavController()
             ),
             viewLifecycle = lifecycle.asEssentyLifecycle(),
@@ -122,15 +125,19 @@ class MainActivity :
                     Color.TRANSPARENT
                 )
             )
-            ViewCompat.setOnApplyWindowInsetsListener(mainLayout!!) { view, insets ->
+            // mainLayout is always non-null here: assigned in onCreate() before this is called,
+            // cleared only in onDestroy().
+            @Suppress("UnsafeCallOnNullableType")
+            val nonNullMainLayout = mainLayout!!
+            ViewCompat.setOnApplyWindowInsetsListener(nonNullMainLayout) { view, insets ->
                 val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
                 view.setPadding(
                     /* left = */
-                        systemBars.left,
+                    systemBars.left,
                     /* top = */
                     0,
                     /* right = */
-                        systemBars.right,
+                    systemBars.right,
                     /** systemBars.bottom works incorrectly with BottomNavigationView.
                      * It makes double padding and
                      * status bar color elements problems on light theme
