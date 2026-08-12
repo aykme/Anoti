@@ -2,6 +2,8 @@ package com.alekseivinogradov.anoti.animebackgroundupdate.ios.impl.domain.schedu
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.manager.AnimeUpdateManager
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.scheduler.AnimeBackgroundScheduler
+import kotlin.concurrent.atomics.AtomicBoolean
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -25,11 +27,15 @@ private const val ANIME_UPDATE_TASK_IDENTIFIER = "com.alekseivinogradov.anoti.an
  * The launch handler below fulfills the `BGTaskScheduler` completion contract: it calls
  * `setTaskCompletedWithSuccess` when the update finishes (or fails) and installs an
  * `expirationHandler` that cancels the in-flight work and reports failure if iOS revokes
- * background time first. This can only be exercised end-to-end on a real iOS host app under
- * an actual background execution grant — there is no way to verify it at runtime without one,
- * same limitation as the Info.plist registration gap above.
+ * background time first. `job.cancel()` only requests cooperative cancellation and the
+ * `expirationHandler` can run on a different queue than the coroutine's dispatcher, so both
+ * paths race to complete the same task; an `AtomicBoolean` guard ensures
+ * `setTaskCompletedWithSuccess` is invoked at most once per task invocation, whichever path
+ * wins. This can only be exercised end-to-end on a real iOS host app under an actual
+ * background execution grant — there is no way to verify it at runtime without one, same
+ * limitation as the Info.plist registration gap above.
  */
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, ExperimentalAtomicApi::class)
 class AnimeBackgroundSchedulerImpl(
     private val animeUpdateManager: AnimeUpdateManager,
     private val coroutineScope: CoroutineScope
@@ -42,21 +48,28 @@ class AnimeBackgroundSchedulerImpl(
         ) { task ->
             if (task == null) return@registerForTaskWithIdentifier
 
+            val isCompleted = AtomicBoolean(false)
+            fun completeOnce(success: Boolean) {
+                if (isCompleted.compareAndSet(expectedValue = false, newValue = true)) {
+                    task.setTaskCompletedWithSuccess(success = success)
+                }
+            }
+
             val job = coroutineScope.launch {
                 try {
                     animeUpdateManager.update()
                     schedulePeriodicUpdate()
-                    task.setTaskCompletedWithSuccess(success = true)
+                    completeOnce(success = true)
                 } catch (exception: CancellationException) {
                     throw exception
                 } catch (exception: Throwable) {
-                    task.setTaskCompletedWithSuccess(success = false)
+                    completeOnce(success = false)
                 }
             }
 
             task.expirationHandler = {
                 job.cancel()
-                task.setTaskCompletedWithSuccess(success = false)
+                completeOnce(success = false)
             }
         }
     }
