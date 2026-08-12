@@ -10,8 +10,9 @@ markers would cycle). `core-kmp:di` depends on `core-kmp:di-scope` in turn.
 
 Its `commonMain` now hosts `TransitionalAppGraph`, the kotlin-inject-anvil bridge graph that
 `app`'s still-Dagger component reads from while the App-scope migration is in progress (see
-`TransitionalAppGraph`'s own KDoc). It grows by one accessor per migration phase and is deleted
-once `app` itself becomes a real `@MergeComponent`.
+`TransitionalAppGraph`'s own KDoc). It grows by one accessor per migration phase (each documented
+inline on the accessor itself, pointing back at the module/component it comes from) and is
+deleted once `app` itself becomes a real `@MergeComponent`.
 
 `TransitionalAppGraphKspAnchor` sits next to it as a required workaround, not a feature: on
 Kotlin/Native targets only, kotlin-inject-anvil fails to find `@ContributesTo` contributions

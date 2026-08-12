@@ -43,6 +43,7 @@ kotlin {
             implementation(project(":core-kmp:celebrity"))
             implementation(project(":core-kmp:anime-database"))
             implementation(project(":feature-kmp:anime-base"))
+            implementation(project(":feature-kmp:anime-background-update"))
 
             implementation(libs.mvikotlin)
 

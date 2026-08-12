@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anoti.di.kmp
 
+import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.FetchAnimeListByIdsUsecase
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsUsecase
@@ -75,4 +76,10 @@ abstract class TransitionalAppGraph(
      * The app-wide [ShikimoriApiService], see `feature-kmp:anime-base`'s `AnimeBaseComponent`.
      */
     abstract val shikimoriApiService: ShikimoriApiService
+
+    /**
+     * The app-wide [FetchAnimeListByIdsUsecase], see `feature-kmp:anime-background-update`'s
+     * `AnimeBackgroundUpdateComponent`.
+     */
+    abstract val fetchAnimeListByIdsUsecase: FetchAnimeListByIdsUsecase
 }

@@ -9,15 +9,23 @@ newly aired episodes.
   triggers a one-off background update.
 - [AnimeBackgroundUpdateSource](src/commonMain/kotlin/com/alekseivinogradov/anoti/animebackgroundupdate/kmp/api/domain/source/AnimeBackgroundUpdateSource.kt) —
   fetches fresh anime data from the Shikimori API.
+- [AnimeBackgroundScheduler](src/commonMain/kotlin/com/alekseivinogradov/anoti/animebackgroundupdate/kmp/api/domain/scheduler/AnimeBackgroundScheduler.kt) —
+  schedules periodic background updates on the host platform.
 
 ## How to include it
 
 - Gradle: `implementation(project(":feature-kmp:anime-background-update"))`
-- `AnimeUpdateManager` is provided via the `app` module's Dagger setup (the commonMain
-  `AnimeUpdateManagerImpl` is wired by the `AnimePeriodicBackgroundUpdateModule` in
-  `androidMain`) — inject it, don't construct it yourself.
+- `AnimeUpdateManager` is provided via Dagger on Android (`app`'s `AppModule`, until Phase 9 of
+  the DI migration) and via `AnimeUpdateManagerIosComponent`, contributed to `AppScope`'s
+  merged component, on iOS — inject it, don't construct it yourself.
 - `UpdateAllAnimeInBackgroundOnceUsecase` is provided via Dagger setup in `androidMain`
-  (`AnimeOnceBackgroundUpdateModule`, backed by `WorkManager`) — inject it too.
+  (`AnimeOnceBackgroundUpdateModule`, backed by `WorkManager`) — inject it too. No iOS
+  implementation exists yet.
+- `AnimeBackgroundScheduler` is iOS-only for now (`AnimeBackgroundSchedulerPlatformComponent`,
+  `AppScope`) — it registers its `BGAppRefreshTask` handler as soon as it's created; see the
+  iOS implementation's own KDoc for a documented Info.plist registration gap. Android's
+  periodic scheduling still goes through `WorkManager` directly
+  (`AnimePeriodicBackgroundUpdateModule`), with no equivalent commonMain abstraction yet.
 
 ## How to use it
 

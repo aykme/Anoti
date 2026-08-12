@@ -1,31 +1,14 @@
 package com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.presentation.di
 
-import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.source.AnimeBackgroundUpdateSource
-import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.data.source.AnimeBackgroundUpdateSourceImpl
-import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.FetchAnimeListByIdsUsecase
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
-import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import dagger.Module
-import dagger.Provides
-import javax.inject.Singleton
 
+/**
+ * No-op shell kept only because `AppModule` still `includes` it. Its two usecase providers
+ * (`AnimeBackgroundUpdateSource`, `FetchAnimeListByIdsUsecase`) migrated to kotlin-inject-anvil's
+ * `AnimeBackgroundUpdateComponent` (commonMain) and are bridged back to Dagger via
+ * `TransitionalAppGraphBridgeModule`. `AnimeOnceBackgroundUpdateModule`,
+ * `AnimePeriodicBackgroundUpdateModule`, and `AnimeUpdateWorker` stay Dagger-wired until
+ * Phase 9, since they all ultimately need `AnimeUpdateManager`.
+ */
 @Module
-interface AnimeBaseBackgroundUpdateModule {
-    companion object {
-        @Provides
-        @Singleton
-        fun provideAnimeBackgroundUpdateSource(
-            service: ShikimoriApiService,
-            safeApi: SafeApi
-        ): AnimeBackgroundUpdateSource = AnimeBackgroundUpdateSourceImpl(
-            service = service,
-            safeApi = safeApi
-        )
-
-        @Provides
-        @Singleton
-        fun provideFetchAnimeListByIdsUsecase(
-            source: AnimeBackgroundUpdateSource
-        ): FetchAnimeListByIdsUsecase = FetchAnimeListByIdsUsecase(source)
-    }
-}
+interface AnimeBaseBackgroundUpdateModule

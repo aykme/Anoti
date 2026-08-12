@@ -1,6 +1,7 @@
 package com.alekseivinogradov.anoti.impl.presentation.di
 
 import android.content.Context
+import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.FetchAnimeListByIdsUsecase
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsUsecase
@@ -77,6 +78,12 @@ internal interface TransitionalAppGraphBridgeModule {
         fun provideShikimoriApiService(
             graph: TransitionalAppGraph
         ): ShikimoriApiService = graph.shikimoriApiService
+
+        @Provides
+        @Singleton
+        fun provideFetchAnimeListByIdsUsecase(
+            graph: TransitionalAppGraph
+        ): FetchAnimeListByIdsUsecase = graph.fetchAnimeListByIdsUsecase
 
         /**
          * Not sourced from [TransitionalAppGraph]: [AnimeNotificationChannelFactory] is a
