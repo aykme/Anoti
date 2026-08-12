@@ -30,9 +30,9 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 /**
- * Contributes the Android [AnimeUpdateManager], its WorkManager requests and the WorkManager-backed
- * [AnimeBackgroundScheduler]/[UpdateAllAnimeInBackgroundOnceUsecase] bindings to [AppScope]'s
- * merged component.
+ * Contributes the Android [AnimeUpdateManager], the app's [WorkManager] handle and its work
+ * requests, and the WorkManager-backed [AnimeBackgroundScheduler]/
+ * [UpdateAllAnimeInBackgroundOnceUsecase] bindings to [AppScope]'s merged component.
  */
 @ContributesTo(AppScope::class)
 interface AnimeBackgroundUpdatePlatformComponent {
@@ -57,19 +57,39 @@ interface AnimeBackgroundUpdatePlatformComponent {
         OneTimeWorkRequestBuilder<AnimeUpdateWorker>().build()
 
     @Provides
-    fun provideUpdateAllAnimeInBackgroundOnceUsecase(
-        @AppContext appContext: PlatformContext,
-        @AnimeBackgroundUpdate animeUpdateOnceWork: OneTimeWorkRequest
-    ): UpdateAllAnimeInBackgroundOnceUsecase = UpdateAllAnimeInBackgroundOnceUsecaseImpl(
-        workManager = WorkManager.getInstance(appContext as Context),
-        updateWork = animeUpdateOnceWork,
-        uniqueWorkName = animeUpdateOnceWorkName
-    )
-
-    @Provides
     @AnimeBackgroundUpdate
     fun provideWorkManagerConfig(workerFactory: AnimeUpdateWorker.Factory): Configuration =
         Configuration.Builder().setWorkerFactory(workerFactory).build()
+
+    /**
+     * The app's single [WorkManager] handle.
+     *
+     * The app manifest removes WorkManager's default `androidx.startup` initializer, so this
+     * binding is also the one place that installs the custom [Configuration] carrying the anime
+     * update worker factory. Everything that needs WorkManager depends on *this* binding rather
+     * than calling `WorkManager.getInstance` itself, so no consumer can observe an uninitialized
+     * WorkManager no matter which graph accessor is read first.
+     */
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideWorkManager(
+        @AppContext appContext: PlatformContext,
+        @AnimeBackgroundUpdate workManagerConfiguration: Configuration
+    ): WorkManager {
+        val context = appContext as Context
+        WorkManager.initialize(context = context, configuration = workManagerConfiguration)
+        return WorkManager.getInstance(context = context)
+    }
+
+    @Provides
+    fun provideUpdateAllAnimeInBackgroundOnceUsecase(
+        workManager: WorkManager,
+        @AnimeBackgroundUpdate animeUpdateOnceWork: OneTimeWorkRequest
+    ): UpdateAllAnimeInBackgroundOnceUsecase = UpdateAllAnimeInBackgroundOnceUsecaseImpl(
+        workManager = workManager,
+        updateWork = animeUpdateOnceWork,
+        uniqueWorkName = animeUpdateOnceWorkName
+    )
 
     @Provides
     @AnimeBackgroundUpdate
@@ -82,12 +102,10 @@ interface AnimeBackgroundUpdatePlatformComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun provideAnimeBackgroundScheduler(
-        @AppContext appContext: PlatformContext,
-        @AnimeBackgroundUpdate workManagerConfiguration: Configuration,
+        workManager: WorkManager,
         @AnimeBackgroundUpdate animeUpdatePeriodicWork: PeriodicWorkRequest
     ): AnimeBackgroundScheduler = AnimeBackgroundSchedulerImpl(
-        appContext = appContext as Context,
-        workManagerConfiguration = workManagerConfiguration,
+        workManager = workManager,
         animeUpdatePeriodicWork = animeUpdatePeriodicWork
-    ).also { it.initializeWorkManager() }
+    )
 }
