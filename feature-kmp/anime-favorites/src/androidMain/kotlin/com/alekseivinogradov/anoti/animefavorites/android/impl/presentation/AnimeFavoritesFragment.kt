@@ -6,43 +6,29 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
-import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di.AnimeFavoritesComponentFactoryHolder
+import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di.AnimeFavoritesScreenComponent
+import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di.AnimeFavoritesScreenComponentHolder
 import com.alekseivinogradov.anoti.animefavorites.kmp.R
-import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.AnimeFavoritesController
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 
 class AnimeFavoritesFragment : Fragment() {
 
     private var rootView: View? = null
 
-    private lateinit var mainStore: AnimeFavoritesMainStore
-
-    private lateinit var animeDatabaseStore: AnimeDatabaseStore
-
-    private lateinit var dateFormatter: DateFormatter
-
-    private lateinit var coroutineContextProvider: CoroutineContextProvider
+    private lateinit var screenComponent: AnimeFavoritesScreenComponent
 
     private val controller: AnimeFavoritesController by lazy {
         AnimeFavoritesController(
-            lifecycle = essentyLifecycle(),
-            mainStore = mainStore,
-            animeDatabaseStore = animeDatabaseStore
+            lifecycle = screenComponent.lifecycle,
+            mainStore = screenComponent.mainStore,
+            animeDatabaseStore = screenComponent.animeDatabaseStore
         )
     }
 
     override fun onAttach(context: Context) {
-        val animeFavoritesComponent = (this.activity as AnimeFavoritesComponentFactoryHolder)
-            .animeFavoritesComponentFactory
-            .createAnimeFavoritesComponent()
-        coroutineContextProvider = animeFavoritesComponent.coroutineContextProvider
-        dateFormatter = animeFavoritesComponent.dateFormatter
-        animeDatabaseStore = animeFavoritesComponent.animeDatabaseStore
-        mainStore = animeFavoritesComponent.mainStore
+        screenComponent =
+            (this.activity as AnimeFavoritesScreenComponentHolder).animeFavoritesScreenComponent
         super.onAttach(context)
     }
 
@@ -63,8 +49,8 @@ class AnimeFavoritesFragment : Fragment() {
         controller.onViewCreated(
             mainView = AnimeFavoritesViewImpl(
                 rootView = nonNullRootView,
-                dateFormatter = dateFormatter,
-                coroutineContextProvider = coroutineContextProvider
+                dateFormatter = screenComponent.dateFormatter,
+                coroutineContextProvider = screenComponent.coroutineContextProvider
             ),
             viewLifecycle = viewLifecycleOwner.essentyLifecycle()
         )

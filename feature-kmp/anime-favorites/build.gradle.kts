@@ -81,6 +81,7 @@ kotlin {
             implementation(project(":core-kmp:celebrity"))
             implementation(project(":feature-kmp:anime-base"))
             implementation(project(":feature-kmp:anime-background-update"))
+            implementation(libs.decompose)
         }
     }
 }
