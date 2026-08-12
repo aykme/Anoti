@@ -3,6 +3,7 @@ package com.alekseivinogradov.anoti.animebackgroundupdate.ios.impl.domain.schedu
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.manager.AnimeUpdateManager
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.scheduler.AnimeBackgroundScheduler
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import platform.BackgroundTasks.BGAppRefreshTaskRequest
@@ -20,6 +21,13 @@ private const val ANIME_UPDATE_TASK_IDENTIFIER = "com.alekseivinogradov.anoti.an
  * will silently fail at runtime until an iOS host app registers the identifier. This is a
  * hard external dependency this plan cannot close by itself; tracked here so it isn't
  * forgotten when iOS app work starts.
+ *
+ * The launch handler below fulfills the `BGTaskScheduler` completion contract: it calls
+ * `setTaskCompletedWithSuccess` when the update finishes (or fails) and installs an
+ * `expirationHandler` that cancels the in-flight work and reports failure if iOS revokes
+ * background time first. This can only be exercised end-to-end on a real iOS host app under
+ * an actual background execution grant — there is no way to verify it at runtime without one,
+ * same limitation as the Info.plist registration gap above.
  */
 @OptIn(ExperimentalForeignApi::class)
 class AnimeBackgroundSchedulerImpl(
@@ -32,9 +40,23 @@ class AnimeBackgroundSchedulerImpl(
             identifier = ANIME_UPDATE_TASK_IDENTIFIER,
             usingQueue = null
         ) { task ->
-            coroutineScope.launch {
-                animeUpdateManager.update()
-                schedulePeriodicUpdate()
+            if (task == null) return@registerForTaskWithIdentifier
+
+            val job = coroutineScope.launch {
+                try {
+                    animeUpdateManager.update()
+                    schedulePeriodicUpdate()
+                    task.setTaskCompletedWithSuccess(success = true)
+                } catch (exception: CancellationException) {
+                    throw exception
+                } catch (exception: Throwable) {
+                    task.setTaskCompletedWithSuccess(success = false)
+                }
+            }
+
+            task.expirationHandler = {
+                job.cancel()
+                task.setTaskCompletedWithSuccess(success = false)
             }
         }
     }

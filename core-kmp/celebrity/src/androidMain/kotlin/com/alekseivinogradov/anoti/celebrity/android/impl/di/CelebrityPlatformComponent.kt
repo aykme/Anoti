@@ -4,11 +4,9 @@ import android.content.Context
 import com.alekseivinogradov.anoti.celebrity.android.impl.domain.coroutinecontext.CoroutineContextProviderPlatform
 import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.toast.manager.ToastManager
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.MakeConnectionErrorToast
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.MakeUnknownErrorToast
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.formatter.DateFormatterImpl
 import com.alekseivinogradov.anoti.di.kmp.PlatformContext
 import com.alekseivinogradov.anoti.di.kmp.qualifier.AppContext
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
@@ -24,8 +22,9 @@ internal annotation class ConnectionError
 internal annotation class UnknownError
 
 /**
- * Contributes the Android [CoroutineContextProvider], [ToastProvider] and [DateFormatter]
- * bindings to [AppScope]'s merged component.
+ * Contributes the Android [CoroutineContextProvider] and [ToastProvider] bindings to
+ * [AppScope]'s merged component. The `DateFormatter` binding is platform-independent and lives
+ * in commonMain's `CelebrityComponent` instead.
  */
 @ContributesTo(AppScope::class)
 interface CelebrityPlatformComponent {
@@ -58,10 +57,4 @@ interface CelebrityPlatformComponent {
         makeConnectionErrorToast = makeConnectionErrorToast,
         makeUnknownErrorToast = makeUnknownErrorToast
     )
-
-    @Provides
-    // App-scoped rather than activity-scoped on purpose: the provider is unscoped, so every
-    // injection point still gets its own stateless DateFormatterImpl, and keeping the binding
-    // in AppScope is what lets iOS reach it as well — iOS has no ActivityScope graph.
-    fun provideDateFormatter(): DateFormatter = DateFormatterImpl()
 }

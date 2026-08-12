@@ -12,6 +12,7 @@ import com.alekseivinogradov.anoti.di.kmp.PlatformContext
 import com.alekseivinogradov.anoti.di.kmp.qualifier.ActivityContext
 import com.alekseivinogradov.anoti.di.kmp.scope.ActivityScope
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
+import com.alekseivinogradov.anoti.di.kmp.scope.FeatureScope
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesSubcomponent
@@ -20,7 +21,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 /**
  * `MainActivity`'s [ActivityScope] graph — one instance per Activity, created from the app-scope
  * graph through [Factory]. It merges every [ActivityScope] contribution in the app (the bottom
- * navigation bar store) and owns the per-screen [ActivityScope] child graphs.
+ * navigation bar store) and owns the per-screen [FeatureScope] child graphs.
  */
 @ContributesSubcomponent(ActivityScope::class)
 @SingleIn(ActivityScope::class)
