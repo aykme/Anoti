@@ -1,9 +1,9 @@
 package com.alekseivinogradov.anoti.testutils.android
 
 import androidx.test.espresso.ViewInteraction
+import kotlinx.coroutines.delay
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.delay
 
 /**
  * Retries [interactionCall] until it stops throwing, up to [maxAttempt] times.
@@ -24,7 +24,7 @@ suspend fun safeInteraction(
             if (maxAttempt <= 0) {
                 throw Throwable(
                     "The number of attempts in Safe Interaction() method " +
-                            "has ended with error result: $e"
+                        "has ended with error result: $e"
                 )
             } else {
                 delay(attemptDelay)

@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.alekseivinogradov.anoti.animebase.android.impl.presentation.adapter.decorator.BottomSpaceLastItemDecorator
 import com.alekseivinogradov.anoti.animebase.android.impl.presentation.adapter.decorator.EdgeToEdgeItemDecorator
-import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as baseRes
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.loading_in_progress
 import com.alekseivinogradov.anoti.animelist.android.impl.presentation.adapter.AnimeListAdapter
 import com.alekseivinogradov.anoti.animelist.kmp.R
@@ -31,13 +30,11 @@ import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.search_hint
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.search_off_description
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.search_on_description
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.soon
+import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.PAGING_PREFETCH_DISTANCE
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
-import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
-import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
-import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as celebrityRes
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.connection_error
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
@@ -50,6 +47,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.getString
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as baseRes
+import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
+import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as celebrityRes
 
 internal class AnimeListViewImpl(
     private val rootView: View,
@@ -184,15 +184,18 @@ internal class AnimeListViewImpl(
 
     private fun initEdgeToEdgeListenerIfNeeded() {
         if (isEdgeToEdgeEnabled()) {
-            ViewCompat.setOnApplyWindowInsetsListener(rootView)
-            { _, insets ->
+            ViewCompat.setOnApplyWindowInsetsListener(rootView) { _, insets ->
                 val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
 
                 upperMenuLayout.setPadding(
-                    /* left = */upperMenuLayout.paddingLeft,
-                    /* top = */systemBars.top,
-                    /* right = */upperMenuLayout.paddingRight,
-                    /* bottom = */upperMenuLayout.paddingBottom
+                    /* left = */
+                        upperMenuLayout.paddingLeft,
+                    /* top = */
+                        systemBars.top,
+                    /* right = */
+                        upperMenuLayout.paddingRight,
+                    /* bottom = */
+                        upperMenuLayout.paddingBottom
                 )
 
                 itemDecorator?.let { oldItemDecorator: EdgeToEdgeItemDecorator ->
@@ -210,7 +213,8 @@ internal class AnimeListViewImpl(
 
     private fun initSwipeToRefresh() {
         swipeRefreshLayout.setProgressViewOffset(
-            /* scale = */ false,
+            /* scale = */
+            false,
             /* start = */
             com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SWIPE_REFRESH_START_OFFSET,
             /* end = */
@@ -276,9 +280,12 @@ internal class AnimeListViewImpl(
     private fun initRv() {
         animeListRv.adapter = adapter
         animeListRv.layoutManager = LinearLayoutManager(
-            /* context = */ context,
-            /* orientation = */ LinearLayoutManager.VERTICAL,
-            /* reverseLayout = */ false
+            /* context = */
+            context,
+            /* orientation = */
+            LinearLayoutManager.VERTICAL,
+            /* reverseLayout = */
+            false
         )
         animeListRv.itemAnimator = null
         animeListRv.addItemDecoration(BottomSpaceLastItemDecorator())

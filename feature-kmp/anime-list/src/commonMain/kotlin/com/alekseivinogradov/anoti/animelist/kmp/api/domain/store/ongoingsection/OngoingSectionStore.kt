@@ -10,8 +10,8 @@ import com.arkivanov.mvikotlin.core.store.Store
 /**
  * The store for the "ongoing" section's list.
  */
-interface OngoingSectionStore
-    : Store<OngoingSectionStore.Intent, OngoingSectionStore.State, OngoingSectionStore.Label> {
+interface OngoingSectionStore :
+    Store<OngoingSectionStore.Intent, OngoingSectionStore.State, OngoingSectionStore.Label> {
 
     /** @param sectionContent the section's list content. */
     data class State(

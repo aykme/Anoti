@@ -14,15 +14,15 @@ import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.Anim
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.episode_aired
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.new_episodes
-import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as celebrityRes
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.no_data
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
-import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.getString
+import kotlin.coroutines.cancellation.CancellationException
+import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
+import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as celebrityRes
 
 class AnimeNotificationManagerImpl(
     appContext: Context,
@@ -43,8 +43,10 @@ class AnimeNotificationManagerImpl(
 
     private val iconColor: Int =
         appContext.resources.getColor(
-            /* id = */ res_R.color.silver_transparent,
-            /* theme = */ appContext.resources.newTheme()
+            /* id = */
+            res_R.color.silver_transparent,
+            /* theme = */
+            appContext.resources.newTheme()
         )
 
     private var glideRequestManager: RequestManager? = null
@@ -75,8 +77,10 @@ class AnimeNotificationManagerImpl(
             }
 
         singleBuilder = NotificationCompat.Builder(
-            /* context = */ appContext,
-            /* channelId = */ channelId
+            /* context = */
+            appContext,
+            /* channelId = */
+            channelId
         )
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setGroup(newEpisodesGroupKey)
@@ -87,8 +91,10 @@ class AnimeNotificationManagerImpl(
             .setSmallIcon(res_R.mipmap.ic_notification)
 
         summaryNotification = NotificationCompat.Builder(
-            /* context = */ appContext,
-            /* channelId = */ channelId
+            /* context = */
+            appContext,
+            /* channelId = */
+            channelId
         )
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setGroup(newEpisodesGroupKey)
@@ -107,7 +113,7 @@ class AnimeNotificationManagerImpl(
         airedEpisode: Int?,
         imageUrl: String?
     ) {
-        val contentText = "${episodeAiredString}: ${airedEpisode ?: noDataString}"
+        val contentText = "$episodeAiredString: ${airedEpisode ?: noDataString}"
 
         notificationManager?.let { notNullNotificationManager: NotificationManagerCompat ->
             singleBuilder
@@ -116,14 +122,18 @@ class AnimeNotificationManagerImpl(
                 .setLargeIcon(createPosterImageBitmap(imageUrl))
 
             notNullNotificationManager.notify(
-                /* id = */ singleId,
-                /* notification = */ singleBuilder.build()
+                /* id = */
+                singleId,
+                /* notification = */
+                singleBuilder.build()
             )
             changeSingleIdToNext()
 
             notNullNotificationManager.notify(
-                /* id = */ newEpisodesSummaryId,
-                /* notification = */ summaryNotification
+                /* id = */
+                newEpisodesSummaryId,
+                /* notification = */
+                summaryNotification
             )
         }
     }

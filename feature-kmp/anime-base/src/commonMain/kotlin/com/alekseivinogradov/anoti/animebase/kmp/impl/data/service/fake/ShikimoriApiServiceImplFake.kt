@@ -6,8 +6,8 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.ImageResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.test.DesiredCallResult
-import kotlin.time.Duration
 import kotlinx.coroutines.delay
+import kotlin.time.Duration
 
 class ShikimoriApiServiceImplFake(
     private val desiredCallResult: DesiredCallResult,

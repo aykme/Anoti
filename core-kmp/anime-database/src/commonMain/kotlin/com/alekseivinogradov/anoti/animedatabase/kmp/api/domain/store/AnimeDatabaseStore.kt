@@ -8,8 +8,8 @@ import com.arkivanov.mvikotlin.core.store.Store
  * MVI store for the local anime database — the source of truth every feature reads saved anime
  * state from and mutates it through.
  */
-interface AnimeDatabaseStore
-    : Store<AnimeDatabaseStore.Intent, AnimeDatabaseStore.State, AnimeDatabaseStore.Label> {
+interface AnimeDatabaseStore :
+    Store<AnimeDatabaseStore.Intent, AnimeDatabaseStore.State, AnimeDatabaseStore.Label> {
 
     /** Current snapshot of the saved anime list. */
     data class State(

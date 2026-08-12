@@ -9,7 +9,8 @@ import kotlin.coroutines.cancellation.CancellationException
  */
 class SafeApiFake() : SafeApi {
     override suspend fun <T> call(
-        callAttempt: Int, apiCall: suspend () -> T
+        callAttempt: Int,
+        apiCall: suspend () -> T
     ): CallResult<T> {
         return try {
             CallResult.Success(apiCall.invoke())

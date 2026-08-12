@@ -5,11 +5,11 @@ import android.content.Context
 import androidx.navigation.NavDeepLinkBuilder
 import com.alekseivinogradov.anoti.animenotification.external.android.impl.presentation.provider.AnimeNotificationIntentProvider
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
-import com.alekseivinogradov.anoti.main.R as main_R
 import com.alekseivinogradov.anoti.main.impl.presentation.MainActivity
-import com.alekseivinogradov.anoti.navigation.R as navigation_R
 import me.tatarka.inject.annotations.Inject
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
+import com.alekseivinogradov.anoti.main.R as main_R
+import com.alekseivinogradov.anoti.navigation.R as navigation_R
 
 /**
  * The "main"-side implementation of [AnimeNotificationIntentProvider]. Lives here because it is

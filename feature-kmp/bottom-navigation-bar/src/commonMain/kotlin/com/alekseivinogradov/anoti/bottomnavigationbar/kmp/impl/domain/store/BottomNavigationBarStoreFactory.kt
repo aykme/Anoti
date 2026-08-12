@@ -9,12 +9,13 @@ class BottomNavigationBarStoreFactory(
     private val storeFactory: StoreFactory
 ) {
     fun create(): BottomNavigationBarStore {
-        return object : BottomNavigationBarStore,
+        return object :
+            BottomNavigationBarStore,
             Store<
-                    BottomNavigationBarStore.Intent,
-                    BottomNavigationBarStore.State,
-                    BottomNavigationBarStore.Label
-                    >
+                BottomNavigationBarStore.Intent,
+                BottomNavigationBarStore.State,
+                BottomNavigationBarStore.Label
+                >
             by storeFactory.create(
                 name = "BottomNavigationBarStore",
                 initialState = BottomNavigationBarStore.State(),

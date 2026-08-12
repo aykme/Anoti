@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.alekseivinogradov.anoti.animebase.android.impl.presentation.adapter.decorator.BottomSpaceLastItemDecorator
 import com.alekseivinogradov.anoti.animebase.android.impl.presentation.adapter.decorator.EdgeToEdgeItemDecorator
-import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as baseRes
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.loading_in_progress
 import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.adapter.AnimeFavoritesAdapter
 import com.alekseivinogradov.anoti.animefavorites.kmp.R
@@ -25,7 +24,6 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_list
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_list_image_description
 import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
-import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SWIPE_REFRESH_END_OFFSET
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SWIPE_REFRESH_START_OFFSET
@@ -38,6 +36,8 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.getString
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as baseRes
+import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 
 internal class AnimeFavoritesViewImpl(
     private val rootView: View,
@@ -107,15 +107,18 @@ internal class AnimeFavoritesViewImpl(
 
     private fun initEdgeToEdgeListenerIfNeeded() {
         if (isEdgeToEdgeEnabled()) {
-            ViewCompat.setOnApplyWindowInsetsListener(rootView)
-            { _, insets ->
+            ViewCompat.setOnApplyWindowInsetsListener(rootView) { _, insets ->
                 val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
 
                 animeFavoritesEmptyLayout.setPadding(
-                    /* left = */animeFavoritesEmptyLayout.paddingLeft,
-                    /* top = */systemBars.top,
-                    /* right = */animeFavoritesEmptyLayout.paddingRight,
-                    /* bottom = */animeFavoritesEmptyLayout.paddingBottom
+                    /* left = */
+                        animeFavoritesEmptyLayout.paddingLeft,
+                    /* top = */
+                        systemBars.top,
+                    /* right = */
+                        animeFavoritesEmptyLayout.paddingRight,
+                    /* bottom = */
+                        animeFavoritesEmptyLayout.paddingBottom
                 )
 
                 itemDecorator?.let { oldItemDecorator: EdgeToEdgeItemDecorator ->
@@ -133,9 +136,12 @@ internal class AnimeFavoritesViewImpl(
 
     private fun initSwipeToRefresh() {
         swipeRefreshLayout.setProgressViewOffset(
-            /* scale = */ false,
-            /* start = */ SWIPE_REFRESH_START_OFFSET,
-            /* end = */ SWIPE_REFRESH_END_OFFSET
+            /* scale = */
+            false,
+            /* start = */
+            SWIPE_REFRESH_START_OFFSET,
+            /* end = */
+            SWIPE_REFRESH_END_OFFSET
         )
         swipeRefreshLayout.setColorSchemeResources(res_R.color.cinnabar_500)
         swipeRefreshLayout.setOnRefreshListener {
@@ -155,9 +161,12 @@ internal class AnimeFavoritesViewImpl(
     private fun initRv() {
         animeFavoritesRv.adapter = adapter
         animeFavoritesRv.layoutManager = LinearLayoutManager(
-            /* context = */ context,
-            /* orientation = */ LinearLayoutManager.VERTICAL,
-            /* reverseLayout = */ false
+            /* context = */
+            context,
+            /* orientation = */
+            LinearLayoutManager.VERTICAL,
+            /* reverseLayout = */
+            false
         )
         animeFavoritesRv.addItemDecoration(BottomSpaceLastItemDecorator())
     }

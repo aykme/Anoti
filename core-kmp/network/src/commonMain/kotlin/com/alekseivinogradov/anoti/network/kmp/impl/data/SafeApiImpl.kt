@@ -3,10 +3,10 @@ package com.alekseivinogradov.anoti.network.kmp.impl.data
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import io.ktor.client.plugins.ResponseException
-import kotlin.coroutines.cancellation.CancellationException
-import kotlin.time.Duration
 import kotlinx.coroutines.delay
 import kotlinx.io.IOException
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration
 
 /**
  * Ktor-based [SafeApi]. [maxAttempt] is the total number of attempts (1 = never retry);

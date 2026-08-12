@@ -10,7 +10,8 @@ class AnimeListMainStoreFactory(
     private val executorFactory: AnimeListExecutorFactory
 ) {
     fun create(): AnimeListMainStore {
-        return object : AnimeListMainStore,
+        return object :
+            AnimeListMainStore,
             Store<AnimeListMainStore.Intent, AnimeListMainStore.State, AnimeListMainStore.Label>
             by storeFactory.create(
                 name = "AnimeListMainStore",

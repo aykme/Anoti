@@ -11,7 +11,8 @@ class AnimeDatabaseStoreFactory(
 ) {
 
     fun create(): AnimeDatabaseStore {
-        return object : AnimeDatabaseStore,
+        return object :
+            AnimeDatabaseStore,
             Store<AnimeDatabaseStore.Intent, AnimeDatabaseStore.State, AnimeDatabaseStore.Label>
             by storeFactory.create(
                 name = "AnimeDatabaseStore",

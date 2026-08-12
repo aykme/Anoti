@@ -47,7 +47,8 @@ class AnimeFavoritesFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View = inflater
         .inflate(R.layout.fragment_anime_favorites, container, false)

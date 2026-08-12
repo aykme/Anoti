@@ -10,10 +10,10 @@ import com.arkivanov.mvikotlin.core.store.Store
  * The store for the "announced" section's list.
  */
 interface AnnouncedSectionStore : Store<
-        AnnouncedSectionStore.Intent,
-        AnnouncedSectionStore.State,
-        AnnouncedSectionStore.Label
-        > {
+    AnnouncedSectionStore.Intent,
+    AnnouncedSectionStore.State,
+    AnnouncedSectionStore.Label
+    > {
 
     /** @param sectionContent the section's list content. */
     data class State(

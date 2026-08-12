@@ -17,8 +17,9 @@ class RepeatListener(
     private var handlerRunnable: Runnable
 
     init {
-        if (initialInterval < 0 || repeatInterval <= 0)
+        if (initialInterval < 0 || repeatInterval <= 0) {
             throw IllegalArgumentException("Incorrect intervals")
+        }
 
         handlerRunnable = Runnable {
             if (touchedView?.isPressed == true) {
@@ -26,8 +27,10 @@ class RepeatListener(
                     clickListener.onClick(view)
                 }
                 handler.postDelayed(
-                    /* r = */ handlerRunnable,
-                    /* delayMillis = */ repeatInterval
+                    /* r = */
+                    handlerRunnable,
+                    /* delayMillis = */
+                    repeatInterval
                 )
             } else {
                 handler.removeCallbacks(handlerRunnable)
@@ -49,8 +52,10 @@ class RepeatListener(
             MotionEvent.ACTION_DOWN -> {
                 handler.removeCallbacks(handlerRunnable)
                 handler.postDelayed(
-                    /* r = */ handlerRunnable,
-                    /* delayMillis = */ initialInterval
+                    /* r = */
+                    handlerRunnable,
+                    /* delayMillis = */
+                    initialInterval
                 )
                 touchedView?.isPressed = true
                 clickListener.onClick(view)

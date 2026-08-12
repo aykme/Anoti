@@ -10,10 +10,10 @@ import com.arkivanov.mvikotlin.core.store.Store
  */
 interface AnimeFavoritesMainStore :
     Store<
-            AnimeFavoritesMainStore.Intent,
-            AnimeFavoritesMainStore.State,
-            AnimeFavoritesMainStore.Label
-            > {
+        AnimeFavoritesMainStore.Intent,
+        AnimeFavoritesMainStore.State,
+        AnimeFavoritesMainStore.Label
+        > {
 
     /**
      * @param listItems favorites list items.

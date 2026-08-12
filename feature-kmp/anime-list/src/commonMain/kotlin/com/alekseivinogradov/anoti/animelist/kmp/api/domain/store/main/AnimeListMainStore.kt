@@ -13,8 +13,8 @@ import com.arkivanov.mvikotlin.core.store.Store
  * The top-level store for the anime list screen: selected section, search bar, and the
  * notification-enabled ids shared across sections.
  */
-interface AnimeListMainStore
-    : Store<AnimeListMainStore.Intent, AnimeListMainStore.State, AnimeListMainStore.Label> {
+interface AnimeListMainStore :
+    Store<AnimeListMainStore.Intent, AnimeListMainStore.State, AnimeListMainStore.Label> {
 
     /**
      * @param selectedSection currently selected section.

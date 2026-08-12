@@ -10,12 +10,13 @@ class AnimeFavoritesMainStoreFactory(
     private val executorFactory: AnimeFavoritesExecutorFactory,
 ) {
     fun create(): AnimeFavoritesMainStore {
-        return object : AnimeFavoritesMainStore,
+        return object :
+            AnimeFavoritesMainStore,
             Store<
-                    AnimeFavoritesMainStore.Intent,
-                    AnimeFavoritesMainStore.State,
-                    AnimeFavoritesMainStore.Label
-                    >
+                AnimeFavoritesMainStore.Intent,
+                AnimeFavoritesMainStore.State,
+                AnimeFavoritesMainStore.Label
+                >
             by storeFactory.create(
                 name = "AnimeFavoritesMainStore",
                 initialState = AnimeFavoritesMainStore.State(),

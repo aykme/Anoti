@@ -9,12 +9,12 @@ import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.Bott
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.UiModel
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarView
 import com.alekseivinogradov.anoti.main.R
-import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer
 import com.google.android.material.badge.BadgeDrawable
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 
 internal class BottomNavigationBarViewImpl(
     private val rootView: View,

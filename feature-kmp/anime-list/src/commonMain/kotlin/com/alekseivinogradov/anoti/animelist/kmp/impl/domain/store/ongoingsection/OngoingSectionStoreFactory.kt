@@ -11,7 +11,8 @@ class OngoingSectionStoreFactory(
 ) {
 
     fun create(): OngoingSectionStore {
-        return object : OngoingSectionStore,
+        return object :
+            OngoingSectionStore,
             Store<OngoingSectionStore.Intent, OngoingSectionStore.State, OngoingSectionStore.Label>
             by storeFactory.create(
                 name = "OngoingSectionStore",

@@ -11,7 +11,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as baseRes
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.announced
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.beginning_of_the_show
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.episodes
@@ -36,12 +35,10 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.extra_
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.extra_info_on_description
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.new_episode
 import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.repeatlistener.RepeatListener
-import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
-import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as celebrityRes
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.no_data
 import com.bumptech.glide.Glide
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -49,6 +46,9 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.getString
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as baseRes
+import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
+import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as celebrityRes
 
 internal class AnimeFavoritesViewHolder(
     itemView: View,
@@ -250,7 +250,7 @@ internal class AnimeFavoritesViewHolder(
         mainInfoStroke.isVisible = true
         mainInfoBackground.isVisible = true
         releaseStatusBarrier.isInvisible = true
-        val episodesViewedText = "${episodesViewedString}:"
+        val episodesViewedText = "$episodesViewedString:"
         episodesViewedTitle.text = episodesViewedText
         episodesViewedMinusButton.contentDescription = episodesViewedMinusDescriptionString
         episodesViewedPlusButton.contentDescription = episodesViewedPlusDescriptionString
@@ -266,7 +266,9 @@ internal class AnimeFavoritesViewHolder(
             if (bindingAdapterPosition != RecyclerView.NO_POSITION) {
                 infoTypeClickViewHolderCallback(bindingAdapterPosition)
                 true
-            } else false
+            } else {
+                false
+            }
         }
         infoTypeButton.setOnClickListener {
             if (bindingAdapterPosition == RecyclerView.NO_POSITION) return@setOnClickListener

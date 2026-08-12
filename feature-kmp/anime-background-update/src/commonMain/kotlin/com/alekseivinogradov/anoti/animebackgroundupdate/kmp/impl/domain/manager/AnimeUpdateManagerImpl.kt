@@ -199,7 +199,9 @@ class AnimeUpdateManagerImpl(
 
                     if (updatedDatabaseItem != animeDb) {
                         updatedDatabaseItem
-                    } else null
+                    } else {
+                        null
+                    }
                 }
             }.filterNotNull()
 
@@ -214,7 +216,9 @@ class AnimeUpdateManagerImpl(
         if (
             currentDatabaseItem.releaseStatus != ReleaseStatusDb.RELEASED &&
             remoteItem.releaseStatus == ReleaseStatusDomain.RELEASED
-        ) return true
+        ) {
+            return true
+        }
         val currentEpisodesAired = currentDatabaseItem.episodesAired ?: 0
         val newEpisodesAired = remoteItem.episodesAired ?: 0
         return newEpisodesAired > currentEpisodesAired
@@ -246,7 +250,9 @@ class AnimeUpdateManagerImpl(
         if (
             currentDatabaseItem.releaseStatus != ReleaseStatusDb.RELEASED &&
             updatedDatabaseItem.releaseStatus == ReleaseStatusDb.RELEASED
-        ) return true
+        ) {
+            return true
+        }
         val currentEpisodesAired = currentDatabaseItem.episodesAired ?: 0
         val newEpisodesAired = updatedDatabaseItem.episodesAired ?: 0
         return newEpisodesAired > currentEpisodesAired

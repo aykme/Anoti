@@ -32,9 +32,12 @@ class AnimeNotificationChannelFactory @Inject constructor(
             getString(Res.string.anime_notification_channel_description)
         }
         return NotificationChannel(
-            /* id = */ channelId,
-            /* name = */ name,
-            /* importance = */ NotificationManager.IMPORTANCE_DEFAULT
+            /* id = */
+            channelId,
+            /* name = */
+            name,
+            /* importance = */
+            NotificationManager.IMPORTANCE_DEFAULT
         ).apply {
             description = channelDescription
             enableVibration(true)

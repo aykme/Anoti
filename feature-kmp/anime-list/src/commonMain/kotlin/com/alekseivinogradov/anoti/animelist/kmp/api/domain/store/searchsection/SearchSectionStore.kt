@@ -10,8 +10,8 @@ import com.arkivanov.mvikotlin.core.store.Store
 /**
  * The store for the search section's list.
  */
-interface SearchSectionStore
-    : Store<SearchSectionStore.Intent, SearchSectionStore.State, SearchSectionStore.Label> {
+interface SearchSectionStore :
+    Store<SearchSectionStore.Intent, SearchSectionStore.State, SearchSectionStore.Label> {
 
     /**
      * @param searchText current search text.

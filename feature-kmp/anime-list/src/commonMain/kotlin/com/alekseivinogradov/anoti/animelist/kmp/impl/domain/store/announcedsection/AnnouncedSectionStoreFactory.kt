@@ -11,12 +11,13 @@ class AnnouncedSectionStoreFactory(
 ) {
 
     fun create(): AnnouncedSectionStore {
-        return object : AnnouncedSectionStore,
+        return object :
+            AnnouncedSectionStore,
             Store<
-                    AnnouncedSectionStore.Intent,
-                    AnnouncedSectionStore.State,
-                    AnnouncedSectionStore.Label
-                    >
+                AnnouncedSectionStore.Intent,
+                AnnouncedSectionStore.State,
+                AnnouncedSectionStore.Label
+                >
             by storeFactory.create(
                 name = "AnnouncedSectionStore",
                 initialState = AnnouncedSectionStore.State(),

@@ -1,6 +1,5 @@
 package com.alekseivinogradov.anoti.animenotification.android.impl.presentation.di
 
-import android.content.Context
 import com.alekseivinogradov.anoti.animenotification.android.impl.presentation.manager.AnimeNotificationManagerImpl
 import com.alekseivinogradov.anoti.animenotification.external.android.impl.presentation.provider.AnimeNotificationIntentProvider
 import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager

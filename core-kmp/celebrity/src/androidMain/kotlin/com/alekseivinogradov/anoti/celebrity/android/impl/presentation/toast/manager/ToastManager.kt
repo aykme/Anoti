@@ -25,9 +25,12 @@ object ToastManager {
 
     private fun makeLongToast(appContext: Context, text: String) {
         Toast.makeText(
-            /* context = */ appContext.applicationContext,
-            /* text = */ text,
-            /* duration = */ Toast.LENGTH_LONG
+            /* context = */
+            appContext.applicationContext,
+            /* text = */
+            text,
+            /* duration = */
+            Toast.LENGTH_LONG
         ).show()
     }
 

@@ -1,12 +1,12 @@
 package com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext
 
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
+import kotlin.coroutines.CoroutineContext
 
 abstract class CoroutineContextProviderBase : CoroutineContextProvider {
 

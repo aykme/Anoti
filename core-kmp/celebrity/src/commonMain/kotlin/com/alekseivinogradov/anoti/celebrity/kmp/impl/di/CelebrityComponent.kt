@@ -20,9 +20,9 @@ interface CelebrityComponent {
     @SingleIn(AppScope::class)
     fun provideStoreFactory(): StoreFactory = DefaultStoreFactory()
 
-    @Provides
     // App-scoped rather than activity-scoped on purpose: the provider is unscoped, so every
     // injection point still gets its own stateless DateFormatterImpl, and keeping the binding
     // in AppScope is what lets iOS reach it as well — iOS has no ActivityScope graph.
+    @Provides
     fun provideDateFormatter(): DateFormatter = DateFormatterImpl()
 }

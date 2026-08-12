@@ -11,7 +11,8 @@ class SearchSectionStoreFactory(
 ) {
 
     fun create(): SearchSectionStore {
-        return object : SearchSectionStore,
+        return object :
+            SearchSectionStore,
             Store<SearchSectionStore.Intent, SearchSectionStore.State, SearchSectionStore.Label>
             by storeFactory.create(
                 name = "SearchSectionStore",

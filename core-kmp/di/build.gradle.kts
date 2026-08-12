@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.detekt)
 }
 
 // iOS-only module: `IosAppGraph` is the iOS app-scope graph, and Android's equivalent lives in

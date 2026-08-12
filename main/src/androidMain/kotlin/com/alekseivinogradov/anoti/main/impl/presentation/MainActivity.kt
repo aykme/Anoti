@@ -42,12 +42,12 @@ import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_positiv
 import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_title
 import com.alekseivinogradov.anoti.main.impl.presentation.di.MainComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.di.MainComponentFactoryHolder
-import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.arkivanov.essenty.lifecycle.asEssentyLifecycle
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.getString
+import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 
 class MainActivity :
     AppCompatActivity(),
@@ -125,14 +125,18 @@ class MainActivity :
             ViewCompat.setOnApplyWindowInsetsListener(mainLayout!!) { view, insets ->
                 val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
                 view.setPadding(
-                    /* left = */systemBars.left,
-                    /* top = */0,
-                    /* right = */systemBars.right,
+                    /* left = */
+                        systemBars.left,
+                    /* top = */
+                    0,
+                    /* right = */
+                        systemBars.right,
                     /** systemBars.bottom works incorrectly with BottomNavigationView.
                      * It makes double padding and
                      * status bar color elements problems on light theme
                      */
-                    /* bottom = */0
+                    /* bottom = */
+                    0
                 )
                 insets
             }
@@ -160,13 +164,17 @@ class MainActivity :
         if (Build.VERSION.SDK_INT >= TIRAMISU) {
             when {
                 ContextCompat.checkSelfPermission(
-                    /* context = */ this,
-                    /* permission = */ Manifest.permission.POST_NOTIFICATIONS
+                    /* context = */
+                    this,
+                    /* permission = */
+                    Manifest.permission.POST_NOTIFICATIONS
                 ) == PackageManager.PERMISSION_GRANTED -> Unit
 
                 ActivityCompat.shouldShowRequestPermissionRationale(
-                    /* activity = */ this,
-                    /* permission = */ Manifest.permission.POST_NOTIFICATIONS
+                    /* activity = */
+                    this,
+                    /* permission = */
+                    Manifest.permission.POST_NOTIFICATIONS
                 ) -> {
                     showNotificationsRationale()
                 }
@@ -198,15 +206,19 @@ class MainActivity :
             }
 
         MaterialAlertDialogBuilder(
-            /* context = */ this,
-            /* overrideThemeResId = */ res_R.style.Theme_Anoti_MaterialAlertDialog
+            /* context = */
+            this,
+            /* overrideThemeResId = */
+            res_R.style.Theme_Anoti_MaterialAlertDialog
         )
             .setIcon(res_R.mipmap.ic_launcher)
             .setTitle(dialogTitle)
             .setMessage(dialogNotificationsRationaleMessage)
             .setNegativeButton(
-                /* text = */ dialogNegativeButton,
-                /* listener = */ null
+                /* text = */
+                dialogNegativeButton,
+                /* listener = */
+                null
             )
             .setPositiveButton(dialogPositiveButton) { _, _ -> onNotificationRequestApproved() }
             .show()
@@ -219,8 +231,10 @@ class MainActivity :
             val intent = Intent().also {
                 it.action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
                 it.putExtra(
-                    /* name = */ Settings.EXTRA_APP_PACKAGE,
-                    /* value = */ this.packageName
+                    /* name = */
+                    Settings.EXTRA_APP_PACKAGE,
+                    /* value = */
+                    this.packageName
                 )
             }
             this.startActivity(intent)

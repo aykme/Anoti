@@ -15,7 +15,7 @@ class AtRecyclerPositionMatcher(
     override fun describeTo(description: Description) {
         description.appendText(
             "Recycler view matcher with position: $position " +
-                    "and viewMatcher: $viewMather"
+                "and viewMatcher: $viewMather"
         )
         viewMather.describeTo(description)
     }

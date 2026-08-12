@@ -7,8 +7,8 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSour
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.test.DesiredCallResult
-import kotlin.time.Duration
 import kotlinx.coroutines.delay
+import kotlin.time.Duration
 
 class AnimeListSourceImplFake(
     private val desiredCallResult: DesiredCallResult,

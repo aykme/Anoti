@@ -60,7 +60,9 @@ private fun getAvailableEpisodesInfo(listItemDomain: ListItemDomain): String {
     val episodesTotalNotNull = listItemDomain.episodesTotal ?: 0
     val episodesTotalString = if (episodesTotalNotNull > 0) {
         episodesTotalNotNull.toString()
-    } else "?"
+    } else {
+        "?"
+    }
 
     return "$episodesAiredString / $episodesTotalString"
 }

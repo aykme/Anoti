@@ -7,10 +7,10 @@ import com.arkivanov.mvikotlin.core.store.Store
  * The store for the bottom navigation bar.
  */
 interface BottomNavigationBarStore : Store<
-        BottomNavigationBarStore.Intent,
-        BottomNavigationBarStore.State,
-        BottomNavigationBarStore.Label
-        > {
+    BottomNavigationBarStore.Intent,
+    BottomNavigationBarStore.State,
+    BottomNavigationBarStore.Label
+    > {
 
     /**
      * @param selectedSection currently selected section.

@@ -7,7 +7,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as baseRes
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.announced
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.beginning_of_the_show
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.episodes
@@ -28,10 +27,8 @@ import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.available_episodes_info_discription
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.extra_episodes_info_description
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.poster_image_description
-import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
-import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as celebrityRes
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.no_data
 import com.bumptech.glide.Glide
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -39,6 +36,9 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.getString
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as baseRes
+import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
+import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as celebrityRes
 
 internal class AnimeListViewHolder(
     itemView: View,
@@ -314,7 +314,9 @@ internal class AnimeListViewHolder(
         val episodesTotalNotNull = episodesTotal ?: 0
         val episodesTotalString = if (episodesTotalNotNull > 0) {
             episodesTotalNotNull.toString()
-        } else "?"
+        } else {
+            "?"
+        }
 
         return "$episodesString: $episodesAiredString / $episodesTotalString"
     }

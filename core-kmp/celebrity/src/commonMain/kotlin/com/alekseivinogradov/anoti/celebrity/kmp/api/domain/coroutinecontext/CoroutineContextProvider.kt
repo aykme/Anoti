@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext
 
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Coroutine contexts and dispatchers used across the app, abstracted so platforms/tests can

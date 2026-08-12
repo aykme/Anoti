@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.kotlinCompose) // required alongside composeMultiplatform, see Task 1 step 3
     alias(libs.plugins.ksp)
+    alias(libs.plugins.detekt)
 }
 
 compose.resources {
