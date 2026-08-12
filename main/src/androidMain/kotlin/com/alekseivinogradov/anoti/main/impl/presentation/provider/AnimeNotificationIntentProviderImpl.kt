@@ -17,8 +17,8 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
  * activity.
  *
  * `FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK` guarantees this always goes through
- * [MainActivity.onCreate] — never `onNewIntent` — whether the app was already running or not
- * (the same flags `androidx.navigation`'s `NavDeepLinkBuilder` used, confirmed from its source).
+ * [MainActivity.onCreate] — never `onNewIntent` — whether the app was already running or not;
+ * `FLAG_ACTIVITY_CLEAR_TASK` specifically is what forces the existing task to be torn down first.
  */
 @Inject
 @ContributesBinding(AppScope::class)
