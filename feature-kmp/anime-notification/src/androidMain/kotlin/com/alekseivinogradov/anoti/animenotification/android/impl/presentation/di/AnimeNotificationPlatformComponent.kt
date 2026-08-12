@@ -26,7 +26,7 @@ interface AnimeNotificationPlatformComponent {
         animeNotificationIntentProvider: AnimeNotificationIntentProvider,
         coroutineContextProvider: CoroutineContextProvider
     ): AnimeNotificationManager = AnimeNotificationManagerImpl(
-        appContext = appContext as Context,
+        appContext = appContext,
         animeNotificationIntentProvider = animeNotificationIntentProvider,
         coroutineContextProvider = coroutineContextProvider
     )

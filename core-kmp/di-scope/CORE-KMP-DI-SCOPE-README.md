@@ -1,5 +1,5 @@
 Zero-dependency leaf module for shared DI plumbing. Hosts the kotlin-inject-anvil scope
-markers, qualifier annotations, and the cross-platform `PlatformContext` handle that all of the
+markers, qualifier annotations, and the cross-platform `PlatformContext` handle that all the
 app's DI wiring builds on. Split out of `core-kmp:di` (see that module's README) specifically so
 leaf modules can depend on these types without creating a circular Gradle dependency with
 `core-kmp:di`, which depends on several leaf modules of its own.

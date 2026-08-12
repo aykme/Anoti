@@ -11,7 +11,7 @@ annotation class AppContext
 annotation class ActivityContext
 
 /**
- * Disambiguates the anime background-update feature's own `WorkManager` bindings (its
+ * Defines the anime background-update feature's own `WorkManager` bindings (its
  * `Configuration`, one-time and periodic `WorkRequest`s) from any other same-typed binding in
  * the graph.
  */

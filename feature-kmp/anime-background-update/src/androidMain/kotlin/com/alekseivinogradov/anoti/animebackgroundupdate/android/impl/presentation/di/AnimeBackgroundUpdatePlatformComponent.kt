@@ -1,6 +1,5 @@
 package com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.presentation.di
 
-import android.content.Context
 import androidx.work.Configuration
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
@@ -24,10 +23,10 @@ import com.alekseivinogradov.anoti.di.kmp.PlatformContext
 import com.alekseivinogradov.anoti.di.kmp.qualifier.AnimeBackgroundUpdate
 import com.alekseivinogradov.anoti.di.kmp.qualifier.AppContext
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
-import java.util.concurrent.TimeUnit
 import me.tatarka.inject.annotations.Provides
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
+import java.util.concurrent.TimeUnit
 
 /**
  * Contributes the Android [AnimeUpdateManager], the app's [WorkManager] handle and its work
@@ -76,9 +75,8 @@ interface AnimeBackgroundUpdatePlatformComponent {
         @AppContext appContext: PlatformContext,
         @AnimeBackgroundUpdate workManagerConfiguration: Configuration
     ): WorkManager {
-        val context = appContext as Context
-        WorkManager.initialize(context = context, configuration = workManagerConfiguration)
-        return WorkManager.getInstance(context = context)
+        WorkManager.initialize(context = appContext, configuration = workManagerConfiguration)
+        return WorkManager.getInstance(context = appContext)
     }
 
     @Provides
