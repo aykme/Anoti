@@ -58,8 +58,7 @@ kotlin {
             api(project(":feature-kmp:anime-list"))
             api(project(":feature-kmp:anime-favorites"))
 
-            implementation(project(":navigation"))
-            implementation(project(":core-kmp:navigation")) // new
+            implementation(project(":core-kmp:navigation"))
             implementation(project(":feature-kmp:anime-base"))
             implementation(project(":core-kmp:celebrity"))
             implementation(project(":core-kmp:network"))
@@ -73,10 +72,9 @@ kotlin {
             implementation(libs.mvikotlin)
             implementation(libs.essenty.lifecycle)
             implementation(libs.androidx.constraintlayout)
-            implementation(libs.androidx.navigation.fragment.ktx)
-            implementation(libs.androidx.navigation.ui.ktx)
-            implementation(libs.decompose) // new
-            implementation(libs.kotlinx.serialization.json) // new
+            implementation(libs.material)
+            implementation(libs.decompose)
+            implementation(libs.kotlinx.serialization.json)
 
             implementation(libs.kotlin.inject.runtime)
             implementation(libs.kotlin.inject.anvil.runtime)

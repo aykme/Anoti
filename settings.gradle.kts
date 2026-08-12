@@ -24,7 +24,6 @@ dependencyResolutionManagement {
 rootProject.name = "Anoti"
 include(":app")
 include(":main")
-include(":navigation")
 include(":core-kmp:celebrity")
 include(":core-kmp:anime-database")
 include(":core-kmp:di")
