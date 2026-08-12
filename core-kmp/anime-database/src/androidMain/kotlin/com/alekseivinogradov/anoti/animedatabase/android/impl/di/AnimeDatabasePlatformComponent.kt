@@ -1,6 +1,5 @@
 package com.alekseivinogradov.anoti.animedatabase.android.impl.di
 
-import android.content.Context
 import com.alekseivinogradov.anoti.animedatabase.android.impl.data.getAnimeDatabase
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.AnimeDatabase
 import com.alekseivinogradov.anoti.di.kmp.PlatformContext
@@ -18,5 +17,5 @@ interface AnimeDatabasePlatformComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun provideAnimeDatabase(@AppContext appContext: PlatformContext): AnimeDatabase =
-        getAnimeDatabase(appContext as Context)
+        getAnimeDatabase(appContext)
 }

@@ -1,6 +1,5 @@
 package com.alekseivinogradov.anoti.celebrity.android.impl.di
 
-import android.content.Context
 import com.alekseivinogradov.anoti.celebrity.android.impl.domain.coroutinecontext.CoroutineContextProviderPlatform
 import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.toast.manager.ToastManager
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
@@ -32,21 +31,21 @@ interface CelebrityPlatformComponent {
     @SingleIn(AppScope::class)
     fun provideCoroutineContextProvider(
         @AppContext appContext: PlatformContext
-    ): CoroutineContextProvider = CoroutineContextProviderPlatform(appContext = appContext as Context)
+    ): CoroutineContextProvider = CoroutineContextProviderPlatform(appContext = appContext)
 
     @Provides
     @SingleIn(AppScope::class)
     @ConnectionError
     fun provideMakeConnectionErrorToast(
         @AppContext appContext: PlatformContext
-    ): MakeConnectionErrorToast = { ToastManager.makeConnectionErrorToast(appContext as Context) }
+    ): MakeConnectionErrorToast = { ToastManager.makeConnectionErrorToast(appContext) }
 
     @Provides
     @SingleIn(AppScope::class)
     @UnknownError
     fun provideMakeUnknownErrorToast(
         @AppContext appContext: PlatformContext
-    ): MakeUnknownErrorToast = { ToastManager.makeUnknownErrorToast(appContext as Context) }
+    ): MakeUnknownErrorToast = { ToastManager.makeUnknownErrorToast(appContext) }
 
     @Provides
     @SingleIn(AppScope::class)

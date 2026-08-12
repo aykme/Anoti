@@ -57,7 +57,7 @@ interface MainComponent {
     val animeFavoritesComponentFactory: AnimeFavoritesComponent.Factory
 
     /**
-     * Builds [MainComponent]s; contributed to the [AppScope] graph. The [activityContext]
+     * Builds [MainComponent]s; contributed to the [AppScope] graph. The activityContext
      * parameter is bound into the generated component automatically — kotlin-inject-anvil
      * forwards factory parameters as `@get:Provides` properties, so no annotation is needed here.
      */
