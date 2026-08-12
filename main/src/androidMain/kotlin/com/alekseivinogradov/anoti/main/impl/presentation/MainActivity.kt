@@ -89,19 +89,24 @@ class MainActivity :
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // defaultComponentContext() reads the SavedStateRegistry, which only becomes readable
+        // once super.onCreate() has restored it — so it must run first.
+        super.onCreate(savedInstanceState)
         mainComponent = (this.application as MainComponentFactoryHolder)
             .mainComponentFactory
             .createMainComponent(activityContext = this as Context)
         mainStore = mainComponent.bottomNavigationBarStore
         animeDatabaseStore = mainComponent.animeDatabaseStore
         coroutineContextProvider = mainComponent.coroutineContextProvider
-        val deepLinkTarget = readDeepLinkTarget()
+        // getIntent() keeps returning the launching Intent for the whole task, so the deep link
+        // must only be honoured on a fresh start — otherwise every Activity recreation would
+        // discard the restored navigation state and jump back to the deep link's target.
+        val deepLinkTarget = if (savedInstanceState == null) readDeepLinkTarget() else null
         rootComponent = RootComponent(
             componentContext = defaultComponentContext(discardSavedState = deepLinkTarget != null),
             initialConfiguration = deepLinkTarget ?: RootConfig.AnimeList,
             childFactory = ::createRootChild
         )
-        super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
         mainLayout = findViewById(R.id.main_layout)
@@ -147,9 +152,13 @@ class MainActivity :
             )
         }
 
+    /**
+     * This Activity is exported, so any app can launch it with an arbitrary extra — a malformed
+     * payload is treated as "no deep link" rather than being allowed to crash [onCreate].
+     */
     private fun readDeepLinkTarget(): RootConfig? {
         val encoded = intent?.getStringExtra(EXTRA_DEEP_LINK_TARGET) ?: return null
-        return Json.decodeFromString(RootConfig.serializer(), encoded)
+        return runCatching { Json.decodeFromString(RootConfig.serializer(), encoded) }.getOrNull()
     }
 
     @SuppressLint("SourceLockedOrientationActivity")

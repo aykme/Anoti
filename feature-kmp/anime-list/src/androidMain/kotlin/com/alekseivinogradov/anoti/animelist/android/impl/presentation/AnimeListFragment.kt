@@ -1,6 +1,5 @@
 package com.alekseivinogradov.anoti.animelist.android.impl.presentation
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -30,11 +29,6 @@ class AnimeListFragment : Fragment() {
         )
     }
 
-    override fun onAttach(context: Context) {
-        screenComponent = (this.activity as AnimeListScreenComponentHolder).animeListScreenComponent
-        super.onAttach(context)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -44,6 +38,10 @@ class AnimeListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // Resolved here rather than in onAttach(): a restored Fragment is attached from inside
+        // MainActivity.onCreate()'s super call, before the Activity has built its RootComponent.
+        // onViewCreated() is the first callback guaranteed to run after onCreate() has returned.
+        screenComponent = (this.activity as AnimeListScreenComponentHolder).animeListScreenComponent
         // rootView is always non-null here: assigned in onCreateView(), cleared only in
         // onDestroyView().
         @Suppress("UnsafeCallOnNullableType")
