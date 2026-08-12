@@ -42,6 +42,7 @@ kotlin {
             implementation(project(":core-kmp:network"))
             implementation(project(":core-kmp:celebrity"))
             implementation(project(":core-kmp:anime-database"))
+            implementation(project(":feature-kmp:anime-base"))
 
             implementation(libs.mvikotlin)
 
@@ -50,7 +51,6 @@ kotlin {
             implementation(libs.kotlin.inject.anvil.runtime.optional)
         }
         androidMain.dependencies {
-            implementation(project(":feature-kmp:anime-base"))
             api(project(":core-kmp:celebrity"))
 
             implementation(libs.dagger)
