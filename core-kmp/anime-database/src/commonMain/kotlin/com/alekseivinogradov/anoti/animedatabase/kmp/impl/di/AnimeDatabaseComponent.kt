@@ -32,6 +32,8 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
  * Contributes the local anime database's [AnimeDatabaseRepository], usecase, and
  * [AnimeDatabaseStore] bindings to [AppScope]'s merged component.
  */
+// One function per provided dependency is the DI @Provides convention here, not god-interface growth.
+@Suppress("TooManyFunctions")
 @ContributesTo(AppScope::class)
 interface AnimeDatabaseComponent {
     @Provides
@@ -76,6 +78,8 @@ interface AnimeDatabaseComponent {
     ): ChangeAnimeDatabaseItemNewEpisodeStatusUsecase =
         ChangeAnimeDatabaseItemNewEpisodeStatusUsecaseImpl(repository)
 
+    // One parameter per AnimeDatabaseUsecases field being wired up, not incidental parameter creep.
+    @Suppress("LongParameterList")
     @Provides
     fun provideAnimeDatabaseUsecases(
         fetchAllAnimeDatabaseItemsFlowUsecase: FetchAllAnimeDatabaseItemsFlowUsecase,

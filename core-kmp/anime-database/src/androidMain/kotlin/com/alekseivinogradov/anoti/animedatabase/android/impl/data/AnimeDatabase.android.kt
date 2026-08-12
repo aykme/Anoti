@@ -3,8 +3,8 @@ package com.alekseivinogradov.anoti.animedatabase.android.impl.data
 import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.ANIME_TABLE_NAME
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.AnimeDatabase
-import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.animeTableName
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.getRoomDatabase
 
 private object AnimeDatabaseHolder {
@@ -22,7 +22,7 @@ fun getAnimeDatabase(context: Context): AnimeDatabase {
 
 internal fun getDatabaseBuilder(context: Context): RoomDatabase.Builder<AnimeDatabase> {
     val appContext = context.applicationContext
-    val dbFile = appContext.getDatabasePath(animeTableName)
+    val dbFile = appContext.getDatabasePath(ANIME_TABLE_NAME)
     return Room.databaseBuilder<AnimeDatabase>(
         context = appContext,
         name = dbFile.absolutePath

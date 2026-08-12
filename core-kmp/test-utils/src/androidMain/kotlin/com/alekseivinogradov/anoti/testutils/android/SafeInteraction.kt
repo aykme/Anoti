@@ -12,6 +12,9 @@ import kotlin.time.Duration.Companion.milliseconds
  * backoff growing to 7.5s) plus real request/render latency, so a slow-but-successful load
  * doesn't flake the assertion.
  */
+// The exhausted-retries failure wraps whatever interactionCall() last threw (AssertionError from
+// Espresso .check(), or a RuntimeException subtype from .perform()) — no narrower type fits both.
+@Suppress("TooGenericExceptionThrown")
 suspend fun safeInteraction(
     maxAttempt: Int = 60,
     attemptDelay: Duration = 500.milliseconds,
@@ -20,7 +23,12 @@ suspend fun safeInteraction(
     while (true) {
         return try {
             interactionCall()
-        } catch (e: Throwable) {
+        } catch (
+            // interactionCall() wraps both Espresso .check() (throws AssertionError) and
+            // .perform() (throws RuntimeException subtypes) — retrying on failure is this
+            // function's whole purpose, and no narrower type covers both.
+            @Suppress("TooGenericExceptionCaught") e: Throwable
+        ) {
             if (maxAttempt <= 0) {
                 throw Throwable(
                     "The number of attempts in Safe Interaction() method " +

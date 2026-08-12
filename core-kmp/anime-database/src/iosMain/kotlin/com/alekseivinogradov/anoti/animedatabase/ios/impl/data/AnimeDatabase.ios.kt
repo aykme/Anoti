@@ -2,8 +2,8 @@ package com.alekseivinogradov.anoti.animedatabase.ios.impl.data
 
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.ANIME_TABLE_NAME
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.AnimeDatabase
-import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.animeTableName
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.getRoomDatabase
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.NSDocumentDirectory
@@ -32,6 +32,6 @@ private fun getDatabaseBuilder(): RoomDatabase.Builder<AnimeDatabase> {
         )?.path
     )
     return Room.databaseBuilder<AnimeDatabase>(
-        name = "$documentDirectory/$animeTableName"
+        name = "$documentDirectory/$ANIME_TABLE_NAME"
     )
 }

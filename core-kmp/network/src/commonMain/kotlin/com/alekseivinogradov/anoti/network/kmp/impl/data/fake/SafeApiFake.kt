@@ -7,7 +7,7 @@ import kotlin.coroutines.cancellation.CancellationException
 /**
  * Test/preview [SafeApi]: never retries, classifies any failure as [CallResult.OtherError].
  */
-class SafeApiFake() : SafeApi {
+class SafeApiFake : SafeApi {
     override suspend fun <T> call(
         callAttempt: Int,
         apiCall: suspend () -> T
@@ -16,7 +16,10 @@ class SafeApiFake() : SafeApi {
             CallResult.Success(apiCall.invoke())
         } catch (e: CancellationException) {
             throw e
-        } catch (throwable: Throwable) {
+        } catch (
+            @Suppress("TooGenericExceptionCaught") throwable: Throwable
+        ) {
+            // Catching everything and wrapping it as a CallResult is this class's whole purpose.
             CallResult.OtherError(throwable)
         }
     }

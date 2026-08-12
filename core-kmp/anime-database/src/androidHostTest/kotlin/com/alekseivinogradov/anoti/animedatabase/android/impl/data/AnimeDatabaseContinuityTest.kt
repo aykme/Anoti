@@ -3,7 +3,7 @@ package com.alekseivinogradov.anoti.animedatabase.android.impl.data
 import android.content.Context
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
-import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.animeTableName
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.ANIME_TABLE_NAME
 import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -18,7 +18,7 @@ class AnimeDatabaseContinuityTest {
     @Test
     fun opensAnExistingPreMigrationDatabaseFileWithoutWipingItsData() = runTest {
         val context: Context = RuntimeEnvironment.getApplication()
-        val dbFile = context.getDatabasePath(animeTableName)
+        val dbFile = context.getDatabasePath(ANIME_TABLE_NAME)
         seedLegacyDatabaseFile(dbFile)
 
         val database = getAnimeDatabase(context)
@@ -27,7 +27,7 @@ class AnimeDatabaseContinuityTest {
 
         assertEquals(1, items.size)
         val item = items.first()
-        assertEquals(42, item.id)
+        assertEquals(SEEDED_ANIME_ID, item.id)
         assertEquals("One Piece", item.name)
         assertEquals(true, item.isNewEpisode)
     }
@@ -58,9 +58,13 @@ class AnimeDatabaseContinuityTest {
                 "INSERT INTO anoti_anime_table (id, name, image_url, episodes_aired, " +
                     "episodes_total, next_episode_at, aired_on, released_on, score, " +
                     "release_status, episodes_viewed, is_new_episode) VALUES " +
-                    "(42, 'One Piece', NULL, 10, NULL, NULL, '1999-10-20', NULL, 9.0, " +
-                    "'ONGOING', 5, 1)"
+                    "($SEEDED_ANIME_ID, 'One Piece', NULL, 10, NULL, NULL, '1999-10-20', NULL, " +
+                    "9.0, 'ONGOING', 5, 1)"
             )
         }
+    }
+
+    private companion object {
+        private const val SEEDED_ANIME_ID = 42
     }
 }

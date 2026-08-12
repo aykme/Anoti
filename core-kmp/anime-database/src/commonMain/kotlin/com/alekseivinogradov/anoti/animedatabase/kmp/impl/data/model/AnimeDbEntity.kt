@@ -4,10 +4,10 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.ReleaseStatusDb
-import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.animeTableName
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.ANIME_TABLE_NAME
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 
-@Entity(tableName = animeTableName)
+@Entity(tableName = ANIME_TABLE_NAME)
 data class AnimeDbEntity(
     @PrimaryKey @ColumnInfo(name = "id") val id: AnimeId,
     @ColumnInfo(name = "name") val name: String,

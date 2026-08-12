@@ -24,7 +24,10 @@ class SafeApiImpl(
             CallResult.Success(apiCall.invoke())
         } catch (e: CancellationException) {
             throw e
-        } catch (throwable: Throwable) {
+        } catch (
+            // Catching everything and classifying it into a CallResult is this class's whole purpose.
+            @Suppress("TooGenericExceptionCaught") throwable: Throwable
+        ) {
             if (isRetryable(throwable) && callAttempt < maxAttempt) {
                 delay(attemptDelay * callAttempt)
                 call(
@@ -38,7 +41,7 @@ class SafeApiImpl(
     }
 
     private fun isRetryable(throwable: Throwable): Boolean = when (throwable) {
-        is ResponseException -> throwable.response.status.value >= 500
+        is ResponseException -> throwable.response.status.value >= HTTP_SERVER_ERROR_STATUS
         is IOException -> true
         else -> false
     }
@@ -51,5 +54,9 @@ class SafeApiImpl(
 
         is IOException -> CallResult.NetworkError(throwable)
         else -> CallResult.OtherError(throwable)
+    }
+
+    private companion object {
+        private const val HTTP_SERVER_ERROR_STATUS = 500
     }
 }

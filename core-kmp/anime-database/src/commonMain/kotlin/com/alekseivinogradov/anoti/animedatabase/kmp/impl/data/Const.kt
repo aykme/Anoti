@@ -1,3 +1,3 @@
 package com.alekseivinogradov.anoti.animedatabase.kmp.impl.data
 
-internal const val animeTableName = "anoti_anime_table"
+internal const val ANIME_TABLE_NAME = "anoti_anime_table"

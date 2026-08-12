@@ -17,9 +17,7 @@ class RepeatListener(
     private var handlerRunnable: Runnable
 
     init {
-        if (initialInterval < 0 || repeatInterval <= 0) {
-            throw IllegalArgumentException("Incorrect intervals")
-        }
+        require(initialInterval >= 0 && repeatInterval > 0) { "Incorrect intervals" }
 
         handlerRunnable = Runnable {
             if (touchedView?.isPressed == true) {

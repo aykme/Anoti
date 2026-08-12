@@ -41,7 +41,10 @@ class Paginator<T>(
         } catch (cancellation: CancellationException) {
             isLoading = false
             throw cancellation
-        } catch (throwable: Throwable) {
+        } catch (
+            // Catching everything and wrapping it as an UnexpectedError is this method's whole purpose.
+            @Suppress("TooGenericExceptionCaught") throwable: Throwable
+        ) {
             isLoading = false
             return PageLoadResult.UnexpectedError(throwable = throwable, isFirstPage = isFirstPage)
         }
