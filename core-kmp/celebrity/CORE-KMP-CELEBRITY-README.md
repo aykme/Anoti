@@ -1,6 +1,5 @@
-Shared core utilities used across Anoti's KMP feature modules. Its `androidMain` also hosts the
-app's shared Android resources (theme, launcher icons, common drawables/fonts), not listed below
-since this README indexes `commonMain` only.
+Shared core utilities used across Anoti's KMP feature modules: coroutine contexts, date
+formatting, error-toast callbacks, and pagination.
 
 ## Entities
 

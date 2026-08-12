@@ -1,7 +1,7 @@
-The iOS app-scope graph. Its `iosMain` hosts `IosAppGraph`, the `@MergeComponent(AppScope::class)`
-an iOS host app would create once at startup — the mirror of `:app`'s Android `AppGraph`. Until
-that host app exists, it also serves as the compile-time proof that every `iosMain` binding in the
-repo actually wires together. The scope markers, qualifier annotations, and `PlatformContext` live
+The iOS app-scope graph. Hosts `IosAppGraph`, the `@MergeComponent(AppScope::class)` an iOS host
+app would create once at startup — the mirror of `:app`'s Android `AppGraph`. Until that host app
+exists, it also serves as the compile-time proof that every iOS binding in the repo actually
+wires together. The scope markers, qualifier annotations, and `PlatformContext` live
 in [`core-kmp:di-scope`](../di-scope/CORE-KMP-DI-SCOPE-README.md), a zero-dependency leaf module,
 so leaf modules can depend on them without cycling back through this one; `core-kmp:di` depends on
 `core-kmp:di-scope` in turn.
