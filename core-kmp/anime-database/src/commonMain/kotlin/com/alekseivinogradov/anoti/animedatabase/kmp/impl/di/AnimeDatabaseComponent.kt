@@ -28,6 +28,10 @@ import me.tatarka.inject.annotations.Provides
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
+/**
+ * Contributes the local anime database's [AnimeDatabaseRepository], usecase, and
+ * [AnimeDatabaseStore] bindings to [AppScope]'s merged component.
+ */
 @ContributesTo(AppScope::class)
 interface AnimeDatabaseComponent {
     @Provides
