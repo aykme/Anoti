@@ -83,9 +83,9 @@ Read this before doing any task in this repository.
       codebase's established conventions.
 - This applies to `README.md` and every other `*.md` file in the repo, including skill files
   under `.claude/skills/**` — try to keep them as clean as source code.
-- This also applies to Gradle files (`build.gradle.kts`, `settings.gradle.kts`, version catalog
-  TOML files, and similar) — they're code too, so reformat them and check that their formatting
-  matches established conventions the same as any other file.
+- This also applies to Gradle files (`build.gradle.kts`, `settings.gradle.kts`, and similar) and
+  to `*.toml` files, including `gradle/libs.versions.toml` — they're code too, so reformat them
+  and check that their formatting matches established conventions the same as any other file.
 
 ## Module READMEs
 
