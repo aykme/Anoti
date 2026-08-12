@@ -46,7 +46,6 @@ dependencies {
     implementation(project(":core-kmp:celebrity"))
     implementation(project(":core-kmp:anime-database"))
     implementation(project(":core-kmp:di"))
-    implementation(project(":core-kmp:di-scope"))
     implementation(project(":core-kmp:network"))
     implementation(project(":feature-kmp:anime-base"))
     implementation(project(":feature-kmp:anime-background-update"))
