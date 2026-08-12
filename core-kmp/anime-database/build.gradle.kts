@@ -51,10 +51,15 @@ kotlin {
             api(libs.androidx.room.runtime)
 
             implementation(project(":core-kmp:celebrity"))
+            implementation(project(":core-kmp:di-scope"))
 
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.mvikotlin)
             implementation(libs.androidx.sqlite.bundled)
+
+            implementation(libs.kotlin.inject.runtime)
+            implementation(libs.kotlin.inject.anvil.runtime)
+            implementation(libs.kotlin.inject.anvil.runtime.optional)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -63,17 +68,19 @@ kotlin {
         getByName("androidHostTest").dependencies {
             implementation(libs.robolectric)
         }
-        androidMain.dependencies {
-            implementation(libs.dagger)
-        }
     }
 }
 
 dependencies {
     add("kspAndroid", libs.androidx.room.compiler)
-    add("kspAndroid", libs.dagger.compiler)
     add("kspIosArm64", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
+
+    val kspTargets = listOf("Android", "IosArm64", "IosSimulatorArm64")
+    kspTargets.forEach { target ->
+        add("ksp$target", libs.kotlin.inject.compiler.ksp)
+        add("ksp$target", libs.kotlin.inject.anvil.compiler)
+    }
 }
 
 // androidHostTest runs the Android target's BundledSQLiteDriver on the host JVM (via Robolectric),

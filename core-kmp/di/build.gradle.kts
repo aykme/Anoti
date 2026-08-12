@@ -41,6 +41,7 @@ kotlin {
             implementation(project(":core-kmp:di-scope"))
             implementation(project(":core-kmp:network"))
             implementation(project(":core-kmp:celebrity"))
+            implementation(project(":core-kmp:anime-database"))
 
             implementation(libs.mvikotlin)
 
@@ -51,7 +52,6 @@ kotlin {
         androidMain.dependencies {
             implementation(project(":feature-kmp:anime-base"))
             api(project(":core-kmp:celebrity"))
-            implementation(project(":core-kmp:anime-database"))
 
             implementation(libs.dagger)
         }

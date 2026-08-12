@@ -1,5 +1,8 @@
 package com.alekseivinogradov.anoti.di.kmp
 
+import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
+import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsUsecase
+import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
@@ -48,4 +51,22 @@ abstract class TransitionalAppGraph(
      * `core-kmp:celebrity`'s `CelebrityPlatformComponent`.
      */
     abstract val dateFormatter: DateFormatter
+
+    /**
+     * The app-wide [AnimeDatabaseStore], see `core-kmp:anime-database`'s
+     * `AnimeDatabaseComponent`.
+     */
+    abstract val animeDatabaseStore: AnimeDatabaseStore
+
+    /**
+     * The app-wide [FetchAllAnimeDatabaseItemsUsecase], see `core-kmp:anime-database`'s
+     * `AnimeDatabaseComponent`.
+     */
+    abstract val fetchAllAnimeDatabaseItemsUsecase: FetchAllAnimeDatabaseItemsUsecase
+
+    /**
+     * The app-wide [UpdateAnimeDatabaseItemUsecase], see `core-kmp:anime-database`'s
+     * `AnimeDatabaseComponent`.
+     */
+    abstract val updateAnimeDatabaseItemUsecase: UpdateAnimeDatabaseItemUsecase
 }
