@@ -353,7 +353,7 @@ When you finish documenting the module(s) the current task actually touched, tak
 look at their sibling KMP modules (same `core-kmp/`/`feature-kmp/` parent, modules worked on
 around the same time). Module work often happens in batches, and it's easy for the last one or
 two in a batch to slip through without a README. A quick pass —
-`ls core-kmp/*/​*-README.md feature-kmp/*/​*-README.md` and diff against the actual module list
+`ls core-kmp/*/*-README.md feature-kmp/*/*-README.md` and diff against the actual module list
 — catches this cheaply. Don't silently create the missing ones, though: surface what's missing
 and let the user decide whether to include them in the current task or handle them separately,
 same as any other scope decision.
