@@ -23,6 +23,17 @@ Read this before doing any task in this repository.
 - When finishing a task, if worktrees were used, clean them up once their branches have been
   merged.
 
+## Code comments
+
+- Comments and KDoc describe the current code, not the task that produced it. Never write what
+  existed before the change, what didn't exist yet, or other task/migration history/status
+  ("this used to be X", "doesn't exist in this repo yet", "tracked here so it isn't
+  forgotten"). That belongs in the commit message or PR description, not in the code, and it
+  rots the moment it's no longer true.
+- Keep comments short and only where the WHY is genuinely non-obvious (a hidden constraint, a
+  race being guarded against, a workaround). Prefer a one-line comment right next to the
+  non-obvious part over a paragraph above the whole class explaining it.
+
 ## Git commits
 
 - Never add a `Co-Authored-By: Claude ...` trailer (or any co-author trailer) to commit
@@ -62,11 +73,11 @@ Read this before doing any task in this repository.
   touched or are otherwise affected but aren't part of this commit, none of this applies to
   them.
 - Go through every changed file before committing:
-  - If the project has a static code analyzer/linter configured, run it, fix what it flags,
-    then run it again to confirm the fixes actually resolved the issues.
-  - If there's no static analyzer for a given file, do the equivalent by hand: reformat the
-    code, optimize imports, and check that formatting matches the codebase's established
-    conventions.
+    - If the project has a static code analyzer/linter configured, run it, fix what it flags,
+      then run it again to confirm the fixes actually resolved the issues.
+    - If there's no static analyzer for a given file, do the equivalent by hand: reformat the
+      code, optimize imports, and check that formatting matches the codebase's established
+      conventions.
 - This applies to `README.md` and every other `*.md` file in the repo, including skill files
   under `.claude/skills/**` — try to keep them as clean as source code.
 - This also applies to Gradle files (`build.gradle.kts`, `settings.gradle.kts`, version catalog

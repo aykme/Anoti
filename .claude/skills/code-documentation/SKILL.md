@@ -57,7 +57,12 @@ adding doc comments or writing the README file once they confirm.
 
 ## What goes in the README
 
-1. **One intro line** — what the module is for. Not a paragraph.
+1. **One intro line** — what the module is for. Not a paragraph. Describe the module itself
+   (what it contains, what it's used for), not its internal source-set layout — no mentioning
+   `commonMain`/`androidMain`/`iosMain`, which platform hosts what, or which source set the
+   README indexes. That's implementation structure, not something a consumer needs to know to
+   use the module; see "Anything defined only in a platform-specific source set" below, which
+   applies to the intro line the same way it applies to the entity list.
 2. **Entities list** — one bullet per **major** entity a consumer would actually reach for and
    use on its own:
    `- [Name](path/to/File.kt) — one short line.`
@@ -70,10 +75,10 @@ adding doc comments or writing the README file once they confirm.
 3. **How to include it** — always present, two things:
     - The Gradle coordinate to depend on: `implementation(project(":core-kmp:celebrity"))`.
     - How an instance is actually obtained at runtime. If the project wires things through DI,
-      say so and say where — e.g. "provided via the platform module's Dagger setup" — without
-      re-explaining how DI works. If there's no DI (a plain constructor, a factory function),
-      say that instead. A reader who found this module and wants to use it needs this; it's
-      not optional the way the usage example is.
+      say so and say where — e.g. "provided via this module's kotlin-inject-anvil contributions,
+      merged into the app-scope graph" — without re-explaining how DI works. If there's no DI (a
+      plain constructor, a factory function), say that instead. A reader who found this module
+      and wants to use it needs this; it's not optional the way the usage example is.
 4. **Usage example** (optional, see "Code example vs. prose" below for when to actually write
    one) — a few lines showing how to obtain and drive the module's main entry point. One
    example for the primary entity is normally enough — don't write one per listed entity.
