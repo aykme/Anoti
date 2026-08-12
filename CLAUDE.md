@@ -73,11 +73,14 @@ Read this before doing any task in this repository.
   touched or are otherwise affected but aren't part of this commit, none of this applies to
   them.
 - Go through every changed file before committing:
-    - If the project has a static code analyzer/linter configured, run it, fix what it flags,
-      then run it again to confirm the fixes actually resolved the issues.
-    - If there's no static analyzer for a given file, do the equivalent by hand: reformat the
-      code, optimize imports, and check that formatting matches the codebase's established
-      conventions.
+    - For Kotlin files: run detekt on the files being committed. Fix whatever it flags, then
+      run detekt again on those same files to confirm the fixes actually resolved the issues.
+    - If a finding is easy to fix without changing logic (formatting, naming, straightforward
+      extraction, and the like), fix it yourself. If resolving a finding would require a
+      substantial change to the logic, don't guess — ask the developer which approach to take.
+    - For files detekt doesn't analyze (`*.md`, `*.xml`, and similar), do the equivalent by
+      hand: reformat the code, optimize imports, and check that formatting matches the
+      codebase's established conventions.
 - This applies to `README.md` and every other `*.md` file in the repo, including skill files
   under `.claude/skills/**` — try to keep them as clean as source code.
 - This also applies to Gradle files (`build.gradle.kts`, `settings.gradle.kts`, version catalog
