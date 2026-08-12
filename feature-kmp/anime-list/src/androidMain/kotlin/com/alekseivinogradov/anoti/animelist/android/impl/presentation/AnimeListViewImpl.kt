@@ -51,6 +51,8 @@ import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as base
 import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as celebrityRes
 
+// One function per bindable UI field/event, not incidental growth.
+@Suppress("TooManyFunctions")
 internal class AnimeListViewImpl(
     private val rootView: View,
     dateFormatter: DateFormatter,
@@ -189,13 +191,13 @@ internal class AnimeListViewImpl(
 
                 upperMenuLayout.setPadding(
                     /* left = */
-                        upperMenuLayout.paddingLeft,
+                    upperMenuLayout.paddingLeft,
                     /* top = */
-                        systemBars.top,
+                    systemBars.top,
                     /* right = */
-                        upperMenuLayout.paddingRight,
+                    upperMenuLayout.paddingRight,
                     /* bottom = */
-                        upperMenuLayout.paddingBottom
+                    upperMenuLayout.paddingBottom
                 )
 
                 itemDecorator?.let { oldItemDecorator: EdgeToEdgeItemDecorator ->

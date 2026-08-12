@@ -15,6 +15,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+// One function per Intent handled, not incidental growth.
+@Suppress("TooManyFunctions")
 class AnimeFavoritesExecutorImpl(
     private val coroutineContextProvider: CoroutineContextProvider,
     private val usecases: FavoritesUsecases,

@@ -9,6 +9,8 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 
+// One parameter per click callback plus its two dependencies, not incidental parameter creep.
+@Suppress("LongParameterList")
 internal class AnimeFavoritesAdapter(
     private val itemClickAdapterCallback: (AnimeId) -> Unit,
     private val infoTypeClickAdapterCallback: (AnimeId) -> Unit,
@@ -47,17 +49,17 @@ internal class AnimeFavoritesAdapter(
         position: Int,
         payloads: MutableList<Any>
     ) {
-        if (payloads.isNotEmpty()) {
-            payloads.forEach { payloadsList ->
-                if (payloadsList !is List<*>) return
-                payloadsList.forEach { payload ->
-                    if (payload is AnimeFavoritesPayload) {
-                        holder.bindWithPayload(payload)
-                    }
+        if (payloads.isEmpty()) {
+            onBindViewHolder(holder, position)
+            return
+        }
+        for (payloadsList in payloads) {
+            if (payloadsList !is List<*>) return
+            for (payload in payloadsList) {
+                if (payload is AnimeFavoritesPayload) {
+                    holder.bindWithPayload(payload)
                 }
             }
-        } else {
-            onBindViewHolder(holder, position)
         }
     }
 

@@ -13,6 +13,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+// One function per Intent handled, not incidental growth.
+@Suppress("TooManyFunctions")
 class AnimeListExecutorImpl(
     private val coroutineContextProvider: CoroutineContextProvider
 ) : AnimeListExecutor() {
@@ -21,6 +23,8 @@ class AnimeListExecutorImpl(
     private var updateAnnouncedContentJob: Job? = null
     private var updateSearchContentJob: Job? = null
 
+    // One branch per Intent type is the MVI dispatch shape here, not incidental complexity.
+    @Suppress("CyclomaticComplexMethod")
     override fun executeIntent(intent: AnimeListMainStore.Intent) {
         when (intent) {
             AnimeListMainStore.Intent.OngoingsSectionClick -> ongoingSectionClick()

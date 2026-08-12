@@ -14,7 +14,7 @@ class AnimeFavoritesSourceImplFake(
     private val desiredDelay: Duration
 ) : AnimeFavoritesSource {
 
-    private val error = Throwable()
+    private val error = Throwable("Simulated failure from AnimeFavoritesSourceImplFake")
 
     override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
         delay(desiredDelay)

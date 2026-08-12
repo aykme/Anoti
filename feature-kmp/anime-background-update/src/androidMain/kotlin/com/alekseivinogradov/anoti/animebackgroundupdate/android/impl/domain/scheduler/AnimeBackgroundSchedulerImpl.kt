@@ -3,7 +3,7 @@ package com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.sc
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
-import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.worker.animeUpdatePeriodicWorkName
+import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.worker.ANIME_UPDATE_PERIODIC_WORK_NAME
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.scheduler.AnimeBackgroundScheduler
 
 /**
@@ -20,7 +20,7 @@ class AnimeBackgroundSchedulerImpl(
 
     override fun schedulePeriodicUpdate() {
         workManager.enqueueUniquePeriodicWork(
-            uniqueWorkName = animeUpdatePeriodicWorkName,
+            uniqueWorkName = ANIME_UPDATE_PERIODIC_WORK_NAME,
             existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.KEEP,
             request = animeUpdatePeriodicWork
         )

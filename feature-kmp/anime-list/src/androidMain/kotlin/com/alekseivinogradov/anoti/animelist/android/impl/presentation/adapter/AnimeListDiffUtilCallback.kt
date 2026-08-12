@@ -12,6 +12,9 @@ internal class AnimeListDiffUtilCallback : DiffUtil.ItemCallback<ListItemUi>() {
         return oldItem == newItem
     }
 
+    // Comparing every field that can independently change is this diff's whole purpose, not
+    // incidental condition complexity.
+    @Suppress("ComplexCondition")
     override fun getChangePayload(oldItem: ListItemUi, newItem: ListItemUi): Any {
         return buildList {
             if (oldItem.imageUrl != newItem.imageUrl) {

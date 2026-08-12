@@ -40,6 +40,8 @@ import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as base
 import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as celebrityRes
 
+// One function per bindable UI field, not incidental growth.
+@Suppress("TooManyFunctions")
 internal class AnimeListViewHolder(
     itemView: View,
     private val episodesInfoClickViewHolderCallback: (Int) -> Unit,

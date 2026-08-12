@@ -17,7 +17,11 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.Index
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.cancellation.CancellationException
 
+// One function per update-pipeline step (fetch, split, classify, persist, notify), not
+// incidental growth.
+@Suppress("TooManyFunctions")
 class AnimeUpdateManagerImpl(
     private val coroutineContextProvider: CoroutineContextProvider,
     private val fetchAllAnimeDatabaseItemsUsecase: FetchAllAnimeDatabaseItemsUsecase,
@@ -38,7 +42,14 @@ class AnimeUpdateManagerImpl(
                     currentDatabaseItems = databaseItems,
                     remoteItemsWithResult = remoteItemsWithResult
                 )
-            } catch (e: Exception) {
+            } catch (e: CancellationException) {
+                throw e
+            } catch (
+                // Best-effort background update; falling back to WorkResult.Error on any other
+                // failure (logged below) is this method's whole purpose.
+                @Suppress("TooGenericExceptionCaught") e: Exception
+            ) {
+                println("AnimeUpdateManagerImpl $e")
                 WorkResult.Error
             }
         }
@@ -212,16 +223,15 @@ class AnimeUpdateManagerImpl(
         currentDatabaseItem: AnimeDbDomain,
         remoteItem: ListItemDomain
     ): Boolean {
-        if (currentDatabaseItem.isNewEpisode) return true
-        if (
-            currentDatabaseItem.releaseStatus != ReleaseStatusDb.RELEASED &&
-            remoteItem.releaseStatus == ReleaseStatusDomain.RELEASED
-        ) {
-            return true
-        }
         val currentEpisodesAired = currentDatabaseItem.episodesAired ?: 0
         val newEpisodesAired = remoteItem.episodesAired ?: 0
-        return newEpisodesAired > currentEpisodesAired
+
+        return currentDatabaseItem.isNewEpisode ||
+            (
+                currentDatabaseItem.releaseStatus != ReleaseStatusDb.RELEASED &&
+                    remoteItem.releaseStatus == ReleaseStatusDomain.RELEASED
+                ) ||
+            newEpisodesAired > currentEpisodesAired
     }
 
     private fun makeNewEpisodeNotificationIfNecessary(

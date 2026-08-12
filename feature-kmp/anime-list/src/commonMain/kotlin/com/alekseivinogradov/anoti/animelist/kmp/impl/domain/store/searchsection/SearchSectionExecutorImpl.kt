@@ -22,6 +22,8 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+// One function per Intent handled, not incidental growth.
+@Suppress("TooManyFunctions")
 class SearchSectionExecutorImpl(
     private val coroutineContextProvider: CoroutineContextProvider,
     private val usecases: SearchUsecases,

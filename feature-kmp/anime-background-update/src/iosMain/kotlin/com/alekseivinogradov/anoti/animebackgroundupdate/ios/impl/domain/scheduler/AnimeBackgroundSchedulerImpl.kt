@@ -66,8 +66,12 @@ class AnimeBackgroundSchedulerImpl(
 
     override fun schedulePeriodicUpdate() {
         val request = BGAppRefreshTaskRequest(identifier = ANIME_UPDATE_TASK_IDENTIFIER).apply {
-            earliestBeginDate = NSDate().dateByAddingTimeInterval(15 * 60.0)
+            earliestBeginDate = NSDate().dateByAddingTimeInterval(EARLIEST_REFRESH_DELAY_SECONDS)
         }
         BGTaskScheduler.sharedScheduler.submitTaskRequest(request, error = null)
+    }
+
+    private companion object {
+        private const val EARLIEST_REFRESH_DELAY_SECONDS = 15 * 60.0
     }
 }

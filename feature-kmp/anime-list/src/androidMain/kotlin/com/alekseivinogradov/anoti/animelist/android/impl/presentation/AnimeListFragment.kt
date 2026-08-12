@@ -71,9 +71,13 @@ class AnimeListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // rootView is always non-null here: assigned in onCreateView(), cleared only in
+        // onDestroyView().
+        @Suppress("UnsafeCallOnNullableType")
+        val nonNullRootView = rootView!!
         controller.onViewCreated(
             mainView = AnimeListViewImpl(
-                rootView = rootView!!,
+                rootView = nonNullRootView,
                 dateFormatter = dateFormatter,
                 viewScope = lifecycleScope,
                 coroutineContextProvider = coroutineContextProvider

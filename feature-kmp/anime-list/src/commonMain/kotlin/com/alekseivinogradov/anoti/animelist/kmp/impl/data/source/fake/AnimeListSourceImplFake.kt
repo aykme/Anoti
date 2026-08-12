@@ -15,7 +15,7 @@ class AnimeListSourceImplFake(
     private val desiredDelay: Duration
 ) : AnimeListSource {
 
-    private val error = Throwable()
+    private val error = Throwable("Simulated failure from AnimeListSourceImplFake")
 
     override suspend fun getOngoingList(
         page: Int,

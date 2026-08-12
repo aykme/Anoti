@@ -39,6 +39,8 @@ import org.jetbrains.compose.resources.getString
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as baseRes
 import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 
+// One function per bindable UI field/event, not incidental growth.
+@Suppress("TooManyFunctions")
 internal class AnimeFavoritesViewImpl(
     private val rootView: View,
     dateFormatter: DateFormatter,
@@ -112,13 +114,13 @@ internal class AnimeFavoritesViewImpl(
 
                 animeFavoritesEmptyLayout.setPadding(
                     /* left = */
-                        animeFavoritesEmptyLayout.paddingLeft,
+                    animeFavoritesEmptyLayout.paddingLeft,
                     /* top = */
-                        systemBars.top,
+                    systemBars.top,
                     /* right = */
-                        animeFavoritesEmptyLayout.paddingRight,
+                    animeFavoritesEmptyLayout.paddingRight,
                     /* bottom = */
-                        animeFavoritesEmptyLayout.paddingBottom
+                    animeFavoritesEmptyLayout.paddingBottom
                 )
 
                 itemDecorator?.let { oldItemDecorator: EdgeToEdgeItemDecorator ->

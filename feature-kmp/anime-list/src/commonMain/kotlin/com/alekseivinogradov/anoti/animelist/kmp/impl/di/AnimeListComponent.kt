@@ -38,6 +38,8 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
  * Contributes the [AnimeListSource], its usecases and the main/announced/ongoing/search section
  * store bindings to [FeatureScope]'s merged component.
  */
+// One function per provided dependency is the DI @Provides convention here, not god-interface growth.
+@Suppress("TooManyFunctions")
 @ContributesTo(FeatureScope::class)
 interface AnimeListComponent {
     @Provides

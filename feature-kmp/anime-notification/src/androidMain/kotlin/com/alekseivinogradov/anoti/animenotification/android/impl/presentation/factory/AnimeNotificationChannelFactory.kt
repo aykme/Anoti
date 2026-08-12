@@ -33,7 +33,7 @@ class AnimeNotificationChannelFactory @Inject constructor(
         }
         return NotificationChannel(
             /* id = */
-            channelId,
+            CHANNEL_ID,
             /* name = */
             name,
             /* importance = */
@@ -45,4 +45,4 @@ class AnimeNotificationChannelFactory @Inject constructor(
     }
 }
 
-const val channelId = "ANIME_NOTIFICATION_CHANNEL_ID"
+const val CHANNEL_ID = "ANIME_NOTIFICATION_CHANNEL_ID"

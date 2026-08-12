@@ -17,6 +17,8 @@ import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
+// One function per Intent handled, not incidental growth.
+@Suppress("TooManyFunctions")
 class OngoingSectionExecutorImpl(
     private val coroutineContextProvider: CoroutineContextProvider,
     private val usecases: OngoingUsecases,

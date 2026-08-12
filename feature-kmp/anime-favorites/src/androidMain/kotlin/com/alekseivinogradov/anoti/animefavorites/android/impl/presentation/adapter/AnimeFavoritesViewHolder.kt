@@ -50,6 +50,9 @@ import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as base
 import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as celebrityRes
 
+// One function per bindable UI field, and one constructor parameter per click callback plus
+// its two dependencies — not incidental growth.
+@Suppress("TooManyFunctions", "LongParameterList")
 internal class AnimeFavoritesViewHolder(
     itemView: View,
     private val itemClickViewHolderCallback: (Int) -> Unit,

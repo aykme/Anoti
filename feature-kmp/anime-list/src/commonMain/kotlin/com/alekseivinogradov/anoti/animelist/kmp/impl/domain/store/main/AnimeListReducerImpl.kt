@@ -6,6 +6,8 @@ import com.arkivanov.mvikotlin.core.store.Reducer
 internal class AnimeListReducerImpl :
     Reducer<AnimeListMainStore.State, AnimeListMainStore.Message> {
 
+    // One branch per Message type is the MVI reduce shape here, not incidental complexity.
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
     override fun AnimeListMainStore.State.reduce(
         msg: AnimeListMainStore.Message
     ): AnimeListMainStore.State {

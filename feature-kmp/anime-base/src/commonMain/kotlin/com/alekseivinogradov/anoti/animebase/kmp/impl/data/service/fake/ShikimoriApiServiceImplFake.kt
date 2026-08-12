@@ -14,7 +14,7 @@ class ShikimoriApiServiceImplFake(
     private val desiredDelay: Duration
 ) : ShikimoriApiService {
 
-    private val error = Throwable()
+    private val error = Throwable("Simulated failure from ShikimoriApiServiceImplFake")
 
     override suspend fun getAnimeList(
         page: Int,
@@ -44,7 +44,7 @@ class ShikimoriApiServiceImplFake(
         releaseStatus: String?
     ): List<AnimeShortResponse> {
         return mutableListOf<AnimeShortResponse>().apply {
-            repeat(10) { repeatNumber: Int ->
+            repeat(FAKE_ANIME_LIST_SIZE) { repeatNumber: Int ->
                 add(createAnimeShortResponse(id = repeatNumber, releaseStatus = releaseStatus))
             }
         }.toList()
@@ -100,5 +100,9 @@ class ShikimoriApiServiceImplFake(
             x96SizeUrl = "/system/animes/x96/56784.jpg?1711828335",
             x48SizeUrl = "/system/animes/x48/56784.jpg?1711828335"
         )
+    }
+
+    private companion object {
+        private const val FAKE_ANIME_LIST_SIZE = 10
     }
 }

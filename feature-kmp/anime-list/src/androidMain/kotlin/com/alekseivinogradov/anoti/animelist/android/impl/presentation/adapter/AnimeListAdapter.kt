@@ -39,17 +39,17 @@ internal class AnimeListAdapter(
         position: Int,
         payloads: MutableList<Any>
     ) {
-        if (payloads.isNotEmpty()) {
-            payloads.forEach { payloadsList ->
-                if (payloadsList !is List<*>) return
-                payloadsList.forEach { payload ->
-                    if (payload is AnimeListPayload) {
-                        holder.bindWithPayload(payload)
-                    }
+        if (payloads.isEmpty()) {
+            onBindViewHolder(holder, position)
+            return
+        }
+        for (payloadsList in payloads) {
+            if (payloadsList !is List<*>) return
+            for (payload in payloadsList) {
+                if (payload is AnimeListPayload) {
+                    holder.bindWithPayload(payload)
                 }
             }
-        } else {
-            onBindViewHolder(holder, position)
         }
     }
 

@@ -8,7 +8,7 @@ Shikimori API access shared by the anime feature modules.
   one anime list item.
 - [AnimeDetailsResponse](src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/data/response/AnimeDetailsResponse.kt) —
   full details for one anime.
-- [AnimeResponseToListItemDomainMapper.kt](src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/data/mapper/AnimeResponseToListItemDomainMapper.kt) —
+- [AnimeResponseToListItemDomainMapper](src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/data/mapper/AnimeResponseToListItemDomainMapper.kt) —
   maps response fields (image, release status) to domain-ready values.
 
 ## How to include it

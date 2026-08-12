@@ -41,5 +41,5 @@ class AnimeUpdateWorker(
     }
 }
 
-const val animeUpdatePeriodicWorkName = "ANIME_UPDATE_PERIODIC_WORK"
-const val animeUpdateOnceWorkName = "ANIME_UPDATE_ONCE_WORK"
+const val ANIME_UPDATE_PERIODIC_WORK_NAME = "ANIME_UPDATE_PERIODIC_WORK"
+const val ANIME_UPDATE_ONCE_WORK_NAME = "ANIME_UPDATE_ONCE_WORK"
