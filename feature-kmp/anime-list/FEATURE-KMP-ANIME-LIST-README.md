@@ -19,11 +19,14 @@ coordinated by a top-level store.
 ## How to include it
 
 - Gradle: `implementation(project(":feature-kmp:anime-list"))`
-- All four stores and the view container are provided via Dagger setup in the KMP module's
-  `androidMain` source set (`AnimeListComponent` and related modules) — construct
-  `AnimeListFragment` directly or have Dagger inject it. `AnimeListView` has no DI wiring; the
-  `androidMain` layer (`AnimeListViewImpl`) implements it directly. `AnimeListController`
-  has no DI wiring either; construct it directly with the stores and lifecycle.
+- The four stores' bindings live in this module's commonMain kotlin-inject-anvil component
+  (`AnimeListComponent`, contributed to `FeatureScope`). Until Phase 9 gives `FeatureScope` a
+  real merge point, they still reach `AnimeListFragment` through the unrelated, same-named
+  Dagger `AnimeListComponent`/`AnimeListModule` in `androidMain`, bridged via the temporary
+  `AnimeListFeatureBridgeGraph` — construct `AnimeListFragment` directly or have Dagger inject
+  it. `AnimeListView` has no DI wiring; the `androidMain` layer (`AnimeListViewImpl`)
+  implements it directly. `AnimeListController` has no DI wiring either; construct it directly
+  with the stores and lifecycle.
 
 ## How to use it
 

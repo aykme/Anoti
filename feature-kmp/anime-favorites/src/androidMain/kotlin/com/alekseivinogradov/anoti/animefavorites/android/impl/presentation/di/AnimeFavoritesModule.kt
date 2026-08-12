@@ -3,14 +3,8 @@ package com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di
 import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.presentation.di.AnimeOnceBackgroundUpdateModule
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
-import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.source.AnimeFavoritesSource
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
-import com.alekseivinogradov.anoti.animefavorites.kmp.impl.data.source.AnimeFavoritesSourceImpl
-import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store.AnimeFavoritesExecutorFactory
-import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store.AnimeFavoritesExecutorImpl
-import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store.AnimeFavoritesMainStoreFactory
-import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
-import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.wrapper.FavoritesUsecases
+import com.alekseivinogradov.anoti.celebrity.android.api.presentation.di.scope.FeatureScope
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
@@ -18,60 +12,42 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 import dagger.Module
 import dagger.Provides
 
+/**
+ * Bridges [AnimeFavoritesComponent]'s Dagger `inject()` target to `feature-kmp:anime-favorites`'s
+ * kotlin-inject-anvil `FeatureScope` contributions (`AnimeFavoritesComponent`, commonMain), via
+ * [AnimeFavoritesFeatureBridgeGraph]. Still needs to `include`
+ * [AnimeOnceBackgroundUpdateModule] — the WorkManager-backed
+ * [UpdateAllAnimeInBackgroundOnceUsecase] provider, which stays Dagger-only until Phase 9 and is
+ * fed into the bridge graph as a parameter. All other provider logic (`AnimeFavoritesSource`,
+ * its usecases, and the [AnimeFavoritesMainStore] binding) now lives in the commonMain component;
+ * this module only constructs the bridge graph once per Dagger component build and reads the
+ * terminal store off it. Retired in Phase 9 once `AnimeFavoritesComponent` here becomes a real
+ * `@ContributesSubcomponent(FeatureScope::class)`.
+ */
 @Module(includes = [AnimeOnceBackgroundUpdateModule::class])
 interface AnimeFavoritesModule {
     companion object {
         @Provides
-        fun provideAnimeFavoritesSource(
-            service: ShikimoriApiService,
-            safeApi: SafeApi
-        ): AnimeFavoritesSource {
-            return AnimeFavoritesSourceImpl(
-                service = service,
-                safeApi = safeApi
-            )
-        }
-
-        @Provides
-        fun provideFetchAnimeDetailsByIdUsecase(
-            source: AnimeFavoritesSource
-        ): FetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)
-
-        @Provides
-        fun provideFavoritesUsecases(
-            updateAllAnimeInBackgroundOnceUsecase: UpdateAllAnimeInBackgroundOnceUsecase,
-            fetchAnimeDetailsByIdUsecase: FetchAnimeDetailsByIdUsecase
-        ): FavoritesUsecases {
-            return FavoritesUsecases(
-                updateAllAnimeInBackgroundOnceUsecase = updateAllAnimeInBackgroundOnceUsecase,
-                fetchAnimeDetailsByIdUsecase = fetchAnimeDetailsByIdUsecase
-            )
-        }
-
-        @Provides
-        fun provideAnimeFavoritesExecutorFactory(
+        @FeatureScope
+        fun provideAnimeFavoritesFeatureBridgeGraph(
             coroutineContextProvider: CoroutineContextProvider,
-            usecases: FavoritesUsecases,
-            toastProvider: ToastProvider
-        ): AnimeFavoritesExecutorFactory {
-            return {
-                AnimeFavoritesExecutorImpl(
-                    coroutineContextProvider = coroutineContextProvider,
-                    usecases = usecases,
-                    toastProvider = toastProvider
-                )
-            }
-        }
+            storeFactory: StoreFactory,
+            toastProvider: ToastProvider,
+            shikimoriApiService: ShikimoriApiService,
+            safeApi: SafeApi,
+            updateAllAnimeInBackgroundOnceUsecase: UpdateAllAnimeInBackgroundOnceUsecase
+        ): AnimeFavoritesFeatureBridgeGraph = AnimeFavoritesFeatureBridgeGraph::class.create(
+            coroutineContextProvider,
+            storeFactory,
+            toastProvider,
+            shikimoriApiService,
+            safeApi,
+            updateAllAnimeInBackgroundOnceUsecase
+        )
 
         @Provides
         fun provideAnimeFavoritesMainStore(
-            storeFactory: StoreFactory,
-            executorFactory: AnimeFavoritesExecutorFactory
-        ): AnimeFavoritesMainStore {
-            return AnimeFavoritesMainStoreFactory(
-                storeFactory = storeFactory,
-                executorFactory = executorFactory
-            ).create()
-        }
+            graph: AnimeFavoritesFeatureBridgeGraph
+        ): AnimeFavoritesMainStore = graph.mainStore
     }
 }
