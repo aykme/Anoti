@@ -14,8 +14,8 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 /**
- * Contributes the iOS [CoroutineContextProvider], [ToastProvider] and (temporarily, see
- * Phase 3 note in the migration plan) [DateFormatter] bindings to [AppScope]'s merged component.
+ * Contributes the iOS [CoroutineContextProvider], [ToastProvider] and [DateFormatter] bindings
+ * to [AppScope]'s merged component.
  */
 @ContributesTo(AppScope::class)
 interface CelebrityPlatformComponent {
@@ -31,6 +31,7 @@ interface CelebrityPlatformComponent {
     )
 
     @Provides
-    // temporarily AppScope, see Phase 3 note — restored to ActivityScope in Phase 9
+    // App-scoped, matching Android: the provider is unscoped, so every injection point still
+    // gets its own stateless DateFormatterImpl.
     fun provideDateFormatter(): DateFormatter = DateFormatterImpl()
 }

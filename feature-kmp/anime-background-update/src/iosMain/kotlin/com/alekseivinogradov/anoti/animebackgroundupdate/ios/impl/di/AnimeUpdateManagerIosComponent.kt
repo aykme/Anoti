@@ -13,12 +13,9 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 /**
- * Contributes the iOS [AnimeUpdateManager] binding to [AppScope]'s merged component.
- *
- * Android's [AnimeUpdateManager] binding stays on Dagger (`app`'s `AppModule`) until Phase 9,
- * since it needs `main`'s `ActivityScope`-bound `AnimeNotificationManager` there. iOS has no
- * such constraint — every dependency below is already `AppScope`-resolvable on iOS by this
- * phase — so this provides it as a plain `AppScope` binding without waiting for Phase 9.
+ * Contributes the iOS [AnimeUpdateManager] binding to [AppScope]'s merged component. Android's
+ * equivalent lives in `androidMain`'s `AnimeBackgroundUpdatePlatformComponent`, which builds the
+ * same [AnimeUpdateManager] alongside the WorkManager plumbing iOS has no use for.
  */
 @ContributesTo(AppScope::class)
 interface AnimeUpdateManagerIosComponent {

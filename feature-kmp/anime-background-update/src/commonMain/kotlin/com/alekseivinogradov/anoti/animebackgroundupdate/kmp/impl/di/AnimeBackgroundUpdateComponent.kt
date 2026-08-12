@@ -15,9 +15,9 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
  * Contributes the local anime background-update source and its usecase bindings to [AppScope]'s
  * merged component.
  *
- * Note: [UpdateAllAnimeInBackgroundOnceUsecase] (the interface implemented by the WorkManager
- * wrapper) is not provided here — its only implementation depends on `WorkManager`, which stays
- * on Dagger until Phase 9 alongside the rest of Android's scheduling machinery.
+ * Note: [UpdateAllAnimeInBackgroundOnceUsecase] is not provided here — its only implementation
+ * depends on `WorkManager`, so it is contributed from `androidMain`'s
+ * `AnimeBackgroundUpdatePlatformComponent` instead, and has no iOS counterpart yet.
  */
 @ContributesTo(AppScope::class)
 interface AnimeBackgroundUpdateComponent {

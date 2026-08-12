@@ -21,7 +21,8 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 /**
  * Contributes the [AnimeFavoritesSource], its usecases and the [AnimeFavoritesMainStore] binding
  * to [FeatureScope]'s merged component. [UpdateAllAnimeInBackgroundOnceUsecase] is consumed as a
- * parameter here, not provided — its Android implementation stays Dagger-only until Phase 9.
+ * parameter here, not provided — it comes from `feature-kmp:anime-background-update`'s
+ * app-scoped, platform-specific contribution.
  */
 @ContributesTo(FeatureScope::class)
 interface AnimeFavoritesComponent {

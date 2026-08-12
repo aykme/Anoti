@@ -10,10 +10,12 @@ episode progress, "new episode" flags).
 
 - Gradle: `implementation(project(":core-kmp:anime-database"))`
 - The `AnimeDatabaseStore` instance is provided via this module's kotlin-inject-anvil
-  contributions (`AnimeDatabaseComponent`, `AnimeDatabasePlatformComponent`), merged into
-  [`core-kmp:di`](../di/CORE-KMP-DI-README.md)'s `TransitionalAppGraph` — inject it, don't
-  construct it yourself. The Room-KMP persistence behind it (DAO, entity, database, mapper,
-  repository) and the DI wiring both live entirely inside this module now.
+  contributions (`AnimeDatabaseComponent`, `AnimeDatabasePlatformComponent`), merged into the
+  app-scope graph (`:app`'s `AppGraph` on Android,
+  [`core-kmp:di`](../di/CORE-KMP-DI-README.md)'s `IosAppGraph` on iOS) — inject it, don't
+  construct it yourself. Each screen gets its own instance and disposes it with its own
+  lifecycle. The Room-KMP persistence behind it (DAO, entity, database, mapper, repository) and
+  the DI wiring both live entirely inside this module.
 
 ## How to use it
 

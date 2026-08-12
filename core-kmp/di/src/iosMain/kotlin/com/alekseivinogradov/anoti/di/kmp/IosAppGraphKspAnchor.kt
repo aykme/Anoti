@@ -12,9 +12,9 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
  * See https://github.com/amzn/kotlin-inject-anvil/issues/118 (the project is in maintenance mode,
  * so no upstream fix is coming).
  *
- * Still required after Phase 9's cleanup — removing it was re-tested and
- * `:core-kmp:di:kspKotlinIosSimulatorArm64` fails again with `Cannot find an @Inject constructor
- * or provider for: io.ktor.client.HttpClient`.
+ * Do not delete it as dead code: removing it makes `:core-kmp:di:kspKotlinIosSimulatorArm64`
+ * fail with `Cannot find an @Inject constructor or provider for: io.ktor.client.HttpClient`
+ * (re-confirmed empirically after the last DI cleanup).
  */
 @ContributesTo(AppScope::class)
 interface IosAppGraphKspAnchor

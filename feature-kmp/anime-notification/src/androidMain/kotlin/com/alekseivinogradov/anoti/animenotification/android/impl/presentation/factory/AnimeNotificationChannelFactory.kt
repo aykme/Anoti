@@ -15,6 +15,9 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 /**
  * Builds the app's anime notification channel. App-scoped: the channel is registered once, at
  * `Application.onCreate` time.
+ *
+ * @param coroutineContextProvider supplies the dispatcher the channel's localized strings are
+ *   read on.
  */
 @SingleIn(AppScope::class)
 class AnimeNotificationChannelFactory @Inject constructor(

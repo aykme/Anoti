@@ -14,12 +14,11 @@ badge count.
 
 - Gradle: `implementation(project(":feature-kmp:bottom-navigation-bar"))`
 - `BottomNavigationBarStore`'s binding is contributed from this module's commonMain
-  (`BottomNavigationBarComponent`, `ActivityScope`), but that contribution stays inert until
-  `main` gets a real `ActivityScope` merge point in Phase 9. Until then it's `main`'s existing
-  Dagger `MainModule` that actually supplies the store — inject it, don't construct it
-  yourself. `BottomNavigationBarView` has no DI wiring; the consumer implements it directly
-  (see `main`'s `BottomNavigationBarViewImpl`). `BottomNavigationBarController` has no DI wiring
-  either; construct it directly with the store and lifecycle.
+  (`BottomNavigationBarComponent`, `ActivityScope`) and merged into `main`'s `MainComponent`,
+  the app's `ActivityScope` graph — inject it, don't construct it yourself.
+  `BottomNavigationBarView` has no DI wiring; the consumer implements it directly (see `main`'s
+  `BottomNavigationBarViewImpl`). `BottomNavigationBarController` has no DI wiring either;
+  construct it directly with the store and lifecycle.
 
 ## How to use it
 

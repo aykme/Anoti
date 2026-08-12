@@ -14,14 +14,14 @@ and per-item notification toggles.
 
 - Gradle: `implementation(project(":feature-kmp:anime-favorites"))`
 - `AnimeFavoritesMainStore`'s binding lives in this module's commonMain kotlin-inject-anvil
-  component (`AnimeFavoritesComponent`, contributed to `FeatureScope`). Until Phase 9 gives
-  `FeatureScope` a real merge point, it still reaches `AnimeFavoritesFragment` through the
-  unrelated, same-named Dagger `AnimeFavoritesComponent`/`AnimeFavoritesModule` in
-  `androidMain`, bridged via the temporary `AnimeFavoritesFeatureBridgeGraph` — inject it,
-  don't construct it yourself. `AnimeFavoritesView` has no DI wiring; the consumer implements
-  it directly (see this module's `androidMain` `AnimeFavoritesViewImpl`).
-  `AnimeFavoritesController` has no DI wiring either; construct it directly with the store and
-  lifecycle.
+  component (`AnimeFavoritesComponent`, contributed to `FeatureScope`) and is merged by the
+  same-named `@ContributesSubcomponent(FeatureScope::class)` in `androidMain`, which
+  `AnimeFavoritesFragment` builds per instance from its host Activity — so just use
+  `AnimeFavoritesFragment`. The Activity hosting it must implement
+  `AnimeFavoritesComponentFactoryHolder` (`androidMain`). `AnimeFavoritesView` has no DI wiring;
+  the consumer implements it directly (see this module's `androidMain`
+  `AnimeFavoritesViewImpl`). `AnimeFavoritesController` has no DI wiring either; construct it
+  directly with the store and lifecycle.
 
 ## How to use it
 

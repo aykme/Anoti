@@ -15,17 +15,16 @@ newly aired episodes.
 ## How to include it
 
 - Gradle: `implementation(project(":feature-kmp:anime-background-update"))`
-- `AnimeUpdateManager` is provided via Dagger on Android (`app`'s `AppModule`, until Phase 9 of
-  the DI migration) and via `AnimeUpdateManagerIosComponent`, contributed to `AppScope`'s
-  merged component, on iOS — inject it, don't construct it yourself.
-- `UpdateAllAnimeInBackgroundOnceUsecase` is provided via Dagger setup in `androidMain`
-  (`AnimeOnceBackgroundUpdateModule`, backed by `WorkManager`) — inject it too. No iOS
-  implementation exists yet.
-- `AnimeBackgroundScheduler` is iOS-only for now (`AnimeBackgroundSchedulerPlatformComponent`,
-  `AppScope`) — it registers its `BGAppRefreshTask` handler as soon as it's created; see the
-  iOS implementation's own KDoc for a documented Info.plist registration gap. Android's
-  periodic scheduling still goes through `WorkManager` directly
-  (`AnimePeriodicBackgroundUpdateModule`), with no equivalent commonMain abstraction yet.
+- `AnimeUpdateManager`, `UpdateAllAnimeInBackgroundOnceUsecase` and `AnimeBackgroundScheduler`
+  are all provided via this module's per-platform DI contributions
+  (`AnimeBackgroundUpdatePlatformComponent` on Android, `AnimeUpdateManagerIosComponent` /
+  `AnimeBackgroundSchedulerPlatformComponent` on iOS), merged into `AppScope`'s merged component
+  — inject them, don't construct them yourself. `UpdateAllAnimeInBackgroundOnceUsecase` has no
+  iOS implementation yet.
+- Both `AnimeBackgroundScheduler` implementations do platform setup as soon as they're created:
+  the Android one installs WorkManager's custom `Configuration`, the iOS one registers its
+  `BGAppRefreshTask` handler — see the iOS implementation's own KDoc for a documented Info.plist
+  registration gap.
 
 ## How to use it
 

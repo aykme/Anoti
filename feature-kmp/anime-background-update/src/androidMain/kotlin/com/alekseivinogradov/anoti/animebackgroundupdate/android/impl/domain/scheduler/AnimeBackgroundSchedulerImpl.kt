@@ -13,6 +13,10 @@ import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.schedule
  * `androidx.startup` initializer, so [initializeWorkManager] must run once — before any
  * `WorkManager.getInstance` call — to install the custom [Configuration] carrying the anime
  * update worker factory.
+ *
+ * @param appContext the application context WorkManager is initialized and reached through.
+ * @param workManagerConfiguration the custom WorkManager configuration to install.
+ * @param animeUpdatePeriodicWork the periodic work request enqueued by [schedulePeriodicUpdate].
  */
 class AnimeBackgroundSchedulerImpl(
     private val appContext: Context,

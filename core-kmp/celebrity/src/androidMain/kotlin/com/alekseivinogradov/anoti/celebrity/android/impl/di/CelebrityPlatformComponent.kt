@@ -24,8 +24,8 @@ internal annotation class ConnectionError
 internal annotation class UnknownError
 
 /**
- * Contributes the Android [CoroutineContextProvider], [ToastProvider] and (temporarily, see
- * Phase 3 note in the migration plan) [DateFormatter] bindings to [AppScope]'s merged component.
+ * Contributes the Android [CoroutineContextProvider], [ToastProvider] and [DateFormatter]
+ * bindings to [AppScope]'s merged component.
  */
 @ContributesTo(AppScope::class)
 interface CelebrityPlatformComponent {
@@ -60,6 +60,8 @@ interface CelebrityPlatformComponent {
     )
 
     @Provides
-    // temporarily AppScope, see Phase 3 note — restored to ActivityScope in Phase 9
+    // App-scoped rather than activity-scoped on purpose: the provider is unscoped, so every
+    // injection point still gets its own stateless DateFormatterImpl, and keeping the binding
+    // in AppScope is what lets iOS reach it as well — iOS has no ActivityScope graph.
     fun provideDateFormatter(): DateFormatter = DateFormatterImpl()
 }

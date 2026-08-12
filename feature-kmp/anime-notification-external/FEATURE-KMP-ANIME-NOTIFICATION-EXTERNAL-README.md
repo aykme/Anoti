@@ -9,9 +9,9 @@ Provides access to the "main" module from the "anime-notification" module withou
 
 - Gradle: `api(project(":feature-kmp:anime-notification-external"))`
 - `AnimeNotificationIntentProvider` is a contract with no implementation in this module — a
-  consuming app must implement it and bind it into Dagger itself. The current binding lives in
-  `:main` (`AnimeNotificationIntentProviderImpl`, bound by `AnimeNotificationIntentProviderModule`
-  and included in `:app`'s `AppModule`); inject the interface, don't construct it yourself.
+  consuming app must implement it and contribute the binding itself. The current implementation
+  lives in `:main` (`AnimeNotificationIntentProviderImpl`, `@ContributesBinding(AppScope::class)`);
+  inject the interface, don't construct it yourself.
 
 ## How to use it
 
