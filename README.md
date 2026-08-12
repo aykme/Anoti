@@ -42,9 +42,9 @@ Technology stack:
    [Compose](https://developer.android.com/compose) in the future, and then to
    [Compose Multiplatform](https://www.jetbrains.com/compose-multiplatform) in the very distant
    future ^_^.
-8. DI is implemented through [Dagger 2](https://github.com/google/dagger), and injections are
-   performed through the UI. I plan to use [Koin](https://github.com/InsertKoinIO/koin) in the
-   future for KMP supporting.
+8. DI is implemented through [kotlin-inject](https://github.com/evant/kotlin-inject) and
+   [kotlin-inject-anvil](https://github.com/vRallev/kotlin-inject-anvil), fully in the KMP
+   modules, working on both Android and iOS.
 9. Unit testing of KMP modules is done with
    [kotlin-test](https://github.com/JetBrains/kotlin/tree/master/libraries/kotlin.test). For test
    doubles I mostly use a "mock" approach, with a "fake" approach used less often.
