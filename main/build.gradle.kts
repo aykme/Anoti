@@ -76,6 +76,7 @@ kotlin {
             implementation(libs.androidx.navigation.fragment.ktx)
             implementation(libs.androidx.navigation.ui.ktx)
             implementation(libs.decompose) // new
+            implementation(libs.kotlinx.serialization.json) // new
 
             implementation(libs.kotlin.inject.runtime)
             implementation(libs.kotlin.inject.anvil.runtime)

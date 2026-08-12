@@ -50,6 +50,7 @@ import com.arkivanov.essenty.lifecycle.asEssentyLifecycle
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
 import org.jetbrains.compose.resources.getString
 import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 
@@ -94,8 +95,10 @@ class MainActivity :
         mainStore = mainComponent.bottomNavigationBarStore
         animeDatabaseStore = mainComponent.animeDatabaseStore
         coroutineContextProvider = mainComponent.coroutineContextProvider
+        val deepLinkTarget = readDeepLinkTarget()
         rootComponent = RootComponent(
-            componentContext = defaultComponentContext(),
+            componentContext = defaultComponentContext(discardSavedState = deepLinkTarget != null),
+            initialConfiguration = deepLinkTarget ?: RootConfig.AnimeList,
             childFactory = ::createRootChild
         )
         super.onCreate(savedInstanceState)
@@ -143,6 +146,11 @@ class MainActivity :
                 )
             )
         }
+
+    private fun readDeepLinkTarget(): RootConfig? {
+        val encoded = intent?.getStringExtra(EXTRA_DEEP_LINK_TARGET) ?: return null
+        return Json.decodeFromString(RootConfig.serializer(), encoded)
+    }
 
     @SuppressLint("SourceLockedOrientationActivity")
     private fun setSystemSettings() {
@@ -273,5 +281,9 @@ class MainActivity :
             }
             this.startActivity(intent)
         }
+    }
+
+    companion object {
+        const val EXTRA_DEEP_LINK_TARGET = "deep_link_target"
     }
 }
