@@ -21,12 +21,15 @@ coordinated by a top-level store.
 - Gradle: `implementation(project(":feature-kmp:anime-list"))`
 - The four stores' bindings live in this module's commonMain kotlin-inject-anvil component
   (`AnimeListComponent`, contributed to `FeatureScope`) and are merged by the same-named
-  `@ContributesSubcomponent(FeatureScope::class)` in `androidMain`, which `AnimeListFragment`
-  builds per instance from its host Activity — so just use `AnimeListFragment`. The Activity
-  hosting it must implement `AnimeListComponentFactoryHolder` (`androidMain`).
-  `AnimeListView` has no DI wiring; the `androidMain` layer (`AnimeListViewImpl`) implements it
-  directly. `AnimeListController` has no DI wiring either; construct it directly with the stores
-  and lifecycle.
+  `@ContributesSubcomponent(FeatureScope::class)` in `androidMain`. `AnimeListFragment` doesn't
+  build that subgraph itself; it reads its dependencies off `AnimeListScreenComponent`
+  (`androidMain`), which wraps a Decompose `ComponentContext` around an already-built
+  `AnimeListComponent`. The Activity hosting the fragment must implement
+  `AnimeListScreenComponentHolder` (`androidMain`), exposing the currently active
+  `AnimeListScreenComponent`. `AnimeListView` has no DI wiring; the `androidMain` layer
+  (`AnimeListViewImpl`) implements it directly. `AnimeListController` has no DI wiring either;
+  `AnimeListFragment` constructs it directly from `AnimeListScreenComponent`'s stores and
+  lifecycle.
 
 ## How to use it
 

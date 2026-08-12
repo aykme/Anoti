@@ -78,6 +78,7 @@ kotlin {
             implementation(libs.androidx.recyclerview)
             implementation(libs.glide)
             implementation(project(":core-kmp:celebrity"))
+            implementation(libs.decompose)
         }
     }
 }
