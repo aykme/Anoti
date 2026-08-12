@@ -15,12 +15,12 @@ import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 /**
- * The iOS app-scope graph — iOS's counterpart of Android's `AppGraph` (`:app`) and the entry
- * point a future iOS host app creates once, via `IosAppGraph::class.create()`.
+ * The app-wide DI graph for iOS. A host app creates it once, via `IosAppGraph::class.create()`,
+ * then reads its accessors instead of constructing dependencies itself.
  *
- * Until that host app exists this class also earns its keep as the thing that actually merges
- * and type-checks every `iosMain` binding in the repo at klib-compile time; without it the iOS
- * actuals would compile but never be proven to wire together.
+ * No iOS host app exists in this repo yet, so nothing calls `create()` at runtime today. Merging
+ * every `iosMain` binding here is what proves, at klib-compile time, that they actually wire
+ * together — a role this class keeps once a host app ships, alongside being its entry point.
  */
 @MergeComponent(AppScope::class)
 @SingleIn(AppScope::class)
