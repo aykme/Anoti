@@ -5,6 +5,7 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiSe
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
+import com.alekseivinogradov.anoti.animenotification.android.impl.presentation.factory.AnimeNotificationChannelFactory
 import com.alekseivinogradov.anoti.celebrity.android.api.presentation.di.AppContext
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
@@ -76,5 +77,20 @@ internal interface TransitionalAppGraphBridgeModule {
         fun provideShikimoriApiService(
             graph: TransitionalAppGraph
         ): ShikimoriApiService = graph.shikimoriApiService
+
+        /**
+         * Not sourced from [TransitionalAppGraph]: [AnimeNotificationChannelFactory] is a
+         * genuinely Android-only class (uses `android.app.NotificationChannel`), so it cannot be
+         * declared as an `abstract val` on [TransitionalAppGraph] — that class is compiled for
+         * iOS too from a single commonMain source set, and the type simply isn't visible there.
+         * Its kotlin-inject `@Inject` constructor is invoked directly here instead, matching what
+         * kotlin-inject's own generated factory would do.
+         */
+        @Provides
+        @Singleton
+        fun provideAnimeNotificationChannelFactory(
+            coroutineContextProvider: CoroutineContextProvider
+        ): AnimeNotificationChannelFactory =
+            AnimeNotificationChannelFactory(coroutineContextProvider)
     }
 }

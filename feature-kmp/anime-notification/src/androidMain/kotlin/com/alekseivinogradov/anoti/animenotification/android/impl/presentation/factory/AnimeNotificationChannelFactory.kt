@@ -6,8 +6,8 @@ import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.anime_notification_channel
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.anime_notification_channel_description
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
-import javax.inject.Inject
 import kotlinx.coroutines.runBlocking
+import me.tatarka.inject.annotations.Inject
 import org.jetbrains.compose.resources.getString
 
 class AnimeNotificationChannelFactory @Inject constructor(

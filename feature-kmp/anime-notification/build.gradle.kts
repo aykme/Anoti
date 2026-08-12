@@ -45,21 +45,33 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":core-kmp:di-scope"))
+            implementation(project(":core-kmp:celebrity"))
+
             implementation(libs.compose.runtime)
             implementation(libs.compose.components.resources)
+
+            implementation(libs.kotlin.inject.runtime)
+            implementation(libs.kotlin.inject.anvil.runtime)
+            implementation(libs.kotlin.inject.anvil.runtime.optional)
         }
         androidMain.dependencies {
             implementation(libs.dagger)
             implementation(libs.androidx.core.ktx)
             implementation(libs.glide)
             api(project(":feature-kmp:anime-notification-external"))
-            implementation(project(":core-kmp:celebrity"))
         }
     }
 }
 
 dependencies {
     add("kspAndroid", libs.dagger.compiler)
+
+    val kotlinInjectTargets = listOf("IosArm64", "IosSimulatorArm64")
+    kotlinInjectTargets.forEach { target ->
+        add("ksp$target", libs.kotlin.inject.compiler.ksp)
+        add("ksp$target", libs.kotlin.inject.anvil.compiler)
+    }
 }
 
 // Lint's androidHostTest-related tasks read kspAndroidHostTest's generated sources without
