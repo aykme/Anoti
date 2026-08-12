@@ -8,7 +8,7 @@ import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.manager.AnimeUpdateManager
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.model.WorkResult
-import javax.inject.Inject
+import me.tatarka.inject.annotations.Inject
 
 @WorkerThread
 class AnimeUpdateWorker(

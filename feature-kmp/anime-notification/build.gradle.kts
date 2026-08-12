@@ -56,7 +56,6 @@ kotlin {
             implementation(libs.kotlin.inject.anvil.runtime.optional)
         }
         androidMain.dependencies {
-            implementation(libs.dagger)
             implementation(libs.androidx.core.ktx)
             implementation(libs.glide)
             api(project(":feature-kmp:anime-notification-external"))
@@ -65,10 +64,8 @@ kotlin {
 }
 
 dependencies {
-    add("kspAndroid", libs.dagger.compiler)
-
-    val kotlinInjectTargets = listOf("IosArm64", "IosSimulatorArm64")
-    kotlinInjectTargets.forEach { target ->
+    val kspTargets = listOf("Android", "IosArm64", "IosSimulatorArm64")
+    kspTargets.forEach { target ->
         add("ksp$target", libs.kotlin.inject.compiler.ksp)
         add("ksp$target", libs.kotlin.inject.anvil.compiler)
     }
