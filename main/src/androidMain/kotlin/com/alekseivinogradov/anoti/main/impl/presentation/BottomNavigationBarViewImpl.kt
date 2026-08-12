@@ -80,32 +80,25 @@ internal class BottomNavigationBarViewImpl(
 
     private fun initOnDestinationChangeListener() {
         rootComponent.childStack.subscribe(lifecycle, ObserveLifecycleMode.CREATE_DESTROY) { stack ->
-            with(bottomNavMenu) {
-                when (stack.active.instance) {
-                    is RootChild.List -> {
-                        dispatch(
-                            BottomNavigationBarStore.Intent.ChangeSelectedSection(
-                                selectedSection = SectionDomain.MAIN
-                            )
-                        )
-                        if (selectedItemId != R.id.anime_list) {
-                            selectedItemId = R.id.anime_list
-                        }
-                    }
-
-                    is RootChild.Favorites -> {
-                        dispatch(
-                            BottomNavigationBarStore.Intent.ChangeSelectedSection(
-                                selectedSection = SectionDomain.FAVORITES
-                            )
-                        )
-                        if (selectedItemId != R.id.anime_favorites) {
-                            selectedItemId = R.id.anime_favorites
-                        }
-                    }
-                }
+            // Assigned to a value so the `when` is an expression: adding a RootChild variant
+            // then fails to compile here instead of silently doing nothing.
+            val section: SectionDomain = when (stack.active.instance) {
+                is RootChild.List -> SectionDomain.MAIN
+                is RootChild.Favorites -> SectionDomain.FAVORITES
+            }
+            dispatch(
+                BottomNavigationBarStore.Intent.ChangeSelectedSection(selectedSection = section)
+            )
+            val menuItemId = menuItemIdOf(section)
+            if (bottomNavMenu.selectedItemId != menuItemId) {
+                bottomNavMenu.selectedItemId = menuItemId
             }
         }
+    }
+
+    private fun menuItemIdOf(section: SectionDomain): Int = when (section) {
+        SectionDomain.MAIN -> R.id.anime_list
+        SectionDomain.FAVORITES -> R.id.anime_favorites
     }
 
     private fun getFavoritesBadge(uiModel: UiModel): Int {
