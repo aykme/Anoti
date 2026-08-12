@@ -8,6 +8,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.essenty.lifecycle.doOnDestroy
 
 /**
  * Owns the anime-list screen's `FeatureScope` DI subgraph for as long as this component's
@@ -29,4 +30,16 @@ class AnimeListScreenComponent(
     val ongoingSectionStore: OngoingSectionStore = animeListComponent.ongoingSectionStore
     val announcedSectionStore: AnnouncedSectionStore = animeListComponent.announcedSectionStore
     val searchSectionStore: SearchSectionStore = animeListComponent.searchSectionStore
+
+    init {
+        // Registered here rather than in AnimeListController so the stores are still disposed
+        // when this component is replaced before any Fragment ever builds its controller.
+        lifecycle.doOnDestroy {
+            ongoingSectionStore.dispose()
+            announcedSectionStore.dispose()
+            searchSectionStore.dispose()
+            animeDatabaseStore.dispose()
+            mainStore.dispose()
+        }
+    }
 }

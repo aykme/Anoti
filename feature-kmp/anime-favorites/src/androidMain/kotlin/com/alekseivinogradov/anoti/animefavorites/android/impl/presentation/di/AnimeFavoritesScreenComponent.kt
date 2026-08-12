@@ -5,6 +5,7 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavo
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.essenty.lifecycle.doOnDestroy
 
 /**
  * Owns the anime-favorites screen's `FeatureScope` DI subgraph for as long as this component's
@@ -23,4 +24,14 @@ class AnimeFavoritesScreenComponent(
     val dateFormatter: DateFormatter = animeFavoritesComponent.dateFormatter
     val animeDatabaseStore: AnimeDatabaseStore = animeFavoritesComponent.animeDatabaseStore
     val mainStore: AnimeFavoritesMainStore = animeFavoritesComponent.mainStore
+
+    init {
+        // Registered here rather than in AnimeFavoritesController so the stores are still
+        // disposed when this component is replaced before any Fragment ever builds its
+        // controller.
+        lifecycle.doOnDestroy {
+            animeDatabaseStore.dispose()
+            mainStore.dispose()
+        }
+    }
 }
