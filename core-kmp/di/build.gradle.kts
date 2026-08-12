@@ -44,17 +44,13 @@ kotlin {
             implementation(project(":core-kmp:anime-database"))
             implementation(project(":feature-kmp:anime-base"))
             implementation(project(":feature-kmp:anime-background-update"))
+            implementation(project(":feature-kmp:anime-notification"))
 
             implementation(libs.mvikotlin)
 
             implementation(libs.kotlin.inject.runtime)
             implementation(libs.kotlin.inject.anvil.runtime)
             implementation(libs.kotlin.inject.anvil.runtime.optional)
-        }
-        androidMain.dependencies {
-            api(project(":core-kmp:celebrity"))
-
-            implementation(libs.dagger)
         }
     }
 }
