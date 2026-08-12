@@ -40,6 +40,12 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.kotlinx.serialization.json)
+
+            implementation(project(":core-kmp:di-scope"))
+
+            implementation(libs.kotlin.inject.runtime)
+            implementation(libs.kotlin.inject.anvil.runtime)
+            implementation(libs.kotlin.inject.anvil.runtime.optional)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -47,7 +53,6 @@ kotlin {
             implementation(libs.ktor.client.mock)
         }
         androidMain.dependencies {
-            implementation(libs.dagger)
             implementation(libs.ktor.client.okhttp)
 
             /**
@@ -61,11 +66,18 @@ kotlin {
             // define any required OkHttp artifacts without version
             implementation(libs.okhttp)
         }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
+        }
     }
 }
 
 dependencies {
-    add("kspAndroid", libs.dagger.compiler)
+    val kspTargets = listOf("Android", "IosArm64", "IosSimulatorArm64")
+    kspTargets.forEach { target ->
+        add("ksp$target", libs.kotlin.inject.compiler.ksp)
+        add("ksp$target", libs.kotlin.inject.anvil.compiler)
+    }
 
     // define a BOM and its version for the okhttp workaround explained in androidMain.dependencies above
     add("androidMainImplementation", platform(libs.okhttp.bom))

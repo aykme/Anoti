@@ -39,6 +39,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":core-kmp:di-scope"))
+            implementation(project(":core-kmp:network"))
 
             implementation(libs.kotlin.inject.runtime)
             implementation(libs.kotlin.inject.anvil.runtime)
@@ -47,7 +48,6 @@ kotlin {
         androidMain.dependencies {
             implementation(project(":feature-kmp:anime-base"))
             api(project(":core-kmp:celebrity"))
-            implementation(project(":core-kmp:network"))
             implementation(project(":core-kmp:anime-database"))
 
             implementation(libs.dagger)

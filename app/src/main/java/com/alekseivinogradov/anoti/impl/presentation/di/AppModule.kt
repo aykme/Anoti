@@ -14,7 +14,6 @@ import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.Anim
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.di.CelebrityAppModule
 import com.alekseivinogradov.anoti.main.impl.presentation.di.AnimeNotificationIntentProviderModule
-import com.alekseivinogradov.anoti.network.android.impl.presentation.di.NetworkModule
 import dagger.Module
 import dagger.Provides
 
@@ -22,7 +21,7 @@ import dagger.Provides
     includes = [
         CelebrityAppModule::class,
         AnimeDatabaseCompletedModule::class,
-        NetworkModule::class,
+        TransitionalAppGraphBridgeModule::class,
         AnimeBaseModule::class,
         AnimeBaseBackgroundUpdateModule::class,
         AnimePeriodicBackgroundUpdateModule::class,
