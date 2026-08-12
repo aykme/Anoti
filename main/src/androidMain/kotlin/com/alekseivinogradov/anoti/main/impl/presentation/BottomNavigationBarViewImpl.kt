@@ -3,12 +3,17 @@ package com.alekseivinogradov.anoti.main.impl.presentation
 import android.content.Context
 import android.view.MenuItem
 import android.view.View
-import androidx.navigation.NavController
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.model.SectionDomain
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.UiModel
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarView
 import com.alekseivinogradov.anoti.main.R
+import com.alekseivinogradov.anoti.main.impl.presentation.navigation.RootChild
+import com.alekseivinogradov.anoti.navigation.kmp.RootComponent
+import com.alekseivinogradov.anoti.navigation.kmp.RootConfig
+import com.arkivanov.decompose.value.ObserveLifecycleMode
+import com.arkivanov.decompose.value.subscribe
+import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer
@@ -18,7 +23,8 @@ import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 
 internal class BottomNavigationBarViewImpl(
     private val rootView: View,
-    private val navController: NavController
+    private val rootComponent: RootComponent<RootChild>,
+    private val lifecycle: Lifecycle
 ) : BottomNavigationBarView, BaseMviView<UiModel, BottomNavigationBarStore.Intent>() {
 
     private val context: Context
@@ -73,35 +79,33 @@ internal class BottomNavigationBarViewImpl(
     }
 
     private fun initOnDestinationChangeListener() {
-        val listener =
-            NavController.OnDestinationChangedListener { _, destination, _ ->
-                with(bottomNavMenu) {
-                    when (destination.id) {
-                        R.id.anime_list -> {
-                            dispatch(
-                                BottomNavigationBarStore.Intent.ChangeSelectedSection(
-                                    selectedSection = SectionDomain.MAIN
-                                )
+        rootComponent.childStack.subscribe(lifecycle, ObserveLifecycleMode.CREATE_DESTROY) { stack ->
+            with(bottomNavMenu) {
+                when (stack.active.instance) {
+                    is RootChild.List -> {
+                        dispatch(
+                            BottomNavigationBarStore.Intent.ChangeSelectedSection(
+                                selectedSection = SectionDomain.MAIN
                             )
-                            if (selectedItemId != R.id.anime_list) {
-                                selectedItemId = R.id.anime_list
-                            }
+                        )
+                        if (selectedItemId != R.id.anime_list) {
+                            selectedItemId = R.id.anime_list
                         }
+                    }
 
-                        R.id.anime_favorites -> {
-                            dispatch(
-                                BottomNavigationBarStore.Intent.ChangeSelectedSection(
-                                    selectedSection = SectionDomain.FAVORITES
-                                )
+                    is RootChild.Favorites -> {
+                        dispatch(
+                            BottomNavigationBarStore.Intent.ChangeSelectedSection(
+                                selectedSection = SectionDomain.FAVORITES
                             )
-                            if (selectedItemId != R.id.anime_favorites) {
-                                selectedItemId = R.id.anime_favorites
-                            }
+                        )
+                        if (selectedItemId != R.id.anime_favorites) {
+                            selectedItemId = R.id.anime_favorites
                         }
                     }
                 }
             }
-        navController.addOnDestinationChangedListener(listener)
+        }
     }
 
     private fun getFavoritesBadge(uiModel: UiModel): Int {
@@ -118,14 +122,14 @@ internal class BottomNavigationBarViewImpl(
     }
 
     private fun navigateToMain() {
-        if (navController.currentDestination?.id != R.id.anime_list) {
-            navController.navigate(R.id.anime_list)
+        if (rootComponent.childStack.value.active.instance !is RootChild.List) {
+            rootComponent.navigateTo(RootConfig.AnimeList)
         }
     }
 
     private fun navigateToFavorites() {
-        if (navController.currentDestination?.id != R.id.anime_favorites) {
-            navController.navigate(R.id.anime_favorites)
+        if (rootComponent.childStack.value.active.instance !is RootChild.Favorites) {
+            rootComponent.navigateTo(RootConfig.AnimeFavorites)
         }
     }
 }

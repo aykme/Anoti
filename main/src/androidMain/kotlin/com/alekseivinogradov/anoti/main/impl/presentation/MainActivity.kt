@@ -23,13 +23,11 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
-import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di.AnimeFavoritesComponent
-import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di.AnimeFavoritesComponentFactoryHolder
-import com.alekseivinogradov.anoti.animelist.android.impl.presentation.di.AnimeListComponent
-import com.alekseivinogradov.anoti.animelist.android.impl.presentation.di.AnimeListComponentFactoryHolder
+import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di.AnimeFavoritesScreenComponent
+import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di.AnimeFavoritesScreenComponentHolder
+import com.alekseivinogradov.anoti.animelist.android.impl.presentation.di.AnimeListScreenComponent
+import com.alekseivinogradov.anoti.animelist.android.impl.presentation.di.AnimeListScreenComponentHolder
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarController
 import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
@@ -42,6 +40,12 @@ import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_positiv
 import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_title
 import com.alekseivinogradov.anoti.main.impl.presentation.di.MainComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.di.MainComponentFactoryHolder
+import com.alekseivinogradov.anoti.main.impl.presentation.navigation.RootChild
+import com.alekseivinogradov.anoti.main.impl.presentation.navigation.RootChildFragmentBinder
+import com.alekseivinogradov.anoti.navigation.kmp.RootComponent
+import com.alekseivinogradov.anoti.navigation.kmp.RootConfig
+import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.decompose.defaultComponentContext
 import com.arkivanov.essenty.lifecycle.asEssentyLifecycle
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -51,16 +55,18 @@ import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 
 class MainActivity :
     AppCompatActivity(),
-    AnimeListComponentFactoryHolder,
-    AnimeFavoritesComponentFactoryHolder {
+    AnimeListScreenComponentHolder,
+    AnimeFavoritesScreenComponentHolder {
 
     private lateinit var mainComponent: MainComponent
 
-    override val animeListComponentFactory: AnimeListComponent.Factory
-        get() = mainComponent.animeListComponentFactory
+    private lateinit var rootComponent: RootComponent<RootChild>
 
-    override val animeFavoritesComponentFactory: AnimeFavoritesComponent.Factory
-        get() = mainComponent.animeFavoritesComponentFactory
+    override val animeListScreenComponent: AnimeListScreenComponent
+        get() = (rootComponent.childStack.value.active.instance as RootChild.List).component
+
+    override val animeFavoritesScreenComponent: AnimeFavoritesScreenComponent
+        get() = (rootComponent.childStack.value.active.instance as RootChild.Favorites).component
 
     private val requestPermissionLauncher: ActivityResultLauncher<String> =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
@@ -88,6 +94,10 @@ class MainActivity :
         mainStore = mainComponent.bottomNavigationBarStore
         animeDatabaseStore = mainComponent.animeDatabaseStore
         coroutineContextProvider = mainComponent.coroutineContextProvider
+        rootComponent = RootComponent(
+            componentContext = defaultComponentContext(),
+            childFactory = ::createRootChild
+        )
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
@@ -96,10 +106,15 @@ class MainActivity :
         // mainLayout is always non-null here: assigned right above, cleared only in onDestroy().
         @Suppress("UnsafeCallOnNullableType")
         val nonNullMainLayout = mainLayout!!
+        RootChildFragmentBinder(
+            fragmentManager = supportFragmentManager,
+            containerId = R.id.nav_host_fragment
+        ).bind(childStack = rootComponent.childStack, lifecycle = lifecycle.asEssentyLifecycle())
         controller.onViewCreated(
             mainView = BottomNavigationBarViewImpl(
                 rootView = nonNullMainLayout,
-                navController = getNavController()
+                rootComponent = rootComponent,
+                lifecycle = lifecycle.asEssentyLifecycle()
             ),
             viewLifecycle = lifecycle.asEssentyLifecycle(),
         )
@@ -111,11 +126,23 @@ class MainActivity :
         mainLayout = null
     }
 
-    private fun getNavController(): NavController {
-        val navHostFragment = supportFragmentManager
-            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        return navHostFragment.navController
-    }
+    private fun createRootChild(config: RootConfig, componentContext: ComponentContext): RootChild =
+        when (config) {
+            RootConfig.AnimeList -> RootChild.List(
+                AnimeListScreenComponent(
+                    componentContext = componentContext,
+                    animeListComponent = mainComponent.animeListComponentFactory.createAnimeListComponent()
+                )
+            )
+
+            RootConfig.AnimeFavorites -> RootChild.Favorites(
+                AnimeFavoritesScreenComponent(
+                    componentContext = componentContext,
+                    animeFavoritesComponent = mainComponent.animeFavoritesComponentFactory
+                        .createAnimeFavoritesComponent()
+                )
+            )
+        }
 
     @SuppressLint("SourceLockedOrientationActivity")
     private fun setSystemSettings() {
