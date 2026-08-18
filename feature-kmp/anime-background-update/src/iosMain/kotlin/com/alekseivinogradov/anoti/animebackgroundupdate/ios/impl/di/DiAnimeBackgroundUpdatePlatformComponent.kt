@@ -42,6 +42,11 @@ interface DiAnimeBackgroundUpdatePlatformComponent {
         notificationManager = notificationManager
     )
 
+    /**
+     * Registers the `BGAppRefreshTask` handler as soon as the scheduler is created. The task
+     * identifier must also be listed in the iOS app target's Info.plist under
+     * `BGTaskSchedulerPermittedIdentifiers` — see [AnimeBackgroundSchedulerImpl]'s KDoc.
+     */
     @Provides
     @SingleIn(AppScope::class)
     fun provideAnimeBackgroundScheduler(

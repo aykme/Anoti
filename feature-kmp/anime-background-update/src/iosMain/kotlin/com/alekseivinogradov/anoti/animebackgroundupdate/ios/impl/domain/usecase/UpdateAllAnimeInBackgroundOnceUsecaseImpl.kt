@@ -27,12 +27,18 @@ class UpdateAllAnimeInBackgroundOnceUsecaseImpl(
     private val runningJob = AtomicReference<Job?>(null)
 
     override fun execute() {
+        if (runningJob.load()?.isCompleted == false) return
+
         val newJob = coroutineScope.launch(start = CoroutineStart.LAZY) {
             animeUpdateManager.update()
         }
+        startIfNoPassInFlight(newJob)
+    }
+
+    private fun startIfNoPassInFlight(newJob: Job) {
         while (true) {
             val currentJob = runningJob.load()
-            if (currentJob?.isActive == true) {
+            if (currentJob?.isCompleted == false) {
                 newJob.cancel()
                 return
             }
