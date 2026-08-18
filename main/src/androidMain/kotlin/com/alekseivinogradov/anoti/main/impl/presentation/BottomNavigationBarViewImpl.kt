@@ -8,9 +8,9 @@ import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.Bott
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.UiModel
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarView
 import com.alekseivinogradov.anoti.main.R
-import com.alekseivinogradov.anoti.main.impl.presentation.navigation.RootChild
-import com.alekseivinogradov.anoti.navigation.kmp.RootComponent
-import com.alekseivinogradov.anoti.navigation.kmp.RootConfig
+import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
+import com.alekseivinogradov.anoti.navigation.kmp.NavRootComponent
+import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
 import com.arkivanov.decompose.value.ObserveLifecycleMode
 import com.arkivanov.decompose.value.subscribe
 import com.arkivanov.essenty.lifecycle.Lifecycle
@@ -23,7 +23,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 
 internal class BottomNavigationBarViewImpl(
     private val rootView: View,
-    private val rootComponent: RootComponent<RootChild>,
+    private val rootComponent: NavRootComponent<NavRootChild>,
     private val lifecycle: Lifecycle
 ) : BottomNavigationBarView, BaseMviView<UiModel, BottomNavigationBarStore.Intent>() {
 
@@ -80,11 +80,11 @@ internal class BottomNavigationBarViewImpl(
 
     private fun initOnDestinationChangeListener() {
         rootComponent.childStack.subscribe(lifecycle, ObserveLifecycleMode.CREATE_DESTROY) { stack ->
-            // Assigned to a value so the `when` is an expression: adding a RootChild variant
+            // Assigned to a value so the `when` is an expression: adding a NavRootChild variant
             // then fails to compile here instead of silently doing nothing.
             val section: SectionDomain = when (stack.active.instance) {
-                is RootChild.List -> SectionDomain.MAIN
-                is RootChild.Favorites -> SectionDomain.FAVORITES
+                is NavRootChild.List -> SectionDomain.MAIN
+                is NavRootChild.Favorites -> SectionDomain.FAVORITES
             }
             dispatch(
                 BottomNavigationBarStore.Intent.ChangeSelectedSection(selectedSection = section)
@@ -115,14 +115,14 @@ internal class BottomNavigationBarViewImpl(
     }
 
     private fun navigateToMain() {
-        if (rootComponent.childStack.value.active.instance !is RootChild.List) {
-            rootComponent.navigateTo(RootConfig.AnimeList)
+        if (rootComponent.childStack.value.active.instance !is NavRootChild.List) {
+            rootComponent.navigateTo(NavRootConfig.AnimeList)
         }
     }
 
     private fun navigateToFavorites() {
-        if (rootComponent.childStack.value.active.instance !is RootChild.Favorites) {
-            rootComponent.navigateTo(RootConfig.AnimeFavorites)
+        if (rootComponent.childStack.value.active.instance !is NavRootChild.Favorites) {
+            rootComponent.navigateTo(NavRootConfig.AnimeFavorites)
         }
     }
 }

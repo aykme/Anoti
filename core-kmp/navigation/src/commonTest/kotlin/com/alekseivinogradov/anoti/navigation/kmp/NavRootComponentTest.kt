@@ -8,16 +8,16 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
-private class TestChild(val config: RootConfig)
+private class TestChild(val config: NavRootConfig)
 
-class RootComponentTest {
+class NavRootComponentTest {
 
     private fun createRoot(
-        disposed: MutableList<RootConfig> = mutableListOf(),
-        initialConfiguration: RootConfig = RootConfig.AnimeList
-    ): RootComponent<TestChild> {
+        disposed: MutableList<NavRootConfig> = mutableListOf(),
+        initialConfiguration: NavRootConfig = NavRootConfig.AnimeList
+    ): NavRootComponent<TestChild> {
         val lifecycle = LifecycleRegistry()
-        val root = RootComponent(
+        val root = NavRootComponent(
             componentContext = DefaultComponentContext(lifecycle = lifecycle),
             initialConfiguration = initialConfiguration,
             childFactory = { config, childContext ->
@@ -31,42 +31,42 @@ class RootComponentTest {
 
     @Test
     fun startsOnTheInitialConfiguration() {
-        val root = createRoot(initialConfiguration = RootConfig.AnimeFavorites)
+        val root = createRoot(initialConfiguration = NavRootConfig.AnimeFavorites)
 
-        assertEquals(RootConfig.AnimeFavorites, root.childStack.value.active.configuration)
-        assertEquals(RootConfig.AnimeFavorites, root.childStack.value.active.instance.config)
+        assertEquals(NavRootConfig.AnimeFavorites, root.childStack.value.active.configuration)
+        assertEquals(NavRootConfig.AnimeFavorites, root.childStack.value.active.instance.config)
     }
 
     @Test
     fun navigateToReplacesTheWholeStackInsteadOfPushingOntoIt() {
         val root = createRoot()
 
-        root.navigateTo(RootConfig.AnimeFavorites)
-        root.navigateTo(RootConfig.AnimeList)
-        root.navigateTo(RootConfig.AnimeFavorites)
+        root.navigateTo(NavRootConfig.AnimeFavorites)
+        root.navigateTo(NavRootConfig.AnimeList)
+        root.navigateTo(NavRootConfig.AnimeFavorites)
 
         assertEquals(1, root.childStack.value.items.size)
-        assertEquals(RootConfig.AnimeFavorites, root.childStack.value.active.configuration)
+        assertEquals(NavRootConfig.AnimeFavorites, root.childStack.value.active.configuration)
     }
 
     @Test
     fun navigateToDisposesThePreviousChild() {
-        val disposed = mutableListOf<RootConfig>()
+        val disposed = mutableListOf<NavRootConfig>()
         val root = createRoot(disposed = disposed)
 
-        root.navigateTo(RootConfig.AnimeFavorites)
+        root.navigateTo(NavRootConfig.AnimeFavorites)
 
-        assertEquals<List<*>>(listOf(RootConfig.AnimeList), disposed)
+        assertEquals<List<*>>(listOf(NavRootConfig.AnimeList), disposed)
     }
 
     @Test
     fun navigateToDoesNotDisposeTheNewChild() {
-        val disposed = mutableListOf<RootConfig>()
+        val disposed = mutableListOf<NavRootConfig>()
         val root = createRoot(disposed = disposed)
 
-        root.navigateTo(RootConfig.AnimeFavorites)
+        root.navigateTo(NavRootConfig.AnimeFavorites)
 
-        val isDisposed = RootConfig.AnimeFavorites in disposed
+        val isDisposed = NavRootConfig.AnimeFavorites in disposed
         assertFalse(isDisposed)
     }
 }

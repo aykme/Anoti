@@ -22,13 +22,13 @@ coordinated by a top-level store.
 - The four stores' bindings live in this module's commonMain kotlin-inject-anvil component
   (`AnimeListComponent`, contributed to `FeatureScope`) and are merged by the same-named
   `@ContributesSubcomponent(FeatureScope::class)` in `androidMain`. `AnimeListFragment` doesn't
-  build that subgraph itself; it reads its dependencies off `AnimeListScreenComponent`
+  build that subgraph itself; it reads its dependencies off `NavAnimeListScreenComponent`
   (`androidMain`), which wraps a Decompose `ComponentContext` around an already-built
   `AnimeListComponent`. The Activity hosting the fragment must implement
-  `AnimeListScreenComponentHolder` (`androidMain`), exposing the currently active
-  `AnimeListScreenComponent`. `AnimeListView` has no DI wiring; the `androidMain` layer
+  `NavAnimeListScreenComponentHolder` (`androidMain`), exposing the currently active
+  `NavAnimeListScreenComponent`. `AnimeListView` has no DI wiring; the `androidMain` layer
   (`AnimeListViewImpl`) implements it directly. `AnimeListController` has no DI wiring either;
-  `AnimeListFragment` constructs it directly from `AnimeListScreenComponent`'s stores and
+  `AnimeListFragment` constructs it directly from `NavAnimeListScreenComponent`'s stores and
   lifecycle.
 
 ## How to use it

@@ -6,7 +6,7 @@ import android.content.Intent
 import com.alekseivinogradov.anoti.animenotification.external.android.impl.presentation.provider.AnimeNotificationIntentProvider
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import com.alekseivinogradov.anoti.main.impl.presentation.MainActivity
-import com.alekseivinogradov.anoti.navigation.kmp.RootConfig
+import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
 import kotlinx.serialization.json.Json
 import me.tatarka.inject.annotations.Inject
 import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
@@ -28,7 +28,7 @@ class AnimeNotificationIntentProviderImpl : AnimeNotificationIntentProvider {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             putExtra(
                 MainActivity.EXTRA_DEEP_LINK_TARGET,
-                Json.encodeToString(RootConfig.serializer(), RootConfig.AnimeFavorites)
+                Json.encodeToString(NavRootConfig.serializer(), NavRootConfig.AnimeFavorites)
             )
         }
         return PendingIntent.getActivity(

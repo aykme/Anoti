@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.alekseivinogradov.anoti.animelist.android.impl.presentation.di.AnimeListScreenComponent
-import com.alekseivinogradov.anoti.animelist.android.impl.presentation.di.AnimeListScreenComponentHolder
+import com.alekseivinogradov.anoti.animelist.android.impl.presentation.navigation.NavAnimeListScreenComponent
+import com.alekseivinogradov.anoti.animelist.android.impl.presentation.navigation.NavAnimeListScreenComponentHolder
 import com.alekseivinogradov.anoti.animelist.kmp.R
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.AnimeListController
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
@@ -16,7 +16,7 @@ class AnimeListFragment : Fragment() {
 
     private var rootView: View? = null
 
-    private lateinit var screenComponent: AnimeListScreenComponent
+    private lateinit var screenComponent: NavAnimeListScreenComponent
 
     private val controller: AnimeListController by lazy {
         AnimeListController(
@@ -39,9 +39,11 @@ class AnimeListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // Resolved here rather than in onAttach(): a restored Fragment is attached from inside
-        // MainActivity.onCreate()'s super call, before the Activity has built its RootComponent.
-        // onViewCreated() is the first callback guaranteed to run after onCreate() has returned.
-        screenComponent = (this.activity as AnimeListScreenComponentHolder).animeListScreenComponent
+        // MainActivity.onCreate()'s super call, before the Activity has built its
+        // NavRootComponent. onViewCreated() is the first callback guaranteed to run after
+        // onCreate() has returned.
+        screenComponent =
+            (this.activity as NavAnimeListScreenComponentHolder).navAnimeListScreenComponent
         // rootView is always non-null here: assigned in onCreateView(), cleared only in
         // onDestroyView().
         @Suppress("UnsafeCallOnNullableType")

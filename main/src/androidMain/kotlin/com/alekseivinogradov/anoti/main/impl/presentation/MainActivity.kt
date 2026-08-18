@@ -24,10 +24,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
-import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di.AnimeFavoritesScreenComponent
-import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di.AnimeFavoritesScreenComponentHolder
-import com.alekseivinogradov.anoti.animelist.android.impl.presentation.di.AnimeListScreenComponent
-import com.alekseivinogradov.anoti.animelist.android.impl.presentation.di.AnimeListScreenComponentHolder
+import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.navigation.NavAnimeFavoritesScreenComponent
+import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.navigation.NavAnimeFavoritesScreenComponentHolder
+import com.alekseivinogradov.anoti.animelist.android.impl.presentation.navigation.NavAnimeListScreenComponent
+import com.alekseivinogradov.anoti.animelist.android.impl.presentation.navigation.NavAnimeListScreenComponentHolder
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarController
 import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
@@ -40,10 +40,10 @@ import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_positiv
 import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_title
 import com.alekseivinogradov.anoti.main.impl.presentation.di.MainComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.di.MainComponentFactoryHolder
-import com.alekseivinogradov.anoti.main.impl.presentation.navigation.RootChild
-import com.alekseivinogradov.anoti.main.impl.presentation.navigation.RootChildFragmentBinder
-import com.alekseivinogradov.anoti.navigation.kmp.RootComponent
-import com.alekseivinogradov.anoti.navigation.kmp.RootConfig
+import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
+import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChildFragmentBinder
+import com.alekseivinogradov.anoti.navigation.kmp.NavRootComponent
+import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.defaultComponentContext
 import com.arkivanov.essenty.lifecycle.asEssentyLifecycle
@@ -56,18 +56,18 @@ import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 
 class MainActivity :
     AppCompatActivity(),
-    AnimeListScreenComponentHolder,
-    AnimeFavoritesScreenComponentHolder {
+    NavAnimeListScreenComponentHolder,
+    NavAnimeFavoritesScreenComponentHolder {
 
     private lateinit var mainComponent: MainComponent
 
-    private lateinit var rootComponent: RootComponent<RootChild>
+    private lateinit var rootComponent: NavRootComponent<NavRootChild>
 
-    override val animeListScreenComponent: AnimeListScreenComponent
-        get() = (rootComponent.childStack.value.active.instance as RootChild.List).component
+    override val navAnimeListScreenComponent: NavAnimeListScreenComponent
+        get() = (rootComponent.childStack.value.active.instance as NavRootChild.List).component
 
-    override val animeFavoritesScreenComponent: AnimeFavoritesScreenComponent
-        get() = (rootComponent.childStack.value.active.instance as RootChild.Favorites).component
+    override val navAnimeFavoritesScreenComponent: NavAnimeFavoritesScreenComponent
+        get() = (rootComponent.childStack.value.active.instance as NavRootChild.Favorites).component
 
     private val requestPermissionLauncher: ActivityResultLauncher<String> =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
@@ -102,9 +102,9 @@ class MainActivity :
         // must only be honored on a fresh start. Otherwise, every Activity recreation would
         // discard the restored navigation state and jump back to the deep link's target.
         val deepLinkTarget = if (savedInstanceState == null) readDeepLinkTarget() else null
-        rootComponent = RootComponent(
+        rootComponent = NavRootComponent(
             componentContext = defaultComponentContext(discardSavedState = deepLinkTarget != null),
-            initialConfiguration = deepLinkTarget ?: RootConfig.AnimeList,
+            initialConfiguration = deepLinkTarget ?: NavRootConfig.AnimeList,
             childFactory = ::createRootChild
         )
 
@@ -114,7 +114,7 @@ class MainActivity :
         // mainLayout is always non-null here: assigned right above, cleared only in onDestroy().
         @Suppress("UnsafeCallOnNullableType")
         val nonNullMainLayout = mainLayout!!
-        RootChildFragmentBinder(
+        NavRootChildFragmentBinder(
             fragmentManager = supportFragmentManager,
             containerId = R.id.nav_host_fragment
         ).bind(childStack = rootComponent.childStack, lifecycle = lifecycle.asEssentyLifecycle())
@@ -134,17 +134,20 @@ class MainActivity :
         mainLayout = null
     }
 
-    private fun createRootChild(config: RootConfig, componentContext: ComponentContext): RootChild =
+    private fun createRootChild(
+        config: NavRootConfig,
+        componentContext: ComponentContext
+    ): NavRootChild =
         when (config) {
-            RootConfig.AnimeList -> RootChild.List(
-                AnimeListScreenComponent(
+            NavRootConfig.AnimeList -> NavRootChild.List(
+                NavAnimeListScreenComponent(
                     componentContext = componentContext,
                     animeListComponent = mainComponent.animeListComponentFactory.createAnimeListComponent()
                 )
             )
 
-            RootConfig.AnimeFavorites -> RootChild.Favorites(
-                AnimeFavoritesScreenComponent(
+            NavRootConfig.AnimeFavorites -> NavRootChild.Favorites(
+                NavAnimeFavoritesScreenComponent(
                     componentContext = componentContext,
                     animeFavoritesComponent = mainComponent.animeFavoritesComponentFactory
                         .createAnimeFavoritesComponent()
@@ -156,9 +159,11 @@ class MainActivity :
      * This Activity is exported, so any app can launch it with an arbitrary extra — a malformed
      * payload is treated as "no deep link" rather than being allowed to crash [onCreate].
      */
-    private fun readDeepLinkTarget(): RootConfig? {
+    private fun readDeepLinkTarget(): NavRootConfig? {
         val encoded = intent?.getStringExtra(EXTRA_DEEP_LINK_TARGET) ?: return null
-        return runCatching { Json.decodeFromString(RootConfig.serializer(), encoded) }.getOrNull()
+        return runCatching {
+            Json.decodeFromString(NavRootConfig.serializer(), encoded)
+        }.getOrNull()
     }
 
     @SuppressLint("SourceLockedOrientationActivity")

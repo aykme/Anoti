@@ -17,13 +17,13 @@ and per-item notification toggles.
   component (`AnimeFavoritesComponent`, contributed to `FeatureScope`) and is merged by the
   same-named `@ContributesSubcomponent(FeatureScope::class)` in `androidMain`.
   `AnimeFavoritesFragment` doesn't build that subgraph itself; it reads its dependencies off
-  `AnimeFavoritesScreenComponent` (`androidMain`), which wraps a Decompose `ComponentContext`
+  `NavAnimeFavoritesScreenComponent` (`androidMain`), which wraps a Decompose `ComponentContext`
   around an already-built `AnimeFavoritesComponent`. The Activity hosting the fragment must
-  implement `AnimeFavoritesScreenComponentHolder` (`androidMain`), exposing the currently active
-  `AnimeFavoritesScreenComponent`. `AnimeFavoritesView` has no DI wiring; the `androidMain` layer
-  (`AnimeFavoritesViewImpl`) implements it directly. `AnimeFavoritesController` has no DI wiring
-  either; `AnimeFavoritesFragment` constructs it directly from `AnimeFavoritesScreenComponent`'s
-  store and lifecycle.
+  implement `NavAnimeFavoritesScreenComponentHolder` (`androidMain`), exposing the currently
+  active `NavAnimeFavoritesScreenComponent`. `AnimeFavoritesView` has no DI wiring; the
+  `androidMain` layer (`AnimeFavoritesViewImpl`) implements it directly. `AnimeFavoritesController`
+  has no DI wiring either; `AnimeFavoritesFragment` constructs it directly from
+  `NavAnimeFavoritesScreenComponent`'s store and lifecycle.
 
 ## How to use it
 
