@@ -38,10 +38,9 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            // Only the plain @Qualifier annotation from kotlin-inject's runtime is used here
-            // (in Qualifier.kt) — no kotlin-inject-anvil annotations appear in this module, so
-            // its runtime/runtime-optional artifacts aren't pulled in.
-            implementation(libs.kotlin.inject.runtime)
+            // Only kotlin-inject's marker annotations are used here: @Scope in Scope.kt and
+            // @Qualifier in Qualifier.kt. No component or binding lives in this module.
+            implementation(libs.kotlin.inject.runtime.kmp)
         }
     }
 }

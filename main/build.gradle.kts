@@ -46,46 +46,46 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.compose.runtime) // required once kotlinCompose is applied
-            implementation(libs.compose.components.resources)
-        }
-        androidMain.dependencies {
-            // `MainComponent`'s accessors expose types from these three modules, so they're part
-            // of this module's own API surface, not just an implementation detail — and `:app`,
-            // which hosts the `@MergeComponent` that generates `MainComponent`, needs them on
-            // its compile classpath for the merge to resolve.
+            // `DiRootComponent`'s supertypes and accessors expose types from these three modules,
+            // so they're part of this module's own API surface, not just an implementation detail.
             api(project(":feature-kmp:bottom-navigation-bar"))
             api(project(":feature-kmp:anime-list"))
             api(project(":feature-kmp:anime-favorites"))
 
-            implementation(project(":core-kmp:navigation"))
             implementation(project(":feature-kmp:anime-base"))
+            implementation(project(":feature-kmp:anime-background-update"))
             implementation(project(":core-kmp:celebrity"))
             implementation(project(":core-kmp:network"))
             implementation(project(":core-kmp:anime-database"))
             implementation(project(":core-kmp:di-scope"))
+
+            implementation(libs.mvikotlin)
+            implementation(libs.compose.runtime) // required once kotlinCompose is applied
+            implementation(libs.compose.components.resources)
+
+            implementation(libs.kotlin.inject.runtime.kmp)
+        }
+        androidMain.dependencies {
+            implementation(project(":core-kmp:navigation"))
             implementation(project(":feature-kmp:anime-notification-external"))
 
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.appcompat)
             implementation(libs.androidx.activity)
-            implementation(libs.mvikotlin)
             implementation(libs.essenty.lifecycle)
             implementation(libs.androidx.constraintlayout)
             implementation(libs.material)
             implementation(libs.decompose)
             implementation(libs.kotlinx.serialization.json)
-
-            implementation(libs.kotlin.inject.runtime)
-            implementation(libs.kotlin.inject.anvil.runtime)
-            implementation(libs.kotlin.inject.anvil.runtime.optional)
         }
     }
 }
 
 dependencies {
-    add("kspAndroid", libs.kotlin.inject.compiler.ksp)
-    add("kspAndroid", libs.kotlin.inject.anvil.compiler)
+    val kspTargets = listOf("Android", "IosArm64", "IosSimulatorArm64")
+    kspTargets.forEach { target ->
+        add("ksp$target", libs.kotlin.inject.compiler.ksp)
+    }
 }
 
 // Lint's androidHostTest-related tasks read kspAndroidHostTest's generated sources without

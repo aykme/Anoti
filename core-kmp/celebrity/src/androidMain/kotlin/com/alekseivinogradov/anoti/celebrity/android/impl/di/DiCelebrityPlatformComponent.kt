@@ -11,8 +11,6 @@ import com.alekseivinogradov.anoti.di.kmp.qualifier.AppContext
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import me.tatarka.inject.annotations.Provides
 import me.tatarka.inject.annotations.Qualifier
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 @Qualifier
 internal annotation class ConnectionError
@@ -25,30 +23,29 @@ internal annotation class UnknownError
  * [AppScope]'s merged component. The `DateFormatter` binding is platform-independent and lives
  * in commonMain's `DiCelebrityComponent` instead.
  */
-@ContributesTo(AppScope::class)
 interface DiCelebrityPlatformComponent {
     @Provides
-    @SingleIn(AppScope::class)
+    @AppScope
     fun provideCoroutineContextProvider(
         @AppContext appContext: PlatformContext
     ): CoroutineContextProvider = CoroutineContextProviderPlatform(appContext = appContext)
 
     @Provides
-    @SingleIn(AppScope::class)
+    @AppScope
     @ConnectionError
     fun provideMakeConnectionErrorToast(
         @AppContext appContext: PlatformContext
     ): MakeConnectionErrorToast = { ToastManager.makeConnectionErrorToast(appContext) }
 
     @Provides
-    @SingleIn(AppScope::class)
+    @AppScope
     @UnknownError
     fun provideMakeUnknownErrorToast(
         @AppContext appContext: PlatformContext
     ): MakeUnknownErrorToast = { ToastManager.makeUnknownErrorToast(appContext) }
 
     @Provides
-    @SingleIn(AppScope::class)
+    @AppScope
     fun provideToastProvider(
         @ConnectionError makeConnectionErrorToast: MakeConnectionErrorToast,
         @UnknownError makeUnknownErrorToast: MakeUnknownErrorToast

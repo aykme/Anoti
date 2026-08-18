@@ -2,6 +2,7 @@ package com.alekseivinogradov.anoti.animefavorites.kmp.impl.di
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
+import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.source.AnimeFavoritesSource
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.data.source.AnimeFavoritesSourceImpl
@@ -11,12 +12,14 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store.AnimeFav
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.wrapper.FavoritesUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.anoti.di.kmp.scope.FeatureScope
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.arkivanov.mvikotlin.core.store.StoreFactory
+import me.tatarka.inject.annotations.Component
+import me.tatarka.inject.annotations.KmpComponentCreate
 import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 
 /**
  * Contributes the [AnimeFavoritesSource], its usecases and the [AnimeFavoritesMainStore] binding
@@ -24,8 +27,23 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
  * parameter here, not provided — it comes from `feature-kmp:anime-background-update`'s
  * app-scoped, platform-specific contribution.
  */
-@ContributesTo(FeatureScope::class)
-interface DiAnimeFavoritesComponent {
+@Component
+@FeatureScope
+abstract class DiAnimeFavoritesComponent(
+    @Component val parent: DiAnimeFavoritesDependencies
+) {
+    /** The app-wide [CoroutineContextProvider], inherited from the parent. */
+    abstract val coroutineContextProvider: CoroutineContextProvider
+
+    /** The [DateFormatter], inherited from the parent. */
+    abstract val dateFormatter: DateFormatter
+
+    /** The app-wide [AnimeDatabaseStore], inherited from the parent. */
+    abstract val animeDatabaseStore: AnimeDatabaseStore
+
+    /** The screen's [AnimeFavoritesMainStore]. */
+    abstract val mainStore: AnimeFavoritesMainStore
+
     @Provides
     fun provideAnimeFavoritesSource(service: ShikimoriApiService, safeApi: SafeApi): AnimeFavoritesSource =
         AnimeFavoritesSourceImpl(service = service, safeApi = safeApi)
@@ -62,3 +80,8 @@ interface DiAnimeFavoritesComponent {
         executorFactory: AnimeFavoritesExecutorFactory
     ): AnimeFavoritesMainStore = AnimeFavoritesMainStoreFactory(storeFactory, executorFactory).create()
 }
+
+@KmpComponentCreate
+expect fun createDiAnimeFavoritesComponent(
+    parent: DiAnimeFavoritesDependencies
+): DiAnimeFavoritesComponent

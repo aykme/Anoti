@@ -2,7 +2,6 @@ package com.alekseivinogradov.anoti.main.impl.presentation
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
@@ -38,7 +37,7 @@ import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_negativ
 import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_notifications_rationale_message
 import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_positive_button
 import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_title
-import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponent
+import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponentHolder
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChildFragmentBinder
@@ -92,9 +91,7 @@ class MainActivity :
         // defaultComponentContext() reads the SavedStateRegistry, which only becomes readable
         // once super.onCreate() has restored it — so it must run first.
         super.onCreate(savedInstanceState)
-        diRootComponent = (this.application as DiRootComponentHolder)
-            .diRootComponentFactory
-            .createDiRootComponent(activityContext = this as Context)
+        diRootComponent = (this.application as DiRootComponentHolder).createDiRootComponent()
         mainStore = diRootComponent.bottomNavigationBarStore
         animeDatabaseStore = diRootComponent.animeDatabaseStore
         coroutineContextProvider = diRootComponent.coroutineContextProvider
@@ -142,15 +139,14 @@ class MainActivity :
             NavRootConfig.AnimeList -> NavRootChild.List(
                 NavAnimeListScreenComponent(
                     componentContext = componentContext,
-                    diAnimeListComponent = diRootComponent.diAnimeListComponentFactory.createDiAnimeListComponent()
+                    diAnimeListComponent = diRootComponent.createDiAnimeListComponent()
                 )
             )
 
             NavRootConfig.AnimeFavorites -> NavRootChild.Favorites(
                 NavAnimeFavoritesScreenComponent(
                     componentContext = componentContext,
-                    diAnimeFavoritesComponent = diRootComponent.diAnimeFavoritesComponentFactory
-                        .createDiAnimeFavoritesComponent()
+                    diAnimeFavoritesComponent = diRootComponent.createDiAnimeFavoritesComponent()
                 )
             )
         }

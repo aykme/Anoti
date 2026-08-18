@@ -24,8 +24,6 @@ import com.alekseivinogradov.anoti.di.kmp.qualifier.AnimeBackgroundUpdate
 import com.alekseivinogradov.anoti.di.kmp.qualifier.AppContext
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 import java.util.concurrent.TimeUnit
 
 /**
@@ -33,10 +31,9 @@ import java.util.concurrent.TimeUnit
  * requests, and the WorkManager-backed [AnimeBackgroundScheduler]/
  * [UpdateAllAnimeInBackgroundOnceUsecase] bindings to [AppScope]'s merged component.
  */
-@ContributesTo(AppScope::class)
 interface DiAnimeBackgroundUpdatePlatformComponent {
     @Provides
-    @SingleIn(AppScope::class)
+    @AppScope
     fun provideAnimeUpdateManager(
         coroutineContextProvider: CoroutineContextProvider,
         fetchAllAnimeDatabaseItemsUsecase: FetchAllAnimeDatabaseItemsUsecase,
@@ -71,7 +68,7 @@ interface DiAnimeBackgroundUpdatePlatformComponent {
      * WorkManager no matter which graph accessor is read first.
      */
     @Provides
-    @SingleIn(AppScope::class)
+    @AppScope
     fun provideWorkManager(
         @AppContext appContext: PlatformContext,
         @AnimeBackgroundUpdate workManagerConfiguration: Configuration
@@ -99,7 +96,7 @@ interface DiAnimeBackgroundUpdatePlatformComponent {
         ).build()
 
     @Provides
-    @SingleIn(AppScope::class)
+    @AppScope
     fun provideAnimeBackgroundScheduler(
         workManager: WorkManager,
         @AnimeBackgroundUpdate animeUpdatePeriodicWork: PeriodicWorkRequest

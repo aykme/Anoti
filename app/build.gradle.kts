@@ -58,17 +58,14 @@ dependencies {
 
     implementation(libs.mvikotlin)
     // Compose Multiplatform's compiler stamps @StabilityInferred on classes in the KMP modules
-    // whose contributions this module's @MergeComponent merges; KSP has to be able to resolve
-    // that annotation while reading them.
+    // this module's component inherits its bindings from; KSP has to be able to resolve that
+    // annotation while reading them.
     implementation(libs.compose.runtime)
     implementation(libs.androidx.work.runtime)
     implementation(libs.play.services.appset)
 
-    implementation(libs.kotlin.inject.runtime)
-    implementation(libs.kotlin.inject.anvil.runtime)
-    implementation(libs.kotlin.inject.anvil.runtime.optional)
+    implementation(libs.kotlin.inject.runtime.kmp)
     ksp(libs.kotlin.inject.compiler.ksp)
-    ksp(libs.kotlin.inject.anvil.compiler)
     androidTestImplementation(libs.androidx.junit.ktx)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.espresso.contrib)

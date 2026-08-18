@@ -4,12 +4,10 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import com.alekseivinogradov.anoti.animenotification.external.android.impl.presentation.provider.AnimeNotificationIntentProvider
-import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import com.alekseivinogradov.anoti.main.impl.presentation.MainActivity
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
 import kotlinx.serialization.json.Json
 import me.tatarka.inject.annotations.Inject
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
 
 /**
  * The "main"-side implementation of [AnimeNotificationIntentProvider]. Lives here because it is
@@ -21,7 +19,6 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding
  * `FLAG_ACTIVITY_CLEAR_TASK` specifically is what forces the existing task to be torn down first.
  */
 @Inject
-@ContributesBinding(AppScope::class)
 class AnimeNotificationIntentProviderImpl : AnimeNotificationIntentProvider {
     override fun getNewEpisodeNotificationIntent(appContext: Context): PendingIntent {
         val intent = Intent(appContext, MainActivity::class.java).apply {

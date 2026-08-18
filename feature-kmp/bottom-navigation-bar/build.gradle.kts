@@ -42,9 +42,7 @@ kotlin {
             implementation(libs.essenty.lifecycle)
             implementation(libs.mvikotlin.extensions.coroutines)
 
-            implementation(libs.kotlin.inject.runtime)
-            implementation(libs.kotlin.inject.anvil.runtime)
-            implementation(libs.kotlin.inject.anvil.runtime.optional)
+            implementation(libs.kotlin.inject.runtime.kmp)
         }
     }
 }
@@ -53,7 +51,6 @@ dependencies {
     val kspTargets = listOf("Android", "IosArm64", "IosSimulatorArm64")
     kspTargets.forEach { target ->
         add("ksp$target", libs.kotlin.inject.compiler.ksp)
-        add("ksp$target", libs.kotlin.inject.anvil.compiler)
     }
 }
 

@@ -52,9 +52,7 @@ kotlin {
             implementation(libs.compose.runtime)
             implementation(libs.compose.components.resources)
 
-            implementation(libs.kotlin.inject.runtime)
-            implementation(libs.kotlin.inject.anvil.runtime)
-            implementation(libs.kotlin.inject.anvil.runtime.optional)
+            implementation(libs.kotlin.inject.runtime.kmp)
         }
         androidMain.dependencies {
             implementation(libs.androidx.core.ktx)
@@ -68,7 +66,6 @@ dependencies {
     val kspTargets = listOf("Android", "IosArm64", "IosSimulatorArm64")
     kspTargets.forEach { target ->
         add("ksp$target", libs.kotlin.inject.compiler.ksp)
-        add("ksp$target", libs.kotlin.inject.anvil.compiler)
     }
 }
 

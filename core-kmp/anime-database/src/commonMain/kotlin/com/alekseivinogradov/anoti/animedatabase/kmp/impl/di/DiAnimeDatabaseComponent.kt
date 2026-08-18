@@ -25,8 +25,6 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.Cor
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 /**
  * Contributes the local anime database's [AnimeDatabaseRepository], usecase, and
@@ -34,10 +32,9 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
  */
 // One function per provided dependency is the DI @Provides convention here, not god-interface growth.
 @Suppress("TooManyFunctions")
-@ContributesTo(AppScope::class)
 interface DiAnimeDatabaseComponent {
     @Provides
-    @SingleIn(AppScope::class)
+    @AppScope
     fun provideAnimeDatabaseRepository(animeDatabase: AnimeDatabase): AnimeDatabaseRepository =
         AnimeDatabaseRepositoryImpl(animeDao = animeDatabase.animeDao())
 

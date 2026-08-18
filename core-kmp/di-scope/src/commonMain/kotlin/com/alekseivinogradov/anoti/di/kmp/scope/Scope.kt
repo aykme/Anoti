@@ -1,10 +1,18 @@
 package com.alekseivinogradov.anoti.di.kmp.scope
 
-/** Marks bindings that live for the app's whole lifetime, merged into the single app-wide graph. */
-object AppScope
+import me.tatarka.inject.annotations.Scope
 
-/** Marks bindings that live for one Activity instance, merged into that Activity's child graph. */
-object ActivityScope
+/** Marks bindings that live for the app's whole lifetime, held by the app-wide component. */
+@Scope
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
+annotation class AppScope
 
-/** Marks bindings that live for one screen (Fragment), merged into that screen's child graph. */
-object FeatureScope
+/** Marks bindings that live for one root UI host, held by that host's child component. */
+@Scope
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
+annotation class RootScope
+
+/** Marks bindings that live for one screen, held by that screen's child component. */
+@Scope
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
+annotation class FeatureScope

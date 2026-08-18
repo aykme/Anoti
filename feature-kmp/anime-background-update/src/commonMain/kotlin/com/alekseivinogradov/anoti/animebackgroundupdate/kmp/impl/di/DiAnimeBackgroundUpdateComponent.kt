@@ -8,8 +8,6 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiSe
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 /**
  * Contributes the local anime background-update source and its usecase bindings to [AppScope]'s
@@ -19,17 +17,16 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
  * depends on `WorkManager`, so it is contributed from `androidMain`'s
  * `DiAnimeBackgroundUpdatePlatformComponent` instead, and has no iOS counterpart yet.
  */
-@ContributesTo(AppScope::class)
 interface DiAnimeBackgroundUpdateComponent {
     @Provides
-    @SingleIn(AppScope::class)
+    @AppScope
     fun provideAnimeBackgroundUpdateSource(
         service: ShikimoriApiService,
         safeApi: SafeApi
     ): AnimeBackgroundUpdateSource = AnimeBackgroundUpdateSourceImpl(service = service, safeApi = safeApi)
 
     @Provides
-    @SingleIn(AppScope::class)
+    @AppScope
     fun provideFetchAnimeListByIdsUsecase(
         source: AnimeBackgroundUpdateSource
     ): FetchAnimeListByIdsUsecase = FetchAnimeListByIdsUsecase(source)

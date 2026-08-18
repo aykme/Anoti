@@ -15,8 +15,6 @@ import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 /**
  * Contributes the iOS [AnimeUpdateManager], [AnimeBackgroundScheduler] and
@@ -24,10 +22,9 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
  * of `androidMain`'s `DiAnimeBackgroundUpdatePlatformComponent`, minus the WorkManager plumbing
  * iOS has no use for.
  */
-@ContributesTo(AppScope::class)
 interface DiAnimeBackgroundUpdatePlatformComponent {
     @Provides
-    @SingleIn(AppScope::class)
+    @AppScope
     fun provideAnimeUpdateManager(
         coroutineContextProvider: CoroutineContextProvider,
         fetchAllAnimeDatabaseItemsUsecase: FetchAllAnimeDatabaseItemsUsecase,
@@ -48,7 +45,7 @@ interface DiAnimeBackgroundUpdatePlatformComponent {
      * `BGTaskSchedulerPermittedIdentifiers` — see [AnimeBackgroundSchedulerImpl]'s KDoc.
      */
     @Provides
-    @SingleIn(AppScope::class)
+    @AppScope
     fun provideAnimeBackgroundScheduler(
         animeUpdateManager: AnimeUpdateManager
     ): AnimeBackgroundScheduler = AnimeBackgroundSchedulerImpl(
@@ -57,7 +54,7 @@ interface DiAnimeBackgroundUpdatePlatformComponent {
     ).also { it.registerTaskHandler() }
 
     @Provides
-    @SingleIn(AppScope::class)
+    @AppScope
     fun provideUpdateAllAnimeInBackgroundOnceUsecase(
         animeUpdateManager: AnimeUpdateManager
     ): UpdateAllAnimeInBackgroundOnceUsecase = UpdateAllAnimeInBackgroundOnceUsecaseImpl(

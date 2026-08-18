@@ -6,16 +6,13 @@ import com.alekseivinogradov.anoti.di.kmp.PlatformContext
 import com.alekseivinogradov.anoti.di.kmp.qualifier.AppContext
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 /**
  * Contributes the Android [AnimeDatabase] binding to [AppScope]'s merged component.
  */
-@ContributesTo(AppScope::class)
 interface DiAnimeDatabasePlatformComponent {
     @Provides
-    @SingleIn(AppScope::class)
+    @AppScope
     fun provideAnimeDatabase(@AppContext appContext: PlatformContext): AnimeDatabase =
         getAnimeDatabase(appContext)
 }

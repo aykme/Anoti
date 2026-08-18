@@ -27,12 +27,11 @@ kotlin {
             implementation(project(":feature-kmp:anime-base"))
             implementation(project(":feature-kmp:anime-background-update"))
             implementation(project(":feature-kmp:anime-notification"))
+            implementation(project(":main"))
 
             implementation(libs.mvikotlin)
 
-            implementation(libs.kotlin.inject.runtime)
-            implementation(libs.kotlin.inject.anvil.runtime)
-            implementation(libs.kotlin.inject.anvil.runtime.optional)
+            implementation(libs.kotlin.inject.runtime.kmp)
         }
     }
 }
@@ -41,6 +40,5 @@ dependencies {
     val kspTargets = listOf("IosArm64", "IosSimulatorArm64")
     kspTargets.forEach { target ->
         add("ksp$target", libs.kotlin.inject.compiler.ksp)
-        add("ksp$target", libs.kotlin.inject.anvil.compiler)
     }
 }

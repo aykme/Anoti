@@ -4,17 +4,14 @@ import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.alekseivinogradov.anoti.network.kmp.impl.data.SafeApiImpl
 import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
-import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Contributes the [SafeApi] binding to [AppScope]'s merged component.
  */
-@ContributesTo(AppScope::class)
 interface DiNetworkComponent {
     @Provides
-    @SingleIn(AppScope::class)
+    @AppScope
     fun provideSafeApi(): SafeApi = SafeApiImpl(
         maxAttempt = 3,
         attemptDelay = 2500.milliseconds

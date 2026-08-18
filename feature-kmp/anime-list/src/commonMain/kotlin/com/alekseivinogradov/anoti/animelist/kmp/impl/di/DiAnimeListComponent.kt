@@ -1,6 +1,7 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.di
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
+import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsection.AnnouncedSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
@@ -27,12 +28,14 @@ import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.Ann
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.OngoingUsecases
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.SearchUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.anoti.di.kmp.scope.FeatureScope
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.arkivanov.mvikotlin.core.store.StoreFactory
+import me.tatarka.inject.annotations.Component
+import me.tatarka.inject.annotations.KmpComponentCreate
 import me.tatarka.inject.annotations.Provides
-import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 
 /**
  * Contributes the [AnimeListSource], its usecases and the main/announced/ongoing/search section
@@ -40,8 +43,32 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
  */
 // One function per provided dependency is the DI @Provides convention here, not god-interface growth.
 @Suppress("TooManyFunctions")
-@ContributesTo(FeatureScope::class)
-interface DiAnimeListComponent {
+@Component
+@FeatureScope
+abstract class DiAnimeListComponent(
+    @Component val parent: DiAnimeListDependencies
+) {
+    /** The app-wide [CoroutineContextProvider], inherited from the parent. */
+    abstract val coroutineContextProvider: CoroutineContextProvider
+
+    /** The [DateFormatter], inherited from the parent. */
+    abstract val dateFormatter: DateFormatter
+
+    /** The app-wide [AnimeDatabaseStore], inherited from the parent. */
+    abstract val animeDatabaseStore: AnimeDatabaseStore
+
+    /** The screen's [AnimeListMainStore]. */
+    abstract val mainStore: AnimeListMainStore
+
+    /** The screen's [OngoingSectionStore]. */
+    abstract val ongoingSectionStore: OngoingSectionStore
+
+    /** The screen's [AnnouncedSectionStore]. */
+    abstract val announcedSectionStore: AnnouncedSectionStore
+
+    /** The screen's [SearchSectionStore]. */
+    abstract val searchSectionStore: SearchSectionStore
+
     @Provides
     fun provideAnimeListSource(service: ShikimoriApiService, safeApi: SafeApi): AnimeListSource =
         AnimeListSourceImpl(service = service, safeApi = safeApi)
@@ -153,3 +180,6 @@ interface DiAnimeListComponent {
         executorFactory: SearchSectionExecutorFactory
     ): SearchSectionStore = SearchSectionStoreFactory(storeFactory, executorFactory).create()
 }
+
+@KmpComponentCreate
+expect fun createDiAnimeListComponent(parent: DiAnimeListDependencies): DiAnimeListComponent
