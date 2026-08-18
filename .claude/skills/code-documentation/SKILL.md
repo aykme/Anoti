@@ -75,10 +75,11 @@ adding doc comments or writing the README file once they confirm.
 3. **How to include it** — always present, two things:
     - The Gradle coordinate to depend on: `implementation(project(":core-kmp:celebrity"))`.
     - How an instance is actually obtained at runtime. If the project wires things through DI,
-      say so and say where — e.g. "provided via this module's kotlin-inject-anvil contributions,
-      merged into the app-scope graph" — without re-explaining how DI works. If there's no DI (a
-      plain constructor, a factory function), say that instead. A reader who found this module
-      and wants to use it needs this; it's not optional the way the usage example is.
+      say so and say where — e.g. "provided via this module's `DiXComponent` bindings, mixed
+      into the root `DiAppComponent` as a supertype" — without re-explaining how DI works. If
+      there's no DI (a plain constructor, a factory function), say that instead. A reader who
+      found this module and wants to use it needs this; it's not optional the way the usage
+      example is.
 4. **Usage example** (optional, see "Code example vs. prose" below for when to actually write
    one) — a few lines showing how to obtain and drive the module's main entry point. One
    example for the primary entity is normally enough — don't write one per listed entity.

@@ -17,9 +17,8 @@ interface DiCelebrityComponent {
     @AppScope
     fun provideStoreFactory(): StoreFactory = DefaultStoreFactory()
 
-    // App-scoped rather than root-scoped on purpose: the provider is unscoped, so every
-    // injection point still gets its own stateless DateFormatterImpl, and keeping the binding
-    // in AppScope is what lets iOS reach it as well — iOS has no RootScope graph.
+    // Deliberately unscoped: DateFormatterImpl is stateless, so every injection point gets its
+    // own instance instead of sharing one for the app's lifetime.
     @Provides
     fun provideDateFormatter(): DateFormatter = DateFormatterImpl()
 }
