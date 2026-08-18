@@ -65,7 +65,7 @@ interface DiAppComponent {
 
     /**
      * The app-wide [AnimeBackgroundScheduler], see `feature-kmp:anime-background-update`'s iOS
-     * `DiAnimeBackgroundSchedulerPlatformComponent`.
+     * `DiAnimeBackgroundUpdatePlatformComponent`.
      */
     val animeBackgroundScheduler: AnimeBackgroundScheduler
 }

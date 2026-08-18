@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit
 @ContributesTo(AppScope::class)
 interface DiAnimeBackgroundUpdatePlatformComponent {
     @Provides
+    @SingleIn(AppScope::class)
     fun provideAnimeUpdateManager(
         coroutineContextProvider: CoroutineContextProvider,
         fetchAllAnimeDatabaseItemsUsecase: FetchAllAnimeDatabaseItemsUsecase,
