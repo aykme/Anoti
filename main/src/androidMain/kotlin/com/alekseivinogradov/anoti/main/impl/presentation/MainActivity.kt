@@ -99,7 +99,7 @@ class MainActivity :
         animeDatabaseStore = mainComponent.animeDatabaseStore
         coroutineContextProvider = mainComponent.coroutineContextProvider
         // getIntent() keeps returning the launching Intent for the whole task, so the deep link
-        // must only be honoured on a fresh start — otherwise every Activity recreation would
+        // must only be honored on a fresh start. Otherwise, every Activity recreation would
         // discard the restored navigation state and jump back to the deep link's target.
         val deepLinkTarget = if (savedInstanceState == null) readDeepLinkTarget() else null
         rootComponent = RootComponent(

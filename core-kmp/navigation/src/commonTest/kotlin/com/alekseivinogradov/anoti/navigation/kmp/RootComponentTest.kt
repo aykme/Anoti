@@ -33,8 +33,8 @@ class RootComponentTest {
     fun startsOnTheInitialConfiguration() {
         val root = createRoot(initialConfiguration = RootConfig.AnimeFavorites)
 
-        assertEquals<RootConfig>(RootConfig.AnimeFavorites, root.childStack.value.active.configuration)
-        assertEquals<RootConfig>(RootConfig.AnimeFavorites, root.childStack.value.active.instance.config)
+        assertEquals(RootConfig.AnimeFavorites, root.childStack.value.active.configuration)
+        assertEquals(RootConfig.AnimeFavorites, root.childStack.value.active.instance.config)
     }
 
     @Test
@@ -45,8 +45,8 @@ class RootComponentTest {
         root.navigateTo(RootConfig.AnimeList)
         root.navigateTo(RootConfig.AnimeFavorites)
 
-        assertEquals<Int>(1, root.childStack.value.items.size)
-        assertEquals<RootConfig>(RootConfig.AnimeFavorites, root.childStack.value.active.configuration)
+        assertEquals(1, root.childStack.value.items.size)
+        assertEquals(RootConfig.AnimeFavorites, root.childStack.value.active.configuration)
     }
 
     @Test
@@ -56,7 +56,7 @@ class RootComponentTest {
 
         root.navigateTo(RootConfig.AnimeFavorites)
 
-        assertEquals<List<RootConfig>>(listOf(RootConfig.AnimeList), disposed)
+        assertEquals<List<*>>(listOf(RootConfig.AnimeList), disposed)
     }
 
     @Test
