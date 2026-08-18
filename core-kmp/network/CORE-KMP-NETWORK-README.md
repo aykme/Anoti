@@ -14,9 +14,9 @@ app.
 
 - Gradle: `implementation(project(":core-kmp:network"))`
 - `SafeApi`/`HttpClient` instances are provided via this module's kotlin-inject bindings
-  (`DiNetworkComponent`, `DiNetworkPlatformComponent`), mixed into `DiAppComponent` (`:app`'s on
-  Android, [`core-kmp:di`](../di/CORE-KMP-DI-README.md)'s on iOS) — inject them, don't construct
-  them yourself.
+  (`DiNetworkComponent`, `DiNetworkPlatformComponent`), mixed into
+  [`core-kmp:di-app`](../di-app/CORE-KMP-DI-APP-README.md)'s `DiAppComponent` on both platforms —
+  inject them, don't construct them yourself.
 
 ## How to use it
 

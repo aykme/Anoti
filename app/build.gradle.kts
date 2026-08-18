@@ -2,7 +2,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.ksp)
     alias(libs.plugins.detekt)
 }
 
@@ -44,11 +43,7 @@ kotlin {
 }
 
 dependencies {
-    implementation(project(":core-kmp:celebrity"))
-    implementation(project(":core-kmp:anime-database"))
-    implementation(project(":core-kmp:di-scope"))
-    implementation(project(":core-kmp:network"))
-    implementation(project(":feature-kmp:anime-base"))
+    implementation(project(":core-kmp:di-app"))
     implementation(project(":feature-kmp:anime-background-update"))
     implementation(project(":feature-kmp:anime-notification"))
     implementation(project(":main"))
@@ -56,16 +51,6 @@ dependencies {
     androidTestImplementation(project(":feature-kmp:anime-favorites"))
     androidTestImplementation(libs.compose.components.resources)
 
-    implementation(libs.mvikotlin)
-    // Compose Multiplatform's compiler stamps @StabilityInferred on classes in the KMP modules
-    // this module's component inherits its bindings from; KSP has to be able to resolve that
-    // annotation while reading them.
-    implementation(libs.compose.runtime)
-    implementation(libs.androidx.work.runtime)
-    implementation(libs.play.services.appset)
-
-    implementation(libs.kotlin.inject.runtime.kmp)
-    ksp(libs.kotlin.inject.compiler.ksp)
     androidTestImplementation(libs.androidx.junit.ktx)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.espresso.contrib)

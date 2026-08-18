@@ -1,8 +1,8 @@
 Zero-dependency leaf module for shared DI plumbing. Hosts the kotlin-inject scope markers,
 qualifier annotations, and the cross-platform `PlatformContext` handle that all the app's DI
-wiring builds on. Split out of `core-kmp:di` (see that module's README) specifically so leaf
+wiring builds on. Split out of `core-kmp:di-app` (see that module's README) specifically so leaf
 modules can depend on these types without creating a circular Gradle dependency with
-`core-kmp:di`, which depends on several leaf modules of its own.
+`core-kmp:di-app`, which depends on several leaf modules of its own.
 
 ## Entities
 
@@ -21,4 +21,5 @@ modules can depend on these types without creating a circular Gradle dependency 
   declarations with the scope/qualifier annotations, and use `PlatformContext` as the
   commonMain-safe parameter/return type wherever `android.content.Context` would otherwise leak
   into a `commonMain` signature. None of them has DI wiring of its own; the app-scoped
-  `PlatformContext` instance itself is supplied to `:app`'s `DiAppComponent` when it is created.
+  `PlatformContext` instance itself is supplied to `core-kmp:di-app`'s `DiAppComponent` when it
+  is created.

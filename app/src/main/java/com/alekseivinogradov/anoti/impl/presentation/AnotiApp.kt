@@ -2,8 +2,8 @@ package com.alekseivinogradov.anoti.impl.presentation
 
 import android.app.Application
 import android.app.NotificationManager
-import com.alekseivinogradov.anoti.impl.presentation.di.DiAppComponent
-import com.alekseivinogradov.anoti.impl.presentation.di.create
+import com.alekseivinogradov.anoti.di.kmp.DiAppComponent
+import com.alekseivinogradov.anoti.di.kmp.create
 import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
 import com.alekseivinogradov.anoti.main.impl.di.create
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponentHolder

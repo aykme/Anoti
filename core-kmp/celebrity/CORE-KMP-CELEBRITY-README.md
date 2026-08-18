@@ -19,6 +19,6 @@ formatting, error-toast callbacks, and pagination.
 - Gradle: `implementation(project(":core-kmp:celebrity"))`
 - `CoroutineContextProvider`, `DateFormatter` and `ToastProvider` are provided via this module's
   kotlin-inject bindings (`DiCelebrityComponent`, `DiCelebrityPlatformComponent`), mixed into
-  `DiAppComponent` (`:app`'s on Android, [`core-kmp:di`](../di/CORE-KMP-DI-README.md)'s on iOS) —
+  [`core-kmp:di-app`](../di-app/CORE-KMP-DI-APP-README.md)'s `DiAppComponent` on both platforms —
   inject them, don't construct them yourself. `Paginator` has no DI wiring; callers construct it
   directly.
