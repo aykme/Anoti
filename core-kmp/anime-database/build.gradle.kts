@@ -74,11 +74,6 @@ dependencies {
     add("kspAndroid", libs.androidx.room.compiler)
     add("kspIosArm64", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
-
-    val kspTargets = listOf("Android", "IosArm64", "IosSimulatorArm64")
-    kspTargets.forEach { target ->
-        add("ksp$target", libs.kotlin.inject.compiler.ksp)
-    }
 }
 
 // androidHostTest runs the Android target's BundledSQLiteDriver on the host JVM (via Robolectric),

@@ -5,7 +5,8 @@ Until that host app exists, it also serves as the compile-time proof that every 
 the repo actually wires together. The scope annotations, qualifier annotations, and
 `PlatformContext` live in [`core-kmp:di-scope`](../di-scope/CORE-KMP-DI-SCOPE-README.md), a
 zero-dependency leaf module, so leaf modules can depend on them without cycling back through this
-one; `core-kmp:di` depends on `core-kmp:di-scope` in turn.
+one; `core-kmp:di` depends on `core-kmp:di-scope` in turn. It also depends on `:main`, whose root
+UI host graph it builds.
 
 ## How to include it
 
@@ -13,5 +14,7 @@ one; `core-kmp:di` depends on `core-kmp:di-scope` in turn.
   Android depends on it.
 - `DiAppComponent::class.create(appContext)` builds the graph; read its accessors instead of
   constructing the values yourself.
+- `DiAppComponent.createDiRootComponent()` builds `:main`'s `DiRootComponent`, the entry point to
+  the root UI host's graph.
 - For the scope annotations, qualifier annotations, and `PlatformContext`, depend on
   [`core-kmp:di-scope`](../di-scope/CORE-KMP-DI-SCOPE-README.md) directly instead.

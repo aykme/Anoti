@@ -36,7 +36,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            // RootComponent's public API exposes ComponentContext and Value<ChildStack<..>>.
+            // NavRootComponent's public API exposes ComponentContext and Value<ChildStack<..>>.
             api(libs.decompose)
             implementation(libs.kotlinx.serialization.json)
         }

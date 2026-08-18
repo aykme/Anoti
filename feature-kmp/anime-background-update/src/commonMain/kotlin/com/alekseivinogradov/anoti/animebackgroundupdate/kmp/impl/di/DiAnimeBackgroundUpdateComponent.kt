@@ -13,9 +13,9 @@ import me.tatarka.inject.annotations.Provides
  * Provides the local anime background-update source and its usecase bindings; mixed into
  * `DiAppComponent` on both platforms.
  *
- * Note: [UpdateAllAnimeInBackgroundOnceUsecase] is not provided here — its only implementation
- * depends on `WorkManager`, so it is contributed from `androidMain`'s
- * `DiAnimeBackgroundUpdatePlatformComponent` instead, and has no iOS counterpart yet.
+ * Note: [UpdateAllAnimeInBackgroundOnceUsecase] is not provided here — each platform provides
+ * its own implementation (WorkManager-backed on Android, coroutine-backed on iOS) from its own
+ * `DiAnimeBackgroundUpdatePlatformComponent`.
  */
 interface DiAnimeBackgroundUpdateComponent {
     @Provides

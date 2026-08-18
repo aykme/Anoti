@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
-    alias(libs.plugins.ksp)
     alias(libs.plugins.detekt)
 }
 
@@ -51,20 +50,4 @@ kotlin {
             implementation(libs.androidx.annotation.jvm)
         }
     }
-}
-
-dependencies {
-    val kspTargets = listOf("Android", "IosArm64", "IosSimulatorArm64")
-    kspTargets.forEach { target ->
-        add("ksp$target", libs.kotlin.inject.compiler.ksp)
-    }
-}
-
-// Lint's androidHostTest-related tasks read kspAndroidHostTest's generated sources without
-// Gradle inferring that dependency on its own, so the full aggregate `build` can schedule them
-// first (Gradle's own implicit-dependency validation flags exactly this).
-tasks.matching {
-    it.name == "generateAndroidHostTestLintModel" || it.name == "lintAnalyzeAndroidHostTest"
-}.configureEach {
-    dependsOn("kspAndroidHostTest")
 }

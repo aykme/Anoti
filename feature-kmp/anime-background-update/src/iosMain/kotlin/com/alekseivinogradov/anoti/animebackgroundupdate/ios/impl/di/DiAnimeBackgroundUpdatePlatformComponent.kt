@@ -53,6 +53,11 @@ interface DiAnimeBackgroundUpdatePlatformComponent {
         coroutineScope = CoroutineScope(SupervisorJob())
     ).also { it.registerTaskHandler() }
 
+    /**
+     * `@AppScope` is load-bearing: [UpdateAllAnimeInBackgroundOnceUsecaseImpl]'s single-flight
+     * guard lives in the instance, so every injection point must share one instance. Without the
+     * scope, each injection point would get its own guard and concurrent passes could run.
+     */
     @Provides
     @AppScope
     fun provideUpdateAllAnimeInBackgroundOnceUsecase(
