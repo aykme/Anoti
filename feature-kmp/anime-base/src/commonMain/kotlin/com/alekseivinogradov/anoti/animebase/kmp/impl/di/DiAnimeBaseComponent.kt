@@ -6,7 +6,7 @@ import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import io.ktor.client.HttpClient
 import me.tatarka.inject.annotations.Provides
 
-/** Contributes the [ShikimoriApiService] binding to [AppScope]'s merged component. */
+/** Provides the [ShikimoriApiService] binding; mixed into `DiAppComponent` on both platforms. */
 interface DiAnimeBaseComponent {
     @Provides
     @AppScope

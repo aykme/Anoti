@@ -22,10 +22,11 @@ import me.tatarka.inject.annotations.KmpComponentCreate
 import me.tatarka.inject.annotations.Provides
 
 /**
- * Contributes the [AnimeFavoritesSource], its usecases and the [AnimeFavoritesMainStore] binding
- * to [FeatureScope]'s merged component. [UpdateAllAnimeInBackgroundOnceUsecase] is consumed as a
- * parameter here, not provided — it comes from `feature-kmp:anime-background-update`'s
- * app-scoped, platform-specific contribution.
+ * The anime-favorites screen's [FeatureScope] component. Provides the [AnimeFavoritesSource],
+ * its usecases and the [AnimeFavoritesMainStore], on top of the bindings it inherits from
+ * [parent]. [UpdateAllAnimeInBackgroundOnceUsecase] is consumed as a parameter here, not
+ * provided — it comes from `feature-kmp:anime-background-update`'s app-scoped, platform-specific
+ * binding, inherited from [parent] in turn.
  */
 @Component
 @FeatureScope

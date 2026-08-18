@@ -19,9 +19,9 @@ internal annotation class ConnectionError
 internal annotation class UnknownError
 
 /**
- * Contributes the Android [CoroutineContextProvider] and [ToastProvider] bindings to
- * [AppScope]'s merged component. The `DateFormatter` binding is platform-independent and lives
- * in commonMain's `DiCelebrityComponent` instead.
+ * Provides the Android [CoroutineContextProvider] and [ToastProvider] bindings; mixed into
+ * `:app`'s `DiAppComponent`. The `DateFormatter` binding is platform-independent and lives in
+ * commonMain's `DiCelebrityComponent` instead.
  */
 interface DiCelebrityPlatformComponent {
     @Provides

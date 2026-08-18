@@ -7,7 +7,7 @@ import me.tatarka.inject.annotations.Provides
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * Contributes the [SafeApi] binding to [AppScope]'s merged component.
+ * Provides the [SafeApi] binding; mixed into `DiAppComponent` on both platforms.
  */
 interface DiNetworkComponent {
     @Provides

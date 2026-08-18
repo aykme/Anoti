@@ -4,8 +4,8 @@ plugins {
     alias(libs.plugins.detekt)
 }
 
-// iOS-only module: `IosAppGraph` is the iOS app-scope graph, and Android's equivalent lives in
-// `:app`. There is deliberately no Android target here — nothing on Android depends on this
+// iOS-only module: `DiAppComponent` is the iOS app-wide component, and Android's equivalent lives
+// in `:app`. There is deliberately no Android target here — nothing on Android depends on this
 // module anymore.
 kotlin {
     listOf(

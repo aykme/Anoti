@@ -17,10 +17,10 @@ import kotlinx.coroutines.SupervisorJob
 import me.tatarka.inject.annotations.Provides
 
 /**
- * Contributes the iOS [AnimeUpdateManager], [AnimeBackgroundScheduler] and
- * [UpdateAllAnimeInBackgroundOnceUsecase] bindings to [AppScope]'s merged component — the mirror
- * of `androidMain`'s `DiAnimeBackgroundUpdatePlatformComponent`, minus the WorkManager plumbing
- * iOS has no use for.
+ * Provides the iOS [AnimeUpdateManager], [AnimeBackgroundScheduler] and
+ * [UpdateAllAnimeInBackgroundOnceUsecase] bindings; mixed into `core-kmp:di`'s `DiAppComponent`
+ * — the mirror of `androidMain`'s `DiAnimeBackgroundUpdatePlatformComponent`, minus the
+ * WorkManager plumbing iOS has no use for.
  */
 interface DiAnimeBackgroundUpdatePlatformComponent {
     @Provides

@@ -1,15 +1,15 @@
-Zero-dependency leaf module for shared DI plumbing. Hosts the kotlin-inject-anvil scope
-markers, qualifier annotations, and the cross-platform `PlatformContext` handle that all the
-app's DI wiring builds on. Split out of `core-kmp:di` (see that module's README) specifically so
-leaf modules can depend on these types without creating a circular Gradle dependency with
+Zero-dependency leaf module for shared DI plumbing. Hosts the kotlin-inject scope markers,
+qualifier annotations, and the cross-platform `PlatformContext` handle that all the app's DI
+wiring builds on. Split out of `core-kmp:di` (see that module's README) specifically so leaf
+modules can depend on these types without creating a circular Gradle dependency with
 `core-kmp:di`, which depends on several leaf modules of its own.
 
 ## Entities
 
-- [AppScope, ActivityScope, FeatureScope](src/commonMain/kotlin/com/alekseivinogradov/anoti/di/kmp/scope/Scope.kt) —
-  kotlin-inject-anvil scope markers for `@ContributesTo`/`@ContributesBinding`/`@SingleIn`/
-  `@MergeComponent`.
-- [AppContext, ActivityContext, AnimeBackgroundUpdate](src/commonMain/kotlin/com/alekseivinogradov/anoti/di/kmp/qualifier/Qualifier.kt) —
+- [AppScope, RootScope, FeatureScope](src/commonMain/kotlin/com/alekseivinogradov/anoti/di/kmp/scope/Scope.kt) —
+  kotlin-inject `@Scope` annotations marking bindings held by the app-wide, root-host, and
+  screen-level components respectively.
+- [AppContext, AnimeBackgroundUpdate](src/commonMain/kotlin/com/alekseivinogradov/anoti/di/kmp/qualifier/Qualifier.kt) —
   kotlin-inject qualifier annotations disambiguating same-typed dependencies.
 - [PlatformContext](src/commonMain/kotlin/com/alekseivinogradov/anoti/di/kmp/PlatformContext.kt) —
   cross-platform application-context handle.

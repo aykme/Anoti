@@ -7,7 +7,8 @@ import io.ktor.client.engine.okhttp.OkHttp
 import me.tatarka.inject.annotations.Provides
 
 /**
- * Contributes the Android [HttpClient] binding (OkHttp engine) to [AppScope]'s merged component.
+ * Provides the Android [HttpClient] binding (OkHttp engine); mixed into `:app`'s
+ * `DiAppComponent`.
  */
 interface DiNetworkPlatformComponent {
     @Provides

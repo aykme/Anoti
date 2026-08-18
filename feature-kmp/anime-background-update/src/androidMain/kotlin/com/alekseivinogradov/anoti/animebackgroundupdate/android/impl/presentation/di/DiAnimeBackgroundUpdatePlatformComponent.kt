@@ -27,9 +27,9 @@ import me.tatarka.inject.annotations.Provides
 import java.util.concurrent.TimeUnit
 
 /**
- * Contributes the Android [AnimeUpdateManager], the app's [WorkManager] handle and its work
+ * Provides the Android [AnimeUpdateManager], the app's [WorkManager] handle and its work
  * requests, and the WorkManager-backed [AnimeBackgroundScheduler]/
- * [UpdateAllAnimeInBackgroundOnceUsecase] bindings to [AppScope]'s merged component.
+ * [UpdateAllAnimeInBackgroundOnceUsecase] bindings; mixed into `:app`'s `DiAppComponent`.
  */
 interface DiAnimeBackgroundUpdatePlatformComponent {
     @Provides

@@ -38,8 +38,9 @@ import me.tatarka.inject.annotations.KmpComponentCreate
 import me.tatarka.inject.annotations.Provides
 
 /**
- * Contributes the [AnimeListSource], its usecases and the main/announced/ongoing/search section
- * store bindings to [FeatureScope]'s merged component.
+ * The anime-list screen's [FeatureScope] component. Provides the [AnimeListSource], its usecases
+ * and the main/announced/ongoing/search section stores, on top of the bindings it inherits from
+ * [parent].
  */
 // One function per provided dependency is the DI @Provides convention here, not god-interface growth.
 @Suppress("TooManyFunctions")

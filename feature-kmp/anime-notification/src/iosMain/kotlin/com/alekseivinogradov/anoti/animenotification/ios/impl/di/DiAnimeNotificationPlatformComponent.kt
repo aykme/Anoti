@@ -6,7 +6,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.Cor
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import me.tatarka.inject.annotations.Provides
 
-/** Contributes the iOS [AnimeNotificationManager] binding to [AppScope]'s merged component. */
+/** Provides the iOS [AnimeNotificationManager] binding; mixed into `core-kmp:di`'s `DiAppComponent`. */
 interface DiAnimeNotificationPlatformComponent {
     @Provides
     @AppScope

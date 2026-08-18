@@ -10,8 +10,8 @@ import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import me.tatarka.inject.annotations.Provides
 
 /**
- * Contributes the local anime background-update source and its usecase bindings to [AppScope]'s
- * merged component.
+ * Provides the local anime background-update source and its usecase bindings; mixed into
+ * `DiAppComponent` on both platforms.
  *
  * Note: [UpdateAllAnimeInBackgroundOnceUsecase] is not provided here — its only implementation
  * depends on `WorkManager`, so it is contributed from `androidMain`'s

@@ -8,9 +8,9 @@ import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import me.tatarka.inject.annotations.Provides
 
 /**
- * Contributes the iOS [CoroutineContextProvider] and [ToastProvider] bindings to [AppScope]'s
- * merged component. The `DateFormatter` binding is platform-independent and lives in
- * commonMain's `DiCelebrityComponent` instead.
+ * Provides the iOS [CoroutineContextProvider] and [ToastProvider] bindings; mixed into
+ * `core-kmp:di`'s `DiAppComponent`. The `DateFormatter` binding is platform-independent and
+ * lives in commonMain's `DiCelebrityComponent` instead.
  */
 interface DiCelebrityPlatformComponent {
     @Provides

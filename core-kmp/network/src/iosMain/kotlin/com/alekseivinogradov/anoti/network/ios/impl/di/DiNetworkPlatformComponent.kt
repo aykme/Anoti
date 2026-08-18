@@ -7,7 +7,8 @@ import io.ktor.client.engine.darwin.Darwin
 import me.tatarka.inject.annotations.Provides
 
 /**
- * Contributes the iOS [HttpClient] binding (Darwin engine) to [AppScope]'s merged component.
+ * Provides the iOS [HttpClient] binding (Darwin engine); mixed into `core-kmp:di`'s
+ * `DiAppComponent`.
  */
 interface DiNetworkPlatformComponent {
     @Provides

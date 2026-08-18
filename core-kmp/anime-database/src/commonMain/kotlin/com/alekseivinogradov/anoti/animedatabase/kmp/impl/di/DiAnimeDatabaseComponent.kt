@@ -27,8 +27,8 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 import me.tatarka.inject.annotations.Provides
 
 /**
- * Contributes the local anime database's [AnimeDatabaseRepository], usecase, and
- * [AnimeDatabaseStore] bindings to [AppScope]'s merged component.
+ * Provides the local anime database's [AnimeDatabaseRepository], usecase, and
+ * [AnimeDatabaseStore] bindings; mixed into `DiAppComponent` on both platforms.
  */
 // One function per provided dependency is the DI @Provides convention here, not god-interface growth.
 @Suppress("TooManyFunctions")
