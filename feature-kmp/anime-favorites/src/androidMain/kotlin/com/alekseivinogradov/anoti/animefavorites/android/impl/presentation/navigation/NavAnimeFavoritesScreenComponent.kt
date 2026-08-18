@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.navigation
 
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
-import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di.AnimeFavoritesComponent
+import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di.DiAnimeFavoritesComponent
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
@@ -19,14 +19,14 @@ import com.arkivanov.essenty.lifecycle.doOnDestroy
  */
 class NavAnimeFavoritesScreenComponent(
     componentContext: ComponentContext,
-    animeFavoritesComponent: AnimeFavoritesComponent
+    diAnimeFavoritesComponent: DiAnimeFavoritesComponent
 ) : ComponentContext by componentContext {
 
     val coroutineContextProvider: CoroutineContextProvider =
-        animeFavoritesComponent.coroutineContextProvider
-    val dateFormatter: DateFormatter = animeFavoritesComponent.dateFormatter
-    val animeDatabaseStore: AnimeDatabaseStore = animeFavoritesComponent.animeDatabaseStore
-    val mainStore: AnimeFavoritesMainStore = animeFavoritesComponent.mainStore
+        diAnimeFavoritesComponent.coroutineContextProvider
+    val dateFormatter: DateFormatter = diAnimeFavoritesComponent.dateFormatter
+    val animeDatabaseStore: AnimeDatabaseStore = diAnimeFavoritesComponent.animeDatabaseStore
+    val mainStore: AnimeFavoritesMainStore = diAnimeFavoritesComponent.mainStore
 
     init {
         // Registered here rather than in AnimeFavoritesController so the stores are still

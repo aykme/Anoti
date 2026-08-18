@@ -12,7 +12,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * Contributes the [SafeApi] binding to [AppScope]'s merged component.
  */
 @ContributesTo(AppScope::class)
-interface NetworkComponent {
+interface DiNetworkComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun provideSafeApi(): SafeApi = SafeApiImpl(

@@ -17,10 +17,10 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
  *
  * Note: [UpdateAllAnimeInBackgroundOnceUsecase] is not provided here — its only implementation
  * depends on `WorkManager`, so it is contributed from `androidMain`'s
- * `AnimeBackgroundUpdatePlatformComponent` instead, and has no iOS counterpart yet.
+ * `DiAnimeBackgroundUpdatePlatformComponent` instead, and has no iOS counterpart yet.
  */
 @ContributesTo(AppScope::class)
-interface AnimeBackgroundUpdateComponent {
+interface DiAnimeBackgroundUpdateComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun provideAnimeBackgroundUpdateSource(

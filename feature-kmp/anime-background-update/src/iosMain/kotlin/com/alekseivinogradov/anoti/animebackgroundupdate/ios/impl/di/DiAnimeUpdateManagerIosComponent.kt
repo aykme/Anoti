@@ -14,11 +14,11 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 /**
  * Contributes the iOS [AnimeUpdateManager] binding to [AppScope]'s merged component. Android's
- * equivalent lives in `androidMain`'s `AnimeBackgroundUpdatePlatformComponent`, which builds the
+ * equivalent lives in `androidMain`'s `DiAnimeBackgroundUpdatePlatformComponent`, which builds the
  * same [AnimeUpdateManager] alongside the WorkManager plumbing iOS has no use for.
  */
 @ContributesTo(AppScope::class)
-interface AnimeUpdateManagerIosComponent {
+interface DiAnimeUpdateManagerIosComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun provideAnimeUpdateManager(

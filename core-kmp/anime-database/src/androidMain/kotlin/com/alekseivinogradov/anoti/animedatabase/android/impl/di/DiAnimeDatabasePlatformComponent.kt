@@ -13,7 +13,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
  * Contributes the Android [AnimeDatabase] binding to [AppScope]'s merged component.
  */
 @ContributesTo(AppScope::class)
-interface AnimeDatabasePlatformComponent {
+interface DiAnimeDatabasePlatformComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun provideAnimeDatabase(@AppContext appContext: PlatformContext): AnimeDatabase =

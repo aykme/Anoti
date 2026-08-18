@@ -10,7 +10,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 /** Contributes the [ShikimoriApiService] binding to [AppScope]'s merged component. */
 @ContributesTo(AppScope::class)
-interface AnimeBaseComponent {
+interface DiAnimeBaseComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun provideShikimoriApiService(httpClient: HttpClient): ShikimoriApiService =

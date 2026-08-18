@@ -25,7 +25,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
  * app-scoped, platform-specific contribution.
  */
 @ContributesTo(FeatureScope::class)
-interface AnimeFavoritesComponent {
+interface DiAnimeFavoritesComponent {
     @Provides
     fun provideAnimeFavoritesSource(service: ShikimoriApiService, safeApi: SafeApi): AnimeFavoritesSource =
         AnimeFavoritesSourceImpl(service = service, safeApi = safeApi)

@@ -15,7 +15,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.MergeComponent
 import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 /**
- * The app-wide DI graph for iOS. A host app creates it once, via `IosAppGraph::class.create()`,
+ * The app-wide DI graph for iOS. A host app creates it once, via `DiAppComponent::class.create()`,
  * then reads its accessors instead of constructing dependencies itself.
  *
  * No iOS host app exists in this repo yet, so nothing calls `create()` at runtime today. Merging
@@ -24,45 +24,48 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
  */
 @MergeComponent(AppScope::class)
 @SingleIn(AppScope::class)
-interface IosAppGraph {
-    /** The app-wide [HttpClient], see `core-kmp:network`'s `NetworkPlatformComponent`. */
+interface DiAppComponent {
+    /** The app-wide [HttpClient], see `core-kmp:network`'s `DiNetworkPlatformComponent`. */
     val httpClient: HttpClient
 
-    /** The app-wide [SafeApi], see `core-kmp:network`'s `NetworkComponent`. */
+    /** The app-wide [SafeApi], see `core-kmp:network`'s `DiNetworkComponent`. */
     val safeApi: SafeApi
 
-    /** The app-wide [StoreFactory], see `core-kmp:celebrity`'s `CelebrityComponent`. */
+    /** The app-wide [StoreFactory], see `core-kmp:celebrity`'s `DiCelebrityComponent`. */
     val storeFactory: StoreFactory
 
     /**
      * The app-wide [CoroutineContextProvider], see `core-kmp:celebrity`'s
-     * `CelebrityPlatformComponent`.
+     * `DiCelebrityPlatformComponent`.
      */
     val coroutineContextProvider: CoroutineContextProvider
 
-    /** The app-wide [ToastProvider], see `core-kmp:celebrity`'s `CelebrityPlatformComponent`. */
+    /** The app-wide [ToastProvider], see `core-kmp:celebrity`'s `DiCelebrityPlatformComponent`. */
     val toastProvider: ToastProvider
 
-    /** The [DateFormatter], see `core-kmp:celebrity`'s `CelebrityPlatformComponent`. */
+    /** The [DateFormatter], see `core-kmp:celebrity`'s `DiCelebrityPlatformComponent`. */
     val dateFormatter: DateFormatter
 
     /**
-     * The app-wide [AnimeDatabaseStore], see `core-kmp:anime-database`'s `AnimeDatabaseComponent`.
+     * The app-wide [AnimeDatabaseStore], see `core-kmp:anime-database`'s
+     * `DiAnimeDatabaseComponent`.
      */
     val animeDatabaseStore: AnimeDatabaseStore
 
-    /** The app-wide [ShikimoriApiService], see `feature-kmp:anime-base`'s `AnimeBaseComponent`. */
+    /**
+     * The app-wide [ShikimoriApiService], see `feature-kmp:anime-base`'s `DiAnimeBaseComponent`.
+     */
     val shikimoriApiService: ShikimoriApiService
 
     /**
      * The app-wide [AnimeNotificationManager], see `feature-kmp:anime-notification`'s iOS
-     * `AnimeNotificationPlatformComponent`.
+     * `DiAnimeNotificationPlatformComponent`.
      */
     val animeNotificationManager: AnimeNotificationManager
 
     /**
      * The app-wide [AnimeBackgroundScheduler], see `feature-kmp:anime-background-update`'s iOS
-     * `AnimeBackgroundSchedulerPlatformComponent`.
+     * `DiAnimeBackgroundSchedulerPlatformComponent`.
      */
     val animeBackgroundScheduler: AnimeBackgroundScheduler
 }

@@ -12,7 +12,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
  * Contributes the Android [HttpClient] binding (OkHttp engine) to [AppScope]'s merged component.
  */
 @ContributesTo(AppScope::class)
-interface NetworkPlatformComponent {
+interface DiNetworkPlatformComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun provideHttpClient(): HttpClient = createHttpClient(OkHttp.create())

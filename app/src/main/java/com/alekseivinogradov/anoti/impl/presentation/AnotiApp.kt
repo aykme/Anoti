@@ -2,23 +2,23 @@ package com.alekseivinogradov.anoti.impl.presentation
 
 import android.app.Application
 import android.app.NotificationManager
-import com.alekseivinogradov.anoti.impl.presentation.di.AppGraph
+import com.alekseivinogradov.anoti.impl.presentation.di.DiAppComponent
 import com.alekseivinogradov.anoti.impl.presentation.di.create
-import com.alekseivinogradov.anoti.main.impl.presentation.di.MainComponent
-import com.alekseivinogradov.anoti.main.impl.presentation.di.MainComponentFactoryHolder
+import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponent
+import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponentHolder
 
-class AnotiApp : Application(), MainComponentFactoryHolder {
+class AnotiApp : Application(), DiRootComponentHolder {
 
-    private lateinit var appGraph: AppGraph
+    private lateinit var diAppComponent: DiAppComponent
 
-    override val mainComponentFactory: MainComponent.Factory
-        get() = appGraph.mainComponentFactory
+    override val diRootComponentFactory: DiRootComponent.Factory
+        get() = diAppComponent.diRootComponentFactory
 
     override fun onCreate() {
-        appGraph = AppGraph::class.create(this.applicationContext)
+        diAppComponent = DiAppComponent::class.create(this.applicationContext)
         super.onCreate()
 
-        appGraph.animeBackgroundScheduler.schedulePeriodicUpdate()
+        diAppComponent.animeBackgroundScheduler.schedulePeriodicUpdate()
         setupAnimeNotificationManager()
     }
 
@@ -26,7 +26,7 @@ class AnotiApp : Application(), MainComponentFactoryHolder {
         (getSystemService(NOTIFICATION_SERVICE) as? NotificationManager)
             ?.let { notificationManager: NotificationManager ->
                 notificationManager.createNotificationChannel(
-                    appGraph.animeNotificationChannelFactory.create()
+                    diAppComponent.animeNotificationChannelFactory.create()
                 )
             }
     }

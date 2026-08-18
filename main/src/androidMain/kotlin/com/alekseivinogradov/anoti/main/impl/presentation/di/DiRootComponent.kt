@@ -2,8 +2,8 @@ package com.alekseivinogradov.anoti.main.impl.presentation.di
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
-import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di.AnimeFavoritesComponent
-import com.alekseivinogradov.anoti.animelist.android.impl.presentation.di.AnimeListComponent
+import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.di.DiAnimeFavoritesComponent
+import com.alekseivinogradov.anoti.animelist.android.impl.presentation.di.DiAnimeListComponent
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
@@ -25,7 +25,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
  */
 @ContributesSubcomponent(ActivityScope::class)
 @SingleIn(ActivityScope::class)
-interface MainComponent {
+interface DiRootComponent {
     /** The app-wide [StoreFactory], inherited from the app-scope graph. */
     val storeFactory: StoreFactory
 
@@ -51,18 +51,18 @@ interface MainComponent {
     val bottomNavigationBarStore: BottomNavigationBarStore
 
     /** Builds the anime-list screen's feature-scope graph. */
-    val animeListComponentFactory: AnimeListComponent.Factory
+    val diAnimeListComponentFactory: DiAnimeListComponent.Factory
 
     /** Builds the anime-favorites screen's feature-scope graph. */
-    val animeFavoritesComponentFactory: AnimeFavoritesComponent.Factory
+    val diAnimeFavoritesComponentFactory: DiAnimeFavoritesComponent.Factory
 
     /**
-     * Builds [MainComponent]s; contributed to the [AppScope] graph. The activityContext
+     * Builds [DiRootComponent]s; contributed to the [AppScope] graph. The activityContext
      * parameter is bound into the generated component automatically — kotlin-inject-anvil
      * forwards factory parameters as `@get:Provides` properties, so no annotation is needed here.
      */
     @ContributesSubcomponent.Factory(AppScope::class)
     interface Factory {
-        fun createMainComponent(@ActivityContext activityContext: PlatformContext): MainComponent
+        fun createDiRootComponent(@ActivityContext activityContext: PlatformContext): DiRootComponent
     }
 }

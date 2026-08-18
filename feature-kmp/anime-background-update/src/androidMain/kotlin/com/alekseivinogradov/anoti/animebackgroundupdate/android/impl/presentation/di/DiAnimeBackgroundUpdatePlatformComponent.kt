@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit
  * [UpdateAllAnimeInBackgroundOnceUsecase] bindings to [AppScope]'s merged component.
  */
 @ContributesTo(AppScope::class)
-interface AnimeBackgroundUpdatePlatformComponent {
+interface DiAnimeBackgroundUpdatePlatformComponent {
     @Provides
     fun provideAnimeUpdateManager(
         coroutineContextProvider: CoroutineContextProvider,

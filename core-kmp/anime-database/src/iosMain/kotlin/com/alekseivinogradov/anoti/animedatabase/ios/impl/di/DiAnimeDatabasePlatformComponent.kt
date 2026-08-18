@@ -11,7 +11,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
  * Contributes the iOS [AnimeDatabase] binding to [AppScope]'s merged component.
  */
 @ContributesTo(AppScope::class)
-interface AnimeDatabasePlatformComponent {
+interface DiAnimeDatabasePlatformComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun provideAnimeDatabase(): AnimeDatabase = getAnimeDatabase()

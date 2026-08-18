@@ -16,7 +16,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
  * [AnimeBackgroundSchedulerImpl]'s KDoc for the Info.plist registration gap this depends on.
  */
 @ContributesTo(AppScope::class)
-interface AnimeBackgroundSchedulerPlatformComponent {
+interface DiAnimeBackgroundSchedulerPlatformComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun provideAnimeBackgroundScheduler(

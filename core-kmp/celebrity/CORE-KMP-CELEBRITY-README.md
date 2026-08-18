@@ -18,7 +18,7 @@ formatting, error-toast callbacks, and pagination.
 
 - Gradle: `implementation(project(":core-kmp:celebrity"))`
 - `CoroutineContextProvider`, `DateFormatter` and `ToastProvider` are provided via this module's
-  kotlin-inject-anvil contributions (`CelebrityComponent`, `CelebrityPlatformComponent`), merged
-  into the app-scope graph (`:app`'s `AppGraph` on Android,
-  [`core-kmp:di`](../di/CORE-KMP-DI-README.md)'s `IosAppGraph` on iOS) — inject them, don't
+  kotlin-inject-anvil contributions (`DiCelebrityComponent`, `DiCelebrityPlatformComponent`),
+  merged into the app-scope graph (`:app`'s `DiAppComponent` on Android,
+  [`core-kmp:di`](../di/CORE-KMP-DI-README.md)'s `DiAppComponent` on iOS) — inject them, don't
   construct them yourself. `Paginator` has no DI wiring; callers construct it directly.

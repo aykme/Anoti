@@ -17,7 +17,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
  * graph and the target activity (`main`) contributes its implementation.
  */
 @ContributesTo(AppScope::class)
-interface AnimeNotificationPlatformComponent {
+interface DiAnimeNotificationPlatformComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun provideAnimeNotificationManager(

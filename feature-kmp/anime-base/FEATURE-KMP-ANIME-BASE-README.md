@@ -14,7 +14,7 @@ Shikimori API access shared by the anime feature modules.
 ## How to include it
 
 - Gradle: `implementation(project(":feature-kmp:anime-base"))`
-- `ShikimoriApiService` is provided via `AnimeBaseComponent`, contributed to `AppScope`'s
+- `ShikimoriApiService` is provided via `DiAnimeBaseComponent`, contributed to `AppScope`'s
   merged component — inject it, don't construct it yourself.
 
 ## How to use it

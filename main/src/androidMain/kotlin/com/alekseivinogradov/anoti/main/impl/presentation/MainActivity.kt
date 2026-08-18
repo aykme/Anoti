@@ -38,8 +38,8 @@ import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_negativ
 import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_notifications_rationale_message
 import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_positive_button
 import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_title
-import com.alekseivinogradov.anoti.main.impl.presentation.di.MainComponent
-import com.alekseivinogradov.anoti.main.impl.presentation.di.MainComponentFactoryHolder
+import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponent
+import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponentHolder
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChildFragmentBinder
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootComponent
@@ -59,7 +59,7 @@ class MainActivity :
     NavAnimeListScreenComponentHolder,
     NavAnimeFavoritesScreenComponentHolder {
 
-    private lateinit var mainComponent: MainComponent
+    private lateinit var diRootComponent: DiRootComponent
 
     private lateinit var rootComponent: NavRootComponent<NavRootChild>
 
@@ -92,12 +92,12 @@ class MainActivity :
         // defaultComponentContext() reads the SavedStateRegistry, which only becomes readable
         // once super.onCreate() has restored it — so it must run first.
         super.onCreate(savedInstanceState)
-        mainComponent = (this.application as MainComponentFactoryHolder)
-            .mainComponentFactory
-            .createMainComponent(activityContext = this as Context)
-        mainStore = mainComponent.bottomNavigationBarStore
-        animeDatabaseStore = mainComponent.animeDatabaseStore
-        coroutineContextProvider = mainComponent.coroutineContextProvider
+        diRootComponent = (this.application as DiRootComponentHolder)
+            .diRootComponentFactory
+            .createDiRootComponent(activityContext = this as Context)
+        mainStore = diRootComponent.bottomNavigationBarStore
+        animeDatabaseStore = diRootComponent.animeDatabaseStore
+        coroutineContextProvider = diRootComponent.coroutineContextProvider
         // getIntent() keeps returning the launching Intent for the whole task, so the deep link
         // must only be honored on a fresh start. Otherwise, every Activity recreation would
         // discard the restored navigation state and jump back to the deep link's target.
@@ -142,15 +142,15 @@ class MainActivity :
             NavRootConfig.AnimeList -> NavRootChild.List(
                 NavAnimeListScreenComponent(
                     componentContext = componentContext,
-                    animeListComponent = mainComponent.animeListComponentFactory.createAnimeListComponent()
+                    diAnimeListComponent = diRootComponent.diAnimeListComponentFactory.createDiAnimeListComponent()
                 )
             )
 
             NavRootConfig.AnimeFavorites -> NavRootChild.Favorites(
                 NavAnimeFavoritesScreenComponent(
                     componentContext = componentContext,
-                    animeFavoritesComponent = mainComponent.animeFavoritesComponentFactory
-                        .createAnimeFavoritesComponent()
+                    diAnimeFavoritesComponent = diRootComponent.diAnimeFavoritesComponentFactory
+                        .createDiAnimeFavoritesComponent()
                 )
             )
         }

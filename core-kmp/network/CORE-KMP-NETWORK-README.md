@@ -14,9 +14,10 @@ app.
 
 - Gradle: `implementation(project(":core-kmp:network"))`
 - `SafeApi`/`HttpClient` instances are provided via this module's kotlin-inject-anvil
-  contributions (`NetworkComponent`, `NetworkPlatformComponent`), merged into the app-scope graph
-  (`:app`'s `AppGraph` on Android, [`core-kmp:di`](../di/CORE-KMP-DI-README.md)'s `IosAppGraph` on
-  iOS) — inject them, don't construct them yourself.
+  contributions (`DiNetworkComponent`, `DiNetworkPlatformComponent`), merged into the app-scope
+  graph (`:app`'s `DiAppComponent` on Android,
+  [`core-kmp:di`](../di/CORE-KMP-DI-README.md)'s `DiAppComponent` on iOS) — inject them, don't
+  construct them yourself.
 
 ## How to use it
 

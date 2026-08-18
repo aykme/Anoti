@@ -21,4 +21,4 @@ leaf modules can depend on these types without creating a circular Gradle depend
   declarations with the scope/qualifier annotations, and use `PlatformContext` as the
   commonMain-safe parameter/return type wherever `android.content.Context` would otherwise leak
   into a `commonMain` signature. None of them has DI wiring of its own; the app-scoped
-  `PlatformContext` instance itself is supplied to `:app`'s `AppGraph` when it is created.
+  `PlatformContext` instance itself is supplied to `:app`'s `DiAppComponent` when it is created.

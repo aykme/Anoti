@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anoti.animelist.android.impl.presentation.navigation
 
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
-import com.alekseivinogradov.anoti.animelist.android.impl.presentation.di.AnimeListComponent
+import com.alekseivinogradov.anoti.animelist.android.impl.presentation.di.DiAnimeListComponent
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsection.AnnouncedSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.ongoingsection.OngoingSectionStore
@@ -22,17 +22,17 @@ import com.arkivanov.essenty.lifecycle.doOnDestroy
  */
 class NavAnimeListScreenComponent(
     componentContext: ComponentContext,
-    animeListComponent: AnimeListComponent
+    diAnimeListComponent: DiAnimeListComponent
 ) : ComponentContext by componentContext {
 
     val coroutineContextProvider: CoroutineContextProvider =
-        animeListComponent.coroutineContextProvider
-    val dateFormatter: DateFormatter = animeListComponent.dateFormatter
-    val animeDatabaseStore: AnimeDatabaseStore = animeListComponent.animeDatabaseStore
-    val mainStore: AnimeListMainStore = animeListComponent.mainStore
-    val ongoingSectionStore: OngoingSectionStore = animeListComponent.ongoingSectionStore
-    val announcedSectionStore: AnnouncedSectionStore = animeListComponent.announcedSectionStore
-    val searchSectionStore: SearchSectionStore = animeListComponent.searchSectionStore
+        diAnimeListComponent.coroutineContextProvider
+    val dateFormatter: DateFormatter = diAnimeListComponent.dateFormatter
+    val animeDatabaseStore: AnimeDatabaseStore = diAnimeListComponent.animeDatabaseStore
+    val mainStore: AnimeListMainStore = diAnimeListComponent.mainStore
+    val ongoingSectionStore: OngoingSectionStore = diAnimeListComponent.ongoingSectionStore
+    val announcedSectionStore: AnnouncedSectionStore = diAnimeListComponent.announcedSectionStore
+    val searchSectionStore: SearchSectionStore = diAnimeListComponent.searchSectionStore
 
     init {
         // Registered here rather than in AnimeListController so the stores are still disposed

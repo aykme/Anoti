@@ -17,8 +17,8 @@ newly aired episodes.
 - Gradle: `implementation(project(":feature-kmp:anime-background-update"))`
 - `AnimeUpdateManager`, `UpdateAllAnimeInBackgroundOnceUsecase` and `AnimeBackgroundScheduler`
   are all provided via this module's per-platform DI contributions
-  (`AnimeBackgroundUpdatePlatformComponent` on Android, `AnimeUpdateManagerIosComponent` /
-  `AnimeBackgroundSchedulerPlatformComponent` on iOS), merged into `AppScope`'s merged component
+  (`DiAnimeBackgroundUpdatePlatformComponent` on Android, `DiAnimeUpdateManagerIosComponent` /
+  `DiAnimeBackgroundSchedulerPlatformComponent` on iOS), merged into `AppScope`'s merged component
   — inject them, don't construct them yourself. `UpdateAllAnimeInBackgroundOnceUsecase` has no
   iOS implementation yet.
 - Both `AnimeBackgroundScheduler` implementations do platform setup as soon as they're created:

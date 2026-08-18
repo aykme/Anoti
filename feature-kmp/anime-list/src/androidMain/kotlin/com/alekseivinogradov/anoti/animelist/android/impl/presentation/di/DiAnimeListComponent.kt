@@ -15,11 +15,11 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 /**
  * The anime-list screen's [FeatureScope] graph — one instance per `AnimeListFragment`, created
  * from the hosting Activity's [ActivityScope] graph through [Factory]. Merges this module's
- * commonMain `AnimeListComponent` contributions (the source, its usecases and the four stores).
+ * commonMain `DiAnimeListComponent` contributions (the source, its usecases and the four stores).
  */
 @ContributesSubcomponent(FeatureScope::class)
 @SingleIn(FeatureScope::class)
-interface AnimeListComponent {
+interface DiAnimeListComponent {
     /** The app-wide [CoroutineContextProvider], inherited from the app-scope graph. */
     val coroutineContextProvider: CoroutineContextProvider
 
@@ -29,26 +29,26 @@ interface AnimeListComponent {
     /** The app-wide [AnimeDatabaseStore], inherited from the app-scope graph. */
     val animeDatabaseStore: AnimeDatabaseStore
 
-    /** The screen's [AnimeListMainStore], see commonMain's `AnimeListComponent`. */
+    /** The screen's [AnimeListMainStore], see commonMain's `DiAnimeListComponent`. */
     val mainStore: AnimeListMainStore
 
-    /** The screen's [OngoingSectionStore], see commonMain's `AnimeListComponent`. */
+    /** The screen's [OngoingSectionStore], see commonMain's `DiAnimeListComponent`. */
     val ongoingSectionStore: OngoingSectionStore
 
-    /** The screen's [AnnouncedSectionStore], see commonMain's `AnimeListComponent`. */
+    /** The screen's [AnnouncedSectionStore], see commonMain's `DiAnimeListComponent`. */
     val announcedSectionStore: AnnouncedSectionStore
 
-    /** The screen's [SearchSectionStore], see commonMain's `AnimeListComponent`. */
+    /** The screen's [SearchSectionStore], see commonMain's `DiAnimeListComponent`. */
     val searchSectionStore: SearchSectionStore
 
     /**
-     * Builds [AnimeListComponent]s; contributed to the hosting [ActivityScope] graph. The
+     * Builds [DiAnimeListComponent]s; contributed to the hosting [ActivityScope] graph. The
      * function name has to be unique across every subcomponent factory merged into that graph —
      * they all end up on one generated interface, where same-named functions returning different
      * component types would clash.
      */
     @ContributesSubcomponent.Factory(ActivityScope::class)
     interface Factory {
-        fun createAnimeListComponent(): AnimeListComponent
+        fun createDiAnimeListComponent(): DiAnimeListComponent
     }
 }

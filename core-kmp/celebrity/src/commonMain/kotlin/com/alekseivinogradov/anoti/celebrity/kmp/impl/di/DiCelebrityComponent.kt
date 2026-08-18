@@ -15,7 +15,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
  * bindings are platform-independent and live directly in commonMain.
  */
 @ContributesTo(AppScope::class)
-interface CelebrityComponent {
+interface DiCelebrityComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun provideStoreFactory(): StoreFactory = DefaultStoreFactory()

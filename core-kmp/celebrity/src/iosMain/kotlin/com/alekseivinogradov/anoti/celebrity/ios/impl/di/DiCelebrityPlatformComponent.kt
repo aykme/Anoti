@@ -12,10 +12,10 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 /**
  * Contributes the iOS [CoroutineContextProvider] and [ToastProvider] bindings to [AppScope]'s
  * merged component. The `DateFormatter` binding is platform-independent and lives in
- * commonMain's `CelebrityComponent` instead.
+ * commonMain's `DiCelebrityComponent` instead.
  */
 @ContributesTo(AppScope::class)
-interface CelebrityPlatformComponent {
+interface DiCelebrityPlatformComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun provideCoroutineContextProvider(): CoroutineContextProvider = CoroutineContextProviderPlatform()

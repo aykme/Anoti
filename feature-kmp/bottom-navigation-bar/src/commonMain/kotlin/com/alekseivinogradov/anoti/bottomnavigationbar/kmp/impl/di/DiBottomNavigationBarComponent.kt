@@ -9,7 +9,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 
 /** Contributes the [BottomNavigationBarStore] binding to [ActivityScope]'s merged component. */
 @ContributesTo(ActivityScope::class)
-interface BottomNavigationBarComponent {
+interface DiBottomNavigationBarComponent {
     @Provides
     fun provideBottomNavigationBarStore(storeFactory: StoreFactory): BottomNavigationBarStore =
         BottomNavigationBarStoreFactory(storeFactory).create()

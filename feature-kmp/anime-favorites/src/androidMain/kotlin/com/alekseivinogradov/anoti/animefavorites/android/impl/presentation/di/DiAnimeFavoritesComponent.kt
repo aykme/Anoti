@@ -12,12 +12,12 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 /**
  * The anime-favorites screen's [FeatureScope] graph — one instance per `AnimeFavoritesFragment`,
  * created from the hosting Activity's [ActivityScope] graph through [Factory]. Merges this
- * module's commonMain `AnimeFavoritesComponent` contributions (the source, its usecases and the
+ * module's commonMain `DiAnimeFavoritesComponent` contributions (the source, its usecases and the
  * main store).
  */
 @ContributesSubcomponent(FeatureScope::class)
 @SingleIn(FeatureScope::class)
-interface AnimeFavoritesComponent {
+interface DiAnimeFavoritesComponent {
     /** The app-wide [CoroutineContextProvider], inherited from the app-scope graph. */
     val coroutineContextProvider: CoroutineContextProvider
 
@@ -27,17 +27,17 @@ interface AnimeFavoritesComponent {
     /** The app-wide [AnimeDatabaseStore], inherited from the app-scope graph. */
     val animeDatabaseStore: AnimeDatabaseStore
 
-    /** The screen's [AnimeFavoritesMainStore], see commonMain's `AnimeFavoritesComponent`. */
+    /** The screen's [AnimeFavoritesMainStore], see commonMain's `DiAnimeFavoritesComponent`. */
     val mainStore: AnimeFavoritesMainStore
 
     /**
-     * Builds [AnimeFavoritesComponent]s; contributed to the hosting [ActivityScope] graph. The
+     * Builds [DiAnimeFavoritesComponent]s; contributed to the hosting [ActivityScope] graph. The
      * function name has to be unique across every subcomponent factory merged into that graph —
      * they all end up on one generated interface, where same-named functions returning different
      * component types would clash.
      */
     @ContributesSubcomponent.Factory(ActivityScope::class)
     interface Factory {
-        fun createAnimeFavoritesComponent(): AnimeFavoritesComponent
+        fun createDiAnimeFavoritesComponent(): DiAnimeFavoritesComponent
     }
 }

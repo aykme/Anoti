@@ -41,7 +41,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.ContributesTo
 // One function per provided dependency is the DI @Provides convention here, not god-interface growth.
 @Suppress("TooManyFunctions")
 @ContributesTo(FeatureScope::class)
-interface AnimeListComponent {
+interface DiAnimeListComponent {
     @Provides
     fun provideAnimeListSource(service: ShikimoriApiService, safeApi: SafeApi): AnimeListSource =
         AnimeListSourceImpl(service = service, safeApi = safeApi)

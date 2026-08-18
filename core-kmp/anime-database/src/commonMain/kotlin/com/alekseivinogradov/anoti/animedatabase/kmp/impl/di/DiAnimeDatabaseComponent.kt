@@ -35,7 +35,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 // One function per provided dependency is the DI @Provides convention here, not god-interface growth.
 @Suppress("TooManyFunctions")
 @ContributesTo(AppScope::class)
-interface AnimeDatabaseComponent {
+interface DiAnimeDatabaseComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun provideAnimeDatabaseRepository(animeDatabase: AnimeDatabase): AnimeDatabaseRepository =

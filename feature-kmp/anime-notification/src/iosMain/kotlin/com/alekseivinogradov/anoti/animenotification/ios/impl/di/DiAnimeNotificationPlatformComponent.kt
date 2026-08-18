@@ -10,7 +10,7 @@ import software.amazon.lastmile.kotlin.inject.anvil.SingleIn
 
 /** Contributes the iOS [AnimeNotificationManager] binding to [AppScope]'s merged component. */
 @ContributesTo(AppScope::class)
-interface AnimeNotificationPlatformComponent {
+interface DiAnimeNotificationPlatformComponent {
     @Provides
     @SingleIn(AppScope::class)
     fun provideAnimeNotificationManager(
