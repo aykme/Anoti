@@ -18,10 +18,10 @@ component that owns navigation between them.
 ## How to use it
 
 ```kotlin
-// iOS example (no Android example yet):
-val lifecycle = LifecycleRegistry()
+// Android example, from MainActivity — componentContext comes from the Activity's own
+// defaultComponentContext(); childFactory maps each RootConfig to that platform's screen type.
 val root = RootComponent(
-    componentContext = DefaultComponentContext(lifecycle = lifecycle),
-    childFactory = { config, _ -> config }
+    componentContext = defaultComponentContext(),
+    childFactory = ::createRootChild
 )
 ```
