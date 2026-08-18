@@ -14,7 +14,7 @@ UI host graph it builds.
   Android depends on it.
 - `DiAppComponent::class.create(appContext)` builds the graph; read its accessors instead of
   constructing the values yourself.
-- `DiAppComponent.createDiRootComponent()` builds `:main`'s `DiRootComponent`, the entry point to
-  the root UI host's graph.
+- `DiRootComponent::class.create(appComponent)` builds `:main`'s `DiRootComponent`, the root UI
+  host's graph, from the component above.
 - For the scope annotations, qualifier annotations, and `PlatformContext`, depend on
   [`core-kmp:di-scope`](../di-scope/CORE-KMP-DI-SCOPE-README.md) directly instead.

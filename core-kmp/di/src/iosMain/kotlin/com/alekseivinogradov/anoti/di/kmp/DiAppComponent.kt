@@ -12,9 +12,7 @@ import com.alekseivinogradov.anoti.celebrity.ios.impl.di.DiCelebrityPlatformComp
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.di.DiCelebrityComponent
 import com.alekseivinogradov.anoti.di.kmp.qualifier.AppContext
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
-import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
 import com.alekseivinogradov.anoti.main.impl.di.DiRootDependencies
-import com.alekseivinogradov.anoti.main.impl.di.create
 import com.alekseivinogradov.anoti.network.ios.impl.di.DiNetworkPlatformComponent
 import com.alekseivinogradov.anoti.network.kmp.impl.di.DiNetworkComponent
 import me.tatarka.inject.annotations.Component
@@ -49,7 +47,4 @@ abstract class DiAppComponent(
 
     /** Schedules the periodic background update pass. */
     abstract val animeBackgroundScheduler: AnimeBackgroundScheduler
-
-    /** Builds the root UI host's component. */
-    fun createDiRootComponent(): DiRootComponent = DiRootComponent::class.create(this)
 }
