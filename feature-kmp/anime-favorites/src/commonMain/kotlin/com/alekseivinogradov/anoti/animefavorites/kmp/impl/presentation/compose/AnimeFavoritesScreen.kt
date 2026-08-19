@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.loading_in_progress
@@ -63,6 +64,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as Cele
 fun AnimeFavoritesScreen(
     uiModel: UiModel,
     dateFormatter: DateFormatter,
+    topInsetDp: Dp = 0.dp,
     dispatch: (AnimeFavoritesMainStore.Intent) -> Unit
 ) {
     // Mirrors AnimeFavoritesViewImpl.setListItems: the original dispatches this from the
@@ -78,8 +80,12 @@ fun AnimeFavoritesScreen(
     when (uiModel.contentType) {
         ContentTypeUi.LOADING -> LoadingState()
         ContentTypeUi.EMPTY -> EmptyState()
-        ContentTypeUi.LOADED ->
-            ListState(uiModel = uiModel, dateFormatter = dateFormatter, dispatch = dispatch)
+        ContentTypeUi.LOADED -> ListState(
+            uiModel = uiModel,
+            dateFormatter = dateFormatter,
+            topInsetDp = topInsetDp,
+            dispatch = dispatch
+        )
     }
 }
 
@@ -144,6 +150,7 @@ private fun EmptyState() {
 private fun ListState(
     uiModel: UiModel,
     dateFormatter: DateFormatter,
+    topInsetDp: Dp,
     dispatch: (AnimeFavoritesMainStore.Intent) -> Unit
 ) {
     var isRefreshing by remember { mutableStateOf(false) }
@@ -170,7 +177,10 @@ private fun ListState(
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = LIST_LAST_ITEM_BOTTOM_PADDING_DP.dp)
+            contentPadding = PaddingValues(
+                top = topInsetDp,
+                bottom = LIST_LAST_ITEM_BOTTOM_PADDING_DP.dp
+            )
         ) {
             items(uiModel.listItems, key = { it.id }) { item ->
                 AnimeFavoritesItem(
