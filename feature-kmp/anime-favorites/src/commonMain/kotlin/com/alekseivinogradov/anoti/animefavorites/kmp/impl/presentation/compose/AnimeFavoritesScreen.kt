@@ -19,6 +19,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -145,12 +147,24 @@ private fun ListState(
     dispatch: (AnimeFavoritesMainStore.Intent) -> Unit
 ) {
     var isRefreshing by remember { mutableStateOf(false) }
+    val pullToRefreshState = rememberPullToRefreshState()
 
     PullToRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = {
             dispatch(AnimeFavoritesMainStore.Intent.UpdateSection)
             isRefreshing = false
+        },
+        state = pullToRefreshState,
+        // Matches SwipeRefreshLayout.setColorSchemeResources(cinnabar_500) in the original —
+        // PullToRefreshBox's default indicator color is onSurfaceVariant, not the theme's accent.
+        indicator = {
+            PullToRefreshDefaults.Indicator(
+                modifier = Modifier.align(Alignment.TopCenter),
+                isRefreshing = isRefreshing,
+                state = pullToRefreshState,
+                color = SwipeRefreshIndicatorColor
+            )
         },
         modifier = Modifier.fillMaxSize()
     ) {
@@ -185,6 +199,10 @@ private fun ListState(
 // number.
 @Suppress("MagicNumber")
 private val EmptyPanelGrey = Color(0xFF222222)
+
+// Ported 1:1 from colors.xml's cinnabar_500 — not an arbitrary magic number.
+@Suppress("MagicNumber")
+private val SwipeRefreshIndicatorColor = Color(0xFFE84B3D)
 
 private const val EMPTY_IMAGE_CORNER_PERCENT = 8
 private const val EMPTY_TEXT_SP = 14
