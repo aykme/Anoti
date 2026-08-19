@@ -51,6 +51,8 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.compose.runtime)
             implementation(libs.compose.components.resources)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.ui)
             implementation(libs.mvikotlin)
             implementation(libs.mvikotlin.main)
 
