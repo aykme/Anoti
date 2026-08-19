@@ -25,12 +25,19 @@ private val AnotiDarkGray = Color(0xFF222222)
 @Suppress("MagicNumber")
 private val AnotiWhiteAlpha = Color(0xD5FFFFFF)
 
+// Design-system color values, not arbitrary magic numbers.
+@Suppress("MagicNumber")
+private val AnotiWhite = Color(0xFFFFFFFF)
+
 private val DarkColorScheme = darkColorScheme(
     background = AnotiBlack,
     surface = AnotiBlack,
     primary = AnotiCoralRed,
     surfaceVariant = AnotiDarkGray,
-    onSurfaceVariant = AnotiWhiteAlpha
+    onSurfaceVariant = AnotiWhiteAlpha,
+    onPrimary = AnotiWhite,
+    onBackground = AnotiWhite,
+    onSurface = AnotiWhite
 )
 
 // Anoti has no real light theme yet — LightColorScheme aliases DarkColorScheme so the switch in
@@ -39,11 +46,9 @@ private val LightColorScheme = DarkColorScheme
 
 /**
  * Applies Anoti's Material color scheme and background to [content].
- *
- * A temporary bridge for hosting Compose UI inside `Fragment`-based screens; removed once
- * every screen is on Compose without `Fragment`.
  */
-// Composable functions use PascalCase by convention; no detekt.yml exception exists yet.
+// Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
+// lowerCamelCase.
 @Suppress("FunctionNaming")
 @Composable
 fun AnotiTheme(content: @Composable () -> Unit) {
