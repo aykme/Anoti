@@ -21,14 +21,15 @@ and per-item notification toggles.
   `DiAnimeFavoritesComponent`. The Activity hosting the fragment must implement
   `NavAnimeFavoritesScreenComponentHolder` (`androidMain`), exposing the currently active
   `NavAnimeFavoritesScreenComponent`. `AnimeFavoritesView` has no DI wiring; the `androidMain`
-  layer (`AnimeFavoritesViewImpl`) implements it directly. `AnimeFavoritesController` has no DI
-  wiring either; `AnimeFavoritesFragment` constructs it directly from
-  `NavAnimeFavoritesScreenComponent`'s store and lifecycle.
+  layer (`AnimeFavoritesFragment`, via an anonymous `ComposeMviView` from `core-kmp:celebrity`)
+  implements it directly. `AnimeFavoritesController` has no DI wiring either;
+  `AnimeFavoritesFragment` constructs it directly from `NavAnimeFavoritesScreenComponent`'s store
+  and lifecycle.
 
 ## How to use it
 
-Implement `AnimeFavoritesView` (an `AnimeFavoritesViewImpl`): render `UiModel` in `render()` and
-call `dispatch(Intent)` from the relevant UI callbacks (item clicks, episode-viewed buttons,
-notification toggle). On the favorites screen, construct `AnimeFavoritesController` with the
-store, `AnimeDatabaseStore`, and the screen's lifecycle, then call
-`controller.onViewCreated(viewImpl, viewLifecycle)`.
+`AnimeFavoritesView` is backed by a `ComposeMviView` rendering `UiModel` into this module's own
+Compose UI; dispatch `Intent`s from the relevant UI callbacks (item clicks, episode-viewed
+buttons, notification toggle). On the favorites screen, construct `AnimeFavoritesController` with
+the store, `AnimeDatabaseStore`, and the screen's lifecycle, then call
+`controller.onViewCreated(view, viewLifecycle)`.
