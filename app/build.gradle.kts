@@ -47,6 +47,12 @@ dependencies {
     implementation(project(":feature-kmp:anime-background-update"))
     implementation(project(":feature-kmp:anime-notification"))
     implementation(project(":main"))
+
+    // No direct Kotlin usage, but required for the manifest's AD_ID permission (Google Play
+    // review) — a past cleanup pass already dropped this as apparently unused and had to
+    // restore it; do not remove without also removing that permission.
+    implementation(libs.play.services.appset)
+
     androidTestImplementation(project(":core-kmp:test-utils"))
     androidTestImplementation(project(":feature-kmp:anime-favorites"))
     androidTestImplementation(libs.compose.components.resources)
