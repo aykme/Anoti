@@ -39,6 +39,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -133,6 +134,7 @@ fun AnimeFavoritesItem(
 
     Row(
         modifier = Modifier
+            .testTag("anime_favorites_item")
             .fillMaxWidth()
             .defaultMinSize(minHeight = 146.dp)
             .height(IntrinsicSize.Min)
@@ -483,6 +485,7 @@ private fun NotificationButton(notification: NotificationUi, onClick: () -> Unit
     IconButton(
         onClick = onClick,
         modifier = Modifier
+            .testTag("notification_button")
             .size(NOTIFICATION_BUTTON_SIZE.dp)
             .alpha(NOTIFICATION_BUTTON_ALPHA)
             .background(backgroundColor, shape = CircleShape)

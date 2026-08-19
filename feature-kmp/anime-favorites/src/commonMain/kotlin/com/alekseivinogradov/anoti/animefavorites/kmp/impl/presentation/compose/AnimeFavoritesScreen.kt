@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -176,7 +177,9 @@ private fun ListState(
         modifier = Modifier.fillMaxSize()
     ) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .testTag("anime_favorites_rv")
+                .fillMaxSize(),
             contentPadding = PaddingValues(
                 top = topInsetDp,
                 bottom = LIST_LAST_ITEM_BOTTOM_PADDING_DP.dp

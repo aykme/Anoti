@@ -23,6 +23,10 @@ coil = "3.5.0"
 # material3 has no release on the composeMultiplatform line (1.11.1 doesn't exist for it) — 1.9.0 is its real stable ceiling.
 composeMaterial3 = "1.9.0"
 composeMultiplatform = "1.11.1"
+# Pinned to the version androidx.compose.ui:ui actually resolves to on :app's runtime classpath
+# (org.jetbrains.compose.ui:ui:1.11.1 substitutes to this) — an instrumented test shares the
+# app's process, so ui-test-junit4 must load the exact same Compose UI runtime classes.
+composeUiTest = "1.11.2"
 constraintlayout = "2.2.2"
 coroutines = "1.11.0"
 decompose = "3.5.0"
@@ -85,6 +89,8 @@ compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", v
 compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeMaterial3" }
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
+compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "composeUiTest" }
+compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "composeUiTest" }
 decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
 detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 essenty-lifecycle = { group = "com.arkivanov.essenty", name = "lifecycle", version.ref = "essenty" }

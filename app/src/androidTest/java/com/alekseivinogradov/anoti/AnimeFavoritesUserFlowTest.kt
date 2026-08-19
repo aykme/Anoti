@@ -3,17 +3,30 @@ package com.alekseivinogradov.anoti
 import android.os.Build
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.ParcelFileDescriptor
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.filterToOne
+import androidx.compose.ui.test.hasAnyDescendant
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onChildren
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as base_Res
@@ -22,8 +35,8 @@ import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.notificatio
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.notifications_turn_on_description
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.ongoing
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.score_image_description
-import com.alekseivinogradov.anoti.animefavorites.kmp.R as anime_favorites_R
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.Res as favorites_Res
+import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_list
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.extra_info_on_description
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.new_episode
 import com.alekseivinogradov.anoti.animelist.kmp.R as anime_list_R
@@ -31,11 +44,9 @@ import com.alekseivinogradov.anoti.main.R as main_R
 import com.alekseivinogradov.anoti.main.impl.presentation.MainActivity
 import com.alekseivinogradov.anoti.testutils.android.action.clickOnChildView
 import com.alekseivinogradov.anoti.testutils.android.matcher.AtRecyclerPositionMatcher
+import com.alekseivinogradov.anoti.testutils.android.safeComposeInteraction
 import com.alekseivinogradov.anoti.testutils.android.safeInteraction
 import kotlinx.coroutines.runBlocking
-import org.hamcrest.Matchers.allOf
-import org.hamcrest.Matchers.not
-import org.hamcrest.Matchers.startsWith
 import org.jetbrains.compose.resources.getString
 import org.junit.Before
 import org.junit.Rule
@@ -51,7 +62,7 @@ class AnimeFavoritesUserFlowTest {
     }
 
     @get:Rule
-    val activityRule = ActivityScenarioRule(MainActivity::class.java)
+    val composeRule = createAndroidComposeRule<MainActivity>()
 
     private suspend fun notificationButtonTurnOnDescription() =
         getString(base_Res.string.notifications_turn_on_description)
@@ -109,44 +120,23 @@ class AnimeFavoritesUserFlowTest {
         goToAnimeFavorites()
 
         // Then
-        // Check the first element of a Recycler View was added and valid
-        safeInteraction {
-            onView(withId(anime_favorites_R.id.anime_favorites_rv))
-                .check(
-                    matches(
-                        AtRecyclerPositionMatcher(
-                            position = rvPosition,
-                            viewMather = allOf(
-                                isDisplayed(),
-                                withId(anime_favorites_R.id.item_anime_favorites_layout),
-                                hasDescendant(withId(anime_favorites_R.id.new_episode_background)),
-                                hasDescendant(withId(anime_favorites_R.id.new_episode_text)),
-                                hasDescendant(withText(expectedNewEpisodeText)),
-                                hasDescendant(withId(anime_favorites_R.id.image_info_background)),
-                                hasDescendant(withId(anime_favorites_R.id.score_image)),
-                                hasDescendant(withContentDescription(expectedScoreImageDescription)),
-                                hasDescendant(withId(anime_favorites_R.id.info_type_button)),
-                                hasDescendant(
-                                    withContentDescription(expectedExtraInfoButtonDescription)
-                                ),
-                                hasDescendant(withId(anime_favorites_R.id.main_info_stroke)),
-                                hasDescendant(withId(anime_favorites_R.id.main_info_background)),
-                                hasDescendant(withId(anime_favorites_R.id.name_text)),
-                                hasDescendant(
-                                    withId(anime_favorites_R.id.available_episodes_info_text)
-                                ),
-                                hasDescendant(
-                                    withText(startsWith(expectedAvailableEpisodesInfoStartWithText))
-                                ),
-                                hasDescendant(withId(anime_favorites_R.id.release_status_text)),
-                                hasDescendant(withText(expectedReleaseStatusText)),
-                                hasDescendant(withId(anime_favorites_R.id.notification_button)),
-                                hasDescendant(
-                                    withContentDescription(expectedNotificationButtonDescription)
-                                )
-                            )
-                        )
+        // Check the first element of "Anime favorites" was added and valid
+        safeComposeInteraction {
+            composeRule.onAllNodesWithTag("anime_favorites_item")[rvPosition]
+                .assertIsDisplayed()
+                .assert(hasAnyDescendant(hasText(expectedNewEpisodeText)))
+                .assert(hasAnyDescendant(hasContentDescription(expectedScoreImageDescription)))
+                .assert(
+                    hasAnyDescendant(hasContentDescription(expectedExtraInfoButtonDescription))
+                )
+                .assert(
+                    hasAnyDescendant(
+                        hasTextStartingWith(expectedAvailableEpisodesInfoStartWithText)
                     )
+                )
+                .assert(hasAnyDescendant(hasText(expectedReleaseStatusText)))
+                .assert(
+                    hasAnyDescendant(hasContentDescription(expectedNotificationButtonDescription))
                 )
         }
 
@@ -179,21 +169,12 @@ class AnimeFavoritesUserFlowTest {
         // and description for turned on notification button
         val expectedReleaseStatusText = ongoingStatusText()
         val expectedNotificationButtonDescription = notificationButtonTurnOffDescription()
-        safeInteraction {
-            onView(withId(anime_favorites_R.id.anime_favorites_rv))
-                .check(
-                    matches(
-                        AtRecyclerPositionMatcher(
-                            position = rvPosition,
-                            viewMather = allOf(
-                                isDisplayed(),
-                                hasDescendant(withText(expectedReleaseStatusText)),
-                                hasDescendant(
-                                    withContentDescription(expectedNotificationButtonDescription)
-                                )
-                            )
-                        )
-                    )
+        safeComposeInteraction {
+            composeRule.onAllNodesWithTag("anime_favorites_item")[rvPosition]
+                .assertIsDisplayed()
+                .assert(hasAnyDescendant(hasText(expectedReleaseStatusText)))
+                .assert(
+                    hasAnyDescendant(hasContentDescription(expectedNotificationButtonDescription))
                 )
         }
 
@@ -201,21 +182,14 @@ class AnimeFavoritesUserFlowTest {
         clickOnNotificationButtonInAnimeFavorites(rvPosition)
 
         // Then
-        // Check the first element of a Recycler View was removed
-        safeInteraction {
-            onView(withId(anime_favorites_R.id.anime_favorites_rv))
-                .check(
-                    matches(
-                        AtRecyclerPositionMatcher(
-                            position = rvPosition,
-                            viewMather = allOf(
-                                not(isDisplayed()),
-                                not(withId(anime_favorites_R.id.item_anime_favorites_layout)),
-                            )
-                        )
-                    )
-                )
-        }
+        // Turning off the test's one favorite empties listItems, which the executor turns into
+        // ContentTypeUi.EMPTY — the screen switches to the empty-state panel rather than leaving
+        // a shorter loaded list, so the removal is confirmed via that panel, not an absent item.
+        val expectedEmptyListText = getString(favorites_Res.string.empty_list)
+        safeComposeInteraction {
+            composeRule.onNodeWithText(expectedEmptyListText)
+        }.assertIsDisplayed()
+        composeRule.onAllNodesWithTag("anime_favorites_item").assertCountEquals(0)
 
         Unit
     }
@@ -274,15 +248,12 @@ class AnimeFavoritesUserFlowTest {
     }
 
     private suspend fun clickOnNotificationButtonInAnimeFavorites(rvPosition: Int) {
-        safeInteraction {
-            onView(withId(anime_favorites_R.id.anime_favorites_rv))
-                .perform(
-                    actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                        /* position = */ rvPosition,
-                        /* viewAction = */ clickOnChildView(anime_favorites_R.id.notification_button)
-                    )
-                )
-        }
+        safeComposeInteraction {
+            composeRule
+                .onAllNodesWithTag("anime_favorites_item")[rvPosition]
+                .onChildren()
+                .filterToOne(hasTestTag("notification_button"))
+        }.performClick()
     }
 
     private suspend fun goToAnimeFavorites() {
@@ -290,4 +261,12 @@ class AnimeFavoritesUserFlowTest {
             onView(withId(main_R.id.anime_favorites)).perform(click())
         }
     }
+
+    // hasText's substring mode is a "contains" check; the original Espresso assertion used
+    // Hamcrest's startsWith(...), which this replicates exactly.
+    private fun hasTextStartingWith(prefix: String): SemanticsMatcher =
+        SemanticsMatcher("${SemanticsProperties.Text.name} starts with '$prefix'") { node ->
+            node.config.getOrNull(SemanticsProperties.Text)
+                ?.any { it.text.startsWith(prefix) } == true
+        }
 }
