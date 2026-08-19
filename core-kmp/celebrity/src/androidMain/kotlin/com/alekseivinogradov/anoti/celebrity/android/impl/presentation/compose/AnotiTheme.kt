@@ -37,6 +37,12 @@ private val DarkColorScheme = darkColorScheme(
 // AnotiTheme below is already wired for the day a real light palette replaces this value.
 private val LightColorScheme = DarkColorScheme
 
+/**
+ * Applies Anoti's Material color scheme and background to [content].
+ *
+ * A temporary bridge for hosting Compose UI inside `Fragment`-based screens; removed once
+ * every screen is on Compose without `Fragment`.
+ */
 // Composable functions use PascalCase by convention; no detekt.yml exception exists yet.
 @Suppress("FunctionNaming")
 @Composable
