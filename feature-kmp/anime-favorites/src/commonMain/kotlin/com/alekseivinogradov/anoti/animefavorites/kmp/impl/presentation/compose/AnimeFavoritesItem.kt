@@ -112,6 +112,9 @@ private val ItemSilver = Color(0xFFC0C0C0)
 @Suppress("MagicNumber")
 private val ItemPurple = Color(0xFFBB86FC)
 
+@Suppress("MagicNumber")
+private val ItemBlackTransparent = Color(0xD5000000)
+
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.
 @Suppress("FunctionNaming", "LongParameterList")
@@ -316,7 +319,9 @@ private fun MainInfoPanel(
                 .fillMaxSize()
                 .padding(2.dp)
                 .background(ItemDarkGray, RoundedCornerShape(10.dp))
-                .padding(8.dp)
+                // 2dp (above) + 6dp = 8dp total from the stroke's outer edge, matching the
+                // original's name_text/etc. layout_margin of 8dp from main_info_stroke.
+                .padding(6.dp)
         ) {
             if (item.infoType == InfoTypeUi.MAIN) {
                 MainInfoContent(item = item, onNotificationClick = onNotificationClick)
@@ -485,7 +490,7 @@ private fun NotificationButton(notification: NotificationUi, onClick: () -> Unit
         Icon(
             painter = cmpPainterResource(icon),
             contentDescription = description,
-            tint = Color.Unspecified,
+            tint = ItemBlackTransparent,
             modifier = Modifier.size(NOTIFICATION_ICON_SIZE.dp)
         )
     }
