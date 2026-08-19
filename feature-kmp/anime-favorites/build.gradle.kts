@@ -60,6 +60,11 @@ kotlin {
             implementation(libs.essenty.lifecycle)
             implementation(libs.compose.runtime)
             implementation(libs.compose.components.resources)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.material3)
+            implementation(libs.compose.ui)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor3)
 
             implementation(libs.kotlin.inject.runtime.kmp)
         }

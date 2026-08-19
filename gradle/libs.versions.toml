@@ -19,6 +19,7 @@ activity = "1.13.0"
 agp = "9.3.1"
 annotationJvm = "1.10.0"
 appcompat = "1.8.0"
+coil = "3.5.0"
 # material3 has no release on the composeMultiplatform line (1.11.1 doesn't exist for it) — 1.9.0 is its real stable ceiling.
 composeMaterial3 = "1.9.0"
 composeMultiplatform = "1.11.1"
@@ -77,6 +78,8 @@ androidx-rules = { group = "androidx.test", name = "rules", version.ref = "rules
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
 androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "workRuntimeKtx" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
 compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeMaterial3" }

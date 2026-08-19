@@ -18,6 +18,8 @@ screens.
   base `MviView` that renders a store's state into a Compose `State` instead of a real View.
 - [Modifier.repeatingClickable](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/presentation/compose/RepeatingClickable.kt) —
   press-and-hold-to-repeat click behavior for Compose.
+- [LoadingSpinner](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/presentation/compose/LoadingSpinner.kt) —
+  continuously spinning loading indicator.
 
 ## How to include it
 
@@ -25,5 +27,6 @@ screens.
 - `CoroutineContextProvider`, `DateFormatter` and `ToastProvider` are provided via this module's
   kotlin-inject bindings (`DiCelebrityComponent`, `DiCelebrityPlatformComponent`), mixed into
   [`core-kmp:di-app`](../di-app/CORE-KMP-DI-APP-README.md)'s `DiAppComponent` on both platforms —
-  inject them, don't construct them yourself. `Paginator`, `ComposeMviView` and
-  `repeatingClickable` have no DI wiring; callers subclass/construct/call them directly.
+  inject them, don't construct them yourself. `Paginator`, `ComposeMviView`,
+  `repeatingClickable` and `LoadingSpinner` have no DI wiring; callers subclass/construct/call
+  them directly.
