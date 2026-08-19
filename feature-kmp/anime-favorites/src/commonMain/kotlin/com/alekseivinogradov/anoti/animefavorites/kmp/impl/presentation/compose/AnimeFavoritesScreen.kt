@@ -111,37 +111,45 @@ private fun LoadingState() {
 @Suppress("FunctionNaming")
 @Composable
 private fun EmptyState() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-            .padding(8.dp)
-    ) {
-        Image(
-            painter = painterResource(CelebrityRes.drawable.main_character_image),
-            contentDescription = stringResource(Res.string.empty_list_image_description),
-            contentScale = ContentScale.Crop,
+    // A plain Row(Modifier.height(IntrinsicSize.Min)) here would receive this screen's tight,
+    // full-height constraints and get clamped right back up to full height. Box gives
+    // non-matchParentSize children loose constraints, letting the Row shrink to its own
+    // intrinsic (image) height and sit at the top, matching the original's wrap_content
+    // layout hosted inside a match_parent FrameLayout.
+    Box(Modifier.fillMaxSize()) {
+        Row(
             modifier = Modifier
-                .size(130.dp)
-                .clip(RoundedCornerShape(percent = EMPTY_IMAGE_CORNER_PERCENT))
-        )
-        Spacer(Modifier.width(8.dp))
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                .background(EmptyPanelGrey, RoundedCornerShape(10.dp))
+                .align(Alignment.TopStart)
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
+                .padding(8.dp)
         ) {
-            Text(
-                text = stringResource(Res.string.empty_list),
-                color = Color.White,
-                fontSize = EMPTY_TEXT_SP.sp,
-                fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Start,
+            Image(
+                painter = painterResource(CelebrityRes.drawable.main_character_image),
+                contentDescription = stringResource(Res.string.empty_list_image_description),
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(8.dp)
+                    .size(130.dp)
+                    .clip(RoundedCornerShape(percent = EMPTY_IMAGE_CORNER_PERCENT))
             )
+            Spacer(Modifier.width(8.dp))
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .background(EmptyPanelGrey, RoundedCornerShape(10.dp))
+            ) {
+                Text(
+                    text = stringResource(Res.string.empty_list),
+                    color = Color.White,
+                    fontSize = EMPTY_TEXT_SP.sp,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(8.dp)
+                )
+            }
         }
     }
 }

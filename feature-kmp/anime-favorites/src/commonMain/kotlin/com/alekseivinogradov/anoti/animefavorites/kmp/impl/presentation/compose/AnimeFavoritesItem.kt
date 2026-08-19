@@ -13,10 +13,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,8 +26,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,12 +39,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.SubcomposeAsyncImage
@@ -132,15 +134,7 @@ fun AnimeFavoritesItem(
     val strokeColor = if (item.isNewEpisode) ItemSilver else ItemDarkGray
     val amikoBold = FontFamily(CmpFont(CelebrityRes.font.amiko_bold, FontWeight.Bold))
 
-    Row(
-        modifier = Modifier
-            .testTag("anime_favorites_item")
-            .fillMaxWidth()
-            .defaultMinSize(minHeight = 146.dp)
-            .height(IntrinsicSize.Min)
-            .combinedClickable(onClick = onItemClick, onLongClick = onInfoTypeClick)
-            .padding(8.dp)
-    ) {
+    val posterContent: @Composable () -> Unit = {
         PosterColumn(
             imageUrl = item.imageUrl,
             score = item.score,
@@ -149,9 +143,8 @@ fun AnimeFavoritesItem(
             amikoBold = amikoBold,
             onInfoTypeClick = onInfoTypeClick
         )
-
-        Spacer(Modifier.width(8.dp))
-
+    }
+    val infoContent: @Composable () -> Unit = {
         MainInfoPanel(
             item = item,
             dateFormatter = dateFormatter,
@@ -160,6 +153,42 @@ fun AnimeFavoritesItem(
             onEpisodesViewedMinusClick = onEpisodesViewedMinusClick,
             onEpisodesViewedPlusClick = onEpisodesViewedPlusClick
         )
+    }
+
+    // Row(Modifier.height(IntrinsicSize.Min)) can't be used here: it queries every child's
+    // intrinsic height, and PosterColumn contains a SubcomposeAsyncImage (SubcomposeLayout),
+    // which throws on intrinsic measurement. SubcomposeLayout lets us learn the info panel's
+    // real (non-intrinsic) height first, then measure the poster to match it.
+    SubcomposeLayout(
+        modifier = Modifier
+            .testTag("anime_favorites_item")
+            .fillMaxWidth()
+            .combinedClickable(onClick = onItemClick, onLongClick = onInfoTypeClick)
+            .padding(8.dp)
+    ) { constraints ->
+        val minHeightPx = ITEM_MIN_HEIGHT_DP.dp.roundToPx()
+        val posterWidthPx = POSTER_WIDTH_DP.dp.roundToPx()
+        val spacerPx = ITEM_CONTENT_SPACER_DP.dp.roundToPx()
+        val infoWidthPx = (constraints.maxWidth - posterWidthPx - spacerPx).coerceAtLeast(0)
+        val infoWidthConstraints = Constraints(minWidth = infoWidthPx, maxWidth = infoWidthPx)
+
+        val infoNaturalHeight = subcompose(AnimeFavoritesItemSlot.InfoMeasure, infoContent)
+            .maxOf { it.measure(infoWidthConstraints).height }
+        val rowHeight = maxOf(minHeightPx, infoNaturalHeight)
+
+        val posterPlaceables = subcompose(AnimeFavoritesItemSlot.Poster, posterContent)
+            .map { it.measure(Constraints.fixed(posterWidthPx, rowHeight)) }
+        val infoPlaceables = subcompose(AnimeFavoritesItemSlot.Info, infoContent)
+            .map {
+                it.measure(
+                    infoWidthConstraints.copy(minHeight = rowHeight, maxHeight = rowHeight)
+                )
+            }
+
+        layout(constraints.maxWidth, rowHeight) {
+            posterPlaceables.forEach { it.placeRelative(0, 0) }
+            infoPlaceables.forEach { it.placeRelative(posterWidthPx + spacerPx, 0) }
+        }
     }
 }
 
@@ -280,24 +309,35 @@ private fun InfoTypeButton(infoType: InfoTypeUi, onClick: () -> Unit) {
     } else {
         stringResource(Res.string.extra_info_off_description)
     }
-    IconButton(
-        onClick = onClick,
-        // The original ImageButton paints an opaque black square behind its icon, on top of
-        // this row's semi-transparent overlay.
-        modifier = Modifier
-            .size(width = 42.dp, height = 34.dp)
-            .background(ItemBlack)
-    ) {
-        val infoIcon = if (infoType == InfoTypeUi.MAIN) {
-            Res.drawable.ic_details_on_24
-        } else {
-            Res.drawable.ic_details_off_24
+    // IconButton's default 48dp minimumInteractiveComponentSize is enforced by inflating the
+    // reported size past whatever the size() modifier below requests, silently ballooning this
+    // 42x34dp button (the original's touch target, matching the ImageButton it replaces) back up
+    // to a 48dp square. The original never had that accessibility floor, so it's disabled here.
+    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+        IconButton(
+            onClick = onClick,
+            // The original ImageButton paints an opaque black square behind its icon, on top of
+            // this row's semi-transparent overlay.
+            modifier = Modifier
+                .size(width = 42.dp, height = 34.dp)
+                .background(ItemBlack)
+                // The original ImageButton also has android:padding="4dp"; paired with the
+                // Icon's fillMaxSize()+default Fit scaling below, this reproduces its
+                // FIT_CENTER-inscribed icon size.
+                .padding(4.dp)
+        ) {
+            val infoIcon = if (infoType == InfoTypeUi.MAIN) {
+                Res.drawable.ic_details_on_24
+            } else {
+                Res.drawable.ic_details_off_24
+            }
+            Icon(
+                painter = cmpPainterResource(infoIcon),
+                contentDescription = infoTypeDescription,
+                tint = ItemCinnabarRed,
+                modifier = Modifier.fillMaxSize()
+            )
         }
-        Icon(
-            painter = cmpPainterResource(infoIcon),
-            contentDescription = infoTypeDescription,
-            tint = ItemCinnabarRed
-        )
     }
 }
 
@@ -403,7 +443,7 @@ private fun ExtraInfoContent(
             fontSize = SUBTITLE1_SP.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.End,
+            textAlign = TextAlign.Start,
             modifier = Modifier.fillMaxWidth()
         )
         EpisodesViewedRow(
@@ -562,3 +602,8 @@ private const val SCORE_ICON_ALPHA = 0.8f
 private const val NOTIFICATION_BUTTON_ALPHA = 0.8f
 private const val NEW_EPISODE_SHADOW_RADIUS = 16f
 private const val NEW_EPISODE_SHADOW_OFFSET = 4f
+private const val ITEM_MIN_HEIGHT_DP = 146
+private const val POSTER_WIDTH_DP = 130
+private const val ITEM_CONTENT_SPACER_DP = 8
+
+private enum class AnimeFavoritesItemSlot { Poster, Info, InfoMeasure }
