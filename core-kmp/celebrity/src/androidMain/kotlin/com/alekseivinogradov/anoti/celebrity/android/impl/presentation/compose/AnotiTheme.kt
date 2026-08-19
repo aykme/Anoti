@@ -1,9 +1,12 @@
 package com.alekseivinogradov.anoti.celebrity.android.impl.presentation.compose
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
 // Design-system color values, not arbitrary magic numbers.
@@ -39,7 +42,12 @@ private val LightColorScheme = DarkColorScheme
 @Composable
 fun AnotiTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = if (isSystemInDarkTheme()) DarkColorScheme else LightColorScheme,
-        content = content
-    )
+        colorScheme = if (isSystemInDarkTheme()) DarkColorScheme else LightColorScheme
+    ) {
+        // Surface sets LocalContentColor from the color scheme — without it, plain Text() falls
+        // back to Compose's default black, invisible against this theme's black background.
+        Surface(modifier = Modifier.fillMaxSize()) {
+            content()
+        }
+    }
 }
