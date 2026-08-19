@@ -64,9 +64,14 @@ fun Modifier.repeatingClickable(
     pointerInput(interactionSource) {
         awaitEachGesture {
             val down = awaitFirstDown(requireUnconsumed = false)
+            // Without consuming, an ancestor's own gesture detector (e.g. the item row's
+            // combinedClickable long-click) sees this same press-and-hold as unclaimed and
+            // fires alongside it, showing its own press indication too.
+            down.consume()
             val press = PressInteraction.Press(down.position)
             interactionSource.tryEmit(press)
             val up = waitForUpOrCancellation()
+            up?.consume()
             interactionSource.tryEmit(
                 if (up != null) {
                     PressInteraction.Release(press)
