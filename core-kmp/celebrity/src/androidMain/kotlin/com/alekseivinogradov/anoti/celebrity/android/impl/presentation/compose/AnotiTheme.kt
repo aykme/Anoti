@@ -6,15 +6,19 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
+// Design-system color values, not arbitrary magic numbers.
 @Suppress("MagicNumber")
 private val AnotiBlack = Color(0xFF000000)
 
+// Design-system color values, not arbitrary magic numbers.
 @Suppress("MagicNumber")
 private val AnotiCoralRed = Color(0xFFE84B3D)
 
+// Design-system color values, not arbitrary magic numbers.
 @Suppress("MagicNumber")
 private val AnotiDarkGray = Color(0xFF222222)
 
+// Design-system color values, not arbitrary magic numbers.
 @Suppress("MagicNumber")
 private val AnotiWhiteAlpha = Color(0xD5FFFFFF)
 
@@ -30,6 +34,7 @@ private val DarkColorScheme = darkColorScheme(
 // AnotiTheme below is already wired for the day a real light palette replaces this value.
 private val LightColorScheme = DarkColorScheme
 
+// Composable functions use PascalCase by convention; no detekt.yml exception exists yet.
 @Suppress("FunctionNaming")
 @Composable
 fun AnotiTheme(content: @Composable () -> Unit) {
