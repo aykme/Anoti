@@ -48,12 +48,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.SubcomposeAsyncImage
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.announced
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.beginning_of_the_show
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.episodes
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.inaccurate
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.next_episode
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.notifications_turn_off_description
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.notifications_turn_on_description
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.ongoing
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.released
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.score_image_description
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.show_is_finished
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.InfoTypeUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.ListItemUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.NotificationUi
@@ -71,6 +75,7 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.ic_det
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.new_episode
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LoadingSpinner
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.repeatingClickable
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.amiko_bold
@@ -78,6 +83,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_notifica
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_notifications_on_40
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_score_42
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.load_image_error_48
+import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.no_data
 import org.jetbrains.compose.resources.stringResource
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as BaseRes
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as CelebrityRes
@@ -112,6 +118,7 @@ private val ItemPurple = Color(0xFFBB86FC)
 @Composable
 fun AnimeFavoritesItem(
     item: ListItemUi,
+    dateFormatter: DateFormatter,
     onItemClick: () -> Unit,
     onInfoTypeClick: () -> Unit,
     onNotificationClick: () -> Unit,
@@ -142,6 +149,7 @@ fun AnimeFavoritesItem(
 
         MainInfoPanel(
             item = item,
+            dateFormatter = dateFormatter,
             strokeColor = strokeColor,
             onNotificationClick = onNotificationClick,
             onEpisodesViewedMinusClick = onEpisodesViewedMinusClick,
@@ -292,6 +300,7 @@ private fun InfoTypeButton(infoType: InfoTypeUi, onClick: () -> Unit) {
 @Composable
 private fun MainInfoPanel(
     item: ListItemUi,
+    dateFormatter: DateFormatter,
     strokeColor: Color,
     onNotificationClick: () -> Unit,
     onEpisodesViewedMinusClick: () -> Unit,
@@ -314,6 +323,7 @@ private fun MainInfoPanel(
             } else {
                 ExtraInfoContent(
                     item = item,
+                    dateFormatter = dateFormatter,
                     onEpisodesViewedMinusClick = onEpisodesViewedMinusClick,
                     onEpisodesViewedPlusClick = onEpisodesViewedPlusClick
                 )
@@ -363,12 +373,17 @@ private fun MainInfoContent(item: ListItemUi, onNotificationClick: () -> Unit) {
 @Composable
 private fun ExtraInfoContent(
     item: ListItemUi,
+    dateFormatter: DateFormatter,
     onEpisodesViewedMinusClick: () -> Unit,
     onEpisodesViewedPlusClick: () -> Unit
 ) {
     Column(Modifier.fillMaxSize()) {
         Text(
-            text = item.extraEpisodesInfo.orEmpty(),
+            text = formatExtraEpisodesInfo(
+                extraEpisodesInfo = item.extraEpisodesInfo,
+                releaseStatus = item.releaseStatus,
+                dateFormatter = dateFormatter
+            ),
             color = ItemWhite,
             fontSize = SUBTITLE1_SP.sp,
             maxLines = 2,
@@ -473,6 +488,42 @@ private fun NotificationButton(notification: NotificationUi, onClick: () -> Unit
             tint = Color.Unspecified,
             modifier = Modifier.size(NOTIFICATION_ICON_SIZE.dp)
         )
+    }
+}
+
+// Ported 1:1 from AnimeFavoritesViewHolder.getExtraEpisodesInfo() — the raw date string in
+// ListItemUi.extraEpisodesInfo (see StateToUiModelMapper.kt: it's just nextEpisodeAt/airedOn/
+// releasedOn, unformatted) needs release-status-dependent prefix text and real date formatting
+// before display; this logic used to live in the View layer and still does, just in Compose now.
+@Composable
+private fun formatExtraEpisodesInfo(
+    extraEpisodesInfo: String?,
+    releaseStatus: ReleaseStatusUi,
+    dateFormatter: DateFormatter
+): String {
+    val noDataString = stringResource(CelebrityRes.string.no_data)
+    val formattedDate = if (extraEpisodesInfo?.isNotEmpty() == true) {
+        dateFormatter.getFormattedDate(inputText = extraEpisodesInfo, fallbackText = noDataString)
+    } else {
+        noDataString
+    }
+    return when (releaseStatus) {
+        ReleaseStatusUi.ONGOING ->
+            "${stringResource(BaseRes.string.next_episode)}:\n$formattedDate"
+
+        ReleaseStatusUi.ANNOUNCED -> {
+            val inaccurateSuffix = if (extraEpisodesInfo?.isNotEmpty() == true) {
+                " (${stringResource(BaseRes.string.inaccurate)})"
+            } else {
+                ""
+            }
+            "${stringResource(BaseRes.string.beginning_of_the_show)}:\n$formattedDate$inaccurateSuffix"
+        }
+
+        ReleaseStatusUi.RELEASED ->
+            "${stringResource(BaseRes.string.show_is_finished)}:\n$formattedDate"
+
+        ReleaseStatusUi.UNKNOWN -> formattedDate
     }
 }
 
