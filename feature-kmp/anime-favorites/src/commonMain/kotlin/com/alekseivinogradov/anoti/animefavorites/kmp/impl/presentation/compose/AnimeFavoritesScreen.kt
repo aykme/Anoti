@@ -23,10 +23,6 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -167,21 +163,20 @@ private fun ListState(
     topInsetDp: Dp,
     dispatch: (AnimeFavoritesMainStore.Intent) -> Unit
 ) {
-    var isRefreshing by remember { mutableStateOf(false) }
     val pullToRefreshState = rememberPullToRefreshState()
 
     PullToRefreshBox(
-        isRefreshing = isRefreshing,
-        onRefresh = {
-            dispatch(AnimeFavoritesMainStore.Intent.UpdateSection)
-            isRefreshing = false
-        },
+        // There's no signal for when UpdateSection's background refresh actually completes, so
+        // this can't be flipped to true: the pull still triggers a refresh, it just can't show
+        // a spinner for it.
+        isRefreshing = false,
+        onRefresh = { dispatch(AnimeFavoritesMainStore.Intent.UpdateSection) },
         state = pullToRefreshState,
         // PullToRefreshBox's default indicator color is onSurfaceVariant, not the theme's accent.
         indicator = {
             PullToRefreshDefaults.Indicator(
                 modifier = Modifier.align(Alignment.TopCenter),
-                isRefreshing = isRefreshing,
+                isRefreshing = false,
                 state = pullToRefreshState,
                 color = Cinnabar500
             )

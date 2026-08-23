@@ -69,7 +69,9 @@ class AnimeFavoritesExecutorImpl(
     }
 
     private fun itemsSubmittedToList() {
-        dispatch(AnimeFavoritesMainStore.Message.ChangeContentType(ContentTypeDomain.LOADED))
+        if (state().contentType != ContentTypeDomain.LOADED) {
+            dispatch(AnimeFavoritesMainStore.Message.ChangeContentType(ContentTypeDomain.LOADED))
+        }
     }
 
     private fun updateSection() {
