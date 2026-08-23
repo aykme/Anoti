@@ -86,7 +86,7 @@ fun AnimeFavoritesScreen(
 
     when (uiModel.contentType) {
         ContentTypeUi.LOADING -> LoadingState()
-        ContentTypeUi.EMPTY -> EmptyState()
+        ContentTypeUi.EMPTY -> EmptyState(topInsetDp = topInsetDp)
         ContentTypeUi.LOADED -> ListState(
             uiModel = uiModel,
             dateFormatter = dateFormatter,
@@ -111,7 +111,7 @@ private fun LoadingState() {
 
 @Suppress("FunctionNaming")
 @Composable
-private fun EmptyState() {
+private fun EmptyState(topInsetDp: Dp) {
     // Box is required: without it, Row's tight incoming constraints would stretch it to full
     // height despite height(IntrinsicSize.Min).
     Box(Modifier.fillMaxSize()) {
@@ -120,7 +120,14 @@ private fun EmptyState() {
                 .align(Alignment.TopStart)
                 .fillMaxWidth()
                 .height(IntrinsicSize.Min)
-                .padding(8.dp)
+                .padding(
+                    start = 8.dp,
+                    // Replaces the default top padding once a real system-bar inset is known,
+                    // instead of stacking on top of it.
+                    top = if (topInsetDp > 0.dp) topInsetDp else 8.dp,
+                    end = 8.dp,
+                    bottom = 8.dp
+                )
         ) {
             Image(
                 painter = painterResource(CelebrityRes.drawable.main_character_image),

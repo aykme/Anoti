@@ -66,10 +66,9 @@ class AnimeFavoritesFragment : ComposeFragment() {
         )
     }
 
-    // Mirrors MainActivity.setSystemSettings()'s own edge-to-edge handling — the Activity
-    // deliberately leaves top/bottom insets unconsumed at its root so each screen decides for
-    // itself; this list needs its own top inset so the first item isn't drawn under the status
-    // bar, the same job EdgeToEdgeItemDecorator did for the old RecyclerView.
+    // MainActivity leaves top/bottom insets unconsumed at its root so each screen decides for
+    // itself; this screen needs its own top inset so the first item isn't drawn under the
+    // status bar.
     private fun initEdgeToEdgeListenerIfNeeded(view: View) {
         if (isEdgeToEdgeEnabled()) {
             ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->

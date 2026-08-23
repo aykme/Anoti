@@ -77,11 +77,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.appcompat)
-            implementation(libs.androidx.constraintlayout)
             implementation(libs.material)
-            implementation(libs.androidx.swiperefreshlayout)
-            implementation(libs.androidx.recyclerview)
-            implementation(libs.glide)
             implementation(libs.androidx.work.runtime)
             implementation(project(":core-kmp:celebrity"))
             implementation(project(":feature-kmp:anime-base"))

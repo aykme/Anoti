@@ -7,6 +7,7 @@ package com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.compose
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,8 +26,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -34,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
@@ -461,6 +465,7 @@ private fun EpisodesViewedRow(
             modifier = Modifier
                 .size(34.dp)
                 .background(Black)
+                .indication(minusInteractionSource, ripple())
                 .repeatingClickable(
                     interactionSource = minusInteractionSource,
                     initialDelayMillis = REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS,
@@ -485,6 +490,7 @@ private fun EpisodesViewedRow(
             modifier = Modifier
                 .size(34.dp)
                 .background(Black)
+                .indication(plusInteractionSource, ripple())
                 .repeatingClickable(
                     interactionSource = plusInteractionSource,
                     initialDelayMillis = REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS,
@@ -498,33 +504,39 @@ private fun EpisodesViewedRow(
 @Suppress("FunctionNaming")
 @Composable
 private fun NotificationButton(notification: NotificationUi, onClick: () -> Unit) {
-    val (icon, backgroundColor, description) = if (notification == NotificationUi.ENABLED) {
-        Triple(
-            CelebrityRes.drawable.ic_notifications_on_40,
-            Green,
-            stringResource(BaseRes.string.notifications_turn_off_description)
-        )
+    val isEnabled = notification == NotificationUi.ENABLED
+    val icon = if (isEnabled) {
+        CelebrityRes.drawable.ic_notifications_on_40
     } else {
-        Triple(
-            CelebrityRes.drawable.ic_notifications_off_40,
-            Cinnabar500,
-            stringResource(BaseRes.string.notifications_turn_on_description)
-        )
+        CelebrityRes.drawable.ic_notifications_off_40
     }
-    IconButton(
-        onClick = onClick,
-        modifier = Modifier
-            .testTag("notification_button")
-            .size(NOTIFICATION_BUTTON_SIZE.dp)
-            .alpha(NOTIFICATION_BUTTON_ALPHA)
-            .background(backgroundColor, shape = CircleShape)
-    ) {
-        Icon(
-            painter = cmpPainterResource(icon),
-            contentDescription = description,
-            tint = BlackTransparent,
-            modifier = Modifier.size(NOTIFICATION_ICON_SIZE.dp)
-        )
+    val backgroundColor = if (isEnabled) Green else Cinnabar500
+    // Ripple color contrasts with the current background, matching the FAB's original styling.
+    val rippleColor = if (isEnabled) Cinnabar500 else Green
+    val description = stringResource(
+        if (isEnabled) {
+            BaseRes.string.notifications_turn_off_description
+        } else {
+            BaseRes.string.notifications_turn_on_description
+        }
+    )
+    CompositionLocalProvider(LocalContentColor provides rippleColor) {
+        IconButton(
+            onClick = onClick,
+            modifier = Modifier
+                .testTag("notification_button")
+                .size(NOTIFICATION_BUTTON_SIZE.dp)
+                .alpha(NOTIFICATION_BUTTON_ALPHA)
+                .shadow(NOTIFICATION_BUTTON_ELEVATION_DP.dp, CircleShape)
+                .background(backgroundColor, shape = CircleShape)
+        ) {
+            Icon(
+                painter = cmpPainterResource(icon),
+                contentDescription = description,
+                tint = BlackTransparent,
+                modifier = Modifier.size(NOTIFICATION_ICON_SIZE.dp)
+            )
+        }
     }
 }
 
@@ -585,6 +597,7 @@ private const val OVERLAY_ALPHA = 0.5f
 private const val NEW_EPISODE_BADGE_SP = 15
 private const val SUBTITLE1_SP = 16
 private const val NOTIFICATION_BUTTON_SIZE = 56
+private const val NOTIFICATION_BUTTON_ELEVATION_DP = 6
 private const val NOTIFICATION_ICON_SIZE = 40
 private const val SCORE_ICON_ALPHA = 0.8f
 private const val NOTIFICATION_BUTTON_ALPHA = 0.8f
