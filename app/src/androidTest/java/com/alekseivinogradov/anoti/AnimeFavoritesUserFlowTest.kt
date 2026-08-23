@@ -14,7 +14,7 @@ import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithText
@@ -38,7 +38,6 @@ import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.score_image
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.Res as favorites_Res
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_list
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.extra_info_on_description
-import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.new_episode
 import com.alekseivinogradov.anoti.animelist.kmp.R as anime_list_R
 import com.alekseivinogradov.anoti.main.R as main_R
 import com.alekseivinogradov.anoti.main.impl.presentation.MainActivity
@@ -72,12 +71,8 @@ class AnimeFavoritesUserFlowTest {
 
     @Before
     fun setup() {
-        // Real-device animations (item removal, ripples, transitions) race with Espresso's
-        // synchronization and are a known source of instrumented-test flakiness; disable them.
-        // A device-wide font scale/density override (e.g. large accessibility text) reflows
-        // list items enough to overlap other views, which can make a child-view click land on
-        // stale/misbound content; reset both to defaults so the test doesn't depend on whatever
-        // the device happens to be configured with.
+        // Animations race with Espresso sync and cause flakiness; disable them.
+        // Font scale/density can reflow list items and misdirect clicks; reset to defaults.
         runShellCommand("settings put global window_animation_scale 0")
         runShellCommand("settings put global transition_animation_scale 0")
         runShellCommand("settings put global animator_duration_scale 0")
@@ -91,12 +86,11 @@ class AnimeFavoritesUserFlowTest {
             .use { it.readBytes() }
     }
 
-    // "Run Blocking" because of don't need to skip delay with interaction retry
+    // runBlocking, not runTest: the retries below need real delays, not virtual time.
     @Test
-    fun addOngoingToAnimeFavorites() = runBlocking {
+    fun addOngoingToAnimeFavorites(): Unit = runBlocking {
         // Given
         val rvPosition = 0
-        val expectedNewEpisodeText = getString(favorites_Res.string.new_episode)
         val expectedScoreImageDescription = getString(base_Res.string.score_image_description)
         val expectedExtraInfoButtonDescription =
             getString(favorites_Res.string.extra_info_on_description)
@@ -106,25 +100,17 @@ class AnimeFavoritesUserFlowTest {
 
         // When
         goToOngoingSection()
-
-        // Notification button in "Anime list" must be turned off before click
         checkNotificationButtonIsTurnedOff(rvPosition)
-
-        // Turn on notifications for the first element in "Anime list"
         clickOnNotificationButtonInAnimeList(rvPosition)
-
-        // Notification button in "Anime list" must be turned on after click
         checkNotificationButtonIsTurnedOn(rvPosition)
-
-        // Go to "Anime favorites"
         goToAnimeFavorites()
 
         // Then
-        // Check the first element of "Anime favorites" was added and valid
+        // "New episode" isn't checked: it reflects live backend data, not test-controlled state.
         safeComposeInteraction {
-            composeRule.onAllNodesWithTag("anime_favorites_item")[rvPosition]
+            // useUnmergedTree: hasAnyDescendant can't see Text merged into the clickable root.
+            composeRule.onAllNodesWithTag("anime_favorites_item", useUnmergedTree = true)[rvPosition]
                 .assertIsDisplayed()
-                .assert(hasAnyDescendant(hasText(expectedNewEpisodeText)))
                 .assert(hasAnyDescendant(hasContentDescription(expectedScoreImageDescription)))
                 .assert(
                     hasAnyDescendant(hasContentDescription(expectedExtraInfoButtonDescription))
@@ -139,38 +125,26 @@ class AnimeFavoritesUserFlowTest {
                     hasAnyDescendant(hasContentDescription(expectedNotificationButtonDescription))
                 )
         }
-
-        Unit
     }
 
-    // "Run Blocking" because of don't need to skip delay with interaction retry
+    // runBlocking, not runTest: the retries below need real delays, not virtual time.
     @Test
-    fun removeOngoingFromAnimeFavorites() = runBlocking {
+    fun removeOngoingFromAnimeFavorites(): Unit = runBlocking {
         // Given
         val rvPosition = 0
 
         // When
         goToOngoingSection()
-
-        // Notification button in "Anime list" must be turned off before click
         checkNotificationButtonIsTurnedOff(rvPosition)
-
-        // Turn on notifications for the first element in "Anime list"
         clickOnNotificationButtonInAnimeList(rvPosition)
-
-        // Notification button in "Anime list" must be turned on after click
         checkNotificationButtonIsTurnedOn(rvPosition)
-
-        // Go to "Anime favorites"
         goToAnimeFavorites()
 
-        // Check that ongoing was added to "Anime favorites":
-        // It is displayed, has "ongoing" status text,
-        // and description for turned on notification button
         val expectedReleaseStatusText = ongoingStatusText()
         val expectedNotificationButtonDescription = notificationButtonTurnOffDescription()
         safeComposeInteraction {
-            composeRule.onAllNodesWithTag("anime_favorites_item")[rvPosition]
+            // useUnmergedTree: hasAnyDescendant can't see Text merged into the clickable root.
+            composeRule.onAllNodesWithTag("anime_favorites_item", useUnmergedTree = true)[rvPosition]
                 .assertIsDisplayed()
                 .assert(hasAnyDescendant(hasText(expectedReleaseStatusText)))
                 .assert(
@@ -178,20 +152,17 @@ class AnimeFavoritesUserFlowTest {
                 )
         }
 
-        // Turn off notifications for the first element in "Anime favorites"
         clickOnNotificationButtonInAnimeFavorites(rvPosition)
 
         // Then
-        // Turning off the test's one favorite empties listItems, which the executor turns into
-        // ContentTypeUi.EMPTY — the screen switches to the empty-state panel rather than leaving
-        // a shorter loaded list, so the removal is confirmed via that panel, not an absent item.
+        // Removing the only favorite empties the list, which switches the screen to EmptyState.
         val expectedEmptyListText = getString(favorites_Res.string.empty_list)
+        // assertIsDisplayed() must be inside the retry lambda: onNodeWithText() alone never
+        // throws, so a bare call outside safeComposeInteraction would never actually retry.
         safeComposeInteraction {
-            composeRule.onNodeWithText(expectedEmptyListText)
-        }.assertIsDisplayed()
+            composeRule.onNodeWithText(expectedEmptyListText).assertIsDisplayed()
+        }
         composeRule.onAllNodesWithTag("anime_favorites_item").assertCountEquals(0)
-
-        Unit
     }
 
     private suspend fun goToOngoingSection() {
@@ -262,8 +233,7 @@ class AnimeFavoritesUserFlowTest {
         }
     }
 
-    // hasText's substring mode is a "contains" check; the original Espresso assertion used
-    // Hamcrest's startsWith(...), which this replicates exactly.
+    // hasText's substring mode is "contains"; this replicates Hamcrest's startsWith exactly.
     private fun hasTextStartingWith(prefix: String): SemanticsMatcher =
         SemanticsMatcher("${SemanticsProperties.Text.name} starts with '$prefix'") { node ->
             node.config.getOrNull(SemanticsProperties.Text)
