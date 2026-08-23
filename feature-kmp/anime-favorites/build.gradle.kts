@@ -64,6 +64,7 @@ kotlin {
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
             implementation(libs.compose.ui)
+            implementation(libs.compose.ui.tooling.preview)
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor3)
 
@@ -94,6 +95,10 @@ dependencies {
     kspTargets.forEach { target ->
         add("ksp$target", libs.kotlin.inject.compiler.ksp)
     }
+
+    // Renders @Preview composables in Android Studio; androidRuntimeClasspath (not
+    // debugImplementation) is what com.android.kotlin.multiplatform.library expects it on.
+    androidRuntimeClasspath(libs.compose.ui.tooling)
 }
 
 // Lint's androidHostTest-related tasks read kspAndroidHostTest's generated sources without

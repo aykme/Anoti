@@ -34,6 +34,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,11 +42,16 @@ import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.loading_in_
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.ContentTypeUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.UiModel
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.InfoTypeUi
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.ListItemUi
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.NotificationUi
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.ReleaseStatusUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_list
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_list_image_description
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.LIST_LAST_ITEM_BOTTOM_PADDING_DP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Grey700
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LoadingSpinner
@@ -70,10 +76,8 @@ fun AnimeFavoritesScreen(
     topInsetDp: Dp = 0.dp,
     dispatch: (AnimeFavoritesMainStore.Intent) -> Unit
 ) {
-    // Mirrors AnimeFavoritesViewImpl.setListItems: the original dispatches this from the
-    // RecyclerView adapter's submitList completion callback regardless of which state is
-    // currently visible — it's the only path that flips contentType LOADING -> LOADED, so it
-    // can't be gated behind the ContentTypeUi.LOADED branch below.
+    // The only path that flips contentType from LOADING to LOADED, so it must run
+    // unconditionally here rather than behind the ContentTypeUi.LOADED branch below.
     LaunchedEffect(uiModel.listItems) {
         if (uiModel.listItems.isNotEmpty()) {
             dispatch(AnimeFavoritesMainStore.Intent.ItemsSubmittedToList)
@@ -105,19 +109,11 @@ private fun LoadingState() {
     }
 }
 
-// Ported 1:1 from anime_favorites_empty_layout.xml: 130x130dp character image (8%-rounded,
-// centerCrop) at the start, an 8dp gap, then a grey_700/10dp-rounded panel filling the rest,
-// its text top-aligned with an 8dp margin on every side (vertical_bias="0" in the original).
-// Text style matches TextAppearance.MaterialComponents.Subtitle2 (14sp, medium weight) —
-// confirmed against the real com.google.android.material 1.14.0 style, not assumed.
 @Suppress("FunctionNaming")
 @Composable
 private fun EmptyState() {
-    // A plain Row(Modifier.height(IntrinsicSize.Min)) here would receive this screen's tight,
-    // full-height constraints and get clamped right back up to full height. Box gives
-    // non-matchParentSize children loose constraints, letting the Row shrink to its own
-    // intrinsic (image) height and sit at the top, matching the original's wrap_content
-    // layout hosted inside a match_parent FrameLayout.
+    // Box is required: without it, Row's tight incoming constraints would stretch it to full
+    // height despite height(IntrinsicSize.Min).
     Box(Modifier.fillMaxSize()) {
         Row(
             modifier = Modifier
@@ -174,7 +170,6 @@ private fun ListState(
             isRefreshing = false
         },
         state = pullToRefreshState,
-        // Matches SwipeRefreshLayout.setColorSchemeResources(cinnabar_500) in the original —
         // PullToRefreshBox's default indicator color is onSurfaceVariant, not the theme's accent.
         indicator = {
             PullToRefreshDefaults.Indicator(
@@ -220,3 +215,66 @@ private fun ListState(
 
 private const val EMPTY_IMAGE_CORNER_PERCENT = 8
 private const val EMPTY_TEXT_SP = 14
+
+private object AnimeFavoritesScreenPreviewDateFormatter : DateFormatter {
+    override fun getFormattedDate(inputText: String, fallbackText: String): String = inputText
+}
+
+private val previewListItem = ListItemUi(
+    id = 1,
+    imageUrl = null,
+    score = "8.42",
+    infoType = InfoTypeUi.MAIN,
+    name = "Sample Anime Title",
+    availableEpisodesInfo = "Episodes: 5 / 12",
+    releaseStatus = ReleaseStatusUi.ONGOING,
+    notification = NotificationUi.ENABLED,
+    extraEpisodesInfo = null,
+    episodesViewed = "5",
+    isNewEpisode = true
+)
+
+@Suppress("FunctionNaming", "UnusedPrivateMember")
+@Preview
+@Composable
+private fun AnimeFavoritesScreenLoadingPreview() {
+    AnotiTheme {
+        AnimeFavoritesScreen(
+            uiModel = UiModel(contentType = ContentTypeUi.LOADING),
+            dateFormatter = AnimeFavoritesScreenPreviewDateFormatter,
+            dispatch = {}
+        )
+    }
+}
+
+@Suppress("FunctionNaming", "UnusedPrivateMember")
+@Preview
+@Composable
+private fun AnimeFavoritesScreenEmptyPreview() {
+    AnotiTheme {
+        AnimeFavoritesScreen(
+            uiModel = UiModel(contentType = ContentTypeUi.EMPTY),
+            dateFormatter = AnimeFavoritesScreenPreviewDateFormatter,
+            dispatch = {}
+        )
+    }
+}
+
+@Suppress("FunctionNaming", "UnusedPrivateMember")
+@Preview
+@Composable
+private fun AnimeFavoritesScreenLoadedPreview() {
+    AnotiTheme {
+        AnimeFavoritesScreen(
+            uiModel = UiModel(
+                contentType = ContentTypeUi.LOADED,
+                listItems = listOf(
+                    previewListItem,
+                    previewListItem.copy(id = 2, name = "Second Sample Title", isNewEpisode = false)
+                )
+            ),
+            dateFormatter = AnimeFavoritesScreenPreviewDateFormatter,
+            dispatch = {}
+        )
+    }
+}

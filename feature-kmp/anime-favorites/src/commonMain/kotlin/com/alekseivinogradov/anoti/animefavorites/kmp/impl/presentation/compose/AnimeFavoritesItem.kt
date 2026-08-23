@@ -1,6 +1,5 @@
-// This row reproduces a ~20-view XML layout; splitting each long Composable body into its own
-// small function (required to satisfy detekt's LongMethod rule) pushes the file over
-// TooManyFunctions' default per-file threshold.
+// All functions here render pieces of a single favorites item; splitting them across files
+// wouldn't make sense.
 @file:Suppress("TooManyFunctions")
 
 package com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.compose
@@ -47,6 +46,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -80,6 +80,7 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.new_ep
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Black
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.BlackTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
@@ -243,7 +244,6 @@ private fun BoxScope.NewEpisodeBadge(amikoBold: FontFamily) {
         textAlign = TextAlign.Center,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-        // Matches AccentTextAppearance's drop shadow (shadowColor black, radius 16, dx/dy 4).
         style = TextStyle(
             shadow = Shadow(
                 color = Black,
@@ -302,21 +302,16 @@ private fun InfoTypeButton(infoType: InfoTypeUi, onClick: () -> Unit) {
     } else {
         stringResource(Res.string.extra_info_off_description)
     }
-    // IconButton's default 48dp minimumInteractiveComponentSize is enforced by inflating the
-    // reported size past whatever the size() modifier below requests, silently ballooning this
-    // 42x34dp button (the original's touch target, matching the ImageButton it replaces) back up
-    // to a 48dp square. The original never had that accessibility floor, so it's disabled here.
+    // IconButton's default 48dp minimumInteractiveComponentSize inflates the reported size past
+    // whatever the size() modifier below requests, silently growing this 42x34dp button to a
+    // 48dp square; disabled here so it keeps its declared size.
     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
         IconButton(
             onClick = onClick,
-            // The original ImageButton paints an opaque black square behind its icon, on top of
-            // this row's semi-transparent overlay.
+            // Sits on top of this row's semi-transparent overlay.
             modifier = Modifier
                 .size(width = 42.dp, height = 34.dp)
                 .background(Black)
-                // The original ImageButton also has android:padding="4dp"; paired with the
-                // Icon's fillMaxSize()+default Fit scaling below, this reproduces its
-                // FIT_CENTER-inscribed icon size.
                 .padding(4.dp)
         ) {
             val infoIcon = if (infoType == InfoTypeUi.MAIN) {
@@ -354,8 +349,7 @@ private fun MainInfoPanel(
                 .fillMaxSize()
                 .padding(2.dp)
                 .background(Grey700, RoundedCornerShape(10.dp))
-                // 2dp (above) + 6dp = 8dp total from the stroke's outer edge, matching the
-                // original's name_text/etc. layout_margin of 8dp from main_info_stroke.
+                // 2dp (above) + 6dp = 8dp total padding from the stroke's outer edge.
                 .padding(6.dp)
         ) {
             if (item.infoType == InfoTypeUi.MAIN) {
@@ -460,7 +454,6 @@ private fun EpisodesViewedRow(
             painter = cmpPainterResource(Res.drawable.ic_arrow_left_32),
             contentDescription = stringResource(Res.string.episodes_viewed_minus_description),
             tint = Cinnabar500,
-            // The original ImageButton paints an opaque black square behind its icon.
             modifier = Modifier
                 .size(34.dp)
                 .background(Black)
@@ -485,7 +478,6 @@ private fun EpisodesViewedRow(
             painter = cmpPainterResource(Res.drawable.ic_arrow_right_32),
             contentDescription = stringResource(Res.string.episodes_viewed_plus_description),
             tint = Cinnabar500,
-            // The original ImageButton paints an opaque black square behind its icon.
             modifier = Modifier
                 .size(34.dp)
                 .background(Black)
@@ -532,10 +524,9 @@ private fun NotificationButton(notification: NotificationUi, onClick: () -> Unit
     }
 }
 
-// Ported 1:1 from AnimeFavoritesViewHolder.getExtraEpisodesInfo() — the raw date string in
-// ListItemUi.extraEpisodesInfo (see StateToUiModelMapper.kt: it's just nextEpisodeAt/airedOn/
-// releasedOn, unformatted) needs release-status-dependent prefix text and real date formatting
-// before display; this logic used to live in the View layer and still does, just in Compose now.
+// ListItemUi.extraEpisodesInfo (see StateToUiModelMapper.kt) is just nextEpisodeAt/airedOn/
+// releasedOn, unformatted — needs a release-status-dependent prefix and real date formatting
+// before display.
 @Composable
 private fun formatExtraEpisodesInfo(
     extraEpisodesInfo: String?,
@@ -600,3 +591,62 @@ private const val POSTER_WIDTH_DP = 130
 private const val ITEM_CONTENT_SPACER_DP = 8
 
 private enum class AnimeFavoritesItemSlot { Poster, Info, InfoMeasure }
+
+private object AnimeFavoritesItemPreviewDateFormatter : DateFormatter {
+    override fun getFormattedDate(inputText: String, fallbackText: String): String = inputText
+}
+
+private val previewItem = ListItemUi(
+    id = 1,
+    imageUrl = null,
+    score = "8.42",
+    infoType = InfoTypeUi.MAIN,
+    name = "Sample Anime Title",
+    availableEpisodesInfo = "Episodes: 5 / 12",
+    releaseStatus = ReleaseStatusUi.ONGOING,
+    notification = NotificationUi.ENABLED,
+    extraEpisodesInfo = null,
+    episodesViewed = "5",
+    isNewEpisode = true
+)
+
+@Suppress("FunctionNaming", "UnusedPrivateMember")
+@Preview
+@Composable
+private fun AnimeFavoritesItemMainInfoPreview() {
+    AnotiTheme {
+        AnimeFavoritesItem(
+            item = previewItem,
+            dateFormatter = AnimeFavoritesItemPreviewDateFormatter,
+            onItemClick = {},
+            onInfoTypeClick = {},
+            onNotificationClick = {},
+            onEpisodesViewedMinusClick = {},
+            onEpisodesViewedPlusClick = {}
+        )
+    }
+}
+
+@Suppress("FunctionNaming", "UnusedPrivateMember")
+@Preview
+@Composable
+private fun AnimeFavoritesItemExtraInfoPreview() {
+    AnotiTheme {
+        AnimeFavoritesItem(
+            item = previewItem.copy(
+                infoType = InfoTypeUi.EXTRA,
+                releaseStatus = ReleaseStatusUi.RELEASED,
+                notification = NotificationUi.DISABLED,
+                extraEpisodesInfo = "2026-01-01",
+                episodesViewed = "10",
+                isNewEpisode = false
+            ),
+            dateFormatter = AnimeFavoritesItemPreviewDateFormatter,
+            onItemClick = {},
+            onInfoTypeClick = {},
+            onNotificationClick = {},
+            onEpisodesViewedMinusClick = {},
+            onEpisodesViewedPlusClick = {}
+        )
+    }
+}
