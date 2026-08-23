@@ -255,7 +255,6 @@ private fun BoxScope.NewEpisodeBadge(amikoBold: FontFamily) {
             .align(Alignment.TopCenter)
             .fillMaxWidth()
             .background(Black.copy(alpha = OVERLAY_ALPHA), RoundedCornerShape(4.dp))
-            .padding(vertical = 2.dp)
     )
 }
 
@@ -380,6 +379,7 @@ private fun MainInfoContent(item: ListItemUi, onNotificationClick: () -> Unit) {
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
+        Spacer(Modifier.height(8.dp))
         Text(
             text = "${stringResource(BaseRes.string.episodes)}: ${item.availableEpisodesInfo}",
             color = White,
@@ -436,6 +436,7 @@ private fun ExtraInfoContent(
             textAlign = TextAlign.Start,
             modifier = Modifier.fillMaxWidth()
         )
+        Spacer(Modifier.height(3.dp))
         EpisodesViewedRow(
             episodesViewed = item.episodesViewed,
             onMinusClick = onEpisodesViewedMinusClick,
