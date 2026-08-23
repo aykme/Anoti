@@ -287,10 +287,13 @@ private fun BoxScope.ScoreInfoBar(
             color = White,
             fontSize = SUBTITLE1_SP.sp,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f, fill = false)
+            overflow = TextOverflow.Ellipsis
         )
-        InfoTypeButton(infoType = infoType, onClick = onInfoTypeClick)
+        // Centers the button in the space left after the score, rather than pinning it to
+        // either side.
+        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+            InfoTypeButton(infoType = infoType, onClick = onInfoTypeClick)
+        }
     }
 }
 
