@@ -6,6 +6,7 @@ import android.os.Looper
 import android.view.MotionEvent
 import android.view.View
 
+// Delete once the app is fully migrated to Compose; superseded by repeatingClickable.
 class RepeatListener(
     private val initialInterval: Long,
     private val repeatInterval: Long,

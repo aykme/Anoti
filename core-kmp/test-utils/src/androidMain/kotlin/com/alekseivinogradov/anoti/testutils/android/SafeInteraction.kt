@@ -14,6 +14,7 @@ import kotlin.time.Duration.Companion.milliseconds
  */
 // The exhausted-retries failure wraps whatever interactionCall() last threw (AssertionError from
 // Espresso .check(), or a RuntimeException subtype from .perform()) — no narrower type fits both.
+// Delete once the app is fully migrated to Compose; superseded by safeComposeInteraction.
 @Suppress("TooGenericExceptionThrown")
 suspend fun safeInteraction(
     maxAttempt: Int = 60,
