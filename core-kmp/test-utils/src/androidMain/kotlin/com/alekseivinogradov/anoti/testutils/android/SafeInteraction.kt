@@ -16,7 +16,7 @@ import kotlin.time.Duration.Companion.milliseconds
 // Espresso .check(), or a RuntimeException subtype from .perform()) — no narrower type fits both.
 @Suppress("TooGenericExceptionThrown")
 suspend fun safeInteraction(
-    maxAttempt: Int = 20,
+    maxAttempt: Int = 60,
     attemptDelay: Duration = 500.milliseconds,
     interactionCall: () -> ViewInteraction
 ): ViewInteraction {

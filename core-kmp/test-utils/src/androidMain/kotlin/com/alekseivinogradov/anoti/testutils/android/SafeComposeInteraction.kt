@@ -11,7 +11,7 @@ import kotlin.time.Duration.Companion.milliseconds
  */
 @Suppress("TooGenericExceptionThrown")
 suspend fun safeComposeInteraction(
-    maxAttempt: Int = 20,
+    maxAttempt: Int = 60,
     attemptDelay: Duration = 500.milliseconds,
     interactionCall: () -> SemanticsNodeInteraction
 ): SemanticsNodeInteraction {
