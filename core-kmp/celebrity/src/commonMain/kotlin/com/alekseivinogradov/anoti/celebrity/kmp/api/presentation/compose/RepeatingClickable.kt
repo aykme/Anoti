@@ -14,26 +14,17 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.input.pointer.pointerInput
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * Fires [onClick] immediately on press, then again every [repeatDelayMillis] after an initial
- * [initialDelayMillis] wait, for as long as the pointer stays down — the touch-and-hold-to-repeat
- * behavior [RepeatListener][com.alekseivinogradov.anoti.celebrity.android.impl.presentation.repeatlistener.RepeatListener]
- * provides for classic Views.
+ * Repeats [onClick] while held down. Fires once immediately, then again every
+ * [repeatDelayMillis] after [initialDelayMillis].
  *
- * The gesture and the repeat timing are split into two independent coroutines: a `pointerInput`
- * gesture only reports press/release into [interactionSource], while a [LaunchedEffect] collects
- * that interaction stream and drives the repeat loop — `AwaitPointerEventScope`, the gesture
- * block's receiver, restricts suspension to itself, so it cannot `launch` a concurrent timer
- * alongside the up-event wait the way a plain coroutine scope could.
- *
- * @param interactionSource receives the press/release [PressInteraction] emitted by the gesture,
- * e.g. for driving a ripple or other visual press feedback.
- * @param enabled when `false`, the gesture and repeat loop are never attached.
- * @param initialDelayMillis how long to wait after the first, immediate [onClick] before
- * repeating starts.
- * @param repeatDelayMillis the delay between each repeated [onClick] once repeating has started.
- * @param onClick invoked once on press, then again on each repeat.
+ * @param interactionSource receives press/release for visual feedback (e.g. a ripple).
+ * @param enabled when `false`, disables the gesture entirely.
+ * @param initialDelayMillis delay before repeating starts.
+ * @param repeatDelayMillis delay between each repeat.
+ * @param onClick invoked on press and on each repeat.
  */
 fun Modifier.repeatingClickable(
     interactionSource: MutableInteractionSource,
@@ -48,13 +39,15 @@ fun Modifier.repeatingClickable(
 
     val currentOnClick by rememberUpdatedState(onClick)
 
+    // Repeat timing runs in its own coroutine: the gesture below can't also run a timer while
+    // waiting for the pointer to go up.
     LaunchedEffect(interactionSource) {
         interactionSource.interactions.collectLatest { interaction: Interaction ->
             if (interaction is PressInteraction.Press) {
                 currentOnClick()
-                delay(initialDelayMillis)
+                delay(initialDelayMillis.milliseconds)
                 while (true) {
-                    delay(repeatDelayMillis)
+                    delay(repeatDelayMillis.milliseconds)
                     currentOnClick()
                 }
             }
