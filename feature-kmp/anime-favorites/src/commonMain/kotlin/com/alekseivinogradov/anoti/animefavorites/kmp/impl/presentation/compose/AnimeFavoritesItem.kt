@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -154,6 +155,15 @@ fun AnimeFavoritesItem(
             onEpisodesViewedPlusClick = onEpisodesViewedPlusClick
         )
     }
+    // The InfoMeasure slot below composes this same content a second time solely to learn its
+    // natural height before the real Info slot is measured; clearAndSetSemantics keeps that
+    // never-placed copy (and its interactive children, e.g. the notification button) out of the
+    // semantics tree so accessibility services and UI tests only ever see one live item.
+    val infoMeasureContent: @Composable () -> Unit = {
+        Box(Modifier.clearAndSetSemantics {}) {
+            infoContent()
+        }
+    }
 
     // Row(Modifier.height(IntrinsicSize.Min)) can't be used here: it queries every child's
     // intrinsic height, and PosterColumn contains a SubcomposeAsyncImage (SubcomposeLayout),
@@ -172,7 +182,7 @@ fun AnimeFavoritesItem(
         val infoWidthPx = (constraints.maxWidth - posterWidthPx - spacerPx).coerceAtLeast(0)
         val infoWidthConstraints = Constraints(minWidth = infoWidthPx, maxWidth = infoWidthPx)
 
-        val infoNaturalHeight = subcompose(AnimeFavoritesItemSlot.InfoMeasure, infoContent)
+        val infoNaturalHeight = subcompose(AnimeFavoritesItemSlot.InfoMeasure, infoMeasureContent)
             .maxOf { it.measure(infoWidthConstraints).height }
         val rowHeight = maxOf(minHeightPx, infoNaturalHeight)
 
