@@ -17,7 +17,7 @@ and per-item notification toggles.
   `DiAnimeFavoritesComponent` (a `FeatureScope` kotlin-inject `@Component`, taking
   `DiAnimeFavoritesDependencies` as its constructor parent). `AnimeFavoritesFragment` doesn't
   build that component itself; it reads its dependencies off `NavAnimeFavoritesScreenComponent`
-  (`androidMain`), which wraps a Decompose `ComponentContext` around an already-built
+  (`commonMain`), which wraps a Decompose `ComponentContext` around an already-built
   `DiAnimeFavoritesComponent`. The Activity hosting the fragment must implement
   `NavAnimeFavoritesScreenComponentHolder` (`androidMain`), exposing the currently active
   `NavAnimeFavoritesScreenComponent`. `AnimeFavoritesView` has no DI wiring; the `androidMain`

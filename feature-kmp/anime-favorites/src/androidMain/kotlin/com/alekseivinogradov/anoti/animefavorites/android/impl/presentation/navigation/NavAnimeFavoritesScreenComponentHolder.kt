@@ -1,5 +1,7 @@
 package com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.navigation
 
+import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation.NavAnimeFavoritesScreenComponent
+
 /**
  * Exposes the currently active [NavAnimeFavoritesScreenComponent] to callers that only hold an
  * `Activity` reference. Implemented by the Activity hosting

@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.navigation
+package com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation
 
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
@@ -13,7 +13,7 @@ import com.arkivanov.essenty.lifecycle.doOnDestroy
  * lifecycle (inherited from [componentContext]) is alive — created once when
  * `NavRootConfig.AnimeFavorites` becomes the active root config, disposed when
  * `NavRootComponent.navigateTo()` replaces it.
- * [com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.AnimeFavoritesFragment]
+ * com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.AnimeFavoritesFragment
  * reads its dependencies from
  * an already-built instance of this class instead of creating its own `FeatureScope` graph.
  */

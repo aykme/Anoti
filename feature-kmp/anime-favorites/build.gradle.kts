@@ -58,6 +58,7 @@ kotlin {
             implementation(libs.mvikotlin)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.essenty.lifecycle)
+            implementation(libs.decompose)
             implementation(libs.compose.runtime)
             implementation(libs.compose.components.resources)
             implementation(libs.compose.foundation)
@@ -84,7 +85,6 @@ kotlin {
             implementation(project(":core-kmp:celebrity"))
             implementation(project(":feature-kmp:anime-base"))
             implementation(project(":feature-kmp:anime-background-update"))
-            implementation(libs.decompose)
         }
     }
 }
