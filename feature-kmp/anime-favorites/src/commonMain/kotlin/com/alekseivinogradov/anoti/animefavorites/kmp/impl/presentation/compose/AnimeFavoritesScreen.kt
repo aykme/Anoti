@@ -30,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -47,7 +46,10 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_list_image_description
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.LIST_LAST_ITEM_BOTTOM_PADDING_DP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Grey700
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LoadingSpinner
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.main_character_image
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -137,11 +139,11 @@ private fun EmptyState() {
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .background(EmptyPanelGrey, RoundedCornerShape(10.dp))
+                    .background(Grey700, RoundedCornerShape(10.dp))
             ) {
                 Text(
                     text = stringResource(Res.string.empty_list),
-                    color = Color.White,
+                    color = White,
                     fontSize = EMPTY_TEXT_SP.sp,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Start,
@@ -179,7 +181,7 @@ private fun ListState(
                 modifier = Modifier.align(Alignment.TopCenter),
                 isRefreshing = isRefreshing,
                 state = pullToRefreshState,
-                color = SwipeRefreshIndicatorColor
+                color = Cinnabar500
             )
         },
         modifier = Modifier.fillMaxSize()
@@ -215,15 +217,6 @@ private fun ListState(
         }
     }
 }
-
-// Colors ported 1:1 from core-kmp/celebrity's colors.xml (grey_700) — not an arbitrary magic
-// number.
-@Suppress("MagicNumber")
-private val EmptyPanelGrey = Color(0xFF222222)
-
-// Ported 1:1 from colors.xml's cinnabar_500 — not an arbitrary magic number.
-@Suppress("MagicNumber")
-private val SwipeRefreshIndicatorColor = Color(0xFFE84B3D)
 
 private const val EMPTY_IMAGE_CORNER_PERCENT = 8
 private const val EMPTY_TEXT_SP = 14

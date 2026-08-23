@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 
 /**
  * Base [Fragment] for a screen whose UI is written in Compose.

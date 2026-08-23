@@ -80,7 +80,15 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.new_ep
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Black
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.BlackTransparent
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Green
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Grey700
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LoadingSpinner
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Purple200
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Silver
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.repeatingClickable
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.amiko_bold
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_notifications_off_40
@@ -93,31 +101,6 @@ import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as Base
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as CelebrityRes
 import org.jetbrains.compose.resources.Font as CmpFont
 import org.jetbrains.compose.resources.painterResource as cmpPainterResource
-
-// Colors ported 1:1 from core-kmp/celebrity's colors.xml — not arbitrary magic numbers.
-@Suppress("MagicNumber")
-private val ItemBlack = Color(0xFF000000)
-
-@Suppress("MagicNumber")
-private val ItemWhite = Color(0xFFFFFFFF)
-
-@Suppress("MagicNumber")
-private val ItemCinnabarRed = Color(0xFFE84B3D)
-
-@Suppress("MagicNumber")
-private val ItemGreen = Color(0xFF81F343)
-
-@Suppress("MagicNumber")
-private val ItemDarkGray = Color(0xFF222222)
-
-@Suppress("MagicNumber")
-private val ItemSilver = Color(0xFFC0C0C0)
-
-@Suppress("MagicNumber")
-private val ItemPurple = Color(0xFFBB86FC)
-
-@Suppress("MagicNumber")
-private val ItemBlackTransparent = Color(0xD5000000)
 
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.
@@ -132,7 +115,7 @@ fun AnimeFavoritesItem(
     onEpisodesViewedMinusClick: () -> Unit,
     onEpisodesViewedPlusClick: () -> Unit
 ) {
-    val strokeColor = if (item.isNewEpisode) ItemSilver else ItemDarkGray
+    val strokeColor = if (item.isNewEpisode) Silver else Grey700
     val amikoBold = FontFamily(CmpFont(CelebrityRes.font.amiko_bold, FontWeight.Bold))
 
     val posterContent: @Composable () -> Unit = {
@@ -253,7 +236,7 @@ private fun PosterImage(imageUrl: String?) {
 private fun BoxScope.NewEpisodeBadge(amikoBold: FontFamily) {
     Text(
         text = stringResource(Res.string.new_episode),
-        color = ItemSilver,
+        color = Silver,
         fontFamily = amikoBold,
         fontWeight = FontWeight.Bold,
         fontSize = NEW_EPISODE_BADGE_SP.sp,
@@ -263,7 +246,7 @@ private fun BoxScope.NewEpisodeBadge(amikoBold: FontFamily) {
         // Matches AccentTextAppearance's drop shadow (shadowColor black, radius 16, dx/dy 4).
         style = TextStyle(
             shadow = Shadow(
-                color = ItemBlack,
+                color = Black,
                 offset = Offset(x = NEW_EPISODE_SHADOW_OFFSET, y = NEW_EPISODE_SHADOW_OFFSET),
                 blurRadius = NEW_EPISODE_SHADOW_RADIUS
             )
@@ -271,7 +254,7 @@ private fun BoxScope.NewEpisodeBadge(amikoBold: FontFamily) {
         modifier = Modifier
             .align(Alignment.TopCenter)
             .fillMaxWidth()
-            .background(ItemBlack.copy(alpha = OVERLAY_ALPHA), RoundedCornerShape(4.dp))
+            .background(Black.copy(alpha = OVERLAY_ALPHA), RoundedCornerShape(4.dp))
             .padding(vertical = 2.dp)
     )
 }
@@ -289,19 +272,19 @@ private fun BoxScope.ScoreInfoBar(
             .align(Alignment.BottomCenter)
             .fillMaxWidth()
             .height(50.dp)
-            .background(ItemBlack.copy(alpha = OVERLAY_ALPHA), RoundedCornerShape(4.dp))
+            .background(Black.copy(alpha = OVERLAY_ALPHA), RoundedCornerShape(4.dp))
     ) {
         Icon(
             painter = cmpPainterResource(CelebrityRes.drawable.ic_score_42),
             contentDescription = stringResource(BaseRes.string.score_image_description),
-            tint = ItemCinnabarRed,
+            tint = Cinnabar500,
             modifier = Modifier
                 .size(32.dp)
                 .alpha(SCORE_ICON_ALPHA)
         )
         Text(
             text = score,
-            color = ItemWhite,
+            color = White,
             fontSize = SUBTITLE1_SP.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -330,7 +313,7 @@ private fun InfoTypeButton(infoType: InfoTypeUi, onClick: () -> Unit) {
             // this row's semi-transparent overlay.
             modifier = Modifier
                 .size(width = 42.dp, height = 34.dp)
-                .background(ItemBlack)
+                .background(Black)
                 // The original ImageButton also has android:padding="4dp"; paired with the
                 // Icon's fillMaxSize()+default Fit scaling below, this reproduces its
                 // FIT_CENTER-inscribed icon size.
@@ -344,7 +327,7 @@ private fun InfoTypeButton(infoType: InfoTypeUi, onClick: () -> Unit) {
             Icon(
                 painter = cmpPainterResource(infoIcon),
                 contentDescription = infoTypeDescription,
-                tint = ItemCinnabarRed,
+                tint = Cinnabar500,
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -370,7 +353,7 @@ private fun MainInfoPanel(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(2.dp)
-                .background(ItemDarkGray, RoundedCornerShape(10.dp))
+                .background(Grey700, RoundedCornerShape(10.dp))
                 // 2dp (above) + 6dp = 8dp total from the stroke's outer edge, matching the
                 // original's name_text/etc. layout_margin of 8dp from main_info_stroke.
                 .padding(6.dp)
@@ -395,14 +378,14 @@ private fun MainInfoContent(item: ListItemUi, onNotificationClick: () -> Unit) {
     Column(Modifier.fillMaxSize()) {
         Text(
             text = item.name,
-            color = ItemWhite,
+            color = White,
             fontSize = SUBTITLE1_SP.sp,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
         Text(
             text = "${stringResource(BaseRes.string.episodes)}: ${item.availableEpisodesInfo}",
-            color = ItemWhite,
+            color = White,
             fontSize = SUBTITLE1_SP.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -441,7 +424,7 @@ private fun ExtraInfoContent(
                 releaseStatus = item.releaseStatus,
                 dateFormatter = dateFormatter
             ),
-            color = ItemWhite,
+            color = White,
             fontSize = SUBTITLE1_SP.sp,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
@@ -449,7 +432,7 @@ private fun ExtraInfoContent(
         Spacer(Modifier.weight(1f))
         Text(
             text = "${stringResource(Res.string.episodes_viewed)}:",
-            color = ItemWhite,
+            color = White,
             fontSize = SUBTITLE1_SP.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -476,11 +459,11 @@ private fun EpisodesViewedRow(
         Icon(
             painter = cmpPainterResource(Res.drawable.ic_arrow_left_32),
             contentDescription = stringResource(Res.string.episodes_viewed_minus_description),
-            tint = ItemCinnabarRed,
+            tint = Cinnabar500,
             // The original ImageButton paints an opaque black square behind its icon.
             modifier = Modifier
                 .size(34.dp)
-                .background(ItemBlack)
+                .background(Black)
                 .repeatingClickable(
                     interactionSource = minusInteractionSource,
                     initialDelayMillis = REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS,
@@ -491,7 +474,7 @@ private fun EpisodesViewedRow(
         Spacer(Modifier.width(8.dp))
         Text(
             text = episodesViewed,
-            color = ItemWhite,
+            color = White,
             fontSize = SUBTITLE1_SP.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -501,11 +484,11 @@ private fun EpisodesViewedRow(
         Icon(
             painter = cmpPainterResource(Res.drawable.ic_arrow_right_32),
             contentDescription = stringResource(Res.string.episodes_viewed_plus_description),
-            tint = ItemCinnabarRed,
+            tint = Cinnabar500,
             // The original ImageButton paints an opaque black square behind its icon.
             modifier = Modifier
                 .size(34.dp)
-                .background(ItemBlack)
+                .background(Black)
                 .repeatingClickable(
                     interactionSource = plusInteractionSource,
                     initialDelayMillis = REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS,
@@ -522,13 +505,13 @@ private fun NotificationButton(notification: NotificationUi, onClick: () -> Unit
     val (icon, backgroundColor, description) = if (notification == NotificationUi.ENABLED) {
         Triple(
             CelebrityRes.drawable.ic_notifications_on_40,
-            ItemGreen,
+            Green,
             stringResource(BaseRes.string.notifications_turn_off_description)
         )
     } else {
         Triple(
             CelebrityRes.drawable.ic_notifications_off_40,
-            ItemCinnabarRed,
+            Cinnabar500,
             stringResource(BaseRes.string.notifications_turn_on_description)
         )
     }
@@ -543,7 +526,7 @@ private fun NotificationButton(notification: NotificationUi, onClick: () -> Unit
         Icon(
             painter = cmpPainterResource(icon),
             contentDescription = description,
-            tint = ItemBlackTransparent,
+            tint = BlackTransparent,
             modifier = Modifier.size(NOTIFICATION_ICON_SIZE.dp)
         )
     }
@@ -596,10 +579,10 @@ private fun releaseStatusText(status: ReleaseStatusUi): String =
 
 private fun releaseStatusColor(status: ReleaseStatusUi): Color =
     when (status) {
-        ReleaseStatusUi.ONGOING -> ItemGreen
-        ReleaseStatusUi.ANNOUNCED -> ItemPurple
-        ReleaseStatusUi.RELEASED -> ItemCinnabarRed
-        ReleaseStatusUi.UNKNOWN -> ItemWhite
+        ReleaseStatusUi.ONGOING -> Green
+        ReleaseStatusUi.ANNOUNCED -> Purple200
+        ReleaseStatusUi.RELEASED -> Cinnabar500
+        ReleaseStatusUi.UNKNOWN -> White
     }
 
 private const val ROUNDED_IMAGE_CORNER_PERCENT = 8

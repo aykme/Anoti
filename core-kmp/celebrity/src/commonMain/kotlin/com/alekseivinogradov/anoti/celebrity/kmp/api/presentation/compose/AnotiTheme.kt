@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.celebrity.android.impl.presentation.compose
+package com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,37 +7,16 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-
-// Design-system color values, not arbitrary magic numbers.
-@Suppress("MagicNumber")
-private val AnotiBlack = Color(0xFF000000)
-
-// Design-system color values, not arbitrary magic numbers.
-@Suppress("MagicNumber")
-private val AnotiCoralRed = Color(0xFFE84B3D)
-
-// Design-system color values, not arbitrary magic numbers.
-@Suppress("MagicNumber")
-private val AnotiDarkGray = Color(0xFF222222)
-
-// Design-system color values, not arbitrary magic numbers.
-@Suppress("MagicNumber")
-private val AnotiWhiteAlpha = Color(0xD5FFFFFF)
-
-// Design-system color values, not arbitrary magic numbers.
-@Suppress("MagicNumber")
-private val AnotiWhite = Color(0xFFFFFFFF)
 
 private val DarkColorScheme = darkColorScheme(
-    background = AnotiBlack,
-    surface = AnotiBlack,
-    primary = AnotiCoralRed,
-    surfaceVariant = AnotiDarkGray,
-    onSurfaceVariant = AnotiWhiteAlpha,
-    onPrimary = AnotiWhite,
-    onBackground = AnotiWhite,
-    onSurface = AnotiWhite
+    background = Black,
+    surface = Black,
+    primary = Cinnabar500,
+    surfaceVariant = Grey700,
+    onSurfaceVariant = WhiteTransparent,
+    onPrimary = White,
+    onBackground = White,
+    onSurface = White
 )
 
 // Anoti has no real light theme yet — LightColorScheme aliases DarkColorScheme so the switch in
