@@ -128,7 +128,7 @@ private fun TabsRow(
             .padding(top = 8.dp)
     ) {
         // No filter feature exists yet — this reserves the layout space without a control.
-        Spacer(Modifier.size(FILTER_BUTTON_SIZE_DP.dp).padding(start = 8.dp))
+        Spacer(Modifier.padding(start = 8.dp).size(FILTER_BUTTON_SIZE_DP.dp))
 
         Text(
             text = stringResource(Res.string.on_air),

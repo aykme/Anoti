@@ -61,6 +61,7 @@ fun AnimeListScreen(
             ContentTypeUi.LOADED -> ListState(
                 uiModel = uiModel,
                 dateFormatter = dateFormatter,
+                topInsetDp = topInsetDp,
                 dispatch = dispatch
             )
         }
@@ -106,6 +107,7 @@ private fun ErrorState() {
 private fun ListState(
     uiModel: UiModel,
     dateFormatter: DateFormatter,
+    topInsetDp: Dp,
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
     val pullToRefreshState = rememberPullToRefreshState()
@@ -127,7 +129,10 @@ private fun ListState(
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = LIST_LAST_ITEM_BOTTOM_PADDING_DP.dp)
+            contentPadding = PaddingValues(
+                top = topInsetDp,
+                bottom = LIST_LAST_ITEM_BOTTOM_PADDING_DP.dp
+            )
         ) {
             items(uiModel.listContent.listItems, key = { it.id }) { item ->
                 AnimeListItem(
