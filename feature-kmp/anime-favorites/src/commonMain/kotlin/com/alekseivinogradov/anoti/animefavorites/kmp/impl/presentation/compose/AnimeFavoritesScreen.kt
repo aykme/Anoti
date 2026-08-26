@@ -18,8 +18,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,6 +46,7 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_list
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_list_image_description
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.LIST_LAST_ITEM_BOTTOM_PADDING_DP
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.PULL_TO_REFRESH_THRESHOLD
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
@@ -165,23 +166,18 @@ private fun ListState(
 ) {
     val pullToRefreshState = rememberPullToRefreshState()
 
-    PullToRefreshBox(
-        // There's no signal for when UpdateSection's background refresh actually completes, so
-        // this can't be flipped to true: the pull still triggers a refresh, it just can't show
-        // a spinner for it.
-        isRefreshing = false,
-        onRefresh = { dispatch(AnimeFavoritesMainStore.Intent.UpdateSection) },
-        state = pullToRefreshState,
-        // PullToRefreshBox's default indicator color is onSurfaceVariant, not the theme's accent.
-        indicator = {
-            PullToRefreshDefaults.Indicator(
-                modifier = Modifier.align(Alignment.TopCenter),
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pullToRefresh(
+                // There's no signal for when UpdateSection's background refresh actually
+                // completes, so this can't be flipped to true: the pull still triggers a
+                // refresh, it just can't show a spinner for it.
                 isRefreshing = false,
                 state = pullToRefreshState,
-                color = Cinnabar500
+                threshold = PULL_TO_REFRESH_THRESHOLD,
+                onRefresh = { dispatch(AnimeFavoritesMainStore.Intent.UpdateSection) }
             )
-        },
-        modifier = Modifier.fillMaxSize()
     ) {
         LazyColumn(
             modifier = Modifier
@@ -212,6 +208,17 @@ private fun ListState(
                 )
             }
         }
+        // Drawn last so the indicator sits above the list content, top-center aligned.
+        PullToRefreshDefaults.Indicator(
+            modifier = Modifier.align(Alignment.TopCenter),
+            isRefreshing = false,
+            state = pullToRefreshState,
+            color = Cinnabar500,
+            containerColor = White,
+            // maxDistance is independent of pullToRefresh's threshold above and defaults to 80dp —
+            // without setting it, the release point moves but the indicator's travel doesn't.
+            maxDistance = PULL_TO_REFRESH_THRESHOLD
+        )
     }
 }
 

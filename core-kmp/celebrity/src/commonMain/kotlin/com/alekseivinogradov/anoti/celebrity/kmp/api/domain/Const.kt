@@ -1,5 +1,7 @@
 package com.alekseivinogradov.anoti.celebrity.kmp.api.domain
 
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -10,6 +12,11 @@ const val PAGING_PREFETCH_DISTANCE = 10
 val SEARCH_DEBOUNCE_MILLISECONDS: Duration = 500L.milliseconds
 const val SWIPE_REFRESH_START_OFFSET = 45
 const val SWIPE_REFRESH_END_OFFSET = 245
+
+// Approximation, not a derived value — retune here if any screen's pull-to-refresh gesture
+// visibly drifts from another's.
+val PULL_TO_REFRESH_THRESHOLD: Dp = 114.dp
+
 const val REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS = 500L
 const val REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS = 200L
 val ANIMATION_DURATION_VERY_SHORT = 250L.milliseconds
