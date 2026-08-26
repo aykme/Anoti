@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -84,6 +85,7 @@ fun AnimeListItem(
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
             .padding(8.dp)
+            .testTag("anime_list_item")
     ) {
         AsyncImage(
             model = item.imageUrl,
@@ -291,6 +293,7 @@ private fun BoxScope.BottomRow(item: ListItemUi, onNotificationClick: () -> Unit
                     .padding(end = 16.dp, bottom = 16.dp)
                     .size(NOTIFICATION_FAB_SIZE_DP.dp)
                     .alpha(SCORE_NOTIFICATION_ALPHA)
+                    .testTag("notification_button")
             ) {
                 Icon(
                     painter = painterResource(notificationIcon),

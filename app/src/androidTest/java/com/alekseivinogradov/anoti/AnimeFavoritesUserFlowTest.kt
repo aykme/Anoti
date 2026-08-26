@@ -17,15 +17,11 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onChildren
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition
-import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
-import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
@@ -38,11 +34,8 @@ import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.score_image
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.Res as favorites_Res
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_list
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.extra_info_on_description
-import com.alekseivinogradov.anoti.animelist.kmp.R as anime_list_R
 import com.alekseivinogradov.anoti.main.R as main_R
 import com.alekseivinogradov.anoti.main.impl.presentation.MainActivity
-import com.alekseivinogradov.anoti.testutils.android.action.clickOnChildView
-import com.alekseivinogradov.anoti.testutils.android.matcher.AtRecyclerPositionMatcher
 import com.alekseivinogradov.anoti.testutils.android.safeComposeInteraction
 import com.alekseivinogradov.anoti.testutils.android.safeInteraction
 import kotlinx.coroutines.runBlocking
@@ -166,56 +159,36 @@ class AnimeFavoritesUserFlowTest {
     }
 
     private suspend fun goToOngoingSection() {
-        safeInteraction {
-            onView(withId(anime_list_R.id.ongoing_button))
-                .perform(click())
-        }
+        safeComposeInteraction {
+            composeRule.onNodeWithTag("ongoing_button")
+        }.performClick()
     }
 
     private suspend fun checkNotificationButtonIsTurnedOff(rvPosition: Int) {
         val expectedDescription = notificationButtonTurnOnDescription()
-        safeInteraction {
-            onView(withId(anime_list_R.id.anime_list_rv))
-                .check(
-                    matches(
-                        AtRecyclerPositionMatcher(
-                            position = rvPosition,
-                            viewMather = hasDescendant(
-                                withContentDescription(expectedDescription)
-                            )
-                        )
-                    )
-                )
+        safeComposeInteraction {
+            composeRule.onAllNodesWithTag("anime_list_item", useUnmergedTree = true)[rvPosition]
+                .assertIsDisplayed()
+                .assert(hasAnyDescendant(hasContentDescription(expectedDescription)))
         }
     }
 
     private suspend fun checkNotificationButtonIsTurnedOn(rvPosition: Int) {
         val expectedDescription = notificationButtonTurnOffDescription()
-        safeInteraction {
-            onView(withId(anime_list_R.id.anime_list_rv))
-                .check(
-                    matches(
-                        AtRecyclerPositionMatcher(
-                            position = rvPosition,
-                            viewMather = hasDescendant(
-                                withContentDescription(expectedDescription)
-                            )
-                        )
-                    )
-                )
+        safeComposeInteraction {
+            composeRule.onAllNodesWithTag("anime_list_item", useUnmergedTree = true)[rvPosition]
+                .assertIsDisplayed()
+                .assert(hasAnyDescendant(hasContentDescription(expectedDescription)))
         }
     }
 
     private suspend fun clickOnNotificationButtonInAnimeList(rvPosition: Int) {
-        safeInteraction {
-            onView(withId(anime_list_R.id.anime_list_rv))
-                .perform(
-                    actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                        /* position = */ rvPosition,
-                        /* viewAction = */ clickOnChildView(anime_list_R.id.notification_button)
-                    )
-                )
-        }
+        safeComposeInteraction {
+            composeRule
+                .onAllNodesWithTag("anime_list_item", useUnmergedTree = true)[rvPosition]
+                .onChildren()
+                .filterToOne(hasTestTag("notification_button"))
+        }.performClick()
     }
 
     private suspend fun clickOnNotificationButtonInAnimeFavorites(rvPosition: Int) {
