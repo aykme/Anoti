@@ -30,9 +30,17 @@ Read this before doing any task in this repository.
   ("this used to be X", "doesn't exist in this repo yet", "tracked here so it isn't
   forgotten"). That belongs in the commit message or PR description, not in the code, and it
   rots the moment it's no longer true.
-- Keep comments short and only where the WHY is genuinely non-obvious (a hidden constraint, a
-  race being guarded against, a workaround). Prefer a one-line comment right next to the
-  non-obvious part over a paragraph above the whole class explaining it.
+- Never compare the current code to a previous/removed implementation, even indirectly ("X used
+  to draw this as...", "unlike the old View-based version..."). Describe only what the code in
+  front of the reader does and why, as if no earlier version ever existed.
+- Inline comments (not class/interface-level KDoc) are only for code that genuinely isn't
+  self-evident from reading it — a hidden constraint, a race being guarded against, a
+  workaround, a non-obvious magic value. If the code is clear on its own, add no comment at all.
+- When a comment is warranted, keep it to the shortest phrase that states what and why — one
+  line next to the non-obvious part, not a paragraph. Don't restate what the code already says,
+  don't explore alternatives, don't explain the implementation step by step.
+- The same brevity applies to KDoc on classes/interfaces/functions: a short "what this is and
+  why it exists," not a walkthrough of how it's implemented.
 
 ## Git commits
 
