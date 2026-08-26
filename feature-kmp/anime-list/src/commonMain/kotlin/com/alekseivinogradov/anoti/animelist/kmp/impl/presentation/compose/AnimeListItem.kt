@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
@@ -55,7 +55,9 @@ import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_info_28
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_info_outline_28
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.poster_image_description
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Black
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.BlackTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Green
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Purple200
@@ -101,24 +103,23 @@ fun AnimeListItem(
                 .clip(RoundedCornerShape(percent = POSTER_CORNER_PERCENT))
         )
 
-        NameAndEpisodesInfo(
+        NameEpisodesAndBottomRow(
             item = item,
             dateFormatter = dateFormatter,
-            onEpisodesInfoClick = onEpisodesInfoClick
+            onEpisodesInfoClick = onEpisodesInfoClick,
+            onNotificationClick = onNotificationClick
         )
-
-        BottomRow(item = item, onNotificationClick = onNotificationClick)
     }
 }
 
 @Suppress("FunctionNaming")
 @Composable
-private fun BoxScope.NameAndEpisodesInfo(
+private fun BoxScope.NameEpisodesAndBottomRow(
     item: ListItemUi,
     dateFormatter: DateFormatter,
-    onEpisodesInfoClick: () -> Unit
+    onEpisodesInfoClick: () -> Unit,
+    onNotificationClick: () -> Unit
 ) {
-    // Background covers only the name + episodes-info area, not the score/status row below it.
     Box(
         modifier = Modifier
             .align(Alignment.BottomStart)
@@ -126,26 +127,26 @@ private fun BoxScope.NameAndEpisodesInfo(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize()
+                .matchParentSize()
                 .alpha(INFO_BACKGROUND_ALPHA)
                 .background(Black, RoundedCornerShape(4.dp))
         )
-        Column(
-            modifier = Modifier
-                .padding(start = 11.dp, end = 11.dp, top = 8.dp)
-        ) {
-            Text(
-                text = item.name,
-                color = White,
-                fontSize = HEADLINE6_SP.sp,
-                maxLines = 5,
-                overflow = TextOverflow.Ellipsis
-            )
-            EpisodesInfoRow(
-                item = item,
-                dateFormatter = dateFormatter,
-                onEpisodesInfoClick = onEpisodesInfoClick
-            )
+        Column {
+            Column(modifier = Modifier.padding(start = 11.dp, end = 11.dp, top = 8.dp)) {
+                Text(
+                    text = item.name,
+                    color = White,
+                    fontSize = HEADLINE6_SP.sp,
+                    maxLines = 5,
+                    overflow = TextOverflow.Ellipsis
+                )
+                EpisodesInfoRow(
+                    item = item,
+                    dateFormatter = dateFormatter,
+                    onEpisodesInfoClick = onEpisodesInfoClick
+                )
+            }
+            BottomRow(item = item, onNotificationClick = onNotificationClick)
         }
     }
 }
@@ -179,20 +180,22 @@ private fun EpisodesInfoRow(
                 modifier = Modifier.weight(1f, fill = false).padding(vertical = 8.dp)
             )
             Spacer(Modifier.width(3.dp))
-            FloatingActionButton(
-                onClick = onEpisodesInfoClick,
-                containerColor = Black,
-                contentColor = Cinnabar500,
-                shape = CircleShape,
-                modifier = Modifier.padding(top = 1.dp).size(FAB_SIZE_DP.dp)
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_info_outline_28),
-                    contentDescription = stringResource(
-                        Res.string.extra_episodes_info_description
-                    ),
-                    modifier = Modifier.size(FAB_ICON_SIZE_DP.dp)
-                )
+            CompositionLocalProvider(LocalRippleConfiguration provides RippleConfiguration(color = Black)) {
+                FloatingActionButton(
+                    onClick = onEpisodesInfoClick,
+                    containerColor = BlackTransparent,
+                    contentColor = Cinnabar500,
+                    shape = CircleShape,
+                    modifier = Modifier.padding(top = 1.dp).size(FAB_SIZE_DP.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_info_outline_28),
+                        contentDescription = stringResource(
+                            Res.string.extra_episodes_info_description
+                        ),
+                        modifier = Modifier.size(FAB_ICON_SIZE_DP.dp)
+                    )
+                }
             }
         } else {
             Text(
@@ -204,20 +207,22 @@ private fun EpisodesInfoRow(
                 modifier = Modifier.weight(1f, fill = false).padding(bottom = 10.5.dp)
             )
             Spacer(Modifier.width(3.dp))
-            FloatingActionButton(
-                onClick = onEpisodesInfoClick,
-                containerColor = Black,
-                contentColor = Cinnabar500,
-                shape = CircleShape,
-                modifier = Modifier.padding(top = 3.dp).size(FAB_SIZE_DP.dp)
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_info_28),
-                    contentDescription = stringResource(
-                        Res.string.available_episodes_info_discription
-                    ),
-                    modifier = Modifier.size(FAB_ICON_SIZE_DP.dp)
-                )
+            CompositionLocalProvider(LocalRippleConfiguration provides RippleConfiguration(color = Black)) {
+                FloatingActionButton(
+                    onClick = onEpisodesInfoClick,
+                    containerColor = BlackTransparent,
+                    contentColor = Cinnabar500,
+                    shape = CircleShape,
+                    modifier = Modifier.padding(top = 3.dp).size(FAB_SIZE_DP.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_info_28),
+                        contentDescription = stringResource(
+                            Res.string.available_episodes_info_discription
+                        ),
+                        modifier = Modifier.size(FAB_ICON_SIZE_DP.dp)
+                    )
+                }
             }
         }
     }
@@ -227,12 +232,10 @@ private fun EpisodesInfoRow(
 // each with its own exact spacing/color, not because of nested logic.
 @Suppress("FunctionNaming", "LongMethod")
 @Composable
-private fun BoxScope.BottomRow(item: ListItemUi, onNotificationClick: () -> Unit) {
+private fun BottomRow(item: ListItemUi, onNotificationClick: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .align(Alignment.BottomStart)
-            .padding(top = 8.dp)
+        modifier = Modifier.padding(top = 8.dp)
     ) {
         Icon(
             painter = painterResource(CelebrityRes.drawable.ic_score_42),
@@ -302,7 +305,7 @@ private fun BoxScope.BottomRow(item: ListItemUi, onNotificationClick: () -> Unit
                 Icon(
                     painter = painterResource(notificationIcon),
                     contentDescription = notificationDescription,
-                    tint = Color.Unspecified,
+                    tint = BlackTransparent,
                     modifier = Modifier.size(NOTIFICATION_ICON_SIZE_DP.dp)
                 )
             }
@@ -377,3 +380,55 @@ private const val NOTIFICATION_FAB_SIZE_DP = 56
 private const val NOTIFICATION_ICON_SIZE_DP = 40
 private const val INFO_BACKGROUND_ALPHA = 0.5f
 private const val SCORE_NOTIFICATION_ALPHA = 0.8f
+
+private object AnimeListItemPreviewDateFormatter : DateFormatter {
+    override fun getFormattedDate(inputText: String, fallbackText: String): String = inputText
+}
+
+private val previewItem = ListItemUi(
+    id = 1,
+    name = "Sample Anime Title",
+    imageUrl = null,
+    episodesInfoType = EpisodesInfoTypeUi.AVAILABLE,
+    episodesAired = 5,
+    episodesTotal = 12,
+    nextEpisodeAt = null,
+    airedOn = null,
+    releasedOn = null,
+    score = "8.42",
+    releaseStatus = ReleaseStatusUi.ONGOING,
+    notification = NotificationUi.ENABLED
+)
+
+@Suppress("FunctionNaming", "UnusedPrivateMember")
+@Preview
+@Composable
+private fun AnimeListItemAvailablePreview() {
+    AnotiTheme {
+        AnimeListItem(
+            item = previewItem,
+            dateFormatter = AnimeListItemPreviewDateFormatter,
+            onEpisodesInfoClick = {},
+            onNotificationClick = {}
+        )
+    }
+}
+
+@Suppress("FunctionNaming", "UnusedPrivateMember")
+@Preview
+@Composable
+private fun AnimeListItemExtraPreview() {
+    AnotiTheme {
+        AnimeListItem(
+            item = previewItem.copy(
+                episodesInfoType = EpisodesInfoTypeUi.EXTRA,
+                nextEpisodeAt = "2026-01-01",
+                releaseStatus = ReleaseStatusUi.ANNOUNCED,
+                notification = NotificationUi.DISABLED
+            ),
+            dateFormatter = AnimeListItemPreviewDateFormatter,
+            onEpisodesInfoClick = {},
+            onNotificationClick = {}
+        )
+    }
+}

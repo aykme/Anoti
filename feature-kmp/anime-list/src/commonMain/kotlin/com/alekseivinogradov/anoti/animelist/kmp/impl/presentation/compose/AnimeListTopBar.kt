@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
@@ -75,13 +76,13 @@ fun AnimeListTopBar(
     onSearchTextChange: (String) -> Unit
 ) {
     // Hoisted above the `search == SHOWN` check so typed text survives closing and reopening
-    // the search bar — a `remember` scoped inside that conditional would reset it to "" instead.
+    // the search bar.
     var searchText by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = if (topInsetDp > 0.dp) topInsetDp else 0.dp)
+            .padding(top = topInsetDp)
     ) {
         if (search == SearchUi.HIDDEN) {
             TabsRow(
@@ -127,7 +128,7 @@ private fun TabsRow(
             .height(IntrinsicSize.Min)
             .padding(top = 8.dp)
     ) {
-        // No filter feature exists yet — this reserves the layout space without a control.
+        // Reserved layout space with no interactive control.
         Spacer(Modifier.padding(start = 8.dp).size(FILTER_BUTTON_SIZE_DP.dp))
 
         Text(
@@ -181,20 +182,24 @@ private fun TabsRow(
 
         Box(
             modifier = Modifier
-                .size(width = SEARCH_BUTTON_SIZE_DP.dp, height = SEARCH_BUTTON_SIZE_DP.dp)
-                .padding(end = 8.dp),
+                .padding(end = 8.dp)
+                .size(width = SEARCH_BUTTON_SIZE_DP.dp, height = SEARCH_BUTTON_SIZE_DP.dp),
             contentAlignment = Alignment.Center
         ) {
             // Manual hard-edged shadow: a second, larger, darker icon behind the real one.
             Image(
                 painter = painterResource(Res.drawable.ic_search_34),
                 contentDescription = null,
+                colorFilter = ColorFilter.tint(BlackTransparent),
                 modifier = Modifier.size(34.dp)
             )
             IconButton(onClick = onSearchClick, modifier = Modifier.size(SEARCH_BUTTON_SIZE_DP.dp)) {
                 Image(
                     painter = painterResource(Res.drawable.ic_search_32),
                     contentDescription = stringResource(Res.string.search_on_description),
+                    colorFilter = ColorFilter.tint(
+                        if (selectedSection == SectionHatUi.SEARCH) Cinnabar500 else WhiteTransparent
+                    ),
                     modifier = Modifier.size(32.dp)
                 )
             }
@@ -224,8 +229,8 @@ private fun SearchField(text: String, onTextChange: (String) -> Unit, onCancelCl
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(SEARCH_FIELD_HEIGHT_DP.dp)
                 .padding(top = 8.dp)
+                .height(SEARCH_FIELD_HEIGHT_DP.dp)
                 .shadow(1.dp)
         )
         IconButton(
@@ -238,6 +243,7 @@ private fun SearchField(text: String, onTextChange: (String) -> Unit, onCancelCl
             Image(
                 painter = painterResource(Res.drawable.ic_search_cancel_32),
                 contentDescription = stringResource(Res.string.search_off_description),
+                colorFilter = ColorFilter.tint(Cinnabar500),
                 modifier = Modifier.size(32.dp)
             )
         }

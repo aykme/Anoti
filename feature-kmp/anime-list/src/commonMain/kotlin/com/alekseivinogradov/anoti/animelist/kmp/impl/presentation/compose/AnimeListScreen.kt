@@ -166,8 +166,8 @@ private fun LoadNextPageEffect(
     listState: LazyListState,
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
-    // Keyed on the derived boolean, not the raw scroll position, so this dispatches once per
-    // threshold-crossing rather than on every pixel scrolled while already near the end.
+    // Dispatches once per threshold-crossing: the effect only restarts when the derived boolean
+    // itself flips, not on every scroll position update while it stays true.
     val shouldLoadNextPage by remember {
         derivedStateOf {
             val layoutInfo = listState.layoutInfo
@@ -191,9 +191,8 @@ private fun ResetListPositionEffect(
     listState: LazyListState,
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
-    // Checking isNeedToResetListPositon before dispatching false keeps this a one-shot reset —
-    // dispatching unconditionally would re-fire on every recomposition the effect key allows.
-    LaunchedEffect(uiModel.listContent.listItems) {
+    // Keyed on the flag itself, not the list, so this dispatch fires exactly once per reset.
+    LaunchedEffect(uiModel.listContent.isNeedToResetListPositon) {
         if (uiModel.listContent.isNeedToResetListPositon) {
             listState.scrollToItem(0)
             dispatch(
