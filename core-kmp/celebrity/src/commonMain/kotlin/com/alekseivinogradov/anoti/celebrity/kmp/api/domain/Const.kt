@@ -10,8 +10,6 @@ const val FIRST_PAGE = 1
 const val ITEMS_PER_PAGE = 20
 const val PAGING_PREFETCH_DISTANCE = 10
 val SEARCH_DEBOUNCE_MILLISECONDS: Duration = 500L.milliseconds
-const val SWIPE_REFRESH_START_OFFSET = 45
-const val SWIPE_REFRESH_END_OFFSET = 245
 
 // Approximation, not a derived value — retune here if any screen's pull-to-refresh gesture
 // visibly drifts from another's.
