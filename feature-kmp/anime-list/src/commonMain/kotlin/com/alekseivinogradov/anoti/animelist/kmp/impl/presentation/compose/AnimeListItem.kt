@@ -144,7 +144,9 @@ private fun BoxScope.NameAndEpisodesInfo(
     }
 }
 
-@Suppress("FunctionNaming")
+// Long because it renders two mutually exclusive, fully self-contained branches (each with its
+// own Text and FloatingActionButton), not because of nested logic.
+@Suppress("FunctionNaming", "LongMethod")
 @Composable
 private fun EpisodesInfoRow(
     item: ListItemUi,
@@ -153,7 +155,13 @@ private fun EpisodesInfoRow(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(bottom = 8.dp)
+        // Only AVAILABLE needs this outer margin; EXTRA's text already carries its own
+        // bottom padding, so stacking this on top would double it.
+        modifier = if (item.episodesInfoType == EpisodesInfoTypeUi.AVAILABLE) {
+            Modifier.padding(bottom = 8.dp)
+        } else {
+            Modifier
+        }
     ) {
         if (item.episodesInfoType == EpisodesInfoTypeUi.AVAILABLE) {
             Text(
