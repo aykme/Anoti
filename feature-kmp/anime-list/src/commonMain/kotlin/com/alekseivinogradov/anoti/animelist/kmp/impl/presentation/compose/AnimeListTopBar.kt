@@ -56,6 +56,10 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as CelebrityRes
 
+/**
+ * The anime list screen's top bar: section tabs (ongoing/announced) plus a search toggle, or
+ * the search field itself, depending on [search].
+ */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.
 @Suppress("FunctionNaming", "LongParameterList")

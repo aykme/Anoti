@@ -26,15 +26,14 @@ coordinated by a top-level store.
   around an already-built `DiAnimeListComponent`. The Activity hosting the fragment must implement
   `NavAnimeListScreenComponentHolder` (`androidMain`), exposing the currently active
   `NavAnimeListScreenComponent`. `AnimeListView` has no DI wiring; the `androidMain` layer
-  (`AnimeListViewImpl`) implements it directly. `AnimeListController` has no DI wiring either;
-  `AnimeListFragment` constructs it directly from `NavAnimeListScreenComponent`'s stores and
-  lifecycle.
+  (`AnimeListFragment`, via an anonymous `ComposeMviView` from `core-kmp:celebrity`) implements
+  it directly. `AnimeListController` has no DI wiring either; `AnimeListFragment` constructs it
+  directly from `NavAnimeListScreenComponent`'s stores and lifecycle.
 
 ## How to use it
 
-Use `AnimeListFragment` as your screen's fragment; the fragment wires the stores, view, and
-controller internally. Alternatively, implement `AnimeListView` (as `AnimeListViewImpl` does):
-render `UiModel` in `render()` and call `dispatch(Intent)` from the relevant UI callbacks
-(tab clicks, search text changes, pagination). On the screen hosting it, construct
-`AnimeListController` with the main store, the three section stores, `AnimeDatabaseStore`,
-and the screen's lifecycle, then call `controller.onViewCreated(viewImpl, viewLifecycle)`.
+`AnimeListView` is backed by a `ComposeMviView` rendering `UiModel` into this module's own
+Compose UI; dispatch `Intent`s from the relevant UI callbacks (tab clicks, search text changes,
+pagination). On the screen hosting it, construct `AnimeListController` with the main store, the
+three section stores, `AnimeDatabaseStore`, and the screen's lifecycle, then call
+`controller.onViewCreated(view, viewLifecycle)`.

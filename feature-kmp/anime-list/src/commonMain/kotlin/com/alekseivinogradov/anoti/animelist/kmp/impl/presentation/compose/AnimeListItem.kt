@@ -70,6 +70,10 @@ import org.jetbrains.compose.resources.stringResource
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as BaseRes
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as CelebrityRes
 
+/**
+ * A single item in the anime list: poster, name, episode/release info, score, and a
+ * notification toggle.
+ */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.
 @Suppress("FunctionNaming", "LongParameterList")
