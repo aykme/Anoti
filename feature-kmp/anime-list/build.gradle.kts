@@ -59,6 +59,12 @@ kotlin {
             implementation(libs.essenty.lifecycle)
             implementation(libs.compose.runtime)
             implementation(libs.compose.components.resources)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.material3)
+            implementation(libs.compose.ui)
+            implementation(libs.compose.ui.tooling.preview)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor3)
 
             implementation(libs.kotlin.inject.runtime.kmp)
         }
@@ -68,13 +74,6 @@ kotlin {
             implementation(libs.mvikotlin.main)
         }
         androidMain.dependencies {
-            implementation(libs.androidx.core.ktx)
-            implementation(libs.androidx.appcompat)
-            implementation(libs.androidx.constraintlayout)
-            implementation(libs.material)
-            implementation(libs.androidx.swiperefreshlayout)
-            implementation(libs.androidx.recyclerview)
-            implementation(libs.glide)
             implementation(project(":core-kmp:celebrity"))
             implementation(libs.decompose)
         }
@@ -86,6 +85,10 @@ dependencies {
     kspTargets.forEach { target ->
         add("ksp$target", libs.kotlin.inject.compiler.ksp)
     }
+
+    // Renders @Preview composables in Android Studio; androidRuntimeClasspath (not
+    // debugImplementation) is what com.android.kotlin.multiplatform.library expects it on.
+    androidRuntimeClasspath(libs.compose.ui.tooling)
 }
 
 // Lint's androidHostTest-related tasks read kspAndroidHostTest's generated sources without
