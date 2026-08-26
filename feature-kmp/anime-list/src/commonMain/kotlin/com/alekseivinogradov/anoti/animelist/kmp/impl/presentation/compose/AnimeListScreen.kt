@@ -54,18 +54,6 @@ fun AnimeListScreen(
     topInsetDp: Dp = 0.dp,
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
-    AnimeListTopBar(
-        selectedSection = uiModel.selectedSection,
-        search = uiModel.search,
-        topInsetDp = topInsetDp,
-        onOngoingClick = { dispatch(AnimeListMainStore.Intent.OngoingsSectionClick) },
-        onAnnouncedClick = { dispatch(AnimeListMainStore.Intent.AnnouncedSectionClick) },
-        onSearchClick = { dispatch(AnimeListMainStore.Intent.SearchSectionClick) },
-        onCancelSearchClick = { dispatch(AnimeListMainStore.Intent.CancelSearchClick) },
-        onSearchTextChange = { dispatch(AnimeListMainStore.Intent.ChangeSearchText(it)) }
-    )
-
-    // Top bar and content share one Box, top bar drawn last so it sits above the list.
     Box(Modifier.fillMaxSize()) {
         when (uiModel.contentType) {
             ContentTypeUi.LOADING -> LoadingState()
@@ -76,6 +64,17 @@ fun AnimeListScreen(
                 dispatch = dispatch
             )
         }
+        // Drawn last so the top bar sits above the list content.
+        AnimeListTopBar(
+            selectedSection = uiModel.selectedSection,
+            search = uiModel.search,
+            topInsetDp = topInsetDp,
+            onOngoingClick = { dispatch(AnimeListMainStore.Intent.OngoingsSectionClick) },
+            onAnnouncedClick = { dispatch(AnimeListMainStore.Intent.AnnouncedSectionClick) },
+            onSearchClick = { dispatch(AnimeListMainStore.Intent.SearchSectionClick) },
+            onCancelSearchClick = { dispatch(AnimeListMainStore.Intent.CancelSearchClick) },
+            onSearchTextChange = { dispatch(AnimeListMainStore.Intent.ChangeSearchText(it)) }
+        )
     }
 }
 
