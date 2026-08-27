@@ -142,7 +142,6 @@ private fun TabsRow(
             style = TextStyle(shadow = tabShadow),
             modifier = Modifier
                 .weight(1f)
-                .shadow(2.dp)
                 .padding(vertical = 12.dp)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
@@ -171,7 +170,6 @@ private fun TabsRow(
             style = TextStyle(shadow = tabShadow),
             modifier = Modifier
                 .weight(1f)
-                .shadow(2.dp)
                 .padding(vertical = 12.dp)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
