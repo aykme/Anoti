@@ -183,7 +183,7 @@ private fun EpisodesInfoRow(
             CompositionLocalProvider(LocalRippleConfiguration provides RippleConfiguration(color = Black)) {
                 FloatingActionButton(
                     onClick = onEpisodesInfoClick,
-                    containerColor = BlackTransparent,
+                    containerColor = Black,
                     contentColor = Cinnabar500,
                     shape = CircleShape,
                     modifier = Modifier.padding(top = 1.dp).size(FAB_SIZE_DP.dp)
@@ -210,7 +210,7 @@ private fun EpisodesInfoRow(
             CompositionLocalProvider(LocalRippleConfiguration provides RippleConfiguration(color = Black)) {
                 FloatingActionButton(
                     onClick = onEpisodesInfoClick,
-                    containerColor = BlackTransparent,
+                    containerColor = Black,
                     contentColor = Cinnabar500,
                     shape = CircleShape,
                     modifier = Modifier.padding(top = 3.dp).size(FAB_SIZE_DP.dp)
@@ -234,8 +234,7 @@ private fun EpisodesInfoRow(
 @Composable
 private fun BottomRow(item: ListItemUi, onNotificationClick: () -> Unit) {
     Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(top = 8.dp)
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             painter = painterResource(CelebrityRes.drawable.ic_score_42),
