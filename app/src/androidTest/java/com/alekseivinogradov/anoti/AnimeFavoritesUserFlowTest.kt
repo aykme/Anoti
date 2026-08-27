@@ -64,7 +64,7 @@ class AnimeFavoritesUserFlowTest {
 
     @Before
     fun setup() {
-        // Animations race with Espresso sync and cause flakiness; disable them.
+        // Animations race with Espresso/Compose test sync and cause flakiness; disable them.
         // Font scale/density can reflow list items and misdirect clicks; reset to defaults.
         runShellCommand("settings put global window_animation_scale 0")
         runShellCommand("settings put global transition_animation_scale 0")

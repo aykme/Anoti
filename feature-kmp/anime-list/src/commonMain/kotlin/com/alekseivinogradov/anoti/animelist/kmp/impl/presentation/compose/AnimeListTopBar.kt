@@ -33,6 +33,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,6 +48,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.search_hint
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.search_off_description
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.search_on_description
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.soon
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.BlackTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
@@ -253,3 +255,39 @@ private const val SEARCH_BUTTON_SIZE_DP = 56
 private const val SEARCH_FIELD_HEIGHT_DP = 56
 private const val CANCEL_BUTTON_SIZE_DP = 56
 private const val TAB_TEXT_SP = 29
+
+@Suppress("FunctionNaming", "UnusedPrivateMember")
+@Preview
+@Composable
+private fun AnimeListTopBarTabsPreview() {
+    AnotiTheme {
+        AnimeListTopBar(
+            selectedSection = SectionHatUi.ONGOINGS,
+            search = SearchUi.HIDDEN,
+            topInsetDp = 0.dp,
+            onOngoingClick = {},
+            onAnnouncedClick = {},
+            onSearchClick = {},
+            onCancelSearchClick = {},
+            onSearchTextChange = {}
+        )
+    }
+}
+
+@Suppress("FunctionNaming", "UnusedPrivateMember")
+@Preview
+@Composable
+private fun AnimeListTopBarSearchPreview() {
+    AnotiTheme {
+        AnimeListTopBar(
+            selectedSection = SectionHatUi.SEARCH,
+            search = SearchUi.SHOWN,
+            topInsetDp = 0.dp,
+            onOngoingClick = {},
+            onAnnouncedClick = {},
+            onSearchClick = {},
+            onCancelSearchClick = {},
+            onSearchTextChange = {}
+        )
+    }
+}

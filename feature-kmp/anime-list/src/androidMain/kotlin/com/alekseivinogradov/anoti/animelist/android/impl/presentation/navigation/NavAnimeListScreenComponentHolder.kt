@@ -1,5 +1,7 @@
 package com.alekseivinogradov.anoti.animelist.android.impl.presentation.navigation
 
+import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation.NavAnimeListScreenComponent
+
 /**
  * Exposes the currently active [NavAnimeListScreenComponent] to callers that only hold an
  * `Activity` reference. Implemented by the Activity hosting

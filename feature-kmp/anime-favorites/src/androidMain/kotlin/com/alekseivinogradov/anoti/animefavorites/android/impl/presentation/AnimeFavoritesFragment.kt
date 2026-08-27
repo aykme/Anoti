@@ -3,12 +3,6 @@ package com.alekseivinogradov.anoti.animefavorites.android.impl.presentation
 import android.os.Bundle
 import android.view.View
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.unit.dp
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.navigation.NavAnimeFavoritesScreenComponentHolder
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.AnimeFavoritesView
@@ -17,7 +11,6 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.AnimeFav
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.compose.AnimeFavoritesScreen
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation.NavAnimeFavoritesScreenComponent
 import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.compose.ComposeFragment
-import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.ComposeMviView
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 
@@ -29,8 +22,6 @@ class AnimeFavoritesFragment : ComposeFragment() {
     // ComposeMviView's structural match to it isn't enough for Kotlin's nominal typing.
     private val composeView =
         object : ComposeMviView<UiModel, AnimeFavoritesMainStore.Intent>(), AnimeFavoritesView {}
-
-    private var topInsetDp by mutableStateOf(0.dp)
 
     private val controller: AnimeFavoritesController by lazy {
         AnimeFavoritesController(
@@ -59,23 +50,9 @@ class AnimeFavoritesFragment : ComposeFragment() {
         // onCreate() has returned.
         screenComponent =
             (this.activity as NavAnimeFavoritesScreenComponentHolder).navAnimeFavoritesScreenComponent
-        initEdgeToEdgeListenerIfNeeded(view)
         controller.onViewCreated(
             mainView = composeView,
             viewLifecycle = viewLifecycleOwner.essentyLifecycle()
         )
-    }
-
-    // MainActivity leaves top/bottom insets unconsumed at its root so each screen decides for
-    // itself; this screen needs its own top inset so the first item isn't drawn under the
-    // status bar.
-    private fun initEdgeToEdgeListenerIfNeeded(view: View) {
-        if (isEdgeToEdgeEnabled()) {
-            ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
-                val systemBarsTopPx = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
-                topInsetDp = with(resources.displayMetrics) { (systemBarsTopPx / density).dp }
-                insets
-            }
-        }
     }
 }

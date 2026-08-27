@@ -27,7 +27,6 @@ constraintlayout = "2.2.2"
 coroutines = "1.11.0"
 decompose = "3.5.0"
 detekt = "1.23.8"
-espressoContrib = "3.7.0"
 espressoCore = "3.7.0"
 essenty = "2.5.0"
 junitKtx = "1.3.0"
@@ -41,12 +40,10 @@ material = "1.14.0"
 mockk = "1.14.11"
 mviKotlin = "4.4.0"
 playServicesAppset = "16.1.0"
-recyclerview = "1.4.0"
 robolectric = "4.16.1"
 room = "2.8.4"
 rules = "1.7.0"
 sqlite = "2.7.0"
-swiperefreshlayout = "1.2.0"
 workRuntimeKtx = "2.11.2"
 
 #Non maxed supressed library versions
@@ -77,15 +74,12 @@ androidx-annotation-jvm = { group = "androidx.annotation", name = "annotation-jv
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-androidx-espresso-contrib = { group = "androidx.test.espresso", name = "espresso-contrib", version.ref = "espressoContrib" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
-androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-rules = { group = "androidx.test", name = "rules", version.ref = "rules" }
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
-androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
 androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "workRuntimeKtx" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }

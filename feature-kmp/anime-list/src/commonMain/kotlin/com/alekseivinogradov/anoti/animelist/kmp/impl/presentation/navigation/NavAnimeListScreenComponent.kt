@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.animelist.android.impl.presentation.navigation
+package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation
 
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsection.AnnouncedSectionStore
@@ -16,7 +16,7 @@ import com.arkivanov.essenty.lifecycle.doOnDestroy
  * lifecycle (inherited from [componentContext]) is alive — created once when
  * `NavRootConfig.AnimeList` becomes the active root config, disposed when
  * `NavRootComponent.navigateTo()` replaces it.
- * [com.alekseivinogradov.anoti.animelist.android.impl.presentation.AnimeListFragment]
+ * com.alekseivinogradov.anoti.animelist.android.impl.presentation.AnimeListFragment
  * reads its dependencies from an
  * already-built instance of this class instead of creating its own `FeatureScope` graph.
  */

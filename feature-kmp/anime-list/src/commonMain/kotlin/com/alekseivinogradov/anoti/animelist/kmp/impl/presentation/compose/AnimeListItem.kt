@@ -54,6 +54,9 @@ import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.extra_episo
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_info_28
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_info_outline_28
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.poster_image_description
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.NOTIFICATION_FAB_SIZE_DP
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.NOTIFICATION_ICON_SIZE_DP
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SUBTITLE1_SP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Black
@@ -201,7 +204,7 @@ private fun EpisodesInfoRow(
             Text(
                 text = formatExtraEpisodesInfo(item = item, dateFormatter = dateFormatter),
                 color = White,
-                fontSize = SUBTITLE1_SP.sp,
+                fontSize = SUBTITLE1_SP,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f, fill = false).padding(bottom = 10.5.dp)
@@ -297,7 +300,7 @@ private fun BottomRow(item: ListItemUi, onNotificationClick: () -> Unit) {
                 shape = CircleShape,
                 modifier = Modifier
                     .padding(end = 16.dp, bottom = 16.dp)
-                    .size(NOTIFICATION_FAB_SIZE_DP.dp)
+                    .size(NOTIFICATION_FAB_SIZE_DP)
                     .alpha(SCORE_NOTIFICATION_ALPHA)
                     .testTag("notification_button")
             ) {
@@ -305,7 +308,7 @@ private fun BottomRow(item: ListItemUi, onNotificationClick: () -> Unit) {
                     painter = painterResource(notificationIcon),
                     contentDescription = notificationDescription,
                     tint = BlackTransparent,
-                    modifier = Modifier.size(NOTIFICATION_ICON_SIZE_DP.dp)
+                    modifier = Modifier.size(NOTIFICATION_ICON_SIZE_DP)
                 )
             }
         }
@@ -372,13 +375,17 @@ private fun releaseStatusColor(releaseStatus: ReleaseStatusUi): Color = when (re
 private const val POSTER_HEIGHT_DP = 350
 private const val POSTER_CORNER_PERCENT = 3
 private const val HEADLINE6_SP = 20
-private const val SUBTITLE1_SP = 16
 private const val FAB_SIZE_DP = 35
 private const val FAB_ICON_SIZE_DP = 28
-private const val NOTIFICATION_FAB_SIZE_DP = 56
-private const val NOTIFICATION_ICON_SIZE_DP = 40
 private const val INFO_BACKGROUND_ALPHA = 0.5f
 private const val SCORE_NOTIFICATION_ALPHA = 0.8f
+
+// On Android, Compose Multiplatform packages commonMain composeResources as APK assets under
+// this path, letting Coil load the preview poster locally with no network call.
+private const val PREVIEW_POSTER_ASSET_URI =
+    "file:///android_asset/composeResources/" +
+        "com.alekseivinogradov.anoti.animelist.kmp.generated.resources/drawable/" +
+        "anime_poster_sample.jpg"
 
 private object AnimeListItemPreviewDateFormatter : DateFormatter {
     override fun getFormattedDate(inputText: String, fallbackText: String): String = inputText
@@ -386,15 +393,15 @@ private object AnimeListItemPreviewDateFormatter : DateFormatter {
 
 private val previewItem = ListItemUi(
     id = 1,
-    name = "Sample Anime Title",
-    imageUrl = null,
+    name = "Attack on Titan: Final. Part 2",
+    imageUrl = PREVIEW_POSTER_ASSET_URI,
     episodesInfoType = EpisodesInfoTypeUi.AVAILABLE,
-    episodesAired = 5,
-    episodesTotal = 12,
+    episodesAired = 2,
+    episodesTotal = null,
     nextEpisodeAt = null,
     airedOn = null,
     releasedOn = null,
-    score = "8.42",
+    score = "8.90",
     releaseStatus = ReleaseStatusUi.ONGOING,
     notification = NotificationUi.ENABLED
 )
@@ -421,7 +428,7 @@ private fun AnimeListItemExtraPreview() {
         AnimeListItem(
             item = previewItem.copy(
                 episodesInfoType = EpisodesInfoTypeUi.EXTRA,
-                nextEpisodeAt = "2026-01-01",
+                airedOn = "20 feb. 2022",
                 releaseStatus = ReleaseStatusUi.ANNOUNCED,
                 notification = NotificationUi.DISABLED
             ),

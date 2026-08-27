@@ -3,7 +3,6 @@
     <style name="Base.Theme.Anoti" parent="Theme.Material3.DayNight.NoActionBar" />
 
     <style name="Theme.Anoti" parent="Base.Theme.Anoti">
-        <item name="floatingActionButtonStyle">@style/FloatingActionButtonStyle</item>
         <!-- Navigation bar color -->
         <item name="android:navigationBarColor">@color/black</item>
         <!-- Application loading window color
@@ -13,10 +12,6 @@
         <item name="android:statusBarColor">@color/black</item>
         <!-- Title highlight color on application background window -->
         <item name="android:colorPrimary">@color/black</item>
-    </style>
-
-    <style name="Theme.Anoti.TextInputEditText.Outlined" parent="">
-        <item name="colorPrimary">@color/cinnabar_500</item>
     </style>
 
     <style name="Theme.Anoti.MaterialAlertDialog" parent="MaterialAlertDialog.Material3">

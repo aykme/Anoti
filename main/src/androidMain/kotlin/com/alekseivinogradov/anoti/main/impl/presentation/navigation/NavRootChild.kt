@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anoti.main.impl.presentation.navigation
 
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation.NavAnimeFavoritesScreenComponent
-import com.alekseivinogradov.anoti.animelist.android.impl.presentation.navigation.NavAnimeListScreenComponent
+import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation.NavAnimeListScreenComponent
 
 /**
  * The concrete screen component for each `NavRootConfig`. Lives here (not in

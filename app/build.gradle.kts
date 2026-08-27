@@ -59,10 +59,12 @@ dependencies {
 
     androidTestImplementation(libs.androidx.junit.ktx)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.espresso.contrib)
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.rules)
-    androidTestImplementation(libs.androidx.recyclerview)
+    // Without this, an old androidx.fragment/androidx.activity pulled in transitively by
+    // Play Services wins dependency resolution here, and MainActivity no longer satisfies
+    // createAndroidComposeRule's ComponentActivity bound.
+    androidTestImplementation(libs.androidx.appcompat)
     androidTestImplementation(libs.compose.ui.test.junit4)
     debugImplementation(libs.compose.ui.test.manifest)
 }

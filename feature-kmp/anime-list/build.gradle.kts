@@ -57,6 +57,7 @@ kotlin {
             implementation(libs.mvikotlin)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.essenty.lifecycle)
+            implementation(libs.decompose)
             implementation(libs.compose.runtime)
             implementation(libs.compose.components.resources)
             implementation(libs.compose.foundation)
@@ -77,7 +78,6 @@ kotlin {
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.appcompat)
             implementation(project(":core-kmp:celebrity"))
-            implementation(libs.decompose)
         }
     }
 }

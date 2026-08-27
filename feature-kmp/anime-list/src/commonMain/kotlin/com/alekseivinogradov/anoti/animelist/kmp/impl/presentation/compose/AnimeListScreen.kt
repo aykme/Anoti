@@ -19,18 +19,25 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.loading_in_progress
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ContentTypeUi
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ListContentUi
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ListItemUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.UiModel
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.EpisodesInfoTypeUi
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.NotificationUi
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.ReleaseStatusUi
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.connection_error_48
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.LIST_LAST_ITEM_BOTTOM_PADDING_DP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.PAGING_PREFETCH_DISTANCE
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.PULL_TO_REFRESH_THRESHOLD
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LoadingSpinner
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
@@ -201,5 +208,71 @@ private fun ResetListPositionEffect(
                 )
             )
         }
+    }
+}
+
+private object AnimeListScreenPreviewDateFormatter : DateFormatter {
+    override fun getFormattedDate(inputText: String, fallbackText: String): String = inputText
+}
+
+private val previewListItem = ListItemUi(
+    id = 1,
+    name = "Attack on Titan: Final. Part 2",
+    imageUrl = null,
+    episodesInfoType = EpisodesInfoTypeUi.AVAILABLE,
+    episodesAired = 2,
+    episodesTotal = null,
+    nextEpisodeAt = null,
+    airedOn = null,
+    releasedOn = null,
+    score = "8.90",
+    releaseStatus = ReleaseStatusUi.ONGOING,
+    notification = NotificationUi.ENABLED
+)
+
+@Suppress("FunctionNaming", "UnusedPrivateMember")
+@Preview
+@Composable
+private fun AnimeListScreenLoadingPreview() {
+    AnotiTheme {
+        AnimeListScreen(
+            uiModel = UiModel(contentType = ContentTypeUi.LOADING),
+            dateFormatter = AnimeListScreenPreviewDateFormatter,
+            dispatch = {}
+        )
+    }
+}
+
+@Suppress("FunctionNaming", "UnusedPrivateMember")
+@Preview
+@Composable
+private fun AnimeListScreenErrorPreview() {
+    AnotiTheme {
+        AnimeListScreen(
+            uiModel = UiModel(contentType = ContentTypeUi.ERROR),
+            dateFormatter = AnimeListScreenPreviewDateFormatter,
+            dispatch = {}
+        )
+    }
+}
+
+@Suppress("FunctionNaming", "UnusedPrivateMember")
+@Preview
+@Composable
+private fun AnimeListScreenLoadedPreview() {
+    AnotiTheme {
+        AnimeListScreen(
+            uiModel = UiModel(
+                contentType = ContentTypeUi.LOADED,
+                listContent = ListContentUi(
+                    listItems = listOf(
+                        previewListItem,
+                        previewListItem.copy(id = 2, name = "Second Sample Title")
+                    )
+                )
+            ),
+            dateFormatter = AnimeListScreenPreviewDateFormatter,
+            dispatch = {}
+        )
     }
 }

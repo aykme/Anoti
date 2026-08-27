@@ -81,8 +81,11 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.ic_arr
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.ic_details_off_24
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.ic_details_on_24
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.new_episode
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.NOTIFICATION_FAB_SIZE_DP
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.NOTIFICATION_ICON_SIZE_DP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SUBTITLE1_SP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Black
@@ -288,7 +291,7 @@ private fun BoxScope.ScoreInfoBar(
         Text(
             text = score,
             color = White,
-            fontSize = SUBTITLE1_SP.sp,
+            fontSize = SUBTITLE1_SP,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -379,7 +382,7 @@ private fun MainInfoContent(item: ListItemUi, onNotificationClick: () -> Unit) {
         Text(
             text = item.name,
             color = White,
-            fontSize = SUBTITLE1_SP.sp,
+            fontSize = SUBTITLE1_SP,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
@@ -387,7 +390,7 @@ private fun MainInfoContent(item: ListItemUi, onNotificationClick: () -> Unit) {
         Text(
             text = "${stringResource(BaseRes.string.episodes)}: ${item.availableEpisodesInfo}",
             color = White,
-            fontSize = SUBTITLE1_SP.sp,
+            fontSize = SUBTITLE1_SP,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -400,7 +403,7 @@ private fun MainInfoContent(item: ListItemUi, onNotificationClick: () -> Unit) {
             Text(
                 text = releaseStatusText(item.releaseStatus),
                 color = releaseStatusColor(item.releaseStatus),
-                fontSize = SUBTITLE1_SP.sp,
+                fontSize = SUBTITLE1_SP,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f, fill = false)
@@ -426,7 +429,7 @@ private fun ExtraInfoContent(
                 dateFormatter = dateFormatter
             ),
             color = White,
-            fontSize = SUBTITLE1_SP.sp,
+            fontSize = SUBTITLE1_SP,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
@@ -434,7 +437,7 @@ private fun ExtraInfoContent(
         Text(
             text = "${stringResource(Res.string.episodes_viewed)}:",
             color = White,
-            fontSize = SUBTITLE1_SP.sp,
+            fontSize = SUBTITLE1_SP,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Start,
@@ -477,7 +480,7 @@ private fun EpisodesViewedRow(
         Text(
             text = episodesViewed,
             color = White,
-            fontSize = SUBTITLE1_SP.sp,
+            fontSize = SUBTITLE1_SP,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -525,7 +528,7 @@ private fun NotificationButton(notification: NotificationUi, onClick: () -> Unit
             onClick = onClick,
             modifier = Modifier
                 .testTag("notification_button")
-                .size(NOTIFICATION_BUTTON_SIZE.dp)
+                .size(NOTIFICATION_FAB_SIZE_DP)
                 .alpha(NOTIFICATION_BUTTON_ALPHA)
                 .shadow(NOTIFICATION_BUTTON_ELEVATION_DP.dp, CircleShape)
                 .background(backgroundColor, shape = CircleShape)
@@ -534,7 +537,7 @@ private fun NotificationButton(notification: NotificationUi, onClick: () -> Unit
                 painter = cmpPainterResource(icon),
                 contentDescription = description,
                 tint = BlackTransparent,
-                modifier = Modifier.size(NOTIFICATION_ICON_SIZE.dp)
+                modifier = Modifier.size(NOTIFICATION_ICON_SIZE_DP)
             )
         }
     }
@@ -595,10 +598,7 @@ private fun releaseStatusColor(status: ReleaseStatusUi): Color =
 private const val ROUNDED_IMAGE_CORNER_PERCENT = 8
 private const val OVERLAY_ALPHA = 0.5f
 private const val NEW_EPISODE_BADGE_SP = 15
-private const val SUBTITLE1_SP = 16
-private const val NOTIFICATION_BUTTON_SIZE = 56
 private const val NOTIFICATION_BUTTON_ELEVATION_DP = 6
-private const val NOTIFICATION_ICON_SIZE = 40
 private const val SCORE_ICON_ALPHA = 0.8f
 private const val NOTIFICATION_BUTTON_ALPHA = 0.8f
 private const val NEW_EPISODE_SHADOW_RADIUS = 16f
