@@ -204,10 +204,9 @@ class MainActivity :
                     0,
                     /* right = */
                     systemBars.right,
-                    /** systemBars.bottom works incorrectly with BottomNavigationView.
-                     * It makes double padding and
-                     * status bar color elements problems on light theme
-                     */
+                    // Deliberately not systemBars.bottom: BottomNavigationBar's own Spacer
+                    // (windowInsetsBottomHeight(WindowInsets.navigationBars)) is the single
+                    // consumer of that inset — applying it here too would double-pad the content.
                     /* bottom = */
                     0
                 )

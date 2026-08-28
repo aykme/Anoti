@@ -5,7 +5,7 @@ import android.os.Build
 import android.os.Build.VERSION_CODES.Q
 
 /**
- * enableEdgeToEdge() doesn't work correctly with BottomNavigationView
+ * enableEdgeToEdge() doesn't work correctly with the bottom navigation bar
  * and window.navigationBarColor() or android:statusBarColor (xml)
  * on 28 api level or lower.
  * There is a bug with navigation bar elements color on light theme.

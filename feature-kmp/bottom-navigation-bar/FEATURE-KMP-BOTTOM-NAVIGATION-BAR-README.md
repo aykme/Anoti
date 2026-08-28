@@ -24,8 +24,11 @@ badge count.
 
 ## How to use it
 
-Implement `BottomNavigationBarView` (a `BottomNavigationBarViewImpl`): in `render()`, feed the
-received `UiModel` straight into the `BottomNavigationBar` composable, whose click callbacks call
-`dispatch(Intent)`, and handle navigation in `handle(Label)`. On the screen hosting the bar,
-construct `BottomNavigationBarController` with the store, `AnimeDatabaseStore`, and the screen's
-lifecycle, then call `controller.onViewCreated(viewImpl, viewLifecycle)`.
+Implement `BottomNavigationBarView` (a `BottomNavigationBarViewImpl`): feed the observed `UiModel`
+into the `BottomNavigationBar` composable, whose click callbacks call `dispatch(Intent)`, and
+handle navigation in `handle(Label)`. The implementation must also dispatch
+`ChangeSelectedSection` whenever the host's own navigation state changes outside a tab tap (e.g.
+a deep link, or restored navigation state), once the view's events are bound to the store — the
+store never observes navigation state on its own. On the screen hosting the bar, construct
+`BottomNavigationBarController` with the store, `AnimeDatabaseStore`, and the screen's lifecycle,
+then call `controller.onViewCreated(viewImpl, viewLifecycle)`.

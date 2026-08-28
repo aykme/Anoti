@@ -18,6 +18,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -94,7 +95,7 @@ fun BottomNavigationBar(
     }
 }
 
-@Suppress("FunctionNaming", "LongParameterList")
+@Suppress("FunctionNaming")
 @Composable
 private fun RowScope.BottomNavigationBarItem(
     selected: Boolean,
@@ -128,7 +129,9 @@ private fun FavoritesIcon(favoritesBadgeNumber: Int) {
             if (favoritesBadgeNumber > 0) {
                 Badge(containerColor = Cinnabar500Transparent, contentColor = Black) {
                     Text(
-                        text = formatBadgeNumber(favoritesBadgeNumber),
+                        text = remember(favoritesBadgeNumber) {
+                            formatBadgeNumber(favoritesBadgeNumber)
+                        },
                         fontWeight = FontWeight.Normal
                     )
                 }
