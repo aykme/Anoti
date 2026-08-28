@@ -15,3 +15,6 @@ val ACCENT_TEXT_SP: TextUnit = 15.sp
 
 // Material Subtitle2 text size, shared by every list item card design.
 val SUBTITLE2_SP: TextUnit = 14.sp
+
+// Material Caption text size, used by the bottom navigation bar's labels.
+val CAPTION_SP: TextUnit = 12.sp

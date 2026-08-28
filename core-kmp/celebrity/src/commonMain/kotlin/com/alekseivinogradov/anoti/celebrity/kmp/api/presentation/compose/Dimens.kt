@@ -40,3 +40,8 @@ val SPACING_UNIT_DP: Dp = 8.dp
 
 // Corner rounding percent for a poster-style image, shared across list item card designs.
 const val IMAGE_CORNER_PERCENT = 8
+
+// Bottom navigation bar's icon size and shadow elevation. Kept separate from FAB_ELEVATION_DP
+// even though both are elevation tokens — different component, different value.
+val NAV_BAR_ICON_SIZE_DP: Dp = 24.dp
+val NAV_BAR_ELEVATION_DP: Dp = 8.dp
