@@ -3,7 +3,14 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
+    alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.kotlinCompose)
     alias(libs.plugins.detekt)
+}
+
+compose.resources {
+    publicResClass = false
+    packageOfResClass = "com.alekseivinogradov.anoti.bottomnavigationbar.kmp.generated.resources"
 }
 
 kotlin {
@@ -41,7 +48,20 @@ kotlin {
             implementation(libs.essenty.lifecycle)
             implementation(libs.mvikotlin.extensions.coroutines)
 
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.components.resources)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.material3)
+            implementation(libs.compose.ui)
+            implementation(libs.compose.ui.tooling.preview)
+
             implementation(libs.kotlin.inject.runtime.kmp)
         }
     }
+}
+
+dependencies {
+    // Renders @Preview composables in Android Studio; androidRuntimeClasspath (not
+    // debugImplementation) is what com.android.kotlin.multiplatform.library expects it on.
+    androidRuntimeClasspath(libs.compose.ui.tooling)
 }
