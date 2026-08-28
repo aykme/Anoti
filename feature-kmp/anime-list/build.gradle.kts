@@ -75,9 +75,7 @@ kotlin {
             implementation(libs.mvikotlin.main)
         }
         androidMain.dependencies {
-            implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.appcompat)
-            implementation(project(":core-kmp:celebrity"))
         }
     }
 }

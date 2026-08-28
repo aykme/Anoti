@@ -75,13 +75,7 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
         }
         androidMain.dependencies {
-            implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.appcompat)
-            implementation(libs.material)
-            implementation(libs.androidx.work.runtime)
-            implementation(project(":core-kmp:celebrity"))
-            implementation(project(":feature-kmp:anime-base"))
-            implementation(project(":feature-kmp:anime-background-update"))
         }
     }
 }
