@@ -41,6 +41,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.testTag
@@ -54,7 +55,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.ColorImage
+import coil3.annotation.ExperimentalCoilApi
+import coil3.compose.AsyncImagePainter
+import coil3.compose.AsyncImagePreviewHandler
+import coil3.compose.LocalAsyncImagePreviewHandler
 import coil3.compose.SubcomposeAsyncImage
+import coil3.request.SuccessResult
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.announced
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.beginning_of_the_show
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.episodes
@@ -99,6 +106,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Silver
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.repeatingClickable
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.amiko_bold
+import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.anime_poster_sample
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_notifications_off_40
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_notifications_on_40
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_score_42
@@ -616,10 +624,10 @@ private object AnimeFavoritesItemPreviewDateFormatter : DateFormatter {
 private val previewItem = ListItemUi(
     id = 1,
     imageUrl = null,
-    score = "8.42",
+    score = "8.90",
     infoType = InfoTypeUi.MAIN,
-    name = "Sample Anime Title",
-    availableEpisodesInfo = "Episodes: 5 / 12",
+    name = "Attack on Titan: Final. Part 2",
+    availableEpisodesInfo = "2 / ?",
     releaseStatus = ReleaseStatusUi.ONGOING,
     notification = NotificationUi.ENABLED,
     extraEpisodesInfo = null,
@@ -627,43 +635,77 @@ private val previewItem = ListItemUi(
     isNewEpisode = true
 )
 
+// Compose Multiplatform's Coil integration renders whatever this provides in place of a real
+// network fetch whenever LocalInspectionMode is true (i.e. inside @Preview) — letting every
+// AsyncImage/SubcomposeAsyncImage below it, including ones reached transitively through a
+// screen-level preview, show a real local image instead of nothing. Success (not Loading) is
+// required so a SubcomposeAsyncImage renders this painter instead of its own loading slot; the
+// wrapped ColorImage is never actually drawn, only the painter is.
+@OptIn(ExperimentalCoilApi::class)
+@Composable
+private fun rememberPreviewPosterHandler(painter: Painter): AsyncImagePreviewHandler =
+    remember(painter) {
+        AsyncImagePreviewHandler { _, request ->
+            AsyncImagePainter.State.Success(painter, SuccessResult(ColorImage(), request))
+        }
+    }
+
+// widthDp/heightDp cap the preview's rendering viewport; without both, the unset dimension
+// defaults to a full device screen, and AnotiTheme's Surface.fillMaxSize() stretches to fill it.
+// Sized to this item's own minimum height plus the outer 8dp padding on each side, so the
+// preview's background matches just this item, not a whole screen.
+private const val PREVIEW_WIDTH_DP = 360
+private const val PREVIEW_HEIGHT_DP = ITEM_MIN_HEIGHT_DP + 16
+
+@OptIn(ExperimentalCoilApi::class)
 @Suppress("FunctionNaming", "UnusedPrivateMember")
-@Preview
+@Preview(widthDp = PREVIEW_WIDTH_DP, heightDp = PREVIEW_HEIGHT_DP)
 @Composable
 private fun AnimeFavoritesItemMainInfoPreview() {
     AnotiTheme {
-        AnimeFavoritesItem(
-            item = previewItem,
-            dateFormatter = AnimeFavoritesItemPreviewDateFormatter,
-            onItemClick = {},
-            onInfoTypeClick = {},
-            onNotificationClick = {},
-            onEpisodesViewedMinusClick = {},
-            onEpisodesViewedPlusClick = {}
-        )
+        CompositionLocalProvider(
+            LocalAsyncImagePreviewHandler provides
+                rememberPreviewPosterHandler(cmpPainterResource(CelebrityRes.drawable.anime_poster_sample))
+        ) {
+            AnimeFavoritesItem(
+                item = previewItem,
+                dateFormatter = AnimeFavoritesItemPreviewDateFormatter,
+                onItemClick = {},
+                onInfoTypeClick = {},
+                onNotificationClick = {},
+                onEpisodesViewedMinusClick = {},
+                onEpisodesViewedPlusClick = {}
+            )
+        }
     }
 }
 
+@OptIn(ExperimentalCoilApi::class)
 @Suppress("FunctionNaming", "UnusedPrivateMember")
-@Preview
+@Preview(widthDp = PREVIEW_WIDTH_DP, heightDp = PREVIEW_HEIGHT_DP)
 @Composable
 private fun AnimeFavoritesItemExtraInfoPreview() {
     AnotiTheme {
-        AnimeFavoritesItem(
-            item = previewItem.copy(
-                infoType = InfoTypeUi.EXTRA,
-                releaseStatus = ReleaseStatusUi.RELEASED,
-                notification = NotificationUi.DISABLED,
-                extraEpisodesInfo = "2026-01-01",
-                episodesViewed = "10",
-                isNewEpisode = false
-            ),
-            dateFormatter = AnimeFavoritesItemPreviewDateFormatter,
-            onItemClick = {},
-            onInfoTypeClick = {},
-            onNotificationClick = {},
-            onEpisodesViewedMinusClick = {},
-            onEpisodesViewedPlusClick = {}
-        )
+        CompositionLocalProvider(
+            LocalAsyncImagePreviewHandler provides
+                rememberPreviewPosterHandler(cmpPainterResource(CelebrityRes.drawable.anime_poster_sample))
+        ) {
+            AnimeFavoritesItem(
+                item = previewItem.copy(
+                    infoType = InfoTypeUi.EXTRA,
+                    releaseStatus = ReleaseStatusUi.RELEASED,
+                    notification = NotificationUi.DISABLED,
+                    extraEpisodesInfo = "2026-01-01",
+                    episodesViewed = "10",
+                    isNewEpisode = false
+                ),
+                dateFormatter = AnimeFavoritesItemPreviewDateFormatter,
+                onItemClick = {},
+                onInfoTypeClick = {},
+                onNotificationClick = {},
+                onEpisodesViewedMinusClick = {},
+                onEpisodesViewedPlusClick = {}
+            )
+        }
     }
 }

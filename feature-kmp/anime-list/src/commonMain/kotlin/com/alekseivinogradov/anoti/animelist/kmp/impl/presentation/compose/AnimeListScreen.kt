@@ -13,15 +13,23 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil3.ColorImage
+import coil3.annotation.ExperimentalCoilApi
+import coil3.compose.AsyncImagePainter
+import coil3.compose.AsyncImagePreviewHandler
+import coil3.compose.LocalAsyncImagePreviewHandler
+import coil3.request.SuccessResult
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.loading_in_progress
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ContentTypeUi
@@ -41,6 +49,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiT
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LoadingSpinner
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
+import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.anime_poster_sample
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.connection_error
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -256,23 +265,43 @@ private fun AnimeListScreenErrorPreview() {
     }
 }
 
+// Compose Multiplatform's Coil integration renders whatever this provides in place of a real
+// network fetch whenever LocalInspectionMode is true (i.e. inside @Preview) — letting every
+// AsyncImage reached transitively through AnimeListItem show a real local image. Success (not
+// Loading) is required so a SubcomposeAsyncImage renders this painter instead of its own loading
+// slot; the wrapped ColorImage is never actually drawn, only the painter is.
+@OptIn(ExperimentalCoilApi::class)
+@Composable
+private fun rememberPreviewPosterHandler(painter: Painter): AsyncImagePreviewHandler =
+    remember(painter) {
+        AsyncImagePreviewHandler { _, request ->
+            AsyncImagePainter.State.Success(painter, SuccessResult(ColorImage(), request))
+        }
+    }
+
+@OptIn(ExperimentalCoilApi::class)
 @Suppress("FunctionNaming", "UnusedPrivateMember")
 @Preview
 @Composable
 private fun AnimeListScreenLoadedPreview() {
     AnotiTheme {
-        AnimeListScreen(
-            uiModel = UiModel(
-                contentType = ContentTypeUi.LOADED,
-                listContent = ListContentUi(
-                    listItems = listOf(
-                        previewListItem,
-                        previewListItem.copy(id = 2, name = "Second Sample Title")
+        CompositionLocalProvider(
+            LocalAsyncImagePreviewHandler provides
+                rememberPreviewPosterHandler(painterResource(CelebrityRes.drawable.anime_poster_sample))
+        ) {
+            AnimeListScreen(
+                uiModel = UiModel(
+                    contentType = ContentTypeUi.LOADED,
+                    listContent = ListContentUi(
+                        listItems = listOf(
+                            previewListItem,
+                            previewListItem.copy(id = 2, name = "Attack on Titan: Final. Part 1")
+                        )
                     )
-                )
-            ),
-            dateFormatter = AnimeListScreenPreviewDateFormatter,
-            dispatch = {}
-        )
+                ),
+                dateFormatter = AnimeListScreenPreviewDateFormatter,
+                dispatch = {}
+            )
+        }
     }
 }

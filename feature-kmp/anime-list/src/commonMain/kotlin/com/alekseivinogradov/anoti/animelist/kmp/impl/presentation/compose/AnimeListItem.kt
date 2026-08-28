@@ -1,3 +1,7 @@
+// All functions here render pieces of a single list item; splitting them across files wouldn't
+// make sense.
+@file:Suppress("TooManyFunctions")
+
 package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.compose
 
 import androidx.compose.foundation.background
@@ -21,18 +25,26 @@ import androidx.compose.material3.RippleConfiguration
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.ColorImage
+import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
+import coil3.compose.AsyncImagePreviewHandler
+import coil3.compose.LocalAsyncImagePreviewHandler
+import coil3.request.SuccessResult
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.announced
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.beginning_of_the_show
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.episodes
@@ -66,6 +78,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Green
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Purple200
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.WhiteTransparent
+import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.anime_poster_sample
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_notifications_off_40
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_notifications_on_40
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_score_42
@@ -386,6 +399,13 @@ private const val FAB_ICON_SIZE_DP = 28
 private const val INFO_BACKGROUND_ALPHA = 0.5f
 private const val SCORE_NOTIFICATION_ALPHA = 0.8f
 
+// widthDp/heightDp cap the preview's rendering viewport; without both, the unset dimension
+// defaults to a full device screen, and AnotiTheme's Surface.fillMaxSize() stretches to fill it.
+// Sized to the poster's fixed height plus the outer 8dp padding on each side, so the preview's
+// background matches just this item, not a whole screen.
+private const val PREVIEW_WIDTH_DP = 360
+private const val PREVIEW_HEIGHT_DP = POSTER_HEIGHT_DP + 16
+
 private object AnimeListItemPreviewDateFormatter : DateFormatter {
     override fun getFormattedDate(inputText: String, fallbackText: String): String = inputText
 }
@@ -405,35 +425,62 @@ private val previewItem = ListItemUi(
     notification = NotificationUi.ENABLED
 )
 
+// Compose Multiplatform's Coil integration renders whatever this provides in place of a real
+// network fetch whenever LocalInspectionMode is true (i.e. inside @Preview) — letting every
+// AsyncImage/SubcomposeAsyncImage below it, including ones reached transitively through a
+// screen-level preview, show a real local image instead of nothing. Success (not Loading) is
+// required so a SubcomposeAsyncImage renders this painter instead of its own loading slot; the
+// wrapped ColorImage is never actually drawn, only the painter is.
+@OptIn(ExperimentalCoilApi::class)
+@Composable
+private fun rememberPreviewPosterHandler(painter: Painter): AsyncImagePreviewHandler =
+    remember(painter) {
+        AsyncImagePreviewHandler { _, request ->
+            AsyncImagePainter.State.Success(painter, SuccessResult(ColorImage(), request))
+        }
+    }
+
+@OptIn(ExperimentalCoilApi::class)
 @Suppress("FunctionNaming", "UnusedPrivateMember")
-@Preview
+@Preview(widthDp = PREVIEW_WIDTH_DP, heightDp = PREVIEW_HEIGHT_DP)
 @Composable
 private fun AnimeListItemAvailablePreview() {
     AnotiTheme {
-        AnimeListItem(
-            item = previewItem,
-            dateFormatter = AnimeListItemPreviewDateFormatter,
-            onEpisodesInfoClick = {},
-            onNotificationClick = {}
-        )
+        CompositionLocalProvider(
+            LocalAsyncImagePreviewHandler provides
+                rememberPreviewPosterHandler(painterResource(CelebrityRes.drawable.anime_poster_sample))
+        ) {
+            AnimeListItem(
+                item = previewItem,
+                dateFormatter = AnimeListItemPreviewDateFormatter,
+                onEpisodesInfoClick = {},
+                onNotificationClick = {}
+            )
+        }
     }
 }
 
+@OptIn(ExperimentalCoilApi::class)
 @Suppress("FunctionNaming", "UnusedPrivateMember")
-@Preview
+@Preview(widthDp = PREVIEW_WIDTH_DP, heightDp = PREVIEW_HEIGHT_DP)
 @Composable
 private fun AnimeListItemExtraPreview() {
     AnotiTheme {
-        AnimeListItem(
-            item = previewItem.copy(
-                episodesInfoType = EpisodesInfoTypeUi.EXTRA,
-                airedOn = "20 feb. 2022",
-                releaseStatus = ReleaseStatusUi.ANNOUNCED,
-                notification = NotificationUi.DISABLED
-            ),
-            dateFormatter = AnimeListItemPreviewDateFormatter,
-            onEpisodesInfoClick = {},
-            onNotificationClick = {}
-        )
+        CompositionLocalProvider(
+            LocalAsyncImagePreviewHandler provides
+                rememberPreviewPosterHandler(painterResource(CelebrityRes.drawable.anime_poster_sample))
+        ) {
+            AnimeListItem(
+                item = previewItem.copy(
+                    episodesInfoType = EpisodesInfoTypeUi.EXTRA,
+                    airedOn = "20 feb. 2022",
+                    releaseStatus = ReleaseStatusUi.ANNOUNCED,
+                    notification = NotificationUi.DISABLED
+                ),
+                dateFormatter = AnimeListItemPreviewDateFormatter,
+                onEpisodesInfoClick = {},
+                onNotificationClick = {}
+            )
+        }
     }
 }
