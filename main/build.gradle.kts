@@ -76,6 +76,7 @@ kotlin {
             implementation(libs.androidx.constraintlayout)
             implementation(libs.material)
             implementation(libs.compose.ui)
+            implementation(libs.compose.material3)
             implementation(libs.decompose)
             implementation(libs.kotlinx.serialization.json)
         }

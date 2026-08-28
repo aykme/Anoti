@@ -1,7 +1,14 @@
 package com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.compose
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
@@ -46,33 +53,46 @@ fun BottomNavigationBar(
     uiModel: UiModel,
     dispatch: (BottomNavigationBarStore.Intent) -> Unit
 ) {
-    NavigationBar(
-        containerColor = Black,
-        modifier = Modifier
-            .shadow(NAV_BAR_ELEVATION_DP)
-            .height(NAV_BAR_HEIGHT_DP)
-    ) {
-        NavigationBarItem(
-            selected = uiModel.selectedSection == SectionUi.MAIN,
-            onClick = { dispatch(BottomNavigationBarStore.Intent.MainSectionClick) },
-            icon = {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_main_24),
-                    contentDescription = null,
-                    modifier = Modifier.size(NAV_BAR_ICON_SIZE_DP)
-                )
-            },
-            label = { NavigationBarLabel(stringResource(Res.string.main)) },
-            alwaysShowLabel = true,
-            colors = navigationBarItemColors()
-        )
-        NavigationBarItem(
-            selected = uiModel.selectedSection == SectionUi.FAVORITES,
-            onClick = { dispatch(BottomNavigationBarStore.Intent.FavoritesSectionClick) },
-            icon = { FavoritesIcon(favoritesBadgeNumber = uiModel.favoritesBadgeNumber) },
-            label = { NavigationBarLabel(stringResource(Res.string.favorites)) },
-            alwaysShowLabel = true,
-            colors = navigationBarItemColors()
+    // NavigationBar owns exactly one inset-consuming layer: its own windowInsets is disabled
+    // (fixed at zero) so its content is pinned to the original's exact 56dp, and the Spacer below
+    // reserves the system navigation bar's own height with matching background — one bar, split
+    // into a fixed-size content region plus a system-inset region, not two components each trying
+    // to pad for the same inset (that double-padding is exactly what the original View-based bar
+    // avoided by being the only one that consumed it).
+    Column(modifier = Modifier.shadow(NAV_BAR_ELEVATION_DP)) {
+        NavigationBar(
+            containerColor = Black,
+            windowInsets = WindowInsets(0.dp),
+            modifier = Modifier.height(NAV_BAR_HEIGHT_DP)
+        ) {
+            NavigationBarItem(
+                selected = uiModel.selectedSection == SectionUi.MAIN,
+                onClick = { dispatch(BottomNavigationBarStore.Intent.MainSectionClick) },
+                icon = {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_main_24),
+                        contentDescription = null,
+                        modifier = Modifier.size(NAV_BAR_ICON_SIZE_DP)
+                    )
+                },
+                label = { NavigationBarLabel(stringResource(Res.string.main)) },
+                alwaysShowLabel = true,
+                colors = navigationBarItemColors()
+            )
+            NavigationBarItem(
+                selected = uiModel.selectedSection == SectionUi.FAVORITES,
+                onClick = { dispatch(BottomNavigationBarStore.Intent.FavoritesSectionClick) },
+                icon = { FavoritesIcon(favoritesBadgeNumber = uiModel.favoritesBadgeNumber) },
+                label = { NavigationBarLabel(stringResource(Res.string.favorites)) },
+                alwaysShowLabel = true,
+                colors = navigationBarItemColors()
+            )
+        }
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Black)
+                .windowInsetsBottomHeight(WindowInsets.navigationBars)
         )
     }
 }

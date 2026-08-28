@@ -1,6 +1,7 @@
 package com.alekseivinogradov.anoti.main.impl.presentation
 
 import android.view.View
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,7 +12,6 @@ import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.Bott
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.UiModel
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarView
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.compose.BottomNavigationBar
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 import com.alekseivinogradov.anoti.main.R
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootComponent
@@ -38,7 +38,10 @@ internal class BottomNavigationBarViewImpl(
             ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
         )
         composeView.setContent {
-            AnotiTheme {
+            // Not AnotiTheme: its Surface(Modifier.fillMaxSize()) is meant for a full-screen
+            // ComposeFragment host and would stretch this wrap_content bar to fill the whole
+            // window instead of sizing to its own content.
+            MaterialTheme {
                 BottomNavigationBar(uiModel = uiModel, dispatch = ::dispatch)
             }
         }
