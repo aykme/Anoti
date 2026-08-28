@@ -1,6 +1,8 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.searchsection
 
+import com.alekseivinogradov.anoti.animebase.kmp.api.domain.FIRST_PAGE
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.SEARCH_DEBOUNCE_MILLISECONDS
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
@@ -8,8 +10,6 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.SearchSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.SearchUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.FIRST_PAGE
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SEARCH_DEBOUNCE_MILLISECONDS
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.paging.PageLoadResult
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.paging.Paginator

@@ -1,7 +1,11 @@
-package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.compose
+package com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose
 
 const val POSTER_HEIGHT_DP = 350
 const val POSTER_CORNER_PERCENT = 3
+
+// Standard square control size shared by the top bar's filter spacer, search button, search
+// field height, and cancel button.
+const val TOP_BAR_CONTROL_SIZE_DP = 56
 
 // widthDp/heightDp cap a preview's rendering viewport; without both, the unset dimension defaults
 // to a full device screen, and AnotiTheme's Surface.fillMaxSize() stretches to fill it.

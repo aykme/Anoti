@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.BADGE_MAX_NUMBER
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.SectionUi
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.UiModel
@@ -111,7 +112,10 @@ private fun FavoritesIcon(favoritesBadgeNumber: Int) {
         badge = {
             if (favoritesBadgeNumber > 0) {
                 Badge(containerColor = Cinnabar500Transparent, contentColor = Black) {
-                    Text(text = formatBadgeNumber(favoritesBadgeNumber))
+                    Text(
+                        text = formatBadgeNumber(favoritesBadgeNumber),
+                        fontWeight = FontWeight.Normal
+                    )
                 }
             }
         }

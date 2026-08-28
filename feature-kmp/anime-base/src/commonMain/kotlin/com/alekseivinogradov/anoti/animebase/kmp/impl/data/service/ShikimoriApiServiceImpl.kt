@@ -4,8 +4,8 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeDetailsR
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeShortResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ANIME_LIST_APPEND_URL
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
+import com.alekseivinogradov.anoti.animebase.kmp.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.anoti.network.kmp.api.domain.SHIKIMORI_BASE_URL
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body

@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.compose
+package com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose
 
 const val NEW_EPISODE_SHADOW_RADIUS = 16f
 const val NEW_EPISODE_SHADOW_OFFSET = 4f

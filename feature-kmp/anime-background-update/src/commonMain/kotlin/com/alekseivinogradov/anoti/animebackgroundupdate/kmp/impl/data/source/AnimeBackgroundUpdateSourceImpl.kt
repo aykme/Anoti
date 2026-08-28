@@ -4,7 +4,7 @@ import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.data.mapper.toL
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.source.AnimeBackgroundUpdateSource
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.FIRST_PAGE
+import com.alekseivinogradov.anoti.animebase.kmp.api.domain.FIRST_PAGE
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 

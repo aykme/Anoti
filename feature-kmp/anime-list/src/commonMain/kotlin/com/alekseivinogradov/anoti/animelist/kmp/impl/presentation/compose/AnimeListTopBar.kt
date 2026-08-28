@@ -38,7 +38,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.SEARCH_TEXT_MAX_LENGTH
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BAR_CONTROL_SIZE_DP
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BAR_PREVIEW_HEIGHT_DP
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BAR_PREVIEW_WIDTH_DP
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.SearchUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.SectionHatUi
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.Res
@@ -53,6 +56,8 @@ import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.soon
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.BlackTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LARGE_ACCENT_TEXT_SP
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SUBTITLE1_SP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.WhiteTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.amiko
@@ -140,13 +145,13 @@ private fun TabsRow(
             .padding(top = 8.dp)
     ) {
         // Reserved layout space with no interactive control.
-        Spacer(Modifier.padding(start = 8.dp).size(FILTER_BUTTON_SIZE_DP.dp))
+        Spacer(Modifier.padding(start = 8.dp).size(TOP_BAR_CONTROL_SIZE_DP.dp))
 
         Text(
             text = stringResource(Res.string.on_air),
             color = if (selectedSection == SectionHatUi.ONGOINGS) Cinnabar500 else WhiteTransparent,
             fontFamily = amiko,
-            fontSize = TAB_TEXT_SP.sp,
+            fontSize = LARGE_ACCENT_TEXT_SP,
             fontWeight = FontWeight.Normal,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -171,7 +176,7 @@ private fun TabsRow(
             text = stringResource(Res.string.soon),
             color = if (selectedSection == SectionHatUi.ANNOUNCED) Cinnabar500 else WhiteTransparent,
             fontFamily = amiko,
-            fontSize = TAB_TEXT_SP.sp,
+            fontSize = LARGE_ACCENT_TEXT_SP,
             fontWeight = FontWeight.Normal,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -186,7 +191,7 @@ private fun TabsRow(
         Box(
             modifier = Modifier
                 .padding(end = 8.dp)
-                .size(width = SEARCH_BUTTON_SIZE_DP.dp, height = SEARCH_BUTTON_SIZE_DP.dp),
+                .size(width = TOP_BAR_CONTROL_SIZE_DP.dp, height = TOP_BAR_CONTROL_SIZE_DP.dp),
             contentAlignment = Alignment.Center
         ) {
             // Manual hard-edged shadow: a second, larger, darker icon behind the real one.
@@ -196,7 +201,7 @@ private fun TabsRow(
                 colorFilter = ColorFilter.tint(BlackTransparent),
                 modifier = Modifier.size(34.dp)
             )
-            IconButton(onClick = onSearchClick, modifier = Modifier.size(SEARCH_BUTTON_SIZE_DP.dp)) {
+            IconButton(onClick = onSearchClick, modifier = Modifier.size(TOP_BAR_CONTROL_SIZE_DP.dp)) {
                 Image(
                     painter = painterResource(Res.drawable.ic_search_32),
                     contentDescription = stringResource(Res.string.search_on_description),
@@ -221,7 +226,13 @@ private fun SearchField(text: String, onTextChange: (String) -> Unit, onCancelCl
                     onTextChange(newText)
                 }
             },
-            placeholder = { Text(stringResource(Res.string.search_hint)) },
+            placeholder = {
+                Text(
+                    text = stringResource(Res.string.search_hint),
+                    fontSize = SUBTITLE1_SP,
+                    fontWeight = FontWeight.Normal
+                )
+            },
             singleLine = true,
             textStyle = TextStyle(color = White),
             colors = OutlinedTextFieldDefaults.colors(
@@ -237,7 +248,7 @@ private fun SearchField(text: String, onTextChange: (String) -> Unit, onCancelCl
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
-                .height(SEARCH_FIELD_HEIGHT_DP.dp)
+                .height(TOP_BAR_CONTROL_SIZE_DP.dp)
                 .shadow(1.dp)
         )
         IconButton(
@@ -245,7 +256,7 @@ private fun SearchField(text: String, onTextChange: (String) -> Unit, onCancelCl
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .padding(top = 8.dp, end = 8.dp)
-                .size(CANCEL_BUTTON_SIZE_DP.dp)
+                .size(TOP_BAR_CONTROL_SIZE_DP.dp)
         ) {
             Image(
                 painter = painterResource(Res.drawable.ic_search_cancel_32),
@@ -256,13 +267,6 @@ private fun SearchField(text: String, onTextChange: (String) -> Unit, onCancelCl
         }
     }
 }
-
-private const val FILTER_BUTTON_SIZE_DP = 56
-private const val SEARCH_BUTTON_SIZE_DP = 56
-private const val SEARCH_FIELD_HEIGHT_DP = 56
-private const val CANCEL_BUTTON_SIZE_DP = 56
-private const val TAB_TEXT_SP = 29
-private const val SEARCH_TEXT_MAX_LENGTH = 75
 
 @Suppress("FunctionNaming", "UnusedPrivateMember")
 @Preview(widthDp = TOP_BAR_PREVIEW_WIDTH_DP, heightDp = TOP_BAR_PREVIEW_HEIGHT_DP)

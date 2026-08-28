@@ -17,3 +17,6 @@ val SUBTITLE2_SP: TextUnit = 14.sp
 
 // Material Caption text size.
 val CAPTION_SP: TextUnit = 12.sp
+
+// The project's own larger accent text style's size (custom font, drop shadow, no bold).
+val LARGE_ACCENT_TEXT_SP: TextUnit = 29.sp

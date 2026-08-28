@@ -80,6 +80,12 @@ import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.ongoing
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.released
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.score_image_description
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.show_is_finished
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.ITEM_MIN_HEIGHT_DP
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.ITEM_PREVIEW_HEIGHT_DP
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.ITEM_PREVIEW_WIDTH_DP
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.NEW_EPISODE_SHADOW_OFFSET
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.NEW_EPISODE_SHADOW_RADIUS
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.POSTER_WIDTH_DP
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.InfoTypeUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.ListItemUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.NotificationUi

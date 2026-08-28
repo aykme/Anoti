@@ -1,11 +1,11 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.announcedsection
 
+import com.alekseivinogradov.anoti.animebase.kmp.api.domain.FIRST_PAGE
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsection.AnnouncedSectionExecutor
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsection.AnnouncedSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.AnnouncedUsecases
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.FIRST_PAGE
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.paging.PageLoadResult
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.paging.Paginator

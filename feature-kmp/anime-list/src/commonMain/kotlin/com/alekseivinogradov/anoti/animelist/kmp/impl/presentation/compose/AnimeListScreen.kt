@@ -30,6 +30,7 @@ import coil3.compose.AsyncImagePainter
 import coil3.compose.AsyncImagePreviewHandler
 import coil3.compose.LocalAsyncImagePreviewHandler
 import coil3.request.SuccessResult
+import com.alekseivinogradov.anoti.animebase.kmp.api.domain.PAGING_PREFETCH_DISTANCE
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.LIST_LAST_ITEM_BOTTOM_PADDING_DP
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.PULL_TO_REFRESH_THRESHOLD
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.loading_in_progress
@@ -43,7 +44,6 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcont
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.ReleaseStatusUi
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.connection_error_48
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.PAGING_PREFETCH_DISTANCE
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
