@@ -9,7 +9,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -54,7 +53,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil3.ColorImage
 import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.AsyncImagePainter
@@ -88,20 +86,26 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.ic_arr
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.ic_details_off_24
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.ic_details_on_24
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.new_episode
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.NOTIFICATION_FAB_SIZE_DP
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.NOTIFICATION_ICON_SIZE_DP
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SUBTITLE1_SP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.ACCENT_TEXT_SP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Black
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.BlackTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.FAB_ELEVATION_DP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Green
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Grey700
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.IMAGE_CORNER_PERCENT
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.ITEM_ICON_ALPHA
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LoadingSpinner
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.NOTIFICATION_FAB_SIZE_DP
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.NOTIFICATION_ICON_SIZE_DP
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.POSTER_OVERLAY_ALPHA
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Purple200
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SPACING_UNIT_DP
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SUBTITLE1_SP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Silver
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.repeatingClickable
@@ -177,7 +181,7 @@ fun AnimeFavoritesItem(
     ) { constraints ->
         val minHeightPx = ITEM_MIN_HEIGHT_DP.dp.roundToPx()
         val posterWidthPx = POSTER_WIDTH_DP.dp.roundToPx()
-        val spacerPx = ITEM_CONTENT_SPACER_DP.dp.roundToPx()
+        val spacerPx = SPACING_UNIT_DP.roundToPx()
         val infoWidthPx = (constraints.maxWidth - posterWidthPx - spacerPx).coerceAtLeast(0)
         val infoWidthConstraints = Constraints(minWidth = infoWidthPx, maxWidth = infoWidthPx)
 
@@ -215,7 +219,7 @@ private fun PosterColumn(
         modifier = Modifier
             .width(130.dp)
             .fillMaxHeight()
-            .clip(RoundedCornerShape(percent = ROUNDED_IMAGE_CORNER_PERCENT))
+            .clip(RoundedCornerShape(percent = IMAGE_CORNER_PERCENT))
     ) {
         PosterImage(imageUrl)
         if (isNewEpisode) {
@@ -255,7 +259,7 @@ private fun BoxScope.NewEpisodeBadge(amikoBold: FontFamily) {
         color = Silver,
         fontFamily = amikoBold,
         fontWeight = FontWeight.Bold,
-        fontSize = NEW_EPISODE_BADGE_SP.sp,
+        fontSize = ACCENT_TEXT_SP,
         textAlign = TextAlign.Center,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
@@ -269,7 +273,7 @@ private fun BoxScope.NewEpisodeBadge(amikoBold: FontFamily) {
         modifier = Modifier
             .align(Alignment.TopCenter)
             .fillMaxWidth()
-            .background(Black.copy(alpha = OVERLAY_ALPHA), RoundedCornerShape(4.dp))
+            .background(Black.copy(alpha = POSTER_OVERLAY_ALPHA), RoundedCornerShape(4.dp))
     )
 }
 
@@ -286,7 +290,7 @@ private fun BoxScope.ScoreInfoBar(
             .align(Alignment.BottomCenter)
             .fillMaxWidth()
             .height(50.dp)
-            .background(Black.copy(alpha = OVERLAY_ALPHA), RoundedCornerShape(4.dp))
+            .background(Black.copy(alpha = POSTER_OVERLAY_ALPHA), RoundedCornerShape(4.dp))
     ) {
         Icon(
             painter = cmpPainterResource(CelebrityRes.drawable.ic_score_42),
@@ -294,7 +298,7 @@ private fun BoxScope.ScoreInfoBar(
             tint = Cinnabar500,
             modifier = Modifier
                 .size(32.dp)
-                .alpha(SCORE_ICON_ALPHA)
+                .alpha(ITEM_ICON_ALPHA)
         )
         Text(
             text = score,
@@ -405,7 +409,6 @@ private fun MainInfoContent(item: ListItemUi, onNotificationClick: () -> Unit) {
         Spacer(Modifier.weight(1f))
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
@@ -414,7 +417,9 @@ private fun MainInfoContent(item: ListItemUi, onNotificationClick: () -> Unit) {
                 fontSize = SUBTITLE1_SP,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f, fill = false)
+                // Keeps an 8dp gap before the FAB even when the text is long enough to fill the
+                // row, matching the original's fixed-margin constraint.
+                modifier = Modifier.weight(1f).padding(end = 8.dp)
             )
             NotificationButton(notification = item.notification, onClick = onNotificationClick)
         }
@@ -537,8 +542,8 @@ private fun NotificationButton(notification: NotificationUi, onClick: () -> Unit
             modifier = Modifier
                 .testTag("notification_button")
                 .size(NOTIFICATION_FAB_SIZE_DP)
-                .alpha(NOTIFICATION_BUTTON_ALPHA)
-                .shadow(NOTIFICATION_BUTTON_ELEVATION_DP.dp, CircleShape)
+                .alpha(ITEM_ICON_ALPHA)
+                .shadow(FAB_ELEVATION_DP, CircleShape)
                 .background(backgroundColor, shape = CircleShape)
         ) {
             Icon(
@@ -603,17 +608,10 @@ private fun releaseStatusColor(status: ReleaseStatusUi): Color =
         ReleaseStatusUi.UNKNOWN -> White
     }
 
-private const val ROUNDED_IMAGE_CORNER_PERCENT = 8
-private const val OVERLAY_ALPHA = 0.5f
-private const val NEW_EPISODE_BADGE_SP = 15
-private const val NOTIFICATION_BUTTON_ELEVATION_DP = 6
-private const val SCORE_ICON_ALPHA = 0.8f
-private const val NOTIFICATION_BUTTON_ALPHA = 0.8f
 private const val NEW_EPISODE_SHADOW_RADIUS = 16f
 private const val NEW_EPISODE_SHADOW_OFFSET = 4f
 private const val ITEM_MIN_HEIGHT_DP = 146
 private const val POSTER_WIDTH_DP = 130
-private const val ITEM_CONTENT_SPACER_DP = 8
 
 private enum class AnimeFavoritesItemSlot { Poster, Info, InfoMeasure }
 

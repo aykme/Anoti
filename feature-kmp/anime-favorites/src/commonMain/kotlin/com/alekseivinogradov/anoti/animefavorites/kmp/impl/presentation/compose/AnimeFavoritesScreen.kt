@@ -36,7 +36,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil3.ColorImage
 import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.AsyncImagePainter
@@ -54,13 +53,15 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.ite
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_list
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_list_image_description
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.LIST_LAST_ITEM_BOTTOM_PADDING_DP
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.PULL_TO_REFRESH_THRESHOLD
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Grey700
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.IMAGE_CORNER_PERCENT
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LIST_LAST_ITEM_BOTTOM_PADDING_DP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LoadingSpinner
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.PULL_TO_REFRESH_THRESHOLD
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SUBTITLE2_SP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.anime_poster_sample
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.main_character_image
@@ -144,7 +145,7 @@ private fun EmptyState(topInsetDp: Dp) {
                     .width(130.dp)
                     .heightIn(min = 130.dp)
                     .fillMaxHeight()
-                    .clip(RoundedCornerShape(percent = EMPTY_IMAGE_CORNER_PERCENT))
+                    .clip(RoundedCornerShape(percent = IMAGE_CORNER_PERCENT))
             )
             Spacer(Modifier.width(8.dp))
             Box(
@@ -156,7 +157,7 @@ private fun EmptyState(topInsetDp: Dp) {
                 Text(
                     text = stringResource(Res.string.empty_list),
                     color = White,
-                    fontSize = EMPTY_TEXT_SP.sp,
+                    fontSize = SUBTITLE2_SP,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Start,
                     modifier = Modifier
@@ -233,9 +234,6 @@ private fun ListState(
         )
     }
 }
-
-private const val EMPTY_IMAGE_CORNER_PERCENT = 8
-private const val EMPTY_TEXT_SP = 14
 
 private object AnimeFavoritesScreenPreviewDateFormatter : DateFormatter {
     override fun getFormattedDate(inputText: String, fallbackText: String): String = inputText

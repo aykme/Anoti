@@ -3,7 +3,6 @@ package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.compose
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -17,6 +16,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +28,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -80,6 +81,13 @@ fun AnimeListTopBar(
     // Hoisted above the `search == SHOWN` check so typed text survives closing and reopening
     // the search bar.
     var searchText by remember { mutableStateOf("") }
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+    LaunchedEffect(search) {
+        if (search == SearchUi.HIDDEN) {
+            keyboardController?.hide()
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -145,11 +153,7 @@ private fun TabsRow(
             modifier = Modifier
                 .weight(1f)
                 .padding(vertical = 12.dp)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onOngoingClick
-                )
+                .clickable(onClick = onOngoingClick)
                 .testTag("ongoing_button")
         )
 
@@ -173,11 +177,7 @@ private fun TabsRow(
             modifier = Modifier
                 .weight(1f)
                 .padding(vertical = 12.dp)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onAnnouncedClick
-                )
+                .clickable(onClick = onAnnouncedClick)
         )
 
         Box(
@@ -213,7 +213,11 @@ private fun SearchField(text: String, onTextChange: (String) -> Unit, onCancelCl
     Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
         OutlinedTextField(
             value = text,
-            onValueChange = onTextChange,
+            onValueChange = { newText ->
+                if (newText.length <= SEARCH_TEXT_MAX_LENGTH) {
+                    onTextChange(newText)
+                }
+            },
             placeholder = { Text(stringResource(Res.string.search_hint)) },
             singleLine = true,
             textStyle = TextStyle(color = White),
@@ -255,6 +259,7 @@ private const val SEARCH_BUTTON_SIZE_DP = 56
 private const val SEARCH_FIELD_HEIGHT_DP = 56
 private const val CANCEL_BUTTON_SIZE_DP = 56
 private const val TAB_TEXT_SP = 29
+private const val SEARCH_TEXT_MAX_LENGTH = 75
 
 @Suppress("FunctionNaming", "UnusedPrivateMember")
 @Preview

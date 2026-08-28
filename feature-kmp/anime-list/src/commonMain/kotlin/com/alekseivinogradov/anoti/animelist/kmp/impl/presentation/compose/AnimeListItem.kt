@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.RippleConfiguration
@@ -37,7 +38,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil3.ColorImage
 import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.AsyncImage
@@ -66,16 +66,22 @@ import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.extra_episo
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_info_28
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_info_outline_28
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.poster_image_description
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.NOTIFICATION_FAB_SIZE_DP
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.NOTIFICATION_ICON_SIZE_DP
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.SUBTITLE1_SP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Black
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.BlackTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.FAB_ELEVATION_DP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Green
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.HEADLINE6_SP
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.ITEM_ICON_ALPHA
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.NOTIFICATION_FAB_SIZE_DP
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.NOTIFICATION_ICON_SIZE_DP
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.POSTER_OVERLAY_ALPHA
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Purple200
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SECONDARY_FAB_ICON_SIZE_DP
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SECONDARY_FAB_SIZE_DP
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SUBTITLE1_SP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.WhiteTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.anime_poster_sample
@@ -144,7 +150,7 @@ private fun BoxScope.NameEpisodesAndBottomRow(
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .alpha(INFO_BACKGROUND_ALPHA)
+                .alpha(POSTER_OVERLAY_ALPHA)
                 .background(Black, RoundedCornerShape(4.dp))
         )
         Column {
@@ -152,7 +158,7 @@ private fun BoxScope.NameEpisodesAndBottomRow(
                 Text(
                     text = item.name,
                     color = White,
-                    fontSize = HEADLINE6_SP.sp,
+                    fontSize = HEADLINE6_SP,
                     maxLines = 5,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -190,7 +196,7 @@ private fun EpisodesInfoRow(
             Text(
                 text = availableEpisodesInfoText(item),
                 color = White,
-                fontSize = HEADLINE6_SP.sp,
+                fontSize = HEADLINE6_SP,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f, fill = false).padding(vertical = 8.dp)
@@ -202,14 +208,14 @@ private fun EpisodesInfoRow(
                     containerColor = Black,
                     contentColor = Cinnabar500,
                     shape = CircleShape,
-                    modifier = Modifier.padding(top = 1.dp).size(FAB_SIZE_DP.dp)
+                    modifier = Modifier.padding(top = 1.dp).size(SECONDARY_FAB_SIZE_DP)
                 ) {
                     Icon(
                         painter = painterResource(Res.drawable.ic_info_outline_28),
                         contentDescription = stringResource(
                             Res.string.extra_episodes_info_description
                         ),
-                        modifier = Modifier.size(FAB_ICON_SIZE_DP.dp)
+                        modifier = Modifier.size(SECONDARY_FAB_ICON_SIZE_DP)
                     )
                 }
             }
@@ -229,14 +235,14 @@ private fun EpisodesInfoRow(
                     containerColor = Black,
                     contentColor = Cinnabar500,
                     shape = CircleShape,
-                    modifier = Modifier.padding(top = 3.dp).size(FAB_SIZE_DP.dp)
+                    modifier = Modifier.padding(top = 3.dp).size(SECONDARY_FAB_SIZE_DP)
                 ) {
                     Icon(
                         painter = painterResource(Res.drawable.ic_info_28),
                         contentDescription = stringResource(
                             Res.string.available_episodes_info_discription
                         ),
-                        modifier = Modifier.size(FAB_ICON_SIZE_DP.dp)
+                        modifier = Modifier.size(SECONDARY_FAB_ICON_SIZE_DP)
                     )
                 }
             }
@@ -259,12 +265,12 @@ private fun BottomRow(item: ListItemUi, onNotificationClick: () -> Unit) {
             modifier = Modifier
                 .padding(start = 8.dp)
                 .size(42.dp)
-                .alpha(SCORE_NOTIFICATION_ALPHA)
+                .alpha(ITEM_ICON_ALPHA)
         )
         Text(
             text = item.score,
             color = White,
-            fontSize = HEADLINE6_SP.sp,
+            fontSize = HEADLINE6_SP,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(start = 11.dp)
@@ -284,7 +290,7 @@ private fun BottomRow(item: ListItemUi, onNotificationClick: () -> Unit) {
             Text(
                 text = releaseStatusText(item.releaseStatus),
                 color = releaseStatusColor(item.releaseStatus),
-                fontSize = HEADLINE6_SP.sp,
+                fontSize = HEADLINE6_SP,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -317,10 +323,11 @@ private fun BottomRow(item: ListItemUi, onNotificationClick: () -> Unit) {
                 onClick = onNotificationClick,
                 containerColor = notificationBackground,
                 shape = CircleShape,
+                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = FAB_ELEVATION_DP),
                 modifier = Modifier
                     .padding(end = 16.dp, bottom = 16.dp)
                     .size(NOTIFICATION_FAB_SIZE_DP)
-                    .alpha(SCORE_NOTIFICATION_ALPHA)
+                    .alpha(ITEM_ICON_ALPHA)
                     .testTag("notification_button")
             ) {
                 Icon(
@@ -393,11 +400,6 @@ private fun releaseStatusColor(releaseStatus: ReleaseStatusUi): Color = when (re
 
 private const val POSTER_HEIGHT_DP = 350
 private const val POSTER_CORNER_PERCENT = 3
-private const val HEADLINE6_SP = 20
-private const val FAB_SIZE_DP = 35
-private const val FAB_ICON_SIZE_DP = 28
-private const val INFO_BACKGROUND_ALPHA = 0.5f
-private const val SCORE_NOTIFICATION_ALPHA = 0.8f
 
 // widthDp/heightDp cap the preview's rendering viewport; without both, the unset dimension
 // defaults to a full device screen, and AnotiTheme's Surface.fillMaxSize() stretches to fill it.
