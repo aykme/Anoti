@@ -380,13 +380,6 @@ private const val FAB_ICON_SIZE_DP = 28
 private const val INFO_BACKGROUND_ALPHA = 0.5f
 private const val SCORE_NOTIFICATION_ALPHA = 0.8f
 
-// On Android, Compose Multiplatform packages commonMain composeResources as APK assets under
-// this path, letting Coil load the preview poster locally with no network call.
-private const val PREVIEW_POSTER_ASSET_URI =
-    "file:///android_asset/composeResources/" +
-        "com.alekseivinogradov.anoti.animelist.kmp.generated.resources/drawable/" +
-        "anime_poster_sample.jpg"
-
 private object AnimeListItemPreviewDateFormatter : DateFormatter {
     override fun getFormattedDate(inputText: String, fallbackText: String): String = inputText
 }
@@ -394,7 +387,7 @@ private object AnimeListItemPreviewDateFormatter : DateFormatter {
 private val previewItem = ListItemUi(
     id = 1,
     name = "Attack on Titan: Final. Part 2",
-    imageUrl = PREVIEW_POSTER_ASSET_URI,
+    imageUrl = null,
     episodesInfoType = EpisodesInfoTypeUi.AVAILABLE,
     episodesAired = 2,
     episodesTotal = null,
