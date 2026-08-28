@@ -6,8 +6,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * Retries [interactionCall] until it stops throwing, up to [maxAttempt] times — the Compose
- * Testing equivalent of [safeInteraction], same default retry budget.
+ * Retries [interactionCall] until it stops throwing, up to [maxAttempt] times.
  */
 @Suppress("TooGenericExceptionThrown")
 suspend fun safeComposeInteraction(
