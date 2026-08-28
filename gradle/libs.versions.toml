@@ -16,13 +16,11 @@ versionName = "1.09"
 
 #Library versions
 activity = "1.13.0"
-agp = "9.3.1"
+agp = "9.3.2"
 annotationJvm = "1.10.0"
 appcompat = "1.8.0"
-coil = "3.5.0"
 # material3 has no release on the composeMultiplatform line (1.11.1 doesn't exist for it) — 1.9.0 is its real stable ceiling.
 composeMaterial3 = "1.9.0"
-composeMultiplatform = "1.11.1"
 constraintlayout = "2.2.2"
 coroutines = "1.11.0"
 decompose = "3.5.0"
@@ -47,6 +45,14 @@ workRuntimeKtx = "2.11.2"
 
 #Non maxed supressed library versions
 
+# 3.6.0 pulls in a Compose baseline requiring compileSdk 37 — 3.5.0 is the max compatible with
+# the current compileSdk 36.
+#noinspection NewerVersionAvailable
+coil = "3.5.0"
+# 1.12.0 pulls in androidx.compose.ui/foundation/runtime:1.12.0, which requires compileSdk 37 —
+# 1.11.1 is the max compatible with the current compileSdk 36.
+#noinspection NewerVersionAvailable,GradleDependency
+composeMultiplatform = "1.11.1"
 # Pinned to the version androidx.compose.ui:ui actually resolves to on :app's runtime classpath
 # (org.jetbrains.compose.ui:ui:1.11.1 substitutes to this) — an instrumented test shares the
 # app's process, so ui-test-junit4 must load the exact same Compose UI runtime classes. Newer
