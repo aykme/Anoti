@@ -304,6 +304,7 @@ private fun BoxScope.ScoreInfoBar(
             text = score,
             color = White,
             fontSize = SUBTITLE1_SP,
+            fontWeight = FontWeight.Normal,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -395,6 +396,7 @@ private fun MainInfoContent(item: ListItemUi, onNotificationClick: () -> Unit) {
             text = item.name,
             color = White,
             fontSize = SUBTITLE1_SP,
+            fontWeight = FontWeight.Normal,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
@@ -403,6 +405,7 @@ private fun MainInfoContent(item: ListItemUi, onNotificationClick: () -> Unit) {
             text = "${stringResource(BaseRes.string.episodes)}: ${item.availableEpisodesInfo}",
             color = White,
             fontSize = SUBTITLE1_SP,
+            fontWeight = FontWeight.Normal,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -415,6 +418,7 @@ private fun MainInfoContent(item: ListItemUi, onNotificationClick: () -> Unit) {
                 text = releaseStatusText(item.releaseStatus),
                 color = releaseStatusColor(item.releaseStatus),
                 fontSize = SUBTITLE1_SP,
+                fontWeight = FontWeight.Normal,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 // Keeps an 8dp gap before the FAB even when the text is long enough to fill the
@@ -443,6 +447,7 @@ private fun ExtraInfoContent(
             ),
             color = White,
             fontSize = SUBTITLE1_SP,
+            fontWeight = FontWeight.Normal,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
@@ -451,6 +456,7 @@ private fun ExtraInfoContent(
             text = "${stringResource(Res.string.episodes_viewed)}:",
             color = White,
             fontSize = SUBTITLE1_SP,
+            fontWeight = FontWeight.Normal,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Start,
@@ -494,6 +500,7 @@ private fun EpisodesViewedRow(
             text = episodesViewed,
             color = White,
             fontSize = SUBTITLE1_SP,
+            fontWeight = FontWeight.Normal,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )

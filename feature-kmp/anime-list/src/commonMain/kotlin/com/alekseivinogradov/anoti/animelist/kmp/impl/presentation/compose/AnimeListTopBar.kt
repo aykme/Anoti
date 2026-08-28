@@ -32,6 +32,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -146,6 +147,7 @@ private fun TabsRow(
             color = if (selectedSection == SectionHatUi.ONGOINGS) Cinnabar500 else WhiteTransparent,
             fontFamily = amiko,
             fontSize = TAB_TEXT_SP.sp,
+            fontWeight = FontWeight.Normal,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
@@ -170,6 +172,7 @@ private fun TabsRow(
             color = if (selectedSection == SectionHatUi.ANNOUNCED) Cinnabar500 else WhiteTransparent,
             fontFamily = amiko,
             fontSize = TAB_TEXT_SP.sp,
+            fontWeight = FontWeight.Normal,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
