@@ -61,10 +61,31 @@ abstract class ComposeFragment : Fragment() {
     private fun initEdgeToEdgeListenerIfNeeded(view: View) {
         if (isEdgeToEdgeEnabled()) {
             ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
-                val systemBarsTopPx = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
-                topInsetDp = with(resources.displayMetrics) { (systemBarsTopPx / density).dp }
+                applyTopInset(insets)
                 insets
             }
+            // On a screen's first-ever attach, this fragment's view isn't attached to the window
+            // yet, and the window never redelivers insets to it once it does attach. Only a
+            // fragment swap, which recreates the view, happens to trigger a fresh dispatch.
+            // So the listener above would otherwise never fire here. Reading the window's
+            // already-cached insets directly, as soon as the view attaches, sidesteps that.
+            if (view.isAttachedToWindow) {
+                ViewCompat.getRootWindowInsets(view)?.let(::applyTopInset)
+            } else {
+                view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+                    override fun onViewAttachedToWindow(attachedView: View) {
+                        attachedView.removeOnAttachStateChangeListener(this)
+                        ViewCompat.getRootWindowInsets(attachedView)?.let(::applyTopInset)
+                    }
+
+                    override fun onViewDetachedFromWindow(detachedView: View) = Unit
+                })
+            }
         }
+    }
+
+    private fun applyTopInset(insets: WindowInsetsCompat) {
+        val systemBarsTopPx = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
+        topInsetDp = with(resources.displayMetrics) { (systemBarsTopPx / density).dp }
     }
 }

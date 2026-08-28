@@ -165,12 +165,12 @@ private fun EpisodesInfoRow(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        // Only AVAILABLE needs this outer margin; EXTRA's text already carries its own
-        // bottom padding, so stacking this on top would double it.
+        // Applied on the row, not the text: the FAB centers against the text's own bounds, and
+        // this bottom margin must sit outside those bounds to keep that centering exact.
         modifier = if (item.episodesInfoType == EpisodesInfoTypeUi.AVAILABLE) {
             Modifier.padding(bottom = 8.dp)
         } else {
-            Modifier
+            Modifier.padding(bottom = 10.5.dp)
         }
     ) {
         if (item.episodesInfoType == EpisodesInfoTypeUi.AVAILABLE) {
@@ -207,7 +207,7 @@ private fun EpisodesInfoRow(
                 fontSize = SUBTITLE1_SP,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f, fill = false).padding(bottom = 10.5.dp)
+                modifier = Modifier.weight(1f, fill = false)
             )
             Spacer(Modifier.width(3.dp))
             CompositionLocalProvider(LocalRippleConfiguration provides RippleConfiguration(color = Black)) {
@@ -257,12 +257,17 @@ private fun BottomRow(item: ListItemUi, onNotificationClick: () -> Unit) {
             modifier = Modifier.padding(start = 11.dp)
         )
         if (item.releaseStatus != ReleaseStatusUi.UNKNOWN) {
+            // The divider/status/divider trio floats between the score and the notification
+            // button as a chain, each gap sharing the row's leftover space equally — not one
+            // single gap absorbing all of it.
+            Spacer(Modifier.weight(1f))
             Box(
                 modifier = Modifier
                     .padding(start = 4.dp, top = 5.dp, end = 4.dp)
                     .size(width = 3.dp, height = 10.dp)
                     .background(WhiteTransparent)
             )
+            Spacer(Modifier.weight(1f))
             Text(
                 text = releaseStatusText(item.releaseStatus),
                 color = releaseStatusColor(item.releaseStatus),
@@ -270,6 +275,7 @@ private fun BottomRow(item: ListItemUi, onNotificationClick: () -> Unit) {
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+            Spacer(Modifier.weight(1f))
             Box(
                 modifier = Modifier
                     .padding(start = 4.dp, top = 5.dp, end = 4.dp)

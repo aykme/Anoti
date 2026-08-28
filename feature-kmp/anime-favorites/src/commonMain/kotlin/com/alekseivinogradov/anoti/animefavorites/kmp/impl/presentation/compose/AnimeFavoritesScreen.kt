@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -131,7 +131,9 @@ private fun EmptyState(topInsetDp: Dp) {
                 contentDescription = stringResource(Res.string.empty_list_image_description),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .size(130.dp)
+                    .width(130.dp)
+                    .heightIn(min = 130.dp)
+                    .fillMaxHeight()
                     .clip(RoundedCornerShape(percent = EMPTY_IMAGE_CORNER_PERCENT))
             )
             Spacer(Modifier.width(8.dp))

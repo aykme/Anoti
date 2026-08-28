@@ -40,6 +40,7 @@ import com.alekseivinogradov.anoti.testutils.android.safeComposeInteraction
 import com.alekseivinogradov.anoti.testutils.android.safeInteraction
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.getString
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -62,21 +63,67 @@ class AnimeFavoritesUserFlowTest {
         getString(base_Res.string.notifications_turn_off_description)
     private suspend fun ongoingStatusText() = getString(base_Res.string.ongoing)
 
+    private var originalWindowAnimationScale: String = ""
+    private var originalTransitionAnimationScale: String = ""
+    private var originalAnimatorDurationScale: String = ""
+    private var originalFontScale: String = ""
+    private var originalDensityOverride: String? = null
+
     @Before
     fun setup() {
-        // Animations race with Espresso/Compose test sync and cause flakiness; disable them.
-        // Font scale/density can reflow list items and misdirect clicks; reset to defaults.
-        runShellCommand("settings put global window_animation_scale 0")
-        runShellCommand("settings put global transition_animation_scale 0")
-        runShellCommand("settings put global animator_duration_scale 0")
+        // Animations race with Espresso/Compose test sync and cause flakiness; font scale/
+        // density can reflow list items and misdirect clicks — all set to test-optimal values
+        // here, and restored to whatever this device had once the test finishes.
+        originalWindowAnimationScale = getGlobalSetting("window_animation_scale")
+        originalTransitionAnimationScale = getGlobalSetting("transition_animation_scale")
+        originalAnimatorDurationScale = getGlobalSetting("animator_duration_scale")
+        originalFontScale = runShellCommand("settings get system font_scale").trim()
+        originalDensityOverride = currentDensityOverride()
+
+        putGlobalSetting("window_animation_scale", "0")
+        putGlobalSetting("transition_animation_scale", "0")
+        putGlobalSetting("animator_duration_scale", "0")
         runShellCommand("settings put system font_scale 1.0")
         runShellCommand("wm density reset")
     }
 
-    private fun runShellCommand(command: String) {
+    @After
+    fun tearDown() {
+        putGlobalSetting("window_animation_scale", originalWindowAnimationScale)
+        putGlobalSetting("transition_animation_scale", originalTransitionAnimationScale)
+        putGlobalSetting("animator_duration_scale", originalAnimatorDurationScale)
+        runShellCommand("settings put system font_scale $originalFontScale")
+        when (val density = originalDensityOverride) {
+            null -> runShellCommand("wm density reset")
+            else -> runShellCommand("wm density $density")
+        }
+    }
+
+    private fun currentDensityOverride(): String? =
+        runShellCommand("wm density")
+            .lineSequence()
+            .firstOrNull { it.startsWith("Override density:") }
+            ?.substringAfter(':')
+            ?.trim()
+
+    private fun getGlobalSetting(key: String): String =
+        runShellCommand("settings get global $key").trim()
+
+    // A global setting that was never explicitly written reads back as the literal string
+    // "null" — writing that string back would set it to that value instead of leaving it unset.
+    private fun putGlobalSetting(key: String, value: String) {
+        if (value == "null") {
+            runShellCommand("settings delete global $key")
+        } else {
+            runShellCommand("settings put global $key $value")
+        }
+    }
+
+    private fun runShellCommand(command: String): String {
         val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
-        ParcelFileDescriptor.AutoCloseInputStream(uiAutomation.executeShellCommand(command))
+        return ParcelFileDescriptor.AutoCloseInputStream(uiAutomation.executeShellCommand(command))
             .use { it.readBytes() }
+            .toString(Charsets.UTF_8)
     }
 
     // runBlocking, not runTest: the retries below need real delays, not virtual time.
