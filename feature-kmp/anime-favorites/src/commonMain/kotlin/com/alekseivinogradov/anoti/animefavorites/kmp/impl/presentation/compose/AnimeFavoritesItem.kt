@@ -60,6 +60,15 @@ import coil3.compose.AsyncImagePreviewHandler
 import coil3.compose.LocalAsyncImagePreviewHandler
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.SuccessResult
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.FAB_ELEVATION_DP
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.IMAGE_CORNER_PERCENT
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.ITEM_ICON_ALPHA
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.NOTIFICATION_FAB_SIZE_DP
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.NOTIFICATION_ICON_SIZE_DP
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.POSTER_OVERLAY_ALPHA
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.SPACING_UNIT_DP
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.announced
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.beginning_of_the_show
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.episodes
@@ -92,19 +101,10 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiT
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Black
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.BlackTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.FAB_ELEVATION_DP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Green
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Grey700
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.IMAGE_CORNER_PERCENT
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.ITEM_ICON_ALPHA
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LoadingSpinner
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.NOTIFICATION_FAB_SIZE_DP
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.NOTIFICATION_ICON_SIZE_DP
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.POSTER_OVERLAY_ALPHA
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Purple200
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SPACING_UNIT_DP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SUBTITLE1_SP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Silver
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
@@ -615,11 +615,6 @@ private fun releaseStatusColor(status: ReleaseStatusUi): Color =
         ReleaseStatusUi.UNKNOWN -> White
     }
 
-private const val NEW_EPISODE_SHADOW_RADIUS = 16f
-private const val NEW_EPISODE_SHADOW_OFFSET = 4f
-private const val ITEM_MIN_HEIGHT_DP = 146
-private const val POSTER_WIDTH_DP = 130
-
 private enum class AnimeFavoritesItemSlot { Poster, Info, InfoMeasure }
 
 private object AnimeFavoritesItemPreviewDateFormatter : DateFormatter {
@@ -655,16 +650,9 @@ private fun rememberPreviewPosterHandler(painter: Painter): AsyncImagePreviewHan
         }
     }
 
-// widthDp/heightDp cap the preview's rendering viewport; without both, the unset dimension
-// defaults to a full device screen, and AnotiTheme's Surface.fillMaxSize() stretches to fill it.
-// Sized to this item's own minimum height plus the outer 8dp padding on each side, so the
-// preview's background matches just this item, not a whole screen.
-private const val PREVIEW_WIDTH_DP = 360
-private const val PREVIEW_HEIGHT_DP = ITEM_MIN_HEIGHT_DP + 16
-
 @OptIn(ExperimentalCoilApi::class)
 @Suppress("FunctionNaming", "UnusedPrivateMember")
-@Preview(widthDp = PREVIEW_WIDTH_DP, heightDp = PREVIEW_HEIGHT_DP)
+@Preview(widthDp = ITEM_PREVIEW_WIDTH_DP, heightDp = ITEM_PREVIEW_HEIGHT_DP)
 @Composable
 private fun AnimeFavoritesItemMainInfoPreview() {
     AnotiTheme {
@@ -687,7 +675,7 @@ private fun AnimeFavoritesItemMainInfoPreview() {
 
 @OptIn(ExperimentalCoilApi::class)
 @Suppress("FunctionNaming", "UnusedPrivateMember")
-@Preview(widthDp = PREVIEW_WIDTH_DP, heightDp = PREVIEW_HEIGHT_DP)
+@Preview(widthDp = ITEM_PREVIEW_WIDTH_DP, heightDp = ITEM_PREVIEW_HEIGHT_DP)
 @Composable
 private fun AnimeFavoritesItemExtraInfoPreview() {
     AnotiTheme {

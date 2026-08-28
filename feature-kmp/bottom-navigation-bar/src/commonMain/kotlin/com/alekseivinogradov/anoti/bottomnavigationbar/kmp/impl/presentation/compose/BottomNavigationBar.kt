@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,8 +37,6 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Black
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.CAPTION_SP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500Transparent
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.NAV_BAR_ELEVATION_DP
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.NAV_BAR_ICON_SIZE_DP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SilverTransparent
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -77,7 +76,8 @@ fun BottomNavigationBar(
                 },
                 label = { NavigationBarLabel(stringResource(Res.string.main)) },
                 alwaysShowLabel = true,
-                colors = navigationBarItemColors()
+                colors = navigationBarItemColors(),
+                modifier = Modifier.testTag("anime_list_button")
             )
             NavigationBarItem(
                 selected = uiModel.selectedSection == SectionUi.FAVORITES,
@@ -85,7 +85,8 @@ fun BottomNavigationBar(
                 icon = { FavoritesIcon(favoritesBadgeNumber = uiModel.favoritesBadgeNumber) },
                 label = { NavigationBarLabel(stringResource(Res.string.favorites)) },
                 alwaysShowLabel = true,
-                colors = navigationBarItemColors()
+                colors = navigationBarItemColors(),
+                modifier = Modifier.testTag("anime_favorites_button")
             )
         }
         Spacer(
@@ -139,15 +140,13 @@ private fun formatBadgeNumber(number: Int): String =
 
 private const val BADGE_MAX_NUMBER = 9999
 
-private val NAV_BAR_HEIGHT_DP = 56.dp
-
 private val previewMainSelected =
     UiModel(selectedSection = SectionUi.MAIN, favoritesBadgeNumber = 0)
 private val previewFavoritesSelectedWithBadge =
     UiModel(selectedSection = SectionUi.FAVORITES, favoritesBadgeNumber = 3)
 
 @Suppress("FunctionNaming", "UnusedPrivateMember")
-@Preview
+@Preview(widthDp = PREVIEW_WIDTH_DP, heightDp = PREVIEW_HEIGHT_DP)
 @Composable
 private fun BottomNavigationBarMainSelectedPreview() {
     AnotiTheme {
@@ -156,7 +155,7 @@ private fun BottomNavigationBarMainSelectedPreview() {
 }
 
 @Suppress("FunctionNaming", "UnusedPrivateMember")
-@Preview
+@Preview(widthDp = PREVIEW_WIDTH_DP, heightDp = PREVIEW_HEIGHT_DP)
 @Composable
 private fun BottomNavigationBarFavoritesSelectedWithBadgePreview() {
     AnotiTheme {

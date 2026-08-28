@@ -20,9 +20,6 @@ import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as base_Res
@@ -34,10 +31,8 @@ import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.score_image
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.Res as favorites_Res
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_list
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.extra_info_on_description
-import com.alekseivinogradov.anoti.main.R as main_R
 import com.alekseivinogradov.anoti.main.impl.presentation.MainActivity
 import com.alekseivinogradov.anoti.testutils.android.safeComposeInteraction
-import com.alekseivinogradov.anoti.testutils.android.safeInteraction
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.getString
 import org.junit.After
@@ -248,9 +243,9 @@ class AnimeFavoritesUserFlowTest {
     }
 
     private suspend fun goToAnimeFavorites() {
-        safeInteraction {
-            onView(withId(main_R.id.anime_favorites)).perform(click())
-        }
+        safeComposeInteraction {
+            composeRule.onNodeWithTag("anime_favorites_button")
+        }.performClick()
     }
 
     // hasText's substring mode is "contains"; this replicates Hamcrest's startsWith exactly.

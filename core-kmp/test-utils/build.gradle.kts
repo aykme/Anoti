@@ -35,7 +35,6 @@ kotlin {
             //put your multiplatform dependencies here
         }
         androidMain.dependencies {
-            implementation(libs.androidx.espresso.core)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.compose.ui.test.junit4)
         }

@@ -58,7 +58,6 @@ dependencies {
     androidTestImplementation(libs.compose.components.resources)
 
     androidTestImplementation(libs.androidx.junit.ktx)
-    androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.rules)
     // Without this, an old androidx.fragment/androidx.activity pulled in transitively by

@@ -46,6 +46,13 @@ import coil3.compose.AsyncImagePainter
 import coil3.compose.AsyncImagePreviewHandler
 import coil3.compose.LocalAsyncImagePreviewHandler
 import coil3.request.SuccessResult
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.FAB_ELEVATION_DP
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.ITEM_ICON_ALPHA
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.NOTIFICATION_FAB_SIZE_DP
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.NOTIFICATION_ICON_SIZE_DP
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.POSTER_OVERLAY_ALPHA
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.SECONDARY_FAB_ICON_SIZE_DP
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.SECONDARY_FAB_SIZE_DP
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.announced
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.beginning_of_the_show
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.episodes
@@ -72,16 +79,9 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiT
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Black
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.BlackTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.FAB_ELEVATION_DP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Green
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.HEADLINE6_SP
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.ITEM_ICON_ALPHA
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.NOTIFICATION_FAB_SIZE_DP
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.NOTIFICATION_ICON_SIZE_DP
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.POSTER_OVERLAY_ALPHA
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Purple200
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SECONDARY_FAB_ICON_SIZE_DP
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SECONDARY_FAB_SIZE_DP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SUBTITLE1_SP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.WhiteTransparent
@@ -404,16 +404,6 @@ private fun releaseStatusColor(releaseStatus: ReleaseStatusUi): Color = when (re
     ReleaseStatusUi.UNKNOWN -> White
 }
 
-private const val POSTER_HEIGHT_DP = 350
-private const val POSTER_CORNER_PERCENT = 3
-
-// widthDp/heightDp cap the preview's rendering viewport; without both, the unset dimension
-// defaults to a full device screen, and AnotiTheme's Surface.fillMaxSize() stretches to fill it.
-// Sized to the poster's fixed height plus the outer 8dp padding on each side, so the preview's
-// background matches just this item, not a whole screen.
-private const val PREVIEW_WIDTH_DP = 360
-private const val PREVIEW_HEIGHT_DP = POSTER_HEIGHT_DP + 16
-
 private object AnimeListItemPreviewDateFormatter : DateFormatter {
     override fun getFormattedDate(inputText: String, fallbackText: String): String = inputText
 }
@@ -450,7 +440,7 @@ private fun rememberPreviewPosterHandler(painter: Painter): AsyncImagePreviewHan
 
 @OptIn(ExperimentalCoilApi::class)
 @Suppress("FunctionNaming", "UnusedPrivateMember")
-@Preview(widthDp = PREVIEW_WIDTH_DP, heightDp = PREVIEW_HEIGHT_DP)
+@Preview(widthDp = ITEM_PREVIEW_WIDTH_DP, heightDp = ITEM_PREVIEW_HEIGHT_DP)
 @Composable
 private fun AnimeListItemAvailablePreview() {
     AnotiTheme {
@@ -470,7 +460,7 @@ private fun AnimeListItemAvailablePreview() {
 
 @OptIn(ExperimentalCoilApi::class)
 @Suppress("FunctionNaming", "UnusedPrivateMember")
-@Preview(widthDp = PREVIEW_WIDTH_DP, heightDp = PREVIEW_HEIGHT_DP)
+@Preview(widthDp = ITEM_PREVIEW_WIDTH_DP, heightDp = ITEM_PREVIEW_HEIGHT_DP)
 @Composable
 private fun AnimeListItemExtraPreview() {
     AnotiTheme {

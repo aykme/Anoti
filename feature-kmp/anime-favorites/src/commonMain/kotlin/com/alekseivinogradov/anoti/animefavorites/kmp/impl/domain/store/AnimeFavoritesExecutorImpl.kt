@@ -1,6 +1,7 @@
 package com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.ANIMATION_DURATION_SHORT
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesExecutor
@@ -9,7 +10,6 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.wrappe
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.ANIMATION_DURATION_SHORT
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

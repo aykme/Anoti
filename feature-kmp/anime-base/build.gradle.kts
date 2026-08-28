@@ -54,6 +54,7 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.compose.runtime)
             implementation(libs.compose.components.resources)
+            implementation(libs.compose.ui)
 
             implementation(libs.kotlin.inject.runtime.kmp)
         }

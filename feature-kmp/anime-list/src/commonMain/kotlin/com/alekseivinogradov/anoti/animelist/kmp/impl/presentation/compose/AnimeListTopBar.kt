@@ -265,7 +265,7 @@ private const val TAB_TEXT_SP = 29
 private const val SEARCH_TEXT_MAX_LENGTH = 75
 
 @Suppress("FunctionNaming", "UnusedPrivateMember")
-@Preview
+@Preview(widthDp = TOP_BAR_PREVIEW_WIDTH_DP, heightDp = TOP_BAR_PREVIEW_HEIGHT_DP)
 @Composable
 private fun AnimeListTopBarTabsPreview() {
     AnotiTheme {
@@ -283,7 +283,7 @@ private fun AnimeListTopBarTabsPreview() {
 }
 
 @Suppress("FunctionNaming", "UnusedPrivateMember")
-@Preview
+@Preview(widthDp = TOP_BAR_PREVIEW_WIDTH_DP, heightDp = TOP_BAR_PREVIEW_HEIGHT_DP)
 @Composable
 private fun AnimeListTopBarSearchPreview() {
     AnotiTheme {

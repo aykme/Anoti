@@ -42,6 +42,25 @@ Read this before doing any task in this repository.
 - The same brevity applies to KDoc on classes/interfaces/functions: a short "what this is and
   why it exists," not a walkthrough of how it's implemented.
 
+## Compose design tokens (Dimens/Fonts/Colors/Const)
+
+- Shared Compose UI constants live in typed files by kind: `Dimens.kt` (sizes, spacing,
+  corner/alpha percentages — `Dp`/`Int`), `Fonts.kt` (text sizes — `TextUnit`), `Colors.kt`
+  (the color palette). `Const.kt` is separate and holds only business-logic constants (paging,
+  timing, domain limits) — never UI values.
+- Placement: a constant used by more than one module lives in the closest common dependency
+  every consumer already has (e.g. `core-kmp:celebrity` for values needed project-wide,
+  `feature-kmp:anime-base` for values shared only among the anime feature screens that already
+  depend on it). A constant used by exactly one module lives in a local file of the same kind
+  inside that module's own package instead — don't leave it dangling as a bare `private const
+  val` at the bottom of a UI/Composable file.
+- When more than one module has its own local `Dimens.kt`/`Fonts.kt`, prefix the file name with
+  the module name (e.g. `AnimeListDimens.kt`, `AnimeFavoritesDimens.kt`) so it's unambiguous
+  which one an import/search is referring to.
+- Comments on these constants describe what the value represents, not which feature(s) or
+  screen(s) currently consume it — that list can change independently of the value itself and
+  shouldn't be hardcoded into the comment.
+
 ## Git commits
 
 - Never add a `Co-Authored-By: Claude ...` trailer (or any co-author trailer) to commit
