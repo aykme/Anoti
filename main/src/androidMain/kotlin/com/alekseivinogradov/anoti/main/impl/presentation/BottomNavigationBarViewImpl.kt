@@ -1,12 +1,17 @@
 package com.alekseivinogradov.anoti.main.impl.presentation
 
-import android.content.Context
-import android.view.MenuItem
 import android.view.View
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.model.SectionDomain
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.UiModel
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarView
+import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.compose.BottomNavigationBar
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 import com.alekseivinogradov.anoti.main.R
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootComponent
@@ -17,64 +22,37 @@ import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.mvikotlin.core.utils.diff
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer
-import com.google.android.material.badge.BadgeDrawable
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 
 internal class BottomNavigationBarViewImpl(
-    private val rootView: View,
+    rootView: View,
     private val rootComponent: NavRootComponent<NavRootChild>,
     private val lifecycle: Lifecycle
 ) : BottomNavigationBarView, BaseMviView<UiModel, BottomNavigationBarStore.Intent>() {
 
-    private val context: Context
-        get() = rootView.context
+    private val composeView: ComposeView = rootView.findViewById(R.id.bottom_nav_menu)
 
-    private val bottomNavMenu: BottomNavigationView = rootView.findViewById(R.id.bottom_nav_menu)
-
-    private val favoritesBadge: BadgeDrawable =
-        bottomNavMenu.getOrCreateBadge(R.id.anime_favorites)
+    private var uiModel by mutableStateOf(UiModel())
 
     init {
-        initOnItemSelectedListener()
+        composeView.setViewCompositionStrategy(
+            ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+        )
+        composeView.setContent {
+            AnotiTheme {
+                BottomNavigationBar(uiModel = uiModel, dispatch = ::dispatch)
+            }
+        }
         initOnDestinationChangeListener()
-        initFavoritesBadge()
     }
 
     override val renderer: ViewRenderer<UiModel> = diff {
-        diff(
-            get = ::getFavoritesBadge,
-            set = ::setFavoritesBadge
-        )
+        diff(get = { it }, set = { newUiModel -> uiModel = newUiModel })
     }
 
     override fun handle(label: BottomNavigationBarStore.Label) {
         when (label) {
             BottomNavigationBarStore.Label.NavigateToMain -> navigateToMain()
             BottomNavigationBarStore.Label.NavigateToFavorites -> navigateToFavorites()
-        }
-    }
-
-    private fun initFavoritesBadge() {
-        favoritesBadge.backgroundColor = context.getColor(res_R.color.cinnabar_500_transparent)
-        favoritesBadge.badgeTextColor = context.getColor(res_R.color.black)
-    }
-
-    private fun initOnItemSelectedListener() {
-        bottomNavMenu.setOnItemSelectedListener { menuItem: MenuItem ->
-            when (menuItem.itemId) {
-                R.id.anime_list -> {
-                    dispatch(BottomNavigationBarStore.Intent.MainSectionClick)
-                    true
-                }
-
-                R.id.anime_favorites -> {
-                    dispatch(BottomNavigationBarStore.Intent.FavoritesSectionClick)
-                    true
-                }
-
-                else -> false
-            }
         }
     }
 
@@ -89,28 +67,6 @@ internal class BottomNavigationBarViewImpl(
             dispatch(
                 BottomNavigationBarStore.Intent.ChangeSelectedSection(selectedSection = section)
             )
-            val menuItemId = menuItemIdOf(section)
-            if (bottomNavMenu.selectedItemId != menuItemId) {
-                bottomNavMenu.selectedItemId = menuItemId
-            }
-        }
-    }
-
-    private fun menuItemIdOf(section: SectionDomain): Int = when (section) {
-        SectionDomain.MAIN -> R.id.anime_list
-        SectionDomain.FAVORITES -> R.id.anime_favorites
-    }
-
-    private fun getFavoritesBadge(uiModel: UiModel): Int {
-        return uiModel.favoritesBadgeNumber
-    }
-
-    private fun setFavoritesBadge(badgeNumber: Int) {
-        if (badgeNumber > 0) {
-            favoritesBadge.number = badgeNumber
-            favoritesBadge.isVisible = true
-        } else {
-            favoritesBadge.isVisible = false
         }
     }
 
