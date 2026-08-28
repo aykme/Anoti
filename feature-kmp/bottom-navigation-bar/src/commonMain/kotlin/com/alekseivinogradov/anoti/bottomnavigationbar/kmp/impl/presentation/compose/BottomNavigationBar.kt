@@ -142,8 +142,6 @@ private fun navigationBarItemColors() = NavigationBarItemDefaults.colors(
 private fun formatBadgeNumber(number: Int): String =
     if (number > BADGE_MAX_NUMBER) "$BADGE_MAX_NUMBER+" else number.toString()
 
-private const val BADGE_MAX_NUMBER = 9999
-
 private val previewMainSelected =
     UiModel(selectedSection = SectionUi.MAIN, favoritesBadgeNumber = 0)
 private val previewFavoritesSelectedWithBadge =
