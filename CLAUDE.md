@@ -2,6 +2,13 @@
 
 Read this before doing any task in this repository.
 
+## Language
+
+- Everything written into the project itself must be in English: code comments, KDoc,
+  READMEs, commit messages, plans, specs, and any other artifact that ends up recorded in git.
+- Communication with the developer in the console/chat is always in Russian, regardless of the
+  language used in the project's own artifacts.
+
 ## Skills
 
 - Before starting any task, check the available skills (this project's `.claude/skills/` as
