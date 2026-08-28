@@ -200,7 +200,7 @@ class AnimeUpdateManagerImpl(
                     releasedOn = remoteItemNotNull.releasedOn,
                     score = remoteItemNotNull.score,
                     releaseStatus =
-                        mapReleaseStatusDomainToDb(remoteItemNotNull.releaseStatus),
+                    mapReleaseStatusDomainToDb(remoteItemNotNull.releaseStatus),
                     isNewEpisode = isNewEpisodeDbStatus(
                         currentDatabaseItem = animeDb,
                         remoteItem = remoteItemNotNull
