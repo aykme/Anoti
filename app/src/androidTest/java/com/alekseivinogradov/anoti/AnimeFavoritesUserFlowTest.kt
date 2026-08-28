@@ -66,7 +66,7 @@ class AnimeFavoritesUserFlowTest {
 
     @Before
     fun setup() {
-        // Animations race with Espresso/Compose test sync and cause flakiness; font scale/
+        // Animations race with Compose test sync and cause flakiness; font scale/
         // density can reflow list items and misdirect clicks — all set to test-optimal values
         // here, and restored to whatever this device had once the test finishes.
         originalWindowAnimationScale = getGlobalSetting("window_animation_scale")
