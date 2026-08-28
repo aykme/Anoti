@@ -27,6 +27,7 @@ import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.navi
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation.NavAnimeFavoritesScreenComponent
 import com.alekseivinogradov.anoti.animelist.android.impl.presentation.navigation.NavAnimeListScreenComponentHolder
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation.NavAnimeListScreenComponent
+import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.model.SectionDomain
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarController
 import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
@@ -99,9 +100,18 @@ class MainActivity :
         // must only be honored on a fresh start. Otherwise, every Activity recreation would
         // discard the restored navigation state and jump back to the deep link's target.
         val deepLinkTarget = if (savedInstanceState == null) readDeepLinkTarget() else null
+        val initialNavConfig = deepLinkTarget ?: NavRootConfig.AnimeList
+        // Set directly on the store (bypassing the view/store event binding, which only
+        // completes asynchronously) so the bar's selected tab is already correct for the very
+        // first composition, before BottomNavigationBarViewImpl even exists.
+        mainStore.accept(
+            BottomNavigationBarStore.Intent.ChangeSelectedSection(
+                selectedSection = mapNavConfigToSection(initialNavConfig)
+            )
+        )
         rootComponent = NavRootComponent(
             componentContext = defaultComponentContext(discardSavedState = deepLinkTarget != null),
-            initialConfiguration = deepLinkTarget ?: NavRootConfig.AnimeList,
+            initialConfiguration = initialNavConfig,
             childFactory = ::createRootChild
         )
 
@@ -117,6 +127,7 @@ class MainActivity :
         ).bind(childStack = rootComponent.childStack, lifecycle = lifecycle.asEssentyLifecycle())
         val bottomNavigationBarView = BottomNavigationBarViewImpl(
             rootView = nonNullMainLayout,
+            mainStore = mainStore,
             rootComponent = rootComponent,
             lifecycle = lifecycle.asEssentyLifecycle()
         )
@@ -134,6 +145,12 @@ class MainActivity :
         super.onDestroy()
         mainLayout = null
     }
+
+    private fun mapNavConfigToSection(config: NavRootConfig): SectionDomain =
+        when (config) {
+            NavRootConfig.AnimeList -> SectionDomain.MAIN
+            NavRootConfig.AnimeFavorites -> SectionDomain.FAVORITES
+        }
 
     private fun createRootChild(
         config: NavRootConfig,

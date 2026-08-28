@@ -6,6 +6,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.model.SectionDomain
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
+import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.mapper.mapStateToUiModel
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.UiModel
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarView
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.compose.BottomNavigationBar
@@ -21,9 +22,13 @@ import com.arkivanov.essenty.lifecycle.Lifecycle
 
 internal class BottomNavigationBarViewImpl(
     rootView: View,
+    mainStore: BottomNavigationBarStore,
     private val rootComponent: NavRootComponent<NavRootChild>,
     private val lifecycle: Lifecycle
-) : ComposeMviView<UiModel, BottomNavigationBarStore.Intent>(), BottomNavigationBarView {
+) : ComposeMviView<UiModel, BottomNavigationBarStore.Intent>(
+    initialModel = mapStateToUiModel(mainStore.state)
+),
+    BottomNavigationBarView {
 
     private val composeView: ComposeView = rootView.findViewById(R.id.bottom_nav_menu)
 
@@ -54,11 +59,13 @@ internal class BottomNavigationBarViewImpl(
     }
 
     /**
-     * Starts syncing the selected tab from [rootComponent]'s navigation state. Must be called
-     * only after this view's `events` are already bound to the store (e.g. once
-     * `BottomNavigationBarController.onViewCreated` returns) — [rootComponent]'s childStack
-     * fires its current value synchronously on subscribe, and a dispatch with no bound
-     * subscriber yet is silently dropped.
+     * Starts syncing the selected tab from [rootComponent]'s navigation state, for every
+     * navigation change past construction time. Must be called only after this view's `events`
+     * are already bound to the store (e.g. once `BottomNavigationBarController.onViewCreated`
+     * returns) — [rootComponent]'s childStack fires its current value synchronously on
+     * subscribe, and a dispatch with no bound subscriber yet is silently dropped. The state at
+     * construction time doesn't depend on this binding being ready: this class's constructor
+     * seeds it directly from the store's own synchronous state instead.
      */
     fun startObservingChildStack() {
         rootComponent.childStack.subscribe(lifecycle, ObserveLifecycleMode.CREATE_DESTROY) { stack ->

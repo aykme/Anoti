@@ -16,10 +16,16 @@ import com.arkivanov.mvikotlin.core.view.ViewRenderer
  *
  * @param UiModel the store's presentation-ready state type.
  * @param Intent the store's intent type, dispatched back via [dispatch].
+ * @param initialModel a value [model] holds before the first [render] call — read straight from
+ * the store's own synchronous [com.arkivanov.mvikotlin.core.store.Store.state] where a caller
+ * needs the first composition to already reflect real state, instead of waiting for the
+ * store/view binding (which completes asynchronously, on a later main-thread dispatch).
  */
-abstract class ComposeMviView<UiModel : Any, Intent : Any> : BaseMviView<UiModel, Intent>() {
+abstract class ComposeMviView<UiModel : Any, Intent : Any>(
+    initialModel: UiModel? = null
+) : BaseMviView<UiModel, Intent>() {
 
-    private val internalModel = mutableStateOf<UiModel?>(null)
+    private val internalModel = mutableStateOf(initialModel)
 
     /** The latest rendered model, or `null` before the first [render] call. */
     val model: State<UiModel?> = internalModel

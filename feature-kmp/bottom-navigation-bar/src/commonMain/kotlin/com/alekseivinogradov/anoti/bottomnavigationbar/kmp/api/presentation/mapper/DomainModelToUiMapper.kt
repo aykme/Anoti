@@ -5,7 +5,7 @@ import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.Bott
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.SectionUi
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.UiModel
 
-internal fun mapStateToUiModel(state: BottomNavigationBarStore.State): UiModel {
+fun mapStateToUiModel(state: BottomNavigationBarStore.State): UiModel {
     return UiModel(
         selectedSection = mapSelectedSectionDomainToUi(state.selectedSection),
         favoritesBadgeNumber = state.favoritesBadgeNumber
