@@ -2,6 +2,7 @@ package com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
@@ -24,6 +25,13 @@ private val DarkColorScheme = darkColorScheme(
 private val LightColorScheme = DarkColorScheme
 
 /**
+ * Anoti's Material color scheme, without the full-screen [Surface] [AnotiTheme] wraps it in —
+ * for hosting Compose content (e.g. a dialog) that must not be stretched to fill its window.
+ */
+@Composable
+fun anotiColorScheme(): ColorScheme = if (isSystemInDarkTheme()) DarkColorScheme else LightColorScheme
+
+/**
  * Applies Anoti's Material color scheme and background to [content].
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
@@ -31,9 +39,7 @@ private val LightColorScheme = DarkColorScheme
 @Suppress("FunctionNaming")
 @Composable
 fun AnotiTheme(content: @Composable () -> Unit) {
-    MaterialTheme(
-        colorScheme = if (isSystemInDarkTheme()) DarkColorScheme else LightColorScheme
-    ) {
+    MaterialTheme(colorScheme = anotiColorScheme()) {
         // Surface sets LocalContentColor from the color scheme — without it, plain Text() falls
         // back to Compose's default black, invisible against this theme's black background.
         Surface(modifier = Modifier.fillMaxSize()) {

@@ -115,14 +115,18 @@ class MainActivity :
             fragmentManager = supportFragmentManager,
             containerId = R.id.nav_host_fragment
         ).bind(childStack = rootComponent.childStack, lifecycle = lifecycle.asEssentyLifecycle())
+        val bottomNavigationBarView = BottomNavigationBarViewImpl(
+            rootView = nonNullMainLayout,
+            rootComponent = rootComponent,
+            lifecycle = lifecycle.asEssentyLifecycle()
+        )
         controller.onViewCreated(
-            mainView = BottomNavigationBarViewImpl(
-                rootView = nonNullMainLayout,
-                rootComponent = rootComponent,
-                lifecycle = lifecycle.asEssentyLifecycle()
-            ),
+            mainView = bottomNavigationBarView,
             viewLifecycle = lifecycle.asEssentyLifecycle(),
         )
+        // Must run after onViewCreated binds this view's events to the store — see
+        // BottomNavigationBarViewImpl.startObservingChildStack's own doc.
+        bottomNavigationBarView.startObservingChildStack()
         requestToEnableNotificationsIfNecessary()
     }
 

@@ -2,6 +2,7 @@ package com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.co
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -54,18 +55,16 @@ fun BottomNavigationBar(
     dispatch: (BottomNavigationBarStore.Intent) -> Unit
 ) {
     // NavigationBar owns exactly one inset-consuming layer: its own windowInsets is disabled
-    // (fixed at zero) so its content is pinned to the original's exact 56dp, and the Spacer below
-    // reserves the system navigation bar's own height with matching background — one bar, split
-    // into a fixed-size content region plus a system-inset region, not two components each trying
-    // to pad for the same inset (that double-padding is exactly what the original View-based bar
-    // avoided by being the only one that consumed it).
+    // (fixed at zero) so its content is pinned to a fixed 56dp, and the Spacer below reserves the
+    // system navigation bar's own height with matching background — a fixed-size content region
+    // plus a separate system-inset region, so only one of the two ever pads for that inset.
     Column(modifier = Modifier.shadow(NAV_BAR_ELEVATION_DP)) {
         NavigationBar(
             containerColor = Black,
             windowInsets = WindowInsets(0.dp),
             modifier = Modifier.height(NAV_BAR_HEIGHT_DP)
         ) {
-            NavigationBarItem(
+            BottomNavigationBarItem(
                 selected = uiModel.selectedSection == SectionUi.MAIN,
                 onClick = { dispatch(BottomNavigationBarStore.Intent.MainSectionClick) },
                 icon = {
@@ -75,19 +74,15 @@ fun BottomNavigationBar(
                         modifier = Modifier.size(NAV_BAR_ICON_SIZE_DP)
                     )
                 },
-                label = { NavigationBarLabel(stringResource(Res.string.main)) },
-                alwaysShowLabel = true,
-                colors = navigationBarItemColors(),
-                modifier = Modifier.testTag("anime_list_button")
+                label = stringResource(Res.string.main),
+                testTag = "anime_list_button"
             )
-            NavigationBarItem(
+            BottomNavigationBarItem(
                 selected = uiModel.selectedSection == SectionUi.FAVORITES,
                 onClick = { dispatch(BottomNavigationBarStore.Intent.FavoritesSectionClick) },
                 icon = { FavoritesIcon(favoritesBadgeNumber = uiModel.favoritesBadgeNumber) },
-                label = { NavigationBarLabel(stringResource(Res.string.favorites)) },
-                alwaysShowLabel = true,
-                colors = navigationBarItemColors(),
-                modifier = Modifier.testTag("anime_favorites_button")
+                label = stringResource(Res.string.favorites),
+                testTag = "anime_favorites_button"
             )
         }
         Spacer(
@@ -97,6 +92,26 @@ fun BottomNavigationBar(
                 .windowInsetsBottomHeight(WindowInsets.navigationBars)
         )
     }
+}
+
+@Suppress("FunctionNaming", "LongParameterList")
+@Composable
+private fun RowScope.BottomNavigationBarItem(
+    selected: Boolean,
+    onClick: () -> Unit,
+    icon: @Composable () -> Unit,
+    label: String,
+    testTag: String
+) {
+    NavigationBarItem(
+        selected = selected,
+        onClick = onClick,
+        icon = icon,
+        label = { NavigationBarLabel(label) },
+        alwaysShowLabel = true,
+        colors = navigationBarItemColors(),
+        modifier = Modifier.testTag(testTag)
+    )
 }
 
 @Suppress("FunctionNaming")
@@ -137,8 +152,8 @@ private fun navigationBarItemColors() = NavigationBarItemDefaults.colors(
     indicatorColor = Color.Transparent
 )
 
-// Matches BadgeDrawable's default maxCharacterCount = 4 behavior: cap the displayed number at
-// 9999, show "9999+" above that, instead of an ever-growing digit string.
+// Caps the displayed number at 9999, showing "9999+" above that, instead of an ever-growing
+// digit string.
 private fun formatBadgeNumber(number: Int): String =
     if (number > BADGE_MAX_NUMBER) "$BADGE_MAX_NUMBER+" else number.toString()
 

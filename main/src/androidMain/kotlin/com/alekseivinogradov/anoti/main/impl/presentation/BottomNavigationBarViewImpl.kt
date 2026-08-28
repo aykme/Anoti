@@ -2,9 +2,6 @@ package com.alekseivinogradov.anoti.main.impl.presentation
 
 import android.view.View
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.model.SectionDomain
@@ -12,6 +9,8 @@ import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.Bott
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.UiModel
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarView
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.compose.BottomNavigationBar
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.ComposeMviView
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.anotiColorScheme
 import com.alekseivinogradov.anoti.main.R
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootComponent
@@ -19,37 +18,32 @@ import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
 import com.arkivanov.decompose.value.ObserveLifecycleMode
 import com.arkivanov.decompose.value.subscribe
 import com.arkivanov.essenty.lifecycle.Lifecycle
-import com.arkivanov.mvikotlin.core.utils.diff
-import com.arkivanov.mvikotlin.core.view.BaseMviView
-import com.arkivanov.mvikotlin.core.view.ViewRenderer
 
 internal class BottomNavigationBarViewImpl(
     rootView: View,
     private val rootComponent: NavRootComponent<NavRootChild>,
     private val lifecycle: Lifecycle
-) : BottomNavigationBarView, BaseMviView<UiModel, BottomNavigationBarStore.Intent>() {
+) : ComposeMviView<UiModel, BottomNavigationBarStore.Intent>(), BottomNavigationBarView {
 
     private val composeView: ComposeView = rootView.findViewById(R.id.bottom_nav_menu)
-
-    private var uiModel by mutableStateOf(UiModel())
 
     init {
         composeView.setViewCompositionStrategy(
             ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
         )
         composeView.setContent {
-            // Not AnotiTheme: its Surface(Modifier.fillMaxSize()) is meant for a full-screen
-            // ComposeFragment host and would stretch this wrap_content bar to fill the whole
-            // window instead of sizing to its own content.
-            MaterialTheme {
-                BottomNavigationBar(uiModel = uiModel, dispatch = ::dispatch)
+            // anotiColorScheme(), not AnotiTheme: AnotiTheme's Surface(Modifier.fillMaxSize())
+            // is meant for a full-screen ComposeFragment host and would stretch this
+            // wrap_content bar to fill the whole window instead of sizing to its own content —
+            // but a real color scheme (rather than MaterialTheme's own default) is still needed
+            // so contentColorFor(Black) resolves to a real color instead of Color.Unspecified,
+            // which otherwise leaves the tap ripple's color undefined.
+            MaterialTheme(colorScheme = anotiColorScheme()) {
+                model.value?.let { uiModel ->
+                    BottomNavigationBar(uiModel = uiModel, dispatch = ::dispatch)
+                }
             }
         }
-        initOnDestinationChangeListener()
-    }
-
-    override val renderer: ViewRenderer<UiModel> = diff {
-        diff(get = { it }, set = { newUiModel -> uiModel = newUiModel })
     }
 
     override fun handle(label: BottomNavigationBarStore.Label) {
@@ -59,7 +53,14 @@ internal class BottomNavigationBarViewImpl(
         }
     }
 
-    private fun initOnDestinationChangeListener() {
+    /**
+     * Starts syncing the selected tab from [rootComponent]'s navigation state. Must be called
+     * only after this view's `events` are already bound to the store (e.g. once
+     * `BottomNavigationBarController.onViewCreated` returns) — [rootComponent]'s childStack
+     * fires its current value synchronously on subscribe, and a dispatch with no bound
+     * subscriber yet is silently dropped.
+     */
+    fun startObservingChildStack() {
         rootComponent.childStack.subscribe(lifecycle, ObserveLifecycleMode.CREATE_DESTROY) { stack ->
             // Assigned to a value so the `when` is an expression: adding a NavRootChild variant
             // then fails to compile here instead of silently doing nothing.

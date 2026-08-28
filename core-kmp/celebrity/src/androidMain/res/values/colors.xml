@@ -4,6 +4,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="grey_700">#222222</color>
     <color name="cinnabar_500">#E84b3d</color>
-    <color name="cinnabar_500_transparent">#D5E84b3d</color>
     <color name="silver_transparent">#D5C0C0C0</color>
 </resources>

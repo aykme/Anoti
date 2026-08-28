@@ -28,8 +28,8 @@ Anoti allows you to always be aware of the release of new episodes!
 Technology stack:
 
 1. MVI based on [MVI Kotlin](https://github.com/arkivanov/MVIKotlin).
-2. Multi-modularity. The business logic is located in the KMP modules. The UI and some
-   frameworks are located in the android modules.
+2. Multi-modularity. Both the business logic and the UI are located in the KMP modules, the UI
+   built with [Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform).
 3. Kotlin Coroutines and Flow.
 4. The local database is implemented via
    [Room](https://developer.android.com/kotlin/multiplatform/room), which now natively supports
