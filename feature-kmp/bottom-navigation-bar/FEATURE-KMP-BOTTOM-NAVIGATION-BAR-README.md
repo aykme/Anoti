@@ -9,6 +9,8 @@ badge count.
   the view contract the platform layer implements to render the store's state.
 - [BottomNavigationBarController](src/commonMain/kotlin/com/alekseivinogradov/anoti/bottomnavigationbar/kmp/impl/presentation/BottomNavigationBarController.kt) —
   wires the store to its view and to `AnimeDatabaseStore`.
+- [BottomNavigationBar](src/commonMain/kotlin/com/alekseivinogradov/anoti/bottomnavigationbar/kmp/impl/presentation/compose/BottomNavigationBar.kt) —
+  the Compose UI rendering `UiModel`.
 
 ## How to include it
 
@@ -22,8 +24,8 @@ badge count.
 
 ## How to use it
 
-Implement `BottomNavigationBarView` (a `BottomNavigationBarViewImpl`): render `UiModel` in
-`render()`, call `dispatch(Intent)` from the relevant UI callbacks (tab clicks), and handle
-navigation in `handle(Label)`. On the screen hosting the bar, construct
-`BottomNavigationBarController` with the store, `AnimeDatabaseStore`, and the screen's lifecycle,
-then call `controller.onViewCreated(viewImpl, viewLifecycle)`.
+Implement `BottomNavigationBarView` (a `BottomNavigationBarViewImpl`): in `render()`, feed the
+received `UiModel` straight into the `BottomNavigationBar` composable, whose click callbacks call
+`dispatch(Intent)`, and handle navigation in `handle(Label)`. On the screen hosting the bar,
+construct `BottomNavigationBarController` with the store, `AnimeDatabaseStore`, and the screen's
+lifecycle, then call `controller.onViewCreated(viewImpl, viewLifecycle)`.
