@@ -202,8 +202,8 @@ class AnimeFavoritesUserFlowTest {
 
     private suspend fun goToOngoingSection() {
         safeComposeInteraction {
-            composeRule.onNodeWithTag("ongoing_button")
-        }.performClick()
+            composeRule.onNodeWithTag("ongoing_button").performClick()
+        }
     }
 
     private suspend fun checkNotificationButtonIsTurnedOff(rvPosition: Int) {
@@ -230,7 +230,8 @@ class AnimeFavoritesUserFlowTest {
                 .onAllNodesWithTag("anime_list_item", useUnmergedTree = true)[rvPosition]
                 .onChildren()
                 .filterToOne(hasTestTag("notification_button"))
-        }.performClick()
+                .performClick()
+        }
     }
 
     private suspend fun clickOnNotificationButtonInAnimeFavorites(rvPosition: Int) {
@@ -239,13 +240,14 @@ class AnimeFavoritesUserFlowTest {
                 .onAllNodesWithTag("anime_favorites_item")[rvPosition]
                 .onChildren()
                 .filterToOne(hasTestTag("notification_button"))
-        }.performClick()
+                .performClick()
+        }
     }
 
     private suspend fun goToAnimeFavorites() {
         safeComposeInteraction {
-            composeRule.onNodeWithTag("anime_favorites_button")
-        }.performClick()
+            composeRule.onNodeWithTag("anime_favorites_button").performClick()
+        }
     }
 
     // hasText's substring mode is "contains"; this replicates Hamcrest's startsWith exactly.
