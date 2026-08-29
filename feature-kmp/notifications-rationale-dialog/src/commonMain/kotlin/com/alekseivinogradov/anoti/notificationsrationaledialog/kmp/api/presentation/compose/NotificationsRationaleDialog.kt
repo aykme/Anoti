@@ -1,9 +1,7 @@
 package com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.api.presentation.compose
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -15,20 +13,21 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnab
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Grey700
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SilverTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
+import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_launcher
 import com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.generated.resources.dialog_alert_negative_button
 import com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.generated.resources.dialog_alert_notifications_rationale_message
 import com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.generated.resources.dialog_alert_positive_button
 import com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.generated.resources.dialog_alert_title
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as celebrityRes
 
 /**
  * Asks the user to grant (or open settings for) the notifications permission, after the OS has
  * denied an earlier direct request. The host is responsible for deciding when to show it and for
  * acting on the outcome — this composable only renders the prompt.
  *
- * @param icon the dialog's icon; the host supplies it so this module doesn't need its own copy
- * of the app icon.
  * @param onDismiss called when the user declines or dismisses the dialog.
  * @param onApprove called when the user accepts; the host is expected to then request the
  * permission again or open the app's notification settings, depending on OS version.
@@ -37,15 +36,17 @@ import org.jetbrains.compose.resources.stringResource
 // lowerCamelCase.
 @Suppress("FunctionNaming")
 @Composable
-fun NotificationsRationaleDialog(
-    icon: @Composable () -> Unit,
-    onDismiss: () -> Unit,
-    onApprove: () -> Unit
-) {
+fun NotificationsRationaleDialog(onDismiss: () -> Unit, onApprove: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = Grey700,
-        icon = icon,
+        icon = {
+            Image(
+                painter = painterResource(celebrityRes.drawable.ic_launcher),
+                contentDescription = null,
+                modifier = Modifier.size(NOTIFICATIONS_RATIONALE_ICON_SIZE_DP)
+            )
+        },
         title = { Text(text = stringResource(Res.string.dialog_alert_title), color = White) },
         text = {
             Text(
@@ -77,16 +78,6 @@ fun NotificationsRationaleDialog(
 @Composable
 private fun NotificationsRationaleDialogPreview() {
     AnotiTheme {
-        NotificationsRationaleDialog(
-            icon = {
-                Box(
-                    modifier = Modifier
-                        .size(PREVIEW_ICON_SIZE_DP)
-                        .background(Cinnabar500, CircleShape)
-                )
-            },
-            onDismiss = {},
-            onApprove = {}
-        )
+        NotificationsRationaleDialog(onDismiss = {}, onApprove = {})
     }
 }

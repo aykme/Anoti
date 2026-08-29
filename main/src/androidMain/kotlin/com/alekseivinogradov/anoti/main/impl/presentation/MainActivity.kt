@@ -17,20 +17,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
@@ -45,7 +39,6 @@ import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.edgetoedg
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.anotiColorScheme
 import com.alekseivinogradov.anoti.main.R
 import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
-import com.alekseivinogradov.anoti.main.impl.presentation.compose.NOTIFICATIONS_RATIONALE_ICON_SIZE_DP
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponentHolder
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChildFragmentBinder
@@ -155,23 +148,6 @@ class MainActivity :
             MaterialTheme(colorScheme = anotiColorScheme()) {
                 if (notificationsRationaleVisible.value) {
                     NotificationsRationaleDialog(
-                        icon = {
-                            // painterResource() can't load this: R.mipmap.ic_launcher resolves to
-                            // an adaptive-icon XML on API 26+, which it only supports rasterizing
-                            // via a real Drawable, not directly as a Painter.
-                            val iconBitmap = remember {
-                                ContextCompat.getDrawable(this@MainActivity, res_R.mipmap.ic_launcher)
-                                    ?.toBitmap()
-                                    ?.asImageBitmap()
-                            }
-                            iconBitmap?.let {
-                                Image(
-                                    bitmap = it,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(NOTIFICATIONS_RATIONALE_ICON_SIZE_DP)
-                                )
-                            }
-                        },
                         onDismiss = { notificationsRationaleVisible.value = false },
                         onApprove = {
                             notificationsRationaleVisible.value = false
