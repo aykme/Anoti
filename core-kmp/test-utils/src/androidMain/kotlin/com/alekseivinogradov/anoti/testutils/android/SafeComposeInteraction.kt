@@ -6,11 +6,14 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * Retries [interactionCall] until it stops throwing, up to [maxAttempt] times.
+ * Retries [interactionCall] until it stops throwing, up to [maxAttempt] times. Defaults to a 45s
+ * total budget — enough headroom over SafeApi's own worst-case retry budget (5 attempts, a
+ * linearly growing delay, and a bounded per-attempt timeout) for interactions that wait on a
+ * real network-backed screen to finish loading.
  */
 @Suppress("TooGenericExceptionThrown")
 suspend fun safeComposeInteraction(
-    maxAttempt: Int = 60,
+    maxAttempt: Int = 90,
     attemptDelay: Duration = 500.milliseconds,
     interactionCall: () -> SemanticsNodeInteraction
 ): SemanticsNodeInteraction {

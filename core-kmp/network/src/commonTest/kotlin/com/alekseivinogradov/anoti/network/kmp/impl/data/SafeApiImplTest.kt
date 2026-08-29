@@ -220,8 +220,8 @@ class SafeApiImplTest {
     }
 
     private fun createSafeApi(
-        maxAttempt: Int = 3,
-        attemptDelay: Duration = 1.milliseconds
+        maxAttempt: Int = 4,
+        attemptDelay: Duration = 2500.milliseconds
     ): SafeApi = SafeApiImpl(
         maxAttempt = maxAttempt,
         attemptDelay = attemptDelay

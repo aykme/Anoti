@@ -13,7 +13,7 @@ interface DiNetworkComponent {
     @Provides
     @AppScope
     fun provideSafeApi(): SafeApi = SafeApiImpl(
-        maxAttempt = 3,
+        maxAttempt = 4,
         attemptDelay = 2500.milliseconds
     )
 }
