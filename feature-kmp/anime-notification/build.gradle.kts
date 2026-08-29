@@ -48,7 +48,6 @@ kotlin {
             implementation(project(":core-kmp:di-scope"))
             implementation(project(":core-kmp:celebrity"))
 
-            implementation(libs.compose.runtime)
             implementation(libs.compose.components.resources)
 
             implementation(libs.kotlin.inject.runtime.kmp)

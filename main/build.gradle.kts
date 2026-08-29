@@ -9,11 +9,6 @@ plugins {
     alias(libs.plugins.detekt)
 }
 
-compose.resources {
-    publicResClass = false
-    packageOfResClass = "com.alekseivinogradov.anoti.main.generated.resources"
-}
-
 kotlin {
     android {
         namespace = "com.alekseivinogradov.anoti.main"
@@ -61,7 +56,6 @@ kotlin {
 
             implementation(libs.mvikotlin)
             implementation(libs.compose.runtime) // required once kotlinCompose is applied
-            implementation(libs.compose.components.resources)
 
             implementation(libs.kotlin.inject.runtime.kmp)
         }
@@ -75,7 +69,6 @@ kotlin {
             implementation(libs.androidx.activity)
             implementation(libs.essenty.lifecycle)
             implementation(libs.androidx.constraintlayout)
-            implementation(libs.material)
             implementation(libs.compose.ui)
             implementation(libs.compose.material3)
             implementation(libs.decompose)
