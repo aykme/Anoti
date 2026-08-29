@@ -15,7 +15,9 @@
         app:layout_constraintBottom_toTopOf="@id/bottom_nav_menu"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout="@android:layout/simple_list_item_1"
+        tools:ignore="VisualLintSystemUi" />
 
     <androidx.compose.ui.platform.ComposeView
         android:id="@+id/bottom_nav_menu"
@@ -24,5 +26,13 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Renders only its own dialog overlay in a separate window; its own bounds are never drawn. -->
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/notifications_dialog_host"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

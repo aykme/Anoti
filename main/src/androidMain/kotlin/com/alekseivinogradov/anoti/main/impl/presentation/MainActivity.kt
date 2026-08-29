@@ -11,15 +11,26 @@ import android.os.Build.VERSION_CODES.P
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import android.provider.Settings
+import android.view.View
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
@@ -31,27 +42,21 @@ import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.model.Sect
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarController
 import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.anotiColorScheme
 import com.alekseivinogradov.anoti.main.R
-import com.alekseivinogradov.anoti.main.generated.resources.Res
-import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_negative_button
-import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_notifications_rationale_message
-import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_positive_button
-import com.alekseivinogradov.anoti.main.generated.resources.dialog_alert_title
 import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
+import com.alekseivinogradov.anoti.main.impl.presentation.compose.NOTIFICATIONS_RATIONALE_ICON_SIZE_DP
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponentHolder
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChildFragmentBinder
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootComponent
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
+import com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.api.presentation.compose.NotificationsRationaleDialog
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.defaultComponentContext
 import com.arkivanov.essenty.lifecycle.asEssentyLifecycle
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
-import org.jetbrains.compose.resources.getString
 import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 
 class MainActivity :
@@ -78,7 +83,7 @@ class MainActivity :
 
     private lateinit var animeDatabaseStore: AnimeDatabaseStore
 
-    private lateinit var coroutineContextProvider: CoroutineContextProvider
+    private val notificationsRationaleVisible = mutableStateOf(false)
 
     private val controller: BottomNavigationBarController by lazy {
         BottomNavigationBarController(
@@ -95,7 +100,6 @@ class MainActivity :
         diRootComponent = (this.application as DiRootComponentHolder).createDiRootComponent()
         mainStore = diRootComponent.bottomNavigationBarStore
         animeDatabaseStore = diRootComponent.animeDatabaseStore
-        coroutineContextProvider = diRootComponent.coroutineContextProvider
         // getIntent() keeps returning the launching Intent for the whole task, so the deep link
         // must only be honored on a fresh start. Otherwise, every Activity recreation would
         // discard the restored navigation state and jump back to the deep link's target.
@@ -138,7 +142,45 @@ class MainActivity :
         // Must run after onViewCreated binds this view's events to the store — see
         // BottomNavigationBarViewImpl.startObservingChildStack's own doc.
         bottomNavigationBarView.startObservingChildStack()
+        setUpNotificationsRationaleDialog(nonNullMainLayout)
         requestToEnableNotificationsIfNecessary()
+    }
+
+    private fun setUpNotificationsRationaleDialog(rootView: View) {
+        val dialogHost: ComposeView = rootView.findViewById(R.id.notifications_dialog_host)
+        dialogHost.setViewCompositionStrategy(
+            ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+        )
+        dialogHost.setContent {
+            MaterialTheme(colorScheme = anotiColorScheme()) {
+                if (notificationsRationaleVisible.value) {
+                    NotificationsRationaleDialog(
+                        icon = {
+                            // painterResource() can't load this: R.mipmap.ic_launcher resolves to
+                            // an adaptive-icon XML on API 26+, which it only supports rasterizing
+                            // via a real Drawable, not directly as a Painter.
+                            val iconBitmap = remember {
+                                ContextCompat.getDrawable(this@MainActivity, res_R.mipmap.ic_launcher)
+                                    ?.toBitmap()
+                                    ?.asImageBitmap()
+                            }
+                            iconBitmap?.let {
+                                Image(
+                                    bitmap = it,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(NOTIFICATIONS_RATIONALE_ICON_SIZE_DP)
+                                )
+                            }
+                        },
+                        onDismiss = { notificationsRationaleVisible.value = false },
+                        onApprove = {
+                            notificationsRationaleVisible.value = false
+                            onNotificationRequestApproved()
+                        }
+                    )
+                }
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -263,37 +305,7 @@ class MainActivity :
     }
 
     private fun showNotificationsRationale() {
-        val dialogTitle = runBlocking(coroutineContextProvider.ioDispatcher) {
-            getString(Res.string.dialog_alert_title)
-        }
-        val dialogNegativeButton = runBlocking(coroutineContextProvider.ioDispatcher) {
-            getString(Res.string.dialog_alert_negative_button)
-        }
-        val dialogPositiveButton = runBlocking(coroutineContextProvider.ioDispatcher) {
-            getString(Res.string.dialog_alert_positive_button)
-        }
-        val dialogNotificationsRationaleMessage =
-            runBlocking(coroutineContextProvider.ioDispatcher) {
-                getString(Res.string.dialog_alert_notifications_rationale_message)
-            }
-
-        MaterialAlertDialogBuilder(
-            /* context = */
-            this,
-            /* overrideThemeResId = */
-            res_R.style.Theme_Anoti_MaterialAlertDialog
-        )
-            .setIcon(res_R.mipmap.ic_launcher)
-            .setTitle(dialogTitle)
-            .setMessage(dialogNotificationsRationaleMessage)
-            .setNegativeButton(
-                /* text = */
-                dialogNegativeButton,
-                /* listener = */
-                null
-            )
-            .setPositiveButton(dialogPositiveButton) { _, _ -> onNotificationRequestApproved() }
-            .show()
+        notificationsRationaleVisible.value = true
     }
 
     private fun onNotificationRequestApproved() {

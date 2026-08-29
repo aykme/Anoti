@@ -10,12 +10,12 @@ plugins {
 
 compose.resources {
     publicResClass = false
-    packageOfResClass = "com.alekseivinogradov.anoti.animenotification.kmp.generated.resources"
+    packageOfResClass = "com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.generated.resources"
 }
 
 kotlin {
     android {
-        namespace = "com.alekseivinogradov.anoti.animenotification.kmp"
+        namespace = "com.alekseivinogradov.anoti.notificationsrationaledialog.kmp"
         //noinspection GradleDependency
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()
@@ -28,8 +28,6 @@ kotlin {
             enable = true
         }
 
-        withJava()
-
         withHostTestBuilder {}.configure {}
     }
 
@@ -38,26 +36,27 @@ kotlin {
         iosSimulatorArm64()
     ).forEach {
         it.binaries.framework {
-            baseName = "anime-notification"
+            baseName = "notifications-rationale-dialog"
             isStatic = true
         }
     }
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":core-kmp:di-scope"))
             implementation(project(":core-kmp:celebrity"))
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.components.resources)
-
-            implementation(libs.kotlin.inject.runtime.kmp)
-        }
-        androidMain.dependencies {
-            implementation(libs.androidx.core.ktx)
-            implementation(libs.glide)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.material3)
             implementation(libs.compose.ui)
-            api(project(":feature-kmp:anime-notification-external"))
+            implementation(libs.compose.ui.tooling.preview)
         }
     }
+}
+
+dependencies {
+    // Renders @Preview composables in Android Studio; androidRuntimeClasspath (not
+    // debugImplementation) is what com.android.kotlin.multiplatform.library expects it on.
+    androidRuntimeClasspath(libs.compose.ui.tooling)
 }

@@ -13,15 +13,4 @@
         <!-- Title highlight color on application background window -->
         <item name="android:colorPrimary">@color/black</item>
     </style>
-
-    <style name="Theme.Anoti.MaterialAlertDialog" parent="MaterialAlertDialog.Material3">
-        <item name="android:backgroundTint">@color/grey_700</item>
-        <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialogTitleTextStyle
-        </item>
-        <item name="materialAlertDialogBodyTextStyle">@style/MaterialAlertDialogBodyTextStyle</item>
-        <item name="buttonBarNegativeButtonStyle">@style/MaterialAlertDialogNegativeButtonStyle
-        </item>
-        <item name="buttonBarPositiveButtonStyle">@style/MaterialAlertDialogPositiveButtonStyle
-        </item>
-    </style>
 </resources>

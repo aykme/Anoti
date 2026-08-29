@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.alekseivinogradov.anoti.animenotification.android.impl.presentation.factory.CHANNEL_ID
@@ -15,6 +16,7 @@ import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.episode_aired
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.new_episodes
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SilverTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.no_data
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
@@ -41,13 +43,7 @@ class AnimeNotificationManagerImpl(
             getString(celebrityRes.string.no_data)
         }
 
-    private val iconColor: Int =
-        appContext.resources.getColor(
-            /* id = */
-            res_R.color.silver_transparent,
-            /* theme = */
-            appContext.resources.newTheme()
-        )
+    private val iconColor: Int = SilverTransparent.toArgb()
 
     private var glideRequestManager: RequestManager? = null
     private var singleBuilder: NotificationCompat.Builder

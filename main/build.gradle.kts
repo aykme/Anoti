@@ -68,6 +68,7 @@ kotlin {
         androidMain.dependencies {
             implementation(project(":core-kmp:navigation"))
             implementation(project(":feature-kmp:anime-notification-external"))
+            implementation(project(":feature-kmp:notifications-rationale-dialog"))
 
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.appcompat)
@@ -88,6 +89,11 @@ dependencies {
     kspTargets.forEach { target ->
         add("ksp$target", libs.kotlin.inject.compiler.ksp)
     }
+
+    // Renders ComposeView content in Android Studio's layout preview (activity_main.xml);
+    // androidRuntimeClasspath (not debugImplementation) is what
+    // com.android.kotlin.multiplatform.library expects it on.
+    androidRuntimeClasspath(libs.compose.ui.tooling)
 }
 
 // Lint's androidHostTest-related tasks read kspAndroidHostTest's generated sources without
