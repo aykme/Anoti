@@ -34,16 +34,12 @@ Technology stack:
 4. The local database is implemented via
    [Room](https://developer.android.com/kotlin/multiplatform/room), which now natively supports
    Kotlin Multiplatform.
-5. Api services are implemented via [Ktor](https://github.com/ktorio/ktor), fully in the KMP
+5. API services are implemented via [Ktor](https://github.com/ktorio/ktor), fully in the KMP
    modules.
 6. Custom pagination implemented in pure KMP, without third-party libraries, designed to fit
    MVI and UDF architectures.
-7. Based on Views and Fragments. I plan to rewrite the UI to
-   [Compose](https://developer.android.com/compose) in the future, and then to
-   [Compose Multiplatform](https://www.jetbrains.com/compose-multiplatform) in the very distant
-   future ^_^.
-8. DI is implemented through [kotlin-inject](https://github.com/evant/kotlin-inject), fully in the
+7. DI is implemented through [kotlin-inject](https://github.com/evant/kotlin-inject), fully in the
    KMP modules, working on both Android and iOS.
-9. Unit testing of KMP modules is done with
+8. Unit testing of KMP modules is done with
    [kotlin-test](https://github.com/JetBrains/kotlin/tree/master/libraries/kotlin.test). For test
    doubles I mostly use a "mock" approach, with a "fake" approach used less often.
