@@ -45,7 +45,6 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":core-kmp:celebrity"))
             implementation(project(":core-kmp:anime-database"))
-            implementation(project(":core-kmp:di-scope"))
 
             implementation(libs.mvikotlin)
             implementation(libs.kotlinx.coroutines.core)

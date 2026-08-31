@@ -52,7 +52,6 @@ kotlin {
 
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.compose.runtime)
             implementation(libs.compose.components.resources)
             implementation(libs.compose.ui)
 

@@ -46,6 +46,9 @@ kotlin {
             api(project(":feature-kmp:anime-notification"))
             api(project(":main"))
 
+            // Aggregated Di*Component supertypes expose MVIKotlin Store types (e.g.
+            // BottomNavigationBarStore) in their @Provides signatures; KSP needs the type
+            // resolvable while processing DiAppComponent, even with no direct import here.
             implementation(libs.mvikotlin)
 
             implementation(libs.kotlin.inject.runtime.kmp)
