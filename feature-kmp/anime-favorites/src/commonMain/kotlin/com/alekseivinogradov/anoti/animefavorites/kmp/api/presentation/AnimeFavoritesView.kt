@@ -5,6 +5,7 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.UiM
 import com.arkivanov.mvikotlin.core.view.MviView
 
 /**
- * The view contract the platform layer implements to render the store's state.
+ * The view contract [com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation.AnimeFavoritesRoute]
+ * implements to render the store's state.
  */
 interface AnimeFavoritesView : MviView<UiModel, AnimeFavoritesMainStore.Intent>

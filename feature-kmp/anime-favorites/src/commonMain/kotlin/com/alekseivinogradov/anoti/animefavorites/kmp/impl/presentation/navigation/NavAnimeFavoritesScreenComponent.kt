@@ -12,9 +12,7 @@ import com.arkivanov.essenty.lifecycle.doOnDestroy
  * Owns the anime-favorites screen's `FeatureScope` DI subgraph for as long as this component's
  * lifecycle (inherited from [componentContext]) is alive — created once when
  * `NavRootConfig.AnimeFavorites` becomes the active root config, disposed when
- * `NavRootComponent.navigateTo()` replaces it.
- * com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.AnimeFavoritesFragment
- * reads its dependencies from
+ * `NavRootComponent.navigateTo()` replaces it. [AnimeFavoritesRoute] reads its dependencies from
  * an already-built instance of this class instead of creating its own `FeatureScope` graph.
  */
 class NavAnimeFavoritesScreenComponent(
@@ -30,7 +28,7 @@ class NavAnimeFavoritesScreenComponent(
 
     init {
         // Registered here rather than in AnimeFavoritesController so the stores are still
-        // disposed when this component is replaced before any Fragment ever builds its
+        // disposed when this component is replaced before AnimeFavoritesRoute ever builds its
         // controller.
         lifecycle.doOnDestroy {
             animeDatabaseStore.dispose()

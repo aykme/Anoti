@@ -11,80 +11,49 @@ import android.os.Build.VERSION_CODES.P
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import android.provider.Settings
-import android.view.View
 import androidx.activity.SystemBarStyle
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
-import com.alekseivinogradov.anoti.animefavorites.android.impl.presentation.navigation.NavAnimeFavoritesScreenComponentHolder
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation.NavAnimeFavoritesScreenComponent
-import com.alekseivinogradov.anoti.animelist.android.impl.presentation.navigation.NavAnimeListScreenComponentHolder
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation.NavAnimeListScreenComponent
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.model.SectionDomain
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
-import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarController
 import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.anotiColorScheme
-import com.alekseivinogradov.anoti.main.R
 import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
+import com.alekseivinogradov.anoti.main.impl.presentation.compose.NotificationsRationaleState
+import com.alekseivinogradov.anoti.main.impl.presentation.compose.RootContent
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponentHolder
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
-import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChildFragmentBinder
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootComponent
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
-import com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.api.presentation.compose.NotificationsRationaleDialog
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.defaultComponentContext
 import com.arkivanov.essenty.lifecycle.asEssentyLifecycle
-import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import kotlinx.serialization.json.Json
 import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 
-class MainActivity :
-    AppCompatActivity(),
-    NavAnimeListScreenComponentHolder,
-    NavAnimeFavoritesScreenComponentHolder {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var diRootComponent: DiRootComponent
 
     private lateinit var rootComponent: NavRootComponent<NavRootChild>
 
-    override val navAnimeListScreenComponent: NavAnimeListScreenComponent
-        get() = (rootComponent.childStack.value.active.instance as NavRootChild.List).component
-
-    override val navAnimeFavoritesScreenComponent: NavAnimeFavoritesScreenComponent
-        get() = (rootComponent.childStack.value.active.instance as NavRootChild.Favorites).component
-
     private val requestPermissionLauncher: ActivityResultLauncher<String> =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
-
-    private var mainLayout: ConstraintLayout? = null
 
     private lateinit var mainStore: BottomNavigationBarStore
 
     private lateinit var animeDatabaseStore: AnimeDatabaseStore
 
     private val notificationsRationaleVisible = mutableStateOf(false)
-
-    private val controller: BottomNavigationBarController by lazy {
-        BottomNavigationBarController(
-            lifecycle = essentyLifecycle(),
-            mainStore = mainStore,
-            animeDatabaseStore = animeDatabaseStore
-        )
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // defaultComponentContext() reads the SavedStateRegistry, which only becomes readable
@@ -100,7 +69,7 @@ class MainActivity :
         val initialNavConfig = deepLinkTarget ?: NavRootConfig.AnimeList
         // Set directly on the store (bypassing the view/store event binding, which only
         // completes asynchronously) so the bar's selected tab is already correct for the very
-        // first composition, before BottomNavigationBarViewImpl even exists.
+        // first composition, before RootContent even exists.
         mainStore.accept(
             BottomNavigationBarStore.Intent.ChangeSelectedSection(
                 selectedSection = mapNavConfigToSection(initialNavConfig)
@@ -112,56 +81,24 @@ class MainActivity :
             childFactory = ::createRootChild
         )
 
-        setContentView(R.layout.activity_main)
-        mainLayout = findViewById(R.id.main_layout)
         setSystemSettings()
-        // mainLayout is always non-null here: assigned right above, cleared only in onDestroy().
-        @Suppress("UnsafeCallOnNullableType")
-        val nonNullMainLayout = mainLayout!!
-        NavRootChildFragmentBinder(
-            fragmentManager = supportFragmentManager,
-            containerId = R.id.nav_host_fragment
-        ).bind(childStack = rootComponent.childStack, lifecycle = lifecycle.asEssentyLifecycle())
-        val bottomNavigationBarView = BottomNavigationBarViewImpl(
-            rootView = nonNullMainLayout,
-            mainStore = mainStore,
-            rootComponent = rootComponent,
-            lifecycle = lifecycle.asEssentyLifecycle()
-        )
-        controller.onViewCreated(
-            mainView = bottomNavigationBarView,
-            viewLifecycle = lifecycle.asEssentyLifecycle(),
-        )
-        // Must run after onViewCreated binds this view's events to the store — see
-        // BottomNavigationBarViewImpl.startObservingChildStack's own doc.
-        bottomNavigationBarView.startObservingChildStack()
-        setUpNotificationsRationaleDialog(nonNullMainLayout)
-        requestToEnableNotificationsIfNecessary()
-    }
-
-    private fun setUpNotificationsRationaleDialog(rootView: View) {
-        val dialogHost: ComposeView = rootView.findViewById(R.id.notifications_dialog_host)
-        dialogHost.setViewCompositionStrategy(
-            ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
-        )
-        dialogHost.setContent {
-            MaterialTheme(colorScheme = anotiColorScheme()) {
-                if (notificationsRationaleVisible.value) {
-                    NotificationsRationaleDialog(
-                        onDismiss = { notificationsRationaleVisible.value = false },
-                        onApprove = {
-                            notificationsRationaleVisible.value = false
-                            onNotificationRequestApproved()
-                        }
-                    )
-                }
-            }
+        setContent {
+            RootContent(
+                rootComponent = rootComponent,
+                mainStore = mainStore,
+                animeDatabaseStore = animeDatabaseStore,
+                lifecycle = lifecycle.asEssentyLifecycle(),
+                notificationsRationale = NotificationsRationaleState(
+                    visible = notificationsRationaleVisible,
+                    onDismiss = { notificationsRationaleVisible.value = false },
+                    onApprove = {
+                        notificationsRationaleVisible.value = false
+                        onNotificationRequestApproved()
+                    }
+                )
+            )
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mainLayout = null
+        requestToEnableNotificationsIfNecessary()
     }
 
     private fun mapNavConfigToSection(config: NavRootConfig): SectionDomain =
@@ -209,27 +146,6 @@ class MainActivity :
                     Color.TRANSPARENT
                 )
             )
-            // mainLayout is always non-null here: assigned in onCreate() before this is called,
-            // cleared only in onDestroy().
-            @Suppress("UnsafeCallOnNullableType")
-            val nonNullMainLayout = mainLayout!!
-            ViewCompat.setOnApplyWindowInsetsListener(nonNullMainLayout) { view, insets ->
-                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-                view.setPadding(
-                    /* left = */
-                    systemBars.left,
-                    /* top = */
-                    0,
-                    /* right = */
-                    systemBars.right,
-                    // Deliberately not systemBars.bottom: BottomNavigationBar's own Spacer
-                    // (windowInsetsBottomHeight(WindowInsets.navigationBars)) is the single
-                    // consumer of that inset — applying it here too would double-pad the content.
-                    /* bottom = */
-                    0
-                )
-                insets
-            }
         }
 
         /**

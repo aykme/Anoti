@@ -15,9 +15,7 @@ import com.arkivanov.essenty.lifecycle.doOnDestroy
  * Owns the anime-list screen's `FeatureScope` DI subgraph for as long as this component's
  * lifecycle (inherited from [componentContext]) is alive — created once when
  * `NavRootConfig.AnimeList` becomes the active root config, disposed when
- * `NavRootComponent.navigateTo()` replaces it.
- * com.alekseivinogradov.anoti.animelist.android.impl.presentation.AnimeListFragment
- * reads its dependencies from an
+ * `NavRootComponent.navigateTo()` replaces it. [AnimeListRoute] reads its dependencies from an
  * already-built instance of this class instead of creating its own `FeatureScope` graph.
  */
 class NavAnimeListScreenComponent(
@@ -36,7 +34,7 @@ class NavAnimeListScreenComponent(
 
     init {
         // Registered here rather than in AnimeListController so the stores are still disposed
-        // when this component is replaced before any Fragment ever builds its controller.
+        // when this component is replaced before AnimeListRoute ever builds its controller.
         lifecycle.doOnDestroy {
             ongoingSectionStore.dispose()
             announcedSectionStore.dispose()

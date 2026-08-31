@@ -19,12 +19,12 @@ badge count.
   `DiBottomNavigationBarComponent` and mixed into `main`'s `DiRootComponent`, the app's
   `RootScope` component — inject it, don't construct it yourself.
   `BottomNavigationBarView` has no DI wiring; the consumer implements it directly (see `main`'s
-  `BottomNavigationBarViewImpl`). `BottomNavigationBarController` has no DI wiring either;
+  `BottomNavigationBarRoute`). `BottomNavigationBarController` has no DI wiring either;
   construct it directly with the store and lifecycle.
 
 ## How to use it
 
-Implement `BottomNavigationBarView` (a `BottomNavigationBarViewImpl`): feed the observed `UiModel`
+Implement `BottomNavigationBarView`: feed the observed `UiModel`
 into the `BottomNavigationBar` composable, whose click callbacks call `dispatch(Intent)`, and
 handle navigation in `handle(Label)`. The implementation must also dispatch
 `ChangeSelectedSection` whenever the host's own navigation state changes outside a tab tap (e.g.

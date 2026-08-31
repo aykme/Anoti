@@ -13,15 +13,19 @@ object ToastManager {
 
     private val coroutineContextProvider = CoroutineContextProviderKmp()
 
-    private val connectionErrorText: String =
+    // Lazy, not eager: makeConnectionErrorToast/makeUnknownErrorToast are independent call
+    // sites, and only one of the two strings is ever actually needed in a given run.
+    private val connectionErrorText: String by lazy {
         runBlocking(coroutineContextProvider.ioDispatcher) {
             getString(Res.string.connection_error)
         }
+    }
 
-    private val unknownErrorText: String =
+    private val unknownErrorText: String by lazy {
         runBlocking(coroutineContextProvider.ioDispatcher) {
             getString(Res.string.unknown_error)
         }
+    }
 
     private fun makeLongToast(appContext: Context, text: String) {
         Toast.makeText(

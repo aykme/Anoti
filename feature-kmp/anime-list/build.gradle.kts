@@ -74,9 +74,6 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.mvikotlin.main)
         }
-        androidMain.dependencies {
-            implementation(libs.androidx.appcompat)
-        }
     }
 }
 

@@ -33,15 +33,19 @@ class AnimeNotificationManagerImpl(
 ) : AnimeNotificationManager {
     private val tag = "ANIME_NOTIFICATION_MANAGER"
 
-    private val episodeAiredString: String =
+    // Lazy, not eager: both strings are only needed once makeNewEpisodeNotification actually
+    // fires, not at construction time.
+    private val episodeAiredString: String by lazy {
         runBlocking(coroutineContextProvider.ioDispatcher) {
             getString(Res.string.episode_aired)
         }
+    }
 
-    private val noDataString: String =
+    private val noDataString: String by lazy {
         runBlocking(coroutineContextProvider.ioDispatcher) {
             getString(celebrityRes.string.no_data)
         }
+    }
 
     private val iconColor: Int = SilverTransparent.toArgb()
 

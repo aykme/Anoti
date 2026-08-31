@@ -6,30 +6,29 @@ and per-item notification toggles.
 - [AnimeFavoritesMainStore](src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/api/domain/store/AnimeFavoritesMainStore.kt) —
   the store. `State`/`Intent`/`Label` are documented on the type itself.
 - [AnimeFavoritesView](src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/api/presentation/AnimeFavoritesView.kt) —
-  the view contract the androidMain layer implements to render the store's state.
+  the view contract `AnimeFavoritesRoute` implements to render the store's state.
 - [AnimeFavoritesController](src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/impl/presentation/AnimeFavoritesController.kt) —
   wires the store to its view and to `AnimeDatabaseStore`.
+- [AnimeFavoritesRoute](src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/impl/presentation/navigation/AnimeFavoritesRoute.kt) —
+  renders the screen for a given `NavAnimeFavoritesScreenComponent`, wiring the view and
+  controller internally.
 
 ## How to include it
 
 - Gradle: `implementation(project(":feature-kmp:anime-favorites"))`
 - `AnimeFavoritesMainStore`'s binding lives in this module's commonMain
   `DiAnimeFavoritesComponent` (a `FeatureScope` kotlin-inject `@Component`, taking
-  `DiAnimeFavoritesDependencies` as its constructor parent). `AnimeFavoritesFragment` doesn't
-  build that component itself; it reads its dependencies off `NavAnimeFavoritesScreenComponent`
-  (`commonMain`), which wraps a Decompose `ComponentContext` around an already-built
-  `DiAnimeFavoritesComponent`. The Activity hosting the fragment must implement
-  `NavAnimeFavoritesScreenComponentHolder` (`androidMain`), exposing the currently active
-  `NavAnimeFavoritesScreenComponent`. `AnimeFavoritesView` has no DI wiring; the `androidMain`
-  layer (`AnimeFavoritesFragment`, via an anonymous `ComposeMviView` from `core-kmp:celebrity`)
-  implements it directly. `AnimeFavoritesController` has no DI wiring either;
-  `AnimeFavoritesFragment` constructs it directly from `NavAnimeFavoritesScreenComponent`'s store
-  and lifecycle.
+  `DiAnimeFavoritesDependencies` as its constructor parent). `AnimeFavoritesRoute` doesn't build
+  that component itself; it takes an already-built `NavAnimeFavoritesScreenComponent`
+  (`commonMain`), which wraps a Decompose `ComponentContext` around a
+  `DiAnimeFavoritesComponent` — the caller builds that instance and passes it in.
+  `AnimeFavoritesView` and `AnimeFavoritesController` have no DI wiring; `AnimeFavoritesRoute`
+  constructs and binds them internally.
 
 ## How to use it
 
-`AnimeFavoritesView` is backed by a `ComposeMviView` rendering `UiModel` into this module's own
-Compose UI; dispatch `Intent`s from the relevant UI callbacks (item clicks, episode-viewed
-buttons, notification toggle). On the favorites screen, construct `AnimeFavoritesController` with
-the store, `AnimeDatabaseStore`, and the screen's lifecycle, then call
-`controller.onViewCreated(view, viewLifecycle)`.
+```kotlin
+// Called once per NavRootConfig.AnimeFavorites activation, with the screen component that
+// activation built:
+AnimeFavoritesRoute(screenComponent = navAnimeFavoritesScreenComponent, topInsetDp = topInsetDp)
+```
