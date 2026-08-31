@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.testutils.android
+package com.alekseivinogradov.anoti.testutils.kmp.api.compose
 
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import kotlinx.coroutines.delay

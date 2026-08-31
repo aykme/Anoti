@@ -3,8 +3,6 @@ package com.alekseivinogradov.anoti.main.impl.presentation.compose
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
-import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.model.SectionDomain
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.mapper.mapStateToUiModel
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.UiModel
@@ -15,7 +13,6 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Compos
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootComponent
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
-import com.arkivanov.essenty.lifecycle.Lifecycle
 
 /**
  * Renders the bottom navigation bar and keeps its selected tab synced to [activeChild]. The
@@ -26,13 +23,9 @@ import com.arkivanov.essenty.lifecycle.Lifecycle
 // lowerCamelCase.
 @Suppress("FunctionNaming")
 @Composable
-internal fun BottomNavigationBarRoute(
-    rootComponent: NavRootComponent<NavRootChild>,
-    mainStore: BottomNavigationBarStore,
-    animeDatabaseStore: AnimeDatabaseStore,
-    lifecycle: Lifecycle,
-    activeChild: NavRootChild
-) {
+internal fun BottomNavigationBarRoute(dependencies: RootDependencies, activeChild: NavRootChild) {
+    val rootComponent = dependencies.rootComponent
+    val mainStore = dependencies.mainStore
     val composeView = remember {
         object :
             ComposeMviView<UiModel, BottomNavigationBarStore.Intent>(
@@ -55,22 +48,20 @@ internal fun BottomNavigationBarRoute(
     // uncanceled MVIKotlin binder alongside the one from the composition that actually commits.
     LaunchedEffect(Unit) {
         BottomNavigationBarController(
-            lifecycle = lifecycle,
+            lifecycle = dependencies.lifecycle,
             mainStore = mainStore,
-            animeDatabaseStore = animeDatabaseStore
-        ).onViewCreated(mainView = composeView, viewLifecycle = lifecycle)
+            animeDatabaseStore = dependencies.animeDatabaseStore
+        ).onViewCreated(mainView = composeView, viewLifecycle = dependencies.lifecycle)
     }
 
     // onViewCreated above has no suspension point, so this effect (declared after it) only ever
     // starts once that binding has fully completed — a dispatch with no bound subscriber yet is
     // silently dropped.
     LaunchedEffect(activeChild) {
-        val section = when (activeChild) {
-            is NavRootChild.List -> SectionDomain.MAIN
-            is NavRootChild.Favorites -> SectionDomain.FAVORITES
-        }
         composeView.dispatch(
-            BottomNavigationBarStore.Intent.ChangeSelectedSection(selectedSection = section)
+            BottomNavigationBarStore.Intent.ChangeSelectedSection(
+                selectedSection = activeChild.section
+            )
         )
     }
 
@@ -80,12 +71,7 @@ internal fun BottomNavigationBarRoute(
 }
 
 private fun navigateTo(rootComponent: NavRootComponent<NavRootChild>, target: NavRootConfig) {
-    val alreadyActive = when (target) {
-        NavRootConfig.AnimeList -> rootComponent.childStack.value.active.instance is NavRootChild.List
-        NavRootConfig.AnimeFavorites ->
-            rootComponent.childStack.value.active.instance is NavRootChild.Favorites
-    }
-    if (alreadyActive.not()) {
+    if (rootComponent.childStack.value.active.instance.config != target) {
         rootComponent.navigateTo(target)
     }
 }

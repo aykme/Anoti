@@ -17,19 +17,30 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation.NavAnimeFavoritesScreenComponent
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation.NavAnimeListScreenComponent
-import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.model.SectionDomain
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
 import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.compose.NotificationsRationaleState
 import com.alekseivinogradov.anoti.main.impl.presentation.compose.RootContent
+import com.alekseivinogradov.anoti.main.impl.presentation.compose.RootDependencies
+import com.alekseivinogradov.anoti.main.impl.presentation.compose.RootInsets
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponentHolder
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootComponent
@@ -67,27 +78,31 @@ class MainActivity : AppCompatActivity() {
         // discard the restored navigation state and jump back to the deep link's target.
         val deepLinkTarget = if (savedInstanceState == null) readDeepLinkTarget() else null
         val initialNavConfig = deepLinkTarget ?: NavRootConfig.AnimeList
-        // Set directly on the store (bypassing the view/store event binding, which only
-        // completes asynchronously) so the bar's selected tab is already correct for the very
-        // first composition, before RootContent even exists.
-        mainStore.accept(
-            BottomNavigationBarStore.Intent.ChangeSelectedSection(
-                selectedSection = mapNavConfigToSection(initialNavConfig)
-            )
-        )
         rootComponent = NavRootComponent(
             componentContext = defaultComponentContext(discardSavedState = deepLinkTarget != null),
             initialConfiguration = initialNavConfig,
             childFactory = ::createRootChild
         )
+        // Set directly on the store (bypassing the view/store event binding, which only
+        // completes asynchronously) so the bar's selected tab is already correct for the very
+        // first composition, before RootContent even exists. childStack.value is already valid
+        // here: childStack() resolves the initial/restored child synchronously on construction.
+        mainStore.accept(
+            BottomNavigationBarStore.Intent.ChangeSelectedSection(
+                selectedSection = rootComponent.childStack.value.active.instance.section
+            )
+        )
 
         setSystemSettings()
         setContent {
+            val edgeToEdgeEnabled = isEdgeToEdgeEnabled()
             RootContent(
-                rootComponent = rootComponent,
-                mainStore = mainStore,
-                animeDatabaseStore = animeDatabaseStore,
-                lifecycle = lifecycle.asEssentyLifecycle(),
+                dependencies = RootDependencies(
+                    rootComponent = rootComponent,
+                    mainStore = mainStore,
+                    animeDatabaseStore = animeDatabaseStore,
+                    lifecycle = lifecycle.asEssentyLifecycle()
+                ),
                 notificationsRationale = NotificationsRationaleState(
                     visible = notificationsRationaleVisible,
                     onDismiss = { notificationsRationaleVisible.value = false },
@@ -95,17 +110,15 @@ class MainActivity : AppCompatActivity() {
                         notificationsRationaleVisible.value = false
                         onNotificationRequestApproved()
                     }
+                ),
+                insets = RootInsets(
+                    horizontalSystemBarsPadding = horizontalSystemBarsPadding(edgeToEdgeEnabled),
+                    topInsetDp = topInsetDp(edgeToEdgeEnabled)
                 )
             )
         }
         requestToEnableNotificationsIfNecessary()
     }
-
-    private fun mapNavConfigToSection(config: NavRootConfig): SectionDomain =
-        when (config) {
-            NavRootConfig.AnimeList -> SectionDomain.MAIN
-            NavRootConfig.AnimeFavorites -> SectionDomain.FAVORITES
-        }
 
     private fun createRootChild(
         config: NavRootConfig,
@@ -221,3 +234,24 @@ class MainActivity : AppCompatActivity() {
         const val EXTRA_DEEP_LINK_TARGET = "deep_link_target"
     }
 }
+
+// RootContent (commonMain) takes the result, not the API-level check itself, so this
+// Android-only reasoning doesn't leak into portable code.
+@Composable
+private fun horizontalSystemBarsPadding(edgeToEdgeEnabled: Boolean): Modifier =
+    if (edgeToEdgeEnabled) {
+        Modifier.windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
+    } else {
+        Modifier
+    }
+
+// Screens pad their own top edge with this so content isn't drawn under the status bar; on API
+// levels where edge-to-edge is disabled the system already reserves that space, so no padding is
+// needed here.
+@Composable
+private fun topInsetDp(edgeToEdgeEnabled: Boolean): Dp =
+    if (edgeToEdgeEnabled) {
+        WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
+    } else {
+        0.dp
+    }

@@ -32,7 +32,7 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.Res as
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_list
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.extra_info_on_description
 import com.alekseivinogradov.anoti.main.impl.presentation.MainActivity
-import com.alekseivinogradov.anoti.testutils.android.safeComposeInteraction
+import com.alekseivinogradov.anoti.testutils.kmp.api.compose.safeComposeInteraction
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.getString
 import org.junit.After

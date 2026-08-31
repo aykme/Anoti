@@ -32,11 +32,8 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            //put your multiplatform dependencies here
-        }
-        androidMain.dependencies {
             implementation(libs.kotlinx.coroutines.core)
-            implementation(libs.compose.ui.test.junit4)
+            implementation(libs.compose.ui.test)
         }
     }
 }

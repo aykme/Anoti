@@ -49,30 +49,29 @@ kotlin {
 
             implementation(project(":feature-kmp:anime-base"))
             implementation(project(":feature-kmp:anime-background-update"))
+            implementation(project(":feature-kmp:notifications-rationale-dialog"))
             implementation(project(":core-kmp:celebrity"))
             implementation(project(":core-kmp:network"))
             implementation(project(":core-kmp:anime-database"))
             implementation(project(":core-kmp:di-scope"))
+            implementation(project(":core-kmp:navigation"))
 
             implementation(libs.mvikotlin)
             implementation(libs.compose.runtime) // required once kotlinCompose is applied
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.ui)
+            implementation(libs.decompose)
+            implementation(libs.essenty.lifecycle)
 
             implementation(libs.kotlin.inject.runtime.kmp)
         }
         androidMain.dependencies {
-            implementation(project(":core-kmp:navigation"))
             implementation(project(":feature-kmp:anime-notification-external"))
-            implementation(project(":feature-kmp:notifications-rationale-dialog"))
 
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.appcompat)
             implementation(libs.androidx.activity)
             implementation(libs.androidx.activity.compose)
-            implementation(libs.essenty.lifecycle)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.ui)
-            implementation(libs.compose.material3)
-            implementation(libs.decompose)
             implementation(libs.kotlinx.serialization.json)
         }
     }

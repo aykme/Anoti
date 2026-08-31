@@ -49,6 +49,32 @@ Read this before doing any task in this repository.
 - The same brevity applies to KDoc on classes/interfaces/functions: a short "what this is and
   why it exists," not a walkthrough of how it's implemented.
 
+## Platform source sets (androidMain/iosMain)
+
+- This is a KMP app. `commonMain` is the default location for everything; a platform source set
+  (`androidMain`, `iosMain`) is only for code that is genuinely impossible to write in
+  `commonMain` — a real platform API with no KMP equivalent (`Context`, `PendingIntent`,
+  `NotificationChannel`, `WorkManager`, an actual `Activity`/`Application` subclass, and the
+  like). It is not a place to retreat to because a KMP-compatible way of doing something wasn't
+  worked out yet, and not a default reached for at the first sign of friction.
+- Before adding or leaving anything in a platform source set, check concretely whether it
+  actually needs a platform-only type anywhere in its own signature or body — an interface,
+  data holder, or plain function with zero platform imports belongs in `commonMain`. Even if its
+  only current implementer/caller happens to be platform-specific.
+- This applies to Compose code too: a composable function only needs to live in `androidMain`/
+  `iosMain` if it directly touches a platform-only API (e.g. a `View`/`ComposeView` bridge). A
+  composable built entirely from `compose.runtime`/`compose.foundation`/`compose.material3` and
+  other `commonMain` types belongs in `commonMain`, regardless of which platform currently calls
+  it.
+- When a platform-specific value or condition is needed inside otherwise-portable logic (e.g. an
+  Android-only OS-version check), compute it in the platform layer and pass the *result* in as a
+  plain parameter (a `Boolean`, a `Modifier`, a `Dp`) — don't let the platform-specific concept
+  itself (its name, its reasoning) leak into the `commonMain` signature.
+- Re-verify this placement whenever a task removes or restructures platform-specific code (e.g.
+  a `Fragment`→Compose migration) — code that was platform-only because of something now-deleted
+  (a `Fragment`, a `View`) often has no remaining reason to stay platform-specific and should
+  move to `commonMain` as part of that same task, not be left behind.
+
 ## Compose design tokens (Dimens/Fonts/Colors/Const)
 
 - Shared Compose UI constants live in typed files by kind: `Dimens.kt` (sizes, spacing,

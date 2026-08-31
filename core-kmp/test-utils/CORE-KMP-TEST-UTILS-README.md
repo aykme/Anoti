@@ -2,7 +2,7 @@ Retry helpers for this app's instrumented UI tests.
 
 ## Entities
 
-- [safeComposeInteraction](src/androidMain/kotlin/com/alekseivinogradov/anoti/testutils/android/SafeComposeInteraction.kt) —
+- [safeComposeInteraction](src/commonMain/kotlin/com/alekseivinogradov/anoti/testutils/kmp/api/compose/SafeComposeInteraction.kt) —
   retries a Compose Testing node lookup until it stops throwing.
 
 ## How to include it
