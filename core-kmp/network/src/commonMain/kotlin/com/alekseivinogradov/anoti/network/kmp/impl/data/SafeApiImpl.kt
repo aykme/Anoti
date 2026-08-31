@@ -41,7 +41,7 @@ class SafeApiImpl(
     }
 
     private fun isRetryable(throwable: Throwable): Boolean = when (throwable) {
-        is ResponseException -> throwable.response.status.value >= HTTP_SERVER_ERROR_STATUS
+        is ResponseException -> throwable.response.status.value >= HTTP_ERROR_STATUS
         is IOException -> true
         else -> false
     }
@@ -57,6 +57,6 @@ class SafeApiImpl(
     }
 
     private companion object {
-        private const val HTTP_SERVER_ERROR_STATUS = 500
+        private const val HTTP_ERROR_STATUS = 400
     }
 }

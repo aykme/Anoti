@@ -52,7 +52,7 @@ class SafeApiImplTest {
     }
 
     @Test
-    fun callReturnsHttpErrorWithoutRetryOnClientError() = runTest {
+    fun callRetriesClientErrorAndReturnsHttpErrorAfterExhaustingAttempts() = runTest {
         //Given
         val safeApi = createSafeApi(maxAttempt = 3)
         var attempts = 0
@@ -67,7 +67,7 @@ class SafeApiImplTest {
         //Then
         assertIs<CallResult.HttpError>(result)
         assertEquals(400, result.code)
-        assertEquals(1, attempts)
+        assertEquals(3, attempts)
     }
 
     @Test
