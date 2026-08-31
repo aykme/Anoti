@@ -26,9 +26,9 @@ fun AnimeFavoritesRoute(screenComponent: NavAnimeFavoritesScreenComponent, topIn
     val composeView = remember(screenComponent) {
         object : ComposeMviView<UiModel, AnimeFavoritesMainStore.Intent>(), AnimeFavoritesView {}
     }
-    // Binding runs as an effect, not inside remember's calculator: a discarded/retried
-    // composition still executes remember's calculator, which would start a second,
-    // un-cancelled MVIKotlin binder alongside the one from the composition that actually commits.
+    // Binding runs as an effect, not inside "remember": a discarded/retried
+    // composition still executes "remember" calculator, which would start a second,
+    // uncanceled MVIKotlin binder alongside the one from the composition that actually commits.
     LaunchedEffect(screenComponent) {
         AnimeFavoritesController(
             lifecycle = screenComponent.lifecycle,

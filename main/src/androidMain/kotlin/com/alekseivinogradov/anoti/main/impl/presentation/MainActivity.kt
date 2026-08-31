@@ -112,7 +112,9 @@ class MainActivity : AppCompatActivity() {
                     }
                 ),
                 insets = RootInsets(
-                    horizontalSystemBarsPadding = horizontalSystemBarsPadding(edgeToEdgeEnabled),
+                    horizontalSystemBarsPadding = Modifier.horizontalSystemBarsPadding(
+                        edgeToEdgeEnabled
+                    ),
                     topInsetDp = topInsetDp(edgeToEdgeEnabled)
                 )
             )
@@ -238,11 +240,13 @@ class MainActivity : AppCompatActivity() {
 // RootContent (commonMain) takes the result, not the API-level check itself, so this
 // Android-only reasoning doesn't leak into portable code.
 @Composable
-private fun horizontalSystemBarsPadding(edgeToEdgeEnabled: Boolean): Modifier =
+private fun Modifier.horizontalSystemBarsPadding(edgeToEdgeEnabled: Boolean): Modifier =
     if (edgeToEdgeEnabled) {
-        Modifier.windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
+        windowInsetsPadding(
+            WindowInsets.systemBars.only(WindowInsetsSides.Horizontal)
+        )
     } else {
-        Modifier
+        this
     }
 
 // Screens pad their own top edge with this so content isn't drawn under the status bar; on API
