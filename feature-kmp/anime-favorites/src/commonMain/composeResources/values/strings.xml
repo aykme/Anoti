@@ -7,4 +7,7 @@
     <string name="episodes_viewed_plus_description">Plus one episode to the number of viewed</string>
     <string name="new_episode">New episode</string>
     <string name="episodes_viewed">Episodes viewed</string>
+    <string name="next_episode_short">Next</string>
+    <string name="beginning_of_the_show_short">Beginning</string>
+    <string name="show_is_finished_short">Finished</string>
 </resources>

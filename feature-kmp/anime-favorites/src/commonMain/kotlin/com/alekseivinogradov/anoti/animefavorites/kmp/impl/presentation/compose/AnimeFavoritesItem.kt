@@ -42,7 +42,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.TextStyle
@@ -70,27 +75,29 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.REPEAT
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.SPACING_UNIT_DP
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.announced
-import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.beginning_of_the_show
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.episodes
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.inaccurate
-import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.next_episode
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.notifications_turn_off_description
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.notifications_turn_on_description
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.ongoing
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.released
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.score_image_description
-import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.show_is_finished
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.EPISODES_MAX_LINES
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.EXTRA_INFO_MAX_LINES
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.ITEM_MIN_HEIGHT_DP
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.ITEM_PREVIEW_HEIGHT_DP
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.ITEM_PREVIEW_WIDTH_DP
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.NEW_EPISODE_SHADOW_OFFSET
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.NEW_EPISODE_SHADOW_RADIUS
-import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.POSTER_WIDTH_DP
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.POSTER_WIDTH_FRACTION
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.SCORE_BAR_HEIGHT_DP
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.TITLE_MAX_LINES
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.InfoTypeUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.ListItemUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.NotificationUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.ReleaseStatusUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.Res
+import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.beginning_of_the_show_short
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.episodes_viewed
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.episodes_viewed_minus_description
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.episodes_viewed_plus_description
@@ -101,6 +108,8 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.ic_arr
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.ic_details_off_24
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.ic_details_on_24
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.new_episode
+import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.next_episode_short
+import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.show_is_finished_short
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.ACCENT_TEXT_SP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
@@ -123,6 +132,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_score_42
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.load_image_error_48
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.no_data
 import org.jetbrains.compose.resources.stringResource
+import kotlin.math.roundToInt
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as BaseRes
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as CelebrityRes
 import org.jetbrains.compose.resources.Font as CmpFont
@@ -186,7 +196,7 @@ fun AnimeFavoritesItem(
             .padding(8.dp)
     ) { constraints ->
         val minHeightPx = ITEM_MIN_HEIGHT_DP.dp.roundToPx()
-        val posterWidthPx = POSTER_WIDTH_DP.dp.roundToPx()
+        val posterWidthPx = (constraints.maxWidth * POSTER_WIDTH_FRACTION).roundToInt()
         val spacerPx = SPACING_UNIT_DP.roundToPx()
         val infoWidthPx = (constraints.maxWidth - posterWidthPx - spacerPx).coerceAtLeast(0)
         val infoWidthConstraints = Constraints(minWidth = infoWidthPx, maxWidth = infoWidthPx)
@@ -222,8 +232,9 @@ private fun PosterColumn(
     onInfoTypeClick: () -> Unit
 ) {
     Box(
+        // Width comes from the parent SubcomposeLayout's Constraints.fixed(posterWidthPx, ...)
+        // measurement, not a modifier here — it's the fraction-of-row width, not a fixed dp.
         modifier = Modifier
-            .width(130.dp)
             .fillMaxHeight()
             .clip(RoundedCornerShape(percent = IMAGE_CORNER_PERCENT))
     ) {
@@ -283,6 +294,13 @@ private fun BoxScope.NewEpisodeBadge(amikoBold: FontFamily) {
     )
 }
 
+private enum class ScoreInfoBarSlot { Icon, Score, Button }
+
+// A plain Row can't express "keep the score icon/text/toggle button on one line for as long as
+// they fit, only drop the button to a second line once they genuinely don't" — Row has no
+// built-in wrapping. This custom Layout measures all three at their natural size first, and only
+// switches to a two-line arrangement (button centered below) if that natural width would
+// overflow the poster; at normal/most scales it renders identically to the single-row layout.
 @Suppress("FunctionNaming", "LongParameterList")
 @Composable
 private fun BoxScope.ScoreInfoBar(
@@ -290,34 +308,68 @@ private fun BoxScope.ScoreInfoBar(
     infoType: InfoTypeUi,
     onInfoTypeClick: () -> Unit
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    Layout(
         modifier = Modifier
             .align(Alignment.BottomCenter)
             .fillMaxWidth()
-            .height(50.dp)
-            .background(Black.copy(alpha = POSTER_OVERLAY_ALPHA), RoundedCornerShape(4.dp))
-    ) {
-        Icon(
-            painter = cmpPainterResource(CelebrityRes.drawable.ic_score_42),
-            contentDescription = stringResource(BaseRes.string.score_image_description),
-            tint = Cinnabar500,
-            modifier = Modifier
-                .size(32.dp)
-                .alpha(ITEM_ICON_ALPHA)
-        )
-        Text(
-            text = score,
-            color = White,
-            fontSize = SUBTITLE1_SP,
-            fontWeight = FontWeight.Normal,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-        // Centers the button in the space left after the score, rather than pinning it to
-        // either side.
-        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-            InfoTypeButton(infoType = infoType, onClick = onInfoTypeClick)
+            .background(Black.copy(alpha = POSTER_OVERLAY_ALPHA), RoundedCornerShape(4.dp)),
+        content = {
+            Icon(
+                painter = cmpPainterResource(CelebrityRes.drawable.ic_score_42),
+                contentDescription = stringResource(BaseRes.string.score_image_description),
+                tint = Cinnabar500,
+                modifier = Modifier
+                    .layoutId(ScoreInfoBarSlot.Icon)
+                    .size(32.dp)
+                    .alpha(ITEM_ICON_ALPHA)
+            )
+            Text(
+                text = score,
+                color = White,
+                fontSize = SUBTITLE1_SP,
+                fontWeight = FontWeight.Normal,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.layoutId(ScoreInfoBarSlot.Score)
+            )
+            Box(Modifier.layoutId(ScoreInfoBarSlot.Button)) {
+                InfoTypeButton(infoType = infoType, onClick = onInfoTypeClick)
+            }
+        }
+    ) { measurables, constraints ->
+        measureScoreInfoBar(measurables, constraints)
+    }
+}
+
+private fun MeasureScope.measureScoreInfoBar(
+    measurables: List<Measurable>,
+    constraints: Constraints
+): MeasureResult {
+    val byId = measurables.associateBy { it.layoutId }
+    val loose = Constraints()
+    val icon = byId.getValue(ScoreInfoBarSlot.Icon).measure(loose)
+    val score = byId.getValue(ScoreInfoBarSlot.Score).measure(loose)
+    val button = byId.getValue(ScoreInfoBarSlot.Button).measure(loose)
+
+    val available = constraints.maxWidth
+    return if (icon.width + score.width + button.width <= available) {
+        val rowHeight = SCORE_BAR_HEIGHT_DP.dp.roundToPx()
+        layout(available, rowHeight) {
+            icon.placeRelative(0, (rowHeight - icon.height) / 2)
+            score.placeRelative(icon.width, (rowHeight - score.height) / 2)
+            // Centers the button in the space left after the icon/score, rather than pinning it
+            // to either side.
+            val buttonX = icon.width + score.width +
+                (available - icon.width - score.width - button.width) / 2
+            button.placeRelative(buttonX, (rowHeight - button.height) / 2)
+        }
+    } else {
+        val topRowHeight = maxOf(icon.height, score.height)
+        val totalHeight = topRowHeight + button.height
+        layout(available, totalHeight) {
+            icon.placeRelative(0, (topRowHeight - icon.height) / 2)
+            score.placeRelative(icon.width, (topRowHeight - score.height) / 2)
+            button.placeRelative((available - button.width) / 2, topRowHeight)
         }
     }
 }
@@ -403,16 +455,19 @@ private fun MainInfoContent(item: ListItemUi, onNotificationClick: () -> Unit) {
             color = White,
             fontSize = SUBTITLE1_SP,
             fontWeight = FontWeight.Normal,
-            maxLines = 2,
+            maxLines = TITLE_MAX_LINES,
             overflow = TextOverflow.Ellipsis
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "${stringResource(BaseRes.string.episodes)}: ${item.availableEpisodesInfo}",
+            // A non-breaking space inside the count keeps it whole, so the only place this can
+            // wrap onto a second line is right after "Episodes:".
+            text = "${stringResource(BaseRes.string.episodes)}: " +
+                item.availableEpisodesInfo.replace(" ", " "),
             color = White,
             fontSize = SUBTITLE1_SP,
             fontWeight = FontWeight.Normal,
-            maxLines = 1,
+            maxLines = EPISODES_MAX_LINES,
             overflow = TextOverflow.Ellipsis
         )
         Spacer(Modifier.weight(1f))
@@ -454,7 +509,7 @@ private fun ExtraInfoContent(
             color = White,
             fontSize = SUBTITLE1_SP,
             fontWeight = FontWeight.Normal,
-            maxLines = 2,
+            maxLines = EXTRA_INFO_MAX_LINES,
             overflow = TextOverflow.Ellipsis
         )
         Spacer(Modifier.weight(1f))
@@ -586,7 +641,7 @@ private fun formatExtraEpisodesInfo(
     }
     return when (releaseStatus) {
         ReleaseStatusUi.ONGOING ->
-            "${stringResource(BaseRes.string.next_episode)}:\n$formattedDate"
+            "${stringResource(Res.string.next_episode_short)}:\n$formattedDate"
 
         ReleaseStatusUi.ANNOUNCED -> {
             val inaccurateSuffix = if (extraEpisodesInfo?.isNotEmpty() == true) {
@@ -594,11 +649,11 @@ private fun formatExtraEpisodesInfo(
             } else {
                 ""
             }
-            "${stringResource(BaseRes.string.beginning_of_the_show)}:\n$formattedDate$inaccurateSuffix"
+            "${stringResource(Res.string.beginning_of_the_show_short)}:\n$formattedDate$inaccurateSuffix"
         }
 
         ReleaseStatusUi.RELEASED ->
-            "${stringResource(BaseRes.string.show_is_finished)}:\n$formattedDate"
+            "${stringResource(Res.string.show_is_finished_short)}:\n$formattedDate"
 
         ReleaseStatusUi.UNKNOWN -> formattedDate
     }

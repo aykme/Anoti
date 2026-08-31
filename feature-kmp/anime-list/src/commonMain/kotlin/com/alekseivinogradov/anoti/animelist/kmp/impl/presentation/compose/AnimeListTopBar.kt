@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.IconButton
@@ -39,6 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.SEARCH_TEXT_MAX_LENGTH
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.SEARCH_ICON_OFFSET_DP
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BAR_CONTROL_SIZE_DP
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BAR_PREVIEW_HEIGHT_DP
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BAR_PREVIEW_WIDTH_DP
@@ -208,7 +211,10 @@ private fun TabsRow(
                     colorFilter = ColorFilter.tint(
                         if (selectedSection == SectionHatUi.SEARCH) Cinnabar500 else WhiteTransparent
                     ),
-                    modifier = Modifier.size(32.dp)
+                    // The magnifying-glass glyph isn't centered the same way in this icon's own
+                    // artwork as it is in ic_search_cancel_32's. So this nudge lines its contour
+                    // up with the cancel icon shown in the exact same spot once search opens.
+                    modifier = Modifier.size(32.dp).offset(x = SEARCH_ICON_OFFSET_DP, y = SEARCH_ICON_OFFSET_DP)
                 )
             }
         }
@@ -248,14 +254,19 @@ private fun SearchField(text: String, onTextChange: (String) -> Unit, onCancelCl
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
-                .height(TOP_BAR_CONTROL_SIZE_DP.dp)
+                // A minimum, not a fixed height: at large font/display scales the placeholder
+                // can need more than one line, and this lets the field grow to fit it instead of
+                // clipping it.
+                .heightIn(min = TOP_BAR_CONTROL_SIZE_DP.dp)
                 .shadow(1.dp)
         )
         IconButton(
             onClick = onCancelClick,
+            // No end padding of its own: the enclosing Box's own horizontal padding already
+            // supplies the 8dp inset, matching the search button's inset in TabsRow exactly.
             modifier = Modifier
                 .align(Alignment.CenterEnd)
-                .padding(top = 8.dp, end = 8.dp)
+                .padding(top = 8.dp)
                 .size(TOP_BAR_CONTROL_SIZE_DP.dp)
         ) {
             Image(
