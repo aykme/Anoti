@@ -82,11 +82,6 @@ dependencies {
     kspTargets.forEach { target ->
         add("ksp$target", libs.kotlin.inject.compiler.ksp)
     }
-
-    // Renders ComposeView content in Android Studio's layout preview (activity_main.xml);
-    // androidRuntimeClasspath (not debugImplementation) is what
-    // com.android.kotlin.multiplatform.library expects it on.
-    androidRuntimeClasspath(libs.compose.ui.tooling)
 }
 
 // Lint's androidHostTest-related tasks read kspAndroidHostTest's generated sources without

@@ -17,17 +17,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -40,7 +30,6 @@ import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.compose.NotificationsRationaleState
 import com.alekseivinogradov.anoti.main.impl.presentation.compose.RootContent
 import com.alekseivinogradov.anoti.main.impl.presentation.compose.RootDependencies
-import com.alekseivinogradov.anoti.main.impl.presentation.compose.RootInsets
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponentHolder
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootComponent
@@ -95,7 +84,6 @@ class MainActivity : AppCompatActivity() {
 
         setSystemSettings()
         setContent {
-            val edgeToEdgeEnabled = isEdgeToEdgeEnabled()
             RootContent(
                 dependencies = RootDependencies(
                     rootComponent = rootComponent,
@@ -111,12 +99,7 @@ class MainActivity : AppCompatActivity() {
                         onNotificationRequestApproved()
                     }
                 ),
-                insets = RootInsets(
-                    horizontalSystemBarsPadding = Modifier.horizontalSystemBarsPadding(
-                        edgeToEdgeEnabled
-                    ),
-                    topInsetDp = topInsetDp(edgeToEdgeEnabled)
-                )
+                edgeToEdgeEnabled = isEdgeToEdgeEnabled()
             )
         }
         requestToEnableNotificationsIfNecessary()
@@ -236,26 +219,3 @@ class MainActivity : AppCompatActivity() {
         const val EXTRA_DEEP_LINK_TARGET = "deep_link_target"
     }
 }
-
-// RootContent (commonMain) takes the result, not the API-level check itself, so this
-// Android-only reasoning doesn't leak into portable code.
-@Composable
-private fun Modifier.horizontalSystemBarsPadding(edgeToEdgeEnabled: Boolean): Modifier =
-    if (edgeToEdgeEnabled) {
-        windowInsetsPadding(
-            WindowInsets.systemBars.only(WindowInsetsSides.Horizontal)
-        )
-    } else {
-        this
-    }
-
-// Screens pad their own top edge with this so content isn't drawn under the status bar; on API
-// levels where edge-to-edge is disabled the system already reserves that space, so no padding is
-// needed here.
-@Composable
-private fun topInsetDp(edgeToEdgeEnabled: Boolean): Dp =
-    if (edgeToEdgeEnabled) {
-        WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
-    } else {
-        0.dp
-    }
