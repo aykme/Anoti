@@ -98,8 +98,7 @@ class MainActivity : AppCompatActivity() {
                         notificationsRationaleVisible.value = false
                         onNotificationRequestApproved()
                     }
-                ),
-                edgeToEdgeEnabled = isEdgeToEdgeEnabled()
+                )
             )
         }
         requestToEnableNotificationsIfNecessary()

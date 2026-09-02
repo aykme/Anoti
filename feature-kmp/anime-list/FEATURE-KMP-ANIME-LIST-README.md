@@ -35,5 +35,5 @@ coordinated by a top-level store.
 ```kotlin
 // Called once per NavRootConfig.AnimeList activation, with the screen component that
 // activation built:
-AnimeListRoute(screenComponent = navAnimeListScreenComponent, topInsetDp = topInsetDp)
+AnimeListRoute(screenComponent = navAnimeListScreenComponent)
 ```

@@ -41,6 +41,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.CAPTIO
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500Transparent
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SilverTransparent
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.horizontalSystemBarsPadding
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -59,7 +60,7 @@ fun BottomNavigationBar(
     // (fixed at zero) so its content is pinned to a fixed 56dp, and the Spacer below reserves the
     // system navigation bar's own height with matching background — a fixed-size content region
     // plus a separate system-inset region, so only one of the two ever pads for that inset.
-    Column(modifier = Modifier.shadow(NAV_BAR_ELEVATION_DP)) {
+    Column(modifier = Modifier.horizontalSystemBarsPadding().shadow(NAV_BAR_ELEVATION_DP)) {
         NavigationBar(
             containerColor = Black,
             windowInsets = WindowInsets(0.dp),

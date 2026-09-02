@@ -30,5 +30,5 @@ and per-item notification toggles.
 ```kotlin
 // Called once per NavRootConfig.AnimeFavorites activation, with the screen component that
 // activation built:
-AnimeFavoritesRoute(screenComponent = navAnimeFavoritesScreenComponent, topInsetDp = topInsetDp)
+AnimeFavoritesRoute(screenComponent = navAnimeFavoritesScreenComponent)
 ```

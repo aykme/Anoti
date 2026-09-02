@@ -34,7 +34,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.ColorImage
 import coil3.annotation.ExperimentalCoilApi
@@ -63,6 +62,8 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Grey70
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LoadingSpinner
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SUBTITLE2_SP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.horizontalSystemBarsPadding
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.systemBarsTopPadding
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.anime_poster_sample
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.main_character_image
 import org.jetbrains.compose.resources.painterResource
@@ -81,7 +82,6 @@ import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as Cele
 fun AnimeFavoritesScreen(
     uiModel: UiModel,
     dateFormatter: DateFormatter,
-    topInsetDp: Dp = 0.dp,
     dispatch: (AnimeFavoritesMainStore.Intent) -> Unit
 ) {
     // The only path that flips contentType from LOADING to LOADED, so it must run
@@ -92,15 +92,16 @@ fun AnimeFavoritesScreen(
         }
     }
 
-    when (uiModel.contentType) {
-        ContentTypeUi.LOADING -> LoadingState()
-        ContentTypeUi.EMPTY -> EmptyState(topInsetDp = topInsetDp)
-        ContentTypeUi.LOADED -> ListState(
-            uiModel = uiModel,
-            dateFormatter = dateFormatter,
-            topInsetDp = topInsetDp,
-            dispatch = dispatch
-        )
+    Box(Modifier.fillMaxSize().horizontalSystemBarsPadding()) {
+        when (uiModel.contentType) {
+            ContentTypeUi.LOADING -> LoadingState()
+            ContentTypeUi.EMPTY -> EmptyState()
+            ContentTypeUi.LOADED -> ListState(
+                uiModel = uiModel,
+                dateFormatter = dateFormatter,
+                dispatch = dispatch
+            )
+        }
     }
 }
 
@@ -119,7 +120,8 @@ private fun LoadingState() {
 
 @Suppress("FunctionNaming")
 @Composable
-private fun EmptyState(topInsetDp: Dp) {
+private fun EmptyState() {
+    val topInset = systemBarsTopPadding()
     // Box is required: without it, Row's tight incoming constraints would stretch it to full
     // height despite height(IntrinsicSize.Min).
     Box(Modifier.fillMaxSize()) {
@@ -132,7 +134,7 @@ private fun EmptyState(topInsetDp: Dp) {
                     start = 8.dp,
                     // Replaces the default top padding once a real system-bar inset is known,
                     // instead of stacking on top of it.
-                    top = if (topInsetDp > 0.dp) topInsetDp else 8.dp,
+                    top = if (topInset > 0.dp) topInset else 8.dp,
                     end = 8.dp,
                     bottom = 8.dp
                 )
@@ -174,7 +176,6 @@ private fun EmptyState(topInsetDp: Dp) {
 private fun ListState(
     uiModel: UiModel,
     dateFormatter: DateFormatter,
-    topInsetDp: Dp,
     dispatch: (AnimeFavoritesMainStore.Intent) -> Unit
 ) {
     val pullToRefreshState = rememberPullToRefreshState()
@@ -197,7 +198,7 @@ private fun ListState(
                 .testTag("anime_favorites_rv")
                 .fillMaxSize(),
             contentPadding = PaddingValues(
-                top = topInsetDp,
+                top = systemBarsTopPadding(),
                 bottom = LIST_LAST_ITEM_BOTTOM_PADDING_DP.dp
             )
         ) {

@@ -3,7 +3,6 @@ package com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigat
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.unit.Dp
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.AnimeFavoritesView
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.UiModel
@@ -20,7 +19,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Compos
 // lowerCamelCase.
 @Suppress("FunctionNaming")
 @Composable
-fun AnimeFavoritesRoute(screenComponent: NavAnimeFavoritesScreenComponent, topInsetDp: Dp) {
+fun AnimeFavoritesRoute(screenComponent: NavAnimeFavoritesScreenComponent) {
     // Needs an explicit AnimeFavoritesView supertype: the controller takes that interface, and
     // ComposeMviView's structural match to it isn't enough for Kotlin's nominal typing.
     val composeView = remember(screenComponent) {
@@ -40,7 +39,6 @@ fun AnimeFavoritesRoute(screenComponent: NavAnimeFavoritesScreenComponent, topIn
         AnimeFavoritesScreen(
             uiModel = uiModel,
             dateFormatter = screenComponent.dateFormatter,
-            topInsetDp = topInsetDp,
             dispatch = composeView::dispatch
         )
     }

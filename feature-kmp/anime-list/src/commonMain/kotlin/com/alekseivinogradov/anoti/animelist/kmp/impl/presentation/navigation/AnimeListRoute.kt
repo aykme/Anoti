@@ -3,7 +3,6 @@ package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.unit.Dp
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.AnimeListView
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.UiModel
@@ -20,7 +19,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Compos
 // lowerCamelCase.
 @Suppress("FunctionNaming")
 @Composable
-fun AnimeListRoute(screenComponent: NavAnimeListScreenComponent, topInsetDp: Dp) {
+fun AnimeListRoute(screenComponent: NavAnimeListScreenComponent) {
     // Needs an explicit AnimeListView supertype: the controller takes that interface, and
     // ComposeMviView's structural match to it isn't enough for Kotlin's nominal typing.
     val composeView = remember(screenComponent) {
@@ -43,7 +42,6 @@ fun AnimeListRoute(screenComponent: NavAnimeListScreenComponent, topInsetDp: Dp)
         AnimeListScreen(
             uiModel = uiModel,
             dateFormatter = screenComponent.dateFormatter,
-            topInsetDp = topInsetDp,
             dispatch = composeView::dispatch
         )
     }

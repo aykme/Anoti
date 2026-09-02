@@ -22,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.ColorImage
 import coil3.annotation.ExperimentalCoilApi
@@ -49,6 +48,8 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiT
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LoadingSpinner
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.horizontalSystemBarsPadding
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.systemBarsTopPadding
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.anime_poster_sample
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.connection_error
 import org.jetbrains.compose.resources.painterResource
@@ -67,17 +68,15 @@ import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as Cele
 fun AnimeListScreen(
     uiModel: UiModel,
     dateFormatter: DateFormatter,
-    topInsetDp: Dp = 0.dp,
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
-    Box(Modifier.fillMaxSize()) {
+    Box(Modifier.fillMaxSize().horizontalSystemBarsPadding()) {
         when (uiModel.contentType) {
             ContentTypeUi.LOADING -> LoadingState()
             ContentTypeUi.ERROR -> ErrorState()
             ContentTypeUi.LOADED -> ListState(
                 uiModel = uiModel,
                 dateFormatter = dateFormatter,
-                topInsetDp = topInsetDp,
                 dispatch = dispatch
             )
         }
@@ -85,7 +84,6 @@ fun AnimeListScreen(
         AnimeListTopBar(
             selectedSection = uiModel.selectedSection,
             search = uiModel.search,
-            topInsetDp = topInsetDp,
             onOngoingClick = { dispatch(AnimeListMainStore.Intent.OngoingsSectionClick) },
             onAnnouncedClick = { dispatch(AnimeListMainStore.Intent.AnnouncedSectionClick) },
             onSearchClick = { dispatch(AnimeListMainStore.Intent.SearchSectionClick) },
@@ -123,7 +121,6 @@ private fun ErrorState() {
 private fun ListState(
     uiModel: UiModel,
     dateFormatter: DateFormatter,
-    topInsetDp: Dp,
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
     val pullToRefreshState = rememberPullToRefreshState()
@@ -146,7 +143,7 @@ private fun ListState(
             state = listState,
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
-                top = topInsetDp,
+                top = systemBarsTopPadding(),
                 bottom = LIST_LAST_ITEM_BOTTOM_PADDING_DP.dp
             )
         ) {

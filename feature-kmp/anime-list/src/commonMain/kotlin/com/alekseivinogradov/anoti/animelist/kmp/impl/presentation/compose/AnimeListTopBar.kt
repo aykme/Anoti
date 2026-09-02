@@ -38,7 +38,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.SEARCH_TEXT_MAX_LENGTH
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.SEARCH_ICON_OFFSET_DP
@@ -63,6 +62,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LARGE_
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SUBTITLE1_SP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.WhiteTransparent
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.systemBarsTopPadding
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.amiko
 import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.resources.painterResource
@@ -80,7 +80,6 @@ import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as Cele
 fun AnimeListTopBar(
     selectedSection: SectionHatUi,
     search: SearchUi,
-    topInsetDp: Dp,
     onOngoingClick: () -> Unit,
     onAnnouncedClick: () -> Unit,
     onSearchClick: () -> Unit,
@@ -101,7 +100,7 @@ fun AnimeListTopBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = topInsetDp)
+            .padding(top = systemBarsTopPadding())
     ) {
         if (search == SearchUi.HIDDEN) {
             TabsRow(
@@ -287,7 +286,6 @@ private fun AnimeListTopBarTabsPreview() {
         AnimeListTopBar(
             selectedSection = SectionHatUi.ONGOINGS,
             search = SearchUi.HIDDEN,
-            topInsetDp = 0.dp,
             onOngoingClick = {},
             onAnnouncedClick = {},
             onSearchClick = {},
@@ -305,7 +303,6 @@ private fun AnimeListTopBarSearchPreview() {
         AnimeListTopBar(
             selectedSection = SectionHatUi.SEARCH,
             search = SearchUi.SHOWN,
-            topInsetDp = 0.dp,
             onOngoingClick = {},
             onAnnouncedClick = {},
             onSearchClick = {},
