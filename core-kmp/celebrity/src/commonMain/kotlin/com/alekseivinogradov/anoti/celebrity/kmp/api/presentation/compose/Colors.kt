@@ -1,4 +1,4 @@
-// Design-system color palette, named after their original colors.xml resource names.
+// Anoti's design-system color palette.
 @file:Suppress("MagicNumber", "unused")
 
 package com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose
@@ -17,8 +17,7 @@ val Purple200 = Color(0xFFBB86FC)
 val BlackTransparent = Color(0xD5000000)
 val WhiteTransparent = Color(0xD5FFFFFF)
 
-// Not currently used by any Compose UI; kept so the full colors.xml palette has a Compose
-// counterpart ready for reuse instead of only living in colors.xml.
+// Not currently used by any Compose UI; kept as ready-to-use palette entries.
 val Purple500 = Color(0xFF6200EE)
 val Purple700 = Color(0xFF3700B3)
 val Teal200 = Color(0xFF03DAC5)
