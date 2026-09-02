@@ -58,10 +58,10 @@ dependencies {
     androidTestImplementation(libs.compose.components.resources)
 
     androidTestImplementation(libs.androidx.rules)
-    // Without this, an old androidx.fragment/androidx.activity pulled in transitively by
-    // Play Services wins dependency resolution here, and MainActivity no longer satisfies
+    // Without this, an old androidx.activity pulled in transitively by Play Services wins
+    // dependency resolution here, and MainActivity no longer satisfies
     // createAndroidComposeRule's ComponentActivity bound.
-    androidTestImplementation(libs.androidx.appcompat)
+    androidTestImplementation(libs.androidx.activity)
     androidTestImplementation(libs.compose.ui.test.junit4)
     debugImplementation(libs.compose.ui.test.manifest)
 }
