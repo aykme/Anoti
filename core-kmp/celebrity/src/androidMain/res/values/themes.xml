@@ -3,7 +3,8 @@
     <style name="Theme.Anoti" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Color of the window before the first frame is drawn -->
         <item name="android:windowBackground">@android:color/black</item>
-        <!-- Status bar color of the starting window, before enableEdgeToEdge() runs -->
+        <!-- Status bar color of the starting window, before enableEdgeToEdge() runs. Required on
+             API 30 and below; above that the platform ignores the attribute -->
         <item name="android:statusBarColor">@android:color/black</item>
         <!-- Navigation bar color of the starting window: without it the bar flashes white on
              API 29 before enableEdgeToEdge() makes it transparent -->
