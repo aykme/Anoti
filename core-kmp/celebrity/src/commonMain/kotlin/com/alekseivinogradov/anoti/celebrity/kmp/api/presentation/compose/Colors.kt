@@ -17,7 +17,7 @@ val Purple200 = Color(0xFFBB86FC)
 val BlackTransparent = Color(0xD5000000)
 val WhiteTransparent = Color(0xD5FFFFFF)
 
-// Not currently used by any Compose UI; kept as ready-to-use palette entries.
+// The rest of the design-system palette, kept available for reuse.
 val Purple500 = Color(0xFF6200EE)
 val Purple700 = Color(0xFF3700B3)
 val Teal200 = Color(0xFF03DAC5)

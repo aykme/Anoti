@@ -134,8 +134,10 @@ class MainActivity : ComponentActivity() {
 
     @SuppressLint("SourceLockedOrientationActivity")
     private fun setSystemSettings() {
-        // Transparent on both edges: the Compose bottom bar paints its own black behind the
-        // system navigation area, so the platform must not add a contrast scrim over it.
+        // dark() on both edges does two things this app's always-black chrome needs: it forces
+        // light bar icons regardless of the system's day/night setting, and it leaves both bars
+        // transparent with no contrast scrim — the Compose bottom bar paints its own black
+        // behind the system navigation area.
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
