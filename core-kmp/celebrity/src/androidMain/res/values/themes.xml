@@ -5,7 +5,8 @@
         <item name="android:windowBackground">@android:color/black</item>
         <!-- Status bar color of the starting window, before enableEdgeToEdge() runs -->
         <item name="android:statusBarColor">@android:color/black</item>
-        <!-- Navigation bar color -->
+        <!-- Navigation bar color of the starting window: without it the bar flashes white on
+             API 29 before enableEdgeToEdge() makes it transparent -->
         <item name="android:navigationBarColor">@android:color/black</item>
     </style>
 
