@@ -30,7 +30,7 @@ class AnimeFavoritesSourceImplFake(
             ListItemDomain(
                 id = id,
                 name = "Shingeki no Kyojin: The Final Season",
-                imageUrl = "https://shikimori.one/system/animes/original/40028.jpg?1711973445",
+                imageUrl = "https://shikimori.io/system/animes/original/40028.jpg?1711973445",
                 episodesAired = 16,
                 episodesTotal = 16,
                 nextEpisodeAt = "2020-19-07",
