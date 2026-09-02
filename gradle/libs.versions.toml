@@ -6,7 +6,7 @@ compileSdk = "36"
 #noinspection UnusedVersionCatalogEntry
 jvmTarget = "17"
 #noinspection UnusedVersionCatalogEntry
-minSdk = "26"
+minSdk = "29"
 #noinspection OldTargetApi,UnusedVersionCatalogEntry
 targetSdk = "36"
 #noinspection UnusedVersionCatalogEntry
