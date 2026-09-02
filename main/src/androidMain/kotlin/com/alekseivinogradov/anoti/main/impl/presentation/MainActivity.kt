@@ -7,7 +7,6 @@ import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
-import android.os.Build.VERSION_CODES.P
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import android.provider.Settings
@@ -25,7 +24,6 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatab
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation.NavAnimeFavoritesScreenComponent
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation.NavAnimeListScreenComponent
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
-import com.alekseivinogradov.anoti.celebrity.android.impl.presentation.edgetoedge.isEdgeToEdgeEnabled
 import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.compose.NotificationsRationaleState
 import com.alekseivinogradov.anoti.main.impl.presentation.compose.RootContent
@@ -38,7 +36,6 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.defaultComponentContext
 import com.arkivanov.essenty.lifecycle.asEssentyLifecycle
 import kotlinx.serialization.json.Json
-import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 
 class MainActivity : AppCompatActivity() {
 
@@ -137,29 +134,12 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SourceLockedOrientationActivity")
     private fun setSystemSettings() {
-        if (isEdgeToEdgeEnabled()) {
-            enableEdgeToEdge(
-                statusBarStyle = SystemBarStyle.dark(
-                    Color.TRANSPARENT
-                )
-            )
-        }
-
-        /**
-         * window.setNavigationBarColor() and window.setStatusBarColor() doesn't work correctly
-         * with BottomNavigationView on 27 api level or lower.
-         * Use android:navigationBarColor and android:statusBarColor from XML instead
-         */
-        if (Build.VERSION.SDK_INT >= P) {
-            /**
-             * It's deprecated for api 35 and above, because edge to edge always on.
-             * But changing navigation bar color using edge to edge is not working correctly
-             * with BottomNavigationView. So this method needed before problem will be fixed
-             */
-            @Suppress("DEPRECATION")
-            window.navigationBarColor = getColor(res_R.color.black)
-        }
-
+        // Transparent on both edges: the Compose bottom bar paints its own black behind the
+        // system navigation area, so the platform must not add a contrast scrim over it.
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
+        )
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }
 
