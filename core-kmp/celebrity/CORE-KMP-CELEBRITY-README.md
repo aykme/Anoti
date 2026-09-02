@@ -20,6 +20,10 @@ screens.
   press-and-hold-to-repeat click behavior for Compose.
 - [LoadingSpinner](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/presentation/compose/LoadingSpinner.kt) —
   continuously spinning loading indicator.
+- [Modifier.horizontalSystemBarsPadding](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/presentation/compose/SystemBarsInsets.kt) —
+  insets content away from the left and right system bars.
+- [systemBarsTopPadding](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/presentation/compose/SystemBarsInsets.kt) —
+  the space the system bars take at the top of the window.
 
 ## How to include it
 
@@ -28,5 +32,5 @@ screens.
   kotlin-inject bindings (`DiCelebrityComponent`, `DiCelebrityPlatformComponent`), mixed into
   [`core-kmp:di-app`](../di-app/CORE-KMP-DI-APP-README.md)'s `DiAppComponent` on both platforms —
   inject them, don't construct them yourself. `Paginator`, `ComposeMviView`,
-  `repeatingClickable` and `LoadingSpinner` have no DI wiring; callers subclass/construct/call
-  them directly.
+  `repeatingClickable`, `LoadingSpinner`, `horizontalSystemBarsPadding` and `systemBarsTopPadding`
+  have no DI wiring; callers subclass/construct/call them directly.
