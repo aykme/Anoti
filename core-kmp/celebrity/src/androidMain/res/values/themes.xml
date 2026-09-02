@@ -1,11 +1,11 @@
 <resources>
 
     <style name="Theme.Anoti" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Colour of the window before the first frame is drawn -->
+        <!-- Color of the window before the first frame is drawn -->
         <item name="android:windowBackground">@android:color/black</item>
-        <!-- Status bar colour of the starting window, before enableEdgeToEdge() runs -->
+        <!-- Status bar color of the starting window, before enableEdgeToEdge() runs -->
         <item name="android:statusBarColor">@android:color/black</item>
-        <!-- Colour the system uses for this app's entry in Recents -->
+        <!-- Color the system uses for this app's entry in Recents -->
         <item name="android:colorPrimary">@android:color/black</item>
     </style>
 

@@ -18,7 +18,6 @@ versionName = "1.09"
 activity = "1.13.0"
 agp = "9.3.2"
 annotationJvm = "1.10.0"
-appcompat = "1.8.0"
 # material3 has no release on the composeMultiplatform line (1.11.1 doesn't exist for it) — 1.9.0 is its real stable ceiling.
 composeMaterial3 = "1.9.0"
 coroutines = "1.11.0"
@@ -75,7 +74,6 @@ okhttpBom = "5.4.0"
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity" }
 androidx-annotation-jvm = { group = "androidx.annotation", name = "annotation-jvm", version.ref = "annotationJvm" }
-androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
