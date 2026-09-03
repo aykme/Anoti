@@ -127,10 +127,11 @@ fun AnimeListItem(
     item: ListItemUi,
     dateFormatter: DateFormatter,
     onEpisodesInfoClick: () -> Unit,
-    onNotificationClick: () -> Unit
+    onNotificationClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
             .padding(8.dp)
@@ -152,13 +153,14 @@ fun AnimeListItem(
             // screen-width, so the same inset yields a comparable spinner size.
             loading = {
                 LoadingSpinner(
+                    contentDescription = stringResource(Res.string.poster_image_description),
                     modifier = Modifier.fillMaxWidth().height(POSTER_HEIGHT_DP.dp).padding(64.dp)
                 )
             },
             error = {
                 Image(
                     painter = painterResource(CelebrityRes.drawable.load_image_error_48),
-                    contentDescription = null,
+                    contentDescription = stringResource(Res.string.poster_image_description),
                     colorFilter = ColorFilter.tint(SilverTransparent),
                     modifier = Modifier.fillMaxWidth().height(POSTER_HEIGHT_DP.dp)
                 )

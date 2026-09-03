@@ -150,10 +150,10 @@ private fun ListState(
                 bottom = LIST_LAST_ITEM_BOTTOM_PADDING_DP.dp
             )
         ) {
-            // Keyed on section + id, not just id: the same anime can appear both in search
-            // results and in a section list (e.g. an ongoing show matching the search query).
-            // Keying on id alone would make LazyColumn treat switching from one to the other as
-            // that one item moving to a new position within the same list, briefly misplacing it.
+            // Keyed on section + id: the same anime can appear both in search results and in a
+            // section list (e.g. an ongoing show matching the search query), so scoping the key
+            // by section keeps those two appearances from ever being treated as one item moving
+            // within the same list.
             items(
                 uiModel.listContent.listItems,
                 key = { "${uiModel.selectedSection.name}_${it.id}" }
@@ -166,7 +166,8 @@ private fun ListState(
                     },
                     onNotificationClick = {
                         dispatch(AnimeListMainStore.Intent.NotificationClick(item.id))
-                    }
+                    },
+                    modifier = Modifier.animateItem()
                 )
             }
         }

@@ -22,9 +22,14 @@ const val EPISODES_AVAILABLE_MAX_LINES = 2
 // large font/display scales.
 const val EPISODES_EXTRA_MAX_LINES = 3
 
-// Shifts the search icon up and left so its contour lines up with ic_search_cancel_32, shown in
-// the same spot once search opens.
-val SEARCH_ICON_OFFSET_DP: Dp = (-1).dp
+// Shifts the search icon so its contour lines up with ic_search_cancel_32, shown in the same
+// spot once search opens. The two icons aren't centered identically within their own artwork,
+// and OutlinedTextField's trailingIcon slot positions the cancel icon slightly differently than
+// a plain Box would.
+val SEARCH_ICON_OFFSET_X_DP: Dp = 0.dp
+
+@Suppress("MagicNumber")
+val SEARCH_ICON_OFFSET_Y_DP: Dp = (-3).dp
 
 // The number of flexible gaps in an item's score-divider-status-divider-notification chain.
 const val GAP_COUNT_WITH_STATUS = 4

@@ -40,7 +40,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.SEARCH_TEXT_MAX_LENGTH
-import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.SEARCH_ICON_OFFSET_DP
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.SEARCH_ICON_OFFSET_X_DP
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.SEARCH_ICON_OFFSET_Y_DP
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BAR_CONTROL_SIZE_DP
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BAR_PREVIEW_HEIGHT_DP
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BAR_PREVIEW_WIDTH_DP
@@ -213,7 +214,7 @@ private fun TabsRow(
                     // The magnifying-glass glyph isn't centered the same way in this icon's own
                     // artwork as it is in ic_search_cancel_32's. So this nudge lines its contour
                     // up with the cancel icon shown in the exact same spot once search opens.
-                    modifier = Modifier.size(32.dp).offset(x = SEARCH_ICON_OFFSET_DP, y = SEARCH_ICON_OFFSET_DP)
+                    modifier = Modifier.size(32.dp).offset(x = SEARCH_ICON_OFFSET_X_DP, y = SEARCH_ICON_OFFSET_Y_DP)
                 )
             }
         }
