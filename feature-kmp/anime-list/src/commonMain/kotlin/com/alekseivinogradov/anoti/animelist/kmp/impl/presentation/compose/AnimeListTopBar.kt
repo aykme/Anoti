@@ -223,59 +223,54 @@ private fun TabsRow(
 @Suppress("FunctionNaming")
 @Composable
 private fun SearchField(text: String, onTextChange: (String) -> Unit, onCancelClick: () -> Unit) {
-    Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
-        OutlinedTextField(
-            value = text,
-            onValueChange = { newText ->
-                if (newText.length <= SEARCH_TEXT_MAX_LENGTH) {
-                    onTextChange(newText)
-                }
-            },
-            placeholder = {
-                Text(
-                    text = stringResource(Res.string.search_hint),
-                    fontSize = SUBTITLE1_SP,
-                    fontWeight = FontWeight.Normal
-                )
-            },
-            singleLine = true,
-            textStyle = TextStyle(color = White),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Cinnabar500,
-                unfocusedBorderColor = Cinnabar500,
-                focusedContainerColor = BlackTransparent,
-                unfocusedContainerColor = BlackTransparent,
-                focusedPlaceholderColor = WhiteTransparent,
-                unfocusedPlaceholderColor = WhiteTransparent,
-                focusedTextColor = White,
-                unfocusedTextColor = White
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-                // A minimum, not a fixed height: at large font/display scales the placeholder
-                // can need more than one line, and this lets the field grow to fit it instead of
-                // clipping it.
-                .heightIn(min = TOP_BAR_CONTROL_SIZE_DP.dp)
-                .shadow(1.dp)
-        )
-        IconButton(
-            onClick = onCancelClick,
-            // No end padding of its own: the enclosing Box's own horizontal padding already
-            // supplies the 8dp inset, matching the search button's inset in TabsRow exactly.
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(top = 8.dp)
-                .size(TOP_BAR_CONTROL_SIZE_DP.dp)
-        ) {
-            Image(
-                painter = painterResource(Res.drawable.ic_search_cancel_32),
-                contentDescription = stringResource(Res.string.search_off_description),
-                colorFilter = ColorFilter.tint(Cinnabar500),
-                modifier = Modifier.size(32.dp)
+    OutlinedTextField(
+        value = text,
+        onValueChange = { newText ->
+            if (newText.length <= SEARCH_TEXT_MAX_LENGTH) {
+                onTextChange(newText)
+            }
+        },
+        placeholder = {
+            Text(
+                text = stringResource(Res.string.search_hint),
+                fontSize = SUBTITLE1_SP,
+                fontWeight = FontWeight.Normal
             )
-        }
-    }
+        },
+        singleLine = true,
+        textStyle = TextStyle(color = White),
+        // A trailing icon slot, not a Box overlaid on top of the field: the field's own
+        // decoration box reserves room for it on every line, so typed text and the (possibly
+        // wrapped) placeholder can never render underneath it, at any font/display scale.
+        trailingIcon = {
+            IconButton(onClick = onCancelClick, modifier = Modifier.size(TOP_BAR_CONTROL_SIZE_DP.dp)) {
+                Image(
+                    painter = painterResource(Res.drawable.ic_search_cancel_32),
+                    contentDescription = stringResource(Res.string.search_off_description),
+                    colorFilter = ColorFilter.tint(Cinnabar500),
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+        },
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Cinnabar500,
+            unfocusedBorderColor = Cinnabar500,
+            focusedContainerColor = BlackTransparent,
+            unfocusedContainerColor = BlackTransparent,
+            focusedPlaceholderColor = WhiteTransparent,
+            unfocusedPlaceholderColor = WhiteTransparent,
+            focusedTextColor = White,
+            unfocusedTextColor = White
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 8.dp, end = 8.dp, top = 8.dp)
+            // A minimum, not a fixed height: at large font/display scales the placeholder
+            // can need more than one line, and this lets the field grow to fit it instead of
+            // clipping it.
+            .heightIn(min = TOP_BAR_CONTROL_SIZE_DP.dp)
+            .shadow(1.dp)
+    )
 }
 
 @Suppress("FunctionNaming", "UnusedPrivateMember")

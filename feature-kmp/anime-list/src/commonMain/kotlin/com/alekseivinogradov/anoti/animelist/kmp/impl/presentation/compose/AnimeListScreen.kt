@@ -147,7 +147,14 @@ private fun ListState(
                 bottom = LIST_LAST_ITEM_BOTTOM_PADDING_DP.dp
             )
         ) {
-            items(uiModel.listContent.listItems, key = { it.id }) { item ->
+            // Keyed on section + id, not just id: the same anime can appear both in search
+            // results and in a section list (e.g. an ongoing show matching the search query).
+            // Keying on id alone would make LazyColumn treat switching from one to the other as
+            // that one item moving to a new position within the same list, briefly misplacing it.
+            items(
+                uiModel.listContent.listItems,
+                key = { "${uiModel.selectedSection.name}_${it.id}" }
+            ) { item ->
                 AnimeListItem(
                     item = item,
                     dateFormatter = dateFormatter,

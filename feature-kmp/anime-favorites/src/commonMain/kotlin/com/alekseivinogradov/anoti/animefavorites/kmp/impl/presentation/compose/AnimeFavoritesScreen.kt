@@ -218,7 +218,8 @@ private fun ListState(
                     },
                     onEpisodesViewedPlusClick = {
                         dispatch(AnimeFavoritesMainStore.Intent.EpisodesViewedPlusClick(item.id))
-                    }
+                    },
+                    modifier = Modifier.animateItem()
                 )
             }
         }

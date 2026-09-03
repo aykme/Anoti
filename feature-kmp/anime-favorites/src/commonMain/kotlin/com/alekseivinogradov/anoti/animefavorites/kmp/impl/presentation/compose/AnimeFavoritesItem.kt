@@ -149,7 +149,8 @@ fun AnimeFavoritesItem(
     onInfoTypeClick: () -> Unit,
     onNotificationClick: () -> Unit,
     onEpisodesViewedMinusClick: () -> Unit,
-    onEpisodesViewedPlusClick: () -> Unit
+    onEpisodesViewedPlusClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val strokeColor = if (item.isNewEpisode) Silver else Grey700
     val amikoBold = FontFamily(CmpFont(CelebrityRes.font.amiko_bold, FontWeight.Bold))
@@ -189,7 +190,7 @@ fun AnimeFavoritesItem(
     // which throws on intrinsic measurement. SubcomposeLayout lets us learn the info panel's
     // real (non-intrinsic) height first, then measure the poster to match it.
     SubcomposeLayout(
-        modifier = Modifier
+        modifier = modifier
             .testTag("anime_favorites_item")
             .fillMaxWidth()
             .combinedClickable(onClick = onItemClick, onLongClick = onInfoTypeClick)

@@ -4,6 +4,7 @@
 
 package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.compose
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -48,10 +49,10 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import coil3.ColorImage
 import coil3.annotation.ExperimentalCoilApi
-import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
 import coil3.compose.AsyncImagePreviewHandler
 import coil3.compose.LocalAsyncImagePreviewHandler
+import coil3.compose.SubcomposeAsyncImage
 import coil3.request.SuccessResult
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.FAB_ELEVATION_DP
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.ITEM_ICON_ALPHA
@@ -96,6 +97,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.BlackT
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Green
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.HEADLINE6_SP
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LoadingSpinner
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Purple200
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SUBTITLE1_SP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
@@ -104,6 +106,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.anime_poste
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_notifications_off_40
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_notifications_on_40
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_score_42
+import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.load_image_error_48
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.no_data
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -131,14 +134,25 @@ fun AnimeListItem(
             .padding(8.dp)
             .testTag("anime_list_item")
     ) {
-        AsyncImage(
+        // SubcomposeAsyncImage, not AsyncImage: the loading slot is LoadingSpinner, a genuine
+        // animated @Composable (rotation state), not a static Painter — AsyncImage's
+        // placeholder/error parameters only accept Painter, which can't host that animation.
+        SubcomposeAsyncImage(
             model = item.imageUrl,
             contentDescription = stringResource(Res.string.poster_image_description),
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(POSTER_HEIGHT_DP.dp)
-                .clip(RoundedCornerShape(percent = POSTER_CORNER_PERCENT))
+                .clip(RoundedCornerShape(percent = POSTER_CORNER_PERCENT)),
+            loading = { LoadingSpinner(modifier = Modifier.fillMaxWidth().height(POSTER_HEIGHT_DP.dp)) },
+            error = {
+                Image(
+                    painter = painterResource(CelebrityRes.drawable.load_image_error_48),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxWidth().height(POSTER_HEIGHT_DP.dp)
+                )
+            }
         )
 
         NameEpisodesAndBottomRow(
