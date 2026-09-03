@@ -260,7 +260,9 @@ private fun PosterImage(imageUrl: String?) {
         contentDescription = null,
         contentScale = ContentScale.Crop,
         modifier = Modifier.fillMaxSize(),
-        loading = { LoadingSpinner(modifier = Modifier.fillMaxSize()) },
+        // A much smaller padding than the full-screen loading spinner's: this poster is only a
+        // width-fraction of the screen, so the same 64dp inset would leave almost nothing visible.
+        loading = { LoadingSpinner(modifier = Modifier.fillMaxSize().padding(16.dp)) },
         error = {
             Image(
                 painter = cmpPainterResource(CelebrityRes.drawable.load_image_error_48),

@@ -147,7 +147,14 @@ fun AnimeListItem(
                 .fillMaxWidth()
                 .height(POSTER_HEIGHT_DP.dp)
                 .clip(RoundedCornerShape(percent = POSTER_CORNER_PERCENT)),
-            loading = { LoadingSpinner(modifier = Modifier.fillMaxWidth().height(POSTER_HEIGHT_DP.dp)) },
+            // Same padding as the full-screen loading spinner (AnimeListScreen's LoadingState)
+            // so this renders at roughly the same visible size — the poster is close to
+            // screen-width, so the same inset yields a comparable spinner size.
+            loading = {
+                LoadingSpinner(
+                    modifier = Modifier.fillMaxWidth().height(POSTER_HEIGHT_DP.dp).padding(64.dp)
+                )
+            },
             error = {
                 Image(
                     painter = painterResource(CelebrityRes.drawable.load_image_error_48),
@@ -240,7 +247,7 @@ private fun EpisodesInfoRow(
             CompositionLocalProvider(LocalRippleConfiguration provides RippleConfiguration(color = Black)) {
                 FloatingActionButton(
                     onClick = onEpisodesInfoClick,
-                    containerColor = Black,
+                    containerColor = BlackTransparent,
                     contentColor = Cinnabar500,
                     shape = CircleShape,
                     modifier = Modifier.padding(top = 1.dp).size(SECONDARY_FAB_SIZE_DP)
@@ -268,7 +275,7 @@ private fun EpisodesInfoRow(
             CompositionLocalProvider(LocalRippleConfiguration provides RippleConfiguration(color = Black)) {
                 FloatingActionButton(
                     onClick = onEpisodesInfoClick,
-                    containerColor = Black,
+                    containerColor = BlackTransparent,
                     contentColor = Cinnabar500,
                     shape = CircleShape,
                     modifier = Modifier.padding(top = 3.dp).size(SECONDARY_FAB_SIZE_DP)
