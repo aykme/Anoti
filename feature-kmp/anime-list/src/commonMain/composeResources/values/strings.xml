@@ -1,5 +1,4 @@
 <resources>
-    <string name="poster_image_description">The image of the anime poster</string>
     <string name="extra_episodes_info_description">Display extra episodes info</string>
     <string name="available_episodes_info_discription">Display information about the available episodes</string>
     <string name="search_on_description">Move to search section and/or open search input field</string>

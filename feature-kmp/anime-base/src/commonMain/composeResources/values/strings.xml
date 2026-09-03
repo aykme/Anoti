@@ -1,5 +1,6 @@
 <resources>
     <string name="loading_in_progress">Loading in progress</string>
+    <string name="poster_image_description">The image of the anime poster</string>
     <string name="score_image_description">The image of the rating in the form of a star</string>
     <string name="notifications_turn_off_description">Turn off notifications</string>
     <string name="notifications_turn_on_description">Turn on notifications</string>

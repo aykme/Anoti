@@ -68,6 +68,7 @@ import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.inaccurate
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.notifications_turn_off_description
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.notifications_turn_on_description
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.ongoing
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.poster_image_description
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.released
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.score_image_description
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.EPISODES_AVAILABLE_MAX_LINES
@@ -89,7 +90,6 @@ import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.extra_episo
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_info_28
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_info_outline_28
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.next_episode
-import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.poster_image_description
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.show_is_finished
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
@@ -142,7 +142,7 @@ fun AnimeListItem(
         // placeholder/error parameters only accept Painter, which can't host that animation.
         SubcomposeAsyncImage(
             model = item.imageUrl,
-            contentDescription = stringResource(Res.string.poster_image_description),
+            contentDescription = stringResource(BaseRes.string.poster_image_description),
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
@@ -153,14 +153,14 @@ fun AnimeListItem(
             // screen-width, so the same inset yields a comparable spinner size.
             loading = {
                 LoadingSpinner(
-                    contentDescription = stringResource(Res.string.poster_image_description),
+                    contentDescription = stringResource(BaseRes.string.poster_image_description),
                     modifier = Modifier.fillMaxWidth().height(POSTER_HEIGHT_DP.dp).padding(64.dp)
                 )
             },
             error = {
                 Image(
                     painter = painterResource(CelebrityRes.drawable.load_image_error_48),
-                    contentDescription = stringResource(Res.string.poster_image_description),
+                    contentDescription = stringResource(BaseRes.string.poster_image_description),
                     colorFilter = ColorFilter.tint(SilverTransparent),
                     modifier = Modifier.fillMaxWidth().height(POSTER_HEIGHT_DP.dp)
                 )

@@ -81,6 +81,7 @@ import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.inaccurate
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.notifications_turn_off_description
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.notifications_turn_on_description
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.ongoing
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.poster_image_description
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.released
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.score_image_description
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.EPISODES_MAX_LINES
@@ -257,16 +258,21 @@ private fun PosterImage(imageUrl: String?) {
     // placeholder/error parameters only accept Painter, which can't host that animation.
     SubcomposeAsyncImage(
         model = imageUrl,
-        contentDescription = null,
+        contentDescription = stringResource(BaseRes.string.poster_image_description),
         contentScale = ContentScale.Crop,
         modifier = Modifier.fillMaxSize(),
         // A much smaller padding than the full-screen loading spinner's: this poster is only a
         // width-fraction of the screen, so the same 64dp inset would leave almost nothing visible.
-        loading = { LoadingSpinner(modifier = Modifier.fillMaxSize().padding(16.dp)) },
+        loading = {
+            LoadingSpinner(
+                contentDescription = stringResource(BaseRes.string.poster_image_description),
+                modifier = Modifier.fillMaxSize().padding(16.dp)
+            )
+        },
         error = {
             Image(
                 painter = cmpPainterResource(CelebrityRes.drawable.load_image_error_48),
-                contentDescription = null,
+                contentDescription = stringResource(BaseRes.string.poster_image_description),
                 colorFilter = ColorFilter.tint(SilverTransparent),
                 modifier = Modifier.fillMaxSize()
             )
