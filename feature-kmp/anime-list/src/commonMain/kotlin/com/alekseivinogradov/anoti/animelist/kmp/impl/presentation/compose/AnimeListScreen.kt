@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -47,6 +48,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormat
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LoadingSpinner
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SilverTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.horizontalSystemBarsPadding
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.systemBarsTopPadding
@@ -111,6 +113,7 @@ private fun ErrorState() {
         Image(
             painter = painterResource(Res.drawable.connection_error_48),
             contentDescription = stringResource(CelebrityRes.string.connection_error),
+            colorFilter = ColorFilter.tint(SilverTransparent),
             modifier = Modifier.fillMaxSize().padding(64.dp)
         )
     }

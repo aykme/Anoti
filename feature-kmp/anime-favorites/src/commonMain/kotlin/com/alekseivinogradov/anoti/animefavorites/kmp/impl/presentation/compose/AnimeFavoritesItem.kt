@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
@@ -122,6 +123,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Loadin
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Purple200
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SUBTITLE1_SP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Silver
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SilverTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.repeatingClickable
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.amiko_bold
@@ -263,6 +265,7 @@ private fun PosterImage(imageUrl: String?) {
             Image(
                 painter = cmpPainterResource(CelebrityRes.drawable.load_image_error_48),
                 contentDescription = null,
+                colorFilter = ColorFilter.tint(SilverTransparent),
                 modifier = Modifier.fillMaxSize()
             )
         }
