@@ -31,7 +31,6 @@ kotlinxSerialization = "1.11.0"
 ksp = "2.3.11"
 ktor = "3.5.2"
 material = "1.14.0"
-mockk = "1.14.11"
 mviKotlin = "4.4.0"
 playServicesAppset = "16.1.0"
 robolectric = "4.16.1"
@@ -123,8 +122,6 @@ robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectr
 essenty-instance-keeper = { group = "com.arkivanov.essenty", name = "instance-keeper", version.ref = "essenty" }
 #noinspection UnusedVersionCatalogEntry
 essenty-statekeeper = { group = "com.arkivanov.essenty", name = "state-keeper", version.ref = "essenty" }
-#noinspection UnusedVersionCatalogEntry
-mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 #noinspection UnusedVersionCatalogEntry
 mvikotlin-logger = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-logging", version.ref = "mviKotlin" }
 #noinspection UnusedVersionCatalogEntry

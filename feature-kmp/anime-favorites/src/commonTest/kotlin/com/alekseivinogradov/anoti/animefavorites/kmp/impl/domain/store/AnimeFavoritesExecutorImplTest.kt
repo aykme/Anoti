@@ -94,56 +94,73 @@ class AnimeFavoritesExecutorImplTest {
 
     @Test
     fun updateSectionImmediatelyShowsLoading() = runTest(testDispatcher) {
+        //Given
         val store = createStore()
 
+        //When
         store.accept(AnimeFavoritesMainStore.Intent.UpdateSection)
 
+        //Then
         assertEquals(ContentTypeDomain.LOADING(isSwipeToRefresh = true), store.state.contentType)
     }
 
     @Test
     fun updateSectionKeepsLoadingUntilMinimumDurationElapsesEvenIfListArrivesSooner() = runTest(testDispatcher) {
+        //Given
         val store = createStore()
         val item = testListItem(id = 1)
 
+        //When
         store.accept(AnimeFavoritesMainStore.Intent.UpdateSection)
         // Simulates the DB refresh landing (almost) immediately, followed by the screen's own
         // LaunchedEffect dispatching ItemsSubmittedToList as soon as it sees a non-empty list.
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
         store.accept(AnimeFavoritesMainStore.Intent.ItemsSubmittedToList)
 
+        //Then
         assertEquals(ContentTypeDomain.LOADING(isSwipeToRefresh = true), store.state.contentType)
 
+        //When
         advanceTimeBy(ANIMATION_DURATION_SHORT.inWholeMilliseconds / 2)
         runCurrent()
+
+        //Then
         assertEquals(ContentTypeDomain.LOADING(isSwipeToRefresh = true), store.state.contentType)
 
+        //When
         advanceTimeBy(ANIMATION_DURATION_SHORT.inWholeMilliseconds)
         runCurrent()
+
+        //Then
         assertEquals(ContentTypeDomain.LOADED, store.state.contentType)
     }
 
     @Test
     fun updateSectionResolvesToEmptyWhenRefreshedListIsEmpty() = runTest(testDispatcher) {
+        //Given
         val store = createStore()
 
+        //When
         store.accept(AnimeFavoritesMainStore.Intent.UpdateSection)
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(emptyList()))
-
         advanceTimeBy(ANIMATION_DURATION_SHORT.inWholeMilliseconds + 1)
         runCurrent()
 
+        //Then
         assertEquals(ContentTypeDomain.EMPTY, store.state.contentType)
     }
 
     @Test
     fun itemsSubmittedToListOutsideRefreshStillMarksLoaded() = runTest(testDispatcher) {
+        //Given
         val store = createStore()
         val item = testListItem(id = 1)
 
+        //When
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
         store.accept(AnimeFavoritesMainStore.Intent.ItemsSubmittedToList)
 
+        //Then
         assertEquals(ContentTypeDomain.LOADED, store.state.contentType)
     }
 }

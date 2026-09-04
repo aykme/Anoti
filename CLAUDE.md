@@ -102,6 +102,16 @@ Read this before doing any task in this repository.
   the change can't be summarized that briefly, use a short general phrase instead of trying to
   list everything — don't add a multi-line body to fit more detail in.
 
+## Tests
+
+- Structure every test body into three clearly separated sections marked with `//Given`,
+  `//When`, `//Then` comments, even for a short test — this is the established convention across
+  the existing test suites (e.g. `SafeApiImplTest`) and keeps setup, action, and assertion
+  visually distinct.
+- No mocking library is used in this project: `commonTest` targets Kotlin/Native (iOS) alongside
+  Android, and hand-written fakes (as already used throughout `commonTest`, e.g. `FakeOngoingSource`
+  in `OngoingSectionExecutorImplTest`) are the established, KMP-portable way to stub dependencies.
+
 ## Finishing a task
 
 - This is a final stage — run it at the point the task is being finished, e.g. during a final
