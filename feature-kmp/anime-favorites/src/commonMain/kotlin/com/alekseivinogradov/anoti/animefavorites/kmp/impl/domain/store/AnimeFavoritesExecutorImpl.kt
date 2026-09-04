@@ -93,12 +93,17 @@ class AnimeFavoritesExecutorImpl(
         updateSectionJob?.cancel()
         updateSectionJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
             delay(ANIMATION_DURATION_SHORT)
-            val finalContentType = if (state().listItems.isEmpty()) {
-                ContentTypeDomain.EMPTY
-            } else {
-                ContentTypeDomain.LOADED
+            // Only resolve if nothing else already has (e.g. updateListItems()'s own
+            // LOADING -> EMPTY transition, if the refreshed list turned out empty).
+            val contentType = state().contentType
+            if (contentType is ContentTypeDomain.LOADING && contentType.isSwipeToRefresh) {
+                val finalContentType = if (state().listItems.isEmpty()) {
+                    ContentTypeDomain.EMPTY
+                } else {
+                    ContentTypeDomain.LOADED
+                }
+                dispatch(AnimeFavoritesMainStore.Message.ChangeContentType(finalContentType))
             }
-            dispatch(AnimeFavoritesMainStore.Message.ChangeContentType(finalContentType))
         }
     }
 
