@@ -146,7 +146,7 @@ class SafeApiImplTest {
     }
 
     @Test
-    fun callReturnsOtherErrorWithoutRetryOnUnexpectedException() = runTest {
+    fun callRetriesUnexpectedExceptionAndReturnsOtherErrorAfterExhaustingAttempts() = runTest {
         //Given
         val safeApi = createSafeApi(maxAttempt = 3)
         var attempts = 0
@@ -159,7 +159,24 @@ class SafeApiImplTest {
 
         //Then
         assertIs<CallResult.OtherError>(result)
-        assertEquals(1, attempts)
+        assertEquals(3, attempts)
+    }
+
+    @Test
+    fun callRecoversAfterUnexpectedExceptionOnRetry() = runTest {
+        //Given
+        val safeApi = createSafeApi(maxAttempt = 3)
+        var attempts = 0
+
+        //When
+        val result = safeApi.call {
+            attempts++
+            if (attempts < 2) throw IllegalStateException("boom") else "ok"
+        }
+
+        //Then
+        assertEquals(CallResult.Success("ok"), result)
+        assertEquals(2, attempts)
     }
 
     @Test

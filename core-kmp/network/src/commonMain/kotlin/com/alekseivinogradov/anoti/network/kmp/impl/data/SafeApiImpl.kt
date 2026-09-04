@@ -28,7 +28,7 @@ class SafeApiImpl(
             // Catching everything and classifying it into a CallResult is this class's whole purpose.
             @Suppress("TooGenericExceptionCaught") throwable: Throwable
         ) {
-            if (isRetryable(throwable) && callAttempt < maxAttempt) {
+            if (callAttempt < maxAttempt) {
                 delay(attemptDelay * callAttempt)
                 call(
                     callAttempt = callAttempt + 1,
@@ -40,12 +40,6 @@ class SafeApiImpl(
         }
     }
 
-    private fun isRetryable(throwable: Throwable): Boolean = when (throwable) {
-        is ResponseException -> throwable.response.status.value >= HTTP_ERROR_STATUS
-        is IOException -> true
-        else -> false
-    }
-
     private fun classify(throwable: Throwable): CallResult<Nothing> = when (throwable) {
         is ResponseException -> CallResult.HttpError(
             code = throwable.response.status.value,
@@ -54,9 +48,5 @@ class SafeApiImpl(
 
         is IOException -> CallResult.NetworkError(throwable)
         else -> CallResult.OtherError(throwable)
-    }
-
-    private companion object {
-        private const val HTTP_ERROR_STATUS = 400
     }
 }
