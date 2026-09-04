@@ -9,9 +9,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.pullToRefresh
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -32,7 +29,7 @@ import coil3.compose.LocalAsyncImagePreviewHandler
 import coil3.request.SuccessResult
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.PAGING_PREFETCH_DISTANCE
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.LIST_LAST_ITEM_BOTTOM_PADDING_DP
-import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.PULL_TO_REFRESH_THRESHOLD
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.PullToRefreshBox
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.loading_in_progress
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ContentTypeUi
@@ -46,10 +43,8 @@ import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.connection_error_48
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LoadingSpinner
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SilverTransparent
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.horizontalSystemBarsPadding
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.systemBarsTopPadding
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.anime_poster_sample
@@ -75,7 +70,7 @@ fun AnimeListScreen(
     Box(Modifier.fillMaxSize().horizontalSystemBarsPadding()) {
         when (uiModel.contentType) {
             ContentTypeUi.LOADING -> LoadingState()
-            ContentTypeUi.ERROR -> ErrorState()
+            ContentTypeUi.ERROR -> ErrorState(dispatch = dispatch)
             ContentTypeUi.LOADED -> ListState(
                 uiModel = uiModel,
                 dateFormatter = dateFormatter,
@@ -108,8 +103,8 @@ private fun LoadingState() {
 
 @Suppress("FunctionNaming")
 @Composable
-private fun ErrorState() {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+private fun ErrorState(dispatch: (AnimeListMainStore.Intent) -> Unit) {
+    PullToRefreshBox(onRefresh = { dispatch(AnimeListMainStore.Intent.UpdateSection) }) {
         Image(
             painter = painterResource(Res.drawable.connection_error_48),
             contentDescription = stringResource(CelebrityRes.string.connection_error),
@@ -126,22 +121,12 @@ private fun ListState(
     dateFormatter: DateFormatter,
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
-    val pullToRefreshState = rememberPullToRefreshState()
     val listState = rememberLazyListState()
 
     LoadNextPageEffect(listState = listState, dispatch = dispatch)
     ResetListPositionEffect(uiModel = uiModel, listState = listState, dispatch = dispatch)
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .pullToRefresh(
-                isRefreshing = false,
-                state = pullToRefreshState,
-                threshold = PULL_TO_REFRESH_THRESHOLD,
-                onRefresh = { dispatch(AnimeListMainStore.Intent.UpdateSection) }
-            )
-    ) {
+    PullToRefreshBox(onRefresh = { dispatch(AnimeListMainStore.Intent.UpdateSection) }) {
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize(),
@@ -171,16 +156,6 @@ private fun ListState(
                 )
             }
         }
-        // maxDistance is independent of pullToRefresh's threshold above and defaults to 80dp —
-        // without setting it, the release point moves but the indicator's travel doesn't.
-        PullToRefreshDefaults.Indicator(
-            modifier = Modifier.align(Alignment.TopCenter),
-            isRefreshing = false,
-            state = pullToRefreshState,
-            color = Cinnabar500,
-            containerColor = White,
-            maxDistance = PULL_TO_REFRESH_THRESHOLD
-        )
     }
 }
 

@@ -18,9 +18,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.pullToRefresh
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -43,7 +40,7 @@ import coil3.compose.LocalAsyncImagePreviewHandler
 import coil3.request.SuccessResult
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.IMAGE_CORNER_PERCENT
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.LIST_LAST_ITEM_BOTTOM_PADDING_DP
-import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.PULL_TO_REFRESH_THRESHOLD
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.PullToRefreshBox
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.loading_in_progress
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.ContentTypeUi
@@ -57,7 +54,6 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_list_image_description
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Grey700
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LoadingSpinner
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SUBTITLE2_SP
@@ -178,21 +174,7 @@ private fun ListState(
     dateFormatter: DateFormatter,
     dispatch: (AnimeFavoritesMainStore.Intent) -> Unit
 ) {
-    val pullToRefreshState = rememberPullToRefreshState()
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .pullToRefresh(
-                // There's no signal for when UpdateSection's background refresh actually
-                // completes, so this can't be flipped to true: the pull still triggers a
-                // refresh, it just can't show a spinner for it.
-                isRefreshing = false,
-                state = pullToRefreshState,
-                threshold = PULL_TO_REFRESH_THRESHOLD,
-                onRefresh = { dispatch(AnimeFavoritesMainStore.Intent.UpdateSection) }
-            )
-    ) {
+    PullToRefreshBox(onRefresh = { dispatch(AnimeFavoritesMainStore.Intent.UpdateSection) }) {
         LazyColumn(
             modifier = Modifier
                 .testTag("anime_favorites_rv")
@@ -223,17 +205,6 @@ private fun ListState(
                 )
             }
         }
-        // Drawn last so the indicator sits above the list content, top-center aligned.
-        PullToRefreshDefaults.Indicator(
-            modifier = Modifier.align(Alignment.TopCenter),
-            isRefreshing = false,
-            state = pullToRefreshState,
-            color = Cinnabar500,
-            containerColor = White,
-            // maxDistance is independent of pullToRefresh's threshold above and defaults to 80dp —
-            // without setting it, the release point moves but the indicator's travel doesn't.
-            maxDistance = PULL_TO_REFRESH_THRESHOLD
-        )
     }
 }
 
