@@ -23,7 +23,7 @@ interface AnimeFavoritesMainStore :
      */
     data class State(
         val listItems: List<ListItemDomain> = listOf(),
-        val contentType: ContentTypeDomain = ContentTypeDomain.LOADING,
+        val contentType: ContentTypeDomain = ContentTypeDomain.LOADING(),
         val enabledExtraInfoIds: Set<AnimeId> = setOf(),
         val fetchedAnimeDetailsIds: Set<AnimeId> = setOf()
     )

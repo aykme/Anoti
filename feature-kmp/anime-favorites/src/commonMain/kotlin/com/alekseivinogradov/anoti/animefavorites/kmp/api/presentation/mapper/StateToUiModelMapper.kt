@@ -87,7 +87,7 @@ private fun getExtraEpisodesInfo(listItemDomain: ListItemDomain): String? {
 
 private fun mapContentTypeDomainToUi(state: AnimeFavoritesMainStore.State): ContentTypeUi {
     return when (state.contentType) {
-        ContentTypeDomain.LOADING -> ContentTypeUi.LOADING
+        is ContentTypeDomain.LOADING -> ContentTypeUi.LOADING
         ContentTypeDomain.LOADED -> ContentTypeUi.LOADED
         ContentTypeDomain.EMPTY -> ContentTypeUi.EMPTY
     }

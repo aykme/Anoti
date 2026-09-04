@@ -24,6 +24,7 @@ class AnimeFavoritesExecutorImpl(
 ) : AnimeFavoritesExecutor() {
 
     private var updateListItemsJob: Job? = null
+    private var updateSectionJob: Job? = null
     private val updateAnimeDetailsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
 
     override fun executeIntent(intent: AnimeFavoritesMainStore.Intent) {
@@ -55,7 +56,7 @@ class AnimeFavoritesExecutorImpl(
             if (intent.listItems.isEmpty() && state().contentType != ContentTypeDomain.EMPTY) {
                 dispatch(
                     AnimeFavoritesMainStore.Message.ChangeContentType(
-                        ContentTypeDomain.LOADING
+                        ContentTypeDomain.LOADING()
                     )
                 )
                 delay(ANIMATION_DURATION_SHORT)
@@ -69,18 +70,41 @@ class AnimeFavoritesExecutorImpl(
     }
 
     private fun itemsSubmittedToList() {
-        if (state().contentType != ContentTypeDomain.LOADED) {
+        val contentType = state().contentType
+        if (contentType is ContentTypeDomain.LOADING && contentType.isSwipeToRefresh) return
+        if (contentType != ContentTypeDomain.LOADED) {
             dispatch(AnimeFavoritesMainStore.Message.ChangeContentType(ContentTypeDomain.LOADED))
         }
     }
 
     private fun updateSection() {
         dispatch(
+            AnimeFavoritesMainStore.Message.ChangeContentType(
+                ContentTypeDomain.LOADING(isSwipeToRefresh = true)
+            )
+        )
+        dispatch(
             AnimeFavoritesMainStore.Message.UpdateFetchedAnimeDetailsIds(
                 fetchedAnimeDetailsIds = setOf()
             )
         )
         publish(AnimeFavoritesMainStore.Label.UpdateSection)
+
+        updateSectionJob?.cancel()
+        updateSectionJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+            delay(ANIMATION_DURATION_SHORT)
+            // Only resolve if nothing else already has (e.g. updateListItems()'s own
+            // LOADING -> EMPTY transition, if the refreshed list turned out empty).
+            val contentType = state().contentType
+            if (contentType is ContentTypeDomain.LOADING && contentType.isSwipeToRefresh) {
+                val finalContentType = if (state().listItems.isEmpty()) {
+                    ContentTypeDomain.EMPTY
+                } else {
+                    ContentTypeDomain.LOADED
+                }
+                dispatch(AnimeFavoritesMainStore.Message.ChangeContentType(finalContentType))
+            }
+        }
     }
 
     private fun updateAllItemsInBackground() {
