@@ -37,6 +37,8 @@ fun AnimeListRoute(screenComponent: NavAnimeListScreenComponent) {
             announcedSectionStore = screenComponent.announcedSectionStore,
             searchSectionStore = screenComponent.searchSectionStore
         ).onViewCreated(mainView = composeView, viewLifecycle = screenComponent.lifecycle)
+        // Only safe once the section stores above are wired to mainStore — see its KDoc.
+        screenComponent.applyRestoredStateIfAny()
     }
     composeView.model.value?.let { uiModel ->
         AnimeListScreen(

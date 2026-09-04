@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
+    alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.kotlinCompose)
     alias(libs.plugins.ksp)
@@ -56,6 +57,7 @@ kotlin {
 
             implementation(libs.mvikotlin)
             implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.kotlinx.serialization.json)
             implementation(libs.essenty.lifecycle)
             implementation(libs.decompose)
             implementation(libs.compose.runtime)
