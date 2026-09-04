@@ -78,6 +78,9 @@ class AnimeFavoritesExecutorImpl(
     }
 
     private fun updateSection() {
+        // A pending empty-list transition from a stale updateListItems() call must not be left
+        // to fire later and unconditionally overwrite this refresh's own resolution.
+        updateListItemsJob?.cancel()
         dispatch(
             AnimeFavoritesMainStore.Message.ChangeContentType(
                 ContentTypeDomain.LOADING(isSwipeToRefresh = true)

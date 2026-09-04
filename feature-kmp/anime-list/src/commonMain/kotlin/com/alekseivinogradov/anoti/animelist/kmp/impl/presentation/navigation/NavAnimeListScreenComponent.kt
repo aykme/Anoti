@@ -35,7 +35,7 @@ class NavAnimeListScreenComponent(
     val searchSectionStore: SearchSectionStore = diAnimeListComponent.searchSectionStore
 
     // Consumed once here (construction time), per StateKeeper's contract; replayed later via
-    // applyRestoredStateIfAny() once the section stores are actually wired to mainStore.
+    // applyRestoredStateIfAny(), once the section stores exist to dispatch to directly.
     private val restoredState: RestoredMainState? =
         stateKeeper.consume(key = RESTORED_STATE_KEY, strategy = RestoredMainState.serializer())
 
@@ -43,7 +43,7 @@ class NavAnimeListScreenComponent(
         stateKeeper.register(key = RESTORED_STATE_KEY, strategy = RestoredMainState.serializer()) {
             val state = mainStore.state
             RestoredMainState(
-                selectedSection = state.selectedSection.name,
+                selectedSection = state.selectedSection,
                 searchText = state.search.searchText
             )
         }
@@ -61,24 +61,35 @@ class NavAnimeListScreenComponent(
 
     /**
      * Replays the section/search selection saved before process death, once per instance.
-     * Must run after [AnimeListController] has wired the section stores to [mainStore] — before
-     * that, the labels this dispatches (`OpenAnnouncedSection`/`OpenSearchSection`) would have no
-     * subscriber and would be silently lost. The ongoing section needs no replay: it's the
-     * default selection, and [OngoingSectionStore] already bootstraps its own content on
-     * creation regardless of this restore.
+     *
+     * Dispatches straight to [announcedSectionStore]/[searchSectionStore] rather than through
+     * `mainStore`'s `OpenAnnouncedSection`/`OpenSearchSection` labels: those labels are only
+     * delivered once `AnimeListController`'s binder has started collecting `mainStore.labels`,
+     * which (`BuilderBinder.start()`) launches via `GlobalScope.launch(mainContext)` — a real,
+     * asynchronous dispatch, not something guaranteed to have happened by the time this runs. A
+     * label published before that collector attaches is silently dropped. Dispatching directly
+     * to the section store has no such ordering requirement. `mainStore` itself is still updated
+     * via its own click intents, synchronously, for the selected-section/search-text UI state.
+     * The ongoing section needs no replay: it's the default selection, and [OngoingSectionStore]
+     * already bootstraps its own content on creation regardless of this restore.
      */
     fun applyRestoredStateIfAny() {
         val restoredState = restoredState ?: return
-        when (SectionHatDomain.valueOf(restoredState.selectedSection)) {
+        when (restoredState.selectedSection) {
             SectionHatDomain.ANNOUNCED -> {
                 mainStore.accept(AnimeListMainStore.Intent.AnnouncedSectionClick)
+                announcedSectionStore.accept(AnnouncedSectionStore.Intent.OpenSection)
             }
 
             SectionHatDomain.SEARCH -> {
                 mainStore.accept(AnimeListMainStore.Intent.SearchSectionClick)
+                searchSectionStore.accept(SearchSectionStore.Intent.OpenSection)
                 if (restoredState.searchText.isNotBlank()) {
                     mainStore.accept(
                         AnimeListMainStore.Intent.ChangeSearchText(restoredState.searchText)
+                    )
+                    searchSectionStore.accept(
+                        SearchSectionStore.Intent.ChangeSearchText(restoredState.searchText)
                     )
                 }
             }
@@ -94,6 +105,6 @@ class NavAnimeListScreenComponent(
 
 @Serializable
 private data class RestoredMainState(
-    val selectedSection: String,
+    val selectedSection: SectionHatDomain,
     val searchText: String
 )
