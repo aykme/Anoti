@@ -64,6 +64,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.horizo
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.systemBarsTopPadding
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.anime_poster_sample
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.main_character_image
+import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as BaseRes
@@ -284,7 +285,7 @@ private fun AnimeFavoritesScreenLoadedPreview() {
             AnimeFavoritesScreen(
                 uiModel = UiModel(
                     contentType = ContentTypeUi.LOADED,
-                    listItems = listOf(
+                    listItems = persistentListOf(
                         previewListItem,
                         previewListItem.copy(
                             id = 2,

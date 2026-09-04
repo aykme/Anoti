@@ -17,6 +17,8 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcont
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.NotificationUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.ReleaseStatusUi
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toPersistentList
 
 internal fun mapStateToUiModel(
     state: AnimeListMainStore.State
@@ -66,7 +68,7 @@ private fun getListContentUi(state: AnimeListMainStore.State): ListContentUi {
 
 private fun getListItemsUi(
     state: AnimeListMainStore.State
-): List<ListItemUi> {
+): ImmutableList<ListItemUi> {
     val listItemsContent = when (state.selectedSection) {
         SectionHatDomain.ONGOINGS -> state.ongoingContent
         SectionHatDomain.ANNOUNCED -> state.announcedContent
@@ -80,7 +82,7 @@ private fun getListItemsUi(
             enabledExtraEpisodesInfoIds = listItemsContent.enabledExtraEpisodesInfoIds,
             animeDetails = listItemsContent.animeDetails
         )
-    }
+    }.toPersistentList()
 }
 
 private fun getListItemUi(

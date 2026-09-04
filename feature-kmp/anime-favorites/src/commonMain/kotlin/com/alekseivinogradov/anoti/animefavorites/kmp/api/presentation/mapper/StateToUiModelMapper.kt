@@ -11,6 +11,8 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.ite
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.NotificationUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.ReleaseStatusUi
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toPersistentList
 
 internal fun mapStateToUiModel(state: AnimeFavoritesMainStore.State): UiModel {
     return UiModel(
@@ -19,7 +21,7 @@ internal fun mapStateToUiModel(state: AnimeFavoritesMainStore.State): UiModel {
     )
 }
 
-private fun getListItemsUi(state: AnimeFavoritesMainStore.State): List<ListItemUi> {
+private fun getListItemsUi(state: AnimeFavoritesMainStore.State): ImmutableList<ListItemUi> {
     return state.listItems.map { listItemDomain: ListItemDomain ->
         ListItemUi(
             id = listItemDomain.id,
@@ -37,7 +39,7 @@ private fun getListItemsUi(state: AnimeFavoritesMainStore.State): List<ListItemU
             episodesViewed = listItemDomain.episodesViewed.toString(),
             isNewEpisode = listItemDomain.isNewEpisode
         )
-    }
+    }.toPersistentList()
 }
 
 private fun getInfoTypeUi(id: AnimeId, enabledExtraInfoIds: Set<AnimeId>): InfoTypeUi {

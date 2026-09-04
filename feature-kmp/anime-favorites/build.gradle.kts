@@ -56,6 +56,7 @@ kotlin {
             api(project(":feature-kmp:anime-background-update"))
 
             implementation(libs.mvikotlin)
+            implementation(libs.kotlinx.collections.immutable)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.essenty.lifecycle)
             implementation(libs.decompose)

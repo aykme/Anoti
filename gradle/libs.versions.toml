@@ -26,6 +26,7 @@ detekt = "1.23.8"
 essenty = "2.5.0"
 kotlin = "2.4.10"
 kotlinInject = "0.9.0"
+kotlinxCollectionsImmutable = "0.5.2"
 kotlinxDatetime = "0.8.0"
 kotlinxSerialization = "1.11.0"
 ksp = "2.3.11"
@@ -98,6 +99,7 @@ glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 kotlin-inject-compiler-ksp = { module = "me.tatarka.inject:kotlin-inject-compiler-ksp", version.ref = "kotlinInject" }
 kotlin-inject-runtime-kmp = { module = "me.tatarka.inject:kotlin-inject-runtime-kmp", version.ref = "kotlinInject" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+kotlinx-collections-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }

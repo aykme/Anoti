@@ -56,6 +56,7 @@ kotlin {
             implementation(project(":core-kmp:di-scope"))
 
             implementation(libs.mvikotlin)
+            implementation(libs.kotlinx.collections.immutable)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.essenty.lifecycle)

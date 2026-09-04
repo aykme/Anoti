@@ -49,6 +49,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.horizo
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.systemBarsTopPadding
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.anime_poster_sample
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.connection_error
+import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as BaseRes
@@ -276,7 +277,7 @@ private fun AnimeListScreenLoadedPreview() {
                 uiModel = UiModel(
                     contentType = ContentTypeUi.LOADED,
                     listContent = ListContentUi(
-                        listItems = listOf(
+                        listItems = persistentListOf(
                             previewListItem,
                             previewListItem.copy(id = 2, name = "Attack on Titan: Final. Part 1")
                         )

@@ -1,5 +1,8 @@
 package com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model
 
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+
 /**
  * The selected section's list content, ready for display.
  *
@@ -8,6 +11,6 @@ package com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model
  * the section changed).
  */
 data class ListContentUi(
-    val listItems: List<ListItemUi> = emptyList(),
+    val listItems: ImmutableList<ListItemUi> = persistentListOf(),
     val isNeedToResetListPositon: Boolean = false
 )
