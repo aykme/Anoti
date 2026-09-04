@@ -7,8 +7,8 @@ import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
  */
 interface SafeApi {
     /**
-     * Runs [apiCall] and returns its outcome as [CallResult]. Retries retryable failures
-     * (4xx/5xx HTTP errors, network errors) with an increasing delay between attempts.
+     * Runs [apiCall] and returns its outcome as [CallResult]. Retries any failure except
+     * cancellation, with an increasing delay between attempts, up to a fixed attempt count.
      *
      * @param callAttempt current attempt number; managed internally, don't pass it explicitly.
      * @param apiCall the network call to run.
