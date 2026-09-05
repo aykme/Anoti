@@ -4,8 +4,8 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusD
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.AnimeFavoritesUiModel
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.ContentTypeUi
-import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.UiModel
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.InfoTypeUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.ListItemUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.NotificationUi
@@ -14,8 +14,8 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toPersistentList
 
-internal fun mapStateToUiModel(state: AnimeFavoritesMainStore.State): UiModel {
-    return UiModel(
+internal fun mapStateToUiModel(state: AnimeFavoritesMainStore.State): AnimeFavoritesUiModel {
+    return AnimeFavoritesUiModel(
         listItems = getListItemsUi(state),
         contentType = mapContentTypeDomainToUi(state)
     )

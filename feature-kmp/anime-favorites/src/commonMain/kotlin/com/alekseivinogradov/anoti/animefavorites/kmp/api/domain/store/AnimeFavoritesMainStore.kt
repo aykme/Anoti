@@ -39,7 +39,7 @@ interface AnimeFavoritesMainStore :
         /** Refresh the list's content type based on the current items. */
         data object UpdateSection : Intent
 
-        /** Trigger a background update of every favorited anime. */
+        /** Trigger a background update of every favorite anime. */
         data object UpdateAllItemsInBackground : Intent
 
         /** The user tapped the item with [id]. */

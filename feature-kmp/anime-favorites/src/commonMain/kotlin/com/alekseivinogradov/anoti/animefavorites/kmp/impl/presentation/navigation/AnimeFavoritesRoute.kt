@@ -5,7 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.AnimeFavoritesView
-import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.UiModel
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.AnimeFavoritesUiModel
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.AnimeFavoritesController
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.compose.AnimeFavoritesScreen
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.ComposeMviView
@@ -23,7 +23,7 @@ fun AnimeFavoritesRoute(screenComponent: NavAnimeFavoritesScreenComponent) {
     // Needs an explicit AnimeFavoritesView supertype: the controller takes that interface, and
     // ComposeMviView's structural match to it isn't enough for Kotlin's nominal typing.
     val composeView = remember(screenComponent) {
-        object : ComposeMviView<UiModel, AnimeFavoritesMainStore.Intent>(), AnimeFavoritesView {}
+        object : ComposeMviView<AnimeFavoritesUiModel, AnimeFavoritesMainStore.Intent>(), AnimeFavoritesView {}
     }
     // Binding runs as an effect, not inside "remember": a discarded/retried
     // composition still executes "remember" calculator, which would start a second,

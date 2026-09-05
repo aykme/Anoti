@@ -43,8 +43,8 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.LIST_L
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.PullToRefreshBox
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.loading_in_progress
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.AnimeFavoritesUiModel
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.ContentTypeUi
-import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.UiModel
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.InfoTypeUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.ListItemUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.NotificationUi
@@ -70,14 +70,14 @@ import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as Cele
 
 /**
  * The favorites list screen: loading spinner, empty-state panel, or the item list with
- * swipe-to-refresh, depending on [uiModel]'s [UiModel.contentType].
+ * swipe-to-refresh, depending on [uiModel]'s [AnimeFavoritesUiModel.contentType].
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.
 @Suppress("FunctionNaming")
 @Composable
 fun AnimeFavoritesScreen(
-    uiModel: UiModel,
+    uiModel: AnimeFavoritesUiModel,
     dateFormatter: DateFormatter,
     dispatch: (AnimeFavoritesMainStore.Intent) -> Unit
 ) {
@@ -171,7 +171,7 @@ private fun EmptyState() {
 @Suppress("FunctionNaming")
 @Composable
 private fun ListState(
-    uiModel: UiModel,
+    uiModel: AnimeFavoritesUiModel,
     dateFormatter: DateFormatter,
     dispatch: (AnimeFavoritesMainStore.Intent) -> Unit
 ) {
@@ -233,7 +233,7 @@ private val previewListItem = ListItemUi(
 private fun AnimeFavoritesScreenLoadingPreview() {
     AnotiTheme {
         AnimeFavoritesScreen(
-            uiModel = UiModel(contentType = ContentTypeUi.LOADING),
+            uiModel = AnimeFavoritesUiModel(contentType = ContentTypeUi.LOADING),
             dateFormatter = AnimeFavoritesScreenPreviewDateFormatter,
             dispatch = {}
         )
@@ -246,7 +246,7 @@ private fun AnimeFavoritesScreenLoadingPreview() {
 private fun AnimeFavoritesScreenEmptyPreview() {
     AnotiTheme {
         AnimeFavoritesScreen(
-            uiModel = UiModel(contentType = ContentTypeUi.EMPTY),
+            uiModel = AnimeFavoritesUiModel(contentType = ContentTypeUi.EMPTY),
             dateFormatter = AnimeFavoritesScreenPreviewDateFormatter,
             dispatch = {}
         )
@@ -278,7 +278,7 @@ private fun AnimeFavoritesScreenLoadedPreview() {
                 rememberPreviewPosterHandler(painterResource(CelebrityRes.drawable.anime_poster_sample))
         ) {
             AnimeFavoritesScreen(
-                uiModel = UiModel(
+                uiModel = AnimeFavoritesUiModel(
                     contentType = ContentTypeUi.LOADED,
                     listItems = persistentListOf(
                         previewListItem,

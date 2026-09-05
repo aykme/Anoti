@@ -10,7 +10,7 @@ import kotlinx.collections.immutable.persistentListOf
  * @param listItems favorites list items, ready for display.
  * @param contentType loading state of the list.
  */
-data class UiModel(
+data class AnimeFavoritesUiModel(
     val listItems: ImmutableList<ListItemUi> = persistentListOf(),
     val contentType: ContentTypeUi = ContentTypeUi.LOADING,
 )
