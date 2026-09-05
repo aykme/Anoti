@@ -109,7 +109,7 @@ Read this before doing any task in this repository.
   the existing test suites (e.g. `SafeApiImplTest`) and keeps setup, action, and assertion
   visually distinct.
 - No mocking library is used in this project: `commonTest` targets Kotlin/Native (iOS) alongside
-  Android, and hand-written fakes (as already used throughout `commonTest`, e.g. `FakeOngoingSource`
+  Android, and handwritten fakes (as already used throughout `commonTest`, e.g. `FakeOngoingSource`
   in `OngoingSectionExecutorImplTest`) are the established, KMP-portable way to stub dependencies.
 
 ## Finishing a task
