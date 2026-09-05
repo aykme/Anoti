@@ -5,7 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.mapper.mapStateToUiModel
-import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.UiModel
+import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.BottomNavigationBarUiModel
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarController
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarView
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.compose.BottomNavigationBar
@@ -28,7 +28,7 @@ internal fun BottomNavigationBarRoute(dependencies: RootDependencies, activeChil
     val mainStore = dependencies.mainStore
     val composeView = remember {
         object :
-            ComposeMviView<UiModel, BottomNavigationBarStore.Intent>(
+            ComposeMviView<BottomNavigationBarUiModel, BottomNavigationBarStore.Intent>(
                 initialModel = mapStateToUiModel(mainStore.state)
             ),
             BottomNavigationBarView {

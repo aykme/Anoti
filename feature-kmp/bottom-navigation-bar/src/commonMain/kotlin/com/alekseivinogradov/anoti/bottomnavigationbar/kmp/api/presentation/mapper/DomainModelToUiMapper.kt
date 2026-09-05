@@ -2,11 +2,11 @@ package com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.map
 
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.model.SectionDomain
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
+import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.BottomNavigationBarUiModel
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.SectionUi
-import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.UiModel
 
-fun mapStateToUiModel(state: BottomNavigationBarStore.State): UiModel {
-    return UiModel(
+fun mapStateToUiModel(state: BottomNavigationBarStore.State): BottomNavigationBarUiModel {
+    return BottomNavigationBarUiModel(
         selectedSection = mapSelectedSectionDomainToUi(state.selectedSection),
         favoritesBadgeNumber = state.favoritesBadgeNumber
     )

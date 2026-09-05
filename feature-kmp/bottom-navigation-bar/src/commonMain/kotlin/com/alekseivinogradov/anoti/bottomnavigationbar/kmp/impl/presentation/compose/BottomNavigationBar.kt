@@ -28,8 +28,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.BADGE_MAX_NUMBER
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
+import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.BottomNavigationBarUiModel
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.SectionUi
-import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.UiModel
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.generated.resources.favorites
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.generated.resources.ic_favorite_24
@@ -53,7 +53,7 @@ import org.jetbrains.compose.resources.stringResource
 @Suppress("FunctionNaming")
 @Composable
 fun BottomNavigationBar(
-    uiModel: UiModel,
+    uiModel: BottomNavigationBarUiModel,
     dispatch: (BottomNavigationBarStore.Intent) -> Unit
 ) {
     // NavigationBar owns exactly one inset-consuming layer: its own windowInsets is disabled
@@ -162,9 +162,9 @@ private fun formatBadgeNumber(number: Int): String =
     if (number > BADGE_MAX_NUMBER) "$BADGE_MAX_NUMBER+" else number.toString()
 
 private val previewMainSelected =
-    UiModel(selectedSection = SectionUi.MAIN, favoritesBadgeNumber = 0)
+    BottomNavigationBarUiModel(selectedSection = SectionUi.MAIN, favoritesBadgeNumber = 0)
 private val previewFavoritesSelectedWithBadge =
-    UiModel(selectedSection = SectionUi.FAVORITES, favoritesBadgeNumber = 3)
+    BottomNavigationBarUiModel(selectedSection = SectionUi.FAVORITES, favoritesBadgeNumber = 3)
 
 @Suppress("FunctionNaming", "UnusedPrivateMember")
 @Preview(widthDp = PREVIEW_WIDTH_DP, heightDp = PREVIEW_HEIGHT_DP)

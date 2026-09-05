@@ -10,7 +10,7 @@ badge count.
 - [BottomNavigationBarController](src/commonMain/kotlin/com/alekseivinogradov/anoti/bottomnavigationbar/kmp/impl/presentation/BottomNavigationBarController.kt) —
   wires the store to its view and to `AnimeDatabaseStore`.
 - [BottomNavigationBar](src/commonMain/kotlin/com/alekseivinogradov/anoti/bottomnavigationbar/kmp/impl/presentation/compose/BottomNavigationBar.kt) —
-  the Compose UI rendering `UiModel`.
+  the Compose UI rendering `BottomNavigationBarUiModel`.
 
 ## How to include it
 
@@ -24,7 +24,7 @@ badge count.
 
 ## How to use it
 
-Implement `BottomNavigationBarView`: feed the observed `UiModel`
+Implement `BottomNavigationBarView`: feed the observed `BottomNavigationBarUiModel`
 into the `BottomNavigationBar` composable, whose click callbacks call `dispatch(Intent)`, and
 handle navigation in `handle(Label)`. The implementation must also dispatch
 `ChangeSelectedSection` whenever the host's own navigation state changes outside a tab tap (e.g.
