@@ -5,7 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.AnimeListView
-import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.UiModel
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.AnimeListUiModel
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.AnimeListController
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.compose.AnimeListScreen
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.ComposeMviView
@@ -23,7 +23,7 @@ fun AnimeListRoute(screenComponent: NavAnimeListScreenComponent) {
     // Needs an explicit AnimeListView supertype: the controller takes that interface, and
     // ComposeMviView's structural match to it isn't enough for Kotlin's nominal typing.
     val composeView = remember(screenComponent) {
-        object : ComposeMviView<UiModel, AnimeListMainStore.Intent>(), AnimeListView {}
+        object : ComposeMviView<AnimeListUiModel, AnimeListMainStore.Intent>(), AnimeListView {}
     }
     // Binding runs as an effect, not inside "remember": a discarded/retried
     // composition still executes "remember", which would start a second,

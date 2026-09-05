@@ -7,12 +7,12 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SearchDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SectionHatDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.AnimeListUiModel
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ContentTypeUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ListContentUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ListItemUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.SearchUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.SectionHatUi
-import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.UiModel
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.EpisodesInfoTypeUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.NotificationUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.ReleaseStatusUi
@@ -22,8 +22,8 @@ import kotlinx.collections.immutable.toPersistentList
 
 internal fun mapStateToUiModel(
     state: AnimeListMainStore.State
-): UiModel {
-    return UiModel(
+): AnimeListUiModel {
+    return AnimeListUiModel(
         selectedSection = mapSelectedSectionDomainToUi(state.selectedSection),
         search = mapSearchDomainToUi(state.search),
         contentType = getContentTypeUi(state),

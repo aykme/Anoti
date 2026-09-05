@@ -32,10 +32,10 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.LIST_L
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.PullToRefreshBox
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.loading_in_progress
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.AnimeListUiModel
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ContentTypeUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ListContentUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ListItemUi
-import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.UiModel
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.EpisodesInfoTypeUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.NotificationUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.ReleaseStatusUi
@@ -57,14 +57,14 @@ import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as Cele
 
 /**
  * The anime list screen: top bar plus loading spinner, error state, or the selected section's
- * item list with pull-to-refresh and pagination, depending on [uiModel]'s [UiModel.contentType].
+ * item list with pull-to-refresh and pagination, depending on [uiModel]'s [AnimeListUiModel.contentType].
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.
 @Suppress("FunctionNaming")
 @Composable
 fun AnimeListScreen(
-    uiModel: UiModel,
+    uiModel: AnimeListUiModel,
     dateFormatter: DateFormatter,
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
@@ -118,7 +118,7 @@ private fun ErrorState(dispatch: (AnimeListMainStore.Intent) -> Unit) {
 @Suppress("FunctionNaming")
 @Composable
 private fun ListState(
-    uiModel: UiModel,
+    uiModel: AnimeListUiModel,
     dateFormatter: DateFormatter,
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
@@ -187,7 +187,7 @@ private fun LoadNextPageEffect(
 @Suppress("FunctionNaming")
 @Composable
 private fun ResetListPositionEffect(
-    uiModel: UiModel,
+    uiModel: AnimeListUiModel,
     listState: LazyListState,
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
@@ -229,7 +229,7 @@ private val previewListItem = ListItemUi(
 private fun AnimeListScreenLoadingPreview() {
     AnotiTheme {
         AnimeListScreen(
-            uiModel = UiModel(contentType = ContentTypeUi.LOADING),
+            uiModel = AnimeListUiModel(contentType = ContentTypeUi.LOADING),
             dateFormatter = AnimeListScreenPreviewDateFormatter,
             dispatch = {}
         )
@@ -242,7 +242,7 @@ private fun AnimeListScreenLoadingPreview() {
 private fun AnimeListScreenErrorPreview() {
     AnotiTheme {
         AnimeListScreen(
-            uiModel = UiModel(contentType = ContentTypeUi.ERROR),
+            uiModel = AnimeListUiModel(contentType = ContentTypeUi.ERROR),
             dateFormatter = AnimeListScreenPreviewDateFormatter,
             dispatch = {}
         )
@@ -274,7 +274,7 @@ private fun AnimeListScreenLoadedPreview() {
                 rememberPreviewPosterHandler(painterResource(CelebrityRes.drawable.anime_poster_sample))
         ) {
             AnimeListScreen(
-                uiModel = UiModel(
+                uiModel = AnimeListUiModel(
                     contentType = ContentTypeUi.LOADED,
                     listContent = ListContentUi(
                         listItems = persistentListOf(

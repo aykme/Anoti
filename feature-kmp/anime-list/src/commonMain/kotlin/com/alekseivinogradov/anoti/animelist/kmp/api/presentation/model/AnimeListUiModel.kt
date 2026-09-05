@@ -8,7 +8,7 @@ package com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model
  * @param contentType loading state of the selected section's list.
  * @param listContent the selected section's list content.
  */
-data class UiModel(
+data class AnimeListUiModel(
     val selectedSection: SectionHatUi = SectionHatUi.ONGOINGS,
     val search: SearchUi = SearchUi.HIDDEN,
     val contentType: ContentTypeUi = ContentTypeUi.LOADING,
