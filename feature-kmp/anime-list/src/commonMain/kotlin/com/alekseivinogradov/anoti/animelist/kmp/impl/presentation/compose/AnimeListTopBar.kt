@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -88,8 +88,9 @@ fun AnimeListTopBar(
     onSearchTextChange: (String) -> Unit
 ) {
     // Hoisted above the `search == SHOWN` check so typed text survives closing and reopening
-    // the search bar.
-    var searchText by remember { mutableStateOf("") }
+    // the search bar; saveable so it also survives process death, matching the restored search
+    // this text drives (see NavAnimeListScreenComponent.applyRestoredMainState).
+    var searchText by rememberSaveable { mutableStateOf("") }
 
     val keyboardController = LocalSoftwareKeyboardController.current
     LaunchedEffect(search) {
