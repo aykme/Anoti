@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -110,7 +112,13 @@ private fun ErrorState(dispatch: (AnimeListMainStore.Intent) -> Unit) {
             painter = painterResource(Res.drawable.connection_error_48),
             contentDescription = stringResource(CelebrityRes.string.connection_error),
             colorFilter = ColorFilter.tint(SilverTransparent),
-            modifier = Modifier.fillMaxSize().padding(64.dp)
+            // pullToRefresh only reacts to nested-scroll deltas, which nothing here would ever
+            // produce without a scrollable descendant — verticalScroll makes this participate in
+            // nested scrolling even though there's nothing to actually scroll.
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(64.dp)
         )
     }
 }
@@ -140,6 +148,11 @@ private fun ListState(
             // section list (e.g. an ongoing show matching the search query), so scoping the key
             // by section keeps those two appearances from ever being treated as one item moving
             // within the same list.
+            //
+            // No animateItem() here: switching sections replaces the entire list at once (this
+            // is one LazyColumn shared across sections, not per-section state), and animateItem()
+            // animates that as every old item exiting while every new item enters — which visibly
+            // renders both sections' items on top of each other until the animation finishes.
             items(
                 uiModel.listContent.listItems,
                 key = { "${uiModel.selectedSection.name}_${it.id}" }
@@ -152,8 +165,7 @@ private fun ListState(
                     },
                     onNotificationClick = {
                         dispatch(AnimeListMainStore.Intent.NotificationClick(item.id))
-                    },
-                    modifier = Modifier.animateItem()
+                    }
                 )
             }
         }
