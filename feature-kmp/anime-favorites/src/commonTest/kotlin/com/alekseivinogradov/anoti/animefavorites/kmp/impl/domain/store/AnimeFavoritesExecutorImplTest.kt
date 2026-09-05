@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store
 
+import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.ANIMATION_DURATION_SHORT
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ContentTypeDomain
@@ -8,16 +9,11 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.source.AnimeFav
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.wrapper.FavoritesUsecases
-import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -26,6 +22,11 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AnimeFavoritesExecutorImplTest {
@@ -52,20 +53,23 @@ class AnimeFavoritesExecutorImplTest {
         override fun execute() = Unit
     }
 
-    private fun testListItem(id: AnimeId) = ListItemDomain(
-        id = id,
-        name = "Item $id",
-        imageUrl = null,
-        episodesAired = 1,
-        episodesTotal = 12,
-        nextEpisodeAt = null,
-        airedOn = null,
-        releasedOn = null,
-        score = 8.0F,
-        releaseStatus = ReleaseStatusDomain.ONGOING,
-        episodesViewed = 0,
-        isNewEpisode = false
-    )
+    private fun testListItem(): ListItemDomain {
+        val id = 1
+        return ListItemDomain(
+            id = id,
+            name = "Item $id",
+            imageUrl = null,
+            episodesAired = 1,
+            episodesTotal = 12,
+            nextEpisodeAt = null,
+            airedOn = null,
+            releasedOn = null,
+            score = 8.0F,
+            releaseStatus = ReleaseStatusDomain.ONGOING,
+            episodesViewed = 0,
+            isNewEpisode = false
+        )
+    }
 
     private fun createStore(): AnimeFavoritesMainStore {
         val coroutineContextProvider = object : CoroutineContextProviderBase() {
@@ -108,7 +112,7 @@ class AnimeFavoritesExecutorImplTest {
     fun updateSectionKeepsLoadingUntilMinimumDurationElapsesEvenIfListArrivesSooner() = runTest(testDispatcher) {
         //Given
         val store = createStore()
-        val item = testListItem(id = 1)
+        val item = testListItem()
 
         //When
         store.accept(AnimeFavoritesMainStore.Intent.UpdateSection)
@@ -121,14 +125,14 @@ class AnimeFavoritesExecutorImplTest {
         assertEquals(ContentTypeDomain.LOADING(isSwipeToRefresh = true), store.state.contentType)
 
         //When
-        advanceTimeBy(ANIMATION_DURATION_SHORT.inWholeMilliseconds / 2)
+        advanceTimeBy((ANIMATION_DURATION_SHORT.inWholeMilliseconds / 2).milliseconds)
         runCurrent()
 
         //Then
         assertEquals(ContentTypeDomain.LOADING(isSwipeToRefresh = true), store.state.contentType)
 
         //When
-        advanceTimeBy(ANIMATION_DURATION_SHORT.inWholeMilliseconds)
+        advanceTimeBy(ANIMATION_DURATION_SHORT.inWholeMilliseconds.milliseconds)
         runCurrent()
 
         //Then
@@ -143,7 +147,7 @@ class AnimeFavoritesExecutorImplTest {
         //When
         store.accept(AnimeFavoritesMainStore.Intent.UpdateSection)
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(emptyList()))
-        advanceTimeBy(ANIMATION_DURATION_SHORT.inWholeMilliseconds + 1)
+        advanceTimeBy((ANIMATION_DURATION_SHORT.inWholeMilliseconds + 1).milliseconds)
         runCurrent()
 
         //Then
@@ -154,7 +158,7 @@ class AnimeFavoritesExecutorImplTest {
     fun itemsSubmittedToListOutsideRefreshStillMarksLoaded() = runTest(testDispatcher) {
         //Given
         val store = createStore()
-        val item = testListItem(id = 1)
+        val item = testListItem()
 
         //When
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
