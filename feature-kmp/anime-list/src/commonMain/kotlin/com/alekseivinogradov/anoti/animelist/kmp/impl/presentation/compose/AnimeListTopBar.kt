@@ -88,8 +88,11 @@ fun AnimeListTopBar(
     onSearchTextChange: (String) -> Unit
 ) {
     // Hoisted above the `search == SHOWN` check so typed text survives closing and reopening
-    // the search bar; saveable so it also survives process death, matching the restored search
-    // this text drives (see NavAnimeListScreenComponent.applyRestoredMainState).
+    // the search bar. Saveable so it also survives process death: every keystroke pushes the
+    // same value into this field's own SavedStateRegistry entry and, via onTextChange, into the
+    // domain search text that NavAnimeListScreenComponent.applyRestoredMainState restores — the
+    // two are independent persistence paths, kept in sync only because both capture the same
+    // value on every keystroke, not because one reads from the other.
     var searchText by rememberSaveable { mutableStateOf("") }
 
     val keyboardController = LocalSoftwareKeyboardController.current

@@ -185,6 +185,7 @@ class ApplyRestoredMainStateTest {
         //Then
         assertEquals(SectionHatDomain.ANNOUNCED, mainStore.state.selectedSection)
         assertEquals(ContentTypeDomain.LOADED, announcedStore.state.sectionContent.contentType)
+        assertEquals(true, mainStore.state.isNeedToResetListPositon)
     }
 
     @Test
@@ -205,10 +206,8 @@ class ApplyRestoredMainStateTest {
         //Then
         assertEquals(SectionHatDomain.SEARCH, mainStore.state.selectedSection)
         assertEquals("totoro", mainStore.state.search.searchText)
-        // This is exactly the dispatch a lost OpenSearchSection/ChangeSearchText label used to
-        // silently drop: the search store's own searchText must be updated directly, not just
-        // mainStore's mirror of it.
         assertEquals("totoro", searchStore.state.searchText)
+        assertEquals(true, mainStore.state.isNeedToResetListPositon)
     }
 
     @Test
@@ -229,5 +228,6 @@ class ApplyRestoredMainStateTest {
         //Then
         assertEquals(SectionHatDomain.SEARCH, mainStore.state.selectedSection)
         assertEquals("", searchStore.state.searchText)
+        assertEquals(true, mainStore.state.isNeedToResetListPositon)
     }
 }
