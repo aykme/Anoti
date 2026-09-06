@@ -48,6 +48,9 @@ Read this before doing any task in this repository.
   don't explore alternatives, don't explain the implementation step by step.
 - The same brevity applies to KDoc on classes/interfaces/functions: a short "what this is and
   why it exists," not a walkthrough of how it's implemented.
+- Keep individual sentences short — roughly 20 words, never around 40. The IDE flags long
+  sentences as a readability issue. Split a long sentence into two short ones instead of joining
+  clauses with commas/"and"/em dashes.
 
 ## Platform source sets (androidMain/iosMain)
 

@@ -132,7 +132,7 @@ private fun ListState(
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
     // One LazyListState per section so each keeps its own scroll position across section
-    // switches, instead of all three sharing a single raw scroll index/offset that a switch would
+    // switches. Instead of all three sharing a single raw scroll index/offset that a switch would
     // otherwise hand off unchanged to whichever section's items now occupy it.
     val ongoingsListState = rememberLazyListState()
     val announcedListState = rememberLazyListState()
@@ -192,7 +192,7 @@ private fun LoadNextPageEffect(
     // Keyed on listState: each section has its own LazyListState instance, and re-deriving only
     // when the boolean itself flips (not keying on listState) would leave this permanently
     // watching whichever section's state was current the first time this composable entered
-    // composition, silently ignoring scroll in every other section switched to afterwards.
+    // composition, silently ignoring scroll in every other section switched to afterward.
     //
     // Dispatches once per threshold-crossing: the effect only restarts when the derived boolean
     // itself flips, not on every scroll position update while it stays true.
