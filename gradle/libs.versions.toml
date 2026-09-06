@@ -131,7 +131,6 @@ mvikotlin-timetravel = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-ti
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-androidLibrary = { id = "com.android.library", version.ref = "agp" }
 androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 androidx-room = { id = "androidx.room", version.ref = "room" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
