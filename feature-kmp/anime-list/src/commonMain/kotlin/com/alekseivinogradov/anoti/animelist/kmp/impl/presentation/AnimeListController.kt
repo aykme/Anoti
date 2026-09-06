@@ -1,14 +1,12 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation
 
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
-import com.alekseivinogradov.anoti.animelist.kmp.api.domain.mapper.store.mapAnnouncedStoreLabelToMainStoreIntent
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.mapper.store.mapAnnouncedStoreStateToMainStoreIntent
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.mapper.store.mapDatabaseStoreStateToMainStoreIntent
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.mapper.store.mapMainStoreLabelToAnnouncedStoreIntent
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.mapper.store.mapMainStoreLabelToDatabaseStoreIntent
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.mapper.store.mapMainStoreLabelToOngoingStoreIntent
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.mapper.store.mapMainStoreLabelToSearchStoreIntent
-import com.alekseivinogradov.anoti.animelist.kmp.api.domain.mapper.store.mapOngoingStoreLabelToMainStoreIntent
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.mapper.store.mapOngoingStoreStateToMainStoreIntent
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.mapper.store.mapSearchStoreLabelToMainStoreIntent
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.mapper.store.mapSearchStoreStateToMainStoreIntent
@@ -100,14 +98,6 @@ class AnimeListController(
             mainStore.labels.mapNotNull(
                 ::mapMainStoreLabelToSearchStoreIntent
             ) bindTo searchSectionStore
-
-            ongoingSectionStore.labels.map(
-                ::mapOngoingStoreLabelToMainStoreIntent
-            ) bindTo mainStore
-
-            announcedSectionStore.labels.map(
-                ::mapAnnouncedStoreLabelToMainStoreIntent
-            ) bindTo mainStore
 
             searchSectionStore.labels.map(
                 ::mapSearchStoreLabelToMainStoreIntent

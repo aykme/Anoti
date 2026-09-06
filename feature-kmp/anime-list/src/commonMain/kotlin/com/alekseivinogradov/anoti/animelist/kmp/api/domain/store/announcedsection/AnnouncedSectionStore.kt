@@ -36,10 +36,7 @@ interface AnnouncedSectionStore : Store<
     }
 
     /** One-off events the store publishes for callers to react to. */
-    sealed interface Label {
-        /** Ask the main store to reset the list's scroll position. */
-        data object ResetListPositionAfterUpdate : Label
-    }
+    sealed interface Label
 
     /** Internal executor plumbing; a consumer never dispatches this. */
     sealed interface Action
