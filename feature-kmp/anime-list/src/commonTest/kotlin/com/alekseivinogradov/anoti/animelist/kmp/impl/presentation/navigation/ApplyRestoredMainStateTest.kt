@@ -7,6 +7,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SectionHatDoma
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsection.AnnouncedSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.ongoingsection.OngoingSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.SearchSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.announcedsection.AnnouncedSectionExecutorFactory
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.announcedsection.AnnouncedSectionExecutorImpl
@@ -14,13 +15,18 @@ import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.announcedsect
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.main.AnimeListExecutorFactory
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.main.AnimeListExecutorImpl
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.main.AnimeListMainStoreFactory
+import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.ongoingsection.OngoingSectionExecutorFactory
+import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.ongoingsection.OngoingSectionExecutorImpl
+import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.ongoingsection.OngoingSectionStoreFactory
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.searchsection.SearchSectionExecutorFactory
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.searchsection.SearchSectionExecutorImpl
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.searchsection.SearchSectionStoreFactory
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnimeListBySearchUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnnouncedAnimeListUsecase
+import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchOngoingAnimeListUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.AnnouncedUsecases
+import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.OngoingUsecases
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.SearchUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
@@ -91,6 +97,24 @@ class ApplyRestoredMainStateTest {
         ).create()
     }
 
+    private fun createOngoingStore(): OngoingSectionStore {
+        val usecases = OngoingUsecases(
+            fetchOngoingAnimeListUsecase = FetchOngoingAnimeListUsecase(EmptySource),
+            fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(EmptySource)
+        )
+        val executorFactory: OngoingSectionExecutorFactory = {
+            OngoingSectionExecutorImpl(
+                coroutineContextProvider = createCoroutineContextProvider(),
+                usecases = usecases,
+                toastProvider = ToastProvider(makeConnectionErrorToast = {}, makeUnknownErrorToast = {})
+            )
+        }
+        return OngoingSectionStoreFactory(
+            storeFactory = DefaultStoreFactory(),
+            executorFactory = executorFactory
+        ).create()
+    }
+
     private fun createAnnouncedStore(): AnnouncedSectionStore {
         val usecases = AnnouncedUsecases(
             fetchAnnouncedAnimeListUsecase = FetchAnnouncedAnimeListUsecase(EmptySource)
@@ -127,9 +151,10 @@ class ApplyRestoredMainStateTest {
     }
 
     @Test
-    fun nullRestoredStateLeavesOngoingSelected() = runTest(testDispatcher) {
+    fun nullRestoredStateOpensOnlyOngoingsSection() = runTest(testDispatcher) {
         //Given
         val mainStore = createMainStore()
+        val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
 
@@ -137,19 +162,24 @@ class ApplyRestoredMainStateTest {
         applyRestoredMainState(
             restoredState = null,
             mainStore = mainStore,
+            ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
             searchSectionStore = searchStore
         )
+        ongoingStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
         //Then
         assertEquals(SectionHatDomain.ONGOINGS, mainStore.state.selectedSection)
+        assertEquals(ContentTypeDomain.LOADED, ongoingStore.state.sectionContent.contentType)
         assertEquals(ContentTypeDomain.LOADING, announcedStore.state.sectionContent.contentType)
+        assertEquals(ContentTypeDomain.LOADING, searchStore.state.sectionContent.contentType)
     }
 
     @Test
-    fun ongoingsRestoredStateLeavesOngoingSelected() = runTest(testDispatcher) {
+    fun ongoingsRestoredStateOpensOnlyOngoingsSection() = runTest(testDispatcher) {
         //Given
         val mainStore = createMainStore()
+        val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
 
@@ -157,19 +187,24 @@ class ApplyRestoredMainStateTest {
         applyRestoredMainState(
             restoredState = RestoredMainState(SectionHatDomain.ONGOINGS, searchText = ""),
             mainStore = mainStore,
+            ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
             searchSectionStore = searchStore
         )
+        ongoingStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
         //Then
         assertEquals(SectionHatDomain.ONGOINGS, mainStore.state.selectedSection)
+        assertEquals(ContentTypeDomain.LOADED, ongoingStore.state.sectionContent.contentType)
         assertEquals(ContentTypeDomain.LOADING, announcedStore.state.sectionContent.contentType)
+        assertEquals(ContentTypeDomain.LOADING, searchStore.state.sectionContent.contentType)
     }
 
     @Test
     fun ongoingsRestoredStateStillReplaysLeftoverSearchTextToSearchStore() = runTest(testDispatcher) {
         //Given
         val mainStore = createMainStore()
+        val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
 
@@ -177,6 +212,7 @@ class ApplyRestoredMainStateTest {
         applyRestoredMainState(
             restoredState = RestoredMainState(SectionHatDomain.ONGOINGS, searchText = "totoro"),
             mainStore = mainStore,
+            ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
             searchSectionStore = searchStore
         )
@@ -189,9 +225,10 @@ class ApplyRestoredMainStateTest {
     }
 
     @Test
-    fun announcedRestoredStateSelectsSectionAndOpensAnnouncedStoreDirectly() = runTest(testDispatcher) {
+    fun announcedRestoredStateSelectsSectionAndOpensAnnouncedStoreOnly() = runTest(testDispatcher) {
         //Given
         val mainStore = createMainStore()
+        val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
 
@@ -199,6 +236,7 @@ class ApplyRestoredMainStateTest {
         applyRestoredMainState(
             restoredState = RestoredMainState(SectionHatDomain.ANNOUNCED, searchText = ""),
             mainStore = mainStore,
+            ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
             searchSectionStore = searchStore
         )
@@ -207,6 +245,7 @@ class ApplyRestoredMainStateTest {
         //Then
         assertEquals(SectionHatDomain.ANNOUNCED, mainStore.state.selectedSection)
         assertEquals(ContentTypeDomain.LOADED, announcedStore.state.sectionContent.contentType)
+        assertEquals(ContentTypeDomain.LOADING, ongoingStore.state.sectionContent.contentType)
         assertEquals(false, mainStore.state.isNeedToResetListPositon)
     }
 
@@ -214,6 +253,7 @@ class ApplyRestoredMainStateTest {
     fun searchRestoredStateWithTextDispatchesTextDirectlyToSearchStore() = runTest(testDispatcher) {
         //Given
         val mainStore = createMainStore()
+        val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
 
@@ -221,6 +261,7 @@ class ApplyRestoredMainStateTest {
         applyRestoredMainState(
             restoredState = RestoredMainState(SectionHatDomain.SEARCH, searchText = "totoro"),
             mainStore = mainStore,
+            ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
             searchSectionStore = searchStore
         )
@@ -229,6 +270,7 @@ class ApplyRestoredMainStateTest {
         assertEquals(SectionHatDomain.SEARCH, mainStore.state.selectedSection)
         assertEquals("totoro", mainStore.state.search.searchText)
         assertEquals("totoro", searchStore.state.searchText)
+        assertEquals(ContentTypeDomain.LOADING, ongoingStore.state.sectionContent.contentType)
         assertEquals(false, mainStore.state.isNeedToResetListPositon)
     }
 
@@ -236,6 +278,7 @@ class ApplyRestoredMainStateTest {
     fun searchRestoredStateWithBlankTextOpensSectionWithoutChangingSearchText() = runTest(testDispatcher) {
         //Given
         val mainStore = createMainStore()
+        val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
 
@@ -243,6 +286,7 @@ class ApplyRestoredMainStateTest {
         applyRestoredMainState(
             restoredState = RestoredMainState(SectionHatDomain.SEARCH, searchText = ""),
             mainStore = mainStore,
+            ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
             searchSectionStore = searchStore
         )
@@ -250,6 +294,7 @@ class ApplyRestoredMainStateTest {
         //Then
         assertEquals(SectionHatDomain.SEARCH, mainStore.state.selectedSection)
         assertEquals("", searchStore.state.searchText)
+        assertEquals(ContentTypeDomain.LOADING, ongoingStore.state.sectionContent.contentType)
         assertEquals(false, mainStore.state.isNeedToResetListPositon)
     }
 }

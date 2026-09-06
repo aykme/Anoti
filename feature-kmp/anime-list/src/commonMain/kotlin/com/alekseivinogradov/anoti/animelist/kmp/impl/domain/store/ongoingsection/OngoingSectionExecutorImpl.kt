@@ -30,12 +30,6 @@ class OngoingSectionExecutorImpl(
     private val updateAnimeDetailsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
     private var paginator: Paginator<ListItemDomain> = createPaginator()
 
-    override fun executeAction(action: OngoingSectionStore.Action) {
-        when (action) {
-            OngoingSectionStore.Action.InitSection -> openSection()
-        }
-    }
-
     override fun executeIntent(intent: OngoingSectionStore.Intent) {
         when (intent) {
             OngoingSectionStore.Intent.OpenSection -> openSection()

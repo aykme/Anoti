@@ -40,10 +40,7 @@ interface OngoingSectionStore :
     }
 
     /** Internal executor plumbing; a consumer never dispatches this. */
-    sealed interface Action {
-        /** The section is being opened for the first time; load its first page. */
-        data object InitSection : Action
-    }
+    sealed interface Action
 
     /** Internal executor plumbing; a consumer never dispatches this. */
     sealed interface Message {

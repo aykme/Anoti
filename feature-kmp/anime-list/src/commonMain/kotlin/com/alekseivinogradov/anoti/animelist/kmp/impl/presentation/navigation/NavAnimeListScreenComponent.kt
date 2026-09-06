@@ -60,13 +60,15 @@ class NavAnimeListScreenComponent(
     }
 
     /**
-     * Replays the section/search selection saved before process death, once per instance.
-     * See [applyRestoredMainState] for why this dispatches directly to the section stores.
+     * Opens whichever section should be active: replayed from a snapshot saved before process
+     * death, or the default section on a fresh start. Runs once per instance. See
+     * [applyRestoredMainState] for why this dispatches directly to the section stores.
      */
     fun applyRestoredStateIfAny() {
         applyRestoredMainState(
             restoredState = restoredState,
             mainStore = mainStore,
+            ongoingSectionStore = ongoingSectionStore,
             announcedSectionStore = announcedSectionStore,
             searchSectionStore = searchSectionStore
         )
@@ -84,22 +86,25 @@ internal data class RestoredMainState(
 )
 
 /**
- * Dispatches straight to [announcedSectionStore]/[searchSectionStore] rather than through the
- * section stores' own `OpenAnnouncedSection`/`OpenSearchSection` labels: those labels are only
- * delivered once `AnimeListController`'s binder has started collecting the publishing store's
- * `labels`, which (`BuilderBinder.start()`) launches via `GlobalScope.launch(mainContext)` — a
- * real, asynchronous dispatch, not something guaranteed to have happened by the time this runs. A
- * label published before that collector attaches is silently dropped. Dispatching directly to the
- * target store has no such ordering requirement. `mainStore`'s own selected-section/search-text UI
- * state is still updated through its normal click intents, synchronously. The ongoing section
- * needs no replay: it's the default selection, and [OngoingSectionStore] already bootstraps its
- * own content on creation regardless of this restore.
+ * Dispatches straight to the section stores rather than through their own
+ * `OpenAnnouncedSection`/`OpenSearchSection` labels. Those labels are only delivered once
+ * `AnimeListController`'s binder has started collecting the publishing store's `labels`. That
+ * collector attaches via `BuilderBinder.start()`, which launches through
+ * `GlobalScope.launch(mainContext)` — a real, asynchronous dispatch. It isn't guaranteed to have
+ * happened yet by the time this runs, so a label published before it attaches is silently
+ * dropped. Dispatching directly to the target store has no such ordering requirement. `mainStore`'s
+ * own selected-section/search-text UI state is still updated through its normal click intents,
+ * synchronously.
  *
- * Never forces [AnimeListMainStore.Intent.ChangeResetListPositionFlag]: the list's scroll offset
- * is restored independently by Compose's own saved-state mechanism, and forcing a reset here would
+ * Opens exactly one section: whichever was restored, or [SectionHatDomain.ONGOINGS] as the
+ * default on a fresh, non-restored start. No section bootstraps its own content anymore, so
+ * skipping this call would leave every section stuck loading forever.
+ *
+ * Never forces [AnimeListMainStore.Intent.ChangeResetListPositionFlag]. The list's scroll offset
+ * is restored independently by Compose's own saved-state mechanism. Forcing a reset here would
  * discard it.
  *
- * The search text is replayed independently of [RestoredMainState.selectedSection]: a query typed
+ * The search text is replayed independently of which section ends up selected: a query typed
  * while on the search section survives switching to another section, so it must still reach
  * [searchSectionStore] even when a different section is the one being restored as selected.
  *
@@ -108,33 +113,37 @@ internal data class RestoredMainState(
 internal fun applyRestoredMainState(
     restoredState: RestoredMainState?,
     mainStore: AnimeListMainStore,
+    ongoingSectionStore: OngoingSectionStore,
     announcedSectionStore: AnnouncedSectionStore,
     searchSectionStore: SearchSectionStore
 ) {
-    if (restoredState == null) return
-    when (restoredState.selectedSection) {
+    val selectedSection = restoredState?.selectedSection ?: SectionHatDomain.ONGOINGS
+    when (selectedSection) {
+        SectionHatDomain.ONGOINGS -> {
+            ongoingSectionStore.accept(OngoingSectionStore.Intent.OpenSection)
+        }
+
         SectionHatDomain.ANNOUNCED -> {
             mainStore.accept(AnimeListMainStore.Intent.AnnouncedSectionClick)
             announcedSectionStore.accept(AnnouncedSectionStore.Intent.OpenSection)
         }
 
         SectionHatDomain.SEARCH -> mainStore.accept(AnimeListMainStore.Intent.SearchSectionClick)
-
-        SectionHatDomain.ONGOINGS -> Unit
     }
 
     // Applied before OpenSection: SearchSectionStore seeds its debounced search flow from the
-    // current search text the moment OpenSection runs, so restoring the text first means a later
+    // current search text the moment OpenSection runs. Restoring the text first means a later
     // OpenSection (here or from a subsequent manual tap into the section) already fetches the
     // restored query instead of blank results.
-    if (restoredState.searchText.isNotBlank()) {
-        mainStore.accept(AnimeListMainStore.Intent.ChangeSearchText(restoredState.searchText))
+    val restoredSearchText = restoredState?.searchText
+    if (!restoredSearchText.isNullOrBlank()) {
+        mainStore.accept(AnimeListMainStore.Intent.ChangeSearchText(restoredSearchText))
         searchSectionStore.accept(
-            SearchSectionStore.Intent.ChangeSearchText(restoredState.searchText)
+            SearchSectionStore.Intent.ChangeSearchText(restoredSearchText)
         )
     }
 
-    if (restoredState.selectedSection == SectionHatDomain.SEARCH) {
+    if (selectedSection == SectionHatDomain.SEARCH) {
         searchSectionStore.accept(SearchSectionStore.Intent.OpenSection)
     }
 }

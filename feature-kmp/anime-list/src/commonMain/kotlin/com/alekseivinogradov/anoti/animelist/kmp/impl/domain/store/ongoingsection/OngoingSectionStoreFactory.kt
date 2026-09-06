@@ -17,7 +17,7 @@ class OngoingSectionStoreFactory(
             by storeFactory.create(
                 name = "OngoingSectionStore",
                 initialState = OngoingSectionStore.State(),
-                bootstrapper = SimpleBootstrapper(OngoingSectionStore.Action.InitSection),
+                bootstrapper = SimpleBootstrapper(),
                 executorFactory = executorFactory,
                 reducer = OngoingSectionReducerImpl()
             ) {}
