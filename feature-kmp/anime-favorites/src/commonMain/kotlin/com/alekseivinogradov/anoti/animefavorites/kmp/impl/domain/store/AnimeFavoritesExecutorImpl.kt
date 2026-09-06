@@ -11,6 +11,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -26,6 +27,10 @@ class AnimeFavoritesExecutorImpl(
     private var updateListItemsJob: Job? = null
     private var updateSectionJob: Job? = null
     private val updateAnimeDetailsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
+
+    // Signals a fresh UpdateListItems intent arriving during an open/refresh cycle, so the
+    // minimum-duration resolve below waits for real data instead of judging a stale snapshot.
+    private var listItemsArrivedSignal: CompletableDeferred<Unit>? = null
 
     override fun executeIntent(intent: AnimeFavoritesMainStore.Intent) {
         when (intent) {
@@ -52,9 +57,21 @@ class AnimeFavoritesExecutorImpl(
 
     private fun updateListItems(intent: AnimeFavoritesMainStore.Intent.UpdateListItems) {
         updateListItemsJob?.cancel()
-        updateListItemsJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
-            dispatch(AnimeFavoritesMainStore.Message.UpdateListItems(intent.listItems))
-            if (intent.listItems.isEmpty() && state().contentType != ContentTypeDomain.EMPTY) {
+        // Dispatched synchronously, before signaling arrival below: a resolve waiting on that
+        // signal must see the fresh list.listItems the moment it wakes up, not a stale one.
+        dispatch(AnimeFavoritesMainStore.Message.UpdateListItems(intent.listItems))
+        listItemsArrivedSignal?.complete(Unit)
+
+        val contentType = state().contentType
+        // An open/refresh cycle already in progress resolves EMPTY vs LOADED itself, once its
+        // own minimum duration and this same list arrival have both happened.
+        val isResolvingSectionLoad =
+            contentType is ContentTypeDomain.LOADING && contentType.hasMinimumDuration
+        if (intent.listItems.isEmpty() &&
+            contentType != ContentTypeDomain.EMPTY &&
+            !isResolvingSectionLoad
+        ) {
+            updateListItemsJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
                 dispatch(
                     AnimeFavoritesMainStore.Message.ChangeContentType(
                         ContentTypeDomain.LOADING()
@@ -78,9 +95,12 @@ class AnimeFavoritesExecutorImpl(
         }
     }
 
-    // The section became selected: not a data refresh, just resets any leftover extra-info
-    // display state so it doesn't survive from before, on the same minimum-duration timer as
-    // updateSection() so opening the screen doesn't flash faster than a manual refresh does.
+    // The section became selected: not a data refresh, just shows loading for the same
+    // minimum duration as updateSection() so opening the screen doesn't flash faster than a
+    // manual refresh does. The database reset itself is triggered by the caller directly
+    // (see NavAnimeFavoritesScreenComponent) rather than through a Label here: that label would
+    // only reach AnimeDatabaseStore once AnimeFavoritesController's binder has attached, which
+    // isn't guaranteed yet the moment the screen mounts and this runs.
     private fun openSection() {
         updateListItemsJob?.cancel()
         dispatch(
@@ -88,7 +108,6 @@ class AnimeFavoritesExecutorImpl(
                 ContentTypeDomain.LOADING(hasMinimumDuration = true)
             )
         )
-        publish(AnimeFavoritesMainStore.Label.ResetExtraInfo)
         resolveContentTypeAfterMinimumDuration()
     }
 
@@ -108,10 +127,14 @@ class AnimeFavoritesExecutorImpl(
 
     private fun resolveContentTypeAfterMinimumDuration() {
         updateSectionJob?.cancel()
+        val listItemsArrived = CompletableDeferred<Unit>()
+        listItemsArrivedSignal = listItemsArrived
         updateSectionJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
             delay(ANIMATION_DURATION_SHORT)
-            // Only resolve if nothing else already has (e.g. updateListItems()'s own
-            // LOADING -> EMPTY transition, if the refreshed list turned out empty).
+            // Waits for the minimum duration AND a fresh list, whichever finishes later — a
+            // slow database read must not resolve against the stale list.listItems from before
+            // this cycle started.
+            listItemsArrived.await()
             val contentType = state().contentType
             if (contentType is ContentTypeDomain.LOADING && contentType.hasMinimumDuration) {
                 val finalContentType = if (state().listItems.isEmpty()) {

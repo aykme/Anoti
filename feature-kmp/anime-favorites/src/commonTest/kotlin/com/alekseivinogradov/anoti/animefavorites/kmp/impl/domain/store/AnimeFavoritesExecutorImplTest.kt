@@ -169,6 +169,29 @@ class AnimeFavoritesExecutorImplTest {
     }
 
     @Test
+    fun updateSectionKeepsLoadingPastMinimumDurationUntilListActuallyArrives() = runTest(testDispatcher) {
+        //Given
+        val store = createStore()
+        val item = testListItem()
+
+        //When
+        store.accept(AnimeFavoritesMainStore.Intent.UpdateSection)
+        // The database read is slower than the minimum duration this time.
+        advanceTimeBy((ANIMATION_DURATION_SHORT.inWholeMilliseconds + 1).milliseconds)
+        runCurrent()
+
+        //Then
+        assertEquals(ContentTypeDomain.LOADING(hasMinimumDuration = true), store.state.contentType)
+
+        //When
+        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
+        runCurrent()
+
+        //Then
+        assertEquals(ContentTypeDomain.LOADED, store.state.contentType)
+    }
+
+    @Test
     fun updateSectionResolvesToEmptyWhenRefreshedListIsEmpty() = runTest(testDispatcher) {
         //Given
         val store = createStore()
@@ -217,7 +240,7 @@ class AnimeFavoritesExecutorImplTest {
     }
 
     @Test
-    fun openSectionPublishesResetExtraInfoButNotUpdateSection() = runTest(testDispatcher) {
+    fun openSectionPublishesNoLabels() = runTest(testDispatcher) {
         //Given
         val store = createStore()
         val emittedLabels = mutableListOf<AnimeFavoritesMainStore.Label>()
@@ -227,10 +250,9 @@ class AnimeFavoritesExecutorImplTest {
         store.accept(AnimeFavoritesMainStore.Intent.OpenSection)
 
         //Then
-        assertEquals(
-            listOf<AnimeFavoritesMainStore.Label>(AnimeFavoritesMainStore.Label.ResetExtraInfo),
-            emittedLabels
-        )
+        // The database reset for a section open is triggered directly by
+        // NavAnimeFavoritesScreenComponent, not through a label here — see its own KDoc for why.
+        assertTrue(emittedLabels.isEmpty(), "Expected no labels, got $emittedLabels")
         collectJob.cancel()
     }
 

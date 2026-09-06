@@ -53,10 +53,16 @@ class NavAnimeFavoritesScreenComponent(
      * Opens the section unless process death happened while it was already open — in that one
      * case its extra-info display state should survive, not reset. Every other way of arriving
      * here (bottom-nav switch, deep link) always resets.
+     *
+     * Resets [animeDatabaseStore] directly rather than through [mainStore]'s
+     * `Label.ResetExtraInfo`: that label only reaches [animeDatabaseStore] once
+     * `AnimeFavoritesController`'s binder has attached, which — called this early, right after
+     * the controller is constructed — isn't guaranteed yet.
      */
     fun openSectionUnlessRestored() {
         if (!wasRestoredFromProcessDeath) {
             mainStore.accept(AnimeFavoritesMainStore.Intent.OpenSection)
+            animeDatabaseStore.accept(AnimeDatabaseStore.Intent.ResetAllItemsExtraInfo)
         }
     }
 
