@@ -87,6 +87,11 @@ class AnimeFavoritesExecutorImpl(
             )
         )
         dispatch(
+            AnimeFavoritesMainStore.Message.UpdateEnabledExtraInfoIds(
+                enabledExtraInfoIds = setOf()
+            )
+        )
+        dispatch(
             AnimeFavoritesMainStore.Message.UpdateFetchedAnimeDetailsIds(
                 fetchedAnimeDetailsIds = setOf()
             )

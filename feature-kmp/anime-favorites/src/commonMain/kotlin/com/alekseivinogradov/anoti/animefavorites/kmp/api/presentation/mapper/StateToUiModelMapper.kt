@@ -35,7 +35,10 @@ private fun getListItemsUi(state: AnimeFavoritesMainStore.State): ImmutableList<
             availableEpisodesInfo = getAvailableEpisodesInfo(listItemDomain),
             releaseStatus = mapReleaseStatusDomainToUi(listItemDomain.releaseStatus),
             notification = NotificationUi.ENABLED,
-            extraEpisodesInfo = getExtraEpisodesInfo(listItemDomain),
+            extraEpisodesInfo = getExtraEpisodesInfo(
+                listItemDomain = listItemDomain,
+                fetchedAnimeDetailsIds = state.fetchedAnimeDetailsIds
+            ),
             episodesViewed = listItemDomain.episodesViewed.toString(),
             isNewEpisode = listItemDomain.isNewEpisode
         )
@@ -78,9 +81,19 @@ private fun mapReleaseStatusDomainToUi(releaseStatus: ReleaseStatusDomain): Rele
     }
 }
 
-private fun getExtraEpisodesInfo(listItemDomain: ListItemDomain): String? {
+private fun getExtraEpisodesInfo(
+    listItemDomain: ListItemDomain,
+    fetchedAnimeDetailsIds: Set<AnimeId>
+): String? {
     return when (listItemDomain.releaseStatus) {
-        ReleaseStatusDomain.ONGOING -> listItemDomain.nextEpisodeAt
+        // Gated on fetchedAnimeDetailsIds, not read unconditionally. nextEpisodeAt is a
+        // database column, so it survives a section refresh on its own. Without this gate,
+        // resetting fetchedAnimeDetailsIds on refresh would have no visible effect — the old
+        // value would keep showing until a fresh fetch completes.
+        ReleaseStatusDomain.ONGOING -> {
+            listItemDomain.nextEpisodeAt.takeIf { fetchedAnimeDetailsIds.contains(listItemDomain.id) }
+        }
+
         ReleaseStatusDomain.ANNOUNCED -> listItemDomain.airedOn
         ReleaseStatusDomain.RELEASED -> listItemDomain.releasedOn
         ReleaseStatusDomain.UNKNOWN -> null

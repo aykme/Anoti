@@ -13,9 +13,11 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
+import com.arkivanov.mvikotlin.extensions.coroutines.states
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
@@ -49,6 +51,14 @@ class AnimeFavoritesExecutorImplTest {
         }
     }
 
+    private class FakeDetailsSource(
+        private val item: ListItemDomain
+    ) : AnimeFavoritesSource {
+        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
+            return CallResult.Success(item)
+        }
+    }
+
     private object NoOpBackgroundUpdateUsecase : UpdateAllAnimeInBackgroundOnceUsecase {
         override fun execute() = Unit
     }
@@ -71,13 +81,15 @@ class AnimeFavoritesExecutorImplTest {
         )
     }
 
-    private fun createStore(): AnimeFavoritesMainStore {
+    private fun createStore(
+        source: AnimeFavoritesSource = NoOpSource
+    ): AnimeFavoritesMainStore {
         val coroutineContextProvider = object : CoroutineContextProviderBase() {
             override val exceptionHandlerCallback: (Throwable) -> Unit = {}
         }
         val usecases = FavoritesUsecases(
             updateAllAnimeInBackgroundOnceUsecase = NoOpBackgroundUpdateUsecase,
-            fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(NoOpSource)
+            fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)
         )
         val toastProvider = ToastProvider(
             makeConnectionErrorToast = {},
@@ -152,6 +164,26 @@ class AnimeFavoritesExecutorImplTest {
 
         //Then
         assertEquals(ContentTypeDomain.EMPTY, store.state.contentType)
+    }
+
+    @Test
+    fun updateSectionResetsEnabledExtraInfoIdsAndFetchedAnimeDetailsIds() = runTest(testDispatcher) {
+        //Given
+        val item = testListItem()
+        val fetchedItem = item.copy(nextEpisodeAt = "2026-09-10T12:00:00Z")
+        val store = createStore(source = FakeDetailsSource(fetchedItem))
+        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
+        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
+        store.states.first { it.fetchedAnimeDetailsIds.contains(item.id) }
+        assertEquals(setOf(item.id), store.state.enabledExtraInfoIds)
+        assertEquals(setOf(item.id), store.state.fetchedAnimeDetailsIds)
+
+        //When
+        store.accept(AnimeFavoritesMainStore.Intent.UpdateSection)
+
+        //Then
+        assertEquals(emptySet(), store.state.enabledExtraInfoIds)
+        assertEquals(emptySet(), store.state.fetchedAnimeDetailsIds)
     }
 
     @Test
