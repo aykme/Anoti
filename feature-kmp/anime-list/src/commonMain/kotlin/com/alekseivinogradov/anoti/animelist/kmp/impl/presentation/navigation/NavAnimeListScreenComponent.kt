@@ -84,18 +84,20 @@ internal data class RestoredMainState(
 )
 
 /**
- * Dispatches straight to [announcedSectionStore]/[searchSectionStore] (and, for the scroll-reset
- * flag, straight to [mainStore]) rather than through the section stores' own
- * `OpenAnnouncedSection`/`OpenSearchSection`/`ResetListPositionAfterUpdate` labels: those labels
- * are only delivered once `AnimeListController`'s binder has started collecting the publishing
- * store's `labels`, which (`BuilderBinder.start()`) launches via `GlobalScope.launch(mainContext)`
- * — a real, asynchronous dispatch, not something guaranteed to have happened by the time this
- * runs. A label published before that collector attaches is silently dropped. Dispatching
- * directly to the target store has no such ordering requirement. `mainStore`'s own
- * selected-section/search-text UI state is still updated through its normal click intents,
- * synchronously. The ongoing section needs no replay: it's the default selection, and
- * [OngoingSectionStore] already bootstraps its own content on creation regardless of this
- * restore.
+ * Dispatches straight to [announcedSectionStore]/[searchSectionStore] rather than through the
+ * section stores' own `OpenAnnouncedSection`/`OpenSearchSection` labels: those labels are only
+ * delivered once `AnimeListController`'s binder has started collecting the publishing store's
+ * `labels`, which (`BuilderBinder.start()`) launches via `GlobalScope.launch(mainContext)` — a
+ * real, asynchronous dispatch, not something guaranteed to have happened by the time this runs. A
+ * label published before that collector attaches is silently dropped. Dispatching directly to the
+ * target store has no such ordering requirement. `mainStore`'s own selected-section/search-text UI
+ * state is still updated through its normal click intents, synchronously. The ongoing section
+ * needs no replay: it's the default selection, and [OngoingSectionStore] already bootstraps its
+ * own content on creation regardless of this restore.
+ *
+ * Never forces [AnimeListMainStore.Intent.ChangeResetListPositionFlag]: the list's scroll offset
+ * is restored independently by Compose's own saved-state mechanism, and forcing a reset here would
+ * discard it.
  *
  * @param restoredState the saved snapshot, or `null` on a fresh (non-restored) start.
  */
@@ -110,21 +112,14 @@ internal fun applyRestoredMainState(
         SectionHatDomain.ANNOUNCED -> {
             mainStore.accept(AnimeListMainStore.Intent.AnnouncedSectionClick)
             announcedSectionStore.accept(AnnouncedSectionStore.Intent.OpenSection)
-            mainStore.accept(
-                AnimeListMainStore.Intent.ChangeResetListPositionFlag(
-                    isNeedToResetListPosition = true
-                )
-            )
         }
 
         SectionHatDomain.SEARCH -> {
             mainStore.accept(AnimeListMainStore.Intent.SearchSectionClick)
-            searchSectionStore.accept(SearchSectionStore.Intent.OpenSection)
-            mainStore.accept(
-                AnimeListMainStore.Intent.ChangeResetListPositionFlag(
-                    isNeedToResetListPosition = true
-                )
-            )
+            // Search text must be applied before OpenSection: SearchSectionStore seeds its
+            // debounced search flow from the current search text the moment OpenSection runs, so
+            // restoring the text first means that first load already fetches the restored query
+            // instead of blank results.
             if (restoredState.searchText.isNotBlank()) {
                 mainStore.accept(
                     AnimeListMainStore.Intent.ChangeSearchText(restoredState.searchText)
@@ -133,6 +128,7 @@ internal fun applyRestoredMainState(
                     SearchSectionStore.Intent.ChangeSearchText(restoredState.searchText)
                 )
             }
+            searchSectionStore.accept(SearchSectionStore.Intent.OpenSection)
         }
 
         SectionHatDomain.ONGOINGS -> Unit

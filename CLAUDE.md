@@ -75,6 +75,19 @@ Read this before doing any task in this repository.
   (a `Fragment`, a `View`) often has no remaining reason to stay platform-specific and should
   move to `commonMain` as part of that same task, not be left behind.
 
+## MVI stores
+
+- Executors are pure orchestration. Any mutable data that reflects real application state (a
+  flag, a counter, a "has this happened before" marker) must live in the Store's `State`, changed
+  only through a `Message`/reducer — never as a bare `private var` field on the Executor.
+- A `private var` on an Executor is acceptable only for non-observable coroutine plumbing that
+  isn't itself application state (a `Job` handle, a `MutableStateFlow` used to debounce/trigger
+  work, a `Paginator` instance) — never for anything the reducer or UI would otherwise need to
+  reason about.
+- When a decision needs "has this already happened", derive it from an existing `State` field
+  (e.g. a `contentType` still at its untouched default) instead of introducing a dedicated
+  tracking property for that one case.
+
 ## Compose design tokens (Dimens/Fonts/Colors/Const)
 
 - Shared Compose UI constants live in typed files by kind: `Dimens.kt` (sizes, spacing,

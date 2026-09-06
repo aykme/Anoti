@@ -185,7 +185,7 @@ class ApplyRestoredMainStateTest {
         //Then
         assertEquals(SectionHatDomain.ANNOUNCED, mainStore.state.selectedSection)
         assertEquals(ContentTypeDomain.LOADED, announcedStore.state.sectionContent.contentType)
-        assertEquals(true, mainStore.state.isNeedToResetListPositon)
+        assertEquals(false, mainStore.state.isNeedToResetListPositon)
     }
 
     @Test
@@ -207,7 +207,7 @@ class ApplyRestoredMainStateTest {
         assertEquals(SectionHatDomain.SEARCH, mainStore.state.selectedSection)
         assertEquals("totoro", mainStore.state.search.searchText)
         assertEquals("totoro", searchStore.state.searchText)
-        assertEquals(true, mainStore.state.isNeedToResetListPositon)
+        assertEquals(false, mainStore.state.isNeedToResetListPositon)
     }
 
     @Test
@@ -228,6 +228,6 @@ class ApplyRestoredMainStateTest {
         //Then
         assertEquals(SectionHatDomain.SEARCH, mainStore.state.selectedSection)
         assertEquals("", searchStore.state.searchText)
-        assertEquals(true, mainStore.state.isNeedToResetListPositon)
+        assertEquals(false, mainStore.state.isNeedToResetListPositon)
     }
 }

@@ -19,6 +19,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -65,24 +66,29 @@ class SearchSectionExecutorImpl(
 
     private fun openSection() {
         publish(SearchSectionStore.Label.ResetListPositionAfterUpdate)
-        subscribeSearchFlowIfNeeded()
-    }
-
-    @OptIn(FlowPreview::class)
-    private fun subscribeSearchFlowIfNeeded() {
         if (searchFlow == null) {
             searchFlow = MutableStateFlow(state().searchText)
         }
+        if (state().sectionContent.contentType != ContentTypeDomain.LOADED) {
+            updateSection(resetListPosition = false)
+        }
+        subscribeToSearchTextChanges()
+    }
+
+    // The flow's current value is the one openSection() just loaded above, so drop(1) skips that
+    // replay and only reacts to a later, genuine edit made through changeSearchText().
+    @OptIn(FlowPreview::class)
+    private fun subscribeToSearchTextChanges() {
         if (changeSearchJob?.isActive == true) return
         changeSearchJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
-            searchFlow?.debounce(SEARCH_DEBOUNCE_MILLISECONDS)
+            searchFlow?.drop(1)?.debounce(SEARCH_DEBOUNCE_MILLISECONDS)
                 ?.collect {
-                    updateSection()
+                    updateSection(resetListPosition = true)
                 }
         }
     }
 
-    private fun updateSection() {
+    private fun updateSection(resetListPosition: Boolean = true) {
         updateSectionJob?.cancel()
         loadNextPageJob?.cancel()
         paginator = createPaginator()
@@ -100,7 +106,9 @@ class SearchSectionExecutorImpl(
                     animeDetails = AnimeDetails()
                 )
             )
-            publish(SearchSectionStore.Label.ResetListPositionAfterUpdate)
+            if (resetListPosition) {
+                publish(SearchSectionStore.Label.ResetListPositionAfterUpdate)
+            }
             when (val result = paginator.loadFirstPage()) {
                 is PageLoadResult.Success -> {
                     dispatch(SearchSectionStore.Message.UpdateListItems(result.items))

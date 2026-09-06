@@ -13,6 +13,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
+import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.extensions.coroutines.states
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlin.test.AfterTest
@@ -23,7 +24,9 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -148,5 +151,72 @@ class SearchSectionExecutorImplTest {
         store.accept(SearchSectionStore.Intent.EpisodesInfoClick(id = item.id))
 
         assertTrue(store.state.sectionContent.enabledExtraEpisodesInfoIds.contains(item.id))
+    }
+
+    @Test
+    fun openSectionsFirstLoadResetsListPositionOnlyOnce() = runTest(testDispatcher) {
+        //Given
+        val item = testListItem(id = 1)
+        val store = createStore(pages = mapOf(1 to CallResult.Success(listOf(item))))
+        val emittedLabels = mutableListOf<SearchSectionStore.Label>()
+        val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
+
+        //When
+        store.accept(SearchSectionStore.Intent.OpenSection)
+        advanceUntilIdle()
+
+        //Then
+        assertEquals(ContentTypeDomain.LOADED, store.state.sectionContent.contentType)
+        assertEquals(
+            listOf<SearchSectionStore.Label>(SearchSectionStore.Label.ResetListPositionAfterUpdate),
+            emittedLabels
+        )
+        collectJob.cancel()
+    }
+
+    @Test
+    fun openSectionWithAlreadyRestoredSearchTextLoadsItWithoutAnExtraReset() = runTest(testDispatcher) {
+        //Given
+        val item = testListItem(id = 1)
+        val store = createStore(pages = mapOf(1 to CallResult.Success(listOf(item))))
+        val emittedLabels = mutableListOf<SearchSectionStore.Label>()
+        val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
+
+        //When
+        store.accept(SearchSectionStore.Intent.ChangeSearchText("Attack on Titan"))
+        store.accept(SearchSectionStore.Intent.OpenSection)
+        advanceUntilIdle()
+
+        //Then
+        assertEquals(listOf(item), store.state.sectionContent.listItems)
+        assertEquals(
+            listOf<SearchSectionStore.Label>(SearchSectionStore.Label.ResetListPositionAfterUpdate),
+            emittedLabels
+        )
+        collectJob.cancel()
+    }
+
+    @Test
+    fun changingSearchTextAfterFirstLoadResetsListPositionAgain() = runTest(testDispatcher) {
+        //Given
+        val item = testListItem(id = 1)
+        val store = createStore(pages = mapOf(1 to CallResult.Success(listOf(item))))
+        store.accept(SearchSectionStore.Intent.OpenSection)
+        advanceUntilIdle()
+        val emittedLabels = mutableListOf<SearchSectionStore.Label>()
+        val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
+
+        //When
+        store.accept(SearchSectionStore.Intent.ChangeSearchText("Attack on Titan"))
+        advanceUntilIdle()
+
+        //Then
+        assertEquals("Attack on Titan", store.state.searchText)
+        assertEquals(ContentTypeDomain.LOADED, store.state.sectionContent.contentType)
+        assertEquals(
+            listOf<SearchSectionStore.Label>(SearchSectionStore.Label.ResetListPositionAfterUpdate),
+            emittedLabels
+        )
+        collectJob.cancel()
     }
 }
