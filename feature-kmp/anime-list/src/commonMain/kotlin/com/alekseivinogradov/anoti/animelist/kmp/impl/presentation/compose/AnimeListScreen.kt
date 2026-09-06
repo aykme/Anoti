@@ -38,7 +38,6 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.AnimeLis
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ContentTypeUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ListContentUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ListItemUi
-import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.SectionHatUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.EpisodesInfoTypeUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.NotificationUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.ReleaseStatusUi
@@ -131,17 +130,7 @@ private fun ListState(
     dateFormatter: DateFormatter,
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
-    // One LazyListState per section so each keeps its own scroll position across section
-    // switches, instead of all three sharing a single raw scroll index/offset that a switch would
-    // otherwise hand off unchanged to whichever section's items now occupy it.
-    val ongoingsListState = rememberLazyListState()
-    val announcedListState = rememberLazyListState()
-    val searchListState = rememberLazyListState()
-    val listState = when (uiModel.selectedSection) {
-        SectionHatUi.ONGOINGS -> ongoingsListState
-        SectionHatUi.ANNOUNCED -> announcedListState
-        SectionHatUi.SEARCH -> searchListState
-    }
+    val listState = rememberLazyListState()
 
     LoadNextPageEffect(listState = listState, dispatch = dispatch)
     ResetListPositionEffect(uiModel = uiModel, listState = listState, dispatch = dispatch)
@@ -160,10 +149,10 @@ private fun ListState(
             // by section keeps those two appearances from ever being treated as one item moving
             // within the same list.
             //
-            // No animateItem() here: switching sections replaces this LazyColumn's entire item
-            // set at once, and animateItem() animates that as every old item exiting while every
-            // new item enters — which visibly renders both sections' items on top of each other
-            // until the animation finishes.
+            // No animateItem() here: switching sections replaces the entire list at once (this
+            // is one LazyColumn shared across sections, not per-section state), and animateItem()
+            // animates that as every old item exiting while every new item enters — which visibly
+            // renders both sections' items on top of each other until the animation finishes.
             items(
                 uiModel.listContent.listItems,
                 key = { "${uiModel.selectedSection.name}_${it.id}" }

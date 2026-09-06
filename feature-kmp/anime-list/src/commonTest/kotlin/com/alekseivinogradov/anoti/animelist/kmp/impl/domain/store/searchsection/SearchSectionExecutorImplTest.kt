@@ -154,7 +154,7 @@ class SearchSectionExecutorImplTest {
     }
 
     @Test
-    fun openSectionsFirstLoadDoesNotResetListPosition() = runTest(testDispatcher) {
+    fun openSectionsFirstLoadResetsListPositionOnlyOnce() = runTest(testDispatcher) {
         //Given
         val item = testListItem(id = 1)
         val store = createStore(pages = mapOf(1 to CallResult.Success(listOf(item))))
@@ -167,12 +167,15 @@ class SearchSectionExecutorImplTest {
 
         //Then
         assertEquals(ContentTypeDomain.LOADED, store.state.sectionContent.contentType)
-        assertEquals(emptyList<SearchSectionStore.Label>(), emittedLabels)
+        assertEquals(
+            listOf<SearchSectionStore.Label>(SearchSectionStore.Label.ResetListPositionAfterUpdate),
+            emittedLabels
+        )
         collectJob.cancel()
     }
 
     @Test
-    fun openSectionWithAlreadyRestoredSearchTextLoadsItWithoutResettingListPosition() = runTest(testDispatcher) {
+    fun openSectionWithAlreadyRestoredSearchTextLoadsItWithoutAnExtraReset() = runTest(testDispatcher) {
         //Given
         val item = testListItem(id = 1)
         val store = createStore(pages = mapOf(1 to CallResult.Success(listOf(item))))
@@ -186,7 +189,10 @@ class SearchSectionExecutorImplTest {
 
         //Then
         assertEquals(listOf(item), store.state.sectionContent.listItems)
-        assertEquals(emptyList<SearchSectionStore.Label>(), emittedLabels)
+        assertEquals(
+            listOf<SearchSectionStore.Label>(SearchSectionStore.Label.ResetListPositionAfterUpdate),
+            emittedLabels
+        )
         collectJob.cancel()
     }
 

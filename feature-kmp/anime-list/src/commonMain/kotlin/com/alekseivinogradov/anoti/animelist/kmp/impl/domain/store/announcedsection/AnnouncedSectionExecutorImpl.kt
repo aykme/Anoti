@@ -40,6 +40,7 @@ class AnnouncedSectionExecutorImpl(
     }
 
     private fun openSection() {
+        publish(AnnouncedSectionStore.Label.ResetListPositionAfterUpdate)
         if (state().sectionContent.contentType != ContentTypeDomain.LOADED) {
             updateSection()
         }
