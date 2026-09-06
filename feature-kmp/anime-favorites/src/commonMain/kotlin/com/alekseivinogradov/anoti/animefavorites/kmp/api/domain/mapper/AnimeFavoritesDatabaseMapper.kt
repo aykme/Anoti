@@ -17,7 +17,8 @@ internal fun ListItemDomain.toDb() = AnimeDbDomain(
     score = this.score,
     releaseStatus = mapReleaseStatusDomainToDb(this.releaseStatus),
     episodesViewed = this.episodesViewed,
-    isNewEpisode = this.isNewEpisode
+    isNewEpisode = this.isNewEpisode,
+    isExtraInfoEnabled = this.isExtraInfoEnabled
 )
 
 internal fun AnimeDbDomain.toDomain() = ListItemDomain(
@@ -32,7 +33,8 @@ internal fun AnimeDbDomain.toDomain() = ListItemDomain(
     score = this.score,
     releaseStatus = mapReleaseStatusDbToDomain(this.releaseStatus),
     episodesViewed = this.episodesViewed,
-    isNewEpisode = this.isNewEpisode
+    isNewEpisode = this.isNewEpisode,
+    isExtraInfoEnabled = this.isExtraInfoEnabled
 )
 
 private fun mapReleaseStatusDomainToDb(releaseStatus: ReleaseStatusDomain): ReleaseStatusDb {

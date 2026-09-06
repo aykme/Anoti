@@ -15,7 +15,8 @@ internal fun AnimeDbDomain.toDb() = AnimeDbEntity(
     score = this.score,
     releaseStatus = this.releaseStatus,
     episodesViewed = this.episodesViewed,
-    isNewEpisode = this.isNewEpisode
+    isNewEpisode = this.isNewEpisode,
+    isExtraInfoEnabled = this.isExtraInfoEnabled
 )
 
 internal fun AnimeDbEntity.toDomain() = AnimeDbDomain(
@@ -30,5 +31,6 @@ internal fun AnimeDbEntity.toDomain() = AnimeDbDomain(
     score = this.score,
     releaseStatus = this.releaseStatus,
     episodesViewed = this.episodesViewed,
-    isNewEpisode = this.isNewEpisode
+    isNewEpisode = this.isNewEpisode,
+    isExtraInfoEnabled = this.isExtraInfoEnabled
 )

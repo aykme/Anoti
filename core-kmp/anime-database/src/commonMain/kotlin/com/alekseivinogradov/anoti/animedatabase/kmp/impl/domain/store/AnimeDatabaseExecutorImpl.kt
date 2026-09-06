@@ -18,6 +18,7 @@ class AnimeDatabaseExecutorImpl(
     private val insertDatabaseItemsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
     private val deleteDatabaseItemsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
     private var resetAllItemsNewEpisodeStatusJob: Job? = null
+    private var resetAllItemsExtraInfoJob: Job? = null
     private val changeItemNewEpisodeStatusJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
     private val updateItemJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
 
@@ -47,6 +48,10 @@ class AnimeDatabaseExecutorImpl(
 
             is AnimeDatabaseStore.Intent.UpdateAnimeDatabaseItem -> {
                 updateAnimeDatabaseItem(intent)
+            }
+
+            AnimeDatabaseStore.Intent.ResetAllItemsExtraInfo -> {
+                resetAllItemsExtraInfo()
             }
         }
     }
@@ -127,6 +132,13 @@ class AnimeDatabaseExecutorImpl(
             scope.launch(coroutineContextProvider.mainCoroutineContext) {
                 usecases.updateAnimeDatabaseItemUsecase.execute(intent.animeDatabaseItem)
             }
+    }
+
+    private fun resetAllItemsExtraInfo() {
+        if (resetAllItemsExtraInfoJob?.isActive == true) return
+        resetAllItemsExtraInfoJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+            usecases.resetAllAnimeDatabaseItemsExtraInfoUsecase.execute()
+        }
     }
 
     private fun databaseContainsItem(id: AnimeId): Boolean {

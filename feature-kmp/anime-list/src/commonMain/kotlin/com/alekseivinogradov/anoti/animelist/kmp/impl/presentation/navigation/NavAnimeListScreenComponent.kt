@@ -1,12 +1,14 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation
 
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SearchDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SectionHatDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsection.AnnouncedSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.ongoingsection.OngoingSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.SearchSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.impl.di.DiAnimeListComponent
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.arkivanov.decompose.ComponentContext
@@ -44,7 +46,28 @@ class NavAnimeListScreenComponent(
             val state = mainStore.state
             RestoredMainState(
                 selectedSection = state.selectedSection,
-                searchText = state.search.searchText
+                searchType = state.search.type,
+                searchText = state.search.searchText,
+                ongoing = ongoingSectionStore.state.sectionContent.let {
+                    RestoredSectionState(
+                        itemCount = it.listItems.size,
+                        enabledExtraEpisodesInfoIds = it.enabledExtraEpisodesInfoIds,
+                        nextEpisodesInfo = it.animeDetails.nextEpisodesInfo
+                    )
+                },
+                announced = announcedSectionStore.state.sectionContent.let {
+                    RestoredSectionState(
+                        itemCount = it.listItems.size,
+                        enabledExtraEpisodesInfoIds = it.enabledExtraEpisodesInfoIds
+                    )
+                },
+                search = searchSectionStore.state.sectionContent.let {
+                    RestoredSectionState(
+                        itemCount = it.listItems.size,
+                        enabledExtraEpisodesInfoIds = it.enabledExtraEpisodesInfoIds,
+                        nextEpisodesInfo = it.animeDetails.nextEpisodesInfo
+                    )
+                }
             )
         }
 
@@ -82,7 +105,26 @@ class NavAnimeListScreenComponent(
 @Serializable
 internal data class RestoredMainState(
     val selectedSection: SectionHatDomain,
-    val searchText: String
+    val searchType: SearchDomain.Type,
+    val searchText: String,
+    val ongoing: RestoredSectionState,
+    val announced: RestoredSectionState,
+    val search: RestoredSectionState
+)
+
+/**
+ * A section's saved snapshot: how many items it had loaded, and its display state.
+ *
+ * @param itemCount how many items were loaded before restore.
+ * @param enabledExtraEpisodesInfoIds ids that were showing the extra episode-info variant.
+ * @param nextEpisodesInfo next-episode air date/time by anime id, already fetched before restore.
+ * Always empty for the announced section, which never fetches this.
+ */
+@Serializable
+internal data class RestoredSectionState(
+    val itemCount: Int,
+    val enabledExtraEpisodesInfoIds: Set<AnimeId>,
+    val nextEpisodesInfo: Map<AnimeId, String?> = mapOf()
 )
 
 /**
@@ -108,6 +150,13 @@ internal data class RestoredMainState(
  * while on the search section survives switching to another section, so it must still reach
  * [searchSectionStore] even when a different section is the one being restored as selected.
  *
+ * Each section's display state ([RestoredSectionState]) is replayed into that section's own
+ * store regardless of which section ends up selected. Applying it is a pure state update with no
+ * network call, so there's no cost to doing it for a section the user hasn't switched back to
+ * yet. And [OngoingSectionStore.Intent.OpenSection] and its Announced/Search equivalents already
+ * use each store's own [RestoredSectionState] to page in the right number of items once that
+ * section actually opens, whether that's right now or from a later manual tap.
+ *
  * @param restoredState the saved snapshot, or `null` on a fresh (non-restored) start.
  */
 internal fun applyRestoredMainState(
@@ -117,6 +166,29 @@ internal fun applyRestoredMainState(
     announcedSectionStore: AnnouncedSectionStore,
     searchSectionStore: SearchSectionStore
 ) {
+    if (restoredState != null) {
+        ongoingSectionStore.accept(
+            OngoingSectionStore.Intent.RestoreSection(
+                itemCount = restoredState.ongoing.itemCount,
+                enabledExtraEpisodesInfoIds = restoredState.ongoing.enabledExtraEpisodesInfoIds,
+                nextEpisodesInfo = restoredState.ongoing.nextEpisodesInfo
+            )
+        )
+        announcedSectionStore.accept(
+            AnnouncedSectionStore.Intent.RestoreSection(
+                itemCount = restoredState.announced.itemCount,
+                enabledExtraEpisodesInfoIds = restoredState.announced.enabledExtraEpisodesInfoIds
+            )
+        )
+        searchSectionStore.accept(
+            SearchSectionStore.Intent.RestoreSection(
+                itemCount = restoredState.search.itemCount,
+                enabledExtraEpisodesInfoIds = restoredState.search.enabledExtraEpisodesInfoIds,
+                nextEpisodesInfo = restoredState.search.nextEpisodesInfo
+            )
+        )
+    }
+
     val selectedSection = restoredState?.selectedSection ?: SectionHatDomain.ONGOINGS
     when (selectedSection) {
         SectionHatDomain.ONGOINGS -> {
@@ -145,5 +217,11 @@ internal fun applyRestoredMainState(
 
     if (selectedSection == SectionHatDomain.SEARCH) {
         searchSectionStore.accept(SearchSectionStore.Intent.OpenSection)
+        // SearchSectionClick above always leaves the search bar SHOWN. The bar can be hidden
+        // independently of the selected section (the user can cancel it without leaving the
+        // section), so a restored HIDDEN state must be reapplied on top of that default.
+        if (restoredState?.searchType == SearchDomain.Type.HIDDEN) {
+            mainStore.accept(AnimeListMainStore.Intent.CancelSearchClick)
+        }
     }
 }

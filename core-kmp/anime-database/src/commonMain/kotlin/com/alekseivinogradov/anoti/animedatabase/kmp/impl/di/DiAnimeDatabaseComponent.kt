@@ -7,6 +7,7 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.DeleteAn
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsFlowUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.InsertAnimeDatabaseItemUsecase
+import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ResetAllAnimeDatabaseItemsExtraInfoUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.wrapper.AnimeDatabaseUsecases
@@ -19,6 +20,7 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.DeleteA
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.FetchAllAnimeDatabaseItemsFlowUsecaseImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.FetchAllAnimeDatabaseItemsUsecaseImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.InsertAnimeDatabaseItemUsecaseImpl
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.ResetAllAnimeDatabaseItemsExtraInfoUsecaseImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecaseImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.UpdateAnimeDatabaseItemUsecaseImpl
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
@@ -75,6 +77,12 @@ interface DiAnimeDatabaseComponent {
     ): ChangeAnimeDatabaseItemNewEpisodeStatusUsecase =
         ChangeAnimeDatabaseItemNewEpisodeStatusUsecaseImpl(repository)
 
+    @Provides
+    fun provideResetAllAnimeDatabaseItemsExtraInfoUsecase(
+        repository: AnimeDatabaseRepository
+    ): ResetAllAnimeDatabaseItemsExtraInfoUsecase =
+        ResetAllAnimeDatabaseItemsExtraInfoUsecaseImpl(repository)
+
     // One parameter per AnimeDatabaseUsecases field being wired up, not incidental parameter creep.
     @Suppress("LongParameterList")
     @Provides
@@ -84,14 +92,16 @@ interface DiAnimeDatabaseComponent {
         deleteAnimeDatabaseItemUsecase: DeleteAnimeDatabaseItemUsecase,
         resetAllAnimeDatabaseItemsNewEpisodeStatusUsecase: ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecase,
         changeAnimeDatabaseItemNewEpisodeStatusUsecase: ChangeAnimeDatabaseItemNewEpisodeStatusUsecase,
-        updateAnimeDatabaseItemUsecase: UpdateAnimeDatabaseItemUsecase
+        updateAnimeDatabaseItemUsecase: UpdateAnimeDatabaseItemUsecase,
+        resetAllAnimeDatabaseItemsExtraInfoUsecase: ResetAllAnimeDatabaseItemsExtraInfoUsecase
     ): AnimeDatabaseUsecases = AnimeDatabaseUsecases(
         fetchAllAnimeDatabaseItemsFlowUsecase = fetchAllAnimeDatabaseItemsFlowUsecase,
         insertAnimeDatabaseItemUsecase = insertAnimeDatabaseItemUsecase,
         deleteAnimeDatabaseItemUsecase = deleteAnimeDatabaseItemUsecase,
         resetAllAnimeDatabaseItemsNewEpisodeStatusUsecase = resetAllAnimeDatabaseItemsNewEpisodeStatusUsecase,
         changeAnimeDatabaseItemNewEpisodeStatusUsecase = changeAnimeDatabaseItemNewEpisodeStatusUsecase,
-        updateAnimeDatabaseItemUsecase = updateAnimeDatabaseItemUsecase
+        updateAnimeDatabaseItemUsecase = updateAnimeDatabaseItemUsecase,
+        resetAllAnimeDatabaseItemsExtraInfoUsecase = resetAllAnimeDatabaseItemsExtraInfoUsecase
     )
 
     @Provides

@@ -36,4 +36,11 @@ interface AnimeDao {
 
     @Query("UPDATE $ANIME_TABLE_NAME SET is_new_episode = :isNewEpisode WHERE id =:id")
     suspend fun changeItemNewEpisodeStatus(id: AnimeId, isNewEpisode: Boolean)
+
+    /**
+     * No using Boolean params in "Query",
+     * otherwise there will be a crash on older versions of android
+     */
+    @Query("UPDATE $ANIME_TABLE_NAME SET is_extra_info_enabled = 0, next_episode_at = NULL")
+    suspend fun resetAllItemsExtraInfo()
 }

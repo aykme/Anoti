@@ -2,6 +2,7 @@ package com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.searchsectio
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.FIRST_PAGE
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.RESTORED_SECTION_MAX_ITEM_COUNT
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.SEARCH_DEBOUNCE_MILLISECONDS
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
@@ -47,6 +48,7 @@ class SearchSectionExecutorImpl(
             is SearchSectionStore.Intent.ChangeSearchText -> changeSearchText(intent)
 
             is SearchSectionStore.Intent.EpisodesInfoClick -> episodeInfoClick(intent)
+            is SearchSectionStore.Intent.RestoreSection -> restoreSection(intent)
         }
     }
 
@@ -69,9 +71,61 @@ class SearchSectionExecutorImpl(
             searchFlow = MutableStateFlow(state().searchText)
         }
         if (state().sectionContent.contentType != ContentTypeDomain.LOADED) {
-            updateSection(resetListPosition = false)
+            val restoreTargetItemCount = state().restoreTargetItemCount
+            if (restoreTargetItemCount != null) {
+                restoreSectionContent(restoreTargetItemCount)
+            } else {
+                updateSection(resetListPosition = false)
+            }
         }
         subscribeToSearchTextChanges()
+    }
+
+    private fun restoreSection(intent: SearchSectionStore.Intent.RestoreSection) {
+        dispatch(
+            SearchSectionStore.Message.RestoreSection(
+                itemCount = intent.itemCount,
+                enabledExtraEpisodesInfoIds = intent.enabledExtraEpisodesInfoIds,
+                nextEpisodesInfo = intent.nextEpisodesInfo
+            )
+        )
+    }
+
+    // Never resets enabledExtraEpisodesInfoIds/animeDetails: RestoreSection just seeded them, and
+    // this call, from OpenSection, must page in enough items without disturbing that state.
+    private fun restoreSectionContent(targetItemCount: Int) {
+        updateSectionJob?.cancel()
+        loadNextPageJob?.cancel()
+        paginator = createPaginator()
+        val cappedTarget = minOf(targetItemCount, RESTORED_SECTION_MAX_ITEM_COUNT)
+        updateSectionJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+            dispatch(SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING))
+            var items = listOf<ListItemDomain>()
+            var pageResult: PageLoadResult<ListItemDomain>? = paginator.loadFirstPage()
+            while (pageResult is PageLoadResult.Success) {
+                items = items + pageResult.items
+                if (items.size >= cappedTarget || pageResult.items.isEmpty()) break
+                pageResult = paginator.loadNextPage()
+            }
+            when (pageResult) {
+                is PageLoadResult.Error -> {
+                    toastProvider.makeConnectionErrorToast()
+                    dispatch(SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR))
+                    return@launch
+                }
+
+                is PageLoadResult.UnexpectedError -> {
+                    toastProvider.makeUnknownErrorToast()
+                    dispatch(SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR))
+                    return@launch
+                }
+
+                else -> Unit
+            }
+            dispatch(SearchSectionStore.Message.UpdateListItems(items))
+            dispatch(SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADED))
+            dispatch(SearchSectionStore.Message.ClearRestoreTargetItemCount)
+        }
     }
 
     // The flow's current value is the one openSection() just loaded above, so drop(1) skips that

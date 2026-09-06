@@ -20,5 +20,7 @@ data class AnimeDbEntity(
     @ColumnInfo(name = "score") val score: Float?,
     @ColumnInfo(name = "release_status") val releaseStatus: ReleaseStatusDb,
     @ColumnInfo(name = "episodes_viewed") val episodesViewed: Int,
-    @ColumnInfo(name = "is_new_episode") val isNewEpisode: Boolean
+    @ColumnInfo(name = "is_new_episode") val isNewEpisode: Boolean,
+    @ColumnInfo(name = "is_extra_info_enabled", defaultValue = "0")
+    val isExtraInfoEnabled: Boolean = false
 )

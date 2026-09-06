@@ -27,6 +27,8 @@ class AnimeDatabaseContinuityTest {
         assertEquals(42, item.id)
         assertEquals("One Piece", item.name)
         assertEquals(true, item.isNewEpisode)
+        // Migrated from a pre-existing column-less row: the ADD COLUMN default applies.
+        assertEquals(false, item.isExtraInfoEnabled)
     }
 
     private fun seedLegacyDatabaseFile(path: String) {

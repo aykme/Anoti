@@ -36,4 +36,8 @@ class AnimeDaoFake : AnimeDao {
             if (it.id == id) it.copy(isNewEpisode = isNewEpisode) else it
         }
     }
+
+    override suspend fun resetAllItemsExtraInfo() {
+        items.value = items.value.map { it.copy(isExtraInfoEnabled = false, nextEpisodeAt = null) }
+    }
 }

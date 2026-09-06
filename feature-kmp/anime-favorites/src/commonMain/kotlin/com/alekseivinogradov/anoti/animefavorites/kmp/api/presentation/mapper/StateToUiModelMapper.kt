@@ -10,7 +10,6 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.ite
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.ListItemUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.NotificationUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.ReleaseStatusUi
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toPersistentList
 
@@ -27,26 +26,20 @@ private fun getListItemsUi(state: AnimeFavoritesMainStore.State): ImmutableList<
             id = listItemDomain.id,
             imageUrl = listItemDomain.imageUrl,
             score = listItemDomain.score?.toString().orEmpty(),
-            infoType = getInfoTypeUi(
-                id = listItemDomain.id,
-                enabledExtraInfoIds = state.enabledExtraInfoIds
-            ),
+            infoType = getInfoTypeUi(listItemDomain),
             name = listItemDomain.name,
             availableEpisodesInfo = getAvailableEpisodesInfo(listItemDomain),
             releaseStatus = mapReleaseStatusDomainToUi(listItemDomain.releaseStatus),
             notification = NotificationUi.ENABLED,
-            extraEpisodesInfo = getExtraEpisodesInfo(
-                listItemDomain = listItemDomain,
-                fetchedAnimeDetailsIds = state.fetchedAnimeDetailsIds
-            ),
+            extraEpisodesInfo = getExtraEpisodesInfo(listItemDomain),
             episodesViewed = listItemDomain.episodesViewed.toString(),
             isNewEpisode = listItemDomain.isNewEpisode
         )
     }.toPersistentList()
 }
 
-private fun getInfoTypeUi(id: AnimeId, enabledExtraInfoIds: Set<AnimeId>): InfoTypeUi {
-    return if (enabledExtraInfoIds.contains(id)) {
+private fun getInfoTypeUi(listItemDomain: ListItemDomain): InfoTypeUi {
+    return if (listItemDomain.isExtraInfoEnabled) {
         InfoTypeUi.EXTRA
     } else {
         InfoTypeUi.MAIN
@@ -81,19 +74,9 @@ private fun mapReleaseStatusDomainToUi(releaseStatus: ReleaseStatusDomain): Rele
     }
 }
 
-private fun getExtraEpisodesInfo(
-    listItemDomain: ListItemDomain,
-    fetchedAnimeDetailsIds: Set<AnimeId>
-): String? {
+private fun getExtraEpisodesInfo(listItemDomain: ListItemDomain): String? {
     return when (listItemDomain.releaseStatus) {
-        // Gated on fetchedAnimeDetailsIds, not read unconditionally. nextEpisodeAt is a
-        // database column, so it survives a section refresh on its own. Without this gate,
-        // resetting fetchedAnimeDetailsIds on refresh would have no visible effect — the old
-        // value would keep showing until a fresh fetch completes.
-        ReleaseStatusDomain.ONGOING -> {
-            listItemDomain.nextEpisodeAt.takeIf { fetchedAnimeDetailsIds.contains(listItemDomain.id) }
-        }
-
+        ReleaseStatusDomain.ONGOING -> listItemDomain.nextEpisodeAt
         ReleaseStatusDomain.ANNOUNCED -> listItemDomain.airedOn
         ReleaseStatusDomain.RELEASED -> listItemDomain.releasedOn
         ReleaseStatusDomain.UNKNOWN -> null

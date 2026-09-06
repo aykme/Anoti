@@ -31,6 +31,7 @@ class AnimeFavoritesExecutorImpl(
         when (intent) {
             is AnimeFavoritesMainStore.Intent.UpdateListItems -> updateListItems(intent)
             is AnimeFavoritesMainStore.Intent.ItemsSubmittedToList -> itemsSubmittedToList()
+            AnimeFavoritesMainStore.Intent.OpenSection -> openSection()
             AnimeFavoritesMainStore.Intent.UpdateSection -> updateSection()
             AnimeFavoritesMainStore.Intent.UpdateAllItemsInBackground -> {
                 updateAllItemsInBackground()
@@ -71,10 +72,24 @@ class AnimeFavoritesExecutorImpl(
 
     private fun itemsSubmittedToList() {
         val contentType = state().contentType
-        if (contentType is ContentTypeDomain.LOADING && contentType.isSwipeToRefresh) return
+        if (contentType is ContentTypeDomain.LOADING && contentType.hasMinimumDuration) return
         if (contentType != ContentTypeDomain.LOADED) {
             dispatch(AnimeFavoritesMainStore.Message.ChangeContentType(ContentTypeDomain.LOADED))
         }
+    }
+
+    // The section became selected: not a data refresh, just resets any leftover extra-info
+    // display state so it doesn't survive from before, on the same minimum-duration timer as
+    // updateSection() so opening the screen doesn't flash faster than a manual refresh does.
+    private fun openSection() {
+        updateListItemsJob?.cancel()
+        dispatch(
+            AnimeFavoritesMainStore.Message.ChangeContentType(
+                ContentTypeDomain.LOADING(hasMinimumDuration = true)
+            )
+        )
+        publish(AnimeFavoritesMainStore.Label.ResetExtraInfo)
+        resolveContentTypeAfterMinimumDuration()
     }
 
     private fun updateSection() {
@@ -83,28 +98,22 @@ class AnimeFavoritesExecutorImpl(
         updateListItemsJob?.cancel()
         dispatch(
             AnimeFavoritesMainStore.Message.ChangeContentType(
-                ContentTypeDomain.LOADING(isSwipeToRefresh = true)
+                ContentTypeDomain.LOADING(hasMinimumDuration = true)
             )
         )
-        dispatch(
-            AnimeFavoritesMainStore.Message.UpdateEnabledExtraInfoIds(
-                enabledExtraInfoIds = setOf()
-            )
-        )
-        dispatch(
-            AnimeFavoritesMainStore.Message.UpdateFetchedAnimeDetailsIds(
-                fetchedAnimeDetailsIds = setOf()
-            )
-        )
+        publish(AnimeFavoritesMainStore.Label.ResetExtraInfo)
         publish(AnimeFavoritesMainStore.Label.UpdateSection)
+        resolveContentTypeAfterMinimumDuration()
+    }
 
+    private fun resolveContentTypeAfterMinimumDuration() {
         updateSectionJob?.cancel()
         updateSectionJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
             delay(ANIMATION_DURATION_SHORT)
             // Only resolve if nothing else already has (e.g. updateListItems()'s own
             // LOADING -> EMPTY transition, if the refreshed list turned out empty).
             val contentType = state().contentType
-            if (contentType is ContentTypeDomain.LOADING && contentType.isSwipeToRefresh) {
+            if (contentType is ContentTypeDomain.LOADING && contentType.hasMinimumDuration) {
                 val finalContentType = if (state().listItems.isEmpty()) {
                     ContentTypeDomain.EMPTY
                 } else {
@@ -124,10 +133,14 @@ class AnimeFavoritesExecutorImpl(
     }
 
     private fun infoTypeClick(intent: AnimeFavoritesMainStore.Intent.InfoTypeClick) {
-        if (state().enabledExtraInfoIds.contains(intent.id)) {
-            changeInfoTypeToMain(intent.id)
+        val listItem = state().listItems.find { listItemDomain: ListItemDomain ->
+            listItemDomain.id == intent.id
+        } ?: return
+
+        if (listItem.isExtraInfoEnabled) {
+            changeInfoTypeToMain(listItem)
         } else {
-            changeInfoTypeToExtra(intent.id)
+            changeInfoTypeToExtra(listItem)
         }
     }
 
@@ -173,32 +186,25 @@ class AnimeFavoritesExecutorImpl(
         )
     }
 
-    private fun changeInfoTypeToMain(id: AnimeId) {
-        val newEnabledExtraInfoIds = state().enabledExtraInfoIds
-            .toMutableSet().apply {
-                remove(id)
-            }.toSet()
-
-        dispatch(AnimeFavoritesMainStore.Message.UpdateEnabledExtraInfoIds(newEnabledExtraInfoIds))
+    private fun changeInfoTypeToMain(listItem: ListItemDomain) {
+        publish(
+            AnimeFavoritesMainStore.Label.UpdateListItem(
+                listItem = listItem.copy(isExtraInfoEnabled = false)
+            )
+        )
     }
 
-    private fun changeInfoTypeToExtra(id: AnimeId) {
-        val newEnabledExtraInfoIds = state().enabledExtraInfoIds
-            .toMutableSet().apply {
-                add(id)
-            }.toSet()
-
-        dispatch(AnimeFavoritesMainStore.Message.UpdateEnabledExtraInfoIds(newEnabledExtraInfoIds))
-
-        val state = state()
-        val listItem = state.listItems.find { listItemDomain: ListItemDomain ->
-            listItemDomain.id == id
-        } ?: return
+    private fun changeInfoTypeToExtra(listItem: ListItemDomain) {
+        publish(
+            AnimeFavoritesMainStore.Label.UpdateListItem(
+                listItem = listItem.copy(isExtraInfoEnabled = true)
+            )
+        )
 
         val isOngoingStatus = listItem.releaseStatus == ReleaseStatusDomain.ONGOING
 
-        if (isOngoingStatus && !state.fetchedAnimeDetailsIds.contains(id)) {
-            updateAnimeDetails(id)
+        if (isOngoingStatus && listItem.nextEpisodeAt == null) {
+            updateAnimeDetails(listItem.id)
         }
     }
 
@@ -228,20 +234,10 @@ class AnimeFavoritesExecutorImpl(
         currentItemId: AnimeId,
         updateListItem: ListItemDomain
     ) {
-        val newFetchedItemDetailsIds = state().fetchedAnimeDetailsIds
-            .toMutableSet().apply {
-                add(currentItemId)
-            }.toSet()
-
         val currentListItem = state().listItems.find { listItemDomain: ListItemDomain ->
             listItemDomain.id == currentItemId
         } ?: return
 
-        dispatch(
-            AnimeFavoritesMainStore.Message.UpdateFetchedAnimeDetailsIds(
-                fetchedAnimeDetailsIds = newFetchedItemDetailsIds
-            )
-        )
         publish(
             AnimeFavoritesMainStore.Label.UpdateListItem(
                 listItem = currentListItem.copy(

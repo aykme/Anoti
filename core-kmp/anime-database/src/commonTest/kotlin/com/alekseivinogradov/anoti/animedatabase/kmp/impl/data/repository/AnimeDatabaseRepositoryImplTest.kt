@@ -11,19 +11,25 @@ import kotlinx.coroutines.test.runTest
 
 class AnimeDatabaseRepositoryImplTest {
 
-    private fun sample(id: Int, isNewEpisode: Boolean = false) = AnimeDbDomain(
+    private fun sample(
+        id: Int,
+        isNewEpisode: Boolean = false,
+        nextEpisodeAt: String? = null,
+        isExtraInfoEnabled: Boolean = false
+    ) = AnimeDbDomain(
         id = id,
         imageUrl = null,
         name = "Anime $id",
         episodesAired = null,
         episodesTotal = null,
-        nextEpisodeAt = null,
+        nextEpisodeAt = nextEpisodeAt,
         airedOn = null,
         releasedOn = null,
         score = null,
         releaseStatus = ReleaseStatusDb.ONGOING,
         episodesViewed = 0,
-        isNewEpisode = isNewEpisode
+        isNewEpisode = isNewEpisode,
+        isExtraInfoEnabled = isExtraInfoEnabled
     )
 
     @Test
@@ -86,5 +92,22 @@ class AnimeDatabaseRepositoryImplTest {
         val items = repository.getAllItems().associateBy { it.id }
         assertTrue(items.getValue(7).isNewEpisode)
         assertTrue(!items.getValue(8).isNewEpisode)
+    }
+
+    @Test
+    fun resetAllItemsExtraInfoClearsEveryFlagAndNextEpisodeDate() = runTest {
+        val repository = AnimeDatabaseRepositoryImpl(AnimeDaoFake())
+        repository.insert(
+            sample(id = 9, nextEpisodeAt = "2026-09-10T12:00:00Z", isExtraInfoEnabled = true)
+        )
+        repository.insert(
+            sample(id = 10, nextEpisodeAt = "2026-09-11T12:00:00Z", isExtraInfoEnabled = true)
+        )
+
+        repository.resetAllItemsExtraInfo()
+
+        val items = repository.getAllItems()
+        assertTrue(items.none { it.isExtraInfoEnabled })
+        assertTrue(items.none { it.nextEpisodeAt != null })
     }
 }

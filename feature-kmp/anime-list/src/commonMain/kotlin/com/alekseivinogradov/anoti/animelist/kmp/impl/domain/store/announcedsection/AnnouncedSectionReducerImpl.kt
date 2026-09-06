@@ -27,6 +27,17 @@ internal class AnnouncedSectionReducerImpl :
                     enabledExtraEpisodesInfoIds = msg.enabledExtraEpisodesInfoIds
                 )
             )
+
+            is AnnouncedSectionStore.Message.RestoreSection -> copy(
+                sectionContent = sectionContent.copy(
+                    enabledExtraEpisodesInfoIds = msg.enabledExtraEpisodesInfoIds
+                ),
+                restoreTargetItemCount = msg.itemCount.takeIf { it > 0 }
+            )
+
+            AnnouncedSectionStore.Message.ClearRestoreTargetItemCount -> copy(
+                restoreTargetItemCount = null
+            )
         }
     }
 }

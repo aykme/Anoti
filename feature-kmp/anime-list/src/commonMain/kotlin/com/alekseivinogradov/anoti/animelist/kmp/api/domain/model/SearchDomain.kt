@@ -1,5 +1,7 @@
 package com.alekseivinogradov.anoti.animelist.kmp.api.domain.model
 
+import kotlinx.serialization.Serializable
+
 /**
  * State of the search section's search bar.
  *
@@ -10,6 +12,7 @@ data class SearchDomain(
     val type: Type = Type.HIDDEN,
     val searchText: String = ""
 ) {
+    @Serializable
     enum class Type {
         HIDDEN,
         SHOWN

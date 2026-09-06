@@ -34,6 +34,7 @@ fun AnimeFavoritesRoute(screenComponent: NavAnimeFavoritesScreenComponent) {
             mainStore = screenComponent.mainStore,
             animeDatabaseStore = screenComponent.animeDatabaseStore
         ).onViewCreated(mainView = composeView, viewLifecycle = screenComponent.lifecycle)
+        screenComponent.openSectionUnlessRestored()
     }
     composeView.model.value?.let { uiModel ->
         AnimeFavoritesScreen(

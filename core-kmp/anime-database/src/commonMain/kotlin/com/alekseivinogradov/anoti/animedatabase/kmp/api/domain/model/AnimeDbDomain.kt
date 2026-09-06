@@ -19,6 +19,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
  * @param releaseStatus current release status.
  * @param episodesViewed number of episodes the user has watched.
  * @param isNewEpisode whether a new episode has aired since the user last checked.
+ * @param isExtraInfoEnabled whether the item's extra episode-info variant is showing.
  */
 data class AnimeDbDomain(
     val id: AnimeId,
@@ -32,5 +33,6 @@ data class AnimeDbDomain(
     val score: Float?,
     val releaseStatus: ReleaseStatusDb,
     val episodesViewed: Int,
-    val isNewEpisode: Boolean
+    val isNewEpisode: Boolean,
+    val isExtraInfoEnabled: Boolean = false
 )

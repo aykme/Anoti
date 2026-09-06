@@ -1,8 +1,10 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.SortData
+import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SearchDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SectionHatDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsection.AnnouncedSectionStore
@@ -83,6 +85,69 @@ class ApplyRestoredMainStateTest {
         }
     }
 
+    private class PagedSource(
+        private val pages: Map<Int, List<ListItemDomain>>
+    ) : AnimeListSource {
+        override suspend fun getOngoingList(
+            page: Int,
+            sort: SortData
+        ): CallResult<List<ListItemDomain>> = CallResult.Success(pages[page] ?: emptyList())
+
+        override suspend fun getAnnouncedList(
+            page: Int,
+            sort: SortData
+        ): CallResult<List<ListItemDomain>> = CallResult.Success(pages[page] ?: emptyList())
+
+        override suspend fun getListBySearch(
+            page: Int,
+            search: String,
+            sort: SortData
+        ): CallResult<List<ListItemDomain>> = CallResult.Success(pages[page] ?: emptyList())
+
+        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
+            error("not used in ApplyRestoredMainStateTest")
+        }
+    }
+
+    private fun testListItem(id: AnimeId) = ListItemDomain(
+        id = id,
+        name = "Item $id",
+        imageUrl = null,
+        episodesAired = 1,
+        episodesTotal = 12,
+        nextEpisodeAt = null,
+        airedOn = null,
+        releasedOn = null,
+        score = 8.0F,
+        releaseStatus = ReleaseStatusDomain.ONGOING
+    )
+
+    private fun restoredSectionState(
+        itemCount: Int = 0,
+        enabledExtraEpisodesInfoIds: Set<AnimeId> = setOf(),
+        nextEpisodesInfo: Map<AnimeId, String?> = mapOf()
+    ) = RestoredSectionState(
+        itemCount = itemCount,
+        enabledExtraEpisodesInfoIds = enabledExtraEpisodesInfoIds,
+        nextEpisodesInfo = nextEpisodesInfo
+    )
+
+    private fun restoredMainState(
+        selectedSection: SectionHatDomain,
+        searchType: SearchDomain.Type = SearchDomain.Type.SHOWN,
+        searchText: String = "",
+        ongoing: RestoredSectionState = restoredSectionState(),
+        announced: RestoredSectionState = restoredSectionState(),
+        search: RestoredSectionState = restoredSectionState()
+    ) = RestoredMainState(
+        selectedSection = selectedSection,
+        searchType = searchType,
+        searchText = searchText,
+        ongoing = ongoing,
+        announced = announced,
+        search = search
+    )
+
     private fun createCoroutineContextProvider() = object : CoroutineContextProviderBase() {
         override val exceptionHandlerCallback: (Throwable) -> Unit = {}
     }
@@ -97,10 +162,10 @@ class ApplyRestoredMainStateTest {
         ).create()
     }
 
-    private fun createOngoingStore(): OngoingSectionStore {
+    private fun createOngoingStore(source: AnimeListSource = EmptySource): OngoingSectionStore {
         val usecases = OngoingUsecases(
-            fetchOngoingAnimeListUsecase = FetchOngoingAnimeListUsecase(EmptySource),
-            fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(EmptySource)
+            fetchOngoingAnimeListUsecase = FetchOngoingAnimeListUsecase(source),
+            fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)
         )
         val executorFactory: OngoingSectionExecutorFactory = {
             OngoingSectionExecutorImpl(
@@ -115,9 +180,9 @@ class ApplyRestoredMainStateTest {
         ).create()
     }
 
-    private fun createAnnouncedStore(): AnnouncedSectionStore {
+    private fun createAnnouncedStore(source: AnimeListSource = EmptySource): AnnouncedSectionStore {
         val usecases = AnnouncedUsecases(
-            fetchAnnouncedAnimeListUsecase = FetchAnnouncedAnimeListUsecase(EmptySource)
+            fetchAnnouncedAnimeListUsecase = FetchAnnouncedAnimeListUsecase(source)
         )
         val executorFactory: AnnouncedSectionExecutorFactory = {
             AnnouncedSectionExecutorImpl(
@@ -132,10 +197,10 @@ class ApplyRestoredMainStateTest {
         ).create()
     }
 
-    private fun createSearchStore(): SearchSectionStore {
+    private fun createSearchStore(source: AnimeListSource = EmptySource): SearchSectionStore {
         val usecases = SearchUsecases(
-            fetchAnimeListBySearchUsecase = FetchAnimeListBySearchUsecase(EmptySource),
-            fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(EmptySource)
+            fetchAnimeListBySearchUsecase = FetchAnimeListBySearchUsecase(source),
+            fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)
         )
         val executorFactory: SearchSectionExecutorFactory = {
             SearchSectionExecutorImpl(
@@ -185,7 +250,7 @@ class ApplyRestoredMainStateTest {
 
         //When
         applyRestoredMainState(
-            restoredState = RestoredMainState(SectionHatDomain.ONGOINGS, searchText = ""),
+            restoredState = restoredMainState(SectionHatDomain.ONGOINGS, searchText = ""),
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
@@ -210,7 +275,7 @@ class ApplyRestoredMainStateTest {
 
         //When
         applyRestoredMainState(
-            restoredState = RestoredMainState(SectionHatDomain.ONGOINGS, searchText = "totoro"),
+            restoredState = restoredMainState(SectionHatDomain.ONGOINGS, searchText = "totoro"),
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
@@ -234,7 +299,7 @@ class ApplyRestoredMainStateTest {
 
         //When
         applyRestoredMainState(
-            restoredState = RestoredMainState(SectionHatDomain.ANNOUNCED, searchText = ""),
+            restoredState = restoredMainState(SectionHatDomain.ANNOUNCED, searchText = ""),
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
@@ -259,7 +324,7 @@ class ApplyRestoredMainStateTest {
 
         //When
         applyRestoredMainState(
-            restoredState = RestoredMainState(SectionHatDomain.SEARCH, searchText = "totoro"),
+            restoredState = restoredMainState(SectionHatDomain.SEARCH, searchText = "totoro"),
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
@@ -284,7 +349,7 @@ class ApplyRestoredMainStateTest {
 
         //When
         applyRestoredMainState(
-            restoredState = RestoredMainState(SectionHatDomain.SEARCH, searchText = ""),
+            restoredState = restoredMainState(SectionHatDomain.SEARCH, searchText = ""),
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
@@ -296,5 +361,116 @@ class ApplyRestoredMainStateTest {
         assertEquals("", searchStore.state.searchText)
         assertEquals(ContentTypeDomain.LOADING, ongoingStore.state.sectionContent.contentType)
         assertEquals(false, mainStore.state.isNeedToResetListPositon)
+    }
+
+    @Test
+    fun ongoingsRestoredStatePagesInSavedItemCountAcrossMultiplePages() = runTest(testDispatcher) {
+        //Given
+        val pages = mapOf(
+            1 to listOf(testListItem(1), testListItem(2)),
+            2 to listOf(testListItem(3), testListItem(4)),
+            3 to listOf(testListItem(5), testListItem(6))
+        )
+        val mainStore = createMainStore()
+        val ongoingStore = createOngoingStore(source = PagedSource(pages))
+        val announcedStore = createAnnouncedStore()
+        val searchStore = createSearchStore()
+
+        //When
+        applyRestoredMainState(
+            restoredState = restoredMainState(SectionHatDomain.ONGOINGS, ongoing = restoredSectionState(itemCount = 5)),
+            mainStore = mainStore,
+            ongoingSectionStore = ongoingStore,
+            announcedSectionStore = announcedStore,
+            searchSectionStore = searchStore
+        )
+        ongoingStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+        //Then
+        // Pages in whole pages until the saved count is covered (5 needs all 3 two-item pages).
+        assertEquals(6, ongoingStore.state.sectionContent.listItems.size)
+        assertEquals(null, ongoingStore.state.restoreTargetItemCount)
+    }
+
+    @Test
+    fun ongoingsRestoredStateCapsPagedInItemCountAtTheMaximum() = runTest(testDispatcher) {
+        //Given
+        val pages = (1..10).associateWith { page -> listOf(testListItem(page)) }
+        val mainStore = createMainStore()
+        val ongoingStore = createOngoingStore(source = PagedSource(pages))
+        val announcedStore = createAnnouncedStore()
+        val searchStore = createSearchStore()
+
+        //When
+        applyRestoredMainState(
+            restoredState = restoredMainState(SectionHatDomain.ONGOINGS, ongoing = restoredSectionState(itemCount = 1000)),
+            mainStore = mainStore,
+            ongoingSectionStore = ongoingStore,
+            announcedSectionStore = announcedStore,
+            searchSectionStore = searchStore
+        )
+        ongoingStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+        //Then
+        assertEquals(10, ongoingStore.state.sectionContent.listItems.size)
+    }
+
+    @Test
+    fun restoredStateAppliesEachSectionsDisplayStateRegardlessOfWhichIsSelected() = runTest(testDispatcher) {
+        //Given
+        val mainStore = createMainStore()
+        val ongoingStore = createOngoingStore()
+        val announcedStore = createAnnouncedStore()
+        val searchStore = createSearchStore()
+
+        //When
+        applyRestoredMainState(
+            restoredState = restoredMainState(
+                SectionHatDomain.SEARCH,
+                ongoing = restoredSectionState(
+                    enabledExtraEpisodesInfoIds = setOf(1),
+                    nextEpisodesInfo = mapOf(1 to "2026-09-10T12:00:00Z")
+                ),
+                announced = restoredSectionState(enabledExtraEpisodesInfoIds = setOf(2))
+            ),
+            mainStore = mainStore,
+            ongoingSectionStore = ongoingStore,
+            announcedSectionStore = announcedStore,
+            searchSectionStore = searchStore
+        )
+
+        //Then
+        // Applied immediately even though neither Ongoing nor Announced is the selected section.
+        assertEquals(setOf(1), ongoingStore.state.sectionContent.enabledExtraEpisodesInfoIds)
+        assertEquals(
+            mapOf(1 to "2026-09-10T12:00:00Z"),
+            ongoingStore.state.sectionContent.animeDetails.nextEpisodesInfo
+        )
+        assertEquals(setOf(2), announcedStore.state.sectionContent.enabledExtraEpisodesInfoIds)
+    }
+
+    @Test
+    fun searchRestoredStateWithHiddenTypeCancelsTheSearchBarAfterOpeningIt() = runTest(testDispatcher) {
+        //Given
+        val mainStore = createMainStore()
+        val ongoingStore = createOngoingStore()
+        val announcedStore = createAnnouncedStore()
+        val searchStore = createSearchStore()
+
+        //When
+        applyRestoredMainState(
+            restoredState = restoredMainState(
+                SectionHatDomain.SEARCH,
+                searchType = SearchDomain.Type.HIDDEN
+            ),
+            mainStore = mainStore,
+            ongoingSectionStore = ongoingStore,
+            announcedSectionStore = announcedStore,
+            searchSectionStore = searchStore
+        )
+
+        //Then
+        assertEquals(SectionHatDomain.SEARCH, mainStore.state.selectedSection)
+        assertEquals(SearchDomain.Type.HIDDEN, mainStore.state.search.type)
     }
 }

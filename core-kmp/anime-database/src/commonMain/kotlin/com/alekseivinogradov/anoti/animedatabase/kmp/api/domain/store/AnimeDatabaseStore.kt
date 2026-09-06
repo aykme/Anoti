@@ -53,6 +53,9 @@ interface AnimeDatabaseStore :
          * @param animeDatabaseItem the item's new state; matched to the stored item by its id.
          */
         data class UpdateAnimeDatabaseItem(val animeDatabaseItem: AnimeDbDomain) : Intent
+
+        /** Turns off the extra-info display mode and clears the next-episode date on every item. */
+        data object ResetAllItemsExtraInfo : Intent
     }
 
     /** One-off events the store publishes for callers to react to. */

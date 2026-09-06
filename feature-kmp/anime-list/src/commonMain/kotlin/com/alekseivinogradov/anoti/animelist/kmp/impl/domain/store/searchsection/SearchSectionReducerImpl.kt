@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.searchsection
 
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.SearchSectionStore
 import com.arkivanov.mvikotlin.core.store.Reducer
 
@@ -34,6 +35,18 @@ internal class SearchSectionReducerImpl :
                 sectionContent = sectionContent.copy(
                     animeDetails = msg.animeDetails
                 )
+            )
+
+            is SearchSectionStore.Message.RestoreSection -> copy(
+                sectionContent = sectionContent.copy(
+                    enabledExtraEpisodesInfoIds = msg.enabledExtraEpisodesInfoIds,
+                    animeDetails = AnimeDetails(nextEpisodesInfo = msg.nextEpisodesInfo)
+                ),
+                restoreTargetItemCount = msg.itemCount.takeIf { it > 0 }
+            )
+
+            SearchSectionStore.Message.ClearRestoreTargetItemCount -> copy(
+                restoreTargetItemCount = null
             )
         }
     }

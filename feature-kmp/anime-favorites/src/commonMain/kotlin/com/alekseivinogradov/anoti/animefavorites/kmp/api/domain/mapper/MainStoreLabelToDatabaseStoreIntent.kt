@@ -11,6 +11,10 @@ internal fun mapMainStoreLabelToDatabaseStoreIntent(
             AnimeDatabaseStore.Intent.ResetAllItemsNewEpisodeStatus
         }
 
+        AnimeFavoritesMainStore.Label.ResetExtraInfo -> {
+            AnimeDatabaseStore.Intent.ResetAllItemsExtraInfo
+        }
+
         is AnimeFavoritesMainStore.Label.ItemClick -> {
             AnimeDatabaseStore.Intent.ChangeItemNewEpisodeStatus(
                 id = label.id,

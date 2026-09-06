@@ -13,11 +13,11 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
-import com.arkivanov.mvikotlin.extensions.coroutines.states
+import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
@@ -28,6 +28,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -59,25 +60,41 @@ class AnimeFavoritesExecutorImplTest {
         }
     }
 
+    private class TrackingCallSource(
+        private val item: ListItemDomain
+    ) : AnimeFavoritesSource {
+        var wasCalled = false
+            private set
+
+        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
+            wasCalled = true
+            return CallResult.Success(item)
+        }
+    }
+
     private object NoOpBackgroundUpdateUsecase : UpdateAllAnimeInBackgroundOnceUsecase {
         override fun execute() = Unit
     }
 
-    private fun testListItem(): ListItemDomain {
-        val id = 1
+    private fun testListItem(
+        id: AnimeId = 1,
+        isExtraInfoEnabled: Boolean = false,
+        nextEpisodeAt: String? = null
+    ): ListItemDomain {
         return ListItemDomain(
             id = id,
             name = "Item $id",
             imageUrl = null,
             episodesAired = 1,
             episodesTotal = 12,
-            nextEpisodeAt = null,
+            nextEpisodeAt = nextEpisodeAt,
             airedOn = null,
             releasedOn = null,
             score = 8.0F,
             releaseStatus = ReleaseStatusDomain.ONGOING,
             episodesViewed = 0,
-            isNewEpisode = false
+            isNewEpisode = false,
+            isExtraInfoEnabled = isExtraInfoEnabled
         )
     }
 
@@ -117,7 +134,7 @@ class AnimeFavoritesExecutorImplTest {
         store.accept(AnimeFavoritesMainStore.Intent.UpdateSection)
 
         //Then
-        assertEquals(ContentTypeDomain.LOADING(isSwipeToRefresh = true), store.state.contentType)
+        assertEquals(ContentTypeDomain.LOADING(hasMinimumDuration = true), store.state.contentType)
     }
 
     @Test
@@ -134,14 +151,14 @@ class AnimeFavoritesExecutorImplTest {
         store.accept(AnimeFavoritesMainStore.Intent.ItemsSubmittedToList)
 
         //Then
-        assertEquals(ContentTypeDomain.LOADING(isSwipeToRefresh = true), store.state.contentType)
+        assertEquals(ContentTypeDomain.LOADING(hasMinimumDuration = true), store.state.contentType)
 
         //When
         advanceTimeBy((ANIMATION_DURATION_SHORT.inWholeMilliseconds / 2).milliseconds)
         runCurrent()
 
         //Then
-        assertEquals(ContentTypeDomain.LOADING(isSwipeToRefresh = true), store.state.contentType)
+        assertEquals(ContentTypeDomain.LOADING(hasMinimumDuration = true), store.state.contentType)
 
         //When
         advanceTimeBy(ANIMATION_DURATION_SHORT.inWholeMilliseconds.milliseconds)
@@ -167,23 +184,54 @@ class AnimeFavoritesExecutorImplTest {
     }
 
     @Test
-    fun updateSectionResetsEnabledExtraInfoIdsAndFetchedAnimeDetailsIds() = runTest(testDispatcher) {
+    fun updateSectionPublishesResetExtraInfoAndUpdateSectionLabels() = runTest(testDispatcher) {
         //Given
-        val item = testListItem()
-        val fetchedItem = item.copy(nextEpisodeAt = "2026-09-10T12:00:00Z")
-        val store = createStore(source = FakeDetailsSource(fetchedItem))
-        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
-        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
-        store.states.first { it.fetchedAnimeDetailsIds.contains(item.id) }
-        assertEquals(setOf(item.id), store.state.enabledExtraInfoIds)
-        assertEquals(setOf(item.id), store.state.fetchedAnimeDetailsIds)
+        val store = createStore()
+        val emittedLabels = mutableListOf<AnimeFavoritesMainStore.Label>()
+        val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
 
         //When
         store.accept(AnimeFavoritesMainStore.Intent.UpdateSection)
 
         //Then
-        assertEquals(emptySet(), store.state.enabledExtraInfoIds)
-        assertEquals(emptySet(), store.state.fetchedAnimeDetailsIds)
+        assertEquals(
+            listOf(
+                AnimeFavoritesMainStore.Label.ResetExtraInfo,
+                AnimeFavoritesMainStore.Label.UpdateSection
+            ),
+            emittedLabels
+        )
+        collectJob.cancel()
+    }
+
+    @Test
+    fun openSectionImmediatelyShowsLoadingWithMinimumDuration() = runTest(testDispatcher) {
+        //Given
+        val store = createStore()
+
+        //When
+        store.accept(AnimeFavoritesMainStore.Intent.OpenSection)
+
+        //Then
+        assertEquals(ContentTypeDomain.LOADING(hasMinimumDuration = true), store.state.contentType)
+    }
+
+    @Test
+    fun openSectionPublishesResetExtraInfoButNotUpdateSection() = runTest(testDispatcher) {
+        //Given
+        val store = createStore()
+        val emittedLabels = mutableListOf<AnimeFavoritesMainStore.Label>()
+        val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
+
+        //When
+        store.accept(AnimeFavoritesMainStore.Intent.OpenSection)
+
+        //Then
+        assertEquals(
+            listOf<AnimeFavoritesMainStore.Label>(AnimeFavoritesMainStore.Label.ResetExtraInfo),
+            emittedLabels
+        )
+        collectJob.cancel()
     }
 
     @Test
@@ -198,5 +246,94 @@ class AnimeFavoritesExecutorImplTest {
 
         //Then
         assertEquals(ContentTypeDomain.LOADED, store.state.contentType)
+    }
+
+    @Test
+    fun infoTypeClickOnMainItemPublishesUpdateListItemWithExtraInfoEnabled() = runTest(testDispatcher) {
+        //Given
+        val item = testListItem(nextEpisodeAt = "2026-09-10T12:00:00Z")
+        val store = createStore()
+        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
+        val emittedLabels = mutableListOf<AnimeFavoritesMainStore.Label>()
+        val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
+
+        //When
+        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
+
+        //Then
+        assertTrue(
+            emittedLabels.contains(
+                AnimeFavoritesMainStore.Label.UpdateListItem(
+                    listItem = item.copy(isExtraInfoEnabled = true)
+                )
+            ),
+            "Expected an UpdateListItem with isExtraInfoEnabled = true among $emittedLabels"
+        )
+        collectJob.cancel()
+    }
+
+    @Test
+    fun infoTypeClickOnExtraItemPublishesUpdateListItemWithExtraInfoDisabled() = runTest(testDispatcher) {
+        //Given
+        val item = testListItem(isExtraInfoEnabled = true)
+        val store = createStore()
+        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
+        val emittedLabels = mutableListOf<AnimeFavoritesMainStore.Label>()
+        val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
+
+        //When
+        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
+
+        //Then
+        assertEquals(
+            listOf<AnimeFavoritesMainStore.Label>(
+                AnimeFavoritesMainStore.Label.UpdateListItem(
+                    listItem = item.copy(isExtraInfoEnabled = false)
+                )
+            ),
+            emittedLabels
+        )
+        collectJob.cancel()
+    }
+
+    @Test
+    fun infoTypeClickToExtraWithoutNextEpisodeAtFetchesDetailsAndPublishesResult() = runTest(testDispatcher) {
+        //Given
+        val item = testListItem()
+        val fetchedItem = item.copy(nextEpisodeAt = "2026-09-10T12:00:00Z")
+        val store = createStore(source = FakeDetailsSource(fetchedItem))
+        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
+        val emittedLabels = mutableListOf<AnimeFavoritesMainStore.Label>()
+        val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
+
+        //When
+        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
+
+        //Then
+        assertTrue(
+            emittedLabels.contains(
+                AnimeFavoritesMainStore.Label.UpdateListItem(
+                    listItem = item.copy(nextEpisodeAt = fetchedItem.nextEpisodeAt)
+                )
+            ),
+            "Expected the fetched nextEpisodeAt to be published among $emittedLabels"
+        )
+        collectJob.cancel()
+    }
+
+    @Test
+    fun infoTypeClickToExtraWithNextEpisodeAtAlreadyKnownDoesNotFetchDetails() = runTest(testDispatcher) {
+        //Given
+        val item = testListItem(nextEpisodeAt = "2026-09-10T12:00:00Z")
+        val source = TrackingCallSource(item)
+        val store = createStore(source = source)
+        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
+
+        //When
+        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
+        runCurrent()
+
+        //Then
+        assertEquals(false, source.wasCalled)
     }
 }

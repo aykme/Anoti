@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.ongoingsection
 
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.ongoingsection.OngoingSectionStore
 import com.arkivanov.mvikotlin.core.store.Reducer
 
@@ -32,6 +33,18 @@ internal class OngoingSectionReducerImpl :
                 sectionContent = sectionContent.copy(
                     animeDetails = msg.animeDetails
                 )
+            )
+
+            is OngoingSectionStore.Message.RestoreSection -> copy(
+                sectionContent = sectionContent.copy(
+                    enabledExtraEpisodesInfoIds = msg.enabledExtraEpisodesInfoIds,
+                    animeDetails = AnimeDetails(nextEpisodesInfo = msg.nextEpisodesInfo)
+                ),
+                restoreTargetItemCount = msg.itemCount.takeIf { it > 0 }
+            )
+
+            OngoingSectionStore.Message.ClearRestoreTargetItemCount -> copy(
+                restoreTargetItemCount = null
             )
         }
     }

@@ -40,4 +40,8 @@ class AnimeDatabaseRepositoryImpl(private val animeDao: AnimeDao) : AnimeDatabas
     override suspend fun changeItemNewEpisodeStatus(id: AnimeId, isNewEpisode: Boolean) {
         animeDao.changeItemNewEpisodeStatus(id = id, isNewEpisode = isNewEpisode)
     }
+
+    override suspend fun resetAllItemsExtraInfo() {
+        animeDao.resetAllItemsExtraInfo()
+    }
 }

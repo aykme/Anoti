@@ -18,14 +18,10 @@ interface AnimeFavoritesMainStore :
     /**
      * @param listItems favorites list items.
      * @param contentType loading state of the list.
-     * @param enabledExtraInfoIds ids currently showing the extra episode-info variant.
-     * @param fetchedAnimeDetailsIds ids whose extra details have already been fetched.
      */
     data class State(
         val listItems: List<ListItemDomain> = listOf(),
-        val contentType: ContentTypeDomain = ContentTypeDomain.LOADING(),
-        val enabledExtraInfoIds: Set<AnimeId> = setOf(),
-        val fetchedAnimeDetailsIds: Set<AnimeId> = setOf()
+        val contentType: ContentTypeDomain = ContentTypeDomain.LOADING()
     )
 
     /** Actions a caller can dispatch via [accept]. */
@@ -35,6 +31,13 @@ interface AnimeFavoritesMainStore :
 
         /** The list items were rendered at least once. */
         data object ItemsSubmittedToList : Intent
+
+        /**
+         * The section became selected. Unlike [UpdateSection], never dispatched while already
+         * restored from a process death that happened on this same section — see
+         * `NavAnimeFavoritesScreenComponent`.
+         */
+        data object OpenSection : Intent
 
         /** Refresh the list's content type based on the current items. */
         data object UpdateSection : Intent
@@ -62,6 +65,12 @@ interface AnimeFavoritesMainStore :
     sealed interface Label {
         /** Ask the database store for a fresh section update. */
         data object UpdateSection : Label
+
+        /**
+         * Ask the database store to turn off every item's extra-info display mode and clear its
+         * next-episode date.
+         */
+        data object ResetExtraInfo : Label
 
         /** Navigate to the details of the item with [id]. */
         data class ItemClick(val id: AnimeId) : Label
@@ -91,19 +100,5 @@ interface AnimeFavoritesMainStore :
          * @param contentType the list's new loading state.
          */
         data class ChangeContentType(val contentType: ContentTypeDomain) : Message
-
-        /**
-         * Replaces [State.enabledExtraInfoIds] wholesale.
-         *
-         * @param enabledExtraInfoIds ids that should show the extra episode-info variant.
-         */
-        data class UpdateEnabledExtraInfoIds(val enabledExtraInfoIds: Set<AnimeId>) : Message
-
-        /**
-         * Replaces [State.fetchedAnimeDetailsIds] wholesale.
-         *
-         * @param fetchedAnimeDetailsIds ids whose extra details have been fetched.
-         */
-        data class UpdateFetchedAnimeDetailsIds(val fetchedAnimeDetailsIds: Set<AnimeId>) : Message
     }
 }

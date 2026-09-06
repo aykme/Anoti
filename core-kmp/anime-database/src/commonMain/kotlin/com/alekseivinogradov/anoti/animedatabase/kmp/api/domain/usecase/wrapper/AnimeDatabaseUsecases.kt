@@ -4,6 +4,7 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ChangeAn
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.DeleteAnimeDatabaseItemUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsFlowUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.InsertAnimeDatabaseItemUsecase
+import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ResetAllAnimeDatabaseItemsExtraInfoUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
 
@@ -15,5 +16,6 @@ data class AnimeDatabaseUsecases(
     ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecase,
     val changeAnimeDatabaseItemNewEpisodeStatusUsecase:
     ChangeAnimeDatabaseItemNewEpisodeStatusUsecase,
-    val updateAnimeDatabaseItemUsecase: UpdateAnimeDatabaseItemUsecase
+    val updateAnimeDatabaseItemUsecase: UpdateAnimeDatabaseItemUsecase,
+    val resetAllAnimeDatabaseItemsExtraInfoUsecase: ResetAllAnimeDatabaseItemsExtraInfoUsecase
 )
