@@ -167,6 +167,28 @@ class ApplyRestoredMainStateTest {
     }
 
     @Test
+    fun ongoingsRestoredStateStillReplaysLeftoverSearchTextToSearchStore() = runTest(testDispatcher) {
+        //Given
+        val mainStore = createMainStore()
+        val announcedStore = createAnnouncedStore()
+        val searchStore = createSearchStore()
+
+        //When
+        applyRestoredMainState(
+            restoredState = RestoredMainState(SectionHatDomain.ONGOINGS, searchText = "totoro"),
+            mainStore = mainStore,
+            announcedSectionStore = announcedStore,
+            searchSectionStore = searchStore
+        )
+
+        //Then
+        assertEquals(SectionHatDomain.ONGOINGS, mainStore.state.selectedSection)
+        assertEquals("totoro", mainStore.state.search.searchText)
+        assertEquals("totoro", searchStore.state.searchText)
+        assertEquals(ContentTypeDomain.LOADING, searchStore.state.sectionContent.contentType)
+    }
+
+    @Test
     fun announcedRestoredStateSelectsSectionAndOpensAnnouncedStoreDirectly() = runTest(testDispatcher) {
         //Given
         val mainStore = createMainStore()

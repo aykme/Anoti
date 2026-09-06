@@ -99,6 +99,10 @@ internal data class RestoredMainState(
  * is restored independently by Compose's own saved-state mechanism, and forcing a reset here would
  * discard it.
  *
+ * The search text is replayed independently of [RestoredMainState.selectedSection]: a query typed
+ * while on the search section survives switching to another section, so it must still reach
+ * [searchSectionStore] even when a different section is the one being restored as selected.
+ *
  * @param restoredState the saved snapshot, or `null` on a fresh (non-restored) start.
  */
 internal fun applyRestoredMainState(
@@ -114,23 +118,23 @@ internal fun applyRestoredMainState(
             announcedSectionStore.accept(AnnouncedSectionStore.Intent.OpenSection)
         }
 
-        SectionHatDomain.SEARCH -> {
-            mainStore.accept(AnimeListMainStore.Intent.SearchSectionClick)
-            // Search text must be applied before OpenSection: SearchSectionStore seeds its
-            // debounced search flow from the current search text the moment OpenSection runs, so
-            // restoring the text first means that first load already fetches the restored query
-            // instead of blank results.
-            if (restoredState.searchText.isNotBlank()) {
-                mainStore.accept(
-                    AnimeListMainStore.Intent.ChangeSearchText(restoredState.searchText)
-                )
-                searchSectionStore.accept(
-                    SearchSectionStore.Intent.ChangeSearchText(restoredState.searchText)
-                )
-            }
-            searchSectionStore.accept(SearchSectionStore.Intent.OpenSection)
-        }
+        SectionHatDomain.SEARCH -> mainStore.accept(AnimeListMainStore.Intent.SearchSectionClick)
 
         SectionHatDomain.ONGOINGS -> Unit
+    }
+
+    // Applied before OpenSection: SearchSectionStore seeds its debounced search flow from the
+    // current search text the moment OpenSection runs, so restoring the text first means a later
+    // OpenSection (here or from a subsequent manual tap into the section) already fetches the
+    // restored query instead of blank results.
+    if (restoredState.searchText.isNotBlank()) {
+        mainStore.accept(AnimeListMainStore.Intent.ChangeSearchText(restoredState.searchText))
+        searchSectionStore.accept(
+            SearchSectionStore.Intent.ChangeSearchText(restoredState.searchText)
+        )
+    }
+
+    if (restoredState.selectedSection == SectionHatDomain.SEARCH) {
+        searchSectionStore.accept(SearchSectionStore.Intent.OpenSection)
     }
 }
