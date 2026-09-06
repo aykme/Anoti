@@ -71,12 +71,27 @@ fun AnimeListScreen(
     dateFormatter: DateFormatter,
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
+    // Remembered here, not inside ListState(), so a switch to a not-yet-loaded section can't
+    // dispose them. Such a switch briefly swaps ListState() for LoadingState(), which would
+    // otherwise reset every section's scroll position at once. This box stays mounted across
+    // every contentType branch below, so each section keeps its own position for as long as the
+    // screen is open.
+    val ongoingsListState = rememberLazyListState()
+    val announcedListState = rememberLazyListState()
+    val searchListState = rememberLazyListState()
+    val listState = when (uiModel.selectedSection) {
+        SectionHatUi.ONGOINGS -> ongoingsListState
+        SectionHatUi.ANNOUNCED -> announcedListState
+        SectionHatUi.SEARCH -> searchListState
+    }
+
     Box(Modifier.fillMaxSize().horizontalSystemBarsPadding()) {
         when (uiModel.contentType) {
             ContentTypeUi.LOADING -> LoadingState()
             ContentTypeUi.ERROR -> ErrorState(dispatch = dispatch)
             ContentTypeUi.LOADED -> ListState(
                 uiModel = uiModel,
+                listState = listState,
                 dateFormatter = dateFormatter,
                 dispatch = dispatch
             )
@@ -128,21 +143,10 @@ private fun ErrorState(dispatch: (AnimeListMainStore.Intent) -> Unit) {
 @Composable
 private fun ListState(
     uiModel: AnimeListUiModel,
+    listState: LazyListState,
     dateFormatter: DateFormatter,
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
-    // One LazyListState per section so each keeps its own scroll position across section
-    // switches. Instead of all three sharing a single raw scroll index/offset that a switch would
-    // otherwise hand off unchanged to whichever section's items now occupy it.
-    val ongoingsListState = rememberLazyListState()
-    val announcedListState = rememberLazyListState()
-    val searchListState = rememberLazyListState()
-    val listState = when (uiModel.selectedSection) {
-        SectionHatUi.ONGOINGS -> ongoingsListState
-        SectionHatUi.ANNOUNCED -> announcedListState
-        SectionHatUi.SEARCH -> searchListState
-    }
-
     LoadNextPageEffect(listState = listState, dispatch = dispatch)
     ResetListPositionEffect(uiModel = uiModel, listState = listState, dispatch = dispatch)
 
@@ -189,10 +193,10 @@ private fun LoadNextPageEffect(
     listState: LazyListState,
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
-    // Keyed on listState: each section has its own LazyListState instance, and re-deriving only
-    // when the boolean itself flips (not keying on listState) would leave this permanently
-    // watching whichever section's state was current the first time this composable entered
-    // composition, silently ignoring scroll in every other section switched to afterward.
+    // Keyed on listState: each section has its own LazyListState instance. Re-deriving only when
+    // the boolean flips, without also keying on listState, would leave this stuck watching
+    // whichever section was current on the first composition. Scrolling in any section switched
+    // to afterward would then go unnoticed.
     //
     // Dispatches once per threshold-crossing: the effect only restarts when the derived boolean
     // itself flips, not on every scroll position update while it stays true.
