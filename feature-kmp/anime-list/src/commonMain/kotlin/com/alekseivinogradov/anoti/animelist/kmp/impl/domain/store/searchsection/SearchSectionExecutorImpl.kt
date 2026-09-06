@@ -65,7 +65,6 @@ class SearchSectionExecutorImpl(
     }
 
     private fun openSection() {
-        publish(SearchSectionStore.Label.ResetListPositionAfterUpdate)
         if (searchFlow == null) {
             searchFlow = MutableStateFlow(state().searchText)
         }

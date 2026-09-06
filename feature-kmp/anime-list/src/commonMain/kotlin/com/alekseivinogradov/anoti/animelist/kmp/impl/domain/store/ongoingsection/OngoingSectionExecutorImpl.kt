@@ -53,7 +53,6 @@ class OngoingSectionExecutorImpl(
     }
 
     private fun openSection() {
-        publish(OngoingSectionStore.Label.ResetListPositionAfterUpdate)
         if (state().sectionContent.contentType != ContentTypeDomain.LOADED) {
             updateSection()
         }
