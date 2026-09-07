@@ -108,6 +108,7 @@ class AnimeFavoritesExecutorImpl(
                 ContentTypeDomain.LOADING(hasMinimumDuration = true)
             )
         )
+        dispatch(AnimeFavoritesMainStore.Message.UpdateFetchedAnimeDetailsIds(setOf()))
         resolveContentTypeAfterMinimumDuration()
     }
 
@@ -120,6 +121,7 @@ class AnimeFavoritesExecutorImpl(
                 ContentTypeDomain.LOADING(hasMinimumDuration = true)
             )
         )
+        dispatch(AnimeFavoritesMainStore.Message.UpdateFetchedAnimeDetailsIds(setOf()))
         publish(AnimeFavoritesMainStore.Label.ResetExtraInfo)
         publish(AnimeFavoritesMainStore.Label.UpdateSection)
         resolveContentTypeAfterMinimumDuration()
@@ -225,8 +227,13 @@ class AnimeFavoritesExecutorImpl(
         )
 
         val isOngoingStatus = listItem.releaseStatus == ReleaseStatusDomain.ONGOING
+        // A non-null nextEpisodeAt means the database already has a known date (e.g. from a
+        // background update). Otherwise, fetchedAnimeDetailsIds is the only reliable "already
+        // tried" signal: a null nextEpisodeAt can also mean the API legitimately has none.
+        val alreadyKnown = listItem.nextEpisodeAt != null ||
+            state().fetchedAnimeDetailsIds.contains(listItem.id)
 
-        if (isOngoingStatus && listItem.nextEpisodeAt == null) {
+        if (isOngoingStatus && !alreadyKnown) {
             updateAnimeDetails(listItem.id)
         }
     }
@@ -261,6 +268,11 @@ class AnimeFavoritesExecutorImpl(
             listItemDomain.id == currentItemId
         } ?: return
 
+        dispatch(
+            AnimeFavoritesMainStore.Message.UpdateFetchedAnimeDetailsIds(
+                fetchedAnimeDetailsIds = state().fetchedAnimeDetailsIds + currentItemId
+            )
+        )
         publish(
             AnimeFavoritesMainStore.Label.UpdateListItem(
                 listItem = currentListItem.copy(

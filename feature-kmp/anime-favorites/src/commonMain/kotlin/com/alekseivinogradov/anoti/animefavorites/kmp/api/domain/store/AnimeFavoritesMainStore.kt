@@ -18,10 +18,15 @@ interface AnimeFavoritesMainStore :
     /**
      * @param listItems favorites list items.
      * @param contentType loading state of the list.
+     * @param fetchedAnimeDetailsIds ids whose next-episode info was already fetched this
+     * section load. A null [ListItemDomain.nextEpisodeAt] can mean either "not fetched yet" or
+     * "fetched, and the API legitimately has none" — this id set is the only reliable way to
+     * tell those apart and avoid re-fetching in the second case.
      */
     data class State(
         val listItems: List<ListItemDomain> = listOf(),
-        val contentType: ContentTypeDomain = ContentTypeDomain.LOADING()
+        val contentType: ContentTypeDomain = ContentTypeDomain.LOADING(),
+        val fetchedAnimeDetailsIds: Set<AnimeId> = setOf()
     )
 
     /** Actions a caller can dispatch via [accept]. */
@@ -100,5 +105,10 @@ interface AnimeFavoritesMainStore :
          * @param contentType the list's new loading state.
          */
         data class ChangeContentType(val contentType: ContentTypeDomain) : Message
+
+        /** Replaces [State.fetchedAnimeDetailsIds]. */
+        data class UpdateFetchedAnimeDetailsIds(
+            val fetchedAnimeDetailsIds: Set<AnimeId>
+        ) : Message
     }
 }

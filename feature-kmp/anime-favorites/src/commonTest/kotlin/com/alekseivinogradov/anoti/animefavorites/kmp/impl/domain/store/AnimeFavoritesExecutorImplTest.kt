@@ -63,11 +63,12 @@ class AnimeFavoritesExecutorImplTest {
     private class TrackingCallSource(
         private val item: ListItemDomain
     ) : AnimeFavoritesSource {
-        var wasCalled = false
+        var callCount = 0
             private set
+        val wasCalled: Boolean get() = callCount > 0
 
         override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
-            wasCalled = true
+            callCount++
             return CallResult.Success(item)
         }
     }
@@ -357,5 +358,45 @@ class AnimeFavoritesExecutorImplTest {
 
         //Then
         assertEquals(false, source.wasCalled)
+    }
+
+    @Test
+    fun infoTypeClickToExtraWithLegitimatelyNullNextEpisodeAtDoesNotRefetchOnLaterClick() = runTest(testDispatcher) {
+        //Given
+        val item = testListItem()
+        // The API legitimately has no next-episode date: the fetch result keeps nextEpisodeAt
+        // null, which must not be mistaken for "never fetched" on a later toggle.
+        val source = TrackingCallSource(item)
+        val store = createStore(source = source)
+        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
+
+        //When
+        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
+        runCurrent()
+        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
+        runCurrent()
+
+        //Then
+        assertEquals(1, source.callCount)
+    }
+
+    @Test
+    fun openSectionResetsFetchedAnimeDetailsIdsSoARefreshedNullResultIsRefetched() = runTest(testDispatcher) {
+        //Given
+        val item = testListItem()
+        val source = TrackingCallSource(item)
+        val store = createStore(source = source)
+        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
+        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
+        runCurrent()
+
+        //When
+        store.accept(AnimeFavoritesMainStore.Intent.OpenSection)
+        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
+        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
+        runCurrent()
+
+        //Then
+        assertEquals(2, source.callCount)
     }
 }
