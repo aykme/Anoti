@@ -122,6 +122,14 @@ class ApplyRestoredMainStateTest {
         releaseStatus = ReleaseStatusDomain.ONGOING
     )
 
+    private fun sequentialPages(pageCount: Int): Map<Int, List<ListItemDomain>> {
+        val pageSize = 10
+        return (1..pageCount).associateWith { page ->
+            val firstId = (page - 1) * pageSize + 1
+            (firstId until firstId + pageSize).map(::testListItem)
+        }
+    }
+
     private fun restoredSectionState(
         itemCount: Int = 0,
         enabledExtraEpisodesInfoIds: Set<AnimeId> = setOf(),
@@ -413,6 +421,175 @@ class ApplyRestoredMainStateTest {
 
         //Then
         assertEquals(10, ongoingStore.state.sectionContent.listItems.size)
+    }
+
+    @Test
+    fun ongoingsRestoredStateBelowMaxRestoresExactSavedCount() = runTest(testDispatcher) {
+        //Given
+        val pages = sequentialPages(pageCount = 10)
+        val mainStore = createMainStore()
+        val ongoingStore = createOngoingStore(source = PagedSource(pages))
+        val announcedStore = createAnnouncedStore()
+        val searchStore = createSearchStore()
+
+        //When
+        applyRestoredMainState(
+            restoredState = restoredMainState(SectionHatDomain.ONGOINGS, ongoing = restoredSectionState(itemCount = 50)),
+            mainStore = mainStore,
+            ongoingSectionStore = ongoingStore,
+            announcedSectionStore = announcedStore,
+            searchSectionStore = searchStore
+        )
+        ongoingStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+        //Then
+        // 50 is below RESTORED_SECTION_MAX_ITEM_COUNT (80) and pages have 100 items available,
+        // so the exact saved count must come back untouched by the cap.
+        assertEquals(50, ongoingStore.state.sectionContent.listItems.size)
+    }
+
+    @Test
+    fun ongoingsRestoredStateAboveMaxCapsAtEightyEvenWhenMoreDataIsAvailable() = runTest(testDispatcher) {
+        //Given
+        val pages = sequentialPages(pageCount = 20)
+        val mainStore = createMainStore()
+        val ongoingStore = createOngoingStore(source = PagedSource(pages))
+        val announcedStore = createAnnouncedStore()
+        val searchStore = createSearchStore()
+
+        //When
+        applyRestoredMainState(
+            restoredState = restoredMainState(SectionHatDomain.ONGOINGS, ongoing = restoredSectionState(itemCount = 120)),
+            mainStore = mainStore,
+            ongoingSectionStore = ongoingStore,
+            announcedSectionStore = announcedStore,
+            searchSectionStore = searchStore
+        )
+        ongoingStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+        //Then
+        // 200 items are available (well above the saved 120), so this must hit the 80 cap
+        // itself, not data exhaustion — unlike ongoingsRestoredStateCapsPagedInItemCountAtTheMaximum.
+        assertEquals(80, ongoingStore.state.sectionContent.listItems.size)
+    }
+
+    @Test
+    fun ongoingsRestoredStateContinuesPagingPastTheCapOnNextPage() = runTest(testDispatcher) {
+        //Given
+        val pages = sequentialPages(pageCount = 20)
+        val mainStore = createMainStore()
+        val ongoingStore = createOngoingStore(source = PagedSource(pages))
+        val announcedStore = createAnnouncedStore()
+        val searchStore = createSearchStore()
+        applyRestoredMainState(
+            restoredState = restoredMainState(SectionHatDomain.ONGOINGS, ongoing = restoredSectionState(itemCount = 120)),
+            mainStore = mainStore,
+            ongoingSectionStore = ongoingStore,
+            announcedSectionStore = announcedStore,
+            searchSectionStore = searchStore
+        )
+        ongoingStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+        //When
+        // The user scrolling near the end of the 80 restored items triggers this the same way a
+        // fresh (non-restored) list would: the cap must not block the paginator from continuing.
+        ongoingStore.accept(OngoingSectionStore.Intent.LoadNextPage)
+        ongoingStore.states.first { it.sectionContent.listItems.size == 90 }
+
+        //Then
+        assertEquals((81..90).map(::testListItem), ongoingStore.state.sectionContent.listItems.takeLast(10))
+    }
+
+    @Test
+    fun announcedRestoredStateBelowMaxRestoresExactSavedCount() = runTest(testDispatcher) {
+        //Given
+        val pages = sequentialPages(pageCount = 10)
+        val mainStore = createMainStore()
+        val ongoingStore = createOngoingStore()
+        val announcedStore = createAnnouncedStore(source = PagedSource(pages))
+        val searchStore = createSearchStore()
+
+        //When
+        applyRestoredMainState(
+            restoredState = restoredMainState(SectionHatDomain.ANNOUNCED, announced = restoredSectionState(itemCount = 50)),
+            mainStore = mainStore,
+            ongoingSectionStore = ongoingStore,
+            announcedSectionStore = announcedStore,
+            searchSectionStore = searchStore
+        )
+        announcedStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+        //Then
+        assertEquals(50, announcedStore.state.sectionContent.listItems.size)
+    }
+
+    @Test
+    fun announcedRestoredStateAboveMaxCapsAtEightyEvenWhenMoreDataIsAvailable() = runTest(testDispatcher) {
+        //Given
+        val pages = sequentialPages(pageCount = 20)
+        val mainStore = createMainStore()
+        val ongoingStore = createOngoingStore()
+        val announcedStore = createAnnouncedStore(source = PagedSource(pages))
+        val searchStore = createSearchStore()
+
+        //When
+        applyRestoredMainState(
+            restoredState = restoredMainState(SectionHatDomain.ANNOUNCED, announced = restoredSectionState(itemCount = 120)),
+            mainStore = mainStore,
+            ongoingSectionStore = ongoingStore,
+            announcedSectionStore = announcedStore,
+            searchSectionStore = searchStore
+        )
+        announcedStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+        //Then
+        assertEquals(80, announcedStore.state.sectionContent.listItems.size)
+    }
+
+    @Test
+    fun searchRestoredStateBelowMaxRestoresExactSavedCount() = runTest(testDispatcher) {
+        //Given
+        val pages = sequentialPages(pageCount = 10)
+        val mainStore = createMainStore()
+        val ongoingStore = createOngoingStore()
+        val announcedStore = createAnnouncedStore()
+        val searchStore = createSearchStore(source = PagedSource(pages))
+
+        //When
+        applyRestoredMainState(
+            restoredState = restoredMainState(SectionHatDomain.SEARCH, search = restoredSectionState(itemCount = 50)),
+            mainStore = mainStore,
+            ongoingSectionStore = ongoingStore,
+            announcedSectionStore = announcedStore,
+            searchSectionStore = searchStore
+        )
+        searchStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+        //Then
+        assertEquals(50, searchStore.state.sectionContent.listItems.size)
+    }
+
+    @Test
+    fun searchRestoredStateAboveMaxCapsAtEightyEvenWhenMoreDataIsAvailable() = runTest(testDispatcher) {
+        //Given
+        val pages = sequentialPages(pageCount = 20)
+        val mainStore = createMainStore()
+        val ongoingStore = createOngoingStore()
+        val announcedStore = createAnnouncedStore()
+        val searchStore = createSearchStore(source = PagedSource(pages))
+
+        //When
+        applyRestoredMainState(
+            restoredState = restoredMainState(SectionHatDomain.SEARCH, search = restoredSectionState(itemCount = 120)),
+            mainStore = mainStore,
+            ongoingSectionStore = ongoingStore,
+            announcedSectionStore = announcedStore,
+            searchSectionStore = searchStore
+        )
+        searchStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+        //Then
+        assertEquals(80, searchStore.state.sectionContent.listItems.size)
     }
 
     @Test
