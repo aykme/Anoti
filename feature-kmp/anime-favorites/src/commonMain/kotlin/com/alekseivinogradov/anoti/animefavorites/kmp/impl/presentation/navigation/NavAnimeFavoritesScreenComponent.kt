@@ -50,9 +50,11 @@ class NavAnimeFavoritesScreenComponent(
     }
 
     /**
-     * Opens the section unless process death happened while it was already open — in that one
-     * case its extra-info display state should survive, not reset. Every other way of arriving
-     * here (bottom-nav switch, deep link) always resets.
+     * Opens the section, always — this drives [mainStore]'s minimum-visible-duration loading
+     * state, so every arrival gets the same non-flickery loading treatment. Only the extra-info
+     * reset is conditional: skipped when process death happened while the section was already
+     * open, so that display state survives instead of resetting. Every other way of arriving
+     * here (bottom-nav switch, deep link) always resets it.
      *
      * Resets [animeDatabaseStore] directly rather than through [mainStore]'s
      * `Label.ResetExtraInfo`: that label only reaches [animeDatabaseStore] once
@@ -60,8 +62,8 @@ class NavAnimeFavoritesScreenComponent(
      * the controller is constructed — isn't guaranteed yet.
      */
     fun openSectionUnlessRestored() {
+        mainStore.accept(AnimeFavoritesMainStore.Intent.OpenSection)
         if (!wasRestoredFromProcessDeath) {
-            mainStore.accept(AnimeFavoritesMainStore.Intent.OpenSection)
             animeDatabaseStore.accept(AnimeDatabaseStore.Intent.ResetAllItemsExtraInfo)
         }
     }
