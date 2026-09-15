@@ -7,7 +7,7 @@ compileSdk = "37"
 jvmTarget = "17"
 #noinspection UnusedVersionCatalogEntry
 minSdk = "29"
-#noinspection UnusedVersionCatalogEntry
+#noinspection EditedTargetSdkVersion,UnusedVersionCatalogEntry
 targetSdk = "37"
 #noinspection UnusedVersionCatalogEntry
 versionCode = "9"
