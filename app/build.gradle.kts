@@ -57,6 +57,9 @@ dependencies {
     androidTestImplementation(libs.compose.components.resources)
 
     androidTestImplementation(libs.androidx.rules)
+    // ui-test-junit4 brings Espresso 3.5.0, which injects input events through a reflective
+    // InputManager.getInstance() that no longer exists on API 37. 3.7.0 uses getSystemService.
+    androidTestImplementation(libs.androidx.espresso.core)
     // Without this, an old androidx.activity pulled in transitively by Play Services wins
     // dependency resolution here, and MainActivity no longer satisfies
     // createAndroidComposeRule's ComponentActivity bound.
