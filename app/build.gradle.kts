@@ -51,6 +51,11 @@ dependencies {
     // restore it; do not remove without also removing that permission.
     implementation(libs.play.services.appset)
 
+    // No direct Kotlin usage either. It puts androidx.startup on this module's compile classpath,
+    // so the manifest's InitializationProvider reference resolves. Without it lint reports
+    // MissingClass on that provider; do not remove while the manifest declares it.
+    implementation(libs.androidx.work.runtime)
+
     androidTestImplementation(project(":core-kmp:test-utils"))
     androidTestImplementation(project(":feature-kmp:anime-favorites"))
     androidTestImplementation(libs.compose.components.resources)
