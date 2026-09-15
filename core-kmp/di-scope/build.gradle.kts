@@ -13,7 +13,6 @@ kotlin {
 
     android {
         namespace = "com.alekseivinogradov.anoti.discope.kmp"
-        //noinspection GradleDependency
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()
 

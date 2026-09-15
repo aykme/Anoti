@@ -10,7 +10,6 @@ plugins {
 kotlin {
     android {
         namespace = "com.alekseivinogradov.anoti.network.kmp"
-        //noinspection GradleDependency
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()
 
@@ -52,17 +51,6 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)
-
-            /**
-             * Necessary dependencies for older android versions.
-             * Without them, the crash "java.lang.NoSuchFieldError:Companion when using okhttp3"
-             * happens during an Internet request, due to some kind of dependency conflict.
-             * https://stackoverflow.com/questions/65828761/java-lang-nosuchfielderror-companion-when-using-okhttp3-and-selenium
-             * The BOM itself can't be declared here — this DSL has no `platform()` — so it's
-             * added below via the top-level `dependencies` block instead.
-             */
-            // define any required OkHttp artifacts without version
-            implementation(libs.okhttp)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -71,6 +59,8 @@ kotlin {
 }
 
 dependencies {
-    // define a BOM and its version for the okhttp workaround explained in androidMain.dependencies above
+    // Keeps every OkHttp artifact that ktor-client-okhttp pulls in on one version. Mixed versions
+    // crash older Android with "java.lang.NoSuchFieldError: Companion" on the first request.
+    // The BOM can't go in androidMain.dependencies — that DSL has no `platform()`.
     add("androidMainImplementation", platform(libs.okhttp.bom))
 }

@@ -7,7 +7,6 @@ plugins {
 
 android {
     namespace = "com.alekseivinogradov.anoti"
-    //noinspection GradleDependency
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {

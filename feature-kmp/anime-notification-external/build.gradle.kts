@@ -9,7 +9,6 @@ plugins {
 kotlin {
     android {
         namespace = "com.alekseivinogradov.anoti.animenotification.external.kmp"
-        //noinspection GradleDependency
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()
 
