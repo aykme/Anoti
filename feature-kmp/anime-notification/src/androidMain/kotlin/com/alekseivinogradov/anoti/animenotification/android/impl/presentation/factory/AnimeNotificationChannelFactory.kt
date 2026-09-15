@@ -7,7 +7,7 @@ import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.ani
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.anime_notification_channel_description
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import me.tatarka.inject.annotations.Inject
 import org.jetbrains.compose.resources.getString
 
@@ -23,23 +23,24 @@ class AnimeNotificationChannelFactory @Inject constructor(
     private val coroutineContextProvider: CoroutineContextProvider
 ) {
 
-    fun create(): NotificationChannel {
-        val name = runBlocking(coroutineContextProvider.ioDispatcher) {
-            getString(Res.string.anime_notification_channel)
-        }
-        val channelDescription = runBlocking(coroutineContextProvider.ioDispatcher) {
-            getString(Res.string.anime_notification_channel_description)
-        }
-        return NotificationChannel(
-            /* id = */
-            CHANNEL_ID,
-            /* name = */
-            name,
-            /* importance = */
-            NotificationManager.IMPORTANCE_DEFAULT
-        ).apply {
-            description = channelDescription
-            enableVibration(true)
+    // detekt reads getString and withContext as non-suspending here and calls the modifier
+    // redundant. The compiler requires it.
+    @Suppress("RedundantSuspendModifier")
+    suspend fun create(): NotificationChannel {
+        return withContext(coroutineContextProvider.ioDispatcher) {
+            val name = getString(Res.string.anime_notification_channel)
+            val channelDescription = getString(Res.string.anime_notification_channel_description)
+            NotificationChannel(
+                /* id = */
+                CHANNEL_ID,
+                /* name = */
+                name,
+                /* importance = */
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = channelDescription
+                enableVibration(true)
+            }
         }
     }
 }

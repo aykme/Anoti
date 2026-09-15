@@ -7,6 +7,8 @@ import com.alekseivinogradov.anoti.di.kmp.create
 import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
 import com.alekseivinogradov.anoti.main.impl.di.create
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponentHolder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 class AnotiApp : Application(), DiRootComponentHolder {
 
@@ -20,10 +22,12 @@ class AnotiApp : Application(), DiRootComponentHolder {
         super.onCreate()
 
         diAppComponent.animeBackgroundScheduler.schedulePeriodicUpdate()
-        setupAnimeNotificationManager()
+        CoroutineScope(diAppComponent.coroutineContextProvider.mainCoroutineContext).launch {
+            setupAnimeNotificationManager()
+        }
     }
 
-    private fun setupAnimeNotificationManager() {
+    private suspend fun setupAnimeNotificationManager() {
         (getSystemService(NOTIFICATION_SERVICE) as? NotificationManager)
             ?.let { notificationManager: NotificationManager ->
                 notificationManager.createNotificationChannel(

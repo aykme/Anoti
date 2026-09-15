@@ -4,7 +4,7 @@ import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.Anim
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.episode_aired
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.getString
 import platform.UserNotifications.UNMutableNotificationContent
 import platform.UserNotifications.UNNotificationRequest
@@ -21,14 +21,12 @@ import platform.UserNotifications.UNUserNotificationCenter
 class AnimeNotificationManagerImpl(
     private val coroutineContextProvider: CoroutineContextProvider
 ) : AnimeNotificationManager {
-    override fun makeNewEpisodeNotification(
+    override suspend fun makeNewEpisodeNotification(
         animeName: String?,
         airedEpisode: Int?,
         imageUrl: String?
-    ) {
-        val episodeAiredString = runBlocking(coroutineContextProvider.ioDispatcher) {
-            getString(Res.string.episode_aired)
-        }
+    ) = withContext(coroutineContextProvider.ioDispatcher) {
+        val episodeAiredString = getString(Res.string.episode_aired)
         val content = UNMutableNotificationContent().apply {
             setTitle(animeName ?: "")
             setBody("$episodeAiredString: ${airedEpisode ?: ""}")

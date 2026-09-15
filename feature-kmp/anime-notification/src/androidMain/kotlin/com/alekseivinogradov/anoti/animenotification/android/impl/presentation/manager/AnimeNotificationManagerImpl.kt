@@ -23,7 +23,7 @@ import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.new
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SilverTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.no_data
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.getString
 import kotlin.coroutines.cancellation.CancellationException
 import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
@@ -36,20 +36,6 @@ class AnimeNotificationManagerImpl(
 ) : AnimeNotificationManager {
     private val tag = "ANIME_NOTIFICATION_MANAGER"
 
-    // Lazy, not eager: both strings are only needed once makeNewEpisodeNotification actually
-    // fires, not at construction time.
-    private val episodeAiredString: String by lazy {
-        runBlocking(coroutineContextProvider.ioDispatcher) {
-            getString(Res.string.episode_aired)
-        }
-    }
-
-    private val noDataString: String by lazy {
-        runBlocking(coroutineContextProvider.ioDispatcher) {
-            getString(celebrityRes.string.no_data)
-        }
-    }
-
     private val iconColor: Int = SilverTransparent.toArgb()
 
     // The app-wide loader, so a poster already shown on screen comes from its cache.
@@ -57,10 +43,8 @@ class AnimeNotificationManagerImpl(
 
     private var singleBuilder: NotificationCompat.Builder
     private var intent: PendingIntent? = null
-    private var summaryNotification: Notification
     private var notificationManager: NotificationManagerCompat? = null
 
-    private val summaryNewEpisodesStyle = NotificationCompat.InboxStyle()
     private val newEpisodesGroupKey = "ANIME_NOTIFICATION_NEW_EPISODE_GROUP_KEY"
 
     /** Single id should be from [DEFAULT_SINGLE_ID] to [MAX_SINGLE_ID] */
@@ -72,11 +56,6 @@ class AnimeNotificationManagerImpl(
     init {
         intent = animeNotificationIntentProvider.getNewEpisodeNotificationIntent(appContext)
         notificationManager = NotificationManagerCompat.from(appContext)
-
-        val newEpisodesString =
-            runBlocking(coroutineContextProvider.ioDispatcher) {
-                getString(Res.string.new_episodes)
-            }
 
         singleBuilder = NotificationCompat.Builder(
             /* context = */
@@ -91,8 +70,49 @@ class AnimeNotificationManagerImpl(
             .setColor(iconColor)
             .setColorized(true)
             .setSmallIcon(res_R.mipmap.ic_notification)
+    }
 
-        summaryNotification = NotificationCompat.Builder(
+    @SuppressLint("MissingPermission")
+    override suspend fun makeNewEpisodeNotification(
+        animeName: String?,
+        airedEpisode: Int?,
+        imageUrl: String?
+    ) {
+        withContext(coroutineContextProvider.ioDispatcher) {
+            val noDataString = getString(celebrityRes.string.no_data)
+            val episodeAiredString = getString(Res.string.episode_aired)
+            val contentText = "$episodeAiredString: ${airedEpisode ?: noDataString}"
+
+            notificationManager?.let { notNullNotificationManager: NotificationManagerCompat ->
+                singleBuilder
+                    .setContentTitle(animeName ?: noDataString)
+                    .setContentText(contentText)
+                    .setLargeIcon(createPosterImageBitmap(imageUrl))
+
+                notNullNotificationManager.notify(
+                    /* id = */
+                    singleId,
+                    /* notification = */
+                    singleBuilder.build()
+                )
+                changeSingleIdToNext()
+
+                notNullNotificationManager.notify(
+                    /* id = */
+                    newEpisodesSummaryId,
+                    /* notification = */
+                    buildSummaryNotification()
+                )
+            }
+        }
+    }
+
+    // detekt reads getString as non-suspending here and calls the modifier redundant.
+    // The compiler requires it.
+    @Suppress("RedundantSuspendModifier")
+    private suspend fun buildSummaryNotification(): Notification {
+        val newEpisodesString = getString(Res.string.new_episodes)
+        return NotificationCompat.Builder(
             /* context = */
             appContext,
             /* channelId = */
@@ -105,48 +125,16 @@ class AnimeNotificationManagerImpl(
             .setColor(iconColor)
             .setColorized(true)
             .setSmallIcon(res_R.mipmap.ic_notification)
-            .setStyle(summaryNewEpisodesStyle.setSummaryText(newEpisodesString))
+            .setStyle(NotificationCompat.InboxStyle().setSummaryText(newEpisodesString))
             .build()
     }
 
-    @SuppressLint("MissingPermission")
-    override fun makeNewEpisodeNotification(
-        animeName: String?,
-        airedEpisode: Int?,
-        imageUrl: String?
-    ) {
-        val contentText = "$episodeAiredString: ${airedEpisode ?: noDataString}"
-
-        notificationManager?.let { notNullNotificationManager: NotificationManagerCompat ->
-            singleBuilder
-                .setContentTitle(animeName ?: noDataString)
-                .setContentText(contentText)
-                .setLargeIcon(createPosterImageBitmap(imageUrl))
-
-            notNullNotificationManager.notify(
-                /* id = */
-                singleId,
-                /* notification = */
-                singleBuilder.build()
-            )
-            changeSingleIdToNext()
-
-            notNullNotificationManager.notify(
-                /* id = */
-                newEpisodesSummaryId,
-                /* notification = */
-                summaryNotification
-            )
-        }
-    }
-
-    private fun createPosterImageBitmap(imageUrl: String?): Bitmap? {
+    private suspend fun createPosterImageBitmap(imageUrl: String?): Bitmap? {
         if (imageUrl == null) return null
         return try {
-            // makeNewEpisodeNotification is not suspending, so the load has to block here.
-            val result = runBlocking(coroutineContextProvider.ioDispatcher) {
-                imageLoader.execute(ImageRequest.Builder(appContext).data(imageUrl).build())
-            }
+            val result = imageLoader.execute(
+                ImageRequest.Builder(appContext).data(imageUrl).build()
+            )
             (result as? SuccessResult)?.image?.toBitmap()
         } catch (e: CancellationException) {
             throw e

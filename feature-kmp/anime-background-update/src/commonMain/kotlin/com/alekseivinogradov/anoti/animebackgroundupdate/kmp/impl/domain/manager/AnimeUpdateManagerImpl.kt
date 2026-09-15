@@ -233,7 +233,7 @@ class AnimeUpdateManagerImpl(
             newEpisodesAired > currentEpisodesAired
     }
 
-    private fun makeNewEpisodeNotificationIfNecessary(
+    private suspend fun makeNewEpisodeNotificationIfNecessary(
         currentDatabaseItem: AnimeDbDomain,
         updatedDatabaseItem: AnimeDbDomain
     ) {

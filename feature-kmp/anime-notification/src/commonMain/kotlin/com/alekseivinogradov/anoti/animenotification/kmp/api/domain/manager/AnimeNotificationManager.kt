@@ -10,7 +10,7 @@ interface AnimeNotificationManager {
      * @param airedEpisode number of the aired episode, or null if unknown.
      * @param imageUrl anime cover image to show, or null if unavailable.
      */
-    fun makeNewEpisodeNotification(
+    suspend fun makeNewEpisodeNotification(
         animeName: String?,
         airedEpisode: Int?,
         imageUrl: String?
