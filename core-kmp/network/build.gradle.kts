@@ -50,17 +50,12 @@ kotlin {
             implementation(libs.ktor.client.mock)
         }
         androidMain.dependencies {
+            // Ktor's engine pins OkHttp 5.3.2. The BOM lifts every OkHttp artifact to 5.5.0.
+            implementation(project.dependencies.platform(libs.okhttp.bom))
             implementation(libs.ktor.client.okhttp)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
     }
-}
-
-dependencies {
-    // Keeps every OkHttp artifact that ktor-client-okhttp pulls in on one version. Mixed versions
-    // crash older Android with "java.lang.NoSuchFieldError: Companion" on the first request.
-    // The BOM can't go in androidMain.dependencies — that DSL has no `platform()`.
-    add("androidMainImplementation", platform(libs.okhttp.bom))
 }
