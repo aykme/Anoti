@@ -7,6 +7,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.connection_
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.unknown_error
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderKmp
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
 
@@ -15,19 +16,27 @@ object ToastManager {
         CoroutineScope(CoroutineContextProviderKmp().mainCoroutineContext)
     }
 
+    private var job: Job? = null
+
+    private var toast: Toast? = null
+
     private fun makeLongToast(appContext: Context, text: String) {
-        Toast.makeText(
+        // Once shown, a toast sits in the system queue until it expires. Cancelling it keeps a
+        // burst of errors down to one message instead of a chain.
+        toast?.cancel()
+        toast = Toast.makeText(
             /* context = */
             appContext.applicationContext,
             /* text = */
             text,
             /* duration = */
             Toast.LENGTH_LONG
-        ).show()
+        ).also { newToast: Toast -> newToast.show() }
     }
 
     fun makeConnectionErrorToast(appContext: Context) {
-        scope.launch {
+        job?.cancel()
+        job = scope.launch {
             makeLongToast(
                 appContext = appContext,
                 text = getString(Res.string.connection_error)
@@ -36,7 +45,8 @@ object ToastManager {
     }
 
     fun makeUnknownErrorToast(appContext: Context) {
-        scope.launch {
+        job?.cancel()
+        job = scope.launch {
             makeLongToast(
                 appContext = appContext,
                 text = getString(Res.string.unknown_error)
