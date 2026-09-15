@@ -1,2 +1,9 @@
 formatting:
   active: true
+
+coroutines:
+  # detekt cannot resolve the generated Compose Resources accessors, so it reads every getString
+  # call as non-suspending and reports the modifier as redundant. Android Studio resolves them
+  # and still reports genuinely redundant modifiers.
+  RedundantSuspendModifier:
+    active: false

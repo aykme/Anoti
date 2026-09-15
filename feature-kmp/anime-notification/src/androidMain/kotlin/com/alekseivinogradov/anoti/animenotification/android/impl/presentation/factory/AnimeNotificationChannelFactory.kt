@@ -23,9 +23,6 @@ class AnimeNotificationChannelFactory @Inject constructor(
     private val coroutineContextProvider: CoroutineContextProvider
 ) {
 
-    // detekt reads getString and withContext as non-suspending here and calls the modifier
-    // redundant. The compiler requires it.
-    @Suppress("RedundantSuspendModifier")
     suspend fun create(): NotificationChannel {
         return withContext(coroutineContextProvider.ioDispatcher) {
             val name = getString(Res.string.anime_notification_channel)

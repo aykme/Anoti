@@ -107,9 +107,6 @@ class AnimeNotificationManagerImpl(
         }
     }
 
-    // detekt reads getString as non-suspending here and calls the modifier redundant.
-    // The compiler requires it.
-    @Suppress("RedundantSuspendModifier")
     private suspend fun buildSummaryNotification(): Notification {
         val newEpisodesString = getString(Res.string.new_episodes)
         return NotificationCompat.Builder(
