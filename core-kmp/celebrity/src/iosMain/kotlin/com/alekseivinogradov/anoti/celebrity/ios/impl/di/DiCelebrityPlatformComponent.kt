@@ -20,7 +20,7 @@ interface DiCelebrityPlatformComponent {
     @Provides
     @AppScope
     fun provideToastProvider(): ToastProvider = ToastProvider(
-        makeConnectionErrorToast = ToastManager.makeConnectionErrorToast(),
-        makeUnknownErrorToast = ToastManager.makeUnknownErrorToast()
+        makeConnectionErrorToast = { ToastManager.makeConnectionErrorToast() },
+        makeUnknownErrorToast = { ToastManager.makeUnknownErrorToast() }
     )
 }
