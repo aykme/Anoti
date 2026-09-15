@@ -48,13 +48,11 @@ workRuntimeKtx = "2.11.2"
 # Material 3 is only published as 1.12.0-alpha03 on the Compose Multiplatform line.
 # 1.9.0 is its stable ceiling.
 composeMaterial3 = "1.9.0"
-# Pinned to the version androidx.compose.ui:ui actually resolves to on :app's runtime classpath
-# (org.jetbrains.compose.ui:ui:1.11.1 substitutes to this) — an instrumented test shares the
-# app's process, so ui-test-junit4 must load the exact same Compose UI runtime classes. Newer
-# ui-test-junit4 stable releases exist (up to 1.12.0) but would drag the resolved
-# androidx.compose.ui:ui version past what composeMultiplatform 1.11.1 is built against.
+# Pinned to the androidx.compose.ui:ui version that :app's androidTest runtime classpath resolves to.
+# An instrumented test shares the app's process, so ui-test-junit4 must load the same UI classes.
+# 1.12.1 is newer, but composeMultiplatform 1.12.0 is built against androidx Compose UI 1.12.0.
 #noinspection GradleDependency
-composeUiTest = "1.11.2"
+composeUiTest = "1.12.0"
 
 [libraries]
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }

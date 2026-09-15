@@ -13,7 +13,6 @@ android {
     defaultConfig {
         applicationId = "com.alekseivinogradov.anoti"
         minSdk = libs.versions.minSdk.get().toInt()
-        //noinspection OldTargetApi
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = libs.versions.versionCode.get().toInt()
         versionName = libs.versions.versionName.get()
