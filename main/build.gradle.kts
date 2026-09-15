@@ -67,7 +67,7 @@ kotlin {
         androidMain.dependencies {
             implementation(project(":feature-kmp:anime-notification-external"))
 
-            implementation(libs.androidx.core.ktx)
+            implementation(libs.androidx.core)
             implementation(libs.androidx.activity)
             implementation(libs.androidx.activity.compose)
             implementation(libs.kotlinx.serialization.json)

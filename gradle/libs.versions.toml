@@ -17,7 +17,6 @@ versionName = "1.09"
 #iOS app versions
 
 #KMP library versions
-agp = "9.4.0"
 annotation = "1.10.0"
 coil = "3.6.2"
 composeMultiplatform = "1.12.0"
@@ -49,7 +48,8 @@ composeUiTest = "1.12.0"
 
 #Android library versions
 activity = "1.13.0"
-coreKtx = "1.19.0"
+agp = "9.4.0"
+core = "1.19.0"
 espressoCore = "3.7.0"
 playServicesAppset = "16.1.0"
 robolectric = "4.17"
@@ -97,7 +97,7 @@ mvikotlin-main = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-main", v
 #Android libraries
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity" }
-androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core = { group = "androidx.core", name = "core", version.ref = "core" }
 androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
 androidx-rules = { group = "androidx.test", name = "rules", version.ref = "rules" }
 androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "workRuntimeKtx" }
@@ -112,7 +112,6 @@ ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "kto
 
 [plugins]
 #KMP plugins
-androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 androidx-room = { id = "androidx.room", version.ref = "room" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
@@ -123,5 +122,6 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 #Android plugins
 android-application = { id = "com.android.application", version.ref = "agp" }
+androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 
 #iOS plugins
