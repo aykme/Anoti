@@ -50,8 +50,6 @@ kotlin {
             implementation(libs.ktor.client.mock)
         }
         androidMain.dependencies {
-            // Ktor's engine pins OkHttp 5.3.2. The BOM lifts every OkHttp artifact to 5.5.0.
-            implementation(project.dependencies.platform(libs.okhttp.bom))
             implementation(libs.ktor.client.okhttp)
         }
         iosMain.dependencies {

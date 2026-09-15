@@ -69,12 +69,6 @@ kotlin {
     }
 }
 
-dependencies {
-    add("kspAndroid", libs.androidx.room.compiler)
-    add("kspIosArm64", libs.androidx.room.compiler)
-    add("kspIosSimulatorArm64", libs.androidx.room.compiler)
-}
-
 // androidHostTest runs the Android target's BundledSQLiteDriver on the host JVM (via Robolectric),
 // not on a real device, so its normal System.loadLibrary(...)-from-APK loading path can't find the
 // native SQLite binary. BundledSQLiteDriver's Android-target NativeLibraryLoader supports pointing
@@ -115,6 +109,10 @@ val sqliteBundledJvmNatives: Configuration =
     }
 
 dependencies {
+    add("kspAndroid", libs.androidx.room.compiler)
+    add("kspIosArm64", libs.androidx.room.compiler)
+    add("kspIosSimulatorArm64", libs.androidx.room.compiler)
+
     sqliteBundledJvmNatives("androidx.sqlite:sqlite-bundled-jvm:${libs.versions.sqlite.get()}")
 }
 
