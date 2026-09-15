@@ -6,25 +6,13 @@ import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.connection_error
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.unknown_error
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderKmp
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
 
 object ToastManager {
-
-    private val coroutineContextProvider = CoroutineContextProviderKmp()
-
-    // Lazy, not eager: makeConnectionErrorToast/makeUnknownErrorToast are independent call
-    // sites, and only one of the two strings is ever actually needed in a given run.
-    private val connectionErrorText: String by lazy {
-        runBlocking(coroutineContextProvider.ioDispatcher) {
-            getString(Res.string.connection_error)
-        }
-    }
-
-    private val unknownErrorText: String by lazy {
-        runBlocking(coroutineContextProvider.ioDispatcher) {
-            getString(Res.string.unknown_error)
-        }
+    private val scope by lazy {
+        CoroutineScope(CoroutineContextProviderKmp().mainCoroutineContext)
     }
 
     private fun makeLongToast(appContext: Context, text: String) {
@@ -39,10 +27,20 @@ object ToastManager {
     }
 
     fun makeConnectionErrorToast(appContext: Context) {
-        makeLongToast(appContext = appContext, text = connectionErrorText)
+        scope.launch {
+            makeLongToast(
+                appContext = appContext,
+                text = getString(Res.string.connection_error)
+            )
+        }
     }
 
     fun makeUnknownErrorToast(appContext: Context) {
-        makeLongToast(appContext = appContext, text = unknownErrorText)
+        scope.launch {
+            makeLongToast(
+                appContext = appContext,
+                text = getString(Res.string.unknown_error)
+            )
+        }
     }
 }
