@@ -1,6 +1,6 @@
 <resources>
 
-    <style name="Theme.Anoti" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.Anoti" parent="@android:style/Theme.Material.NoActionBar">
         <!-- Color of the window before the first frame is drawn -->
         <item name="android:windowBackground">@android:color/black</item>
         <!-- Status bar color of the starting window, before enableEdgeToEdge() runs. Required on

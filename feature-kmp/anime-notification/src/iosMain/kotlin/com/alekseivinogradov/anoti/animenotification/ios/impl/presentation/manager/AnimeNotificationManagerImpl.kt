@@ -15,10 +15,8 @@ import platform.UserNotifications.UNUserNotificationCenter
  * cross-app deep-link intent concept equivalent to `AnimeNotificationIntentProvider` — tapping
  * the notification is wired up separately once an iOS UI/navigation layer exists.
  *
- * Note: unlike the Android implementation, this does not attach a poster image (Glide is an
- * Android-only library); loading a remote image into a `UNNotificationAttachment` requires
- * downloading it to a local file first, which needs a decision on an iOS image-loading library —
- * a known, deliberate gap, out of scope for a DI migration.
+ * Note: this does not attach a poster image. A `UNNotificationAttachment` needs the image
+ * downloaded to a local file first, which has no implementation here yet — a known, deliberate gap.
  */
 class AnimeNotificationManagerImpl(
     private val coroutineContextProvider: CoroutineContextProvider

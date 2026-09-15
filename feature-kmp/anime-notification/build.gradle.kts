@@ -53,7 +53,8 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.androidx.core.ktx)
-            implementation(libs.glide)
+            implementation(libs.coil)
+            implementation(libs.coil.network.ktor3)
             implementation(libs.compose.ui)
             api(project(":feature-kmp:anime-notification-external"))
         }

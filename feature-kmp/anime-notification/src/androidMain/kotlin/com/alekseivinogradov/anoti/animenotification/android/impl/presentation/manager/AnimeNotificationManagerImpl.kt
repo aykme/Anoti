@@ -9,6 +9,11 @@ import android.util.Log
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import coil3.ImageLoader
+import coil3.SingletonImageLoader
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import coil3.toBitmap
 import com.alekseivinogradov.anoti.animenotification.android.impl.presentation.factory.CHANNEL_ID
 import com.alekseivinogradov.anoti.animenotification.external.android.impl.presentation.provider.AnimeNotificationIntentProvider
 import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
@@ -18,8 +23,6 @@ import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.new
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SilverTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.no_data
-import com.bumptech.glide.Glide
-import com.bumptech.glide.RequestManager
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.getString
 import kotlin.coroutines.cancellation.CancellationException
@@ -27,9 +30,9 @@ import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as celebrityRes
 
 class AnimeNotificationManagerImpl(
-    appContext: Context,
+    private val appContext: Context,
     animeNotificationIntentProvider: AnimeNotificationIntentProvider,
-    coroutineContextProvider: CoroutineContextProvider
+    private val coroutineContextProvider: CoroutineContextProvider
 ) : AnimeNotificationManager {
     private val tag = "ANIME_NOTIFICATION_MANAGER"
 
@@ -49,7 +52,9 @@ class AnimeNotificationManagerImpl(
 
     private val iconColor: Int = SilverTransparent.toArgb()
 
-    private var glideRequestManager: RequestManager? = null
+    // The app-wide loader, so a poster already shown on screen comes from its cache.
+    private val imageLoader: ImageLoader by lazy { SingletonImageLoader.get(appContext) }
+
     private var singleBuilder: NotificationCompat.Builder
     private var intent: PendingIntent? = null
     private var summaryNotification: Notification
@@ -65,7 +70,6 @@ class AnimeNotificationManagerImpl(
     private val newEpisodesSummaryId = 0
 
     init {
-        glideRequestManager = Glide.with(appContext)
         intent = animeNotificationIntentProvider.getNewEpisodeNotificationIntent(appContext)
         notificationManager = NotificationManagerCompat.from(appContext)
 
@@ -137,12 +141,13 @@ class AnimeNotificationManagerImpl(
     }
 
     private fun createPosterImageBitmap(imageUrl: String?): Bitmap? {
+        if (imageUrl == null) return null
         return try {
-            glideRequestManager
-                ?.asBitmap()
-                ?.load(imageUrl)
-                ?.submit()
-                ?.get()
+            // makeNewEpisodeNotification is not suspending, so the load has to block here.
+            val result = runBlocking(coroutineContextProvider.ioDispatcher) {
+                imageLoader.execute(ImageRequest.Builder(appContext).data(imageUrl).build())
+            }
+            (result as? SuccessResult)?.image?.toBitmap()
         } catch (e: CancellationException) {
             throw e
         } catch (
