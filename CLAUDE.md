@@ -150,6 +150,10 @@ Read this before doing any task in this repository.
 - For any test that's new or was fixed, confirm it doesn't flake, doesn't rely on real time
   (highly undesirable — acceptable only in exceptional cases agreed with the developer), and
   never makes real API calls (this is forbidden).
+- Delete every artifact produced while verifying — screenshots, logcat dumps, UI hierarchy dumps,
+  temporary scripts, and anything else created only to check the result. This applies to the
+  session scratchpad and to the device/emulator alike. Nothing of the sort is left behind once
+  the check is done, whether it passed or failed.
 - Report back on every check from this list that was actually performed, so the developer can
   see what was verified without having to re-check it themselves.
 
