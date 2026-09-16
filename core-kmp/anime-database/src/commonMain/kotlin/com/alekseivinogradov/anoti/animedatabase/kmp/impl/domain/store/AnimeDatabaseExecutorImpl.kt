@@ -6,16 +6,24 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatab
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.wrapper.AnimeDatabaseUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.diagnostics.DiagnosticLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlin.time.TimeSource
 
+// One function per Intent handled, one helper, plus the temporary dispose() override that only
+// exists to trace the store's lifetime.
+@Suppress("TooManyFunctions")
 class AnimeDatabaseExecutorImpl(
     coroutineContextProvider: CoroutineContextProvider,
     private val usecases: AnimeDatabaseUsecases
 ) : AnimeDatabaseExecutor(
     mainContext = coroutineContextProvider.newMainCoroutineContext()
 ) {
+
+    // Every screen builds its own store, so lines from different instances have to be told apart.
+    private val storeTag = hashCode().toString(HEX_RADIX)
 
     /**
      * Where writes run. It outlives this executor, so a screen destroyed mid-write still gets
@@ -65,37 +73,80 @@ class AnimeDatabaseExecutorImpl(
         }
     }
 
+    override fun dispose() {
+        DiagnosticLog.log("db[$storeTag] dispose")
+        super.dispose()
+    }
+
     private fun subscribeToDatabase() {
         if (fetchAllDatabaseItemsJob?.isActive == true) return
         fetchAllDatabaseItemsJob = scope.launch {
-            usecases.fetchAllAnimeDatabaseItemsFlowUsecase.execute()
-                .collect { animeDbList: List<AnimeDbDomain> ->
-                    dispatch(
-                        AnimeDatabaseStore.Message.UpdateAnimeDatabaseItems(animeDbList)
-                    )
-                }
+            DiagnosticLog.log("db[$storeTag] subscribe.start")
+            try {
+                usecases.fetchAllAnimeDatabaseItemsFlowUsecase.execute()
+                    .collect { animeDbList: List<AnimeDbDomain> ->
+                        DiagnosticLog.log(
+                            "db[$storeTag] emit size=${animeDbList.size} " +
+                                "ids=${animeDbList.map(AnimeDbDomain::id).take(MAX_LOGGED_IDS)}"
+                        )
+                        dispatch(
+                            AnimeDatabaseStore.Message.UpdateAnimeDatabaseItems(animeDbList)
+                        )
+                    }
+            } finally {
+                DiagnosticLog.log("db[$storeTag] subscribe.end")
+            }
         }
     }
 
     private fun insertAnimeDatabaseItem(
         intent: AnimeDatabaseStore.Intent.InsertAnimeDatabaseItem
     ) {
-        if (insertDatabaseItemsJobMap[intent.animeDatabaseItem.id]?.isActive == true) return
-        if (databaseContainsItem(intent.animeDatabaseItem.id)) return
-        insertDatabaseItemsJobMap[intent.animeDatabaseItem.id] =
+        val id = intent.animeDatabaseItem.id
+        val isJobActive = insertDatabaseItemsJobMap[id]?.isActive == true
+        val isAlreadyInDatabase = databaseContainsItem(id)
+        DiagnosticLog.log(
+            "db[$storeTag] insert.intent id=$id jobActive=$isJobActive inDb=$isAlreadyInDatabase"
+        )
+        if (isJobActive) return
+        if (isAlreadyInDatabase) return
+        val requestedAt = TimeSource.Monotonic.markNow()
+        insertDatabaseItemsJobMap[id] =
             writeScope.launch {
+                DiagnosticLog.log(
+                    "db[$storeTag] insert.started id=$id " +
+                        "queuedMs=${requestedAt.elapsedNow().inWholeMilliseconds}"
+                )
                 usecases.insertAnimeDatabaseItemUsecase.execute(intent.animeDatabaseItem)
+                DiagnosticLog.log(
+                    "db[$storeTag] insert.done id=$id " +
+                        "totalMs=${requestedAt.elapsedNow().inWholeMilliseconds}"
+                )
             }
     }
 
     private fun deleteAnimeDatabaseItem(
         intent: AnimeDatabaseStore.Intent.DeleteAnimeDatabaseItem
     ) {
-        if (deleteDatabaseItemsJobMap[intent.id]?.isActive == true) return
-        if (!databaseContainsItem(intent.id)) return
+        val isJobActive = deleteDatabaseItemsJobMap[intent.id]?.isActive == true
+        val isInDatabase = databaseContainsItem(intent.id)
+        DiagnosticLog.log(
+            "db[$storeTag] delete.intent id=${intent.id} jobActive=$isJobActive inDb=$isInDatabase"
+        )
+        if (isJobActive) return
+        if (!isInDatabase) return
+        val requestedAt = TimeSource.Monotonic.markNow()
         deleteDatabaseItemsJobMap[intent.id] =
             writeScope.launch {
+                DiagnosticLog.log(
+                    "db[$storeTag] delete.started id=${intent.id} " +
+                        "queuedMs=${requestedAt.elapsedNow().inWholeMilliseconds}"
+                )
                 usecases.deleteAnimeDatabaseItemUsecase.execute(intent.id)
+                DiagnosticLog.log(
+                    "db[$storeTag] delete.done id=${intent.id} " +
+                        "totalMs=${requestedAt.elapsedNow().inWholeMilliseconds}"
+                )
             }
     }
 
@@ -153,5 +204,10 @@ class AnimeDatabaseExecutorImpl(
         return state().animeDatabaseItems.map { animeDb: AnimeDbDomain ->
             animeDb.id
         }.toSet().contains(id)
+    }
+
+    private companion object {
+        private const val HEX_RADIX = 16
+        private const val MAX_LOGGED_IDS = 30
     }
 }
