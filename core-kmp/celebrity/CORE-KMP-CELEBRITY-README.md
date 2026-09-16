@@ -1,6 +1,5 @@
 Shared core utilities used across Anoti's KMP feature modules: coroutine contexts, date
-formatting, error-toast callbacks, pagination, and Compose UI helpers for MVIKotlin-based
-screens.
+formatting, error toasts, pagination, and Compose UI helpers for MVIKotlin-based screens.
 
 ## Entities
 
@@ -9,7 +8,11 @@ screens.
 - [DateFormatter](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/domain/formatter/DateFormatter.kt) —
   formats date strings for display.
 - [ToastProvider](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/domain/toast/provider/ToastProvider.kt) —
-  holds the platform's error-toast callbacks.
+  holds the error-toast callbacks.
+- [ToastController](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/domain/toast/controller/ToastController.kt) —
+  app-wide stream of toast messages.
+- [ToastHost](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/presentation/compose/ToastHost.kt) —
+  shows `ToastController`'s messages as snackbars.
 - [Paginator](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/domain/paging/Paginator.kt) —
   pages through loads one page at a time.
 - [PageLoadResult](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/domain/paging/PageLoadResult.kt) —
@@ -28,9 +31,19 @@ screens.
 ## How to include it
 
 - Gradle: `implementation(project(":core-kmp:celebrity"))`
-- `CoroutineContextProvider`, `DateFormatter` and `ToastProvider` are provided via this module's
-  kotlin-inject bindings (`DiCelebrityComponent`, `DiCelebrityPlatformComponent`), mixed into
+- `CoroutineContextProvider`, `DateFormatter`, `ToastProvider` and `ToastController` are provided
+  via this module's kotlin-inject bindings (`DiCelebrityComponent`), mixed into
   [`core-kmp:di-app`](../di-app/CORE-KMP-DI-APP-README.md)'s `DiAppComponent` on both platforms —
-  inject them, don't construct them yourself. `Paginator`, `ComposeMviView`,
+  inject them, don't construct them yourself. `ToastHost`, `Paginator`, `ComposeMviView`,
   `repeatingClickable`, `LoadingSpinner`, `horizontalSystemBarsPadding` and `systemBarsTopPadding`
   have no DI wiring; callers subclass/construct/call them directly.
+
+## How to use it
+
+```kotlin
+// A feature reports an error:
+toastProvider.makeConnectionErrorToast()
+
+// The root Compose content shows it, placed last so it is drawn over the screen:
+ToastHost(controller = dependencies.toastController)
+```
