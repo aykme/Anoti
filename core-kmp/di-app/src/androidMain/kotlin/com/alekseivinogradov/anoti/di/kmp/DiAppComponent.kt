@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anoti.di.kmp
 
+import androidx.work.Configuration
 import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.presentation.di.DiAnimeBackgroundUpdatePlatformComponent
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.scheduler.AnimeBackgroundScheduler
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.di.DiAnimeBackgroundUpdateComponent
@@ -10,6 +11,7 @@ import com.alekseivinogradov.anoti.animenotification.android.impl.presentation.d
 import com.alekseivinogradov.anoti.animenotification.android.impl.presentation.factory.AnimeNotificationChannelFactory
 import com.alekseivinogradov.anoti.celebrity.android.impl.di.DiCelebrityPlatformComponent
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.di.DiCelebrityComponent
+import com.alekseivinogradov.anoti.di.kmp.qualifier.AnimeBackgroundUpdate
 import com.alekseivinogradov.anoti.di.kmp.qualifier.AppContext
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import com.alekseivinogradov.anoti.main.impl.di.DiRootDependencies
@@ -48,4 +50,8 @@ abstract class DiAppComponent(
 
     /** Schedules the periodic background update pass. */
     abstract val animeBackgroundScheduler: AnimeBackgroundScheduler
+
+    /** WorkManager's configuration, served to its on-demand initialization. */
+    @AnimeBackgroundUpdate
+    abstract val workManagerConfiguration: Configuration
 }

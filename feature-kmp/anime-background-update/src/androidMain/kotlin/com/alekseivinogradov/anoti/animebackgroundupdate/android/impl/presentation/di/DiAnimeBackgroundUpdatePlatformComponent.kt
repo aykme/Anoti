@@ -61,21 +61,13 @@ interface DiAnimeBackgroundUpdatePlatformComponent {
     /**
      * The app's single [WorkManager] handle.
      *
-     * The app manifest removes WorkManager's default `androidx.startup` initializer, so this
-     * binding is also the one place that installs the custom [Configuration] carrying the anime
-     * update worker factory. Everything that needs WorkManager depends on *this* binding rather
-     * than calling `WorkManager.getInstance` itself, so no consumer can observe an uninitialized
-     * WorkManager no matter which graph accessor is read first.
+     * WorkManager initializes itself on first access through the app's `Configuration.Provider`.
+     * That provider serves the [Configuration] bound above.
      */
     @Provides
     @AppScope
-    fun provideWorkManager(
-        @AppContext appContext: PlatformContext,
-        @AnimeBackgroundUpdate workManagerConfiguration: Configuration
-    ): WorkManager {
-        WorkManager.initialize(context = appContext, configuration = workManagerConfiguration)
-        return WorkManager.getInstance(context = appContext)
-    }
+    fun provideWorkManager(@AppContext appContext: PlatformContext): WorkManager =
+        WorkManager.getInstance(context = appContext)
 
     @Provides
     fun provideUpdateAllAnimeInBackgroundOnceUsecase(

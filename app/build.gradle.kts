@@ -51,9 +51,8 @@ dependencies {
     // restore it; do not remove without also removing that permission.
     implementation(libs.play.services.appset)
 
-    // No direct Kotlin usage either. It puts androidx.startup on this module's compile classpath,
-    // so the manifest's InitializationProvider reference resolves. Without it lint reports
-    // MissingClass on that provider; do not remove while the manifest declares it.
+    // `AnotiApp` implements WorkManager's `Configuration.Provider`. This also puts androidx.startup
+    // on this module's compile classpath, so the manifest's InitializationProvider resolves.
     implementation(libs.androidx.work.runtime)
 
     androidTestImplementation(project(":core-kmp:test-utils"))

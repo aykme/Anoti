@@ -9,8 +9,8 @@ import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.schedule
 /**
  * WorkManager-backed [AnimeBackgroundScheduler].
  *
- * @param workManager the app's WorkManager handle, already initialized with the anime update
- *   worker factory (see `DiAnimeBackgroundUpdatePlatformComponent`'s `provideWorkManager`).
+ * @param workManager the app's WorkManager handle, configured with the anime update worker
+ *   factory.
  * @param animeUpdatePeriodicWork the periodic work request enqueued by [schedulePeriodicUpdate].
  */
 class AnimeBackgroundSchedulerImpl(

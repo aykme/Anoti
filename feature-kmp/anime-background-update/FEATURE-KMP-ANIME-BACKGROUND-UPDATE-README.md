@@ -19,10 +19,11 @@ newly aired episodes.
   are all provided via this module's per-platform `DiAnimeBackgroundUpdatePlatformComponent`
   (a separate one on Android and on iOS), mixed into `DiAppComponent` on both platforms — inject
   them, don't construct them yourself.
-- Both `AnimeBackgroundScheduler` implementations do platform setup as soon as they're created:
-  the Android one installs WorkManager's custom `Configuration`, the iOS one registers its
-  `BGAppRefreshTask` handler — see the iOS implementation's own KDoc for a documented Info.plist
-  registration gap.
+- On Android the `Application` must implement WorkManager's `Configuration.Provider` and serve
+  `DiAppComponent.workManagerConfiguration`. The manifest disables WorkManager's default
+  initializer, so WorkManager initializes itself from that provider on first access.
+- The iOS `AnimeBackgroundScheduler` registers its `BGAppRefreshTask` handler as soon as it's
+  created — see its own KDoc for a documented Info.plist registration gap.
 
 ## How to use it
 

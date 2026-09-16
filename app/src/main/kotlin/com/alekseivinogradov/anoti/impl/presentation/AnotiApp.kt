@@ -2,6 +2,7 @@ package com.alekseivinogradov.anoti.impl.presentation
 
 import android.app.Application
 import android.app.NotificationManager
+import androidx.work.Configuration
 import com.alekseivinogradov.anoti.di.kmp.DiAppComponent
 import com.alekseivinogradov.anoti.di.kmp.create
 import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
@@ -10,9 +11,12 @@ import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponentHold
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-class AnotiApp : Application(), DiRootComponentHolder {
+class AnotiApp : Application(), DiRootComponentHolder, Configuration.Provider {
 
     private lateinit var diAppComponent: DiAppComponent
+
+    override val workManagerConfiguration: Configuration
+        get() = diAppComponent.workManagerConfiguration
 
     override fun createDiRootComponent(): DiRootComponent =
         DiRootComponent::class.create(diAppComponent)
