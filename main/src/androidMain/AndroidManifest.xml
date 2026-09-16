@@ -2,8 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application>
+        <!--
+          The screens are Compose-only and carry no orientation- or size-qualified resources, so
+          a rotation or a window resize has nothing to swap. Handling these here keeps the
+          activity alive instead of rebuilding the DI graph and every store.
+        -->
         <activity
             android:name="com.alekseivinogradov.anoti.main.impl.presentation.MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
