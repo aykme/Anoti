@@ -13,6 +13,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
+import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +38,8 @@ class AnimeFavoritesExecutorImplTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
 
+    private val createdStores = mutableListOf<Store<*, *, *>>()
+
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(testDispatcher)
@@ -44,6 +47,7 @@ class AnimeFavoritesExecutorImplTest {
 
     @AfterTest
     fun tearDown() {
+        createdStores.forEach { it.dispose() }
         Dispatchers.resetMain()
     }
 
@@ -137,7 +141,7 @@ class AnimeFavoritesExecutorImplTest {
         return AnimeFavoritesMainStoreFactory(
             storeFactory = DefaultStoreFactory(),
             executorFactory = executorFactory
-        ).create()
+        ).create().also(createdStores::add)
     }
 
     @Test

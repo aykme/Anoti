@@ -13,6 +13,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
+import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.extensions.coroutines.states
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlin.test.AfterTest
@@ -34,6 +35,8 @@ class OngoingSectionExecutorImplTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
 
+    private val createdStores = mutableListOf<Store<*, *, *>>()
+
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(testDispatcher)
@@ -41,6 +44,7 @@ class OngoingSectionExecutorImplTest {
 
     @AfterTest
     fun tearDown() {
+        createdStores.forEach { it.dispose() }
         Dispatchers.resetMain()
     }
 
@@ -111,37 +115,44 @@ class OngoingSectionExecutorImplTest {
         return OngoingSectionStoreFactory(
             storeFactory = DefaultStoreFactory(),
             executorFactory = executorFactory
-        ).create()
+        ).create().also(createdStores::add)
     }
 
     @Test
     fun openSectionLoadsFirstPageAndMarksLoaded() = runTest(testDispatcher) {
+        //Given
         val item = testListItem(id = 1)
         val store = createStore(pages = mapOf(1 to CallResult.Success(listOf(item))))
 
+        //When
         store.accept(OngoingSectionStore.Intent.OpenSection)
         store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
+        //Then
         assertEquals(listOf(item), store.state.sectionContent.listItems)
     }
 
     @Test
     fun openSectionOnFirstPageHttpErrorMarksErrorAndToasts() = runTest(testDispatcher) {
+        //Given
         var toastCount = 0
         val store = createStore(
             pages = mapOf(1 to CallResult.HttpError(code = 500, throwable = Throwable())),
             onConnectionErrorToast = { toastCount++ }
         )
 
+        //When
         store.accept(OngoingSectionStore.Intent.OpenSection)
         store.states.first { it.sectionContent.contentType == ContentTypeDomain.ERROR }
 
+        //Then
         assertEquals(1, toastCount)
         assertTrue(store.state.sectionContent.listItems.isEmpty())
     }
 
     @Test
     fun loadNextPageAppendsSecondPageItems() = runTest(testDispatcher) {
+        //Given
         val firstItem = testListItem(id = 1)
         val secondItem = testListItem(id = 2)
         val store = createStore(
@@ -153,14 +164,17 @@ class OngoingSectionExecutorImplTest {
         store.accept(OngoingSectionStore.Intent.OpenSection)
         store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
+        //When
         store.accept(OngoingSectionStore.Intent.LoadNextPage)
         store.states.first { it.sectionContent.listItems.size == 2 }
 
+        //Then
         assertEquals(listOf(firstItem, secondItem), store.state.sectionContent.listItems)
     }
 
     @Test
     fun loadNextPageOnHttpErrorLeavesListAndContentTypeUnchanged() = runTest(testDispatcher) {
+        //Given
         var toastCount = 0
         val item = testListItem(id = 1)
         val store = createStore(
@@ -173,15 +187,18 @@ class OngoingSectionExecutorImplTest {
         store.accept(OngoingSectionStore.Intent.OpenSection)
         store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
+        //When
         store.accept(OngoingSectionStore.Intent.LoadNextPage)
         store.states.first { toastCount == 1 }
 
+        //Then
         assertEquals(listOf(item), store.state.sectionContent.listItems)
         assertEquals(ContentTypeDomain.LOADED, store.state.sectionContent.contentType)
     }
 
     @Test
     fun loadNextPageAtEndOfListDoesNothing() = runTest(testDispatcher) {
+        //Given
         val item = testListItem(id = 1)
         val store = createStore(
             pages = mapOf(
@@ -194,34 +211,46 @@ class OngoingSectionExecutorImplTest {
         store.accept(OngoingSectionStore.Intent.LoadNextPage)
         store.states.first { it.sectionContent.listItems.size == 1 }
 
+        //When
         store.accept(OngoingSectionStore.Intent.LoadNextPage)
 
+        //Then
         assertEquals(listOf(item), store.state.sectionContent.listItems)
     }
 
     @Test
     fun episodesInfoClickResolvesItemByIdAndTogglesEnabledSet() = runTest(testDispatcher) {
+        //Given
         val item = testListItem(id = 1)
         val store = createStore(pages = mapOf(1 to CallResult.Success(listOf(item))))
         store.accept(OngoingSectionStore.Intent.OpenSection)
         store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
+        //When
         store.accept(OngoingSectionStore.Intent.EpisodesInfoClick(id = item.id))
+
+        //Then
         assertEquals(setOf(item.id), store.state.sectionContent.enabledExtraEpisodesInfoIds)
 
+        //When
         store.accept(OngoingSectionStore.Intent.EpisodesInfoClick(id = item.id))
+
+        //Then
         assertEquals(emptySet(), store.state.sectionContent.enabledExtraEpisodesInfoIds)
     }
 
     @Test
     fun episodesInfoClickWithUnknownIdIsNoOp() = runTest(testDispatcher) {
+        //Given
         val item = testListItem(id = 1)
         val store = createStore(pages = mapOf(1 to CallResult.Success(listOf(item))))
         store.accept(OngoingSectionStore.Intent.OpenSection)
         store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
+        //When
         store.accept(OngoingSectionStore.Intent.EpisodesInfoClick(id = 999))
 
+        //Then
         assertTrue(store.state.sectionContent.enabledExtraEpisodesInfoIds.isEmpty())
     }
 

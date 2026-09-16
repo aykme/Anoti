@@ -10,14 +10,18 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-// One function per Intent handled, plus two helpers, not incidental growth.
-@Suppress("TooManyFunctions")
 class AnimeDatabaseExecutorImpl(
-    private val coroutineContextProvider: CoroutineContextProvider,
+    coroutineContextProvider: CoroutineContextProvider,
     private val usecases: AnimeDatabaseUsecases
 ) : AnimeDatabaseExecutor(
     mainContext = coroutineContextProvider.newMainCoroutineContext()
 ) {
+
+    /**
+     * Where writes run. It outlives this executor, so a screen destroyed mid-write still gets
+     * its write finished. Reads use [scope] instead: nothing is left to render them.
+     */
+    private val writeScope = CoroutineScope(coroutineContextProvider.appMainCoroutineContext)
 
     private var fetchAllDatabaseItemsJob: Job? = null
     private val insertDatabaseItemsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
@@ -79,7 +83,7 @@ class AnimeDatabaseExecutorImpl(
         if (insertDatabaseItemsJobMap[intent.animeDatabaseItem.id]?.isActive == true) return
         if (databaseContainsItem(intent.animeDatabaseItem.id)) return
         insertDatabaseItemsJobMap[intent.animeDatabaseItem.id] =
-            launchWrite {
+            writeScope.launch {
                 usecases.insertAnimeDatabaseItemUsecase.execute(intent.animeDatabaseItem)
             }
     }
@@ -90,7 +94,7 @@ class AnimeDatabaseExecutorImpl(
         if (deleteDatabaseItemsJobMap[intent.id]?.isActive == true) return
         if (!databaseContainsItem(intent.id)) return
         deleteDatabaseItemsJobMap[intent.id] =
-            launchWrite {
+            writeScope.launch {
                 usecases.deleteAnimeDatabaseItemUsecase.execute(intent.id)
             }
     }
@@ -98,7 +102,7 @@ class AnimeDatabaseExecutorImpl(
     private fun resetAllItemsNewEpisodeStatus() {
         if (resetAllItemsNewEpisodeStatusJob?.isActive == true) return
         resetAllItemsNewEpisodeStatusJob =
-            launchWrite {
+            writeScope.launch {
                 usecases.resetAllAnimeDatabaseItemsNewEpisodeStatusUsecase.execute()
                 publish(AnimeDatabaseStore.Label.ResetAllItemsNewEpisodeStatusWasFinished)
             }
@@ -119,7 +123,7 @@ class AnimeDatabaseExecutorImpl(
         if (isItemAlreadyWithoutNewEpisodeLabel) return
 
         changeItemNewEpisodeStatusJobMap[intent.id] =
-            launchWrite {
+            writeScope.launch {
                 usecases.changeAnimeDatabaseItemNewEpisodeStatusUsecase.execute(
                     id = intent.id,
                     isNewEpisode = intent.isNewEpisode
@@ -133,25 +137,17 @@ class AnimeDatabaseExecutorImpl(
         if (updateItemJobMap[intent.animeDatabaseItem.id]?.isActive == true) return
         if (!databaseContainsItem(intent.animeDatabaseItem.id)) return
         updateItemJobMap[intent.animeDatabaseItem.id] =
-            launchWrite {
+            writeScope.launch {
                 usecases.updateAnimeDatabaseItemUsecase.execute(intent.animeDatabaseItem)
             }
     }
 
     private fun resetAllItemsExtraInfo() {
         if (resetAllItemsExtraInfoJob?.isActive == true) return
-        resetAllItemsExtraInfoJob = launchWrite {
+        resetAllItemsExtraInfoJob = writeScope.launch {
             usecases.resetAllAnimeDatabaseItemsExtraInfoUsecase.execute()
         }
     }
-
-    /**
-     * Runs a write outside this executor's scope, so it still finishes when the screen that
-     * started it is destroyed mid-write. Reads are scoped to the executor instead: nothing is
-     * left to render them.
-     */
-    private fun launchWrite(block: suspend CoroutineScope.() -> Unit): Job =
-        scope.launch(context = coroutineContextProvider.appMainCoroutineContext, block = block)
 
     private fun databaseContainsItem(id: AnimeId): Boolean {
         return state().animeDatabaseItems.map { animeDb: AnimeDbDomain ->

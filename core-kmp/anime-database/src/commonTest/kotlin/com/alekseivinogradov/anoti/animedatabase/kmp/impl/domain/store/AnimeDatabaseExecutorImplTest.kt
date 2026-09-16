@@ -15,6 +15,7 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.ResetAl
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.UpdateAnimeDatabaseItemUsecaseImpl
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -34,6 +35,9 @@ class AnimeDatabaseExecutorImplTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
 
+    private val createdStores = mutableListOf<Store<*, *, *>>()
+
+
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(testDispatcher)
@@ -41,6 +45,7 @@ class AnimeDatabaseExecutorImplTest {
 
     @AfterTest
     fun tearDown() {
+        createdStores.forEach { it.dispose() }
         Dispatchers.resetMain()
     }
 
@@ -88,7 +93,7 @@ class AnimeDatabaseExecutorImplTest {
                     usecases = usecases
                 )
             }
-        ).create()
+        ).create().also(createdStores::add)
     }
 
     @Test

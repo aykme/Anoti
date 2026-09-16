@@ -8,6 +8,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeList
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlin.test.AfterTest
@@ -29,6 +30,8 @@ class AnimeListExecutorImplTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
 
+    private val createdStores = mutableListOf<Store<*, *, *>>()
+
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(testDispatcher)
@@ -36,6 +39,7 @@ class AnimeListExecutorImplTest {
 
     @AfterTest
     fun tearDown() {
+        createdStores.forEach { it.dispose() }
         Dispatchers.resetMain()
     }
 
@@ -50,7 +54,7 @@ class AnimeListExecutorImplTest {
         return AnimeListMainStoreFactory(
             storeFactory = DefaultStoreFactory(),
             executorFactory = executorFactory
-        ).create()
+        ).create().also(createdStores::add)
     }
 
     private fun testListItem(id: AnimeId) = ListItemDomain(
@@ -68,6 +72,7 @@ class AnimeListExecutorImplTest {
 
     @Test
     fun notificationClickOnKnownIdInSelectedSectionPublishesEnableWithResolvedItem() = runTest(testDispatcher) {
+        //Given
         val store = createStore()
         val item = testListItem(id = 1)
         store.accept(
@@ -75,12 +80,13 @@ class AnimeListExecutorImplTest {
                 content = SectionContentDomain(listItems = listOf(item))
             )
         )
-
         val emittedLabels = mutableListOf<AnimeListMainStore.Label>()
         val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
 
+        //When
         store.accept(AnimeListMainStore.Intent.NotificationClick(id = item.id))
 
+        //Then
         assertTrue(
             emittedLabels.contains(AnimeListMainStore.Label.EnableNotificationClick(item)),
             "Expected EnableNotificationClick($item) among $emittedLabels"
@@ -90,6 +96,7 @@ class AnimeListExecutorImplTest {
 
     @Test
     fun notificationClickOnAlreadyEnabledIdPublishesDisableWithId() = runTest(testDispatcher) {
+        //Given
         val store = createStore()
         val item = testListItem(id = 2)
         store.accept(
@@ -102,12 +109,13 @@ class AnimeListExecutorImplTest {
                 enabledNotificationIds = setOf(item.id)
             )
         )
-
         val emittedLabels = mutableListOf<AnimeListMainStore.Label>()
         val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
 
+        //When
         store.accept(AnimeListMainStore.Intent.NotificationClick(id = item.id))
 
+        //Then
         assertEquals(
             listOf<AnimeListMainStore.Label>(AnimeListMainStore.Label.DisableNotificationClick(item.id)),
             emittedLabels
@@ -117,32 +125,36 @@ class AnimeListExecutorImplTest {
 
     @Test
     fun notificationClickOnUnknownIdPublishesNothing() = runTest(testDispatcher) {
+        //Given
         val store = createStore()
         store.accept(
             AnimeListMainStore.Intent.UpdateOngoingContent(
                 content = SectionContentDomain(listItems = listOf(testListItem(id = 1)))
             )
         )
-
         val emittedLabels = mutableListOf<AnimeListMainStore.Label>()
         val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
 
+        //When
         store.accept(AnimeListMainStore.Intent.NotificationClick(id = 999))
 
+        //Then
         assertTrue(emittedLabels.isEmpty(), "Expected no labels, got $emittedLabels")
         collectJob.cancel()
     }
 
     @Test
     fun episodesInfoClickRoutesToLabelOfCurrentlySelectedSection() = runTest(testDispatcher) {
+        //Given
         val store = createStore()
         store.accept(AnimeListMainStore.Intent.SearchSectionClick)
-
         val emittedLabels = mutableListOf<AnimeListMainStore.Label>()
         val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
 
+        //When
         store.accept(AnimeListMainStore.Intent.EpisodesInfoClick(id = 7))
 
+        //Then
         assertTrue(
             emittedLabels.contains(AnimeListMainStore.Label.SearchEpisodeInfoClick(7)),
             "Expected SearchEpisodeInfoClick(7) among $emittedLabels"
@@ -152,14 +164,16 @@ class AnimeListExecutorImplTest {
 
     @Test
     fun loadNextPagePublishesLabelForCurrentlySelectedSection() = runTest(testDispatcher) {
+        //Given
         val store = createStore()
         store.accept(AnimeListMainStore.Intent.AnnouncedSectionClick)
-
         val emittedLabels = mutableListOf<AnimeListMainStore.Label>()
         val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
 
+        //When
         store.accept(AnimeListMainStore.Intent.LoadNextPage)
 
+        //Then
         assertTrue(
             emittedLabels.contains(AnimeListMainStore.Label.LoadNextPageAnnouncedSection),
             "Expected LoadNextPageAnnouncedSection among $emittedLabels"
