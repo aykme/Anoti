@@ -47,14 +47,19 @@ kotlin {
             implementation(project(":core-kmp:di-scope"))
             implementation(project(":core-kmp:celebrity"))
 
+            implementation(libs.kotlinx.coroutines.core)
             implementation(libs.compose.components.resources)
+            implementation(libs.coil)
+            implementation(libs.coil.network.ktor3)
 
             implementation(libs.kotlin.inject.runtime.kmp)
         }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
+        }
         androidMain.dependencies {
             implementation(libs.androidx.core)
-            implementation(libs.coil)
-            implementation(libs.coil.network.ktor3)
             implementation(libs.compose.ui)
             api(project(":feature-kmp:anime-notification-external"))
         }
