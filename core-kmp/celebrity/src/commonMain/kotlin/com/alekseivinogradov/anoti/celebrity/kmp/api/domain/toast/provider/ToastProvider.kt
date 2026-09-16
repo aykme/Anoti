@@ -7,7 +7,7 @@ typealias MakeConnectionErrorToast = () -> Unit
 typealias MakeUnknownErrorToast = () -> Unit
 
 /**
- * Holds the platform-supplied callbacks for showing error toasts.
+ * Holds the callbacks for showing error toasts.
  *
  * @param makeConnectionErrorToast shown for connection/network failures.
  * @param makeUnknownErrorToast shown for anything else unexpected.

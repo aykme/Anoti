@@ -9,7 +9,6 @@ import com.alekseivinogradov.anoti.animedatabase.android.impl.di.DiAnimeDatabase
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.di.DiAnimeDatabaseComponent
 import com.alekseivinogradov.anoti.animenotification.android.impl.presentation.di.DiAnimeNotificationPlatformComponent
 import com.alekseivinogradov.anoti.animenotification.android.impl.presentation.factory.AnimeNotificationChannelFactory
-import com.alekseivinogradov.anoti.celebrity.android.impl.di.DiCelebrityPlatformComponent
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.di.DiCelebrityComponent
 import com.alekseivinogradov.anoti.di.kmp.qualifier.AnimeBackgroundUpdate
 import com.alekseivinogradov.anoti.di.kmp.qualifier.AppContext
@@ -35,7 +34,6 @@ abstract class DiAppComponent(
 ) : DiNetworkComponent,
     DiNetworkPlatformComponent,
     DiCelebrityComponent,
-    DiCelebrityPlatformComponent,
     DiAnimeDatabaseComponent,
     DiAnimeDatabasePlatformComponent,
     DiAnimeBaseComponent,

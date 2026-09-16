@@ -8,7 +8,6 @@ import com.alekseivinogradov.anoti.animedatabase.ios.impl.di.DiAnimeDatabasePlat
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.di.DiAnimeDatabaseComponent
 import com.alekseivinogradov.anoti.animenotification.ios.impl.di.DiAnimeNotificationPlatformComponent
 import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
-import com.alekseivinogradov.anoti.celebrity.ios.impl.di.DiCelebrityPlatformComponent
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.di.DiCelebrityComponent
 import com.alekseivinogradov.anoti.di.kmp.qualifier.AppContext
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
@@ -33,7 +32,6 @@ abstract class DiAppComponent(
 ) : DiNetworkComponent,
     DiNetworkPlatformComponent,
     DiCelebrityComponent,
-    DiCelebrityPlatformComponent,
     DiAnimeDatabaseComponent,
     DiAnimeDatabasePlatformComponent,
     DiAnimeBaseComponent,
