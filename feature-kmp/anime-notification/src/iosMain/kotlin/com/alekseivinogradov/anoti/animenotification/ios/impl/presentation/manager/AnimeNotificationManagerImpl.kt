@@ -7,6 +7,7 @@ import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.episode_aired
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.poster.PosterLoader
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
+import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
@@ -103,7 +104,7 @@ class AnimeNotificationManagerImpl(
     }
 
     // The attachment needs an encoded file, while Coil hands back a decoded bitmap.
-    @OptIn(ExperimentalForeignApi::class)
+    @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
     private fun Image.toPngData(): NSData? {
         val bytes = SkiaImage.makeFromBitmap(toBitmap())
             .encodeToData(EncodedImageFormat.PNG)

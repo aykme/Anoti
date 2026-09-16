@@ -9,6 +9,7 @@ import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Loads an anime poster for a notification through the app-wide Coil loader. Any failure or a
@@ -42,7 +43,9 @@ internal suspend fun <T : Any> loadWithTimeout(
     if (imageUrl == null) return null
     return try {
         // The loader has no timeout of its own, and a bounded background job must not stall on it.
-        val outcome = withTimeoutOrNull(timeoutMillis) { LoadOutcome(load(imageUrl)) }
+        val outcome = withTimeoutOrNull(timeoutMillis.milliseconds) {
+            LoadOutcome(load(imageUrl))
+        }
         if (outcome == null) println("$TAG Poster load timed out: $imageUrl")
         outcome?.poster
     } catch (e: CancellationException) {
