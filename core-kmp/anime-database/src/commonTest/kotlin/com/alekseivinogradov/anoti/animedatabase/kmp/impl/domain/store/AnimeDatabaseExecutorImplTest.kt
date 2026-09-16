@@ -128,7 +128,12 @@ class AnimeDatabaseExecutorImplTest {
         //Given
         var writeAttempts = 0
         val writeGate = CompletableDeferred<Unit>()
-        val dao = AnimeDaoFake(beforeWrite = { writeAttempts++; writeGate.await() })
+        val dao = AnimeDaoFake(
+            beforeWrite = {
+                writeAttempts++
+                writeGate.await()
+            }
+        )
         val store = createStore(dao)
         val item = sample(id = 1)
 
