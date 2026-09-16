@@ -9,6 +9,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.Co
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 
 object ToastManager {
@@ -35,22 +36,26 @@ object ToastManager {
     }
 
     fun makeConnectionErrorToast(appContext: Context) {
-        job?.cancel()
-        job = scope.launch {
-            makeLongToast(
-                appContext = appContext,
-                text = getString(Res.string.connection_error)
-            )
-        }
+        showError(appContext = appContext, resource = Res.string.connection_error)
     }
 
     fun makeUnknownErrorToast(appContext: Context) {
-        job?.cancel()
-        job = scope.launch {
-            makeLongToast(
-                appContext = appContext,
-                text = getString(Res.string.unknown_error)
-            )
+        showError(appContext = appContext, resource = Res.string.unknown_error)
+    }
+
+    /**
+     * The whole swap runs inside [scope] so that [job] and [toast] are only ever touched on the
+     * main dispatcher — the coroutine exception handler reaches this from arbitrary threads.
+     */
+    private fun showError(appContext: Context, resource: StringResource) {
+        scope.launch {
+            job?.cancel()
+            job = launch {
+                makeLongToast(
+                    appContext = appContext,
+                    text = getString(resource)
+                )
+            }
         }
     }
 }

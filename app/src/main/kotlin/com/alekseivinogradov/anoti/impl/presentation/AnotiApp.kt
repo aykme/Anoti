@@ -21,9 +21,10 @@ class AnotiApp : Application(), DiRootComponentHolder {
         diAppComponent = DiAppComponent::class.create(this.applicationContext)
         super.onCreate()
 
-        diAppComponent.animeBackgroundScheduler.schedulePeriodicUpdate()
         CoroutineScope(diAppComponent.coroutineContextProvider.mainCoroutineContext).launch {
+            // The worker posts into this channel, so it must exist before the work is enqueued.
             setupAnimeNotificationManager()
+            diAppComponent.animeBackgroundScheduler.schedulePeriodicUpdate()
         }
     }
 

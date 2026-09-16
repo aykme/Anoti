@@ -11,6 +11,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
+import coil3.request.ErrorResult
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.toBitmap
@@ -23,7 +24,10 @@ import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.new
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SilverTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.no_data
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.jetbrains.compose.resources.getString
 import kotlin.coroutines.cancellation.CancellationException
 import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
@@ -41,9 +45,15 @@ class AnimeNotificationManagerImpl(
     // The app-wide loader, so a poster already shown on screen comes from its cache.
     private val imageLoader: ImageLoader by lazy { SingletonImageLoader.get(appContext) }
 
-    private var singleBuilder: NotificationCompat.Builder
-    private var intent: PendingIntent? = null
-    private var notificationManager: NotificationManagerCompat? = null
+    private val intent: PendingIntent =
+        animeNotificationIntentProvider.getNewEpisodeNotificationIntent(appContext)
+
+    private val notificationManager: NotificationManagerCompat =
+        NotificationManagerCompat.from(appContext)
+
+    // The periodic and the one-off update passes can run at the same time, and each id may only
+    // be handed out once.
+    private val postingMutex = Mutex()
 
     private val newEpisodesGroupKey = "ANIME_NOTIFICATION_NEW_EPISODE_GROUP_KEY"
 
@@ -52,25 +62,6 @@ class AnimeNotificationManagerImpl(
 
     /** Group ids should be from 0 to 9 */
     private val newEpisodesSummaryId = 0
-
-    init {
-        intent = animeNotificationIntentProvider.getNewEpisodeNotificationIntent(appContext)
-        notificationManager = NotificationManagerCompat.from(appContext)
-
-        singleBuilder = NotificationCompat.Builder(
-            /* context = */
-            appContext,
-            /* channelId = */
-            CHANNEL_ID
-        )
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setGroup(newEpisodesGroupKey)
-            .setAutoCancel(true)
-            .setContentIntent(intent)
-            .setColor(iconColor)
-            .setColorized(true)
-            .setSmallIcon(res_R.mipmap.ic_notification)
-    }
 
     @SuppressLint("MissingPermission")
     override suspend fun makeNewEpisodeNotification(
@@ -81,63 +72,84 @@ class AnimeNotificationManagerImpl(
         withContext(coroutineContextProvider.ioDispatcher) {
             val noDataString = getString(celebrityRes.string.no_data)
             val episodeAiredString = getString(Res.string.episode_aired)
-            val contentText = "$episodeAiredString: ${airedEpisode ?: noDataString}"
+            val singleNotification = buildSingleNotification(
+                title = animeName ?: noDataString,
+                contentText = "$episodeAiredString: ${airedEpisode ?: noDataString}",
+                poster = createPosterImageBitmap(imageUrl)
+            )
+            val summaryNotification = buildSummaryNotification()
 
-            notificationManager?.let { notNullNotificationManager: NotificationManagerCompat ->
-                singleBuilder
-                    .setContentTitle(animeName ?: noDataString)
-                    .setContentText(contentText)
-                    .setLargeIcon(createPosterImageBitmap(imageUrl))
-
-                notNullNotificationManager.notify(
+            postingMutex.withLock {
+                notificationManager.notify(
                     /* id = */
                     singleId,
                     /* notification = */
-                    singleBuilder.build()
+                    singleNotification
                 )
                 changeSingleIdToNext()
 
-                notNullNotificationManager.notify(
+                notificationManager.notify(
                     /* id = */
                     newEpisodesSummaryId,
                     /* notification = */
-                    buildSummaryNotification()
+                    summaryNotification
                 )
             }
         }
     }
 
-    private suspend fun buildSummaryNotification(): Notification {
-        val newEpisodesString = getString(Res.string.new_episodes)
-        return NotificationCompat.Builder(
-            /* context = */
-            appContext,
-            /* channelId = */
-            CHANNEL_ID
+    private fun buildSingleNotification(
+        title: String,
+        contentText: String,
+        poster: Bitmap?
+    ): Notification = newEpisodeBuilder()
+        .setAutoCancel(true)
+        .setContentIntent(intent)
+        .setContentTitle(title)
+        .setContentText(contentText)
+        .setLargeIcon(poster)
+        .build()
+
+    private suspend fun buildSummaryNotification(): Notification = newEpisodeBuilder()
+        .setGroupSummary(true)
+        .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
+        .setStyle(
+            NotificationCompat.InboxStyle()
+                .setSummaryText(getString(Res.string.new_episodes))
         )
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setGroup(newEpisodesGroupKey)
-            .setGroupSummary(true)
-            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
-            .setColor(iconColor)
-            .setColorized(true)
-            .setSmallIcon(res_R.mipmap.ic_notification)
-            .setStyle(NotificationCompat.InboxStyle().setSummaryText(newEpisodesString))
-            .build()
-    }
+        .build()
+
+    private fun newEpisodeBuilder(): NotificationCompat.Builder = NotificationCompat.Builder(
+        /* context = */
+        appContext,
+        /* channelId = */
+        CHANNEL_ID
+    )
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+        .setGroup(newEpisodesGroupKey)
+        .setColor(iconColor)
+        .setColorized(true)
+        .setSmallIcon(res_R.mipmap.ic_notification)
 
     private suspend fun createPosterImageBitmap(imageUrl: String?): Bitmap? {
         if (imageUrl == null) return null
         return try {
-            val result = imageLoader.execute(
-                ImageRequest.Builder(appContext).data(imageUrl).build()
-            )
-            (result as? SuccessResult)?.image?.toBitmap()
+            // The loader carries no timeout of its own, and this runs inside a bounded
+            // WorkManager job, so a stalled host must not hold the pass open.
+            val result = withTimeoutOrNull(POSTER_TIMEOUT_MILLIS) {
+                imageLoader.execute(ImageRequest.Builder(appContext).data(imageUrl).build())
+            }
+            when (result) {
+                is SuccessResult -> result.image.toBitmap()
+                // Coil reports a failed load by returning ErrorResult rather than throwing.
+                is ErrorResult -> null.also { Log.e(tag, "${result.throwable}") }
+                else -> null.also { Log.e(tag, "Poster load timed out: $imageUrl") }
+            }
         } catch (e: CancellationException) {
             throw e
         } catch (
             // Best-effort poster load for the notification; falling back to no image on any
-            // other failure (already logged below) is this method's whole purpose.
+            // other failure is this method's whole purpose.
             @Suppress("TooGenericExceptionCaught") e: Exception
         ) {
             Log.e(tag, "$e")
@@ -156,5 +168,6 @@ class AnimeNotificationManagerImpl(
     private companion object {
         private const val DEFAULT_SINGLE_ID = 10
         private const val MAX_SINGLE_ID = 99
+        private const val POSTER_TIMEOUT_MILLIS = 10_000L
     }
 }

@@ -21,7 +21,7 @@ class AnimeUpdateManagerImpl(
     private val notificationManager: AnimeNotificationManager,
     // ...
 ) {
-    private fun onEpisodeAired(anime: AnimeDbDomain) {
+    private suspend fun onEpisodeAired(anime: AnimeDbDomain) {
         notificationManager.makeNewEpisodeNotification(
             animeName = anime.name,
             airedEpisode = anime.episodesAired,

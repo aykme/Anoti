@@ -23,7 +23,6 @@ composeMultiplatform = "1.12.0"
 coroutines = "1.11.0"
 decompose = "3.5.0"
 detekt = "1.23.8"
-essenty = "2.6.0"
 kotlin = "2.4.20"
 kotlinInject = "0.9.0"
 kotlinxCollectionsImmutable = "0.5.2"
@@ -45,6 +44,10 @@ composeMaterial3 = "1.9.0"
 # 1.12.1 is newer, but composeMultiplatform 1.12.0 is built against androidx Compose UI 1.12.0.
 #noinspection GradleDependency
 composeUiTest = "1.12.0"
+# Decompose 3.5.0 and MVIKotlin 4.4.0 are both built against Essenty 2.5.0 and pull it in
+# transitively. 2.6.0 would apply to lifecycle only, splitting the release train.
+#noinspection NewerVersionAvailable,GradleDependency
+essenty = "2.5.0"
 
 #Android library versions
 activity = "1.13.0"
