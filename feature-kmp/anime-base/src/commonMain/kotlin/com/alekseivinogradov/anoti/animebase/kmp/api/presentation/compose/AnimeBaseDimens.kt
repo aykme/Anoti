@@ -4,9 +4,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.milliseconds
 
-// Distance to pull down before a refresh triggers, and how far the indicator travels.
-val PULL_TO_REFRESH_THRESHOLD: Dp = 114.dp
-
 const val REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS = 500L
 const val REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS = 200L
 val ANIMATION_DURATION_VERY_SHORT = 250L.milliseconds

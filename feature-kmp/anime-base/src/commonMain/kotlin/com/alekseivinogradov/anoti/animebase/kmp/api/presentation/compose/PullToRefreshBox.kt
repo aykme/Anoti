@@ -33,20 +33,16 @@ fun PullToRefreshBox(
             .pullToRefresh(
                 isRefreshing = false,
                 state = pullToRefreshState,
-                threshold = PULL_TO_REFRESH_THRESHOLD,
                 onRefresh = onRefresh
             )
     ) {
         content()
-        // maxDistance is independent of pullToRefresh's threshold above and defaults to 80dp —
-        // without setting it, the release point moves but the indicator's travel doesn't.
         PullToRefreshDefaults.Indicator(
             modifier = Modifier.align(Alignment.TopCenter),
             isRefreshing = false,
             state = pullToRefreshState,
             color = Cinnabar500,
-            containerColor = White,
-            maxDistance = PULL_TO_REFRESH_THRESHOLD
+            containerColor = White
         )
     }
 }
