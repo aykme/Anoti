@@ -8,9 +8,7 @@ import kotlinx.coroutines.Job
 
 class CoroutineContextProviderBaseTest {
 
-    private fun createProvider() = object : CoroutineContextProviderBase() {
-        override val exceptionHandlerCallback: (Throwable) -> Unit = {}
-    }
+    private fun createProvider(): CoroutineContextProviderBase = CoroutineContextProviderBareImpl()
 
     @Test
     fun newMainCoroutineContextCarriesAFreshJobOnEveryCall() {
