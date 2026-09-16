@@ -165,7 +165,8 @@ class AnimeUpdateManagerImpl(
         )
 
         updatedDatabaseItems.forEach { updatedDatabaseItem: AnimeDbDomain ->
-            updateAnimeDatabaseItemUsecase.execute(updatedDatabaseItem)
+            // Notify first: once the row carries the new episode count, the next pass sees no
+            // change and would never notify about it.
             currentDatabaseItemsWithIds[updatedDatabaseItem.id]
                 ?.let { currentDatabaseItem: AnimeDbDomain ->
                     makeNewEpisodeNotificationIfNecessary(
@@ -173,6 +174,7 @@ class AnimeUpdateManagerImpl(
                         updatedDatabaseItem = updatedDatabaseItem
                     )
                 }
+            updateAnimeDatabaseItemUsecase.execute(updatedDatabaseItem)
         }
     }
 

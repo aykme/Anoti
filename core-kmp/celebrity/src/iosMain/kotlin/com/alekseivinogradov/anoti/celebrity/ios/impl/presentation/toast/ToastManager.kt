@@ -19,12 +19,13 @@ import platform.UIKit.UILabel
 import platform.UIKit.UIView
 import platform.UIKit.UIWindow
 import platform.UIKit.UIWindowScene
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Shows an error message in a view laid over the key window. iOS has no system toast, so the
  * view is built, kept for [TOAST_DURATION_MILLIS] and removed here.
  */
-object ToastManager {
+internal object ToastManager {
 
     private val scope by lazy {
         CoroutineScope(CoroutineContextProviderKmp().mainCoroutineContext)
@@ -52,7 +53,7 @@ object ToastManager {
             job = launch {
                 val text = getString(resource)
                 showToast(text)
-                delay(TOAST_DURATION_MILLIS)
+                delay(TOAST_DURATION_MILLIS.milliseconds)
                 removeToast()
             }
         }

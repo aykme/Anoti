@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 
-object ToastManager {
+internal object ToastManager {
     private val scope by lazy {
         CoroutineScope(CoroutineContextProviderKmp().mainCoroutineContext)
     }
@@ -20,6 +20,14 @@ object ToastManager {
     private var job: Job? = null
 
     private var toast: Toast? = null
+
+    fun makeConnectionErrorToast(appContext: Context) {
+        showError(appContext = appContext, resource = Res.string.connection_error)
+    }
+
+    fun makeUnknownErrorToast(appContext: Context) {
+        showError(appContext = appContext, resource = Res.string.unknown_error)
+    }
 
     private fun makeLongToast(appContext: Context, text: String) {
         // Once shown, a toast sits in the system queue until it expires. Cancelling it keeps a
@@ -33,14 +41,6 @@ object ToastManager {
             /* duration = */
             Toast.LENGTH_LONG
         ).also { newToast: Toast -> newToast.show() }
-    }
-
-    fun makeConnectionErrorToast(appContext: Context) {
-        showError(appContext = appContext, resource = Res.string.connection_error)
-    }
-
-    fun makeUnknownErrorToast(appContext: Context) {
-        showError(appContext = appContext, resource = Res.string.unknown_error)
     }
 
     /**
