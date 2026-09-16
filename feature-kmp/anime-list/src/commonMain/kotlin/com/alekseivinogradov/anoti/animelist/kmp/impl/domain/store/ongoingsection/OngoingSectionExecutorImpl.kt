@@ -21,10 +21,12 @@ import kotlinx.coroutines.launch
 // One function per Intent handled, not incidental growth.
 @Suppress("TooManyFunctions")
 class OngoingSectionExecutorImpl(
-    private val coroutineContextProvider: CoroutineContextProvider,
+    coroutineContextProvider: CoroutineContextProvider,
     private val usecases: OngoingUsecases,
     private val toastProvider: ToastProvider
-) : OngoingSectionExecutor() {
+) : OngoingSectionExecutor(
+    mainContext = coroutineContextProvider.newMainCoroutineContext()
+) {
 
     private var updateSectionJob: Job? = null
     private var loadNextPageJob: Job? = null
@@ -76,7 +78,7 @@ class OngoingSectionExecutorImpl(
         loadNextPageJob?.cancel()
         paginator = createPaginator()
         val cappedTarget = minOf(targetItemCount, RESTORED_SECTION_MAX_ITEM_COUNT)
-        updateSectionJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+        updateSectionJob = scope.launch {
             dispatch(OngoingSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING))
             var items = listOf<ListItemDomain>()
             var pageResult: PageLoadResult<ListItemDomain>? = paginator.loadFirstPage()
@@ -110,7 +112,7 @@ class OngoingSectionExecutorImpl(
         updateSectionJob?.cancel()
         loadNextPageJob?.cancel()
         paginator = createPaginator()
-        updateSectionJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+        updateSectionJob = scope.launch {
             dispatch(
                 OngoingSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
             )
@@ -150,7 +152,7 @@ class OngoingSectionExecutorImpl(
     }
 
     private fun loadNextPage() {
-        loadNextPageJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+        loadNextPageJob = scope.launch {
             when (val result = paginator.loadNextPage()) {
                 is PageLoadResult.Success -> dispatch(
                     OngoingSectionStore.Message.UpdateListItems(
@@ -212,7 +214,7 @@ class OngoingSectionExecutorImpl(
 
     private fun updateAnimeDetails(id: AnimeId) {
         updateAnimeDetailsJobMap[id]?.cancel()
-        updateAnimeDetailsJobMap[id] = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+        updateAnimeDetailsJobMap[id] = scope.launch {
             val result = usecases
                 .fetchAnimeDetailsByIdUsecase
                 .execute(id)

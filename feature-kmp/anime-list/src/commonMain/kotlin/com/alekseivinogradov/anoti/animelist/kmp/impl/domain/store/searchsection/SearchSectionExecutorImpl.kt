@@ -27,10 +27,12 @@ import kotlinx.coroutines.launch
 // One function per Intent handled, not incidental growth.
 @Suppress("TooManyFunctions")
 class SearchSectionExecutorImpl(
-    private val coroutineContextProvider: CoroutineContextProvider,
+    coroutineContextProvider: CoroutineContextProvider,
     private val usecases: SearchUsecases,
     private val toastProvider: ToastProvider
-) : SearchSectionExecutor() {
+) : SearchSectionExecutor(
+    mainContext = coroutineContextProvider.newMainCoroutineContext()
+) {
 
     private var searchFlow: MutableStateFlow<String>? = null
     private var changeSearchJob: Job? = null
@@ -98,7 +100,7 @@ class SearchSectionExecutorImpl(
         loadNextPageJob?.cancel()
         paginator = createPaginator()
         val cappedTarget = minOf(targetItemCount, RESTORED_SECTION_MAX_ITEM_COUNT)
-        updateSectionJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+        updateSectionJob = scope.launch {
             dispatch(SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING))
             var items = listOf<ListItemDomain>()
             var pageResult: PageLoadResult<ListItemDomain>? = paginator.loadFirstPage()
@@ -133,7 +135,7 @@ class SearchSectionExecutorImpl(
     @OptIn(FlowPreview::class)
     private fun subscribeToSearchTextChanges() {
         if (changeSearchJob?.isActive == true) return
-        changeSearchJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+        changeSearchJob = scope.launch {
             searchFlow?.drop(1)?.debounce(SEARCH_DEBOUNCE_MILLISECONDS)
                 ?.collect {
                     updateSection(resetListPosition = true)
@@ -145,7 +147,7 @@ class SearchSectionExecutorImpl(
         updateSectionJob?.cancel()
         loadNextPageJob?.cancel()
         paginator = createPaginator()
-        updateSectionJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+        updateSectionJob = scope.launch {
             dispatch(
                 SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
             )
@@ -188,7 +190,7 @@ class SearchSectionExecutorImpl(
     }
 
     private fun loadNextPage() {
-        loadNextPageJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+        loadNextPageJob = scope.launch {
             when (val result = paginator.loadNextPage()) {
                 is PageLoadResult.Success -> dispatch(
                     SearchSectionStore.Message.UpdateListItems(
@@ -255,7 +257,7 @@ class SearchSectionExecutorImpl(
 
     private fun updateAnimeDetails(id: Int) {
         updateAnimeDetailsJobMap[id]?.cancel()
-        updateAnimeDetailsJobMap[id] = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+        updateAnimeDetailsJobMap[id] = scope.launch {
             val result = usecases
                 .fetchAnimeDetailsByIdUsecase
                 .execute(id)

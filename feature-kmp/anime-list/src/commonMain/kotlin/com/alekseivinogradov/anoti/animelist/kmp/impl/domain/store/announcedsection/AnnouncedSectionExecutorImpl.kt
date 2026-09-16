@@ -15,10 +15,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class AnnouncedSectionExecutorImpl(
-    private val coroutineContextProvider: CoroutineContextProvider,
+    coroutineContextProvider: CoroutineContextProvider,
     private val usecases: AnnouncedUsecases,
     private val toastProvider: ToastProvider
-) : AnnouncedSectionExecutor() {
+) : AnnouncedSectionExecutor(
+    mainContext = coroutineContextProvider.newMainCoroutineContext()
+) {
 
     private var updateSectionJob: Job? = null
     private var loadNextPageJob: Job? = null
@@ -68,7 +70,7 @@ class AnnouncedSectionExecutorImpl(
         loadNextPageJob?.cancel()
         paginator = createPaginator()
         val cappedTarget = minOf(targetItemCount, RESTORED_SECTION_MAX_ITEM_COUNT)
-        updateSectionJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+        updateSectionJob = scope.launch {
             dispatch(AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING))
             var items = listOf<ListItemDomain>()
             var pageResult: PageLoadResult<ListItemDomain>? = paginator.loadFirstPage()
@@ -102,7 +104,7 @@ class AnnouncedSectionExecutorImpl(
         updateSectionJob?.cancel()
         loadNextPageJob?.cancel()
         paginator = createPaginator()
-        updateSectionJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+        updateSectionJob = scope.launch {
             dispatch(
                 AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADING)
             )
@@ -137,7 +139,7 @@ class AnnouncedSectionExecutorImpl(
     }
 
     private fun loadNextPage() {
-        loadNextPageJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+        loadNextPageJob = scope.launch {
             when (val result = paginator.loadNextPage()) {
                 is PageLoadResult.Success -> dispatch(
                     AnnouncedSectionStore.Message.UpdateListItems(

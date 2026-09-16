@@ -28,7 +28,7 @@ import kotlin.time.Duration.Companion.milliseconds
 internal object ToastManager {
 
     private val scope by lazy {
-        CoroutineScope(CoroutineContextProviderKmp().mainCoroutineContext)
+        CoroutineScope(CoroutineContextProviderKmp().appMainCoroutineContext)
     }
 
     private var job: Job? = null

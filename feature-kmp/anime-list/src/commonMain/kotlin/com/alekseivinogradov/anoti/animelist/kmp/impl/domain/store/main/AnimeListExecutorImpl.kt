@@ -16,8 +16,10 @@ import kotlinx.coroutines.launch
 // One function per Intent handled, not incidental growth.
 @Suppress("TooManyFunctions")
 class AnimeListExecutorImpl(
-    private val coroutineContextProvider: CoroutineContextProvider
-) : AnimeListExecutor() {
+    coroutineContextProvider: CoroutineContextProvider
+) : AnimeListExecutor(
+    mainContext = coroutineContextProvider.newMainCoroutineContext()
+) {
 
     private var updateOngoingContentJob: Job? = null
     private var updateAnnouncedContentJob: Job? = null
@@ -159,7 +161,7 @@ class AnimeListExecutorImpl(
 
     private fun updateOngoingContent(intent: AnimeListMainStore.Intent.UpdateOngoingContent) {
         updateOngoingContentJob?.cancel()
-        updateOngoingContentJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+        updateOngoingContentJob = scope.launch {
             val state = state()
             if (state.ongoingContent.listItems != intent.content.listItems) {
                 dispatch(
@@ -197,7 +199,7 @@ class AnimeListExecutorImpl(
 
     private fun updateAnnouncedContent(intent: AnimeListMainStore.Intent.UpdateAnnouncedContent) {
         updateAnnouncedContentJob?.cancel()
-        updateAnnouncedContentJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+        updateAnnouncedContentJob = scope.launch {
             val state = state()
             if (state.announcedContent.listItems != intent.content.listItems) {
                 dispatch(
@@ -238,7 +240,7 @@ class AnimeListExecutorImpl(
 
     private fun updateSearchContent(intent: AnimeListMainStore.Intent.UpdateSearchContent) {
         updateSearchContentJob?.cancel()
-        updateSearchContentJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+        updateSearchContentJob = scope.launch {
             val state = state()
             if (state.searchContent.listItems != intent.content.listItems) {
                 dispatch(

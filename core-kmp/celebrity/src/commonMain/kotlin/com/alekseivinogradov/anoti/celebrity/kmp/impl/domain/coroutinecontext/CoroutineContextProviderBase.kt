@@ -31,8 +31,13 @@ abstract class CoroutineContextProviderBase : CoroutineContextProvider {
     private val emptyExceptionHandler: CoroutineExceptionHandler =
         CoroutineExceptionHandler { _: CoroutineContext, _: Throwable -> }
 
-    override val mainCoroutineContext: CoroutineContext =
-        supervisorJob + Dispatchers.Main + defaultExceptionHandler
+    override val mainCoroutineContext: CoroutineContext = Dispatchers.Main + defaultExceptionHandler
+
+    override val appMainCoroutineContext: CoroutineContext =
+        supervisorJob + mainCoroutineContext
+
+    override fun newMainCoroutineContext(): CoroutineContext =
+        SupervisorJob() + mainCoroutineContext
 
     // No Job here: a Job in the context would make this the parent of whatever runs in it, and
     // the worker's own cancellation would stop reaching the work it started.

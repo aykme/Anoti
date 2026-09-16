@@ -9,8 +9,20 @@ import kotlin.coroutines.CoroutineContext
  */
 interface CoroutineContextProvider {
 
-    /** Context for coroutines driving the UI/presentation layer. */
+    /** Main-thread context with the app's error handler. Carries no `Job` of its own. */
     val mainCoroutineContext: CoroutineContext
+
+    /**
+     * [mainCoroutineContext] plus a `Job` shared across the app. Work launched with it survives
+     * the cancellation of whatever scope started it.
+     */
+    val appMainCoroutineContext: CoroutineContext
+
+    /**
+     * [mainCoroutineContext] plus a fresh `Job` on every call. The scope it is given to then
+     * owns its work and cancels it.
+     */
+    fun newMainCoroutineContext(): CoroutineContext
 
     /** Context for coroutines running inside a WorkManager worker. */
     val workManagerCoroutineContext: CoroutineContext

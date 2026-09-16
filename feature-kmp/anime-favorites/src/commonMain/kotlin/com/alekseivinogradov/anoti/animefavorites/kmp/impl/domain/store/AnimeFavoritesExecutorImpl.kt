@@ -19,10 +19,12 @@ import kotlinx.coroutines.launch
 // One function per Intent handled, not incidental growth.
 @Suppress("TooManyFunctions")
 class AnimeFavoritesExecutorImpl(
-    private val coroutineContextProvider: CoroutineContextProvider,
+    coroutineContextProvider: CoroutineContextProvider,
     private val usecases: FavoritesUsecases,
     private var toastProvider: ToastProvider
-) : AnimeFavoritesExecutor() {
+) : AnimeFavoritesExecutor(
+    mainContext = coroutineContextProvider.newMainCoroutineContext()
+) {
 
     private var updateListItemsJob: Job? = null
     private var updateSectionJob: Job? = null
@@ -71,7 +73,7 @@ class AnimeFavoritesExecutorImpl(
             contentType != ContentTypeDomain.EMPTY &&
             !isResolvingSectionLoad
         ) {
-            updateListItemsJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+            updateListItemsJob = scope.launch {
                 dispatch(
                     AnimeFavoritesMainStore.Message.ChangeContentType(
                         ContentTypeDomain.LOADING()
@@ -131,7 +133,7 @@ class AnimeFavoritesExecutorImpl(
         updateSectionJob?.cancel()
         val listItemsArrived = CompletableDeferred<Unit>()
         listItemsArrivedSignal = listItemsArrived
-        updateSectionJob = scope.launch(coroutineContextProvider.mainCoroutineContext) {
+        updateSectionJob = scope.launch {
             delay(ANIMATION_DURATION_SHORT)
             // Waits for the minimum duration AND a fresh list, whichever finishes later — a
             // slow database read must not resolve against the stale list.listItems from before
@@ -241,7 +243,7 @@ class AnimeFavoritesExecutorImpl(
     private fun updateAnimeDetails(id: AnimeId) {
         updateAnimeDetailsJobMap[id]?.cancel()
         updateAnimeDetailsJobMap[id] =
-            scope.launch(coroutineContextProvider.mainCoroutineContext) {
+            scope.launch {
                 val result = usecases
                     .fetchAnimeDetailsByIdUsecase
                     .execute(id)
