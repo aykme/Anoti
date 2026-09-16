@@ -124,6 +124,25 @@ class AnimeDatabaseExecutorImplTest {
     }
 
     @Test
+    fun aSecondInsertOfTheSameItemIsIgnoredWhileTheFirstIsStillInFlight() = runTest(testDispatcher) {
+        //Given
+        var writeAttempts = 0
+        val writeGate = CompletableDeferred<Unit>()
+        val dao = AnimeDaoFake(beforeWrite = { writeAttempts++; writeGate.await() })
+        val store = createStore(dao)
+        val item = sample(id = 1)
+
+        //When
+        store.accept(AnimeDatabaseStore.Intent.InsertAnimeDatabaseItem(item))
+        store.accept(AnimeDatabaseStore.Intent.InsertAnimeDatabaseItem(item))
+        writeGate.complete(Unit)
+        advanceUntilIdle()
+
+        //Then
+        assertEquals(1, writeAttempts, "the in-flight write should swallow the repeated intent")
+    }
+
+    @Test
     fun aFailedWriteIsReportedAndLeavesTheStoreRunning() = runTest(testDispatcher) {
         //Given
         val caught = mutableListOf<Throwable>()

@@ -17,6 +17,7 @@ import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
@@ -57,6 +58,19 @@ class AnimeFavoritesExecutorImplTest {
     ) : AnimeFavoritesSource {
         override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
             return CallResult.Success(item)
+        }
+    }
+
+    private class HangingSource : AnimeFavoritesSource {
+        var wasCancelled = false
+            private set
+
+        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
+            try {
+                awaitCancellation()
+            } finally {
+                wasCancelled = true
+            }
         }
     }
 
@@ -398,5 +412,21 @@ class AnimeFavoritesExecutorImplTest {
 
         //Then
         assertEquals(2, source.callCount)
+    }
+
+    @Test
+    fun disposingTheStoreCancelsAnInFlightDetailsFetch() = runTest(testDispatcher) {
+        //Given
+        val source = HangingSource()
+        val item = testListItem()
+        val store = createStore(source = source)
+        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
+        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
+
+        //When
+        store.dispose()
+
+        //Then
+        assertTrue(source.wasCancelled, "the details fetch outlived its store")
     }
 }

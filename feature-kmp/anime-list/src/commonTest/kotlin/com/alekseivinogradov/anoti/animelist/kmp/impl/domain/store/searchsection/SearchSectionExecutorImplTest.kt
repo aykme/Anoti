@@ -23,6 +23,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -47,7 +48,8 @@ class SearchSectionExecutorImplTest {
     }
 
     private class FakeSearchSource(
-        private val pages: Map<Int, CallResult<List<ListItemDomain>>>
+        private val pages: Map<Int, CallResult<List<ListItemDomain>>>,
+        private val beforeSearchResult: suspend () -> Unit = {}
     ) : AnimeListSource {
         override suspend fun getOngoingList(page: Int, sort: SortData): CallResult<List<ListItemDomain>> {
             error("not used in SearchSectionExecutorImplTest")
@@ -62,6 +64,7 @@ class SearchSectionExecutorImplTest {
             search: String,
             sort: SortData
         ): CallResult<List<ListItemDomain>> {
+            beforeSearchResult()
             return pages[page] ?: CallResult.Success(emptyList())
         }
 
@@ -84,9 +87,10 @@ class SearchSectionExecutorImplTest {
     )
 
     private fun createStore(
-        pages: Map<Int, CallResult<List<ListItemDomain>>>
+        pages: Map<Int, CallResult<List<ListItemDomain>>>,
+        beforeSearchResult: suspend () -> Unit = {}
     ): SearchSectionStore {
-        val source = FakeSearchSource(pages)
+        val source = FakeSearchSource(pages, beforeSearchResult)
         val coroutineContextProvider = object : CoroutineContextProviderBase() {
             override val exceptionHandlerCallback: (Throwable) -> Unit = {}
         }
@@ -212,5 +216,28 @@ class SearchSectionExecutorImplTest {
             emittedLabels
         )
         collectJob.cancel()
+    }
+
+    @Test
+    fun disposingTheStoreCancelsAnInFlightSectionLoad() = runTest(testDispatcher) {
+        //Given
+        var loadWasCancelled = false
+        val store = createStore(
+            pages = mapOf(),
+            beforeSearchResult = {
+                try {
+                    awaitCancellation()
+                } finally {
+                    loadWasCancelled = true
+                }
+            }
+        )
+        store.accept(SearchSectionStore.Intent.UpdateSection)
+
+        //When
+        store.dispose()
+
+        //Then
+        assertTrue(loadWasCancelled, "the load outlived its store")
     }
 }

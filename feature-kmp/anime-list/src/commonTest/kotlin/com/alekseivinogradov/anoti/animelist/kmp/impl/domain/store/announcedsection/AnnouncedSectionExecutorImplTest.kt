@@ -21,6 +21,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -43,13 +44,15 @@ class AnnouncedSectionExecutorImplTest {
     }
 
     private class FakeAnnouncedSource(
-        private val pages: Map<Int, CallResult<List<ListItemDomain>>>
+        private val pages: Map<Int, CallResult<List<ListItemDomain>>>,
+        private val beforeAnnouncedResult: suspend () -> Unit = {}
     ) : AnimeListSource {
         override suspend fun getOngoingList(page: Int, sort: SortData): CallResult<List<ListItemDomain>> {
             error("not used in AnnouncedSectionExecutorImplTest")
         }
 
         override suspend fun getAnnouncedList(page: Int, sort: SortData): CallResult<List<ListItemDomain>> {
+            beforeAnnouncedResult()
             return pages[page] ?: CallResult.Success(emptyList())
         }
 
@@ -81,9 +84,10 @@ class AnnouncedSectionExecutorImplTest {
 
     private fun createStore(
         pages: Map<Int, CallResult<List<ListItemDomain>>>,
+        beforeAnnouncedResult: suspend () -> Unit = {},
         onConnectionErrorToast: () -> Unit = {}
     ): AnnouncedSectionStore {
-        val source = FakeAnnouncedSource(pages)
+        val source = FakeAnnouncedSource(pages, beforeAnnouncedResult)
         val coroutineContextProvider = object : CoroutineContextProviderBase() {
             override val exceptionHandlerCallback: (Throwable) -> Unit = {}
         }
@@ -147,5 +151,28 @@ class AnnouncedSectionExecutorImplTest {
         store.accept(AnnouncedSectionStore.Intent.EpisodesInfoClick(id = item.id))
 
         assertTrue(store.state.sectionContent.enabledExtraEpisodesInfoIds.contains(item.id))
+    }
+
+    @Test
+    fun disposingTheStoreCancelsAnInFlightSectionLoad() = runTest(testDispatcher) {
+        //Given
+        var loadWasCancelled = false
+        val store = createStore(
+            pages = mapOf(),
+            beforeAnnouncedResult = {
+                try {
+                    awaitCancellation()
+                } finally {
+                    loadWasCancelled = true
+                }
+            }
+        )
+        store.accept(AnnouncedSectionStore.Intent.OpenSection)
+
+        //When
+        store.dispose()
+
+        //Then
+        assertTrue(loadWasCancelled, "the load outlived its store")
     }
 }

@@ -1,10 +1,12 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.main
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SectionContentDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
@@ -15,6 +17,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -36,10 +39,11 @@ class AnimeListExecutorImplTest {
         Dispatchers.resetMain()
     }
 
-    private fun createStore(): AnimeListMainStore {
-        val coroutineContextProvider = object : CoroutineContextProviderBase() {
+    private fun createStore(
+        coroutineContextProvider: CoroutineContextProvider = object : CoroutineContextProviderBase() {
             override val exceptionHandlerCallback: (Throwable) -> Unit = {}
         }
+    ): AnimeListMainStore {
         val executorFactory: AnimeListExecutorFactory = {
             AnimeListExecutorImpl(coroutineContextProvider = coroutineContextProvider)
         }
@@ -161,5 +165,27 @@ class AnimeListExecutorImplTest {
             "Expected LoadNextPageAnnouncedSection among $emittedLabels"
         )
         collectJob.cancel()
+    }
+
+    // This executor has no collaborator a fake could observe, so its coroutine is checked at the
+    // other visible edge: the app-wide job must never adopt work started by an executor.
+    @Test
+    fun theDelayedContentTypeSwitchIsNotParentedToTheAppWideJob() = runTest(testDispatcher) {
+        //Given
+        val coroutineContextProvider = object : CoroutineContextProviderBase() {
+            override val exceptionHandlerCallback: (Throwable) -> Unit = {}
+        }
+        val store = createStore(coroutineContextProvider)
+
+        //When
+        store.accept(
+            AnimeListMainStore.Intent.UpdateOngoingContent(
+                content = SectionContentDomain(contentType = ContentTypeDomain.LOADED)
+            )
+        )
+
+        //Then
+        val appWideJob = coroutineContextProvider.appMainCoroutineContext[Job]
+        assertEquals(0, appWideJob?.children?.count(), "the switch escaped its store's scope")
     }
 }
