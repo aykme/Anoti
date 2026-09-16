@@ -5,6 +5,7 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiSe
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.controller.ToastController
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.arkivanov.mvikotlin.core.store.StoreFactory
@@ -17,6 +18,7 @@ interface DiRootDependencies {
     val storeFactory: StoreFactory
     val coroutineContextProvider: CoroutineContextProvider
     val toastProvider: ToastProvider
+    val toastController: ToastController
     val dateFormatter: DateFormatter
     val animeDatabaseStore: AnimeDatabaseStore
     val shikimoriApiService: ShikimoriApiService

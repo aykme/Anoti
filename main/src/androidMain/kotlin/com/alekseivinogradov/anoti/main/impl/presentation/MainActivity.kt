@@ -86,6 +86,7 @@ class MainActivity : ComponentActivity() {
                     rootComponent = rootComponent,
                     mainStore = mainStore,
                     animeDatabaseStore = animeDatabaseStore,
+                    toastController = diRootComponent.parent.toastController,
                     lifecycle = lifecycle.asEssentyLifecycle()
                 ),
                 notificationsRationale = NotificationsRationaleState(

@@ -2,25 +2,39 @@ package com.alekseivinogradov.anoti.main.impl.presentation.compose
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.ime
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.IntState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.offset
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation.AnimeFavoritesRoute
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation.AnimeListRoute
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.ToastHost
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.horizontalSystemBarsPadding
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
 import com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.api.presentation.compose.NotificationsRationaleDialog
 import com.arkivanov.decompose.value.Value
+import kotlin.math.max
 
 /**
  * The whole app's single Compose tree: the active screen (switched by [dependencies]'s
- * navigation stack), the bottom navigation bar, and the notification-permission rationale
- * dialog overlay.
+ * navigation stack), the bottom navigation bar, the notification-permission rationale dialog
+ * overlay, and the toast host drawn above everything.
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.
@@ -33,16 +47,29 @@ internal fun RootContent(
     AnotiTheme {
         val stack by dependencies.rootComponent.childStack.observeAsState()
         val activeChild = stack.active.instance
-        Column(modifier = Modifier.fillMaxSize()) {
-            Box(modifier = Modifier.weight(1f)) {
-                when (activeChild) {
-                    is NavRootChild.List -> AnimeListRoute(activeChild.component)
-                    is NavRootChild.Favorites -> AnimeFavoritesRoute(activeChild.component)
+        val bottomBarHeight = remember { mutableIntStateOf(0) }
+        HiddenFromAccessibilityWhile(hidden = notificationsRationale.visible) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                Box(modifier = Modifier.weight(1f)) {
+                    when (activeChild) {
+                        is NavRootChild.List -> AnimeListRoute(activeChild.component)
+                        is NavRootChild.Favorites -> AnimeFavoritesRoute(activeChild.component)
+                    }
+                }
+                Box(
+                    modifier = Modifier.onSizeChanged { size: IntSize ->
+                        bottomBarHeight.intValue = size.height
+                    }
+                ) {
+                    BottomNavigationBarRoute(dependencies = dependencies, activeChild = activeChild)
                 }
             }
-            BottomNavigationBarRoute(dependencies = dependencies, activeChild = activeChild)
         }
         NotificationsRationaleOverlay(notificationsRationale)
+        ToastHost(
+            controller = dependencies.toastController,
+            modifier = Modifier.aboveBottomBarAndKeyboard(bottomBarHeight)
+        )
     }
 }
 
@@ -54,6 +81,34 @@ internal fun RootContent(
 private fun NotificationsRationaleOverlay(state: NotificationsRationaleState) {
     if (state.visible.value) {
         NotificationsRationaleDialog(onDismiss = state.onDismiss, onApprove = state.onApprove)
+    }
+}
+
+// Keeps the screen behind the rationale dialog out of reach of accessibility services. Reading
+// hidden.value here keeps its recomposition out of RootContent's body.
+@Suppress("FunctionNaming")
+@Composable
+private fun HiddenFromAccessibilityWhile(hidden: State<Boolean>, content: @Composable () -> Unit) {
+    Box(modifier = if (hidden.value) Modifier.clearAndSetSemantics {} else Modifier) {
+        content()
+    }
+}
+
+// Read in the layout phase only, so the bar resizing or the keyboard moving never recomposes.
+@Composable
+private fun Modifier.aboveBottomBarAndKeyboard(bottomBarHeight: IntState): Modifier {
+    val ime = WindowInsets.ime
+    return horizontalSystemBarsPadding().layout { measurable: Measurable, constraints: Constraints ->
+        val bottomOffset = max(bottomBarHeight.intValue, ime.getBottom(this))
+        val placeable = measurable.measure(
+            constraints.copy(minWidth = 0, minHeight = 0).offset(vertical = -bottomOffset)
+        )
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            placeable.place(
+                x = (constraints.maxWidth - placeable.width) / 2,
+                y = constraints.maxHeight - bottomOffset - placeable.height
+            )
+        }
     }
 }
 
