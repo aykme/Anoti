@@ -22,6 +22,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -44,9 +45,11 @@ class OngoingSectionExecutorImplTest {
     }
 
     private class FakeOngoingSource(
-        private val pages: Map<Int, CallResult<List<ListItemDomain>>>
+        private val pages: Map<Int, CallResult<List<ListItemDomain>>>,
+        private val beforeOngoingResult: suspend () -> Unit = {}
     ) : AnimeListSource {
         override suspend fun getOngoingList(page: Int, sort: SortData): CallResult<List<ListItemDomain>> {
+            beforeOngoingResult()
             return pages[page] ?: CallResult.Success(emptyList())
         }
 
@@ -82,10 +85,11 @@ class OngoingSectionExecutorImplTest {
 
     private fun createStore(
         pages: Map<Int, CallResult<List<ListItemDomain>>>,
+        beforeOngoingResult: suspend () -> Unit = {},
         onConnectionErrorToast: () -> Unit = {},
         onUnknownErrorToast: () -> Unit = {}
     ): OngoingSectionStore {
-        val source = FakeOngoingSource(pages)
+        val source = FakeOngoingSource(pages, beforeOngoingResult)
         val coroutineContextProvider = object : CoroutineContextProviderBase() {
             override val exceptionHandlerCallback: (Throwable) -> Unit = {}
         }
@@ -219,5 +223,28 @@ class OngoingSectionExecutorImplTest {
         store.accept(OngoingSectionStore.Intent.EpisodesInfoClick(id = 999))
 
         assertTrue(store.state.sectionContent.enabledExtraEpisodesInfoIds.isEmpty())
+    }
+
+    @Test
+    fun disposingTheStoreCancelsAnInFlightSectionLoad() = runTest(testDispatcher) {
+        //Given
+        var loadWasCancelled = false
+        val store = createStore(
+            pages = mapOf(),
+            beforeOngoingResult = {
+                try {
+                    awaitCancellation()
+                } finally {
+                    loadWasCancelled = true
+                }
+            }
+        )
+        store.accept(OngoingSectionStore.Intent.OpenSection)
+
+        //When
+        store.dispose()
+
+        //Then
+        assertTrue(loadWasCancelled, "the load outlived its store")
     }
 }
