@@ -5,7 +5,6 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.Ani
 import com.arkivanov.mvikotlin.core.view.MviView
 
 /**
- * The view contract [com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation.AnimeFavoritesRoute]
- * implements to render the store's state.
+ * The view contract the favorites screen implements to render the store's state.
  */
 interface AnimeFavoritesView : MviView<AnimeFavoritesUiModel, AnimeFavoritesMainStore.Intent>

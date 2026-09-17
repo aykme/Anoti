@@ -5,7 +5,6 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.AnimeLis
 import com.arkivanov.mvikotlin.core.view.MviView
 
 /**
- * The view contract [com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation.AnimeListRoute]
- * implements to render the main store's state.
+ * The view contract the anime list screen implements to render the main store's state.
  */
 interface AnimeListView : MviView<AnimeListUiModel, AnimeListMainStore.Intent>

@@ -38,9 +38,8 @@ interface AnimeFavoritesMainStore :
         data object ItemsSubmittedToList : Intent
 
         /**
-         * The section became selected. Unlike [UpdateSection], never dispatched while already
-         * restored from a process death that happened on this same section — see
-         * `NavAnimeFavoritesScreenComponent`.
+         * The section became selected. Unlike [UpdateSection], it doesn't reset the items' extra info,
+         * so the host decides whether to keep it, e.g. after a process death.
          */
         data object OpenSection : Intent
 
