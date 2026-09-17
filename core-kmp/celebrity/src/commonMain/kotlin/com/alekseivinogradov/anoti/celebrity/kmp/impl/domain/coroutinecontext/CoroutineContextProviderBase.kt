@@ -11,14 +11,14 @@ import kotlin.coroutines.CoroutineContext
 abstract class CoroutineContextProviderBase : CoroutineContextProvider {
 
     /**
-     * Platform implementation of the toast
+     * Called with every throwable [mainCoroutineContext] and its derived contexts fail to handle.
      */
     abstract val exceptionHandlerCallback: (Throwable) -> Unit
 
     private val supervisorJob = SupervisorJob()
 
     /**
-     * Default exception handler with toast, log or else platform action
+     * Exception handler that hands the throwable to [exceptionHandlerCallback].
      */
     private val defaultExceptionHandler: CoroutineExceptionHandler =
         CoroutineExceptionHandler { _: CoroutineContext, throwable: Throwable ->

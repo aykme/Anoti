@@ -32,8 +32,8 @@ import kotlin.math.max
 
 /**
  * The whole app's single Compose tree: the active screen (switched by [dependencies]'s
- * navigation stack), the bottom navigation bar, the notification-permission rationale dialog
- * overlay, and the toast host drawn over the screen and the bottom bar.
+ * navigation stack), the bottom navigation bar and the notification-permission rationale dialog
+ * overlay. The toast host is drawn over the screen and the bottom bar.
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.

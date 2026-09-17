@@ -44,6 +44,9 @@ formatting, error toasts, pagination, and Compose UI helpers for MVIKotlin-based
 // A feature reports an error:
 toastProvider.makeConnectionErrorToast()
 
-// The root Compose content shows it, placed last so it is drawn over the screen:
-ToastHost(controller = dependencies.toastController)
+// The root Compose content shows it last, over the screen. The caller positions it:
+ToastHost(
+    controller = dependencies.toastController,
+    modifier = Modifier.aboveBottomBarAndKeyboard(bottomBarHeight)
+)
 ```

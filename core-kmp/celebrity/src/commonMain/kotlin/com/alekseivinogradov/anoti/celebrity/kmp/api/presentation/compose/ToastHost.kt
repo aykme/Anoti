@@ -13,7 +13,8 @@ import org.jetbrains.compose.resources.getString
 
 /**
  * Shows [controller]'s messages as standard Material 3 snackbars. A newer message replaces the
- * one on screen instead of waiting behind it.
+ * one on screen instead of waiting behind it. The snackbar sits at the top start of [modifier]'s
+ * bounds, so the caller places it.
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.

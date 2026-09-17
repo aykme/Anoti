@@ -34,8 +34,8 @@ interface DiCelebrityComponent {
     @Provides
     @AppScope
     fun provideCoroutineContextProvider(
-        toastController: ToastController
-    ): CoroutineContextProvider = CoroutineContextProviderDefaultImpl(toastController)
+        toastProvider: ToastProvider
+    ): CoroutineContextProvider = CoroutineContextProviderDefaultImpl(toastProvider)
 
     @Provides
     @AppScope
