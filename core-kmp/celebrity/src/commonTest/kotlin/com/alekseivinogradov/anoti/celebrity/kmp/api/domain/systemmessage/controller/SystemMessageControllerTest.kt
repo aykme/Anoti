@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.controller
+package com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.controller
 
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.connection_error
@@ -16,12 +16,12 @@ import kotlinx.coroutines.test.runTest
 import org.jetbrains.compose.resources.StringResource
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class ToastControllerTest {
+class SystemMessageControllerTest {
 
     @Test
     fun messageShownWithoutCollectorIsDropped() = runTest {
         //Given
-        val controller = ToastController()
+        val controller = SystemMessageController()
         val received = mutableListOf<StringResource>()
 
         //When
@@ -38,7 +38,7 @@ class ToastControllerTest {
     @Test
     fun collectorReceivesMessagesInOrder() = runTest {
         //Given
-        val controller = ToastController()
+        val controller = SystemMessageController()
         val received = mutableListOf<StringResource>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             controller.messages.toList(received)
@@ -55,7 +55,7 @@ class ToastControllerTest {
     @Test
     fun busyCollectorReceivesOnlyLatestMessage() = runTest {
         //Given
-        val controller = ToastController()
+        val controller = SystemMessageController()
         val received = mutableListOf<StringResource>()
         backgroundScope.launch(StandardTestDispatcher(testScheduler)) {
             controller.messages.toList(received)

@@ -31,7 +31,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.Ann
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.OngoingUsecases
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.SearchUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.mvikotlin.extensions.coroutines.states
@@ -179,7 +179,10 @@ class ApplyRestoredMainStateTest {
             OngoingSectionExecutorImpl(
                 coroutineContextProvider = createCoroutineContextProvider(),
                 usecases = usecases,
-                toastProvider = ToastProvider(makeConnectionErrorToast = {}, makeUnknownErrorToast = {})
+                systemMessageProvider = SystemMessageProvider(
+                    makeConnectionErrorSystemMessage = {},
+                    makeUnknownErrorSystemMessage = {}
+                )
             )
         }
         return OngoingSectionStoreFactory(
@@ -196,7 +199,10 @@ class ApplyRestoredMainStateTest {
             AnnouncedSectionExecutorImpl(
                 coroutineContextProvider = createCoroutineContextProvider(),
                 usecases = usecases,
-                toastProvider = ToastProvider(makeConnectionErrorToast = {}, makeUnknownErrorToast = {})
+                systemMessageProvider = SystemMessageProvider(
+                    makeConnectionErrorSystemMessage = {},
+                    makeUnknownErrorSystemMessage = {}
+                )
             )
         }
         return AnnouncedSectionStoreFactory(
@@ -214,7 +220,10 @@ class ApplyRestoredMainStateTest {
             SearchSectionExecutorImpl(
                 coroutineContextProvider = createCoroutineContextProvider(),
                 usecases = usecases,
-                toastProvider = ToastProvider(makeConnectionErrorToast = {}, makeUnknownErrorToast = {})
+                systemMessageProvider = SystemMessageProvider(
+                    makeConnectionErrorSystemMessage = {},
+                    makeUnknownErrorSystemMessage = {}
+                )
             )
         }
         return SearchSectionStoreFactory(

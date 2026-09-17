@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.controller.ToastController
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.controller.SystemMessageController
 import kotlinx.coroutines.flow.collectLatest
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
@@ -20,7 +20,7 @@ import org.jetbrains.compose.resources.getString
 // lowerCamelCase.
 @Suppress("FunctionNaming")
 @Composable
-fun ToastHost(controller: ToastController, modifier: Modifier = Modifier) {
+fun SystemMessageHost(controller: SystemMessageController, modifier: Modifier = Modifier) {
     val hostState = remember { SnackbarHostState() }
     LaunchedEffect(controller, hostState) {
         controller.messages.collectLatest { message: StringResource ->

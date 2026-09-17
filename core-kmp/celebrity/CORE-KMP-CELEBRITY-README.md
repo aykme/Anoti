@@ -1,5 +1,5 @@
 Shared core utilities used across Anoti's KMP feature modules: coroutine contexts, date
-formatting, error toasts, pagination, and Compose UI helpers for MVIKotlin-based screens.
+formatting, error system messages, pagination, and Compose UI helpers for MVIKotlin-based screens.
 
 ## Entities
 
@@ -7,12 +7,12 @@ formatting, error toasts, pagination, and Compose UI helpers for MVIKotlin-based
   coroutine contexts and dispatchers used across the app.
 - [DateFormatter](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/domain/formatter/DateFormatter.kt) —
   formats date strings for display.
-- [ToastProvider](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/domain/toast/provider/ToastProvider.kt) —
-  holds the error-toast callbacks.
-- [ToastController](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/domain/toast/controller/ToastController.kt) —
-  app-wide stream of toast messages.
-- [ToastHost](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/presentation/compose/ToastHost.kt) —
-  shows `ToastController`'s messages as snackbars.
+- [SystemMessageProvider](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/domain/systemmessage/provider/SystemMessageProvider.kt) —
+  holds the error system message callbacks.
+- [SystemMessageController](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/domain/systemmessage/controller/SystemMessageController.kt) —
+  app-wide stream of system messages.
+- [SystemMessageHost](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/presentation/compose/SystemMessageHost.kt) —
+  shows `SystemMessageController`'s messages as snackbars.
 - [Paginator](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/domain/paging/Paginator.kt) —
   pages through loads one page at a time.
 - [PageLoadResult](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/domain/paging/PageLoadResult.kt) —
@@ -31,10 +31,11 @@ formatting, error toasts, pagination, and Compose UI helpers for MVIKotlin-based
 ## How to include it
 
 - Gradle: `implementation(project(":core-kmp:celebrity"))`
-- `CoroutineContextProvider`, `DateFormatter`, `ToastProvider` and `ToastController` are provided
-  via this module's kotlin-inject bindings (`DiCelebrityComponent`), mixed into
+- `CoroutineContextProvider`, `DateFormatter`, `SystemMessageProvider` and
+  `SystemMessageController` are provided via this module's kotlin-inject bindings
+  (`DiCelebrityComponent`), mixed into
   [`core-kmp:di-app`](../di-app/CORE-KMP-DI-APP-README.md)'s `DiAppComponent` on both platforms —
-  inject them, don't construct them yourself. `ToastHost`, `Paginator`, `ComposeMviView`,
+  inject them, don't construct them yourself. `SystemMessageHost`, `Paginator`, `ComposeMviView`,
   `repeatingClickable`, `LoadingSpinner`, `horizontalSystemBarsPadding` and `systemBarsTopPadding`
   have no DI wiring; callers subclass/construct/call them directly.
 
@@ -42,11 +43,11 @@ formatting, error toasts, pagination, and Compose UI helpers for MVIKotlin-based
 
 ```kotlin
 // A feature reports an error:
-toastProvider.makeConnectionErrorToast()
+systemMessageProvider.makeConnectionErrorSystemMessage()
 
 // The root Compose content shows it last, over the screen. The caller positions it:
-ToastHost(
-    controller = dependencies.toastController,
+SystemMessageHost(
+    controller = dependencies.systemMessageController,
     modifier = Modifier.aboveBottomBarAndKeyboard(bottomBarHeight)
 )
 ```

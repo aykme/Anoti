@@ -10,7 +10,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnimeD
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnimeListBySearchUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.SearchUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.mvikotlin.core.store.Store
@@ -102,15 +102,15 @@ class SearchSectionExecutorImplTest {
             fetchAnimeListBySearchUsecase = FetchAnimeListBySearchUsecase(source),
             fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)
         )
-        val toastProvider = ToastProvider(
-            makeConnectionErrorToast = {},
-            makeUnknownErrorToast = {}
+        val systemMessageProvider = SystemMessageProvider(
+            makeConnectionErrorSystemMessage = {},
+            makeUnknownErrorSystemMessage = {}
         )
         val executorFactory: SearchSectionExecutorFactory = {
             SearchSectionExecutorImpl(
                 coroutineContextProvider = coroutineContextProvider,
                 usecases = usecases,
-                toastProvider = toastProvider
+                systemMessageProvider = systemMessageProvider
             )
         }
         return SearchSectionStoreFactory(

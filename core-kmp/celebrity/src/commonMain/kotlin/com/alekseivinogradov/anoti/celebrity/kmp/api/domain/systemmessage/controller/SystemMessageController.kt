@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.controller
+package com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.controller
 
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
@@ -7,10 +7,10 @@ import kotlinx.coroutines.flow.asSharedFlow
 import org.jetbrains.compose.resources.StringResource
 
 /**
- * App-wide stream of toast messages for the toast host on screen. Safe to call from any thread.
- * A message sent while no host is collecting is dropped.
+ * App-wide stream of system messages for the system message host on screen. Safe to call from any
+ * thread. A message sent while no host is collecting is dropped.
  */
-class ToastController {
+class SystemMessageController {
 
     private val messageFlow = MutableSharedFlow<StringResource>(
         extraBufferCapacity = 1,

@@ -10,7 +10,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnimeD
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchOngoingAnimeListUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.OngoingUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.mvikotlin.core.store.Store
@@ -90,8 +90,8 @@ class OngoingSectionExecutorImplTest {
     private fun createStore(
         pages: Map<Int, CallResult<List<ListItemDomain>>>,
         beforeOngoingResult: suspend () -> Unit = {},
-        onConnectionErrorToast: () -> Unit = {},
-        onUnknownErrorToast: () -> Unit = {}
+        onConnectionErrorSystemMessage: () -> Unit = {},
+        onUnknownErrorSystemMessage: () -> Unit = {}
     ): OngoingSectionStore {
         val source = FakeOngoingSource(pages, beforeOngoingResult)
         val coroutineContextProvider = object : CoroutineContextProviderBase() {
@@ -101,15 +101,15 @@ class OngoingSectionExecutorImplTest {
             fetchOngoingAnimeListUsecase = FetchOngoingAnimeListUsecase(source),
             fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)
         )
-        val toastProvider = ToastProvider(
-            makeConnectionErrorToast = onConnectionErrorToast,
-            makeUnknownErrorToast = onUnknownErrorToast
+        val systemMessageProvider = SystemMessageProvider(
+            makeConnectionErrorSystemMessage = onConnectionErrorSystemMessage,
+            makeUnknownErrorSystemMessage = onUnknownErrorSystemMessage
         )
         val executorFactory: OngoingSectionExecutorFactory = {
             OngoingSectionExecutorImpl(
                 coroutineContextProvider = coroutineContextProvider,
                 usecases = usecases,
-                toastProvider = toastProvider
+                systemMessageProvider = systemMessageProvider
             )
         }
         return OngoingSectionStoreFactory(
@@ -133,12 +133,12 @@ class OngoingSectionExecutorImplTest {
     }
 
     @Test
-    fun openSectionOnFirstPageHttpErrorMarksErrorAndToasts() = runTest(testDispatcher) {
+    fun openSectionOnFirstPageHttpErrorMarksErrorAndShowsSystemMessage() = runTest(testDispatcher) {
         //Given
-        var toastCount = 0
+        var systemMessageCount = 0
         val store = createStore(
             pages = mapOf(1 to CallResult.HttpError(code = 500, throwable = Throwable())),
-            onConnectionErrorToast = { toastCount++ }
+            onConnectionErrorSystemMessage = { systemMessageCount++ }
         )
 
         //When
@@ -146,7 +146,7 @@ class OngoingSectionExecutorImplTest {
         store.states.first { it.sectionContent.contentType == ContentTypeDomain.ERROR }
 
         //Then
-        assertEquals(1, toastCount)
+        assertEquals(1, systemMessageCount)
         assertTrue(store.state.sectionContent.listItems.isEmpty())
     }
 
@@ -175,21 +175,21 @@ class OngoingSectionExecutorImplTest {
     @Test
     fun loadNextPageOnHttpErrorLeavesListAndContentTypeUnchanged() = runTest(testDispatcher) {
         //Given
-        var toastCount = 0
+        var systemMessageCount = 0
         val item = testListItem(id = 1)
         val store = createStore(
             pages = mapOf(
                 1 to CallResult.Success(listOf(item)),
                 2 to CallResult.HttpError(code = 500, throwable = Throwable())
             ),
-            onConnectionErrorToast = { toastCount++ }
+            onConnectionErrorSystemMessage = { systemMessageCount++ }
         )
         store.accept(OngoingSectionStore.Intent.OpenSection)
         store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
         //When
         store.accept(OngoingSectionStore.Intent.LoadNextPage)
-        store.states.first { toastCount == 1 }
+        store.states.first { systemMessageCount == 1 }
 
         //Then
         assertEquals(listOf(item), store.state.sectionContent.listItems)

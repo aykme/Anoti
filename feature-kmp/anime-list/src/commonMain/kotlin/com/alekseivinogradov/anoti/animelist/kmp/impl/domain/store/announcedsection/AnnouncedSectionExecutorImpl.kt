@@ -10,14 +10,14 @@ import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.Ann
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.paging.PageLoadResult
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.paging.Paginator
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class AnnouncedSectionExecutorImpl(
     coroutineContextProvider: CoroutineContextProvider,
     private val usecases: AnnouncedUsecases,
-    private val toastProvider: ToastProvider
+    private val systemMessageProvider: SystemMessageProvider
 ) : AnnouncedSectionExecutor(
     mainContext = coroutineContextProvider.newMainCoroutineContext()
 ) {
@@ -81,13 +81,13 @@ class AnnouncedSectionExecutorImpl(
             }
             when (pageResult) {
                 is PageLoadResult.Error -> {
-                    toastProvider.makeConnectionErrorToast()
+                    systemMessageProvider.makeConnectionErrorSystemMessage()
                     dispatch(AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR))
                     return@launch
                 }
 
                 is PageLoadResult.UnexpectedError -> {
-                    toastProvider.makeUnknownErrorToast()
+                    systemMessageProvider.makeUnknownErrorSystemMessage()
                     dispatch(AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR))
                     return@launch
                 }
@@ -122,14 +122,14 @@ class AnnouncedSectionExecutorImpl(
                 }
 
                 is PageLoadResult.Error -> {
-                    toastProvider.makeConnectionErrorToast()
+                    systemMessageProvider.makeConnectionErrorSystemMessage()
                     dispatch(
                         AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR)
                     )
                 }
 
                 is PageLoadResult.UnexpectedError -> {
-                    toastProvider.makeUnknownErrorToast()
+                    systemMessageProvider.makeUnknownErrorSystemMessage()
                     dispatch(
                         AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR)
                     )
@@ -147,8 +147,8 @@ class AnnouncedSectionExecutorImpl(
                     )
                 )
 
-                is PageLoadResult.Error -> toastProvider.makeConnectionErrorToast()
-                is PageLoadResult.UnexpectedError -> toastProvider.makeUnknownErrorToast()
+                is PageLoadResult.Error -> systemMessageProvider.makeConnectionErrorSystemMessage()
+                is PageLoadResult.UnexpectedError -> systemMessageProvider.makeUnknownErrorSystemMessage()
                 null -> Unit
             }
         }

@@ -10,7 +10,7 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.wrappe
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.diagnostics.DiagnosticLog
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 class AnimeFavoritesExecutorImpl(
     coroutineContextProvider: CoroutineContextProvider,
     private val usecases: FavoritesUsecases,
-    private var toastProvider: ToastProvider
+    private var systemMessageProvider: SystemMessageProvider
 ) : AnimeFavoritesExecutor(
     mainContext = coroutineContextProvider.newMainCoroutineContext()
 ) {
@@ -257,9 +257,9 @@ class AnimeFavoritesExecutorImpl(
                     )
 
                     is CallResult.HttpError,
-                    is CallResult.NetworkError -> toastProvider.makeConnectionErrorToast()
+                    is CallResult.NetworkError -> systemMessageProvider.makeConnectionErrorSystemMessage()
 
-                    is CallResult.OtherError -> toastProvider.makeUnknownErrorToast()
+                    is CallResult.OtherError -> systemMessageProvider.makeUnknownErrorSystemMessage()
                 }
             }
     }

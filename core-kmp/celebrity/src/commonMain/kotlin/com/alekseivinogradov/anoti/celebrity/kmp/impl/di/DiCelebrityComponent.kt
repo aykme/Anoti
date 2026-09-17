@@ -2,8 +2,8 @@ package com.alekseivinogradov.anoti.celebrity.kmp.impl.di
 
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.controller.ToastController
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.controller.SystemMessageController
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.connection_error
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.unknown_error
@@ -29,18 +29,22 @@ interface DiCelebrityComponent {
 
     @Provides
     @AppScope
-    fun provideToastController(): ToastController = ToastController()
+    fun provideSystemMessageController(): SystemMessageController = SystemMessageController()
 
     @Provides
     @AppScope
     fun provideCoroutineContextProvider(
-        toastProvider: ToastProvider
-    ): CoroutineContextProvider = CoroutineContextProviderDefaultImpl(toastProvider)
+        systemMessageProvider: SystemMessageProvider
+    ): CoroutineContextProvider = CoroutineContextProviderDefaultImpl(systemMessageProvider)
 
     @Provides
     @AppScope
-    fun provideToastProvider(toastController: ToastController): ToastProvider = ToastProvider(
-        makeConnectionErrorToast = { toastController.show(Res.string.connection_error) },
-        makeUnknownErrorToast = { toastController.show(Res.string.unknown_error) }
+    fun provideSystemMessageProvider(
+        systemMessageController: SystemMessageController
+    ): SystemMessageProvider = SystemMessageProvider(
+        makeConnectionErrorSystemMessage = {
+            systemMessageController.show(Res.string.connection_error)
+        },
+        makeUnknownErrorSystemMessage = { systemMessageController.show(Res.string.unknown_error) }
     )
 }

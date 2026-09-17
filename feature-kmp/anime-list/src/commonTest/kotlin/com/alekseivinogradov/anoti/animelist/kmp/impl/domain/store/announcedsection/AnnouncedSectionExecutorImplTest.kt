@@ -9,7 +9,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsecti
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnnouncedAnimeListUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.AnnouncedUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.mvikotlin.core.store.Store
@@ -89,7 +89,7 @@ class AnnouncedSectionExecutorImplTest {
     private fun createStore(
         pages: Map<Int, CallResult<List<ListItemDomain>>>,
         beforeAnnouncedResult: suspend () -> Unit = {},
-        onConnectionErrorToast: () -> Unit = {}
+        onConnectionErrorSystemMessage: () -> Unit = {}
     ): AnnouncedSectionStore {
         val source = FakeAnnouncedSource(pages, beforeAnnouncedResult)
         val coroutineContextProvider = object : CoroutineContextProviderBase() {
@@ -98,15 +98,15 @@ class AnnouncedSectionExecutorImplTest {
         val usecases = AnnouncedUsecases(
             fetchAnnouncedAnimeListUsecase = FetchAnnouncedAnimeListUsecase(source)
         )
-        val toastProvider = ToastProvider(
-            makeConnectionErrorToast = onConnectionErrorToast,
-            makeUnknownErrorToast = {}
+        val systemMessageProvider = SystemMessageProvider(
+            makeConnectionErrorSystemMessage = onConnectionErrorSystemMessage,
+            makeUnknownErrorSystemMessage = {}
         )
         val executorFactory: AnnouncedSectionExecutorFactory = {
             AnnouncedSectionExecutorImpl(
                 coroutineContextProvider = coroutineContextProvider,
                 usecases = usecases,
-                toastProvider = toastProvider
+                systemMessageProvider = systemMessageProvider
             )
         }
         return AnnouncedSectionStoreFactory(

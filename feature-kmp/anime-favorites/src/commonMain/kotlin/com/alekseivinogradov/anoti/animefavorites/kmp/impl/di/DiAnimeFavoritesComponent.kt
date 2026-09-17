@@ -13,7 +13,7 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.FetchA
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.wrapper.FavoritesUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.di.kmp.scope.FeatureScope
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.arkivanov.mvikotlin.core.store.StoreFactory
@@ -66,12 +66,12 @@ abstract class DiAnimeFavoritesComponent(
     fun provideAnimeFavoritesExecutorFactory(
         coroutineContextProvider: CoroutineContextProvider,
         usecases: FavoritesUsecases,
-        toastProvider: ToastProvider
+        systemMessageProvider: SystemMessageProvider
     ): AnimeFavoritesExecutorFactory = {
         AnimeFavoritesExecutorImpl(
             coroutineContextProvider = coroutineContextProvider,
             usecases = usecases,
-            toastProvider = toastProvider
+            systemMessageProvider = systemMessageProvider
         )
     }
 

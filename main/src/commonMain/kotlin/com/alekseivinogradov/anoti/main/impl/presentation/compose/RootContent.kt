@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.offset
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation.AnimeFavoritesRoute
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation.AnimeListRoute
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.ToastHost
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SystemMessageHost
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.horizontalSystemBarsPadding
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
 import com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.api.presentation.compose.NotificationsRationaleDialog
@@ -33,7 +33,7 @@ import kotlin.math.max
 /**
  * The whole app's single Compose tree: the active screen (switched by [dependencies]'s
  * navigation stack), the bottom navigation bar and the notification-permission rationale dialog
- * overlay. The toast host is drawn over the screen and the bottom bar.
+ * overlay. The system message host is drawn over the screen and the bottom bar.
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.
@@ -63,8 +63,8 @@ internal fun RootContent(
             }
         }
         NotificationsRationaleOverlay(notificationsRationale)
-        ToastHost(
-            controller = dependencies.toastController,
+        SystemMessageHost(
+            controller = dependencies.systemMessageController,
             modifier = Modifier.aboveBottomBarAndKeyboard(bottomBarHeight)
         )
     }

@@ -10,7 +10,7 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavo
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.wrapper.FavoritesUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.toast.provider.ToastProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.mvikotlin.core.store.Store
@@ -127,15 +127,15 @@ class AnimeFavoritesExecutorImplTest {
             updateAllAnimeInBackgroundOnceUsecase = NoOpBackgroundUpdateUsecase,
             fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)
         )
-        val toastProvider = ToastProvider(
-            makeConnectionErrorToast = {},
-            makeUnknownErrorToast = {}
+        val systemMessageProvider = SystemMessageProvider(
+            makeConnectionErrorSystemMessage = {},
+            makeUnknownErrorSystemMessage = {}
         )
         val executorFactory: AnimeFavoritesExecutorFactory = {
             AnimeFavoritesExecutorImpl(
                 coroutineContextProvider = coroutineContextProvider,
                 usecases = usecases,
-                toastProvider = toastProvider
+                systemMessageProvider = systemMessageProvider
             )
         }
         return AnimeFavoritesMainStoreFactory(
