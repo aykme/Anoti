@@ -2,8 +2,9 @@ Hosts both platforms' app-wide composition roots: `DiAppComponent`, the root of 
 `AppScope` → `RootScope` → `FeatureScope` hierarchy, one per platform. The scope annotations,
 qualifier annotations, and `PlatformContext` live in
 [`core-kmp:di-scope`](../di-scope/CORE-KMP-DI-SCOPE-README.md), a zero-dependency leaf module, so
-leaf modules can depend on them without cycling back through this one; `core-kmp:di` depends on
-`core-kmp:di-scope` in turn. It also depends on `:main`, whose root UI host graph it builds.
+leaf modules can depend on them without cycling back through this one. `core-kmp:di-app` depends
+on `core-kmp:di-scope` in turn. It also depends on `:main` for `DiRootDependencies`, which
+`DiAppComponent` implements.
 
 - [`DiAppComponent` (Android)](src/androidMain/kotlin/com/alekseivinogradov/anoti/di/kmp/DiAppComponent.kt)
   — `:app`'s root, created once in `AnotiApp.onCreate`.

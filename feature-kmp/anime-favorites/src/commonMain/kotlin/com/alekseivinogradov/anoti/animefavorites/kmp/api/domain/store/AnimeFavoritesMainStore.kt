@@ -38,8 +38,8 @@ interface AnimeFavoritesMainStore :
         data object ItemsSubmittedToList : Intent
 
         /**
-         * The section became selected. Unlike [UpdateSection], it doesn't reset the items' extra info,
-         * so the host decides whether to keep it, e.g. after a process death.
+         * The section became selected. Unlike [UpdateSection], it doesn't reset the items' extra
+         * info, so the host decides whether to keep it, e.g. after a process death.
          */
         data object OpenSection : Intent
 

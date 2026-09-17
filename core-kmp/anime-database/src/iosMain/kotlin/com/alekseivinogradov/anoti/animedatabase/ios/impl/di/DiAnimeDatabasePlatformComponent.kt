@@ -6,7 +6,7 @@ import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import me.tatarka.inject.annotations.Provides
 
 /**
- * Provides the iOS [AnimeDatabase] binding; mixed into `core-kmp:di`'s `DiAppComponent`.
+ * Provides the iOS [AnimeDatabase] binding; mixed into `core-kmp:di-app`'s `DiAppComponent`.
  */
 interface DiAnimeDatabasePlatformComponent {
     @Provides

@@ -31,7 +31,7 @@ internal class PosterLoader(private val platformContext: PlatformContext) {
     suspend fun loadImage(imageUrl: String?): Image? = execute(imageUrl) { this }?.image
 
     /**
-     * Downloads the poster without decoding it and copies its file into the temporary directory.
+     * Fetches the poster without decoding it and copies its file into the temporary directory.
      * The copy is named by [posterFileName].
      */
     @OptIn(ExperimentalCoilApi::class)
@@ -107,7 +107,10 @@ internal suspend fun <T : Any> loadWithTimeout(
     }
 }
 
-/** The local file name for [imageUrl]'s poster: its last path segment, extension included. */
+/**
+ * The local file name for [imageUrl]'s poster: a fixed prefix plus the URL's last path
+ * segment.
+ */
 internal fun posterFileName(imageUrl: String): String =
     POSTER_FILE_PREFIX + imageUrl.substringBefore('?').substringAfterLast('/')
 

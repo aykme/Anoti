@@ -7,7 +7,7 @@ import io.ktor.client.engine.darwin.Darwin
 import me.tatarka.inject.annotations.Provides
 
 /**
- * Provides the iOS [HttpClient] binding (Darwin engine); mixed into `core-kmp:di`'s
+ * Provides the iOS [HttpClient] binding (Darwin engine); mixed into `core-kmp:di-app`'s
  * `DiAppComponent`.
  */
 interface DiNetworkPlatformComponent {

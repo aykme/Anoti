@@ -15,14 +15,7 @@ earlier direct request was denied.
 ## How to use it
 
 ```kotlin
-// Android example (no iOS example yet):
-if (notificationsRationaleVisible.value) {
-    NotificationsRationaleDialog(
-        onDismiss = { notificationsRationaleVisible.value = false },
-        onApprove = {
-            notificationsRationaleVisible.value = false
-            onNotificationRequestApproved()
-        }
-    )
+if (state.visible.value) {
+    NotificationsRationaleDialog(onDismiss = state.onDismiss, onApprove = state.onApprove)
 }
 ```

@@ -11,7 +11,8 @@ import kotlin.coroutines.CoroutineContext
 abstract class CoroutineContextProviderBase : CoroutineContextProvider {
 
     /**
-     * Called with every throwable [mainCoroutineContext] and its derived contexts fail to handle.
+     * Receives every throwable that [mainCoroutineContext] and the contexts built from it don't
+     * handle.
      */
     abstract val exceptionHandlerCallback: (Throwable) -> Unit
 

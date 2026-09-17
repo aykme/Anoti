@@ -6,7 +6,7 @@ badge count.
 - [BottomNavigationBarStore](src/commonMain/kotlin/com/alekseivinogradov/anoti/bottomnavigationbar/kmp/api/domain/store/BottomNavigationBarStore.kt) —
   the store. `State`/`Intent`/`Label` are documented on the type itself.
 - [BottomNavigationBarView](src/commonMain/kotlin/com/alekseivinogradov/anoti/bottomnavigationbar/kmp/api/presentation/BottomNavigationBarView.kt) —
-  the view contract the platform layer implements to render the store's state.
+  the view contract the host implements to render the store's state.
 - [BottomNavigationBarController](src/commonMain/kotlin/com/alekseivinogradov/anoti/bottomnavigationbar/kmp/impl/presentation/BottomNavigationBarController.kt) —
   wires the store to its view and to `AnimeDatabaseStore`.
 - [BottomNavigationBar](src/commonMain/kotlin/com/alekseivinogradov/anoti/bottomnavigationbar/kmp/impl/presentation/compose/BottomNavigationBar.kt) —

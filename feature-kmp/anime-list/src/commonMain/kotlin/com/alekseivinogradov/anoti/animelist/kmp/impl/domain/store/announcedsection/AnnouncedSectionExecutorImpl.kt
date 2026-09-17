@@ -148,7 +148,9 @@ class AnnouncedSectionExecutorImpl(
                 )
 
                 is PageLoadResult.Error -> systemMessageProvider.makeConnectionErrorSystemMessage()
-                is PageLoadResult.UnexpectedError -> systemMessageProvider.makeUnknownErrorSystemMessage()
+                is PageLoadResult.UnexpectedError -> {
+                    systemMessageProvider.makeUnknownErrorSystemMessage()
+                }
                 null -> Unit
             }
         }

@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 class AnimeFavoritesExecutorImpl(
     coroutineContextProvider: CoroutineContextProvider,
     private val usecases: FavoritesUsecases,
-    private var systemMessageProvider: SystemMessageProvider
+    private val systemMessageProvider: SystemMessageProvider
 ) : AnimeFavoritesExecutor(
     mainContext = coroutineContextProvider.newMainCoroutineContext()
 ) {
@@ -257,9 +257,13 @@ class AnimeFavoritesExecutorImpl(
                     )
 
                     is CallResult.HttpError,
-                    is CallResult.NetworkError -> systemMessageProvider.makeConnectionErrorSystemMessage()
+                    is CallResult.NetworkError -> {
+                        systemMessageProvider.makeConnectionErrorSystemMessage()
+                    }
 
-                    is CallResult.OtherError -> systemMessageProvider.makeUnknownErrorSystemMessage()
+                    is CallResult.OtherError -> {
+                        systemMessageProvider.makeUnknownErrorSystemMessage()
+                    }
                 }
             }
     }

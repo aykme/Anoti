@@ -199,7 +199,9 @@ class SearchSectionExecutorImpl(
                 )
 
                 is PageLoadResult.Error -> systemMessageProvider.makeConnectionErrorSystemMessage()
-                is PageLoadResult.UnexpectedError -> systemMessageProvider.makeUnknownErrorSystemMessage()
+                is PageLoadResult.UnexpectedError -> {
+                    systemMessageProvider.makeUnknownErrorSystemMessage()
+                }
                 null -> Unit
             }
         }
@@ -268,7 +270,9 @@ class SearchSectionExecutorImpl(
                 )
 
                 is CallResult.HttpError,
-                is CallResult.NetworkError -> systemMessageProvider.makeConnectionErrorSystemMessage()
+                is CallResult.NetworkError -> {
+                    systemMessageProvider.makeConnectionErrorSystemMessage()
+                }
 
                 is CallResult.OtherError -> systemMessageProvider.makeUnknownErrorSystemMessage()
             }

@@ -9,7 +9,7 @@ import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import me.tatarka.inject.annotations.Provides
 
 /**
- * Provides the iOS [AnimeNotificationManager] binding; mixed into `core-kmp:di`'s
+ * Provides the iOS [AnimeNotificationManager] binding; mixed into `core-kmp:di-app`'s
  * `DiAppComponent`.
  */
 interface DiAnimeNotificationPlatformComponent {

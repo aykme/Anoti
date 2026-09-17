@@ -18,7 +18,9 @@ class CoroutineContextProviderDefaultImplTest {
             makeConnectionErrorSystemMessage = { connectionErrorCount++ },
             makeUnknownErrorSystemMessage = { unknownErrorCount++ }
         )
-        val provider = CoroutineContextProviderDefaultImpl(systemMessageProvider = systemMessageProvider)
+        val provider = CoroutineContextProviderDefaultImpl(
+            systemMessageProvider = systemMessageProvider
+        )
         val handler = assertNotNull(provider.mainCoroutineContext[CoroutineExceptionHandler])
 
         //When
