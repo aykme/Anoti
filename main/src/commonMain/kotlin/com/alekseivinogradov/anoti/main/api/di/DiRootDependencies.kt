@@ -11,7 +11,7 @@ import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 
 /**
- * What [DiRootComponent] and its screen children take from the app-wide component. The app-wide
+ * What the root UI graph and its screen children take from the app-wide component. The app-wide
  * component implements it, so neither side has to know the other's concrete type.
  */
 interface DiRootDependencies {
