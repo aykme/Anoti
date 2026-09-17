@@ -22,11 +22,11 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.offset
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation.AnimeFavoritesRoute
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation.AnimeListRoute
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SystemMessageHost
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.horizontalSystemBarsPadding
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.AnotiTheme
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.SystemMessageHost
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.horizontalSystemBarsPadding
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
-import com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.api.presentation.compose.NotificationsRationaleDialog
+import com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.impl.presentation.compose.NotificationsRationaleDialog
 import com.arkivanov.decompose.value.Value
 import kotlin.math.max
 

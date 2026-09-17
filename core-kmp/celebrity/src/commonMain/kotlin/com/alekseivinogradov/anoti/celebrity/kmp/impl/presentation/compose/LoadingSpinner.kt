@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose
+package com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode

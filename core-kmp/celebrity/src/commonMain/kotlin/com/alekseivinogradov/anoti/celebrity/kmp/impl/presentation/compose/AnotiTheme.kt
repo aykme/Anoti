@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose
+package com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,6 +8,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Black
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Grey700
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
+import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.WhiteTransparent
 
 private val DarkColorScheme = darkColorScheme(
     background = Black,

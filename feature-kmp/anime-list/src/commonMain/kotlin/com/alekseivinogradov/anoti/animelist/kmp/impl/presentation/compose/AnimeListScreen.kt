@@ -31,8 +31,8 @@ import coil3.compose.LocalAsyncImagePreviewHandler
 import coil3.request.SuccessResult
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.PAGING_PREFETCH_DISTANCE
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.LIST_LAST_ITEM_BOTTOM_PADDING_DP
-import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.PullToRefreshBox
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.loading_in_progress
+import com.alekseivinogradov.anoti.animebase.kmp.impl.presentation.compose.PullToRefreshBox
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.AnimeListUiModel
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.ContentTypeUi
@@ -45,13 +45,13 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcont
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.connection_error_48
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LoadingSpinner
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SilverTransparent
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.horizontalSystemBarsPadding
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.systemBarsTopPadding
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.anime_poster_sample
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.connection_error
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.AnotiTheme
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.LoadingSpinner
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.horizontalSystemBarsPadding
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.systemBarsTopPadding
 import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource

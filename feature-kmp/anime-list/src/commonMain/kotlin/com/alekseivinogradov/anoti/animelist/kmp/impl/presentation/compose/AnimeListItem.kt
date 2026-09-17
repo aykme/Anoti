@@ -92,13 +92,11 @@ import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_info_out
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.next_episode
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.show_is_finished
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Black
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.BlackTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Green
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.HEADLINE6_SP
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LoadingSpinner
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Purple200
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SUBTITLE1_SP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SilverTransparent
@@ -110,6 +108,8 @@ import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_notifica
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_score_42
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.load_image_error_48
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.no_data
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.AnotiTheme
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.LoadingSpinner
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as BaseRes

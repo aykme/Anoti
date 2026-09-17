@@ -28,6 +28,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.BADGE_MAX_NUMBER
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
+import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.compose.NAV_BAR_ELEVATION_DP
+import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.compose.NAV_BAR_HEIGHT_DP
+import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.compose.NAV_BAR_ICON_SIZE_DP
+import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.compose.PREVIEW_HEIGHT_DP
+import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.compose.PREVIEW_WIDTH_DP
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.BottomNavigationBarUiModel
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.SectionUi
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.generated.resources.Res
@@ -35,13 +40,13 @@ import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.generated.resources.f
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.generated.resources.ic_favorite_24
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.generated.resources.ic_main_24
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.generated.resources.main
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Black
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.CAPTION_SP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500Transparent
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SilverTransparent
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.horizontalSystemBarsPadding
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.AnotiTheme
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.horizontalSystemBarsPadding
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 

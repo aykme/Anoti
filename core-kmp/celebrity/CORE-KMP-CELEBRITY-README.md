@@ -11,7 +11,7 @@ formatting, error system messages, pagination, and Compose UI helpers for MVIKot
   holds the error system message callbacks.
 - [SystemMessageController](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/domain/systemmessage/controller/SystemMessageController.kt) —
   app-wide stream of system messages.
-- [SystemMessageHost](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/presentation/compose/SystemMessageHost.kt) —
+- [SystemMessageHost](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/impl/presentation/compose/SystemMessageHost.kt) —
   shows `SystemMessageController`'s messages as snackbars.
 - [Paginator](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/domain/paging/Paginator.kt) —
   pages through loads one page at a time.
@@ -19,13 +19,13 @@ formatting, error system messages, pagination, and Compose UI helpers for MVIKot
   outcome of a `Paginator` page load.
 - [ComposeMviView](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/presentation/compose/ComposeMviView.kt) —
   base `MviView` that renders a store's state into a Compose `State` instead of a real View.
-- [Modifier.repeatingClickable](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/presentation/compose/RepeatingClickable.kt) —
+- [Modifier.repeatingClickable](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/impl/presentation/compose/RepeatingClickable.kt) —
   press-and-hold-to-repeat click behavior for Compose.
-- [LoadingSpinner](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/presentation/compose/LoadingSpinner.kt) —
+- [LoadingSpinner](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/impl/presentation/compose/LoadingSpinner.kt) —
   continuously spinning loading indicator.
-- [Modifier.horizontalSystemBarsPadding](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/presentation/compose/SystemBarsInsets.kt) —
+- [Modifier.horizontalSystemBarsPadding](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/impl/presentation/compose/SystemBarsInsets.kt) —
   insets content away from the left and right system bars.
-- [systemBarsTopPadding](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/presentation/compose/SystemBarsInsets.kt) —
+- [systemBarsTopPadding](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/impl/presentation/compose/SystemBarsInsets.kt) —
   the space the system bars take at the top of the window.
 
 ## How to include it

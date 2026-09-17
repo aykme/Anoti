@@ -114,19 +114,16 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.next_e
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.show_is_finished_short
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.ACCENT_TEXT_SP
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Black
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.BlackTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Green
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Grey700
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.LoadingSpinner
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Purple200
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SUBTITLE1_SP
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Silver
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SilverTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.repeatingClickable
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.amiko_bold
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.anime_poster_sample
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_notifications_off_40
@@ -134,6 +131,9 @@ import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_notifica
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_score_42
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.load_image_error_48
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.no_data
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.AnotiTheme
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.LoadingSpinner
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.repeatingClickable
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as BaseRes

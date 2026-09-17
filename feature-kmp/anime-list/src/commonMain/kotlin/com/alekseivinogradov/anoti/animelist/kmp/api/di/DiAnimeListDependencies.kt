@@ -1,27 +1,20 @@
-package com.alekseivinogradov.anoti.main.impl.di
+package com.alekseivinogradov.anoti.animelist.kmp.api.di
 
-import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.controller.SystemMessageController
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 
-/**
- * What [DiRootComponent] and its screen children take from the app-wide component. The app-wide
- * component implements it, so neither side has to know the other's concrete type.
- */
-interface DiRootDependencies {
+/** What the anime-list screen's component takes from its parent. */
+interface DiAnimeListDependencies {
     val storeFactory: StoreFactory
     val coroutineContextProvider: CoroutineContextProvider
     val systemMessageProvider: SystemMessageProvider
-    val systemMessageController: SystemMessageController
     val dateFormatter: DateFormatter
     val animeDatabaseStore: AnimeDatabaseStore
     val shikimoriApiService: ShikimoriApiService
     val safeApi: SafeApi
-    val updateAllAnimeInBackgroundOnceUsecase: UpdateAllAnimeInBackgroundOnceUsecase
 }

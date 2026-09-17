@@ -3,7 +3,7 @@ earlier direct request was denied.
 
 ## Entities
 
-- [NotificationsRationaleDialog](src/commonMain/kotlin/com/alekseivinogradov/anoti/notificationsrationaledialog/kmp/api/presentation/compose/NotificationsRationaleDialog.kt) —
+- [NotificationsRationaleDialog](src/commonMain/kotlin/com/alekseivinogradov/anoti/notificationsrationaledialog/kmp/impl/presentation/compose/NotificationsRationaleDialog.kt) —
   the dialog.
 
 ## How to include it

@@ -1,14 +1,15 @@
 package com.alekseivinogradov.anoti.main.impl.di
 
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.di.DiAnimeFavoritesDependencies
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.di.DiAnimeFavoritesComponent
-import com.alekseivinogradov.anoti.animefavorites.kmp.impl.di.DiAnimeFavoritesDependencies
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.di.createDiAnimeFavoritesComponent
+import com.alekseivinogradov.anoti.animelist.kmp.api.di.DiAnimeListDependencies
 import com.alekseivinogradov.anoti.animelist.kmp.impl.di.DiAnimeListComponent
-import com.alekseivinogradov.anoti.animelist.kmp.impl.di.DiAnimeListDependencies
 import com.alekseivinogradov.anoti.animelist.kmp.impl.di.createDiAnimeListComponent
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.di.DiBottomNavigationBarComponent
 import com.alekseivinogradov.anoti.di.kmp.scope.RootScope
+import com.alekseivinogradov.anoti.main.api.di.DiRootDependencies
 import me.tatarka.inject.annotations.Component
 
 /**

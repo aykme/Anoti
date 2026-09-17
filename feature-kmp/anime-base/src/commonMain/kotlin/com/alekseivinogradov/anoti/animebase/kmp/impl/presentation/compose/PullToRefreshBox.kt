@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose
+package com.alekseivinogradov.anoti.animebase.kmp.impl.presentation.compose
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope

@@ -13,7 +13,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.impl.di.DiCelebrityComponent
 import com.alekseivinogradov.anoti.di.kmp.qualifier.AnimeBackgroundUpdate
 import com.alekseivinogradov.anoti.di.kmp.qualifier.AppContext
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
-import com.alekseivinogradov.anoti.main.impl.di.DiRootDependencies
+import com.alekseivinogradov.anoti.main.api.di.DiRootDependencies
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootPlatformComponent
 import com.alekseivinogradov.anoti.network.android.impl.di.DiNetworkPlatformComponent
 import com.alekseivinogradov.anoti.network.kmp.impl.di.DiNetworkComponent

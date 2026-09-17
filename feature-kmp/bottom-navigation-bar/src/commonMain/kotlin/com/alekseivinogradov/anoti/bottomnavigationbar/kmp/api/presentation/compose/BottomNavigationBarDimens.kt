@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.compose
+package com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.compose
 
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp

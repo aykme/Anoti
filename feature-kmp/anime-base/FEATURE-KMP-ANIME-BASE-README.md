@@ -10,7 +10,7 @@ Shikimori API access shared by the anime feature modules.
   full details for one anime.
 - [AnimeResponseToListItemDomainMapper](src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/data/mapper/AnimeResponseToListItemDomainMapper.kt) —
   maps response fields (image, release status) to domain-ready values.
-- [PullToRefreshBox](src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/presentation/compose/PullToRefreshBox.kt) —
+- [PullToRefreshBox](src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/impl/presentation/compose/PullToRefreshBox.kt) —
   a full-size swipe-to-refresh surface, shared by every screen state that should let the user
   pull down to retry.
 

@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.api.presentation.compose
+package com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.impl.presentation.compose
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
@@ -8,12 +8,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.AnotiTheme
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Cinnabar500
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Grey700
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SilverTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.ic_launcher
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.AnotiTheme
+import com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.api.presentation.compose.NOTIFICATIONS_RATIONALE_ICON_SIZE_DP
+import com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.api.presentation.compose.PREVIEW_HEIGHT_DP
+import com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.api.presentation.compose.PREVIEW_WIDTH_DP
 import com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.generated.resources.dialog_alert_negative_button
 import com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.generated.resources.dialog_alert_notifications_rationale_message

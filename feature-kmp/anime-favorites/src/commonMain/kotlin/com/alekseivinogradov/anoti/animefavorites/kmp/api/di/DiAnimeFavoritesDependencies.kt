@@ -1,5 +1,6 @@
-package com.alekseivinogradov.anoti.animelist.kmp.impl.di
+package com.alekseivinogradov.anoti.animefavorites.kmp.api.di
 
+import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
@@ -8,8 +9,8 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provid
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 
-/** What the anime-list screen's component takes from its parent. */
-interface DiAnimeListDependencies {
+/** What the anime-favorites screen's component takes from its parent. */
+interface DiAnimeFavoritesDependencies {
     val storeFactory: StoreFactory
     val coroutineContextProvider: CoroutineContextProvider
     val systemMessageProvider: SystemMessageProvider
@@ -17,4 +18,5 @@ interface DiAnimeListDependencies {
     val animeDatabaseStore: AnimeDatabaseStore
     val shikimoriApiService: ShikimoriApiService
     val safeApi: SafeApi
+    val updateAllAnimeInBackgroundOnceUsecase: UpdateAllAnimeInBackgroundOnceUsecase
 }

@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation
+package com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation
 
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.BottomNavigationBarUiModel

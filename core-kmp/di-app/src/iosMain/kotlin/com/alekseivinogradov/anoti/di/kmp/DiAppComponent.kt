@@ -11,7 +11,7 @@ import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.Anim
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.di.DiCelebrityComponent
 import com.alekseivinogradov.anoti.di.kmp.qualifier.AppContext
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
-import com.alekseivinogradov.anoti.main.impl.di.DiRootDependencies
+import com.alekseivinogradov.anoti.main.api.di.DiRootDependencies
 import com.alekseivinogradov.anoti.network.ios.impl.di.DiNetworkPlatformComponent
 import com.alekseivinogradov.anoti.network.kmp.impl.di.DiNetworkComponent
 import me.tatarka.inject.annotations.Component

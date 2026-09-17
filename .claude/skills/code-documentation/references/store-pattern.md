@@ -283,7 +283,7 @@ badge count.
 
 - [BottomNavigationBarStore](src/commonMain/kotlin/.../api/domain/store/BottomNavigationBarStore.kt) —
   the store. `State`/`Intent`/`Label` are documented on the type itself.
-- [BottomNavigationBarView](src/commonMain/kotlin/.../impl/presentation/BottomNavigationBarView.kt) —
+- [BottomNavigationBarView](src/commonMain/kotlin/.../api/presentation/BottomNavigationBarView.kt) —
   the view contract the platform layer implements to render the store's state.
 - [BottomNavigationBarController](src/commonMain/kotlin/.../impl/presentation/BottomNavigationBarController.kt) —
   wires the store to its view and to `AnimeDatabaseStore`.
