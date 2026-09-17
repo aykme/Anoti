@@ -26,7 +26,7 @@ import org.jetbrains.compose.resources.getString
 import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as celebrityRes
 
-class AnimeNotificationManagerImpl(
+internal class AnimeNotificationManagerImpl(
     private val appContext: Context,
     animeNotificationIntentProvider: AnimeNotificationIntentProvider,
     private val coroutineContextProvider: CoroutineContextProvider,
@@ -65,7 +65,7 @@ class AnimeNotificationManagerImpl(
             val singleNotification = buildSingleNotification(
                 title = animeName ?: noDataString,
                 contentText = "$episodeAiredString: ${airedEpisode ?: noDataString}",
-                poster = posterLoader.load(imageUrl)?.toBitmap()
+                poster = posterLoader.loadImage(imageUrl)?.toBitmap()
             )
             val summaryNotification = buildSummaryNotification()
 

@@ -15,7 +15,7 @@ class LoadWithTimeoutTest {
     fun missingUrlSkipsTheLoad() = runTest {
         //Given
         var loadCalled = false
-        val load: suspend (String) -> String? = {
+        val load: suspend (String) -> String = {
             loadCalled = true
             POSTER
         }
@@ -31,7 +31,7 @@ class LoadWithTimeoutTest {
     @Test
     fun loadedPosterIsReturned() = runTest {
         //Given
-        val load: suspend (String) -> String? = { url: String -> "$POSTER:$url" }
+        val load: suspend (String) -> String = { url: String -> "$POSTER:$url" }
 
         //When
         val result = loadWithTimeout(imageUrl = URL, timeoutMillis = TIMEOUT_MILLIS, load = load)
@@ -41,21 +41,9 @@ class LoadWithTimeoutTest {
     }
 
     @Test
-    fun failedLoadYieldsNoPoster() = runTest {
-        //Given
-        val load: suspend (String) -> String? = { null }
-
-        //When
-        val result = loadWithTimeout(imageUrl = URL, timeoutMillis = TIMEOUT_MILLIS, load = load)
-
-        //Then
-        assertNull(result)
-    }
-
-    @Test
     fun stalledLoadTimesOutToNoPoster() = runTest {
         //Given
-        val load: suspend (String) -> String? = { awaitCancellation() }
+        val load: suspend (String) -> String = { awaitCancellation() }
 
         //When
         val result = loadWithTimeout(imageUrl = URL, timeoutMillis = TIMEOUT_MILLIS, load = load)
@@ -67,7 +55,7 @@ class LoadWithTimeoutTest {
     @Test
     fun throwingLoadYieldsNoPoster() = runTest {
         //Given
-        val load: suspend (String) -> String? = { error("decoder failed") }
+        val load: suspend (String) -> String = { error("decoder failed") }
 
         //When
         val result = loadWithTimeout(imageUrl = URL, timeoutMillis = TIMEOUT_MILLIS, load = load)
@@ -79,7 +67,7 @@ class LoadWithTimeoutTest {
     @Test
     fun cancellationIsNotSwallowed() = runTest {
         //Given
-        val load: suspend (String) -> String? = { throw CancellationException("cancelled") }
+        val load: suspend (String) -> String = { throw CancellationException("cancelled") }
 
         //When
         val failure = runCatching {
