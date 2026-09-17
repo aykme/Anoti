@@ -53,7 +53,11 @@ internal class PosterLoader(private val platformContext: PlatformContext) {
         return try {
             diskCache.openSnapshot(diskCacheKey)?.use { snapshot: DiskCache.Snapshot ->
                 val posterFile = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / posterFileName(url)
-                diskCache.fileSystem.copy(source = snapshot.data, target = posterFile)
+                // The cache's file system need not be the one the temporary directory lives on.
+                diskCache.fileSystem.read(snapshot.data) {
+                    val cachedPoster = this
+                    FileSystem.SYSTEM.write(posterFile) { writeAll(cachedPoster) }
+                }
                 posterFile
             }
         } catch (e: IOException) {
