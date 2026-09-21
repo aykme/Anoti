@@ -16,26 +16,21 @@ class SafeApiImpl(
     private val maxAttempt: Int,
     private val attemptDelay: Duration
 ) : SafeApi {
-    override suspend fun <T> call(
-        callAttempt: Int,
-        apiCall: suspend () -> T
-    ): CallResult<T> {
-        return try {
-            CallResult.Success(apiCall.invoke())
-        } catch (e: CancellationException) {
-            throw e
-        } catch (
-            // Catching everything and classifying it into a CallResult is this class's whole purpose.
-            @Suppress("TooGenericExceptionCaught") throwable: Throwable
-        ) {
-            if (callAttempt < maxAttempt) {
-                delay(attemptDelay * callAttempt)
-                call(
-                    callAttempt = callAttempt + 1,
-                    apiCall = apiCall
-                )
-            } else {
-                classify(throwable)
+    override suspend fun <T> call(apiCall: suspend () -> T): CallResult<T> {
+        var attempt = 1
+        while (true) {
+            try {
+                return CallResult.Success(apiCall.invoke())
+            } catch (e: CancellationException) {
+                throw e
+            } catch (
+                // Catching everything and classifying it into a CallResult is this class's
+                // whole purpose.
+                @Suppress("TooGenericExceptionCaught") throwable: Throwable
+            ) {
+                if (attempt >= maxAttempt) return classify(throwable)
+                delay(attemptDelay * attempt)
+                attempt++
             }
         }
     }

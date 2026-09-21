@@ -134,7 +134,7 @@ internal class FakeShikimoriApiService : ShikimoriApiService {
 
 /** Runs the call once and reports its outcome, without the real one's retries or delays. */
 internal class FakeSafeApi : SafeApi {
-    override suspend fun <T> call(callAttempt: Int, apiCall: suspend () -> T): CallResult<T> =
+    override suspend fun <T> call(apiCall: suspend () -> T): CallResult<T> =
         runCatching { apiCall() }.fold(
             onSuccess = { CallResult.Success(it) },
             onFailure = { CallResult.OtherError(it) }

@@ -8,10 +8,7 @@ import kotlin.coroutines.cancellation.CancellationException
  * Test/preview [SafeApi]: never retries, classifies any failure as [CallResult.OtherError].
  */
 class SafeApiFake : SafeApi {
-    override suspend fun <T> call(
-        callAttempt: Int,
-        apiCall: suspend () -> T
-    ): CallResult<T> {
+    override suspend fun <T> call(apiCall: suspend () -> T): CallResult<T> {
         return try {
             CallResult.Success(apiCall.invoke())
         } catch (e: CancellationException) {
