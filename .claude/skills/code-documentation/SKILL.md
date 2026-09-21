@@ -375,6 +375,9 @@ module: what a tester installs the app and checks by hand.
   say what to do there to reach it, and say what proves it worked rather than crashed.
 - For behavior that never surfaces on its own — dependency wiring, background work, caching,
   notifications — give the sequence that triggers it and the visible sign that it ran.
+- When nothing the module adds can be reached through the app, the file still exists and says
+  exactly that. One line: no separate manual testing is needed here, and why. Steps invented to
+  fill the page are worse than a file that admits there is nothing to check.
 
 ### Cover it exhaustively, within that scope
 
