@@ -152,7 +152,7 @@ Read this before doing any task in this repository.
 - Kover is the project's coverage tool — measure with it rather than guessing from the diff.
 - While writing tests, check the affected module alone: `./gradlew :<module>:koverHtmlReport` for
   the report, or `:<module>:koverLog` for just the number. Running the project-wide
-  `./gradlew koverHtmlReport` for this rebuilds every module and says little about yours; keep it
+  `./gradlew koverHtmlReport` for these rebuilds every module and says little about yours; keep it
   for reviewing the whole picture.
 - The numbers below are targets we aim for, not a gate. No `koverVerify` threshold is configured,
   so they are upheld in review rather than by a failing build.
@@ -174,7 +174,7 @@ Read this before doing any task in this repository.
   and `core-kmp:test-utils` do not count toward these targets.
 - Keeping `@Composable` out is deliberate, not a gap waiting to be closed. The Compose compiler
   expands a composable into synthetic lambda classes (`...Kt$name$1$1$1`) of about two lines each,
-  so a percentage over them measures generated shapes rather than tested behaviour. Write the
+  so a percentage over them measures generated shapes rather than tested behavior. Write the
   tests, judge them by what they assert, and ignore the number.
 - That exclusion follows the annotation, not the package. Compose-adjacent code without
   `@Composable` — `Modifier` extensions such as `repeatingClickable`, and token files like
@@ -208,7 +208,7 @@ Read this before doing any task in this repository.
 - For any test that's new or was fixed, confirm it doesn't flake, doesn't rely on real time
   (highly undesirable — acceptable only in exceptional cases agreed with the developer), and
   never makes real API calls (this is forbidden).
-- Review the Gradle files of every affected module. Look for dependencies nothing uses any more,
+- Review the Gradle files of every affected module. Look for dependencies nothing uses anymore,
   ones declared in the wrong configuration, and anything that could be expressed more simply.
 - Finish with a maximally thorough code review of the change. This one is mandatory. Dispatch
   subagents to do the reviewing, then dispatch skeptic subagents to re-check what the reviewers
