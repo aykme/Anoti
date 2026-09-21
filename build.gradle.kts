@@ -1,5 +1,7 @@
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
+import kotlinx.kover.gradle.plugin.dsl.KoverProjectExtension
+import kotlinx.kover.gradle.plugin.dsl.KoverReportFiltersConfig
 
 // Top-level build file where you can add configuration options common to all subprojects/modules.
 plugins {
@@ -7,6 +9,7 @@ plugins {
     alias(libs.plugins.androidKotlinMultiplatformLibrary).apply(false)
     alias(libs.plugins.kotlinMultiplatform).apply(false)
     alias(libs.plugins.detekt) apply false
+    alias(libs.plugins.kover)
 }
 
 subprojects {
@@ -25,6 +28,48 @@ subprojects {
             // path instead.
             exclude { it.file.invariantSeparatorsPath.contains("/build/") }
         }
+    }
+}
+
+// Coverage comes from the Android host test runs, which is where commonTest executes.
+// Only projects with their own build script are measured. ":core-kmp" and ":feature-kmp" exist
+// solely as path segments and have nothing to instrument.
+val coveredProjects = subprojects.filter { it.buildFile.exists() }
+
+configure(coveredProjects) {
+    apply(plugin = "org.jetbrains.kotlinx.kover")
+
+    extensions.configure<KoverProjectExtension> {
+        reports {
+            filters { excludeUnmeasuredCode() }
+        }
+    }
+}
+
+dependencies {
+    coveredProjects.forEach { kover(it) }
+}
+
+kover {
+    reports {
+        filters { excludeUnmeasuredCode() }
+    }
+}
+
+// Applied to every project as well as to the aggregated report, so a single module's report and
+// the project-wide one count the same classes.
+fun KoverReportFiltersConfig.excludeUnmeasuredCode() {
+    excludes {
+        // Composables are not exercised by commonTest, so they would only add noise.
+        annotatedBy("androidx.compose.runtime.Composable")
+        classes(
+            // Room
+            "**_Impl*",
+            // kotlin-inject
+            "**.Inject*Component*",
+            // Compose Resources
+            "com.alekseivinogradov.anoti.**.generated.resources.**"
+        )
     }
 }
 
