@@ -151,7 +151,9 @@ Read this before doing any task in this repository.
 - The SDK Robolectric emulates is set for the whole project, from `robolectricSdk` in the version
   catalog: the root build writes it into a `robolectric.properties` on each module's host-test
   classpath. Don't put `@Config(sdk = ...)` on a test — it belongs there only when that one class
-  genuinely needs a different level, and then it says why. Left to itself Robolectric targets
+  genuinely needs a different level, and then it says why. Name the level through the generated
+  `MIN_SDK` where that is the one it needs; the root build writes that constant from the catalog
+  too, since an annotation cannot read one. Left to itself Robolectric targets
   `compileSdk` and dies inside `ApplicationSharedMemory.create`, which it cannot emulate; the
   message it prints blames the JRE rather than the SDK level.
 - Drive time and concurrency through the test infrastructure rather than the real thing: `runTest`

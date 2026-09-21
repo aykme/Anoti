@@ -21,6 +21,7 @@ plugins {
 // Read here, not inside `subprojects`: the catalog's accessor is only registered on a project
 // once that project is being evaluated, which is after the block below runs.
 val robolectricSdk = libs.versions.robolectricSdk.get()
+val minSdk = libs.versions.minSdk.get()
 
 subprojects {
     plugins.withId("io.gitlab.arturbosch.detekt") {
@@ -64,12 +65,16 @@ subprojects {
         }
     }
 
-    // Robolectric reads this file off the test classpath, so the SDK it emulates is set once from
-    // the version catalog instead of being repeated in an annotation on every test class.
+    // Robolectric reads its properties off the test classpath, so the SDK it emulates is set once
+    // from the version catalog instead of being repeated in an annotation on every test class.
+    // The generated constant is for the rare test that has to name a different level, which an
+    // annotation can only take as a compile-time value.
     plugins.withId("org.jetbrains.kotlin.multiplatform") {
-        // A plain local, so the task's action holds the value rather than this build script.
+        // Plain locals, so the task actions hold the values rather than this build script.
         val sdk = robolectricSdk
+        val oldestSupportedSdk = minSdk
         val configDirectory = layout.buildDirectory.dir("generated/robolectric")
+        val sourceDirectory = layout.buildDirectory.dir("generated/testSdk")
 
         extensions.configure<KotlinMultiplatformExtension> {
             // The source set appears only once the android target is declared, which is after
@@ -90,6 +95,28 @@ subprojects {
                     }
                 }
                 resources.srcDir(generateRobolectricConfig)
+
+                val generateTestSdkVersions = tasks.register("generateTestSdkVersions") {
+                    description = "Writes the SDK levels host tests can name in an annotation."
+                    group = "build"
+                    inputs.property("minSdk", oldestSupportedSdk)
+                    outputs.dir(sourceDirectory)
+                    doLast {
+                        val packageDirectory = sourceDirectory.get().asFile
+                            .resolve("com/alekseivinogradov/anoti/testsdk")
+                        packageDirectory.mkdirs()
+                        packageDirectory.resolve("TestSdkVersions.kt").writeText(
+                            """
+                            package com.alekseivinogradov.anoti.testsdk
+
+                            /** The oldest Android version the app supports. */
+                            const val MIN_SDK = $oldestSupportedSdk
+
+                            """.trimIndent()
+                        )
+                    }
+                }
+                kotlin.srcDir(generateTestSdkVersions)
             }
         }
     }

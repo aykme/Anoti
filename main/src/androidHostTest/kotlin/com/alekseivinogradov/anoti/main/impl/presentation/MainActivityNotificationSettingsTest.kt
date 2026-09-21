@@ -8,6 +8,7 @@ import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.alekseivinogradov.anoti.testsdk.MIN_SDK
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -29,7 +30,7 @@ import kotlin.test.assertEquals
  * where this code never runs. It names `minSdk`, the oldest version the app supports.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [29], application = FakeHostApplication::class)
+@Config(sdk = [MIN_SDK], application = FakeHostApplication::class)
 class MainActivityNotificationSettingsTest {
 
     private val mainDispatcher = TestMainDispatcher()
