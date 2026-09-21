@@ -3,7 +3,7 @@ import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import kotlinx.kover.gradle.plugin.dsl.KoverProjectExtension
 import kotlinx.kover.gradle.plugin.dsl.KoverReportFiltersConfig
 import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
-import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 // Top-level build file where you can add configuration options common to all subprojects/modules.
 plugins {
@@ -19,10 +19,9 @@ plugins {
 
 subprojects {
     plugins.withId("io.gitlab.arturbosch.detekt") {
-        extensions.configure<DetektExtension> {
-            buildUponDefaultConfig = true
-            config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
-        }
+        val detektExtension = extensions.getByType<DetektExtension>()
+        detektExtension.buildUponDefaultConfig = true
+        detektExtension.config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
 
         dependencies.add("detektPlugins", libs.detekt.formatting)
         dependencies.add("detektPlugins", libs.detekt.compose)
@@ -45,8 +44,17 @@ subprojects {
                 setSource(files(commonTestSources))
                 // The plugin wires the extension's settings only into the tasks it registers
                 // itself, so a hand-registered one would run detekt's stock config instead.
-                config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
-                buildUponDefaultConfig = true
+                config.setFrom(detektExtension.config)
+                buildUponDefaultConfig = detektExtension.buildUponDefaultConfig
+                // Same reason: report names also come from the plugin's own registration, and the
+                // fallback name collides with the bare `detekt` task's.
+                listOf(reports.xml, reports.html, reports.txt, reports.sarif, reports.md)
+                    .forEach { report ->
+                        report.outputLocation.convention(
+                            layout.buildDirectory
+                                .file("reports/detekt/commonTest.${report.type.extension}")
+                        )
+                    }
             }
         }
     }
@@ -64,10 +72,12 @@ subprojects {
                 metricsDestination.set(destination)
             }
 
-            // Each report file is named after the Kotlin module name, which defaults to the
-            // Gradle path. On Windows its colons would divert the content into an NTFS alternate
-            // data stream, leaving an empty file behind.
-            tasks.withType<KotlinJvmCompile>().configureEach {
+            // Each report file is named after the Kotlin module name. Kotlin/Native builds that
+            // name from the Gradle path, and on Windows its colons divert the content into an NTFS
+            // alternate data stream, leaving an empty file behind. The JVM default already has no
+            // colons and already tells main apart from hostTest, so renaming it there would only
+            // make the two compilations overwrite each other's report.
+            tasks.withType<KotlinNativeCompile>().configureEach {
                 compilerOptions.moduleName.set(composeCompilerReportModuleName)
             }
         }

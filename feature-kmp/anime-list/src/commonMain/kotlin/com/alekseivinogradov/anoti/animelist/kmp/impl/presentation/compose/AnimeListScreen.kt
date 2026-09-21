@@ -195,6 +195,10 @@ private fun LoadNextPageEffect(
     listState: LazyListState,
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
+    // The effect restarts on the derived flag alone, so it would otherwise keep calling whichever
+    // dispatch it captured first.
+    val currentDispatch by rememberUpdatedState(dispatch)
+
     // Keyed on listState: each section has its own LazyListState instance. Re-deriving only when
     // the boolean flips, without also keying on listState, would leave this stuck watching
     // whichever section was current on the first composition. Scrolling in any section switched
@@ -202,10 +206,6 @@ private fun LoadNextPageEffect(
     //
     // Dispatches once per threshold-crossing: the effect only restarts when the derived boolean
     // itself flips, not on every scroll position update while it stays true.
-    // The effect restarts on the derived flag alone, so it would otherwise keep calling whichever
-    // dispatch it captured first.
-    val currentDispatch by rememberUpdatedState(dispatch)
-
     val shouldLoadNextPage by remember(listState) {
         derivedStateOf {
             val layoutInfo = listState.layoutInfo
