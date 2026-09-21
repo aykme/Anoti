@@ -12,7 +12,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.time.TimeSource
 
-// One function per Intent handled, one helper, plus the temporary dispose() override that only
+// One function per Intent handled, two helpers, plus the temporary dispose() override that only
 // exists to trace the store's lifetime.
 @Suppress("TooManyFunctions")
 class AnimeDatabaseExecutorImpl(
@@ -32,12 +32,16 @@ class AnimeDatabaseExecutorImpl(
     private val writeScope = CoroutineScope(coroutineContextProvider.appMainCoroutineContext)
 
     private var fetchAllDatabaseItemsJob: Job? = null
-    private val insertDatabaseItemsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
-    private val deleteDatabaseItemsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
+
+    // An id is in one of these only while its write is running. Holding the finished Job instead
+    // would keep every id ever written alive for the executor's whole lifetime.
+    private val insertsInFlight: MutableSet<AnimeId> = mutableSetOf()
+    private val deletesInFlight: MutableSet<AnimeId> = mutableSetOf()
+    private val newEpisodeStatusChangesInFlight: MutableSet<AnimeId> = mutableSetOf()
+    private val updatesInFlight: MutableSet<AnimeId> = mutableSetOf()
+
     private var resetAllItemsNewEpisodeStatusJob: Job? = null
     private var resetAllItemsExtraInfoJob: Job? = null
-    private val changeItemNewEpisodeStatusJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
-    private val updateItemJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
 
     override fun executeAction(action: AnimeDatabaseStore.Action) {
         when (action) {
@@ -103,7 +107,7 @@ class AnimeDatabaseExecutorImpl(
         intent: AnimeDatabaseStore.Intent.InsertAnimeDatabaseItem
     ) {
         val id = intent.animeDatabaseItem.id
-        val isJobActive = insertDatabaseItemsJobMap[id]?.isActive == true
+        val isJobActive = id in insertsInFlight
         val isAlreadyInDatabase = databaseContainsItem(id)
         DiagnosticLog.log(
             "db[$storeTag] insert.intent id=$id jobActive=$isJobActive inDb=$isAlreadyInDatabase"
@@ -111,24 +115,23 @@ class AnimeDatabaseExecutorImpl(
         if (isJobActive) return
         if (isAlreadyInDatabase) return
         val requestedAt = TimeSource.Monotonic.markNow()
-        insertDatabaseItemsJobMap[id] =
-            writeScope.launch {
-                DiagnosticLog.log(
-                    "db[$storeTag] insert.started id=$id " +
-                        "queuedMs=${requestedAt.elapsedNow().inWholeMilliseconds}"
-                )
-                usecases.insertAnimeDatabaseItemUsecase.execute(intent.animeDatabaseItem)
-                DiagnosticLog.log(
-                    "db[$storeTag] insert.done id=$id " +
-                        "totalMs=${requestedAt.elapsedNow().inWholeMilliseconds}"
-                )
-            }
+        launchWrite(id, insertsInFlight) {
+            DiagnosticLog.log(
+                "db[$storeTag] insert.started id=$id " +
+                    "queuedMs=${requestedAt.elapsedNow().inWholeMilliseconds}"
+            )
+            usecases.insertAnimeDatabaseItemUsecase.execute(intent.animeDatabaseItem)
+            DiagnosticLog.log(
+                "db[$storeTag] insert.done id=$id " +
+                    "totalMs=${requestedAt.elapsedNow().inWholeMilliseconds}"
+            )
+        }
     }
 
     private fun deleteAnimeDatabaseItem(
         intent: AnimeDatabaseStore.Intent.DeleteAnimeDatabaseItem
     ) {
-        val isJobActive = deleteDatabaseItemsJobMap[intent.id]?.isActive == true
+        val isJobActive = intent.id in deletesInFlight
         val isInDatabase = databaseContainsItem(intent.id)
         DiagnosticLog.log(
             "db[$storeTag] delete.intent id=${intent.id} jobActive=$isJobActive inDb=$isInDatabase"
@@ -136,18 +139,17 @@ class AnimeDatabaseExecutorImpl(
         if (isJobActive) return
         if (!isInDatabase) return
         val requestedAt = TimeSource.Monotonic.markNow()
-        deleteDatabaseItemsJobMap[intent.id] =
-            writeScope.launch {
-                DiagnosticLog.log(
-                    "db[$storeTag] delete.started id=${intent.id} " +
-                        "queuedMs=${requestedAt.elapsedNow().inWholeMilliseconds}"
-                )
-                usecases.deleteAnimeDatabaseItemUsecase.execute(intent.id)
-                DiagnosticLog.log(
-                    "db[$storeTag] delete.done id=${intent.id} " +
-                        "totalMs=${requestedAt.elapsedNow().inWholeMilliseconds}"
-                )
-            }
+        launchWrite(intent.id, deletesInFlight) {
+            DiagnosticLog.log(
+                "db[$storeTag] delete.started id=${intent.id} " +
+                    "queuedMs=${requestedAt.elapsedNow().inWholeMilliseconds}"
+            )
+            usecases.deleteAnimeDatabaseItemUsecase.execute(intent.id)
+            DiagnosticLog.log(
+                "db[$storeTag] delete.done id=${intent.id} " +
+                    "totalMs=${requestedAt.elapsedNow().inWholeMilliseconds}"
+            )
+        }
     }
 
     private fun resetAllItemsNewEpisodeStatus() {
@@ -162,35 +164,29 @@ class AnimeDatabaseExecutorImpl(
     private fun changeItemNewEpisodeStatus(
         intent: AnimeDatabaseStore.Intent.ChangeItemNewEpisodeStatus
     ) {
-        if (changeItemNewEpisodeStatusJobMap[intent.id]?.isActive == true) return
+        if (intent.id in newEpisodeStatusChangesInFlight) return
+        val isItemLabelledWithNewEpisode = state().animeDatabaseItems.any { animeDb: AnimeDbDomain ->
+            animeDb.id == intent.id && animeDb.isNewEpisode
+        }
+        if (!isItemLabelledWithNewEpisode) return
 
-        val isItemAlreadyWithoutNewEpisodeLabel = !(
-            state().animeDatabaseItems
-                .find { animeDb: AnimeDbDomain ->
-                    animeDb.id == intent.id
-                }?.isNewEpisode ?: false
+        launchWrite(intent.id, newEpisodeStatusChangesInFlight) {
+            usecases.changeAnimeDatabaseItemNewEpisodeStatusUsecase.execute(
+                id = intent.id,
+                isNewEpisode = intent.isNewEpisode
             )
-
-        if (isItemAlreadyWithoutNewEpisodeLabel) return
-
-        changeItemNewEpisodeStatusJobMap[intent.id] =
-            writeScope.launch {
-                usecases.changeAnimeDatabaseItemNewEpisodeStatusUsecase.execute(
-                    id = intent.id,
-                    isNewEpisode = intent.isNewEpisode
-                )
-            }
+        }
     }
 
     private fun updateAnimeDatabaseItem(
         intent: AnimeDatabaseStore.Intent.UpdateAnimeDatabaseItem
     ) {
-        if (updateItemJobMap[intent.animeDatabaseItem.id]?.isActive == true) return
-        if (!databaseContainsItem(intent.animeDatabaseItem.id)) return
-        updateItemJobMap[intent.animeDatabaseItem.id] =
-            writeScope.launch {
-                usecases.updateAnimeDatabaseItemUsecase.execute(intent.animeDatabaseItem)
-            }
+        val id = intent.animeDatabaseItem.id
+        if (id in updatesInFlight) return
+        if (!databaseContainsItem(id)) return
+        launchWrite(id, updatesInFlight) {
+            usecases.updateAnimeDatabaseItemUsecase.execute(intent.animeDatabaseItem)
+        }
     }
 
     private fun resetAllItemsExtraInfo() {
@@ -200,10 +196,24 @@ class AnimeDatabaseExecutorImpl(
         }
     }
 
+    /** Runs [write] on [writeScope], marking [id] busy in [inFlight] until it is done. */
+    private fun launchWrite(
+        id: AnimeId,
+        inFlight: MutableSet<AnimeId>,
+        write: suspend () -> Unit
+    ) {
+        inFlight += id
+        writeScope.launch {
+            try {
+                write()
+            } finally {
+                inFlight -= id
+            }
+        }
+    }
+
     private fun databaseContainsItem(id: AnimeId): Boolean {
-        return state().animeDatabaseItems.map { animeDb: AnimeDbDomain ->
-            animeDb.id
-        }.toSet().contains(id)
+        return state().animeDatabaseItems.any { animeDb: AnimeDbDomain -> animeDb.id == id }
     }
 
     private companion object {

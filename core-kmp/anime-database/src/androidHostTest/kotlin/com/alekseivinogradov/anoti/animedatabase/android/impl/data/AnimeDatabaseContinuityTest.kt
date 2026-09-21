@@ -17,14 +17,17 @@ class AnimeDatabaseContinuityTest {
 
     @Test
     fun opensAnExistingPreMigrationDatabaseFileWithoutWipingItsData() = runTest {
+        //Given
         val context: Context = RuntimeEnvironment.getApplication()
         val dbFile = context.getDatabasePath(ANIME_TABLE_NAME)
         seedLegacyDatabaseFile(dbFile)
 
+        //When
         val database = getAnimeDatabase(context)
         val items = database.animeDao().getAllItems()
         database.close()
 
+        //Then
         assertEquals(1, items.size)
         val item = items.first()
         assertEquals(SEEDED_ANIME_ID, item.id)

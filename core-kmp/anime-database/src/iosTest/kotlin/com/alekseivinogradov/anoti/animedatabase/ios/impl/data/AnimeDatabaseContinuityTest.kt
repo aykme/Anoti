@@ -5,23 +5,26 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.AnimeDatabase
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.getRoomDatabase
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlinx.coroutines.test.runTest
 
 class AnimeDatabaseContinuityTest {
 
     @Test
     fun opensAnExistingPreMigrationDatabaseFileWithoutWipingItsData() = runTest {
+        //Given
         val dbPath = "anoti_anime_table_continuity_test.db"
         seedLegacyDatabaseFile(dbPath)
 
+        //When
         val database = getRoomDatabase(
             Room.databaseBuilder<AnimeDatabase>(name = dbPath)
         )
         val items = database.animeDao().getAllItems()
         database.close()
 
+        //Then
         assertEquals(1, items.size)
         val item = items.first()
         assertEquals(42, item.id)

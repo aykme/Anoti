@@ -8,6 +8,7 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.mapper.toDomain
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.model.AnimeDbEntity
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 class AnimeDatabaseRepositoryImpl(private val animeDao: AnimeDao) : AnimeDatabaseRepository {
@@ -20,9 +21,13 @@ class AnimeDatabaseRepositoryImpl(private val animeDao: AnimeDao) : AnimeDatabas
     }
 
     override fun getAllItemsFlow(): Flow<List<AnimeDbDomain>> {
-        return animeDao.getAllItemsFlow().map { entities: List<AnimeDbEntity> ->
-            entities.map { entity: AnimeDbEntity -> entity.toDomain() }
-        }
+        return animeDao.getAllItemsFlow()
+            .map { entities: List<AnimeDbEntity> ->
+                entities.map { entity: AnimeDbEntity -> entity.toDomain() }
+            }
+            // Any write to the table republishes the whole list, even one that changed no row.
+            // Passing an identical list on would rebuild the screen for nothing.
+            .distinctUntilChanged()
     }
 
     override suspend fun getAllItems(): List<AnimeDbDomain> {
