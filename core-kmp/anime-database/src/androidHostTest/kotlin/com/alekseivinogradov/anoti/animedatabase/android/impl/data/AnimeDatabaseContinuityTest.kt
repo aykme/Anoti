@@ -69,6 +69,25 @@ class AnimeDatabaseContinuityTest {
         }
     }
 
+    @Test
+    fun openingTheDatabaseAgainAfterTheEarlierOneWasClosedStillReadsItsRows() = runTest {
+        //Given
+        val context: Context = RuntimeEnvironment.getApplication()
+        seedLegacyDatabaseFile(context.getDatabasePath(ANIME_TABLE_NAME))
+        val first = getAnimeDatabase(context)
+        first.animeDao().getAllItems()
+        first.close()
+
+        //When
+        val second = getAnimeDatabase(context)
+        val items = second.animeDao().getAllItems()
+        second.close()
+
+        //Then
+        // A closed handle must not be handed out again: the rows are still readable.
+        assertEquals(listOf(SEEDED_ANIME_ID), items.map { it.id })
+    }
+
     private companion object {
         private const val SEEDED_ANIME_ID = 42
     }
