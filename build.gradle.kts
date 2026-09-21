@@ -3,6 +3,7 @@ import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import kotlinx.kover.gradle.plugin.dsl.KoverProjectExtension
 import kotlinx.kover.gradle.plugin.dsl.KoverReportFiltersConfig
 import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 // Top-level build file where you can add configuration options common to all subprojects/modules.
@@ -16,6 +17,11 @@ plugins {
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.kover)
 }
+
+// Read here, not inside `subprojects`: the catalog's accessor is only registered on a project
+// once that project is being evaluated, which is after the block below runs.
+val robolectricSdk = libs.versions.robolectricSdk.get()
+val minSdk = libs.versions.minSdk.get()
 
 subprojects {
     plugins.withId("io.gitlab.arturbosch.detekt") {
@@ -35,7 +41,7 @@ subprojects {
         }
 
         // The detekt Gradle plugin only generates tasks for main-compilation source sets, so
-        // commonTest would otherwise never be analysed.
+        // commonTest would otherwise never be analyzed.
         val commonTestSources = file("src/commonTest/kotlin")
         if (commonTestSources.isDirectory) {
             tasks.register<Detekt>("detektCommonTest") {
@@ -55,6 +61,65 @@ subprojects {
                                 .file("reports/detekt/commonTest.${report.type.extension}")
                         )
                     }
+            }
+        }
+    }
+
+    // Robolectric reads its properties off the test classpath, so the SDK it emulates is set once
+    // from the version catalog instead of being repeated in an annotation on every test class.
+    // The generated constant is for the rare test that has to name a different level, which an
+    // annotation can only take as a compile-time value.
+    plugins.withId("org.jetbrains.kotlin.multiplatform") {
+        // Plain locals, so the task actions hold the values rather than this build script.
+        val sdk = robolectricSdk
+        val oldestSupportedSdk = minSdk
+        val configDirectory = layout.buildDirectory.dir("generated/robolectric")
+        val sourceDirectory = layout.buildDirectory.dir("generated/testSdk")
+
+        extensions.configure<KotlinMultiplatformExtension> {
+            // The source set appears only once the android target is declared, which is after
+            // this plugin is applied. So react to its creation instead of looking it up now.
+            // A module that never gets one then has nothing registered for it.
+            sourceSets.configureEach {
+                if (name != "androidHostTest") return@configureEach
+                // A module can declare the source set and hold no tests. Generating into it
+                // would make Gradle see test sources and then fail for finding no tests.
+                if (!file("src/androidHostTest/kotlin").isDirectory) return@configureEach
+
+                val generateRobolectricConfig = tasks.register("generateRobolectricConfig") {
+                    description = "Writes the Robolectric properties this module's host tests read."
+                    group = "build"
+                    inputs.property("sdk", sdk)
+                    outputs.dir(configDirectory)
+                    doLast {
+                        val directory = configDirectory.get().asFile
+                        directory.mkdirs()
+                        directory.resolve("robolectric.properties").writeText("sdk=$sdk\n")
+                    }
+                }
+                resources.srcDir(generateRobolectricConfig)
+
+                val generateTestSdkVersions = tasks.register("generateTestSdkVersions") {
+                    description = "Writes the SDK levels host tests can name in an annotation."
+                    group = "build"
+                    inputs.property("minSdk", oldestSupportedSdk)
+                    outputs.dir(sourceDirectory)
+                    doLast {
+                        val packageDirectory = sourceDirectory.get().asFile
+                            .resolve("com/alekseivinogradov/anoti/testsdk")
+                        packageDirectory.mkdirs()
+                        packageDirectory.resolve("TestSdkVersions.kt").writeText(
+                            """
+                            package com.alekseivinogradov.anoti.testsdk
+
+                            /** The oldest Android version the app supports. */
+                            const val MIN_SDK = $oldestSupportedSdk
+
+                            """.trimIndent()
+                        )
+                    }
+                }
+                kotlin.srcDir(generateTestSdkVersions)
             }
         }
     }
@@ -90,7 +155,7 @@ subprojects {
 val coveredProjects = subprojects.filter { it.buildFile.exists() }
 
 configure(coveredProjects) {
-    apply(plugin = "org.jetbrains.kotlinx.kover")
+    pluginManager.apply("org.jetbrains.kotlinx.kover")
 
     extensions.configure<KoverProjectExtension> {
         reports {

@@ -26,14 +26,11 @@ import androidx.compose.ui.unit.dp
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 @RunWith(RobolectricTestRunner::class)
-// Unpinned, Robolectric targets compileSdk and dies inside ApplicationSharedMemory.create.
-@Config(sdk = [35])
 class RepeatingClickableTest {
 
     @get:Rule

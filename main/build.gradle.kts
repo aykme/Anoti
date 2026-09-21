@@ -19,13 +19,11 @@ kotlin {
             jvmTarget.set(JvmTarget.fromTarget(libs.versions.jvmTarget.get()))
         }
 
-        androidResources {
-            enable = true
+        withHostTestBuilder {}.configure {
+            // The host tests render the real screens, and those resolve their theme and their
+            // Compose resources only from the merged ones.
+            isIncludeAndroidResources = true
         }
-
-        withJava()
-
-        withHostTestBuilder {}.configure {}
     }
 
     listOf(
@@ -40,37 +38,48 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            // `DiRootComponent`'s supertypes and accessors expose types from these three modules,
-            // so they're part of this module's own API surface, not just an implementation detail.
+            // `DiRootDependencies`, `DiRootComponent` and `NavRootChild` are public and name
+            // types from all of these, so they're part of this module's own API surface.
             api(project(":feature-kmp:bottom-navigation-bar"))
             api(project(":feature-kmp:anime-list"))
             api(project(":feature-kmp:anime-favorites"))
+            api(project(":feature-kmp:anime-base"))
+            api(project(":feature-kmp:anime-background-update"))
+            api(project(":core-kmp:celebrity"))
+            api(project(":core-kmp:network"))
+            api(project(":core-kmp:anime-database"))
+            api(project(":core-kmp:navigation"))
+            api(libs.mvikotlin)
 
-            implementation(project(":feature-kmp:anime-base"))
-            implementation(project(":feature-kmp:anime-background-update"))
             implementation(project(":feature-kmp:notifications-rationale-dialog"))
-            implementation(project(":core-kmp:celebrity"))
-            implementation(project(":core-kmp:network"))
-            implementation(project(":core-kmp:anime-database"))
             implementation(project(":core-kmp:di-scope"))
-            implementation(project(":core-kmp:navigation"))
-
-            implementation(libs.mvikotlin)
             implementation(libs.compose.runtime) // required once kotlinCompose is applied
             implementation(libs.compose.foundation)
             implementation(libs.compose.ui)
             implementation(libs.decompose)
             implementation(libs.essenty.lifecycle)
 
-            implementation(libs.kotlin.inject.runtime.kmp)
+            // The component KSP generates from `DiRootComponent` is public and carries this
+            // library's types in its own supertypes.
+            api(libs.kotlin.inject.runtime.kmp)
         }
         androidMain.dependencies {
-            implementation(project(":feature-kmp:anime-notification-external"))
+            // Same reason as above: `DiRootPlatformComponent` hands back this module's provider
+            // type, and `MainActivity` is a public `ComponentActivity`.
+            api(project(":feature-kmp:anime-notification-external"))
+            api(libs.androidx.activity)
 
             implementation(libs.androidx.core)
-            implementation(libs.androidx.activity)
             implementation(libs.androidx.activity.compose)
             implementation(libs.kotlinx.serialization.json)
+        }
+        getByName("androidHostTest").dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.mvikotlin.main)
+            implementation(libs.robolectric)
+            implementation(libs.compose.ui.test.junit4)
         }
     }
 }

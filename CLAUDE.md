@@ -135,13 +135,27 @@ Read this before doing any task in this repository.
   fails at runtime on the Android host test. They belong in `androidHostTest`, driven by
   Robolectric and `androidx.compose.ui.test.junit4.v2.createComposeRule` — the non-`v2` rule is
   deprecated, and v2 defaults to `StandardTestDispatcher`, so coroutines need the scheduler
-  advanced. The module needs `robolectric`, `compose-ui-test-junit4` and `compose-ui-test-manifest`
-  in that source set, all already in the version catalog, plus
+  advanced. The module needs `robolectric` and `compose-ui-test-junit4` in that source set, both
+  already in the version catalog, plus
   `withHostTestBuilder {}.configure { isIncludeAndroidResources = true }` — without the merged
-  resources Robolectric cannot resolve `ComponentActivity`.
-- Pin `@Config(sdk = [35])` on any Robolectric test that renders Compose. Unpinned it targets
-  `compileSdk` and dies inside `ApplicationSharedMemory.create`, which Robolectric 4.17 does not
-  emulate; the message it prints blames the JRE rather than the SDK level.
+  resources the rendered screens find neither their theme nor their Compose resources. Add
+  `compose-ui-test-manifest` only where the rule has to launch its own host activity; a test that
+  launches the module's own activity does not need it.
+- No test ever boots the real app. A host test stays on the JVM with Robolectric standing in for
+  the framework, and never uses the app's own `Application` — it supplies a stub of its own.
+- The code under test is the real thing, wiring included; what it reaches for is where the fakes
+  start. A test may build a real DI component, as long as everything handed to that component is
+  a handwritten fake: no real database, no network, no background work.
+- An instrumented test on a device is the furthest a test may go, and only where a host test
+  genuinely cannot reach. It is never the first tool reached for.
+- The SDK Robolectric emulates is set for the whole project, from `robolectricSdk` in the version
+  catalog: the root build writes it into a `robolectric.properties` on each module's host-test
+  classpath. Don't put `@Config(sdk = ...)` on a test — it belongs there only when that one class
+  genuinely needs a different level, and then it says why. Name the level through the generated
+  `MIN_SDK` where that is the one it needs; the root build writes that constant from the catalog
+  too, since an annotation cannot read one. Left to itself Robolectric targets
+  `compileSdk` and dies inside `ApplicationSharedMemory.create`, which it cannot emulate; the
+  message it prints blames the JRE rather than the SDK level.
 - Drive time and concurrency through the test infrastructure rather than the real thing: `runTest`
   and its virtual clock, `advanceTimeBy`/`advanceUntilIdle`, and `UnconfinedTestDispatcher` or
   `StandardTestDispatcher` installed via `Dispatchers.setMain` — all already established across
@@ -201,19 +215,32 @@ Read this before doing any task in this repository.
 - Make sure the tests cover every case that can realistically occur, without duplicate tests or
   clearly excessive coverage that adds nothing. Don't forget concurrency tests where they're
   needed.
-- Run the tests in every affected module and confirm they're all green.
+- Run every test in each affected module, not only the ones this task wrote, and confirm they are
+  all green. Then take the "Tests" section above rule by rule against what the module now holds,
+  and fix whatever doesn't conform.
+- Every check that needs the app running belongs on an emulator. A physical device attached for
+  development is the developer's own and is not a test bench. An emulator also allows what a
+  phone refuses — `adb root`, forcing an orientation, and picking the API level a branch needs.
 - When running UI (instrumented/`androidTest`) tests, always do a clean installation of the app
-  first — uninstall it from the device/emulator before installing and running, so a stale build
+  first — uninstall it from the emulator before installing and running, so a stale build
   doesn't mask a failure or fake a pass.
 - For any test that's new or was fixed, confirm it doesn't flake, doesn't rely on real time
   (highly undesirable — acceptable only in exceptional cases agreed with the developer), and
   never makes real API calls (this is forbidden).
+- Measure the coverage of every module you touched instead of estimating it from the diff.
+  `./gradlew :<module>:koverLog` prints the number; `:<module>:koverHtmlReport` shows where the
+  gaps are. Hold the result to the targets in "Test coverage" above. Name what is still
+  uncovered rather than staying quiet about it.
+- Check the change still works once R8 has had it — see "R8 and the minified build" below.
 - Review the Gradle files of every affected module. Look for dependencies nothing uses anymore,
   ones declared in the wrong configuration, and anything that could be expressed more simply.
 - Finish with a maximally thorough code review of the change. This one is mandatory. Dispatch
   subagents to do the reviewing, then dispatch skeptic subagents to re-check what the reviewers
   reported. A finding counts only once a skeptic has confirmed it against the code, and a
   dismissal counts only once a skeptic has failed to reproduce it.
+- Document what the task changed before calling it done: the module README, the KDoc on the
+  entities it points at, and the module's regression file. Call the `code-documentation` skill
+  for it — see "Module READMEs" and "Module regression files" below.
 - Delete every artifact produced while verifying — screenshots, logcat dumps, UI hierarchy dumps,
   temporary scripts, and anything else created only to check the result. This applies to the
   session scratchpad and to the device/emulator alike. Nothing of the sort is left behind once
@@ -232,6 +259,10 @@ Read this before doing any task in this repository.
     - If a finding is easy to fix without changing logic (formatting, naming, straightforward
       extraction, and the like), fix it yourself. If resolving a finding would require a
       substantial change to the logic, don't guess — ask the developer which approach to take.
+    - Nothing deprecated goes in. Read the compiler's deprecation warnings for the files being
+      committed and clear every one, in test code as much as in production code. Where a
+      replacement exists, use it; where none does, ask the developer rather than suppressing the
+      warning. This covers third-party APIs too, not just the project's own.
     - For files detekt doesn't analyze (`*.md`, `*.xml`, and similar), do the equivalent by
       hand: reformat the code, optimize imports, and check that formatting matches the
       codebase's established conventions.
@@ -252,6 +283,34 @@ Read this before doing any task in this repository.
 - Compose annotations stay out of domain types. A `@Stable` interface in `api/domain` leaks the
   UI layer into it. Leave it alone and note the report entry instead.
 
+## R8 and the minified build
+
+- `release` ships unshrunk. The `minified` build type in `:app` is the stand that exercises R8:
+  it is `initWith(release)` with `isMinifyEnabled` and `isShrinkResources` on, signed with the
+  debug key so it installs. Build it with `./gradlew :app:assembleMinified`.
+- `isDebuggable` must stay off there. AGP runs R8 in debug mode for a debuggable variant, which
+  silently skips obfuscation — the part of R8 most likely to break something. Measured on the
+  same variant: debuggable gave 0 renames and 18 170 429 bytes, non-debuggable 698 renames and
+  9 664 344 bytes.
+- Run this whenever the change touches anything reached by name: reflection, `Class.forName`,
+  kotlinx.serialization, Room entities and DAOs, WorkManager workers, or a class the manifest
+  names. A change that touches none of those does not need the pass.
+- Look for a library's own rules before writing any. An AAR carries `proguard.txt` or
+  `consumer-rules.pro` inside it, and AGP merges those automatically. Everything actually
+  applied, and where it came from, is listed in
+  `app/build/outputs/mapping/minified/configuration.txt`. Only add a rule to
+  `app/proguard-rules.pro` once that file shows nobody supplied it.
+- Read the other artifacts next to it. `missing_rules.txt` appears only when something needed a
+  keep rule. `seeds.txt` lists what was kept and why. `usage.txt` lists what was stripped.
+  `mapping.txt` shows what was renamed — check there that the names that must survive did.
+- A successful build proves nothing on its own. Install the minified APK on an emulator, clean,
+  and walk the flows the change touches. Confirm they really ran, that the log holds no
+  `ClassNotFoundException` or `NoSuchMethodException`, and that no screen fell back to an empty
+  or error state the unminified build doesn't show.
+- `app/proguard-rules.pro` keeps `SourceFile` and `LineNumberTable` and renames the source file
+  to a constant, so an obfuscated stack trace stays decodable through `mapping.txt` with retrace
+  while leaking nothing.
+
 ## Module READMEs
 
 - Whenever a module is created or changed, create (if missing) or update its README to
@@ -270,23 +329,10 @@ Read this before doing any task in this repository.
 
 - Every module carries a regression file at its root, named like its README but ending `-REGRESS.md`
   (e.g. `:core-kmp:celebrity` → `CORE-KMP-CELEBRITY-REGRESS.md`).
-- It holds only what cannot be checked from the code — the checks that need the app installed and
-  driven by hand. Anything provable from the code belongs in a test instead.
-- Write it for a tester who has never seen the code. No class, file or function names, and no
-  reference to the implementation. Only where to go, what to do, and what should happen.
-- Cover the module exhaustively. Each of these gets its own step:
-    - every screen state — loading, empty, error, loaded — and every transition between them;
-    - every control, and every press it accepts: tap, long press, press-and-hold, repeat;
-    - every gesture: scroll, swipe, pull-to-refresh, drag, system back;
-    - every way the data itself can differ: missing image, long title, zero count, huge count;
-    - every way the device can differ: no network, rotation, dark mode, large font, back from
-      background, process death.
-- State the expected result for each step. Exact text, color, position, what appears, what goes
-  away. A step without an expected result is not a check.
-- A module with no UI of its own still gets a file. Name the screens where its code actually runs,
-  say what to do there to reach it, and say what proves it worked rather than crashed.
-- For behavior that never surfaces on its own — dependency wiring, background work, caching,
-  notifications — give the sequence that triggers it and the visible sign that it ran.
+- It is the module's manual test script: only what cannot be checked from the code, written for a
+  tester who has never seen it. Anything provable from the code belongs in a test instead.
+- It is written and updated through the `code-documentation` skill, in the same pass as the
+  module's README. The skill holds the rules for what goes in it and how far its scope reaches.
 - When a regression of a module or of the whole app is asked for, read these files and run the
   checks written in them.
 

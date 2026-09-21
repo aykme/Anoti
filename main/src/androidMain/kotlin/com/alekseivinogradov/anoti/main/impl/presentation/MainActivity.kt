@@ -34,7 +34,9 @@ import com.alekseivinogradov.anoti.navigation.kmp.NavRootComponent
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.defaultComponentContext
+import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.asEssentyLifecycle
+import com.arkivanov.essenty.lifecycle.doOnDestroy
 import kotlinx.serialization.json.Json
 
 class MainActivity : ComponentActivity() {
@@ -52,6 +54,8 @@ class MainActivity : ComponentActivity() {
 
     private val notificationsRationaleVisible = mutableStateOf(false)
 
+    private val essentyLifecycle: Lifecycle = lifecycle.asEssentyLifecycle()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         // defaultComponentContext() reads the SavedStateRegistry, which only becomes readable
         // once super.onCreate() has restored it — so it must run first.
@@ -63,6 +67,13 @@ class MainActivity : ComponentActivity() {
         diRootComponent = componentHolder.createDiRootComponent()
         mainStore = diRootComponent.bottomNavigationBarStore
         animeDatabaseStore = diRootComponent.animeDatabaseStore
+        // These are closed from where they are created. The binding that would otherwise close
+        // them only starts once the first composition's effects run. The activity can be gone by
+        // then. A second dispose is a no-op, so the binding's own call stays harmless.
+        essentyLifecycle.doOnDestroy {
+            mainStore.dispose()
+            animeDatabaseStore.dispose()
+        }
         // getIntent() keeps returning the launching Intent for the whole task, so the deep link
         // must only be honored on a fresh start. Otherwise, every Activity recreation would
         // discard the restored navigation state and jump back to the deep link's target.
@@ -73,10 +84,11 @@ class MainActivity : ComponentActivity() {
             initialConfiguration = initialNavConfig,
             childFactory = ::createRootChild
         )
-        // Set directly on the store (bypassing the view/store event binding, which only
-        // completes asynchronously) so the bar's selected tab is already correct for the very
-        // first composition, before RootContent even exists. childStack.value is already valid
-        // here: childStack() resolves the initial/restored child synchronously on construction.
+        // The only path that gets the bar's first tab right, not a shortcut for one. The view
+        // dispatches the same intent, but its binder attaches on a later main-thread message, so
+        // that first dispatch reaches no subscriber and is dropped. Removing this line leaves the
+        // bar highlighting the wrong tab after a launch into favorites. `childStack.value` is
+        // already valid here: it resolves the initial or restored child on construction.
         mainStore.accept(
             BottomNavigationBarStore.Intent.ChangeSelectedSection(
                 selectedSection = rootComponent.childStack.value.active.instance.section
@@ -91,7 +103,7 @@ class MainActivity : ComponentActivity() {
                     mainStore = mainStore,
                     animeDatabaseStore = animeDatabaseStore,
                     systemMessageController = diRootComponent.parent.systemMessageController,
-                    lifecycle = lifecycle.asEssentyLifecycle()
+                    lifecycle = essentyLifecycle
                 ),
                 notificationsRationale = NotificationsRationaleState(
                     visible = notificationsRationaleVisible,
@@ -128,14 +140,15 @@ class MainActivity : ComponentActivity() {
 
     /**
      * This Activity is exported, so any app can launch it with an arbitrary extra — a malformed
-     * payload is treated as "no deep link" rather than being allowed to crash [onCreate].
+     * payload is treated as "no deep link" rather than being allowed to crash [onCreate]. Reading
+     * the extra is inside the guard as well: extras that arrive from another process are
+     * unpacked on first access, and one naming a class this app doesn't have throws right there.
      */
-    private fun readDeepLinkTarget(): NavRootConfig? {
-        val encoded = intent?.getStringExtra(EXTRA_DEEP_LINK_TARGET) ?: return null
-        return runCatching {
+    private fun readDeepLinkTarget(): NavRootConfig? = runCatching {
+        intent?.getStringExtra(EXTRA_DEEP_LINK_TARGET)?.let { encoded ->
             Json.decodeFromString(NavRootConfig.serializer(), encoded)
-        }.getOrNull()
-    }
+        }
+    }.getOrNull()
 
     @SuppressLint("SourceLockedOrientationActivity")
     private fun setSystemSettings() {
