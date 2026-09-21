@@ -27,6 +27,19 @@ android {
                 "proguard-rules.pro"
             )
         }
+        // Shrunk and obfuscated exactly like a release would be, but signed with the debug key so
+        // it installs. Debuggable is left off on purpose: AGP skips obfuscation for debuggable
+        // builds, and obfuscation is the part of R8 most likely to break something.
+        create("minified") {
+            initWith(getByName("release"))
+            isMinifyEnabled = true
+            isShrinkResources = true
+            signingConfig = signingConfigs.getByName("debug")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.toVersion(libs.versions.jvmTarget.get())
