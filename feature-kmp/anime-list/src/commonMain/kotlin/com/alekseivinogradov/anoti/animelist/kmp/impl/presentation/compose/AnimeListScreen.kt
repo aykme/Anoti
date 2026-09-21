@@ -17,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -69,7 +70,8 @@ import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as Cele
 fun AnimeListScreen(
     uiModel: AnimeListUiModel,
     dateFormatter: DateFormatter,
-    dispatch: (AnimeListMainStore.Intent) -> Unit
+    dispatch: (AnimeListMainStore.Intent) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     // Remembered here, not inside ListState(), so a switch to a not-yet-loaded section can't
     // dispose them. Such a switch briefly swaps ListState() for LoadingState(), which would
@@ -85,7 +87,7 @@ fun AnimeListScreen(
         SectionHatUi.SEARCH -> searchListState
     }
 
-    Box(Modifier.fillMaxSize().horizontalSystemBarsPadding()) {
+    Box(modifier.fillMaxSize().horizontalSystemBarsPadding()) {
         when (uiModel.contentType) {
             ContentTypeUi.LOADING -> LoadingState()
             ContentTypeUi.ERROR -> ErrorState(dispatch = dispatch)
@@ -200,6 +202,10 @@ private fun LoadNextPageEffect(
     //
     // Dispatches once per threshold-crossing: the effect only restarts when the derived boolean
     // itself flips, not on every scroll position update while it stays true.
+    // The effect restarts on the derived flag alone, so it would otherwise keep calling whichever
+    // dispatch it captured first.
+    val currentDispatch by rememberUpdatedState(dispatch)
+
     val shouldLoadNextPage by remember(listState) {
         derivedStateOf {
             val layoutInfo = listState.layoutInfo
@@ -211,7 +217,7 @@ private fun LoadNextPageEffect(
     }
     LaunchedEffect(shouldLoadNextPage) {
         if (shouldLoadNextPage) {
-            dispatch(AnimeListMainStore.Intent.LoadNextPage)
+            currentDispatch(AnimeListMainStore.Intent.LoadNextPage)
         }
     }
 }
@@ -223,11 +229,15 @@ private fun ResetListPositionEffect(
     listState: LazyListState,
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
+    // The effect restarts on the flag alone, so it would otherwise keep calling whichever
+    // dispatch it captured first.
+    val currentDispatch by rememberUpdatedState(dispatch)
+
     // Keyed on the flag itself, not the list, so this dispatch fires exactly once per reset.
     LaunchedEffect(uiModel.listContent.isNeedToResetListPositon) {
         if (uiModel.listContent.isNeedToResetListPositon) {
             listState.scrollToItem(0)
-            dispatch(
+            currentDispatch(
                 AnimeListMainStore.Intent.ChangeResetListPositionFlag(
                     isNeedToResetListPosition = false
                 )

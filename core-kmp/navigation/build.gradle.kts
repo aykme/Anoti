@@ -1,4 +1,3 @@
-import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -43,12 +42,4 @@ kotlin {
             implementation(libs.kotlin.test)
         }
     }
-}
-
-// The detekt Gradle plugin only generates tasks for main-compilation source sets, so commonTest
-// would otherwise never be analysed.
-tasks.register<Detekt>("detektCommonTest") {
-    description = "Runs detekt over the commonTest source set."
-    group = "verification"
-    setSource(files("src/commonTest/kotlin"))
 }

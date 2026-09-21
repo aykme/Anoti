@@ -1,5 +1,7 @@
 package com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model
 
+import androidx.compose.runtime.Immutable
+
 /**
  * What the anime list screen should render.
  *
@@ -8,6 +10,7 @@ package com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model
  * @param contentType loading state of the selected section's list.
  * @param listContent the selected section's list content.
  */
+@Immutable
 data class AnimeListUiModel(
     val selectedSection: SectionHatUi = SectionHatUi.ONGOINGS,
     val search: SearchUi = SearchUi.HIDDEN,

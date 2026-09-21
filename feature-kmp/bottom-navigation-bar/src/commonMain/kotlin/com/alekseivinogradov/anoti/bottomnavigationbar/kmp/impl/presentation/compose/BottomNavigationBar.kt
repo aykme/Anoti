@@ -59,13 +59,14 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun BottomNavigationBar(
     uiModel: BottomNavigationBarUiModel,
-    dispatch: (BottomNavigationBarStore.Intent) -> Unit
+    dispatch: (BottomNavigationBarStore.Intent) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     // NavigationBar owns exactly one inset-consuming layer: its own windowInsets is disabled
     // (fixed at zero) so its content is pinned to a fixed 56dp, and the Spacer below reserves the
     // system navigation bar's own height with matching background — a fixed-size content region
     // plus a separate system-inset region, so only one of the two ever pads for that inset.
-    Column(modifier = Modifier.horizontalSystemBarsPadding().shadow(NAV_BAR_ELEVATION_DP)) {
+    Column(modifier = modifier.horizontalSystemBarsPadding().shadow(NAV_BAR_ELEVATION_DP)) {
         NavigationBar(
             containerColor = Black,
             windowInsets = WindowInsets(0.dp),

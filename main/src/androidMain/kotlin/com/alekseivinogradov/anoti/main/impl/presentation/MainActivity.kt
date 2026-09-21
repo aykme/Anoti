@@ -56,7 +56,8 @@ class MainActivity : ComponentActivity() {
         // defaultComponentContext() reads the SavedStateRegistry, which only becomes readable
         // once super.onCreate() has restored it — so it must run first.
         super.onCreate(savedInstanceState)
-        diRootComponent = (this.application as DiRootComponentHolder).createDiRootComponent()
+        diRootComponent = (checkNotNull(application) as DiRootComponentHolder)
+            .createDiRootComponent()
         mainStore = diRootComponent.bottomNavigationBarStore
         animeDatabaseStore = diRootComponent.animeDatabaseStore
         // getIntent() keeps returning the launching Intent for the whole task, so the deep link

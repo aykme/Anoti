@@ -21,7 +21,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -79,17 +81,22 @@ import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as Cele
 fun AnimeFavoritesScreen(
     uiModel: AnimeFavoritesUiModel,
     dateFormatter: DateFormatter,
-    dispatch: (AnimeFavoritesMainStore.Intent) -> Unit
+    dispatch: (AnimeFavoritesMainStore.Intent) -> Unit,
+    modifier: Modifier = Modifier
 ) {
+    // The effect restarts on the items alone, so it would otherwise keep calling whichever
+    // dispatch it captured first.
+    val currentDispatch by rememberUpdatedState(dispatch)
+
     // The only path that flips contentType from LOADING to LOADED, so it must run
     // unconditionally here rather than behind the ContentTypeUi.LOADED branch below.
     LaunchedEffect(uiModel.listItems) {
         if (uiModel.listItems.isNotEmpty()) {
-            dispatch(AnimeFavoritesMainStore.Intent.ItemsSubmittedToList)
+            currentDispatch(AnimeFavoritesMainStore.Intent.ItemsSubmittedToList)
         }
     }
 
-    Box(Modifier.fillMaxSize().horizontalSystemBarsPadding()) {
+    Box(modifier.fillMaxSize().horizontalSystemBarsPadding()) {
         when (uiModel.contentType) {
             ContentTypeUi.LOADING -> LoadingState()
             ContentTypeUi.EMPTY -> EmptyState()

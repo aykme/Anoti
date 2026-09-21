@@ -17,10 +17,6 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,6 +25,10 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AnimeDatabaseExecutorImplTest {
@@ -36,7 +36,6 @@ class AnimeDatabaseExecutorImplTest {
     private val testDispatcher = UnconfinedTestDispatcher()
 
     private val createdStores = mutableListOf<Store<*, *, *>>()
-
 
     @BeforeTest
     fun setup() {
@@ -74,16 +73,16 @@ class AnimeDatabaseExecutorImplTest {
         }
         val usecases = AnimeDatabaseUsecases(
             fetchAllAnimeDatabaseItemsFlowUsecase =
-                FetchAllAnimeDatabaseItemsFlowUsecaseImpl(repository),
+            FetchAllAnimeDatabaseItemsFlowUsecaseImpl(repository),
             insertAnimeDatabaseItemUsecase = InsertAnimeDatabaseItemUsecaseImpl(repository),
             deleteAnimeDatabaseItemUsecase = DeleteAnimeDatabaseItemUsecaseImpl(repository),
             resetAllAnimeDatabaseItemsNewEpisodeStatusUsecase =
-                ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecaseImpl(repository),
+            ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecaseImpl(repository),
             changeAnimeDatabaseItemNewEpisodeStatusUsecase =
-                ChangeAnimeDatabaseItemNewEpisodeStatusUsecaseImpl(repository),
+            ChangeAnimeDatabaseItemNewEpisodeStatusUsecaseImpl(repository),
             updateAnimeDatabaseItemUsecase = UpdateAnimeDatabaseItemUsecaseImpl(repository),
             resetAllAnimeDatabaseItemsExtraInfoUsecase =
-                ResetAllAnimeDatabaseItemsExtraInfoUsecaseImpl(repository)
+            ResetAllAnimeDatabaseItemsExtraInfoUsecaseImpl(repository)
         )
         return AnimeDatabaseStoreFactory(
             storeFactory = DefaultStoreFactory(),

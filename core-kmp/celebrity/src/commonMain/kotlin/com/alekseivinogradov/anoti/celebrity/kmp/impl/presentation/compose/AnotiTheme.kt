@@ -40,8 +40,9 @@ fun anotiColorScheme(): ColorScheme = if (isSystemInDarkTheme()) DarkColorScheme
  * Applies Anoti's Material color scheme and background to [content].
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
-// lowerCamelCase.
-@Suppress("FunctionNaming")
+// lowerCamelCase. ModifierMissing: a theme wrapper has no layout of its own to size or position,
+// so there is nowhere for a caller's Modifier to land.
+@Suppress("FunctionNaming", "ModifierMissing")
 @Composable
 fun AnotiTheme(content: @Composable () -> Unit) {
     MaterialTheme(colorScheme = anotiColorScheme()) {

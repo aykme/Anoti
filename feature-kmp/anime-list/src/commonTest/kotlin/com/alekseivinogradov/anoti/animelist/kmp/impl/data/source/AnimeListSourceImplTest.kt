@@ -11,12 +11,12 @@ import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.test.DesiredCallResult
 import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
+import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.test.runTest
 
 class AnimeListSourceImplTest {
     private val maxDelay = 60000 //1 minute
@@ -43,9 +43,8 @@ class AnimeListSourceImplTest {
         //Then
         assertTrue {
             actualResult is CallResult.Success &&
-                    actualResult.value == expectedResult
+                actualResult.value == expectedResult
         }
-
     }
 
     @Test
@@ -66,8 +65,8 @@ class AnimeListSourceImplTest {
         //Then
         assertTrue {
             expectedResult != null &&
-                    actualResult is CallResult.OtherError &&
-                    actualResult == expectedResult
+                actualResult is CallResult.OtherError &&
+                actualResult == expectedResult
         }
     }
 
@@ -95,7 +94,7 @@ class AnimeListSourceImplTest {
         //Then
         assertTrue {
             actualResult is CallResult.Success &&
-                    actualResult.value == expectedResult
+                actualResult.value == expectedResult
         }
     }
 
@@ -126,8 +125,8 @@ class AnimeListSourceImplTest {
         //Then
         assertTrue {
             expectedResult != null &&
-                    actualResult is CallResult.OtherError &&
-                    actualResult == expectedResult
+                actualResult is CallResult.OtherError &&
+                actualResult == expectedResult
         }
     }
 
@@ -155,7 +154,7 @@ class AnimeListSourceImplTest {
         //Then
         assertTrue {
             actualResult is CallResult.Success &&
-                    actualResult.value == expectedResult
+                actualResult.value == expectedResult
         }
     }
 
@@ -186,8 +185,8 @@ class AnimeListSourceImplTest {
         //Then
         assertTrue {
             expectedResult != null &&
-                    actualResult is CallResult.OtherError &&
-                    actualResult == expectedResult
+                actualResult is CallResult.OtherError &&
+                actualResult == expectedResult
         }
     }
 
@@ -217,7 +216,7 @@ class AnimeListSourceImplTest {
         //Then
         assertTrue {
             actualResult is CallResult.Success &&
-                    actualResult.value == expectedResult
+                actualResult.value == expectedResult
         }
     }
 
@@ -250,8 +249,8 @@ class AnimeListSourceImplTest {
         //Then
         assertTrue {
             expectedResult != null &&
-                    actualResult is CallResult.OtherError &&
-                    actualResult == expectedResult
+                actualResult is CallResult.OtherError &&
+                actualResult == expectedResult
         }
     }
 

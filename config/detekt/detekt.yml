@@ -1,9 +1,48 @@
+# detekt resolves types only for the JVM and Android targets. Rules that need type resolution
+# therefore report on androidMain alone and stay silent on commonMain.
+
 formatting:
   active: true
+  # Test bodies are sectioned with //Given, //When and //Then, which this rule reads as a
+  # missing space.
+  CommentSpacing:
+    active: false
 
 coroutines:
+  GlobalCoroutineUsage:
+    active: true
+  SuspendFunSwallowedCancellation:
+    active: true
+  SuspendFunWithCoroutineScopeReceiver:
+    active: true
   # detekt cannot resolve the generated Compose Resources accessors, so it reads every getString
   # call as non-suspending and reports the modifier as redundant. Android Studio resolves them
   # and still reports genuinely redundant modifiers.
   RedundantSuspendModifier:
     active: false
+
+performance:
+  CouldBeSequence:
+    active: true
+  UnnecessaryPartOfBinaryExpression:
+    active: true
+
+potential-bugs:
+  CastNullableToNonNullableType:
+    active: true
+  ElseCaseInsteadOfExhaustiveWhen:
+    active: true
+  NullCheckOnMutableProperty:
+    active: true
+  NullableToStringCall:
+    active: true
+  PropertyUsedBeforeDeclaration:
+    active: true
+  UnconditionalJumpStatementInLoop:
+    active: true
+  UnnecessaryNotNullCheck:
+    active: true
+
+style:
+  UnnecessaryInnerClass:
+    active: true

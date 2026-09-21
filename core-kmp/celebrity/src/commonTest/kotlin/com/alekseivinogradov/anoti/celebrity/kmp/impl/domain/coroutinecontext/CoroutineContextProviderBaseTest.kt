@@ -1,10 +1,10 @@
 package com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext
 
+import kotlinx.coroutines.Job
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNotSame
 import kotlin.test.assertNull
-import kotlinx.coroutines.Job
 
 class CoroutineContextProviderBaseTest {
 

@@ -3,11 +3,11 @@ package com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.repository
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.AnimeDbDomain
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.ReleaseStatusDb
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.fake.AnimeDaoFake
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.runTest
 
 class AnimeDatabaseRepositoryImplTest {
 
