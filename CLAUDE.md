@@ -135,10 +135,12 @@ Read this before doing any task in this repository.
   fails at runtime on the Android host test. They belong in `androidHostTest`, driven by
   Robolectric and `androidx.compose.ui.test.junit4.v2.createComposeRule` — the non-`v2` rule is
   deprecated, and v2 defaults to `StandardTestDispatcher`, so coroutines need the scheduler
-  advanced. The module needs `robolectric`, `compose-ui-test-junit4` and `compose-ui-test-manifest`
-  in that source set, all already in the version catalog, plus
+  advanced. The module needs `robolectric` and `compose-ui-test-junit4` in that source set, both
+  already in the version catalog, plus
   `withHostTestBuilder {}.configure { isIncludeAndroidResources = true }` — without the merged
-  resources Robolectric cannot resolve `ComponentActivity`.
+  resources the rendered screens find neither their theme nor their Compose resources. Add
+  `compose-ui-test-manifest` only where the rule has to launch its own host activity; a test that
+  launches the module's own activity does not need it.
 - No test ever boots the real app. A host test stays on the JVM with Robolectric standing in for
   the framework, and never uses the app's own `Application` — it supplies a stub of its own.
 - The code under test is the real thing, wiring included; what it reaches for is where the fakes

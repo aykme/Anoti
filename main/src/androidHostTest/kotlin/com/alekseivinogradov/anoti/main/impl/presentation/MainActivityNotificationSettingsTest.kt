@@ -21,13 +21,16 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * Before Tiramisu there is no notification permission to request, so the app has to check the
- * switch itself and send the user to the system settings. That branch only exists below 33, which
- * is why this class pins an older SDK than the rest.
+ * Below Tiramisu the system has no notification permission to grant, so the app reads the switch
+ * itself and sends the user to the settings screen that holds it. That is the whole mechanism on
+ * those versions, not a fallback from another one.
+ *
+ * The SDK pin is what makes the path reachable: the project-wide Robolectric level is above 33,
+ * where this code never runs. It names `minSdk`, the oldest version the app supports.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [29], application = FakeHostApplication::class)
-class MainActivityLegacyNotificationsTest {
+class MainActivityNotificationSettingsTest {
 
     private val mainDispatcher = TestMainDispatcher()
 

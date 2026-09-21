@@ -59,13 +59,17 @@ kotlin {
             implementation(libs.decompose)
             implementation(libs.essenty.lifecycle)
 
-            implementation(libs.kotlin.inject.runtime.kmp)
+            // The component KSP generates from `DiRootComponent` is public and carries this
+            // library's types in its own supertypes.
+            api(libs.kotlin.inject.runtime.kmp)
         }
         androidMain.dependencies {
-            implementation(project(":feature-kmp:anime-notification-external"))
+            // Same reason as above: `DiRootPlatformComponent` hands back this module's provider
+            // type, and `MainActivity` is a public `ComponentActivity`.
+            api(project(":feature-kmp:anime-notification-external"))
+            api(libs.androidx.activity)
 
             implementation(libs.androidx.core)
-            implementation(libs.androidx.activity)
             implementation(libs.androidx.activity.compose)
             implementation(libs.kotlinx.serialization.json)
         }
