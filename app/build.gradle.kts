@@ -27,12 +27,14 @@ android {
                 "proguard-rules.pro"
             )
         }
-        // Debuggable and debug-signed, but shrunk: exercises R8 without putting it on the release
-        // path. Install it to check that nothing the shrinker removed is needed at runtime.
+        // Shrunk and obfuscated exactly like a release would be, but signed with the debug key so
+        // it installs. Debuggable is left off on purpose: AGP skips obfuscation for debuggable
+        // builds, and obfuscation is the part of R8 most likely to break something.
         create("minified") {
-            initWith(getByName("debug"))
+            initWith(getByName("release"))
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("debug")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
