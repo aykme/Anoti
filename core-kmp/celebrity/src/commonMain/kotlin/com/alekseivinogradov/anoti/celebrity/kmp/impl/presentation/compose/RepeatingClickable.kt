@@ -9,6 +9,7 @@ import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -94,16 +95,25 @@ private class RepeatingClickableNode(
                 // fires alongside it, showing its own press indication too.
                 down.consume()
                 val press = PressInteraction.Press(down.position)
-                interactionSource.tryEmit(press)
-                val up = waitForUpOrCancellation()
-                up?.consume()
-                interactionSource.tryEmit(
-                    if (up != null) {
-                        PressInteraction.Release(press)
-                    } else {
-                        PressInteraction.Cancel(press)
-                    }
-                )
+                // Read once, so the press always ends on the source that started it even if the
+                // field is swapped mid-gesture.
+                val source = interactionSource
+                source.tryEmit(press)
+                var up: PointerInputChange? = null
+                try {
+                    up = waitForUpOrCancellation()
+                    up?.consume()
+                } finally {
+                    // This coroutine can also be cancelled outright — by a handler reset or by the
+                    // node going away — and then nothing else would close the press.
+                    source.tryEmit(
+                        if (up != null) {
+                            PressInteraction.Release(press)
+                        } else {
+                            PressInteraction.Cancel(press)
+                        }
+                    )
+                }
             }
         }
     )
@@ -121,8 +131,8 @@ private class RepeatingClickableNode(
         this.initialDelayMillis = initialDelayMillis
         this.repeatDelayMillis = repeatDelayMillis
         this.onClick = onClick
-        // Both the gesture and the repeat timer are bound to one source, so swapping it has to
-        // restart them together.
+        // Only the repeat timer is bound to a source, by collecting from it, so a swap has to
+        // restart it. Resetting the gesture too ends any press in flight on the source it began on.
         if (this.interactionSource != interactionSource) {
             this.interactionSource = interactionSource
             pointerInputNode.resetPointerInputHandler()
