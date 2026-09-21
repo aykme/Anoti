@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext
 
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlin.test.Test
 import kotlin.test.assertNotNull
@@ -47,5 +48,31 @@ class CoroutineContextProviderBaseTest {
 
         //Then
         assertNull(job, "a job here would reparent everything launched with it")
+    }
+
+    @Test
+    fun workManagerCoroutineContextCarriesNoJob() {
+        //Given
+        val provider = createProvider()
+
+        //When
+        val job = provider.workManagerCoroutineContext[Job]
+
+        //Then
+        assertNull(job, "the worker's own cancellation would stop reaching the work it started")
+    }
+
+    @Test
+    fun theBareProvidersHandlerReportsAThrowableWithoutRethrowingIt() {
+        //Given
+        val provider = CoroutineContextProviderBareImpl()
+
+        //When
+        provider.exceptionHandlerCallback(IllegalStateException("boom"))
+
+        //Then
+        // Reaching here is the assertion: this provider exists for code that must not show UI,
+        // so its handler has nowhere to report to and nothing to throw.
+        assertNotNull(provider.mainCoroutineContext[CoroutineExceptionHandler])
     }
 }

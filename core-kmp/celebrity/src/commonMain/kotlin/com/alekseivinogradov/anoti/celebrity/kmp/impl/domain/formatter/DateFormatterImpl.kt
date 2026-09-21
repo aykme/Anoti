@@ -11,15 +11,17 @@ import kotlinx.datetime.format.char
  * date-time, e.g. the API's `next_episode_at` — and formats them as `d MMM yyyy`, e.g.
  * `5 Jan 2024`.
  */
-class DateFormatterImpl : DateFormatter {
+// Built once for the process: every injection point gets its own formatter, and compiling the
+// same pattern again for each of them buys nothing.
+private val outputFormat = LocalDate.Format {
+    day(padding = Padding.NONE)
+    char(' ')
+    monthName(MonthNames.ENGLISH_ABBREVIATED)
+    char(' ')
+    year()
+}
 
-    private val outputFormat = LocalDate.Format {
-        day(padding = Padding.NONE)
-        char(' ')
-        monthName(MonthNames.ENGLISH_ABBREVIATED)
-        char(' ')
-        year()
-    }
+class DateFormatterImpl : DateFormatter {
 
     override fun getFormattedDate(
         inputText: String,
