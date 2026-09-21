@@ -112,8 +112,12 @@ androidx-core = { group = "androidx.core", name = "core", version.ref = "core" }
 androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
 androidx-rules = { group = "androidx.test", name = "rules", version.ref = "rules" }
 androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "workRuntimeKtx" }
+androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "workRuntimeKtx" }
 compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "composeUiTest" }
 compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "composeUiTest" }
+#Wires kotlin-test's assertions to JUnit 4 and brings JUnit in. A module without the Kotlin
+#Gradle plugin gets neither from plain kotlin-test.
+kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 play-services-appset = { module = "com.google.android.gms:play-services-appset", version.ref = "playServicesAppset" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }

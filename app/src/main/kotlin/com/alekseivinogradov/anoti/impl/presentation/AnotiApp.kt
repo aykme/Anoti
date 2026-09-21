@@ -10,6 +10,7 @@ import com.alekseivinogradov.anoti.main.impl.di.create
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponentHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AnotiApp : Application(), DiRootComponentHolder, Configuration.Provider {
 
@@ -26,6 +27,15 @@ class AnotiApp : Application(), DiRootComponentHolder, Configuration.Provider {
         super.onCreate()
 
         CoroutineScope(diAppComponent.coroutineContextProvider.appMainCoroutineContext).launch {
+            startUp()
+        }
+    }
+
+    /** What the app arranges once per process, off the path to its first screen. */
+    internal suspend fun startUp() {
+        // None of this draws anything, and all of it costs frames on the way to the first screen.
+        // The channel's strings are read off disk. The first WorkManager handle opens a database.
+        withContext(diAppComponent.coroutineContextProvider.ioDispatcher) {
             // The worker posts into this channel, so it must exist before the work is enqueued.
             setupAnimeNotificationManager()
             diAppComponent.animeBackgroundScheduler.schedulePeriodicUpdate()
@@ -33,11 +43,8 @@ class AnotiApp : Application(), DiRootComponentHolder, Configuration.Provider {
     }
 
     private suspend fun setupAnimeNotificationManager() {
-        (getSystemService(NOTIFICATION_SERVICE) as? NotificationManager)
-            ?.let { notificationManager: NotificationManager ->
-                notificationManager.createNotificationChannel(
-                    diAppComponent.animeNotificationChannelFactory.create()
-                )
-            }
+        getSystemService(NotificationManager::class.java).createNotificationChannel(
+            diAppComponent.animeNotificationChannelFactory.create()
+        )
     }
 }

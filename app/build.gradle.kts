@@ -41,6 +41,11 @@ android {
             )
         }
     }
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.toVersion(libs.versions.jvmTarget.get())
         targetCompatibility = JavaVersion.toVersion(libs.versions.jvmTarget.get())
@@ -55,8 +60,6 @@ kotlin {
 
 dependencies {
     implementation(project(":core-kmp:di-app"))
-    implementation(project(":feature-kmp:anime-background-update"))
-    implementation(project(":feature-kmp:anime-notification"))
     implementation(project(":main"))
 
     // No direct Kotlin usage, but required for the manifest's AD_ID permission (Google Play
@@ -68,13 +71,22 @@ dependencies {
     // on this module's compile classpath, so the manifest's InitializationProvider resolves.
     implementation(libs.androidx.work.runtime)
 
+    // Only the host tests name these directly; the app graph already carries both.
+    testImplementation(project(":feature-kmp:anime-background-update"))
+    testImplementation(project(":feature-kmp:anime-notification"))
+    testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
+    // Installs WorkManager in its test mode, so enqueuing records the request instead of
+    // letting the update worker run and reach the network.
+    testImplementation(libs.androidx.work.testing)
+
     androidTestImplementation(project(":core-kmp:test-utils"))
     androidTestImplementation(project(":feature-kmp:anime-favorites"))
     androidTestImplementation(libs.compose.components.resources)
 
     androidTestImplementation(libs.androidx.rules)
     androidTestImplementation(libs.compose.ui.test.junit4)
-    debugImplementation(libs.compose.ui.test.manifest)
 
     // Neither artifact is used from this module's code. Both arrive transitively at a version
     // that breaks the instrumented tests, so only their version is pinned here.
