@@ -82,6 +82,9 @@ subprojects {
             // A module that never gets one then has nothing registered for it.
             sourceSets.configureEach {
                 if (name != "androidHostTest") return@configureEach
+                // A module can declare the source set and hold no tests. Generating into it
+                // would make Gradle see test sources and then fail for finding no tests.
+                if (!file("src/androidHostTest/kotlin").isDirectory) return@configureEach
 
                 val generateRobolectricConfig = tasks.register("generateRobolectricConfig") {
                     description = "Writes the Robolectric properties this module's host tests read."
