@@ -127,6 +127,40 @@ Read this before doing any task in this repository.
 - No mocking library is used in this project: `commonTest` targets Kotlin/Native (iOS) alongside
   Android, and handwritten fakes (as already used throughout `commonTest`, e.g. `FakeOngoingSource`
   in `OngoingSectionExecutorImplTest`) are the established, KMP-portable way to stub dependencies.
+- Drive time and concurrency through the test infrastructure rather than the real thing: `runTest`
+  and its virtual clock, `advanceTimeBy`/`advanceUntilIdle`, and `UnconfinedTestDispatcher` or
+  `StandardTestDispatcher` installed via `Dispatchers.setMain` — all already established across
+  the existing suites. The same goes for threads: a test dispatcher, never a real one.
+
+## Test coverage
+
+- Kover is the project's coverage tool — measure with it rather than guessing from the diff.
+- While writing tests, check the affected module alone: `./gradlew :<module>:koverHtmlReport` for
+  the report, or `:<module>:koverLog` for just the number. Running the project-wide
+  `./gradlew koverHtmlReport` for this rebuilds every module and says little about yours; keep it
+  for reviewing the whole picture.
+- The numbers below are targets we aim for, not a gate. No `koverVerify` threshold is configured,
+  so they are upheld in review rather than by a failing build.
+- Apply them to the code you write or change: new code must meet them, and code you modify must
+  not end up below them. This part is not optional.
+- Where a module falls short in places you did not touch, neither fix it silently nor stay quiet.
+  Name the uncovered parts, offer to cover them, and let the developer decide.
+- Targets by layer, measured on lines:
+    - Stores, executors, reducers — 85%
+    - Mappers — 90%
+    - Usecases, paging, api plumbing — 85%
+    - Models and responses — 90%
+    - Presentation outside Compose — 30%
+    - Composables — not measured; they need UI tests, which is a separate decision
+- Whole project — 70%. A module carrying domain logic — a 60% floor. Modules that are mostly
+  shared UI (`core-kmp:celebrity`) or an app shell (`main`, `app`) get no floor, since how much
+  Compose they hold sets their ceiling.
+- Judge these against code that can actually be tested from `commonTest`. Generated code (Room,
+  kotlin-inject, Compose Resources), `@Composable` functions, DI components, platform wrappers
+  (`*.android.*`, `*.ios.*`) and `core-kmp:test-utils` do not count toward them.
+- A target is a floor, never a finish line. Hitting the percentage is not the goal: cover the
+  main cases, the risky ones, the bottlenecks and the boundaries. Where concurrency is real,
+  cover races and ordering as well. A test written only to move the number is worse than no test.
 
 ## Finishing a task
 
