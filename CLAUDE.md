@@ -131,6 +131,8 @@ Read this before doing any task in this repository.
   to be split. Platform code is covered too: an Android implementation gets its tests in
   `androidHostTest`, an iOS one in `iosTest` — the pair of `AnimeDatabaseContinuityTest` classes
   in `core-kmp:anime-database` shows the shape.
+- A module that is not multiplatform keeps its host tests in `src/test/kotlin`, and its
+  instrumented tests in `src/androidTest/kotlin`. Never a `java` directory, in any source set.
 - Composables get tests too, but not from `commonTest`: `runComposeUiTest` compiles there and then
   fails at runtime on the Android host test. They belong in `androidHostTest`, driven by
   Robolectric and `androidx.compose.ui.test.junit4.v2.createComposeRule` — the non-`v2` rule is
@@ -142,7 +144,9 @@ Read this before doing any task in this repository.
   `compose-ui-test-manifest` only where the rule has to launch its own host activity; a test that
   launches the module's own activity does not need it.
 - No test ever boots the real app. A host test stays on the JVM with Robolectric standing in for
-  the framework, and never uses the app's own `Application` — it supplies a stub of its own.
+  the framework, and never uses the app's own `Application` — it supplies a stub of its own. The
+  one exception is the `app` module, where that `Application` is the subject. Robolectric creates
+  it there and the test drives it directly, with every background service it reaches still faked.
 - The code under test is the real thing, wiring included; what it reaches for is where the fakes
   start. A test may build a real DI component, as long as everything handed to that component is
   a handwritten fake: no real database, no network, no background work.
