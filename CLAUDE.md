@@ -234,6 +234,17 @@ Read this before doing any task in this repository.
 - This also applies to Gradle files (`build.gradle.kts`, `settings.gradle.kts`, and similar) and
   to `*.toml` files, including `gradle/libs.versions.toml` — they're code too, so reformat them
   and check that their formatting matches established conventions the same as any other file.
+- When the commit writes or changes Compose UI, run the Compose compiler reports over it:
+  `./gradlew :app:assembleDebug -PcomposeCompilerReports`. They land in
+  `<module>/build/compose_compiler/`, and only modules that recompiled get fresh files. Read them
+  for the entities being committed, not for the whole project:
+    - every `restartable` composable must also be `skippable`;
+    - no composable parameter is an `unstable` type you introduced;
+    - UI models read `stable class`, not `runtime class`. A model that misses it only because of
+      a generic (e.g. `ImmutableList<T>`) gets `@Immutable`. Annotate only when every property is
+      a `val` that never changes after construction.
+- Compose annotations stay out of domain types. A `@Stable` interface in `api/domain` leaks the
+  UI layer into it. Leave it alone and note the report entry instead.
 
 ## Module READMEs
 
