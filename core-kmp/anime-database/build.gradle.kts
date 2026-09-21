@@ -30,8 +30,6 @@ kotlin {
             jvmTarget.set(JvmTarget.fromTarget(libs.versions.jvmTarget.get()))
         }
 
-        withJava()
-
         withHostTestBuilder {}.configure {}
     }
 
@@ -49,12 +47,13 @@ kotlin {
         commonMain.dependencies {
             api(libs.mvikotlin.extensions.coroutines)
             api(libs.androidx.room.runtime)
+            // AnimeDatabaseStore is a Store, and the repository hands out a Flow.
+            api(libs.mvikotlin)
+            api(libs.kotlinx.coroutines.core)
 
             implementation(project(":core-kmp:celebrity"))
             implementation(project(":core-kmp:di-scope"))
 
-            implementation(libs.kotlinx.coroutines.core)
-            implementation(libs.mvikotlin)
             implementation(libs.androidx.sqlite.bundled)
 
             implementation(libs.kotlin.inject.runtime.kmp)

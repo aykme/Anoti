@@ -20,8 +20,6 @@ kotlin {
             jvmTarget.set(JvmTarget.fromTarget(libs.versions.jvmTarget.get()))
         }
 
-        withJava()
-
         withHostTestBuilder {}.configure {}
     }
 

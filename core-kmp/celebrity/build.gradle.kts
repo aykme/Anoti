@@ -27,8 +27,6 @@ kotlin {
             enable = true
         }
 
-        withJava()
-
         withHostTestBuilder {}.configure {
             // Robolectric resolves ComponentActivity only from the merged resources.
             isIncludeAndroidResources = true
@@ -49,14 +47,19 @@ kotlin {
         commonMain.dependencies {
             api(project(":core-kmp:network"))
             implementation(project(":core-kmp:di-scope"))
-            implementation(libs.kotlinx.coroutines.core)
+            // Each of these appears in this module's own public signatures: coroutine contexts
+            // and flows, Compose State, Modifier, Color, TextUnit and ColorScheme, a
+            // StringResource, and MVIKotlin's view types.
+            api(libs.kotlinx.coroutines.core)
+            api(libs.compose.runtime)
+            api(libs.compose.components.resources)
+            api(libs.compose.foundation)
+            api(libs.compose.material3)
+            api(libs.compose.ui)
+            api(libs.mvikotlin)
+
             implementation(libs.kotlinx.datetime)
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.components.resources)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.ui)
-            implementation(libs.mvikotlin)
+            // Only the store factory this module's own DI bindings build.
             implementation(libs.mvikotlin.main)
 
             implementation(libs.kotlin.inject.runtime.kmp)

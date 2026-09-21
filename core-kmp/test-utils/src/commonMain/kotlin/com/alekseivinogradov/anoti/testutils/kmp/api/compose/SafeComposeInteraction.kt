@@ -7,7 +7,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Retries [interactionCall] until it stops throwing, up to [maxAttempt] times. Defaults to a 45s
- * total budget — enough headroom over SafeApi's own worst-case retry budget (5 attempts, a
+ * total budget — enough headroom over SafeApi's own worst-case retry budget (4 attempts, a
  * linearly growing delay, and a bounded per-attempt timeout) for interactions that wait on a
  * real network-backed screen to finish loading.
  */
