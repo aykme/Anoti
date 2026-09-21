@@ -13,10 +13,6 @@ targetSdk = "37"
 versionCode = "9"
 #noinspection UnusedVersionCatalogEntry
 versionName = "1.09"
-#The SDK Robolectric emulates. Deliberately below compileSdk: past 35 it dies inside
-#ApplicationSharedMemory.create, which it does not emulate, and blames the JRE in the message.
-#noinspection UnusedVersionCatalogEntry
-robolectricSdk = "35"
 
 #iOS app versions
 
@@ -61,6 +57,10 @@ core = "1.19.0"
 espressoCore = "3.7.0"
 playServicesAppset = "16.1.0"
 robolectric = "4.17"
+#The SDK Robolectric emulates. It sits below compileSdk on purpose.
+#Past 35 it dies inside ApplicationSharedMemory.create, which it cannot emulate.
+#noinspection UnusedVersionCatalogEntry
+robolectricSdk = "35"
 rules = "1.7.0"
 workRuntimeKtx = "2.11.2"
 

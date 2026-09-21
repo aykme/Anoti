@@ -74,9 +74,7 @@ internal class FakeCoroutineContextProvider : CoroutineContextProvider {
 internal class FakeAnimeDatabaseStore : AnimeDatabaseStore {
 
     private val stateObservers = mutableListOf<Observer<AnimeDatabaseStore.State>>()
-
-    /** Everything passed to [accept], in order. */
-    val acceptedIntents = mutableListOf<AnimeDatabaseStore.Intent>()
+    private val labelObservers = mutableListOf<Observer<AnimeDatabaseStore.Label>>()
 
     override var state = AnimeDatabaseStore.State()
         private set
@@ -86,9 +84,7 @@ internal class FakeAnimeDatabaseStore : AnimeDatabaseStore {
 
     override fun init() = Unit
 
-    override fun accept(intent: AnimeDatabaseStore.Intent) {
-        acceptedIntents += intent
-    }
+    override fun accept(intent: AnimeDatabaseStore.Intent) = Unit
 
     override fun states(observer: Observer<AnimeDatabaseStore.State>): Disposable {
         observer.onNext(state)
@@ -96,10 +92,18 @@ internal class FakeAnimeDatabaseStore : AnimeDatabaseStore {
         return Disposable { stateObservers -= observer }
     }
 
-    override fun labels(observer: Observer<AnimeDatabaseStore.Label>): Disposable = Disposable()
+    override fun labels(observer: Observer<AnimeDatabaseStore.Label>): Disposable {
+        labelObservers += observer
+        return Disposable { labelObservers -= observer }
+    }
 
+    // A disposed store completes both streams and keeps nobody subscribed, same as a real one.
     override fun dispose() {
         isDisposed = true
+        stateObservers.toList().forEach(Observer<AnimeDatabaseStore.State>::onComplete)
+        labelObservers.toList().forEach(Observer<AnimeDatabaseStore.Label>::onComplete)
+        stateObservers.clear()
+        labelObservers.clear()
     }
 
     /** Publishes [items] as the new saved-anime list to everyone subscribed. */
@@ -138,12 +142,5 @@ internal class FakeSafeApi : SafeApi {
 }
 
 internal class FakeUpdateAllAnimeInBackgroundOnceUsecase : UpdateAllAnimeInBackgroundOnceUsecase {
-
-    /** How many times [execute] was called. */
-    var executeCount = 0
-        private set
-
-    override fun execute() {
-        executeCount++
-    }
+    override fun execute() = Unit
 }

@@ -20,7 +20,8 @@ kotlin {
         }
 
         withHostTestBuilder {}.configure {
-            // Robolectric resolves ComponentActivity only from the merged resources.
+            // The host tests render the real screens, and those resolve their theme and their
+            // Compose resources only from the merged ones.
             isIncludeAndroidResources = true
         }
     }
@@ -37,22 +38,21 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            // `DiRootComponent`'s supertypes and accessors expose types from these three modules,
-            // so they're part of this module's own API surface, not just an implementation detail.
+            // `DiRootDependencies`, `DiRootComponent` and `NavRootChild` are public and name
+            // types from all of these, so they're part of this module's own API surface.
             api(project(":feature-kmp:bottom-navigation-bar"))
             api(project(":feature-kmp:anime-list"))
             api(project(":feature-kmp:anime-favorites"))
+            api(project(":feature-kmp:anime-base"))
+            api(project(":feature-kmp:anime-background-update"))
+            api(project(":core-kmp:celebrity"))
+            api(project(":core-kmp:network"))
+            api(project(":core-kmp:anime-database"))
+            api(project(":core-kmp:navigation"))
+            api(libs.mvikotlin)
 
-            implementation(project(":feature-kmp:anime-base"))
-            implementation(project(":feature-kmp:anime-background-update"))
             implementation(project(":feature-kmp:notifications-rationale-dialog"))
-            implementation(project(":core-kmp:celebrity"))
-            implementation(project(":core-kmp:network"))
-            implementation(project(":core-kmp:anime-database"))
             implementation(project(":core-kmp:di-scope"))
-            implementation(project(":core-kmp:navigation"))
-
-            implementation(libs.mvikotlin)
             implementation(libs.compose.runtime) // required once kotlinCompose is applied
             implementation(libs.compose.foundation)
             implementation(libs.compose.ui)
@@ -76,7 +76,6 @@ kotlin {
             implementation(libs.mvikotlin.main)
             implementation(libs.robolectric)
             implementation(libs.compose.ui.test.junit4)
-            implementation(libs.compose.ui.test.manifest)
         }
     }
 }

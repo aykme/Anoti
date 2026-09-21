@@ -40,7 +40,7 @@ subprojects {
         }
 
         // The detekt Gradle plugin only generates tasks for main-compilation source sets, so
-        // commonTest would otherwise never be analysed.
+        // commonTest would otherwise never be analyzed.
         val commonTestSources = file("src/commonTest/kotlin")
         if (commonTestSources.isDirectory) {
             tasks.register<Detekt>("detektCommonTest") {
@@ -66,30 +66,30 @@ subprojects {
 
     // Robolectric reads this file off the test classpath, so the SDK it emulates is set once from
     // the version catalog instead of being repeated in an annotation on every test class.
-    if (file("src/androidHostTest/kotlin").isDirectory) {
+    plugins.withId("org.jetbrains.kotlin.multiplatform") {
+        // A plain local, so the task's action holds the value rather than this build script.
+        val sdk = robolectricSdk
         val configDirectory = layout.buildDirectory.dir("generated/robolectric")
-        val generateRobolectricConfig = tasks.register("generateRobolectricConfig") {
-            description = "Writes the Robolectric properties read by this module's host tests."
-            group = "build"
-            inputs.property("sdk", robolectricSdk)
-            outputs.dir(configDirectory)
-            doLast {
-                val directory = configDirectory.get().asFile
-                directory.mkdirs()
-                directory.resolve("robolectric.properties").writeText("sdk=$robolectricSdk\n")
-            }
-        }
 
-        plugins.withId("org.jetbrains.kotlin.multiplatform") {
-            extensions.configure<KotlinMultiplatformExtension> {
-                // The source set only exists once the android target has been declared, which is
-                // after this plugin is applied — so react to it being created rather than look
-                // it up now.
-                sourceSets.configureEach {
-                    if (name == "androidHostTest") {
-                        resources.srcDir(generateRobolectricConfig)
+        extensions.configure<KotlinMultiplatformExtension> {
+            // The source set appears only once the android target is declared, which is after
+            // this plugin is applied. So react to its creation instead of looking it up now.
+            // A module that never gets one then has nothing registered for it.
+            sourceSets.configureEach {
+                if (name != "androidHostTest") return@configureEach
+
+                val generateRobolectricConfig = tasks.register("generateRobolectricConfig") {
+                    description = "Writes the Robolectric properties this module's host tests read."
+                    group = "build"
+                    inputs.property("sdk", sdk)
+                    outputs.dir(configDirectory)
+                    doLast {
+                        val directory = configDirectory.get().asFile
+                        directory.mkdirs()
+                        directory.resolve("robolectric.properties").writeText("sdk=$sdk\n")
                     }
                 }
+                resources.srcDir(generateRobolectricConfig)
             }
         }
     }
@@ -125,7 +125,7 @@ subprojects {
 val coveredProjects = subprojects.filter { it.buildFile.exists() }
 
 configure(coveredProjects) {
-    apply(plugin = "org.jetbrains.kotlinx.kover")
+    pluginManager.apply("org.jetbrains.kotlinx.kover")
 
     extensions.configure<KoverProjectExtension> {
         reports {

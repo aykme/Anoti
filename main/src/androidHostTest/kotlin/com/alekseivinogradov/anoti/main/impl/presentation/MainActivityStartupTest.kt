@@ -1,13 +1,12 @@
 package com.alekseivinogradov.anoti.main.impl.presentation
 
 import android.Manifest
+import android.content.pm.ActivityInfo
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.serialization.json.Json
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -23,19 +22,19 @@ import kotlin.test.assertEquals
 @Config(application = FakeHostApplication::class)
 class MainActivityStartupTest {
 
-    private val dispatcher = TestDispatcherRule()
+    private val mainDispatcher = TestMainDispatcher()
 
     // The activity builds the compose content itself, and each test needs its own launching
     // intent, so the rule only tracks the composition and never launches anything. It shares the
     // clock the stores run on.
     @get:Rule
-    val composeRule = createEmptyComposeRule(StandardTestDispatcher(dispatcher.scheduler))
+    val composeRule = createEmptyComposeRule(StandardTestDispatcher(mainDispatcher.scheduler))
 
     @BeforeTest
-    fun installTestDispatcher() = dispatcher.install()
+    fun installTestDispatcher() = mainDispatcher.install()
 
     @AfterTest
-    fun removeTestDispatcher() = dispatcher.remove()
+    fun removeTestDispatcher() = mainDispatcher.remove()
 
     @Test
     fun opensOnTheAnimeListWhenNothingAsksForAnotherScreen() {
@@ -53,10 +52,7 @@ class MainActivityStartupTest {
     @Test
     fun opensOnFavoritesWhenTheLaunchingIntentAsksForIt() {
         //Given
-        val intent = plainLaunchingIntent().putExtra(
-            MainActivity.EXTRA_DEEP_LINK_TARGET,
-            Json.encodeToString(NavRootConfig.serializer(), NavRootConfig.AnimeFavorites)
-        )
+        val intent = favoritesDeepLinkIntent()
 
         //When
         composeRule.launchMainActivity(intent)
@@ -77,6 +73,21 @@ class MainActivityStartupTest {
 
         //Then
         composeRule.onNodeWithTag(ANIME_LIST_TAB_TAG).assertIsSelected()
+    }
+
+    @Test
+    fun holdsItselfUprightOnAScreenSmallEnoughToBeToldTo() {
+        //Given
+        val intent = plainLaunchingIntent()
+
+        //When
+        val controller = composeRule.launchMainActivity(intent)
+
+        //Then
+        assertEquals(
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
+            controller.get().requestedOrientation
+        )
     }
 
     @Test

@@ -22,16 +22,16 @@ import kotlin.test.assertEquals
 @Config(application = FakeHostApplication::class)
 class MainActivityNotificationsRationaleTest {
 
-    private val dispatcher = TestDispatcherRule()
+    private val mainDispatcher = TestMainDispatcher()
 
     @get:Rule
-    val composeRule = createEmptyComposeRule(StandardTestDispatcher(dispatcher.scheduler))
+    val composeRule = createEmptyComposeRule(StandardTestDispatcher(mainDispatcher.scheduler))
 
     @BeforeTest
-    fun installTestDispatcher() = dispatcher.install()
+    fun installTestDispatcher() = mainDispatcher.install()
 
     @AfterTest
-    fun removeTestDispatcher() = dispatcher.remove()
+    fun removeTestDispatcher() = mainDispatcher.remove()
 
     @Test
     fun explainsItselfWhenTheSystemSaysAnExplanationIsOwed() {

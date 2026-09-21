@@ -54,9 +54,9 @@ internal fun BottomNavigationBarRoute(dependencies: RootDependencies, activeChil
         ).onViewCreated(mainView = composeView, viewLifecycle = dependencies.lifecycle)
     }
 
-    // onViewCreated above has no suspension point, so this effect (declared after it) only ever
-    // starts once that binding has fully completed — a dispatch with no bound subscriber yet is
-    // silently dropped.
+    // Keeps the bar in step with later navigations. It cannot carry the first one: the binder
+    // above attaches on a later main-thread message, so this first dispatch has no subscriber
+    // yet and is dropped. The host sets the opening tab on the store itself for that reason.
     LaunchedEffect(activeChild) {
         composeView.dispatch(
             BottomNavigationBarStore.Intent.ChangeSelectedSection(
@@ -70,6 +70,8 @@ internal fun BottomNavigationBarRoute(dependencies: RootDependencies, activeChil
     }
 }
 
+// Tapping the tab that is already open would otherwise still run a navigation transaction. The
+// stack would come back holding the same child, so nothing downstream can tell the difference.
 private fun navigateTo(rootComponent: NavRootComponent<NavRootChild>, target: NavRootConfig) {
     if (rootComponent.childStack.value.active.instance.config != target) {
         rootComponent.navigateTo(target)

@@ -67,9 +67,9 @@ class MainActivity : ComponentActivity() {
         diRootComponent = componentHolder.createDiRootComponent()
         mainStore = diRootComponent.bottomNavigationBarStore
         animeDatabaseStore = diRootComponent.animeDatabaseStore
-        // Disposed from where they are created. The binding that would otherwise close them only
-        // starts once the first composition's effects run, and the activity can be gone by then.
-        // A second dispose is a no-op, so the binding's own call stays harmless.
+        // These are closed from where they are created. The binding that would otherwise close
+        // them only starts once the first composition's effects run. The activity can be gone by
+        // then. A second dispose is a no-op, so the binding's own call stays harmless.
         essentyLifecycle.doOnDestroy {
             mainStore.dispose()
             animeDatabaseStore.dispose()
@@ -84,10 +84,11 @@ class MainActivity : ComponentActivity() {
             initialConfiguration = initialNavConfig,
             childFactory = ::createRootChild
         )
-        // Set directly on the store (bypassing the view/store event binding, which only
-        // completes asynchronously) so the bar's selected tab is already correct for the very
-        // first composition, before RootContent even exists. childStack.value is already valid
-        // here: childStack() resolves the initial/restored child synchronously on construction.
+        // The only path that gets the bar's first tab right, not a shortcut for one. The view
+        // dispatches the same intent, but its binder attaches on a later main-thread message, so
+        // that first dispatch reaches no subscriber and is dropped. Removing this line leaves the
+        // bar highlighting the wrong tab after a launch into favorites. `childStack.value` is
+        // already valid here: it resolves the initial or restored child on construction.
         mainStore.accept(
             BottomNavigationBarStore.Intent.ChangeSelectedSection(
                 selectedSection = rootComponent.childStack.value.active.instance.section

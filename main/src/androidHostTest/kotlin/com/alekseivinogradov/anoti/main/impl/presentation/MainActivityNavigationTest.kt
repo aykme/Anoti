@@ -1,9 +1,11 @@
 package com.alekseivinogradov.anoti.main.impl.presentation
 
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
@@ -14,25 +16,25 @@ import org.robolectric.annotation.Config
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = FakeHostApplication::class)
 class MainActivityNavigationTest {
 
-    private val dispatcher = TestDispatcherRule()
+    private val mainDispatcher = TestMainDispatcher()
 
     // The activity builds the compose content itself, so the rule only tracks the composition
     // and never launches anything. It shares the clock the stores run on.
     @get:Rule
-    val composeRule = createEmptyComposeRule(StandardTestDispatcher(dispatcher.scheduler))
+    val composeRule = createEmptyComposeRule(StandardTestDispatcher(mainDispatcher.scheduler))
 
     @BeforeTest
-    fun installTestDispatcher() = dispatcher.install()
+    fun installTestDispatcher() = mainDispatcher.install()
 
     @AfterTest
-    fun removeTestDispatcher() = dispatcher.remove()
+    fun removeTestDispatcher() = mainDispatcher.remove()
 
     @Test
     fun switchesToFavoritesWhenItsTabIsTapped() {
@@ -65,18 +67,57 @@ class MainActivityNavigationTest {
     }
 
     @Test
-    fun buildsNoSecondScreenWhenTheTabAlreadyOpenIsTappedAgain() {
+    fun staysPutWhenTheTabAlreadyOpenIsTappedAgain() {
         //Given
         composeRule.launchMainActivity(plainLaunchingIntent())
-        val screensBuilt = fakeDependencies.animeDatabaseStores.size
+        val screenBefore = fakeDependencies.animeDatabaseStores.last()
 
         //When
         composeRule.onNodeWithTag(ANIME_LIST_TAB_TAG).performClick()
         composeRule.waitForIdle()
 
         //Then
-        assertEquals(screensBuilt, fakeDependencies.animeDatabaseStores.size)
         composeRule.onNodeWithTag(ANIME_LIST_TAB_TAG).assertIsSelected()
+        composeRule.onNodeWithTag(ANIME_FAVORITES_TAB_TAG).assertIsNotSelected()
+        assertFalse(screenBefore.isDisposed)
+    }
+
+    @Test
+    fun keepsTheScreenYouWalkedToWhenItIsRebuiltFromSavedState() {
+        //Given
+        val controller = composeRule.launchMainActivity(favoritesDeepLinkIntent())
+        composeRule.onNodeWithTag(ANIME_LIST_TAB_TAG).performClick()
+        composeRule.waitForIdle()
+
+        //When
+        controller.recreate()
+        composeRule.waitForIdle()
+
+        //Then
+        composeRule.onNodeWithTag(ANIME_LIST_TAB_TAG).assertIsSelected()
+        composeRule.onNodeWithTag(ANIME_FAVORITES_TAB_TAG).assertIsNotSelected()
+    }
+
+    @Test
+    fun countsTheSavedAnimeWithANewEpisodeOnTheFavoritesTab() {
+        //Given
+        composeRule.launchMainActivity(plainLaunchingIntent())
+        // The bar's own store: the host takes it before the first screen takes its own.
+        val barDatabase = fakeDependencies.animeDatabaseStores.first()
+
+        //When
+        barDatabase.emit(
+            listOf(
+                savedAnime(id = 1, hasNewEpisode = true),
+                savedAnime(id = 2, hasNewEpisode = false),
+                savedAnime(id = 3, hasNewEpisode = true)
+            )
+        )
+        composeRule.waitForIdle()
+
+        //Then
+        // The tab merges its children's semantics, so the badge is only its own node unmerged.
+        composeRule.onNodeWithText("2", useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test
@@ -101,7 +142,6 @@ class MainActivityNavigationTest {
 
         //When
         controller.pause().stop().destroy()
-        composeRule.waitForIdle()
 
         //Then
         assertTrue(stores.isNotEmpty())
