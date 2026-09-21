@@ -56,8 +56,11 @@ class MainActivity : ComponentActivity() {
         // defaultComponentContext() reads the SavedStateRegistry, which only becomes readable
         // once super.onCreate() has restored it — so it must run first.
         super.onCreate(savedInstanceState)
-        diRootComponent = (checkNotNull(application) as DiRootComponentHolder)
-            .createDiRootComponent()
+        // application is assigned in Activity.attach(), before onCreate, so it is never null here.
+        // The cast emits its own null check anyway, and that one names the expected type.
+        @Suppress("CastNullableToNonNullableType")
+        val componentHolder = application as DiRootComponentHolder
+        diRootComponent = componentHolder.createDiRootComponent()
         mainStore = diRootComponent.bottomNavigationBarStore
         animeDatabaseStore = diRootComponent.animeDatabaseStore
         // getIntent() keeps returning the launching Intent for the whole task, so the deep link
