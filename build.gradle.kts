@@ -1,3 +1,5 @@
+import com.android.build.api.variant.ApplicationAndroidComponentsExtension
+import com.android.build.api.variant.HostTestBuilder
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import kotlinx.kover.gradle.plugin.dsl.KoverProjectExtension
@@ -23,6 +25,61 @@ plugins {
 val robolectricSdk = libs.versions.robolectricSdk.get()
 val minSdk = libs.versions.minSdk.get()
 
+/** Writes the Robolectric properties a module's host tests read off their classpath. */
+abstract class GenerateRobolectricConfig : DefaultTask() {
+
+    @get:Input
+    abstract val sdk: Property<String>
+
+    @get:OutputDirectory
+    abstract val outputDirectory: DirectoryProperty
+
+    @TaskAction
+    fun generate() {
+        val directory = outputDirectory.get().asFile
+        directory.mkdirs()
+        directory.resolve("robolectric.properties").writeText("sdk=${sdk.get()}\n")
+    }
+}
+
+/** Registers the generator under [taskName], writing into [directory]. */
+fun Project.registerRobolectricConfig(
+    sdk: String,
+    taskName: String = "generateRobolectricConfig",
+    directory: String = "generated/robolectric"
+): TaskProvider<GenerateRobolectricConfig> =
+    tasks.register<GenerateRobolectricConfig>(taskName) {
+        description = "Writes the Robolectric properties this module's host tests read."
+        group = "build"
+        this.sdk.set(sdk)
+        outputDirectory.set(layout.buildDirectory.dir(directory))
+    }
+
+/** Registers the task writing the SDK levels this module's host tests can name in an annotation. */
+fun Project.registerTestSdkVersions(oldestSupportedSdk: String): TaskProvider<Task> {
+    val directory = layout.buildDirectory.dir("generated/testSdk")
+    return tasks.register("generateTestSdkVersions") {
+        description = "Writes the SDK levels host tests can name in an annotation."
+        group = "build"
+        inputs.property("minSdk", oldestSupportedSdk)
+        outputs.dir(directory)
+        doLast {
+            val packageDirectory = directory.get().asFile
+                .resolve("com/alekseivinogradov/anoti/testsdk")
+            packageDirectory.mkdirs()
+            packageDirectory.resolve("TestSdkVersions.kt").writeText(
+                """
+                package com.alekseivinogradov.anoti.testsdk
+
+                /** The oldest Android version the app supports. */
+                const val MIN_SDK = $oldestSupportedSdk
+
+                """.trimIndent()
+            )
+        }
+    }
+}
+
 subprojects {
     plugins.withId("io.gitlab.arturbosch.detekt") {
         val detektExtension = extensions.getByType<DetektExtension>()
@@ -41,28 +98,32 @@ subprojects {
         }
 
         // The detekt Gradle plugin only generates tasks for main-compilation source sets, so
-        // commonTest would otherwise never be analyzed.
-        val commonTestSources = file("src/commonTest/kotlin")
-        if (commonTestSources.isDirectory) {
-            tasks.register<Detekt>("detektCommonTest") {
-                description = "Runs detekt over the commonTest source set."
-                group = "verification"
-                setSource(files(commonTestSources))
-                // The plugin wires the extension's settings only into the tasks it registers
-                // itself, so a hand-registered one would run detekt's stock config instead.
-                config.setFrom(detektExtension.config)
-                buildUponDefaultConfig = detektExtension.buildUponDefaultConfig
-                // Same reason: report names also come from the plugin's own registration, and the
-                // fallback name collides with the bare `detekt` task's.
-                listOf(reports.xml, reports.html, reports.txt, reports.sarif, reports.md)
-                    .forEach { report ->
-                        report.outputLocation.convention(
-                            layout.buildDirectory
-                                .file("reports/detekt/commonTest.${report.type.extension}")
-                        )
-                    }
+        // these would otherwise never be analyzed.
+        mapOf("commonTest" to "src/commonTest/kotlin", "androidTest" to "src/androidTest/kotlin")
+            .forEach { (sourceSetName, path) ->
+                val sources = file(path)
+                if (!sources.isDirectory) return@forEach
+
+                val taskName = "detekt${sourceSetName.replaceFirstChar(Char::uppercaseChar)}"
+                tasks.register<Detekt>(taskName) {
+                    description = "Runs detekt over the $sourceSetName source set."
+                    group = "verification"
+                    setSource(files(sources))
+                    // The plugin wires the extension's settings only into the tasks it registers
+                    // itself, so a hand-registered one would run detekt's stock config instead.
+                    config.setFrom(detektExtension.config)
+                    buildUponDefaultConfig = detektExtension.buildUponDefaultConfig
+                    // Same reason: report names also come from the plugin's own registration, and
+                    // the fallback name collides with the bare `detekt` task's.
+                    listOf(reports.xml, reports.html, reports.txt, reports.sarif, reports.md)
+                        .forEach { report ->
+                            report.outputLocation.convention(
+                                layout.buildDirectory
+                                    .file("reports/detekt/$sourceSetName.${report.type.extension}")
+                            )
+                        }
+                }
             }
-        }
     }
 
     // Robolectric reads its properties off the test classpath, so the SDK it emulates is set once
@@ -70,12 +131,6 @@ subprojects {
     // The generated constant is for the rare test that has to name a different level, which an
     // annotation can only take as a compile-time value.
     plugins.withId("org.jetbrains.kotlin.multiplatform") {
-        // Plain locals, so the task actions hold the values rather than this build script.
-        val sdk = robolectricSdk
-        val oldestSupportedSdk = minSdk
-        val configDirectory = layout.buildDirectory.dir("generated/robolectric")
-        val sourceDirectory = layout.buildDirectory.dir("generated/testSdk")
-
         extensions.configure<KotlinMultiplatformExtension> {
             // The source set appears only once the android target is declared, which is after
             // this plugin is applied. So react to its creation instead of looking it up now.
@@ -86,40 +141,32 @@ subprojects {
                 // would make Gradle see test sources and then fail for finding no tests.
                 if (!file("src/androidHostTest/kotlin").isDirectory) return@configureEach
 
-                val generateRobolectricConfig = tasks.register("generateRobolectricConfig") {
-                    description = "Writes the Robolectric properties this module's host tests read."
-                    group = "build"
-                    inputs.property("sdk", sdk)
-                    outputs.dir(configDirectory)
-                    doLast {
-                        val directory = configDirectory.get().asFile
-                        directory.mkdirs()
-                        directory.resolve("robolectric.properties").writeText("sdk=$sdk\n")
-                    }
+                resources.srcDir(registerRobolectricConfig(robolectricSdk))
+                kotlin.srcDir(registerTestSdkVersions(minSdk))
+            }
+        }
+    }
+
+    // The app module is not multiplatform: its host tests are plain Android unit tests, and AGP
+    // accepts a generated directory only through the variant API. Same properties, wired per
+    // variant. No SDK constant is generated here, since nothing names a level in an annotation.
+    // The host-test accessor below is incubating; the stable one it replaces is deprecated.
+    @Suppress("UnstableApiUsage")
+    plugins.withId("com.android.application") {
+        if (file("src/test/kotlin").isDirectory) {
+            extensions.configure<ApplicationAndroidComponentsExtension> {
+                onVariants { variant ->
+                    val unitTest = variant.hostTests[HostTestBuilder.UNIT_TEST_TYPE]
+                    val variantName = variant.name.replaceFirstChar(Char::uppercaseChar)
+                    unitTest?.sources?.resources?.addGeneratedSourceDirectory(
+                        taskProvider = registerRobolectricConfig(
+                            sdk = robolectricSdk,
+                            taskName = "generate${variantName}RobolectricConfig",
+                            directory = "generated/robolectric/${variant.name}"
+                        ),
+                        wiredWith = GenerateRobolectricConfig::outputDirectory
+                    )
                 }
-                resources.srcDir(generateRobolectricConfig)
-
-                val generateTestSdkVersions = tasks.register("generateTestSdkVersions") {
-                    description = "Writes the SDK levels host tests can name in an annotation."
-                    group = "build"
-                    inputs.property("minSdk", oldestSupportedSdk)
-                    outputs.dir(sourceDirectory)
-                    doLast {
-                        val packageDirectory = sourceDirectory.get().asFile
-                            .resolve("com/alekseivinogradov/anoti/testsdk")
-                        packageDirectory.mkdirs()
-                        packageDirectory.resolve("TestSdkVersions.kt").writeText(
-                            """
-                            package com.alekseivinogradov.anoti.testsdk
-
-                            /** The oldest Android version the app supports. */
-                            const val MIN_SDK = $oldestSupportedSdk
-
-                            """.trimIndent()
-                        )
-                    }
-                }
-                kotlin.srcDir(generateTestSdkVersions)
             }
         }
     }
@@ -165,7 +212,7 @@ configure(coveredProjects) {
 }
 
 dependencies {
-    coveredProjects.forEach { kover(it) }
+    coveredProjects.forEach { kover(project(it.path)) }
 }
 
 kover {

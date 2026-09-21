@@ -22,13 +22,11 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
-import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as base_Res
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.episodes
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.notifications_turn_off_description
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.notifications_turn_on_description
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.ongoing
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.score_image_description
-import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.Res as favorites_Res
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_list
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.extra_info_on_description
 import com.alekseivinogradov.anoti.main.impl.presentation.MainActivity
@@ -39,7 +37,16 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as base_Res
+import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.Res as favorites_Res
 
+/**
+ * Runs the shipped app end to end against the live Shikimori backend: real DI graph, real network,
+ * real screens. Reaching the network is the point here, and the one deliberate exception to the
+ * project's rule against it. Everything under the UI is already covered by fakes elsewhere. What
+ * is left to prove is that the whole stack works together. The assertions therefore stay on
+ * structure, never on values the backend decides.
+ */
 class AnimeFavoritesUserFlowTest {
 
     @get:Rule

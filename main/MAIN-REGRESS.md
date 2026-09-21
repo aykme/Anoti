@@ -5,7 +5,7 @@ reached, how the window sits against the system bars and the keyboard, and what 
 leaving the app and coming back. The content of the two sections, the look of the bottom bar
 and the look of the permission dialog are each checked in their own module's file.
 
-Unless a step says otherwise, start from a clean install with the app never opened before.
+Unless a step says otherwise, start from a clean installation with the app never opened before.
 
 ## First launch
 
@@ -98,7 +98,7 @@ Requires at least one saved anime that has a new episode, so a notification actu
    The app comes back on favorites, with the right bottom-bar item selected.
 2. Open favorites. Press home. In the device's developer options turn on "Don't keep
    activities", then return to the app from recents.
-   The app comes back on favorites, not on the anime list. Turn the setting back off afterwards.
+   The app comes back on favorites, not on the anime list. Turn the setting back off afterward.
 3. Open favorites. Press home. Force-stop the app from the system settings. Open it again from
    the launcher.
    The app opens on the anime list — a fresh start, not a restored one.
