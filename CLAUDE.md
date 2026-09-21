@@ -270,23 +270,10 @@ Read this before doing any task in this repository.
 
 - Every module carries a regression file at its root, named like its README but ending `-REGRESS.md`
   (e.g. `:core-kmp:celebrity` → `CORE-KMP-CELEBRITY-REGRESS.md`).
-- It holds only what cannot be checked from the code — the checks that need the app installed and
-  driven by hand. Anything provable from the code belongs in a test instead.
-- Write it for a tester who has never seen the code. No class, file or function names, and no
-  reference to the implementation. Only where to go, what to do, and what should happen.
-- Cover the module exhaustively. Each of these gets its own step:
-    - every screen state — loading, empty, error, loaded — and every transition between them;
-    - every control, and every press it accepts: tap, long press, press-and-hold, repeat;
-    - every gesture: scroll, swipe, pull-to-refresh, drag, system back;
-    - every way the data itself can differ: missing image, long title, zero count, huge count;
-    - every way the device can differ: no network, rotation, dark mode, large font, back from
-      background, process death.
-- State the expected result for each step. Exact text, color, position, what appears, what goes
-  away. A step without an expected result is not a check.
-- A module with no UI of its own still gets a file. Name the screens where its code actually runs,
-  say what to do there to reach it, and say what proves it worked rather than crashed.
-- For behavior that never surfaces on its own — dependency wiring, background work, caching,
-  notifications — give the sequence that triggers it and the visible sign that it ran.
+- It is the module's manual test script: only what cannot be checked from the code, written for a
+  tester who has never seen it. Anything provable from the code belongs in a test instead.
+- It is written and updated through the `code-documentation` skill, in the same pass as the
+  module's README. The skill holds the rules for what goes in it and how far its scope reaches.
 - When a regression of a module or of the whole app is asked for, read these files and run the
   checks written in them.
 

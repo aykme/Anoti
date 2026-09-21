@@ -352,8 +352,42 @@ interface SafeApi {
 
 Every module also carries a `-REGRESS.md` next to its README, named the same way
 (`:core-kmp:celebrity` → `CORE-KMP-CELEBRITY-REGRESS.md`). It is the manual test script for that
-module: what a tester installs the app and checks by hand, written with no reference to the code.
-CLAUDE.md's "Module regression files" section has the rules for its contents.
+module: what a tester installs the app and checks by hand.
+
+### What belongs in it
+
+- Only what cannot be checked from the code — the checks that need the app installed and driven by
+  hand. Anything provable from the code belongs in a test instead.
+- Write it for a tester who has never seen the code. No class, file or function names, and no
+  reference to the implementation. Only where to go, what to do, and what should happen.
+- State the expected result for each step. Exact text, color, position, what appears, what goes
+  away. A step without an expected result is not a check.
+
+### Scope: the module's own surface
+
+- Check only what the module itself adds. Whatever it pulls in from another module is checked in
+  that module's own file, even when both appear on the same screen. Don't repeat those steps here.
+- Where a piece comes from elsewhere, check only this module's own part of it. That it is there,
+  that it gets what it should, and that it behaves the way this module asks for.
+- Shared infrastructure is the exception. A module owning a piece used across the app describes it
+  in full in its own file, naming the screens where a tester can reach it.
+- A module with no UI of its own still gets a file. Name the screens where its code actually runs,
+  say what to do there to reach it, and say what proves it worked rather than crashed.
+- For behavior that never surfaces on its own — dependency wiring, background work, caching,
+  notifications — give the sequence that triggers it and the visible sign that it ran.
+
+### Cover it exhaustively, within that scope
+
+Each of these gets its own step:
+
+- every screen state — loading, empty, error, loaded — and every transition between them;
+- every control, and every press it accepts: tap, long press, press-and-hold, repeat;
+- every gesture: scroll, swipe, pull-to-refresh, drag, system back;
+- every way the data itself can differ: missing image, long title, zero count, huge count;
+- every way the device can differ: no network, rotation, dark mode, large font, back from
+  background, process death.
+
+### Keeping it current
 
 Updating it is part of this job, not a follow-up. Whenever a change adds, removes or alters
 something a person can observe in the running app, the regression file changes with it:
@@ -367,8 +401,8 @@ A change with no observable effect — a refactor, a rename, an internal restruc
 file alone. Ask yourself what a tester would see differently; if the answer is nothing, there is
 nothing to write.
 
-When the module has no file yet, write one for the whole module, not only for what this task
-touched. A half-written script is worse than an obviously missing one, because a tester following
+When the module has no file yet, write one for the whole module, within the scope above, not only
+for what this task touched. A half-written script is worse than an obviously missing one, because a tester following
 it believes the module is covered.
 
 ## After writing: check for siblings you might have missed
