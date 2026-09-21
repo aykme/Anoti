@@ -127,6 +127,10 @@ Read this before doing any task in this repository.
 - No mocking library is used in this project: `commonTest` targets Kotlin/Native (iOS) alongside
   Android, and handwritten fakes (as already used throughout `commonTest`, e.g. `FakeOngoingSource`
   in `OngoingSectionExecutorImplTest`) are the established, KMP-portable way to stub dependencies.
+- `commonTest` is the default home for a test, and shared code stays the priority when effort has
+  to be split. Platform code is covered too: an Android implementation gets its tests in
+  `androidHostTest`, an iOS one in `iosTest` — the pair of `AnimeDatabaseContinuityTest` classes
+  in `core-kmp:anime-database` shows the shape.
 - Drive time and concurrency through the test infrastructure rather than the real thing: `runTest`
   and its virtual clock, `advanceTimeBy`/`advanceUntilIdle`, and `UnconfinedTestDispatcher` or
   `StandardTestDispatcher` installed via `Dispatchers.setMain` — all already established across
@@ -155,9 +159,12 @@ Read this before doing any task in this repository.
 - Whole project — 70%. A module carrying domain logic — a 60% floor. Modules that are mostly
   shared UI (`core-kmp:celebrity`) or an app shell (`main`, `app`) get no floor, since how much
   Compose they hold sets their ceiling.
-- Judge these against code that can actually be tested from `commonTest`. Generated code (Room,
-  kotlin-inject, Compose Resources), `@Composable` functions, DI components, platform wrappers
-  (`*.android.*`, `*.ios.*`) and `core-kmp:test-utils` do not count toward them.
+- Generated code (Room, kotlin-inject, Compose Resources), `@Composable` functions, DI components
+  and `core-kmp:test-utils` do not count toward these targets.
+- Android platform code does count; Kover measures it through `androidHostTest`. Kover cannot
+  measure Kotlin/Native, so `iosMain` falls outside every number here — cover it with `iosTest`
+  and judge that by what the tests exercise, not by a percentage.
+- A platform implementation is held to the same layer target as the shared code it stands in for.
 - A target is a floor, never a finish line. Hitting the percentage is not the goal: cover the
   main cases, the risky ones, the bottlenecks and the boundaries. Where concurrency is real,
   cover races and ordering as well. A test written only to move the number is worse than no test.
@@ -175,8 +182,7 @@ Read this before doing any task in this repository.
   proceeding.
 - Make sure the tests cover every case that can realistically occur, without duplicate tests or
   clearly excessive coverage that adds nothing. Don't forget concurrency tests where they're
-  needed. Tests are only written for KMP code, and all of them belong in `commonTest` — don't
-  write platform-specific tests, unless an exception is made for them.
+  needed.
 - Run the tests in every affected module and confirm they're all green.
 - When running UI (instrumented/`androidTest`) tests, always do a clean installation of the app
   first — uninstall it from the device/emulator before installing and running, so a stale build
