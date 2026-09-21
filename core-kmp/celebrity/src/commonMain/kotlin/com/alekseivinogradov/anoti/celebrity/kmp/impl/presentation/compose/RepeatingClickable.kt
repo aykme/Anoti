@@ -104,7 +104,7 @@ private class RepeatingClickableNode(
                     up = waitForUpOrCancellation()
                     up?.consume()
                 } finally {
-                    // This coroutine can also be cancelled outright — by a handler reset or by the
+                    // This coroutine can also be canceled outright — by a handler reset or by the
                     // node going away — and then nothing else would close the press.
                     source.tryEmit(
                         if (up != null) {
