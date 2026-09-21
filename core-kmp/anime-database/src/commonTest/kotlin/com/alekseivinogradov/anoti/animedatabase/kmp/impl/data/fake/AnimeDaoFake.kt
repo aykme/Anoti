@@ -12,8 +12,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 /**
  * In-memory [AnimeDao].
  *
- * Its flow republishes the whole list on every write, the way Room's invalidation tracker does —
- * an unchanged list is published again rather than swallowed.
+ * It orders rows the way the real queries do, and republishes the whole list on every write, the
+ * way Room's invalidation tracker does — an unchanged list is published again rather than
+ * swallowed.
  *
  * @param beforeWrite runs at the start of every mutating call, so a test can hold a write open
  * or make it fail. Reassignable, so a test can arrange its database first and only then start
@@ -27,14 +28,14 @@ class AnimeDaoFake(
     private val emissions = MutableSharedFlow<List<AnimeDbEntity>>(
         replay = 1,
         extraBufferCapacity = EMISSION_BUFFER
-    ).apply { tryEmit(emptyList()) }
+    ).apply { check(tryEmit(emptyList())) }
 
     /** Number of collectors currently subscribed to [getAllItemsFlow]. */
     val subscriptionCount: StateFlow<Int> = emissions.subscriptionCount
 
     /** Publishes the stored list again unchanged, as Room does after a write that changed no row. */
     fun republishStoredItems() {
-        emissions.tryEmit(items.value)
+        check(emissions.tryEmit(items.value.ordered())) { "the fake's emission buffer overflowed" }
     }
 
     override suspend fun insert(anime: AnimeDbEntity) {
@@ -53,7 +54,7 @@ class AnimeDaoFake(
 
     override fun getAllItemsFlow(): Flow<List<AnimeDbEntity>> = emissions.asSharedFlow()
 
-    override suspend fun getAllItems(): List<AnimeDbEntity> = items.value
+    override suspend fun getAllItems(): List<AnimeDbEntity> = items.value.ordered()
 
     override suspend fun delete(id: AnimeId) {
         beforeWrite()
@@ -80,6 +81,12 @@ class AnimeDaoFake(
         items.value = items.value.map { it.copy(isExtraInfoEnabled = false, nextEpisodeAt = null) }
         republishStoredItems()
     }
+
+    // The real queries both read `ORDER BY release_status DESC, name ASC`, and the status is
+    // stored under its own name, so the order is alphabetical on that.
+    private fun List<AnimeDbEntity>.ordered(): List<AnimeDbEntity> = sortedWith(
+        compareByDescending<AnimeDbEntity> { it.releaseStatus.name }.thenBy { it.name }
+    )
 
     private companion object {
         private const val EMISSION_BUFFER = 64

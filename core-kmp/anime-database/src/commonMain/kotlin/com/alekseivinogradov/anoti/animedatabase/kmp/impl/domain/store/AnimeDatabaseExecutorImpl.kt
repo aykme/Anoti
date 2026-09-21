@@ -203,13 +203,9 @@ class AnimeDatabaseExecutorImpl(
         write: suspend () -> Unit
     ) {
         inFlight += id
-        writeScope.launch {
-            try {
-                write()
-            } finally {
-                inFlight -= id
-            }
-        }
+        // Hung off the job rather than a `finally` inside it: a coroutine whose scope is already
+        // gone never runs its body at all, and the id would then stay busy for good.
+        writeScope.launch { write() }.invokeOnCompletion { inFlight -= id }
     }
 
     private fun databaseContainsItem(id: AnimeId): Boolean {

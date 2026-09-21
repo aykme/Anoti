@@ -223,9 +223,12 @@ class AnimeDatabaseExecutorImplTest {
     @Test
     fun deleteOfAnItemThatIsNotStoredIsIgnored() = runTest(testDispatcher) {
         //Given
-        var writeAttempts = 0
-        val dao = AnimeDaoFake(beforeWrite = { writeAttempts++ })
+        val dao = AnimeDaoFake()
         val store = createStore(dao)
+        store.accept(AnimeDatabaseStore.Intent.InsertAnimeDatabaseItem(sample(id = 1)))
+        advanceUntilIdle()
+        var writeAttempts = 0
+        dao.beforeWrite = { writeAttempts++ }
 
         //When
         store.accept(AnimeDatabaseStore.Intent.DeleteAnimeDatabaseItem(id = ABSENT_ID))
@@ -233,6 +236,7 @@ class AnimeDatabaseExecutorImplTest {
 
         //Then
         assertEquals(0, writeAttempts, "an absent item should not reach the database")
+        assertEquals(listOf(1), dao.getAllItems().map { it.id }, "the stored item was touched")
     }
 
     @Test
@@ -283,9 +287,12 @@ class AnimeDatabaseExecutorImplTest {
     @Test
     fun updateOfAnItemThatIsNotStoredIsIgnored() = runTest(testDispatcher) {
         //Given
-        var writeAttempts = 0
-        val dao = AnimeDaoFake(beforeWrite = { writeAttempts++ })
+        val dao = AnimeDaoFake()
         val store = createStore(dao)
+        store.accept(AnimeDatabaseStore.Intent.InsertAnimeDatabaseItem(sample(id = 1)))
+        advanceUntilIdle()
+        var writeAttempts = 0
+        dao.beforeWrite = { writeAttempts++ }
 
         //When
         store.accept(
@@ -295,6 +302,92 @@ class AnimeDatabaseExecutorImplTest {
 
         //Then
         assertEquals(0, writeAttempts, "an absent item should not reach the database")
+        assertEquals(listOf(1), dao.getAllItems().map { it.id }, "the stored item was touched")
+    }
+
+    @Test
+    fun aSecondUpdateOfTheSameItemIsIgnoredWhileTheFirstIsStillInFlight() =
+        runTest(testDispatcher) {
+            //Given
+            val dao = AnimeDaoFake()
+            val store = createStore(dao)
+            val item = sample(id = 1)
+            store.accept(AnimeDatabaseStore.Intent.InsertAnimeDatabaseItem(item))
+            advanceUntilIdle()
+            var updateAttempts = 0
+            val updateGate = CompletableDeferred<Unit>()
+            dao.beforeWrite = {
+                updateAttempts++
+                updateGate.await()
+            }
+
+            //When
+            store.accept(
+                AnimeDatabaseStore.Intent.UpdateAnimeDatabaseItem(item.copy(episodesViewed = 1))
+            )
+            store.accept(
+                AnimeDatabaseStore.Intent.UpdateAnimeDatabaseItem(item.copy(episodesViewed = 2))
+            )
+            updateGate.complete(Unit)
+            advanceUntilIdle()
+
+            //Then
+            assertEquals(1, updateAttempts, "the in-flight update should swallow the repeat")
+        }
+
+    @Test
+    fun aSecondNewEpisodeStatusChangeIsIgnoredWhileTheFirstIsStillInFlight() =
+        runTest(testDispatcher) {
+            //Given
+            val dao = AnimeDaoFake()
+            val store = createStore(dao)
+            val item = sample(id = 1).copy(isNewEpisode = true)
+            store.accept(AnimeDatabaseStore.Intent.InsertAnimeDatabaseItem(item))
+            advanceUntilIdle()
+            var changeAttempts = 0
+            val changeGate = CompletableDeferred<Unit>()
+            dao.beforeWrite = {
+                changeAttempts++
+                changeGate.await()
+            }
+            val intent = AnimeDatabaseStore.Intent.ChangeItemNewEpisodeStatus(
+                isNewEpisode = false,
+                id = item.id
+            )
+
+            //When
+            store.accept(intent)
+            store.accept(intent)
+            changeGate.complete(Unit)
+            advanceUntilIdle()
+
+            //Then
+            assertEquals(1, changeAttempts, "the in-flight change should swallow the repeat")
+        }
+
+    @Test
+    fun aWriteThatFailedLetsTheSameItemBeWrittenAgain() = runTest(testDispatcher) {
+        //Given
+        val caught = mutableListOf<Throwable>()
+        var writeAttempts = 0
+        val dao = AnimeDaoFake()
+        val store = createStore(dao, onUncaughtThrowable = { caught += it })
+        val item = sample(id = 1)
+        dao.beforeWrite = {
+            writeAttempts++
+            throw IllegalStateException(WRITE_FAILURE)
+        }
+        store.accept(AnimeDatabaseStore.Intent.InsertAnimeDatabaseItem(item))
+        advanceUntilIdle()
+
+        //When
+        store.accept(AnimeDatabaseStore.Intent.InsertAnimeDatabaseItem(item))
+        advanceUntilIdle()
+
+        //Then
+        // A write that blew up must let go of its id, or the item could never be saved again.
+        assertEquals(2, writeAttempts)
+        assertEquals(2, caught.size)
     }
 
     @Test

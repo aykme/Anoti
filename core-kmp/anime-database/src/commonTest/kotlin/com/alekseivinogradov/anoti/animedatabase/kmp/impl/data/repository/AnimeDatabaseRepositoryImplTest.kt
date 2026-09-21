@@ -3,6 +3,7 @@ package com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.repository
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.AnimeDbDomain
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.ReleaseStatusDb
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.fake.AnimeDaoFake
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -11,6 +12,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class AnimeDatabaseRepositoryImplTest {
 
     private fun sample(
@@ -135,7 +137,7 @@ class AnimeDatabaseRepositoryImplTest {
     }
 
     @Test
-    fun getAllItemsFlowSkipsAnEmissionThatRepeatsTheCurrentList() = runTest(
+    fun getAllItemsFlowPassesOnAnEmissionThatRepeatsTheCurrentList() = runTest(
         UnconfinedTestDispatcher()
     ) {
         //Given
@@ -150,7 +152,17 @@ class AnimeDatabaseRepositoryImplTest {
         dao.republishStoredItems()
 
         //Then
-        assertEquals(listOf(emptyList(), listOf(sample(id = 11))), emitted)
+        // A repeat is what a caller waiting on its own write has to go by. Dropping it hangs
+        // whoever was waiting.
+        assertEquals(
+            listOf(
+                emptyList(),
+                listOf(sample(id = 11)),
+                listOf(sample(id = 11)),
+                listOf(sample(id = 11))
+            ),
+            emitted
+        )
     }
 
     @Test
