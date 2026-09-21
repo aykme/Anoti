@@ -139,6 +139,12 @@ Read this before doing any task in this repository.
   in that source set, all already in the version catalog, plus
   `withHostTestBuilder {}.configure { isIncludeAndroidResources = true }` — without the merged
   resources Robolectric cannot resolve `ComponentActivity`.
+- No test ever boots the real app. A host test stays on the JVM with Robolectric standing in for
+  the framework, and everything the code under test reaches is a handwritten fake — no real
+  database, no network, no background work, and never the app's own `Application` or its DI graph.
+  Where a test needs a platform type the framework would supply, it supplies a stub of its own.
+- An instrumented test on a device is the furthest a test may go, and only where a host test
+  genuinely cannot reach. It is never the first tool reached for.
 - Pin `@Config(sdk = [35])` on any Robolectric test that renders Compose. Unpinned it targets
   `compileSdk` and dies inside `ApplicationSharedMemory.create`, which Robolectric 4.17 does not
   emulate; the message it prints blames the JRE rather than the SDK level.
@@ -232,6 +238,10 @@ Read this before doing any task in this repository.
     - If a finding is easy to fix without changing logic (formatting, naming, straightforward
       extraction, and the like), fix it yourself. If resolving a finding would require a
       substantial change to the logic, don't guess — ask the developer which approach to take.
+    - Nothing deprecated goes in. Read the compiler's deprecation warnings for the files being
+      committed and clear every one, in test code as much as in production code. Where a
+      replacement exists, use it; where none does, ask the developer rather than suppressing the
+      warning. This covers third-party APIs too, not just the project's own.
     - For files detekt doesn't analyze (`*.md`, `*.xml`, and similar), do the equivalent by
       hand: reformat the code, optimize imports, and check that formatting matches the
       codebase's established conventions.

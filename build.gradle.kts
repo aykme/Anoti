@@ -3,6 +3,7 @@ import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import kotlinx.kover.gradle.plugin.dsl.KoverProjectExtension
 import kotlinx.kover.gradle.plugin.dsl.KoverReportFiltersConfig
 import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 // Top-level build file where you can add configuration options common to all subprojects/modules.
@@ -16,6 +17,10 @@ plugins {
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.kover)
 }
+
+// Read here, not inside `subprojects`: the catalog's accessor is only registered on a project
+// once that project is being evaluated, which is after the block below runs.
+val robolectricSdk = libs.versions.robolectricSdk.get()
 
 subprojects {
     plugins.withId("io.gitlab.arturbosch.detekt") {
@@ -55,6 +60,36 @@ subprojects {
                                 .file("reports/detekt/commonTest.${report.type.extension}")
                         )
                     }
+            }
+        }
+    }
+
+    // Robolectric reads this file off the test classpath, so the SDK it emulates is set once from
+    // the version catalog instead of being repeated in an annotation on every test class.
+    if (file("src/androidHostTest/kotlin").isDirectory) {
+        val configDirectory = layout.buildDirectory.dir("generated/robolectric")
+        val generateRobolectricConfig = tasks.register("generateRobolectricConfig") {
+            description = "Writes the Robolectric properties read by this module's host tests."
+            group = "build"
+            inputs.property("sdk", robolectricSdk)
+            outputs.dir(configDirectory)
+            doLast {
+                val directory = configDirectory.get().asFile
+                directory.mkdirs()
+                directory.resolve("robolectric.properties").writeText("sdk=$robolectricSdk\n")
+            }
+        }
+
+        plugins.withId("org.jetbrains.kotlin.multiplatform") {
+            extensions.configure<KotlinMultiplatformExtension> {
+                // The source set only exists once the android target has been declared, which is
+                // after this plugin is applied — so react to it being created rather than look
+                // it up now.
+                sourceSets.configureEach {
+                    if (name == "androidHostTest") {
+                        resources.srcDir(generateRobolectricConfig)
+                    }
+                }
             }
         }
     }
