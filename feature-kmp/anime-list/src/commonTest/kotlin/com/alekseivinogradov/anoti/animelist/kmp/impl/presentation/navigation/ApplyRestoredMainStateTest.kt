@@ -36,10 +36,6 @@ import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.Co
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.mvikotlin.extensions.coroutines.states
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -47,6 +43,10 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ApplyRestoredMainStateTest {
@@ -140,6 +140,8 @@ class ApplyRestoredMainStateTest {
         nextEpisodesInfo = nextEpisodesInfo
     )
 
+    // One parameter per RestoredMainState field, so the count follows the model it builds.
+    @Suppress("LongParameterList")
     private fun restoredMainState(
         selectedSection: SectionHatDomain,
         searchType: SearchDomain.Type = SearchDomain.Type.SHOWN,
@@ -420,7 +422,10 @@ class ApplyRestoredMainStateTest {
 
         //When
         applyRestoredMainState(
-            restoredState = restoredMainState(SectionHatDomain.ONGOINGS, ongoing = restoredSectionState(itemCount = 1000)),
+            restoredState = restoredMainState(
+                SectionHatDomain.ONGOINGS,
+                ongoing = restoredSectionState(itemCount = 1000)
+            ),
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
@@ -443,7 +448,10 @@ class ApplyRestoredMainStateTest {
 
         //When
         applyRestoredMainState(
-            restoredState = restoredMainState(SectionHatDomain.ONGOINGS, ongoing = restoredSectionState(itemCount = 50)),
+            restoredState = restoredMainState(
+                SectionHatDomain.ONGOINGS,
+                ongoing = restoredSectionState(itemCount = 50)
+            ),
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
@@ -468,7 +476,10 @@ class ApplyRestoredMainStateTest {
 
         //When
         applyRestoredMainState(
-            restoredState = restoredMainState(SectionHatDomain.ONGOINGS, ongoing = restoredSectionState(itemCount = 120)),
+            restoredState = restoredMainState(
+                SectionHatDomain.ONGOINGS,
+                ongoing = restoredSectionState(itemCount = 120)
+            ),
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
@@ -491,7 +502,10 @@ class ApplyRestoredMainStateTest {
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
         applyRestoredMainState(
-            restoredState = restoredMainState(SectionHatDomain.ONGOINGS, ongoing = restoredSectionState(itemCount = 120)),
+            restoredState = restoredMainState(
+                SectionHatDomain.ONGOINGS,
+                ongoing = restoredSectionState(itemCount = 120)
+            ),
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
@@ -520,7 +534,10 @@ class ApplyRestoredMainStateTest {
 
         //When
         applyRestoredMainState(
-            restoredState = restoredMainState(SectionHatDomain.ANNOUNCED, announced = restoredSectionState(itemCount = 50)),
+            restoredState = restoredMainState(
+                SectionHatDomain.ANNOUNCED,
+                announced = restoredSectionState(itemCount = 50)
+            ),
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
@@ -543,7 +560,10 @@ class ApplyRestoredMainStateTest {
 
         //When
         applyRestoredMainState(
-            restoredState = restoredMainState(SectionHatDomain.ANNOUNCED, announced = restoredSectionState(itemCount = 120)),
+            restoredState = restoredMainState(
+                SectionHatDomain.ANNOUNCED,
+                announced = restoredSectionState(itemCount = 120)
+            ),
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,

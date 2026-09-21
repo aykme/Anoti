@@ -9,12 +9,12 @@ import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.test.DesiredCallResult
 import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
+import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.test.runTest
 
 class AnimeFavoritesSourceImplTest {
     private val maxDelay = 60000 //1 minute
@@ -40,9 +40,8 @@ class AnimeFavoritesSourceImplTest {
         //Then
         assertTrue {
             actualResult is CallResult.Success &&
-                    actualResult.value == expectedResult
+                actualResult.value == expectedResult
         }
-
     }
 
     @Test
@@ -63,8 +62,8 @@ class AnimeFavoritesSourceImplTest {
         //Then
         assertTrue {
             expectedResult is CallResult.OtherError &&
-                    actualResult is CallResult.OtherError &&
-                    actualResult == expectedResult
+                actualResult is CallResult.OtherError &&
+                actualResult == expectedResult
         }
     }
 

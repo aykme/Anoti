@@ -6,11 +6,11 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSour
 import com.alekseivinogradov.anoti.animelist.kmp.impl.data.source.fake.AnimeListSourceImplFake
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.test.DesiredCallResult
+import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.test.runTest
 
 class FetchOngoingAnimeListUsecaseTest {
     private val maxDelay = 60000 //1 minute
@@ -34,8 +34,8 @@ class FetchOngoingAnimeListUsecaseTest {
         //Then
         assertTrue {
             expectedResult is CallResult.Success &&
-                    actualResult is CallResult.Success &&
-                    actualResult == expectedResult
+                actualResult is CallResult.Success &&
+                actualResult == expectedResult
         }
     }
 
@@ -54,8 +54,8 @@ class FetchOngoingAnimeListUsecaseTest {
         //Then
         assertTrue {
             expectedResult is CallResult.HttpError &&
-                    actualResult is CallResult.HttpError &&
-                    actualResult == expectedResult
+                actualResult is CallResult.HttpError &&
+                actualResult == expectedResult
         }
     }
 
@@ -74,8 +74,8 @@ class FetchOngoingAnimeListUsecaseTest {
         //Then
         assertTrue {
             expectedResult is CallResult.OtherError &&
-                    actualResult is CallResult.OtherError &&
-                    actualResult == expectedResult
+                actualResult is CallResult.OtherError &&
+                actualResult == expectedResult
         }
     }
 

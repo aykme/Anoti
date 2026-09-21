@@ -1,13 +1,13 @@
 package com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.poster
 
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.test.runTest
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.test.runTest
 
 class LoadWithTimeoutTest {
 

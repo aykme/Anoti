@@ -3,9 +3,6 @@ package com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.contr
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.connection_error
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.unknown_error
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -14,6 +11,9 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.compose.resources.StringResource
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SystemMessageControllerTest {

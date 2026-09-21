@@ -1,14 +1,14 @@
 package com.alekseivinogradov.anoti.celebrity.kmp.api.domain.paging
 
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNull
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 
 class PaginatorTest {
 

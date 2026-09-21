@@ -34,6 +34,21 @@ subprojects {
             // path instead.
             exclude { it.file.invariantSeparatorsPath.contains("/build/") }
         }
+
+        // The detekt Gradle plugin only generates tasks for main-compilation source sets, so
+        // commonTest would otherwise never be analysed.
+        val commonTestSources = file("src/commonTest/kotlin")
+        if (commonTestSources.isDirectory) {
+            tasks.register<Detekt>("detektCommonTest") {
+                description = "Runs detekt over the commonTest source set."
+                group = "verification"
+                setSource(files(commonTestSources))
+                // The plugin wires the extension's settings only into the tasks it registers
+                // itself, so a hand-registered one would run detekt's stock config instead.
+                config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+                buildUponDefaultConfig = true
+            }
+        }
     }
 
     // The reports cost compile time and are only read during a performance pass, so they stay off
