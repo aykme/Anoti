@@ -27,6 +27,17 @@ android {
                 "proguard-rules.pro"
             )
         }
+        // Debuggable and debug-signed, but shrunk: exercises R8 without putting it on the release
+        // path. Install it to check that nothing the shrinker removed is needed at runtime.
+        create("minified") {
+            initWith(getByName("debug"))
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.toVersion(libs.versions.jvmTarget.get())
