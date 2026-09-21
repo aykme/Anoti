@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model
 
+import androidx.compose.runtime.Immutable
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
@@ -10,6 +11,7 @@ import kotlinx.collections.immutable.persistentListOf
  * @param isNeedToResetListPositon whether the list's scroll position should reset (e.g. after
  * the section changed).
  */
+@Immutable
 data class ListContentUi(
     val listItems: ImmutableList<ListItemUi> = persistentListOf(),
     val isNeedToResetListPositon: Boolean = false
