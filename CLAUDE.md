@@ -208,6 +208,12 @@ Read this before doing any task in this repository.
 - For any test that's new or was fixed, confirm it doesn't flake, doesn't rely on real time
   (highly undesirable — acceptable only in exceptional cases agreed with the developer), and
   never makes real API calls (this is forbidden).
+- Review the Gradle files of every affected module. Look for dependencies nothing uses any more,
+  ones declared in the wrong configuration, and anything that could be expressed more simply.
+- Finish with a maximally thorough code review of the change. This one is mandatory. Dispatch
+  subagents to do the reviewing, then dispatch skeptic subagents to re-check what the reviewers
+  reported. A finding counts only once a skeptic has confirmed it against the code, and a
+  dismissal counts only once a skeptic has failed to reproduce it.
 - Delete every artifact produced while verifying — screenshots, logcat dumps, UI hierarchy dumps,
   temporary scripts, and anything else created only to check the result. This applies to the
   session scratchpad and to the device/emulator alike. Nothing of the sort is left behind once
