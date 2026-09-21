@@ -131,6 +131,17 @@ Read this before doing any task in this repository.
   to be split. Platform code is covered too: an Android implementation gets its tests in
   `androidHostTest`, an iOS one in `iosTest` — the pair of `AnimeDatabaseContinuityTest` classes
   in `core-kmp:anime-database` shows the shape.
+- Composables get tests too, but not from `commonTest`: `runComposeUiTest` compiles there and then
+  fails at runtime on the Android host test. They belong in `androidHostTest`, driven by
+  Robolectric and `androidx.compose.ui.test.junit4.v2.createComposeRule` — the non-`v2` rule is
+  deprecated, and v2 defaults to `StandardTestDispatcher`, so coroutines need the scheduler
+  advanced. The module needs `robolectric`, `compose-ui-test-junit4` and `compose-ui-test-manifest`
+  in that source set, all already in the version catalog, plus
+  `withHostTestBuilder {}.configure { isIncludeAndroidResources = true }` — without the merged
+  resources Robolectric cannot resolve `ComponentActivity`.
+- Pin `@Config(sdk = [35])` on any Robolectric test that renders Compose. Unpinned it targets
+  `compileSdk` and dies inside `ApplicationSharedMemory.create`, which Robolectric 4.17 does not
+  emulate; the message it prints blames the JRE rather than the SDK level.
 - Drive time and concurrency through the test infrastructure rather than the real thing: `runTest`
   and its virtual clock, `advanceTimeBy`/`advanceUntilIdle`, and `UnconfinedTestDispatcher` or
   `StandardTestDispatcher` installed via `Dispatchers.setMain` — all already established across
@@ -155,12 +166,19 @@ Read this before doing any task in this repository.
     - Usecases, paging, api plumbing — 85%
     - Models and responses — 90%
     - Presentation outside Compose — 30%
-    - Composables — not measured; they need UI tests, which is a separate decision
+    - Composables — tested, but deliberately outside the numbers
 - Whole project — 70%. A module carrying domain logic — a 60% floor. Modules that are mostly
   shared UI (`core-kmp:celebrity`) or an app shell (`main`, `app`) get no floor, since how much
   Compose they hold sets their ceiling.
 - Generated code (Room, kotlin-inject, Compose Resources), `@Composable` functions, DI components
   and `core-kmp:test-utils` do not count toward these targets.
+- Keeping `@Composable` out is deliberate, not a gap waiting to be closed. The Compose compiler
+  expands a composable into synthetic lambda classes (`...Kt$name$1$1$1`) of about two lines each,
+  so a percentage over them measures generated shapes rather than tested behaviour. Write the
+  tests, judge them by what they assert, and ignore the number.
+- That exclusion follows the annotation, not the package. Compose-adjacent code without
+  `@Composable` — `Modifier` extensions such as `repeatingClickable`, and token files like
+  `Colors.kt` and `Fonts.kt` — still counts, under the presentation target.
 - Android platform code does count; Kover measures it through `androidHostTest`. Kover cannot
   measure Kotlin/Native, so `iosMain` falls outside every number here — cover it with `iosTest`
   and judge that by what the tests exercise, not by a percentage.
