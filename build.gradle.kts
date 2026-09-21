@@ -20,6 +20,7 @@ subprojects {
         }
 
         dependencies.add("detektPlugins", libs.detekt.formatting)
+        dependencies.add("detektPlugins", libs.detekt.compose)
 
         tasks.withType<Detekt>().configureEach {
             // Ant-style exclude() patterns match paths relative to each source root, but

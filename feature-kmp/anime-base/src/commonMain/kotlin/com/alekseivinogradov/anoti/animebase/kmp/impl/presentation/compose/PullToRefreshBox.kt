@@ -23,12 +23,13 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
 @Composable
 fun PullToRefreshBox(
     onRefresh: () -> Unit,
+    modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit
 ) {
     val pullToRefreshState = rememberPullToRefreshState()
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .pullToRefresh(
                 isRefreshing = false,

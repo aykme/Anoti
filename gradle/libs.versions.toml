@@ -40,6 +40,10 @@ sqlite = "2.7.1"
 # Material 3 is only published as 1.12.0-alpha03 on the Compose Multiplatform line.
 # 1.9.0 is its stable ceiling.
 composeMaterial3 = "1.9.0"
+# Compose rules for detekt. Every release from 0.5.0 on is built against detekt 2.0.0-alpha,
+# so 0.4.22 is the ceiling while detekt stays on 1.23.
+#noinspection NewerVersionAvailable
+composeRules = "0.4.22"
 # Pinned to the androidx.compose.ui:ui version that :app's androidTest classpath resolves to.
 # An instrumented test shares the app's process, so ui-test-junit4 must load the same UI classes.
 # 1.12.1 is newer, but composeMultiplatform 1.12.0 is built against androidx Compose UI 1.12.0.
@@ -76,6 +80,7 @@ compose-ui-test = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "
 compose-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "composeMultiplatform" }
 compose-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
 decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
+detekt-compose = { module = "io.nlopez.compose.rules:detekt", version.ref = "composeRules" }
 detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 # No version: Decompose and MVIKotlin both pull Essenty in, and all of its artifacts have to
 # stay on one release. Pinning here would move lifecycle alone.

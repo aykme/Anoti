@@ -85,7 +85,8 @@ fun AnimeListTopBar(
     onAnnouncedClick: () -> Unit,
     onSearchClick: () -> Unit,
     onCancelSearchClick: () -> Unit,
-    onSearchTextChange: (String) -> Unit
+    onSearchTextChange: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     // Hoisted above the `search == SHOWN` check so typed text survives closing and reopening
     // the search bar. Saveable so it also survives process death: every keystroke pushes the
@@ -103,7 +104,7 @@ fun AnimeListTopBar(
     }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(top = systemBarsTopPadding())
     ) {
