@@ -1,9 +1,9 @@
 ---
 name: code-documentation
-description: Write or tighten module READMEs and KDoc for this project (KMP/Android multi-module). Covers both the short index-style README per module AND the KDoc on the entities it points to — the two are one job, not two. Use this whenever the user asks to create, write, add, or update a README for a module/package/library, document a module's public entities, write or review code comments/KDoc, or asks "is this documented" — even if they just say "add a README" or "document this module" without more detail. Also use it to review or shorten an existing module README that has grown too long, reads like an essay, lists every type it finds instead of only the major ones, or duplicates explanations that belong in the code's own doc comments. Call this after finishing any change to a module's public API (new module, new public entity, changed signature) — documentation is part of finishing the change, not a follow-up task.
+description: Write or tighten module READMEs and KDoc for this project (KMP/Android multi-module). Covers both the short index-style README per module AND the KDoc on the entities it points to — the two are one job, not two. Use this whenever the user asks to create, write, add, or update a README for a module/package/library, document a module's public entities, write or review code comments/KDoc, or asks "is this documented" — even if they just say "add a README" or "document this module" without more detail. Also use it to review or shorten an existing module README that has grown too long, reads like an essay, lists every type it finds instead of only the major ones, or duplicates explanations that belong in the code's own doc comments. Also use it to keep a module's -REGRESS.md manual test script current, since that file is documentation too. Call this after finishing any change to a module's public API (new module, new public entity, changed signature) or to anything a person can observe in the running app — documentation is part of finishing the change, not a follow-up task.
 ---
 
-# Code Documentation (READMEs + KDoc)
+# Code Documentation (READMEs + KDoc + regression files)
 
 ## Why this shape
 
@@ -347,6 +347,29 @@ interface SafeApi {
     suspend fun <T> call(callAttempt: Int = 1, apiCall: suspend () -> T): CallResult<T>
 }
 ```
+
+## The module's regression file
+
+Every module also carries a `-REGRESS.md` next to its README, named the same way
+(`:core-kmp:celebrity` → `CORE-KMP-CELEBRITY-REGRESS.md`). It is the manual test script for that
+module: what a tester installs the app and checks by hand, written with no reference to the code.
+CLAUDE.md's "Module regression files" section has the rules for its contents.
+
+Updating it is part of this job, not a follow-up. Whenever a change adds, removes or alters
+something a person can observe in the running app, the regression file changes with it:
+
+- a new control, state or gesture — add the steps that exercise it, with the expected result;
+- changed behavior — rewrite the affected steps, do not leave the old expectation standing;
+- a removed feature — delete its steps, so nobody keeps testing something that no longer exists;
+- a changed look (text, color, placement) — update the expected result that describes it.
+
+A change with no observable effect — a refactor, a rename, an internal restructure — leaves the
+file alone. Ask yourself what a tester would see differently; if the answer is nothing, there is
+nothing to write.
+
+When the module has no file yet, write one for the whole module, not only for what this task
+touched. A half-written script is worse than an obviously missing one, because a tester following
+it believes the module is covered.
 
 ## After writing: check for siblings you might have missed
 
