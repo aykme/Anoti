@@ -36,6 +36,18 @@ class ComposeMviViewTest {
     }
 
     @Test
+    fun theFirstRenderReplacesTheInitialModel() {
+        //Given
+        val view = TestComposeMviView(initialModel = "seeded")
+
+        //When
+        view.render("rendered")
+
+        //Then
+        assertEquals("rendered", view.model.value)
+    }
+
+    @Test
     fun renderUpdatesModel() {
         //Given
         val view = TestComposeMviView()

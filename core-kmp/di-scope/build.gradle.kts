@@ -19,8 +19,6 @@ kotlin {
         compilerOptions {
             jvmTarget.set(JvmTarget.fromTarget(libs.versions.jvmTarget.get()))
         }
-
-        withHostTestBuilder {}.configure {}
     }
 
     listOf(

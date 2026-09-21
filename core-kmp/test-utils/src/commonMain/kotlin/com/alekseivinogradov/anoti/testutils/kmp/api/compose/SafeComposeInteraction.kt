@@ -22,10 +22,11 @@ suspend fun safeComposeInteraction(
     } catch (
         @Suppress("TooGenericExceptionCaught") e: Throwable
     ) {
-        if (maxAttempt <= 0) {
+        if (maxAttempt <= 1) {
             throw Throwable(
                 "The number of attempts in safeComposeInteraction() has ended with error " +
-                    "result: $e"
+                    "result: $e",
+                e
             )
         } else {
             delay(attemptDelay)

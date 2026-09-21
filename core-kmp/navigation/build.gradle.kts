@@ -34,6 +34,9 @@ kotlin {
         commonMain.dependencies {
             // NavRootComponent's public API exposes ComponentContext and Value<ChildStack<..>>.
             api(libs.decompose)
+            // Only the annotations and the generated serializer are used here, but this is what
+            // pulls the serialization BOM in: without it the module compiles its generated
+            // code against the older core Decompose brings.
             implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {

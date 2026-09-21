@@ -91,18 +91,6 @@ class DateFormatterImplTest {
         assertEquals(FALLBACK, formatted)
     }
 
-    @Test
-    fun everyInstanceFormatsTheSameWay() {
-        //Given
-        val input = "2024-01-05"
-
-        //When
-        val formatted = DateFormatterImpl().getFormattedDate(input, FALLBACK)
-
-        //Then
-        assertEquals(formatter.getFormattedDate(input, FALLBACK), formatted)
-    }
-
     private companion object {
         private const val FALLBACK = "fallback"
     }

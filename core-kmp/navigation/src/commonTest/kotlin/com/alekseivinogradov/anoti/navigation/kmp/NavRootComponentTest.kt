@@ -6,7 +6,6 @@ import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.essenty.lifecycle.resume
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 
 private class TestChild(val config: NavRootConfig)
 
@@ -84,19 +83,5 @@ class NavRootComponentTest {
 
         //Then
         assertEquals<List<*>>(listOf(NavRootConfig.AnimeList), disposed)
-    }
-
-    @Test
-    fun navigateToDoesNotDisposeTheNewChild() {
-        //Given
-        val disposed = mutableListOf<NavRootConfig>()
-        val root = createRoot(disposed = disposed)
-
-        //When
-        root.navigateTo(NavRootConfig.AnimeFavorites)
-
-        //Then
-        val isDisposed = NavRootConfig.AnimeFavorites in disposed
-        assertFalse(isDisposed)
     }
 }

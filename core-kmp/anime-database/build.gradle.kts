@@ -51,7 +51,10 @@ kotlin {
             api(libs.mvikotlin)
             api(libs.kotlinx.coroutines.core)
 
-            implementation(project(":core-kmp:celebrity"))
+            // The executor takes a CoroutineContextProvider, and so does the DI binding that
+            // builds it.
+            api(project(":core-kmp:celebrity"))
+
             implementation(project(":core-kmp:di-scope"))
 
             implementation(libs.androidx.sqlite.bundled)
