@@ -4,12 +4,17 @@ The app's whole manual test plan. It holds no steps of its own: every check live
 regression file of the module that owns the behavior, and this file is the index of those.
 
 A full regression means working through **every** file linked below, start to finish, and
-running each one the way its own opening section says — including its pass matrix, where the
+running each one the way its own opening section says. Including its pass matrix, where the
 same script is repeated at the default and the maximum text and display size, in both
 orientations. A module is only done when its file is done.
 
 To regress a single module instead, go straight to that module's own file; this index is for
 the whole app.
+
+## App modules
+
+- [app](app/APP-REGRESS.md)
+- [main](main/MAIN-REGRESS.md)
 
 ## Core modules
 
