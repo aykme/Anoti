@@ -353,15 +353,18 @@ private fun BoxScope.ScoreInfoBar(
     }
 }
 
+// A measure pass runs for every visible item on every layout, so resolving three children by a
+// scan beats building a map for them.
+private fun List<Measurable>.slot(id: ScoreInfoBarSlot): Measurable = first { it.layoutId == id }
+
 private fun MeasureScope.measureScoreInfoBar(
     measurables: List<Measurable>,
     constraints: Constraints
 ): MeasureResult {
-    val byId = measurables.associateBy { it.layoutId }
     val loose = Constraints()
-    val icon = byId.getValue(ScoreInfoBarSlot.Icon).measure(loose)
-    val score = byId.getValue(ScoreInfoBarSlot.Score).measure(loose)
-    val button = byId.getValue(ScoreInfoBarSlot.Button).measure(loose)
+    val icon = measurables.slot(ScoreInfoBarSlot.Icon).measure(loose)
+    val score = measurables.slot(ScoreInfoBarSlot.Score).measure(loose)
+    val button = measurables.slot(ScoreInfoBarSlot.Button).measure(loose)
 
     val available = constraints.maxWidth
     return if (icon.width + score.width + button.width <= available) {

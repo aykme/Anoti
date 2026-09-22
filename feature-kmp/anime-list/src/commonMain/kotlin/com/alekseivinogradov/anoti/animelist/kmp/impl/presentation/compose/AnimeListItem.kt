@@ -355,19 +355,22 @@ private fun BottomRow(item: ListItemUi, onNotificationClick: () -> Unit) {
     }
 }
 
+// A measure pass runs for every visible item on every layout, so resolving six children by a
+// scan beats building a map for them.
+private fun List<Measurable>.slot(id: BottomRowSlot): Measurable = first { it.layoutId == id }
+
 private fun MeasureScope.measureBottomRow(
     measurables: List<Measurable>,
     constraints: Constraints,
     hasStatus: Boolean
 ): MeasureResult {
-    val byId = measurables.associateBy { it.layoutId }
     val loose = Constraints()
 
-    val scoreIcon = byId.getValue(BottomRowSlot.ScoreIcon).measure(loose)
-    val score = byId.getValue(BottomRowSlot.Score).measure(loose)
-    val divider1 = if (hasStatus) byId.getValue(BottomRowSlot.Divider1).measure(loose) else null
-    val divider2 = if (hasStatus) byId.getValue(BottomRowSlot.Divider2).measure(loose) else null
-    val fab = byId.getValue(BottomRowSlot.Fab).measure(loose)
+    val scoreIcon = measurables.slot(BottomRowSlot.ScoreIcon).measure(loose)
+    val score = measurables.slot(BottomRowSlot.Score).measure(loose)
+    val divider1 = if (hasStatus) measurables.slot(BottomRowSlot.Divider1).measure(loose) else null
+    val divider2 = if (hasStatus) measurables.slot(BottomRowSlot.Divider2).measure(loose) else null
+    val fab = measurables.slot(BottomRowSlot.Fab).measure(loose)
 
     val fixedWidth = scoreIcon.width + score.width + (divider1?.width ?: 0) +
         (divider2?.width ?: 0) + fab.width
@@ -378,7 +381,7 @@ private fun MeasureScope.measureBottomRow(
     val status: Placeable?
     val gapWidth: Int
     if (hasStatus) {
-        val statusMeasurable = byId.getValue(BottomRowSlot.Status)
+        val statusMeasurable = measurables.slot(BottomRowSlot.Status)
         val statusNaturalWidth = statusMeasurable.maxIntrinsicWidth(scoreIcon.height)
         if (fixedWidth + statusNaturalWidth <= available) {
             status = statusMeasurable.measure(loose)
@@ -393,8 +396,10 @@ private fun MeasureScope.measureBottomRow(
         gapWidth = ((available - fixedWidth) / gapCount).coerceAtLeast(0)
     }
 
-    val rowHeight = listOfNotNull(scoreIcon, score, divider1, status, divider2, fab)
-        .maxOf { it.height }
+    val rowHeight = maxOf(
+        maxOf(scoreIcon.height, score.height, fab.height),
+        maxOf(divider1?.height ?: 0, status?.height ?: 0, divider2?.height ?: 0)
+    )
 
     return layout(available, rowHeight) {
         var x = 0
