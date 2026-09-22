@@ -306,7 +306,7 @@ class SearchSectionExecutorImplTest {
         var connectionErrorCount = 0
         var unknownErrorCount = 0
         val item = testListItem(id = 1)
-        val pages = mutableMapOf<Int, CallResult<List<ListItemDomain>>>(
+        val pages = mutableMapOf(
             1 to CallResult.Success(listOf(item)),
             2 to CallResult.HttpError(code = 500, throwable = Throwable())
         )
@@ -462,7 +462,7 @@ class SearchSectionExecutorImplTest {
 
         //Then
         assertEquals(ContentTypeDomain.LOADED, store.state.sectionContent.contentType)
-        assertEquals(emptyList<SearchSectionStore.Label>(), emittedLabels)
+        assertEquals(emptyList(), emittedLabels)
         collectJob.cancel()
     }
 
@@ -481,7 +481,7 @@ class SearchSectionExecutorImplTest {
 
         //Then
         assertEquals(listOf(item), store.state.sectionContent.listItems)
-        assertEquals(emptyList<SearchSectionStore.Label>(), emittedLabels)
+        assertEquals(emptyList(), emittedLabels)
         collectJob.cancel()
     }
 

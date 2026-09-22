@@ -2,7 +2,7 @@ package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.compose
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
@@ -70,9 +70,10 @@ class AnimeListItemTest {
 
     private val itemState = mutableStateOf(baseItem)
 
-    // Capped rather than fixed, so the wide case stays inside the emulated screen whatever its
-    // width is.
-    private val maxWidthState = mutableStateOf(WIDE_ITEM_MAX_WIDTH_DP.dp)
+    // Null means the full emulated screen width. A narrow case has to be forced with
+    // requiredWidth: AnotiTheme's Surface passes its own width down as a minimum, which an
+    // ordinary widthIn(max) below it cannot go under.
+    private val forcedWidthState = mutableStateOf<Dp?>(null)
 
     private var episodesInfoClicks = 0
 
@@ -90,7 +91,14 @@ class AnimeListItemTest {
     private fun setItem() {
         composeRule.setContent {
             AnotiTheme {
-                Box(Modifier.fillMaxWidth().widthIn(max = maxWidthState.value)) {
+                val forcedWidth = forcedWidthState.value
+                Box(
+                    if (forcedWidth != null) {
+                        Modifier.requiredWidth(forcedWidth)
+                    } else {
+                        Modifier.fillMaxWidth()
+                    }
+                ) {
                     AnimeListItem(
                         item = itemState.value,
                         dateFormatter = PassThroughDateFormatter,
@@ -241,12 +249,12 @@ class AnimeListItemTest {
         val notificationDescription = runBlocking {
             getString(BaseRes.string.notifications_turn_off_description)
         }
-        maxWidthState.value = WIDE_ITEM_MAX_WIDTH_DP.dp
+        forcedWidthState.value = null
         setItem()
 
         //When
         val wide = bottomRowSnapshot(ongoingLabel, notificationDescription)
-        maxWidthState.value = NARROW_ITEM_MAX_WIDTH_DP.dp
+        forcedWidthState.value = NARROW_ITEM_WIDTH_DP.dp
         composeRule.waitForIdle()
         val narrow = bottomRowSnapshot(ongoingLabel, notificationDescription)
 
@@ -267,8 +275,6 @@ class AnimeListItemTest {
 
 private const val NOTIFICATION_BUTTON_TAG = "notification_button"
 
-// Wider than the score/status/notification chain needs, so it is laid out at its natural width.
-private const val WIDE_ITEM_MAX_WIDTH_DP = 600
-
-// Narrower than that chain needs, so the status text has to give up part of its natural width.
-private const val NARROW_ITEM_MAX_WIDTH_DP = 260
+// Narrower than the score/status/notification chain needs, so the status text has to give up
+// part of its natural width.
+private const val NARROW_ITEM_WIDTH_DP = 260

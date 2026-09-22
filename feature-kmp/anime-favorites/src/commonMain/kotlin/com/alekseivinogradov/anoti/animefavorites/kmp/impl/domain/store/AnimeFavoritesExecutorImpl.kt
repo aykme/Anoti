@@ -268,7 +268,7 @@ class AnimeFavoritesExecutorImpl(
         }
         updateAnimeDetailsJobMap[id] = job
         // Keeping the finished job would hold every id the screen ever expanded for the
-        // executor's whole lifetime. Removed by identity, so the job cancelled above cannot
+        // executor's whole lifetime. Removed by identity, so the job canceled above cannot
         // evict its own replacement.
         job.invokeOnCompletion {
             if (updateAnimeDetailsJobMap[id] === job) updateAnimeDetailsJobMap.remove(id)
