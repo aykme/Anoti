@@ -215,7 +215,9 @@ private fun LoadNextPageEffect(
             totalCount > 0 && lastVisible >= totalCount - PAGING_PREFETCH_DISTANCE
         }
     }
-    LaunchedEffect(shouldLoadNextPage) {
+    // Also keyed on the first visible item: a page that comes back empty-handed leaves the flag
+    // true and the item count unchanged, and without this the list would never ask again.
+    LaunchedEffect(shouldLoadNextPage, listState.firstVisibleItemIndex) {
         if (shouldLoadNextPage) {
             currentDispatch(AnimeListMainStore.Intent.LoadNextPage)
         }

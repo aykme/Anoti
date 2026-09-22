@@ -156,7 +156,6 @@ fun AnimeFavoritesItem(
     modifier: Modifier = Modifier
 ) {
     val strokeColor = if (item.isNewEpisode) Silver else Grey700
-    val amikoBold = FontFamily(CmpFont(CelebrityRes.font.amiko_bold, FontWeight.Bold))
 
     val posterContent: @Composable () -> Unit = {
         PosterColumn(
@@ -164,7 +163,6 @@ fun AnimeFavoritesItem(
             score = item.score,
             infoType = item.infoType,
             isNewEpisode = item.isNewEpisode,
-            amikoBold = amikoBold,
             onInfoTypeClick = onInfoTypeClick
         )
     }
@@ -178,10 +176,11 @@ fun AnimeFavoritesItem(
             onEpisodesViewedPlusClick = onEpisodesViewedPlusClick
         )
     }
-    // The InfoMeasure slot below composes this same content a second time solely to learn its
-    // natural height before the real Info slot is measured; clearAndSetSemantics keeps that
-    // never-placed copy (and its interactive children, e.g. the notification button) out of the
-    // semantics tree so accessibility services and UI tests only ever see one live item.
+    // The InfoMeasure slot below composes this same content a second time, solely to learn its
+    // natural height before the real Info slot is measured. That copy is never placed, so
+    // accessibility never reaches it. clearAndSetSemantics is what keeps its text out of the
+    // item's own merged semantics node, which would otherwise carry every line twice. The copy
+    // does stay in the unmerged tree, so a test looking there has to filter on isPlaced.
     val infoMeasureContent: @Composable () -> Unit = {
         Box(Modifier.clearAndSetSemantics {}) {
             infoContent()
@@ -232,7 +231,6 @@ private fun PosterColumn(
     score: String,
     infoType: InfoTypeUi,
     isNewEpisode: Boolean,
-    amikoBold: FontFamily,
     onInfoTypeClick: () -> Unit
 ) {
     Box(
@@ -244,7 +242,7 @@ private fun PosterColumn(
     ) {
         PosterImage(imageUrl)
         if (isNewEpisode) {
-            NewEpisodeBadge(amikoBold)
+            NewEpisodeBadge()
         }
         ScoreInfoBar(score = score, infoType = infoType, onInfoTypeClick = onInfoTypeClick)
     }
@@ -282,7 +280,9 @@ private fun PosterImage(imageUrl: String?) {
 
 @Suppress("FunctionNaming")
 @Composable
-private fun BoxScope.NewEpisodeBadge(amikoBold: FontFamily) {
+private fun BoxScope.NewEpisodeBadge() {
+    // Built here rather than by the item: only a row carrying this caption needs the face.
+    val amikoBold = FontFamily(CmpFont(CelebrityRes.font.amiko_bold, FontWeight.Bold))
     Text(
         text = stringResource(Res.string.new_episode),
         color = Silver,

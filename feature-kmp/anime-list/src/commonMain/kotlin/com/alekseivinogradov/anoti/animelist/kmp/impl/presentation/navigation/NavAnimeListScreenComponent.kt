@@ -220,8 +220,10 @@ internal fun applyRestoredMainState(
     // current search text the moment OpenSection runs. Restoring the text first means a later
     // OpenSection (here or from a subsequent manual tap into the section) already fetches the
     // restored query instead of blank results.
+    // Empty, not blank: the field restores whatever was typed, spaces included, and a query the
+    // stores never heard about would leave the two showing different things.
     val restoredSearchText = restoredState?.searchText
-    if (!restoredSearchText.isNullOrBlank()) {
+    if (!restoredSearchText.isNullOrEmpty()) {
         mainStore.accept(AnimeListMainStore.Intent.ChangeSearchText(restoredSearchText))
         searchSectionStore.accept(
             SearchSectionStore.Intent.ChangeSearchText(restoredSearchText)
