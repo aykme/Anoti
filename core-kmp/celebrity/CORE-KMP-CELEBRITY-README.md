@@ -14,9 +14,9 @@ formatting, error system messages, pagination, and Compose UI helpers for MVIKot
 - [SystemMessageHost](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/impl/presentation/compose/SystemMessageHost.kt) —
   shows `SystemMessageController`'s messages as snackbars.
 - [AnotiTheme](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/impl/presentation/compose/AnotiTheme.kt) —
-  applies the app's colour scheme and background to its content.
+  applies the app's color scheme and background to its content.
 - [anotiColorScheme](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/impl/presentation/compose/AnotiTheme.kt) —
-  the app's colour scheme on its own, without the full-screen background.
+  the app's color scheme on its own, without the full-screen background.
 - [Paginator](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/domain/paging/Paginator.kt) —
   pages through loads one page at a time.
 - [PageLoadResult](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/domain/paging/PageLoadResult.kt) —

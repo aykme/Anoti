@@ -54,10 +54,10 @@ notification arrives.
 
 1. On **Favorites**, press the home button, open two or three other apps, then return to Anoti
    from the recents list.
-   **Favorites** is still showing.
+   **Favorites** are still showing.
 2. In the system developer options, switch on **Don't keep activities**. Open the app, go to
    **Favorites**, press home, then return to the app from recents.
-   **Favorites** is still showing, not the main screen, and the app does not crash.
+   **Favorites** are still showing, not the main screen, and the app does not crash.
 3. With that setting still on, go to the main screen, press home and return from recents.
    The main screen is showing.
 4. Switch **Don't keep activities** back off.

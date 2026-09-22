@@ -1,10 +1,10 @@
-# Manual regression — shared UI and behaviour
+# Manual regression — shared UI and behavior
 
-This module owns pieces the whole app reuses: the colours every screen is painted in, the
+This module owns pieces the whole app reuses: the colors every screen is painted in, the
 spinner shown while something loads, the message banner shown when something fails, the way
 dates are written out, the press-and-hold buttons, and the paging that loads a list one page at
 a time. Each is described in full here, with the screens a tester can reach it on. What a screen
-does with the piece afterwards is checked in that screen's own file.
+does with the piece afterward is checked in that screen's own file.
 
 Unless a step says otherwise, start with the app online and opened at least once.
 
@@ -12,7 +12,7 @@ Unless a step says otherwise, start with the app online and opened at least once
 either press and hold anywhere on the anime's card, or tap the small icon next to its rating.
 Either one opens and closes it.
 
-## Colours and readability
+## Colors and readability
 
 1. Open the app on a device with the system set to dark mode.
    The background is black. Text on it is white and readable. The selected item of the bottom bar
@@ -22,7 +22,7 @@ Either one opens and closes it.
    palette and does not follow the system setting.
 3. On the main screen and on **Favorites**, read every line of text on screen, including the
    anime titles, the episode counts, the release status and the score.
-   Every one of them is legible. None is drawn in a colour close enough to its background to
+   Every one of them is legible. None is drawn in a color close enough to its background to
    disappear.
 
 ## The loading spinner
@@ -31,7 +31,7 @@ Either one opens and closes it.
    The main screen shows a spinner and then settles into its error state. The spinner is gone.
 2. Turn the network back on and refresh the main screen.
    A spinner fills the screen while the list loads, turns clockwise at a steady speed without
-   stopping or jumping, and disappears when the anime arrive.
+   stopping or jumping, and disappears when the anime arrives.
 3. Throttle the connection hard — for example, set the emulator's network speed to the slowest
    setting — and refresh again.
    The spinner keeps turning at the same steady speed for the whole wait.
@@ -74,7 +74,7 @@ has aired far more episodes than the count shows, so the buttons have room to wo
    The count goes up once immediately, pauses briefly, then climbs at a steady rate for as long as
    you hold.
 3. Release.
-   The count stops immediately. It does not creep up afterwards.
+   The count stops immediately. It does not creep up afterward.
 4. Press and hold again, then drag your finger off the button before releasing.
    The count stops the moment the finger leaves the button.
 5. Press and hold the plus button and, while holding, tap elsewhere on the same card with another
