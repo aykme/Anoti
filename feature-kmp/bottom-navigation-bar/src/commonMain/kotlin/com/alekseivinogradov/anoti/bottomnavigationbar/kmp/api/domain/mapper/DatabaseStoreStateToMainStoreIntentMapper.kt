@@ -12,8 +12,5 @@ internal fun mapDatabaseStoreStateToMainStoreIntent(
 }
 
 private fun getFavoritesBadgeNumber(state: AnimeDatabaseStore.State): Int {
-    val newEpisodesOnlyList = state.animeDatabaseItems.filter {
-        it.isNewEpisode
-    }
-    return newEpisodesOnlyList.count()
+    return state.animeDatabaseItems.count { it.isNewEpisode }
 }

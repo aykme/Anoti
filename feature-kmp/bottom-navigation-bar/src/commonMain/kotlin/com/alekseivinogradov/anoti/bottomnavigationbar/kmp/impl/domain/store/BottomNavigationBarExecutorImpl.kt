@@ -22,6 +22,10 @@ internal class BottomNavigationBarExecutorImpl : BottomNavigationBarExecutor() {
     private fun changeSelectedSection(
         intent: BottomNavigationBarStore.Intent.ChangeSelectedSection
     ) {
+        // The store emits a new state for every message, changed or not. The host resends the
+        // current section on every navigation update, so a repeat is dropped here.
+        if (state().selectedSection == intent.selectedSection) return
+
         dispatch(
             BottomNavigationBarStore.Message.ChangeSelectedSection(intent.selectedSection)
         )
@@ -30,6 +34,10 @@ internal class BottomNavigationBarExecutorImpl : BottomNavigationBarExecutor() {
     private fun updateFavoritesBadgeNumber(
         intent: BottomNavigationBarStore.Intent.UpdateFavoritesBadgeNumber
     ) {
+        // Same reason: the database resends the badge number on every one of its emissions,
+        // and most of those leave it unchanged.
+        if (state().favoritesBadgeNumber == intent.favoritesBadgeNumber) return
+
         dispatch(
             BottomNavigationBarStore.Message.UpdateFavoritesBadgeNumber(intent.favoritesBadgeNumber)
         )
