@@ -186,9 +186,11 @@ class AnimeListExecutorImpl(
                 )
             )
         }
+        // A switch still waiting out its delay was computed against content this update has
+        // just replaced, so it must not be allowed to land.
+        updateOngoingContentJob?.cancel()
         if (state.ongoingContent.contentType == intent.content.contentType) return
 
-        updateOngoingContentJob?.cancel()
         updateOngoingContentJob = scope.launch {
             dispatch(
                 AnimeListMainStore.Message.ChangeOngoingContentType(ContentTypeDomain.LOADING)
@@ -217,9 +219,11 @@ class AnimeListExecutorImpl(
                 )
             )
         }
+        // A switch still waiting out its delay was computed against content this update has
+        // just replaced, so it must not be allowed to land.
+        updateAnnouncedContentJob?.cancel()
         if (state.announcedContent.contentType == intent.content.contentType) return
 
-        updateAnnouncedContentJob?.cancel()
         updateAnnouncedContentJob = scope.launch {
             dispatch(
                 AnimeListMainStore.Message.ChangeAnnouncedContentType(ContentTypeDomain.LOADING)
@@ -265,9 +269,11 @@ class AnimeListExecutorImpl(
                 )
             )
         }
+        // A switch still waiting out its delay was computed against content this update has
+        // just replaced, so it must not be allowed to land.
+        updateSearchContentJob?.cancel()
         if (state.searchContent.contentType == intent.content.contentType) return
 
-        updateSearchContentJob?.cancel()
         updateSearchContentJob = scope.launch {
             dispatch(
                 AnimeListMainStore.Message.ChangeSearchContentType(ContentTypeDomain.LOADING)

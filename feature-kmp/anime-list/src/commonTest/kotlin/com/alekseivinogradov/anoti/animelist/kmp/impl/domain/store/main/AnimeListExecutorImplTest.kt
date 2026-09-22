@@ -1,6 +1,7 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.main
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.ANIMATION_DURATION_VERY_SHORT
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
@@ -20,6 +21,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
@@ -509,6 +511,41 @@ class AnimeListExecutorImplTest {
         //Then
         assertEquals(ContentTypeDomain.ERROR, store.state.ongoingContent.contentType)
         assertEquals(listOf(item), store.state.ongoingContent.listItems)
+    }
+
+    // A section that restarts while the switch to LOADED is still animating reports the same
+    // LOADING that switch already wrote. The main store must follow the section back to LOADING
+    // instead of finishing a switch the section has already left behind.
+    @Test
+    fun aSectionRestartingMidSwitchLeavesTheMainStoreLoading() = runTest(testDispatcher) {
+        //Given
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        val store = createStore()
+        val item = testListItem(id = 1)
+        store.accept(
+            AnimeListMainStore.Intent.UpdateOngoingContent(
+                content = SectionContentDomain(
+                    contentType = ContentTypeDomain.LOADED,
+                    listItems = listOf(item)
+                )
+            )
+        )
+        runCurrent()
+        advanceTimeBy(ANIMATION_DURATION_VERY_SHORT / 2)
+
+        //When
+        store.accept(
+            AnimeListMainStore.Intent.UpdateOngoingContent(
+                content = SectionContentDomain(
+                    contentType = ContentTypeDomain.LOADING,
+                    listItems = listOf(item)
+                )
+            )
+        )
+        advanceUntilIdle()
+
+        //Then
+        assertEquals(ContentTypeDomain.LOADING, store.state.ongoingContent.contentType)
     }
 
     @Test

@@ -12,14 +12,14 @@ Unless a step says otherwise, start from a fresh installation with the device on
 Every section below is run **four times**, once per combination:
 
 | Pass | System font size and display size | Orientation |
-|---|---|---|
-| 1 | default | portrait |
-| 2 | default | landscape |
-| 3 | both at maximum | portrait |
-| 4 | both at maximum | landscape |
+|------|-----------------------------------|-------------|
+| 1    | default                           | portrait    |
+| 2    | default                           | landscape   |
+| 3    | both at maximum                   | portrait    |
+| 4    | both at maximum                   | landscape   |
 
 Pass 1 is the one that must be perfect. Passes 2–4 are looking for the same failures every
-time: text cut off or overlapping, a control pushed off screen or shrunk until it cannot be
+time: text cut off or overlapping, a control pushed off-screen or shrunk until it cannot be
 tapped, a row that wraps in one pass and clips in another, and anything that stops responding
 to a tap because it moved. Where a step behaves differently by scale or orientation on purpose,
 that step says so.
@@ -31,11 +31,10 @@ keeps its state, which is itself checked in section 11.
 
 The area below the status bar is always in exactly one of three states.
 
-| State | What fills the area |
-|---|---|
-| Loading | One large spinner, centred, inset well away from the edges. |
-| Empty | A picture of a character at the top left, and to its right a panel of text starting "You haven't subscribed to notifications about new anime series yet." |
-| List | The scrollable list of subscribed anime. |
+- **Loading** — one large spinner, centered, inset well away from the edges.
+- **Empty** — a picture of a character at the top left, and to its right a panel of text
+  starting "You haven't subscribed to notifications about new anime series yet."
+- **List** — the scrollable list of subscribed anime.
 
 There is no error state. Losing the network never takes this screen out of List or Empty,
 because the list comes from the device, not the server.
@@ -68,12 +67,12 @@ because the list comes from the device, not the server.
 The poster is loaded separately, so it has its own states inside the item's left-hand column.
 The right-hand panel is drawn immediately and does not wait for it.
 
-1. Subscribe to several anime, then open the screen before the pictures have been fetched.
+1. Subscribe to several animes, then open the screen before the pictures have been fetched.
    - Where a picture has not arrived, a spinner spins inside the poster column, inset from its
      edges. The score bar over it and the whole right-hand panel are already drawn.
 2. Turn the network off, clear the app's storage, subscribe again from a cached list if you
    can, and open the screen.
-   - The poster column shows a spinner first, then a greyed broken-image icon filling the
+   - The poster column shows a spinner first, then a grayed broken-image icon filling the
      column.
    - The score bar, title, episodes line, status and bell are all still readable.
 3. Turn the network on and pull to refresh.
@@ -137,11 +136,11 @@ This is the part to check most carefully: it is not a partial change.
 9. Turn the network off and switch an item with no known date into extra mode.
    - The panel switches and shows "No data". An error banner appears at the bottom.
 10. Switch three items into extra mode at once.
-   - All three stay in extra mode independently.
-11. Switch an item into extra mode, scroll it far off screen and back.
-   - It is still in extra mode, and no other item switched by itself.
+    - All three stay in extra mode independently.
+11. Switch an item into extra mode, scroll it far off-screen and back.
+    - It is still in extra mode, and no other item switched by itself.
 12. Switch an item into extra mode and leave the screen to "Main" and back.
-   - It is back in main mode. Every arrival at this screen resets the mode on every item.
+    - It is back in main mode. Every arrival at this screen resets the mode on every item.
 
 ## 6. Counting viewed episodes
 
@@ -168,11 +167,11 @@ Only reachable in extra mode.
 9. An anime whose aired count the server does not give.
    - Plus does nothing; the counter stays at 0.
 10. Set a counter to some value, switch the item out of extra mode and back.
-   - The value is still there.
+    - The value is still there.
 11. Set a counter, leave to "Main" and come back.
-   - The value is still there.
+    - The value is still there.
 12. Set a counter, pull to refresh.
-   - The value is still there.
+    - The value is still there.
 
 ## 7. The bell
 

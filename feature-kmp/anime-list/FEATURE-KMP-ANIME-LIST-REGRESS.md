@@ -12,14 +12,14 @@ Unless a step says otherwise, start from a fresh installation with the device on
 Every section below is run **four times**, once per combination:
 
 | Pass | System font size and display size | Orientation |
-|---|---|---|
-| 1 | default | portrait |
-| 2 | default | landscape |
-| 3 | both at maximum | portrait |
-| 4 | both at maximum | landscape |
+|------|-----------------------------------|-------------|
+| 1    | default                           | portrait    |
+| 2    | default                           | landscape   |
+| 3    | both at maximum                   | portrait    |
+| 4    | both at maximum                   | landscape   |
 
 Pass 1 is the one that must be perfect. Passes 2–4 are looking for the same failures every
-time: text cut off or overlapping, a control pushed off screen or shrunk until it cannot be
+time: text cut off or overlapping, a control pushed off-screen or shrunk until it cannot be
 tapped, a row that wraps in one pass and clips in another, and anything that stops responding
 to a tap because it moved. Where a step behaves differently by scale or orientation on purpose,
 that step says so.
@@ -32,11 +32,10 @@ keeps its state, which is itself checked in section 12.
 The area below the top bar is always in exactly one of three states. Learn them first; the rest
 of this file refers to them by name.
 
-| State | What fills the area |
-|---|---|
-| Loading | One large spinner, centred, inset well away from the edges. No items, no picture. |
-| Error | One large broken-plug picture, greyed, centred. No items, no spinner. |
-| List | The scrollable list of items. |
+- **Loading** — one large spinner, centered, inset well away from the edges. No items, no
+  picture.
+- **Error** — one large broken-plug picture, grayed, centered. No items, no spinner.
+- **List** — the scrollable list of items.
 
 The top bar is drawn over all three. It never disappears.
 
@@ -84,7 +83,7 @@ immediately and does not wait for the poster.
      edges. The dark strip with the title and the bottom row is already drawn over it.
    - The spinner is replaced by the picture when it arrives.
 2. Turn the network off, clear the app's storage, open it, and let items load from nothing.
-   - The poster area shows a spinner first, then a greyed broken-image icon.
+   - The poster area shows a spinner first, then a grayed broken-image icon.
    - The title, episodes line, score, status and bell are all still readable over it.
 3. Turn the network on and pull to refresh.
    - The broken-image icons are replaced by real pictures.
@@ -121,7 +120,7 @@ between two modes and changes nothing else on the item.
    - The button's icon changes from outlined to filled.
    - The title, score, status and bell do not move or change.
 2. Tap it again.
-   - The line returns to "Episodes: <aired> / <total>" and the icon returns to outlined.
+   - The line returns to "Episodes: <aired> / <total>" and the icon returns to outline.
 3. Repeat on an item in "Soon".
    - The line reads "Beginning of the show:" with the date, then " (Inaccurate)".
 4. Repeat on a "Released" item — the search section has many.
@@ -140,8 +139,8 @@ between two modes and changes nothing else on the item.
      screen.
 9. Open the extra info on three items at once.
    - All three stay open independently. Closing one leaves the others open.
-10. With extra info open on an item, scroll it far off screen and back.
-   - It is still open, and no other item has opened by itself.
+10. With extra info open on an item, scroll it far off-screen and back.
+    - It is still open, and no other item has opened by itself.
 
 ## 7. The bell
 
@@ -195,7 +194,7 @@ between two modes and changes nothing else on the item.
    - Only one page is added, not two. No item appears twice.
 5. While a page is loading, pull down to refresh.
    - The list is replaced by the refreshed first page. The page that was loading must not be
-     appended to it afterwards.
+     appended to it afterward.
 6. Go offline and scroll to the bottom.
    - The list stops growing. The items already shown stay. An error banner appears at the
      bottom of the screen. The section does not switch to Error.
@@ -231,11 +230,11 @@ between two modes and changes nothing else on the item.
      search section is still the one showing.
    - The keyboard closes.
 10. Tap the magnifier again.
-   - The field reopens with the previous text still in it, and the results below are unchanged.
+    - The field reopens with the previous text still in it, and the results below are unchanged.
 11. With the field open, tap "On air"… — there is no way to; the section buttons are hidden
-   while the field is open. Close the field first.
+    while the field is open. Close the field first.
 12. Press system back with the keyboard up.
-   - The keyboard closes. The field stays open with its text.
+    - The keyboard closes. The field stays open with its text.
 
 ## 11. Pull to refresh
 
