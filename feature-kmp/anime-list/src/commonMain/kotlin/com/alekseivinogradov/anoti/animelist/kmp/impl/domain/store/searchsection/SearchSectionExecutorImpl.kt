@@ -190,6 +190,10 @@ class SearchSectionExecutorImpl(
     }
 
     private fun loadNextPage() {
+        // A page already on its way keeps this slot. Overwriting it would leave that load
+        // untracked, and a later refresh could then no longer cancel it.
+        if (loadNextPageJob?.isActive == true) return
+
         loadNextPageJob = scope.launch {
             when (val result = paginator.loadNextPage()) {
                 is PageLoadResult.Success -> dispatch(

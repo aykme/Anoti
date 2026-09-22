@@ -291,6 +291,36 @@ class OngoingSectionExecutorImplTest {
     }
 
     @Test
+    fun aSecondLoadNextPageKeepsTheFirstOneWithinTheReachOfARefresh() = runTest(testDispatcher) {
+        //Given
+        val firstItem = testListItem(id = 1)
+        val stalePageItem = testListItem(id = 2)
+        val refreshedItem = testListItem(id = 3)
+        val secondPageArrival = CompletableDeferred<Unit>()
+        val pages = mutableMapOf<Int, CallResult<List<ListItemDomain>>>(
+            1 to CallResult.Success(listOf(firstItem)),
+            2 to CallResult.Success(listOf(stalePageItem))
+        )
+        val store = createStore(
+            pages = pages,
+            beforeOngoingResult = { page: Int -> if (page == 2) secondPageArrival.await() }
+        )
+        store.accept(OngoingSectionStore.Intent.OpenSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+        store.accept(OngoingSectionStore.Intent.LoadNextPage)
+        store.accept(OngoingSectionStore.Intent.LoadNextPage)
+        pages[1] = CallResult.Success(listOf(refreshedItem))
+
+        //When
+        store.accept(OngoingSectionStore.Intent.UpdateSection)
+        secondPageArrival.complete(Unit)
+        runCurrent()
+
+        //Then
+        assertEquals(listOf(refreshedItem), store.state.sectionContent.listItems)
+    }
+
+    @Test
     fun aRestoreStillPagingWhenARefreshStartsNeverReachesTheList() = runTest(testDispatcher) {
         //Given
         val restoredItems = listOf(testListItem(id = 1), testListItem(id = 2))

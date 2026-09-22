@@ -5,7 +5,7 @@ in the bottom bar. Only this screen is checked here. The bottom bar itself, the 
 the app shows at the bottom, the anime list the subscriptions come from, and the background
 update that marks new episodes are checked in their own modules' files.
 
-Unless a step says otherwise, start from a fresh install with the device online.
+Unless a step says otherwise, start from a fresh installation with the device online.
 
 ## 1. The empty screen
 

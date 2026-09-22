@@ -5,7 +5,7 @@ It has three sections: "On air", "Soon", and search. Only this screen is checked
 bottom bar itself, the error banners the app shows at the bottom, and the saved-anime list
 behind the bell are checked in their own modules' files.
 
-Unless a step says otherwise, start from a fresh install with the device online.
+Unless a step says otherwise, start from a fresh installation with the device online.
 
 ## 1. Opening the screen
 
@@ -22,7 +22,7 @@ Unless a step says otherwise, start from a fresh install with the device online.
 Pick the first item.
 
 1. Check its parts.
-   - A poster picture filling the width of the item.
+   - A poster picture filling the width with the item.
    - Over the bottom of the poster, on a dark strip: the title, a line reading
      "Episodes: <aired> / <total>", and below them a row with a star icon, a score, the release
      status, and a bell button.
