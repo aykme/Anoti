@@ -198,9 +198,13 @@ between two modes and changes nothing else on the item.
 6. Go offline and scroll to the bottom.
    - The list stops growing. The items already shown stay. An error banner appears at the
      bottom of the screen. The section does not switch to Error.
-7. Turn the network back on and scroll up about ten items, then down again.
-   - Paging resumes.
-8. Repeat 1–7 in "Soon" and in search.
+   - Only one banner at a time is on screen; a second attempt replaces it rather than stacking.
+7. Still offline, scroll up a few items and back down to the bottom.
+   - It tries again and the banner comes back. This is the retry path — the list must not go
+     quiet after the first failure.
+8. Turn the network back on and scroll to the bottom again.
+   - Paging resumes without having to leave and re-enter the section.
+9. Repeat 1–8 in "Soon" and in search.
 
 ## 10. Search
 

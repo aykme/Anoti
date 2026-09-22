@@ -197,14 +197,13 @@ private fun LoadNextPageEffect(
     listState: LazyListState,
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
-    // The effect restarts on the derived flag alone, so it would otherwise keep calling whichever
-    // dispatch it captured first.
+    // The effect outlives any single value of dispatch, so it would otherwise keep calling
+    // whichever one it captured first.
     val currentDispatch by rememberUpdatedState(dispatch)
 
-    // Keyed on listState: each section has its own LazyListState instance. Re-deriving only when
-    // the boolean flips, without also keying on listState, would leave this stuck watching
-    // whichever section was current on the first composition. Scrolling in any section switched
-    // to afterward would then go unnoticed.
+    // Keyed on listState: each section has its own LazyListState instance. Without that key this
+    // would stay bound to whichever section was current on the first composition, and scrolling
+    // in a section switched to afterward would go unnoticed.
     val shouldLoadNextPage = remember(listState) {
         derivedStateOf {
             val layoutInfo = listState.layoutInfo
@@ -214,16 +213,16 @@ private fun LoadNextPageEffect(
             totalCount > 0 && lastVisible >= totalCount - PAGING_PREFETCH_DISTANCE
         }
     }
-    // Read through a snapshotFlow, never in composition: the scroll position changes on every
-    // row and reading it here would recompose just as often.
+    // Read through a snapshotFlow, never in composition: scroll position changes on every row,
+    // and reading it here would recompose just as often.
     //
-    // Asks again on each further scroll while the threshold stays passed. A page that came back
-    // empty-handed leaves both the flag and the item count untouched, so asking only on the
-    // crossing would leave the list stuck with no way to retry. A request arriving while one is
-    // still in flight is dropped by the section's own store.
+    // Two moments ask, not every scrolled row: passing the prefetch threshold, and running out
+    // of list to scroll. The second is what lets a failed page be retried — it leaves the item
+    // count and the threshold flag where they were, so the first moment never comes again. A
+    // request arriving while one is in flight is dropped by the section's own store.
     LaunchedEffect(listState) {
-        snapshotFlow { shouldLoadNextPage.value to listState.firstVisibleItemIndex }
-            .filter { (isPastThreshold: Boolean, _: Int) -> isPastThreshold }
+        snapshotFlow { shouldLoadNextPage.value to listState.canScrollForward }
+            .filter { (isPastThreshold: Boolean, _: Boolean) -> isPastThreshold }
             .collect { currentDispatch(AnimeListMainStore.Intent.LoadNextPage) }
     }
 }

@@ -275,6 +275,12 @@ class AnimeListItemTest {
             narrow.notificationWidth,
             "the notification toggle must keep its full size however narrow the item gets"
         )
+        // Separate from the comparison below so a failure says which way it went: the status
+        // squeezed away to nothing, or it was never squeezed at all.
+        assertTrue(
+            narrow.statusWidth > 0.dp,
+            "the narrow item squeezed the release status out of existence"
+        )
         assertTrue(
             narrow.statusWidth < wide.statusWidth,
             "the narrow item must squeeze the release status, but it stayed " +
@@ -286,6 +292,8 @@ class AnimeListItemTest {
 private const val NOTIFICATION_BUTTON_TAG = "notification_button"
 
 // Narrower than the score/status/notification chain needs, so the status text has to give up
-// part of its natural width. Robolectric measures a character as about one pixel, so that chain
-// only overflows well below the width a real device would need.
+// part of its natural width. The chain's fixed part — score icon, score, two dividers and the
+// notification button — measures about 159dp here, so the status is squeezed below roughly
+// 165dp and disappears below roughly 170dp. Robolectric measures a character as about one
+// pixel, which is why those numbers sit far under what a real device would need.
 private const val NARROW_ITEM_WIDTH_DP = 180

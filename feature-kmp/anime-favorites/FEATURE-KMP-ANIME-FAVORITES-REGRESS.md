@@ -182,7 +182,7 @@ Only reachable in extra mode.
 3. Remove items one by one down to the last.
    - Removing the last one follows section 2, rule 4: spinner, then the empty panel.
 4. The bell is not reachable in extra mode — confirm that switching an item into extra mode
-   leaves no bell on it, and that switching back brings it returns.
+   leaves no bell on it, and that switching back brings the bell back.
 
 ## 8. The new-episode mark
 

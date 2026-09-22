@@ -182,29 +182,44 @@ class AnimeListScreenTest {
 
         //Then
         assertEquals(0, countBeforeScrolling, "a list opened at the top has no next page to load")
-        assertEquals(1, loadNextPageCount())
+        assertTrue(loadNextPageCount() >= 1, "reaching the end must ask for the next page")
     }
 
     @Test
-    fun scrollingOnPastTheThresholdAsksAgainSoAFailedPageCanBeRetried() {
+    fun runningOutOfListToScrollAsksAgainSoAFailedPageCanBeRetried() {
         //Given
-        // A page that comes back empty-handed leaves both the item count and the threshold flag
-        // where they were, so asking only once per crossing would strand the list.
+        // A page that failed leaves the item count and the threshold flag where they were, so
+        // the threshold is never crossed again and asking only there would strand the list.
         uiModelState.value = loadedModel(itemCount = LONG_LIST_ITEM_COUNT)
         setScreen()
-        scrollListToIndex(LONG_LIST_ITEM_COUNT - 1)
-        val countAtTheEnd = loadNextPageCount()
+        scrollListToIndex(LONG_LIST_ITEM_COUNT - SHORT_SCROLL_BACK)
+        val countPastTheThreshold = loadNextPageCount()
 
         //When
-        scrollListToIndex(LONG_LIST_ITEM_COUNT - SHORT_SCROLL_BACK)
         scrollListToIndex(LONG_LIST_ITEM_COUNT - 1)
 
         //Then
-        assertEquals(1, countAtTheEnd)
+        assertTrue(countPastTheThreshold >= 1, "passing the threshold must ask once")
         assertTrue(
-            loadNextPageCount() > countAtTheEnd,
-            "scrolling on while still past the threshold must ask again"
+            loadNextPageCount() > countPastTheThreshold,
+            "reaching the bottom with nothing new must ask again"
         )
+    }
+
+    @Test
+    fun sittingStillAtTheBottomAsksNoFurther() {
+        //Given
+        uiModelState.value = loadedModel(itemCount = LONG_LIST_ITEM_COUNT)
+        setScreen()
+        scrollListToIndex(LONG_LIST_ITEM_COUNT - 1)
+        val countAtTheBottom = loadNextPageCount()
+
+        //When
+        // Already at the bottom: this moves nothing, so nothing new should be asked for.
+        scrollListToIndex(LONG_LIST_ITEM_COUNT - 1)
+
+        //Then
+        assertEquals(countAtTheBottom, loadNextPageCount())
     }
 
     @Test

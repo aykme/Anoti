@@ -18,6 +18,7 @@ import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.extensions.coroutines.states
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
@@ -589,6 +590,40 @@ class SearchSectionExecutorImplTest {
 
         //Then
         assertEquals(0, detailsCallCount)
+    }
+
+    @Test
+    fun aSecondLoadNextPageKeepsTheFirstOneWithinTheReachOfAReload() = runTest(testDispatcher) {
+        //Given
+        // A second request while one is in flight must not take over the slot that tracks it:
+        // the reload below cancels whatever that slot holds, and the real load would survive.
+        val firstItem = testListItem(id = 1)
+        val stalePageItem = testListItem(id = 2)
+        val reloadedItem = testListItem(id = 3)
+        val secondPageArrival = CompletableDeferred<Unit>()
+        val pages = mutableMapOf<Int, CallResult<List<ListItemDomain>>>(
+            1 to CallResult.Success(listOf(firstItem)),
+            2 to CallResult.Success(listOf(stalePageItem))
+        )
+        val store = createStore(
+            pages = pages,
+            beforeSearchResult = { page: Int, _: String ->
+                if (page == 2) secondPageArrival.await()
+            }
+        )
+        store.accept(SearchSectionStore.Intent.OpenSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+        store.accept(SearchSectionStore.Intent.LoadNextPage)
+        store.accept(SearchSectionStore.Intent.LoadNextPage)
+        pages[1] = CallResult.Success(listOf(reloadedItem))
+
+        //When
+        store.accept(SearchSectionStore.Intent.UpdateSection)
+        secondPageArrival.complete(Unit)
+        advanceUntilIdle()
+
+        //Then
+        assertEquals(listOf(reloadedItem), store.state.sectionContent.listItems)
     }
 
     @Test
