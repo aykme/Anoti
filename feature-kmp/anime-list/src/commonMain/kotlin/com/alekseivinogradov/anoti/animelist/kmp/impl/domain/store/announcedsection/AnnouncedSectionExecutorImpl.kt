@@ -166,12 +166,8 @@ class AnnouncedSectionExecutorImpl(
     }
 
     private fun availableEpisodesInfoClick(listItem: ListItemDomain) {
-        val newEnabledExtraEpisodesInfoIds = state()
-            .sectionContent
-            .enabledExtraEpisodesInfoIds
-            .toMutableSet().apply {
-                remove(listItem.id)
-            }.toSet()
+        val newEnabledExtraEpisodesInfoIds =
+            state().sectionContent.enabledExtraEpisodesInfoIds - listItem.id
 
         dispatch(
             AnnouncedSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
@@ -181,12 +177,8 @@ class AnnouncedSectionExecutorImpl(
     }
 
     private fun extraEpisodesInfoClick(listItem: ListItemDomain) {
-        val newEnabledExtraEpisodesInfoIds = state()
-            .sectionContent
-            .enabledExtraEpisodesInfoIds
-            .toMutableSet().apply {
-                add(listItem.id)
-            }.toSet()
+        val newEnabledExtraEpisodesInfoIds =
+            state().sectionContent.enabledExtraEpisodesInfoIds + listItem.id
 
         dispatch(
             AnnouncedSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(

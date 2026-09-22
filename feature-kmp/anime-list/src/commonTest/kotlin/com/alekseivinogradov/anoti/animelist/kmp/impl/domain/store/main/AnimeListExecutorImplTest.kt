@@ -1,6 +1,7 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.main
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SectionContentDomain
@@ -15,8 +16,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.test.AfterTest
@@ -179,6 +183,132 @@ class AnimeListExecutorImplTest {
             "Expected LoadNextPageAnnouncedSection among $emittedLabels"
         )
         collectJob.cancel()
+    }
+
+    // A section store emits on every dispatch of its own, so this intent arrives constantly.
+    // Anything it does through the dispatcher costs the list a frame each time.
+    @Test
+    fun aContentUpdateThatLeavesTheContentTypeAloneReachesTheStateWithoutADispatch() =
+        runTest(testDispatcher) {
+            //Given
+            Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+            val store = createStore()
+            val item = testListItem(id = 1)
+
+            //When
+            store.accept(
+                AnimeListMainStore.Intent.UpdateOngoingContent(
+                    content = SectionContentDomain(listItems = listOf(item))
+                )
+            )
+
+            //Then
+            assertEquals(listOf(item), store.state.ongoingContent.listItems)
+        }
+
+    @Test
+    fun aContentTypeChangeShowsLoadingForTheAnimationBeforeSwitching() = runTest(testDispatcher) {
+        //Given
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        val store = createStore()
+        store.accept(
+            AnimeListMainStore.Intent.UpdateOngoingContent(
+                content = SectionContentDomain(contentType = ContentTypeDomain.LOADED)
+            )
+        )
+        advanceUntilIdle()
+
+        //When
+        store.accept(
+            AnimeListMainStore.Intent.UpdateOngoingContent(
+                content = SectionContentDomain(contentType = ContentTypeDomain.ERROR)
+            )
+        )
+        runCurrent()
+
+        //Then
+        assertEquals(ContentTypeDomain.LOADING, store.state.ongoingContent.contentType)
+
+        //When
+        advanceUntilIdle()
+
+        //Then
+        assertEquals(ContentTypeDomain.ERROR, store.state.ongoingContent.contentType)
+    }
+
+    @Test
+    fun itemsArrivingMidSwitchStillEndOnTheContentTypeThatWasAskedFor() = runTest(testDispatcher) {
+        //Given
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        val store = createStore()
+        val item = testListItem(id = 1)
+        store.accept(
+            AnimeListMainStore.Intent.UpdateOngoingContent(
+                content = SectionContentDomain(contentType = ContentTypeDomain.LOADED)
+            )
+        )
+        advanceUntilIdle()
+        store.accept(
+            AnimeListMainStore.Intent.UpdateOngoingContent(
+                content = SectionContentDomain(contentType = ContentTypeDomain.ERROR)
+            )
+        )
+        runCurrent()
+
+        //When
+        store.accept(
+            AnimeListMainStore.Intent.UpdateOngoingContent(
+                content = SectionContentDomain(
+                    contentType = ContentTypeDomain.ERROR,
+                    listItems = listOf(item)
+                )
+            )
+        )
+        advanceUntilIdle()
+
+        //Then
+        assertEquals(ContentTypeDomain.ERROR, store.state.ongoingContent.contentType)
+        assertEquals(listOf(item), store.state.ongoingContent.listItems)
+    }
+
+    @Test
+    fun eachSectionKeepsItsOwnContentUpdatesApart() = runTest(testDispatcher) {
+        //Given
+        val store = createStore()
+        val ongoingItem = testListItem(id = 1)
+        val announcedItem = testListItem(id = 2)
+        val searchItem = testListItem(id = 3)
+
+        //When
+        store.accept(
+            AnimeListMainStore.Intent.UpdateOngoingContent(
+                content = SectionContentDomain(listItems = listOf(ongoingItem))
+            )
+        )
+        store.accept(
+            AnimeListMainStore.Intent.UpdateAnnouncedContent(
+                content = SectionContentDomain(listItems = listOf(announcedItem))
+            )
+        )
+        store.accept(
+            AnimeListMainStore.Intent.UpdateSearchContent(
+                content = SectionContentDomain(
+                    listItems = listOf(searchItem),
+                    enabledExtraEpisodesInfoIds = setOf(searchItem.id),
+                    animeDetails = AnimeDetails(nextEpisodesInfo = mapOf(searchItem.id to "soon"))
+                )
+            )
+        )
+
+        //Then
+        assertEquals(listOf(ongoingItem), store.state.ongoingContent.listItems)
+        assertEquals(listOf(announcedItem), store.state.announcedContent.listItems)
+        assertEquals(listOf(searchItem), store.state.searchContent.listItems)
+        assertEquals(setOf(searchItem.id), store.state.searchContent.enabledExtraEpisodesInfoIds)
+        assertEquals(
+            mapOf(searchItem.id to "soon"),
+            store.state.searchContent.animeDetails.nextEpisodesInfo
+        )
     }
 
     // This executor has no collaborator a fake could observe, so its coroutine is checked at the

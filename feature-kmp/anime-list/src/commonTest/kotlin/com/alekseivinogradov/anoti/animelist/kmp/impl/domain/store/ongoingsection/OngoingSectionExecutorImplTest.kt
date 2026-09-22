@@ -16,12 +16,14 @@ import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.extensions.coroutines.states
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.test.AfterTest
@@ -50,10 +52,13 @@ class OngoingSectionExecutorImplTest {
 
     private class FakeOngoingSource(
         private val pages: Map<Int, CallResult<List<ListItemDomain>>>,
-        private val beforeOngoingResult: suspend () -> Unit = {}
+        private val beforeOngoingResult: suspend (page: Int) -> Unit = {},
+        private val details: suspend (AnimeId) -> CallResult<ListItemDomain> = {
+            error("no details source in this test")
+        }
     ) : AnimeListSource {
         override suspend fun getOngoingList(page: Int, sort: SortData): CallResult<List<ListItemDomain>> {
-            beforeOngoingResult()
+            beforeOngoingResult(page)
             return pages[page] ?: CallResult.Success(emptyList())
         }
 
@@ -69,9 +74,7 @@ class OngoingSectionExecutorImplTest {
             error("not used in OngoingSectionExecutorImplTest")
         }
 
-        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
-            error("not used in OngoingSectionExecutorImplTest")
-        }
+        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> = details(id)
     }
 
     private fun testListItem(id: AnimeId) = ListItemDomain(
@@ -89,11 +92,14 @@ class OngoingSectionExecutorImplTest {
 
     private fun createStore(
         pages: Map<Int, CallResult<List<ListItemDomain>>>,
-        beforeOngoingResult: suspend () -> Unit = {},
+        beforeOngoingResult: suspend (page: Int) -> Unit = {},
+        details: suspend (AnimeId) -> CallResult<ListItemDomain> = {
+            error("no details source in this test")
+        },
         onConnectionErrorSystemMessage: () -> Unit = {},
         onUnknownErrorSystemMessage: () -> Unit = {}
     ): OngoingSectionStore {
-        val source = FakeOngoingSource(pages, beforeOngoingResult)
+        val source = FakeOngoingSource(pages, beforeOngoingResult, details)
         val coroutineContextProvider = object : CoroutineContextProviderBase() {
             override val exceptionHandlerCallback: (Throwable) -> Unit = {}
         }
@@ -252,6 +258,107 @@ class OngoingSectionExecutorImplTest {
 
         //Then
         assertTrue(store.state.sectionContent.enabledExtraEpisodesInfoIds.isEmpty())
+    }
+
+    @Test
+    fun aNextPageStillInFlightWhenARefreshStartsNeverReachesTheList() = runTest(testDispatcher) {
+        //Given
+        val firstItem = testListItem(id = 1)
+        val stalePageItem = testListItem(id = 2)
+        val refreshedItem = testListItem(id = 3)
+        val secondPageArrival = CompletableDeferred<Unit>()
+        val pages = mutableMapOf<Int, CallResult<List<ListItemDomain>>>(
+            1 to CallResult.Success(listOf(firstItem)),
+            2 to CallResult.Success(listOf(stalePageItem))
+        )
+        val store = createStore(
+            pages = pages,
+            beforeOngoingResult = { page: Int -> if (page == 2) secondPageArrival.await() }
+        )
+        store.accept(OngoingSectionStore.Intent.OpenSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+        store.accept(OngoingSectionStore.Intent.LoadNextPage)
+        pages[1] = CallResult.Success(listOf(refreshedItem))
+
+        //When
+        store.accept(OngoingSectionStore.Intent.UpdateSection)
+        secondPageArrival.complete(Unit)
+        runCurrent()
+
+        //Then
+        assertEquals(listOf(refreshedItem), store.state.sectionContent.listItems)
+    }
+
+    @Test
+    fun aRestoreStillPagingWhenARefreshStartsNeverReachesTheList() = runTest(testDispatcher) {
+        //Given
+        val restoredItems = listOf(testListItem(id = 1), testListItem(id = 2))
+        val stalePageItems = listOf(testListItem(id = 3), testListItem(id = 4))
+        val refreshedItem = testListItem(id = 5)
+        val secondPageArrival = CompletableDeferred<Unit>()
+        val pages = mutableMapOf<Int, CallResult<List<ListItemDomain>>>(
+            1 to CallResult.Success(restoredItems),
+            2 to CallResult.Success(stalePageItems)
+        )
+        val store = createStore(
+            pages = pages,
+            beforeOngoingResult = { page: Int -> if (page == 2) secondPageArrival.await() }
+        )
+        store.accept(
+            OngoingSectionStore.Intent.RestoreSection(
+                itemCount = restoredItems.size + stalePageItems.size,
+                enabledExtraEpisodesInfoIds = setOf(),
+                nextEpisodesInfo = mapOf()
+            )
+        )
+        store.accept(OngoingSectionStore.Intent.OpenSection)
+        pages[1] = CallResult.Success(listOf(refreshedItem))
+
+        //When
+        store.accept(OngoingSectionStore.Intent.UpdateSection)
+        secondPageArrival.complete(Unit)
+        runCurrent()
+
+        //Then
+        assertEquals(listOf(refreshedItem), store.state.sectionContent.listItems)
+    }
+
+    @Test
+    fun aSecondDetailsFetchForTheSameItemReplacesTheFirst() = runTest(testDispatcher) {
+        //Given
+        val item = testListItem(id = 1)
+        val fetched = item.copy(nextEpisodeAt = "2026-09-10T12:00:00Z")
+        var detailsCallCount = 0
+        var firstCallWasCancelled = false
+        val store = createStore(
+            pages = mapOf(1 to CallResult.Success(listOf(item))),
+            details = {
+                detailsCallCount++
+                if (detailsCallCount == 1) {
+                    try {
+                        awaitCancellation()
+                    } finally {
+                        firstCallWasCancelled = true
+                    }
+                }
+                CallResult.Success(fetched)
+            }
+        )
+        store.accept(OngoingSectionStore.Intent.OpenSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+        store.accept(OngoingSectionStore.Intent.EpisodesInfoClick(id = item.id))
+        store.accept(OngoingSectionStore.Intent.EpisodesInfoClick(id = item.id))
+
+        //When
+        store.accept(OngoingSectionStore.Intent.EpisodesInfoClick(id = item.id))
+        runCurrent()
+
+        //Then
+        assertTrue(firstCallWasCancelled, "the replaced fetch outlived its replacement")
+        assertEquals(
+            mapOf(item.id to fetched.nextEpisodeAt),
+            store.state.sectionContent.animeDetails.nextEpisodesInfo
+        )
     }
 
     @Test
