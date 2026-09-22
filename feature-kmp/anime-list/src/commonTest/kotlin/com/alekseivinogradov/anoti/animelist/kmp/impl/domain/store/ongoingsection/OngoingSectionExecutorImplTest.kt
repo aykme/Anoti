@@ -30,6 +30,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -359,6 +360,149 @@ class OngoingSectionExecutorImplTest {
             mapOf(item.id to fetched.nextEpisodeAt),
             store.state.sectionContent.animeDetails.nextEpisodesInfo
         )
+    }
+
+    @Test
+    fun openingAnAlreadyLoadedSectionLoadsNothingAgain() = runTest(testDispatcher) {
+        //Given
+        val requestedPages = mutableListOf<Int>()
+        val store = createStore(
+            pages = mapOf(1 to CallResult.Success(listOf(testListItem(id = 1)))),
+            beforeOngoingResult = { page: Int -> requestedPages.add(page) }
+        )
+        store.accept(OngoingSectionStore.Intent.OpenSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+        //When
+        store.accept(OngoingSectionStore.Intent.OpenSection)
+
+        //Then
+        assertEquals(listOf(1), requestedPages)
+    }
+
+    @Test
+    fun openSectionAfterARestorePagesInTheRestoredItemCountAndClearsItsTarget() =
+        runTest(testDispatcher) {
+            //Given
+            val requestedPages = mutableListOf<Int>()
+            val restoredNextEpisodesInfo = mapOf<AnimeId, String?>(1 to "2026-09-10T12:00:00Z")
+            val firstPageItems = listOf(testListItem(id = 1), testListItem(id = 2))
+            val secondPageItems = listOf(testListItem(id = 3), testListItem(id = 4))
+            val store = createStore(
+                pages = mapOf(
+                    1 to CallResult.Success(firstPageItems),
+                    2 to CallResult.Success(secondPageItems)
+                ),
+                beforeOngoingResult = { page: Int -> requestedPages.add(page) }
+            )
+            store.accept(
+                OngoingSectionStore.Intent.RestoreSection(
+                    itemCount = 3,
+                    enabledExtraEpisodesInfoIds = setOf(1),
+                    nextEpisodesInfo = restoredNextEpisodesInfo
+                )
+            )
+
+            //When
+            store.accept(OngoingSectionStore.Intent.OpenSection)
+            store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+            //Then
+            assertEquals(firstPageItems + secondPageItems, store.state.sectionContent.listItems)
+            assertEquals(listOf(1, 2), requestedPages)
+            assertEquals(setOf(1), store.state.sectionContent.enabledExtraEpisodesInfoIds)
+            assertEquals(
+                restoredNextEpisodesInfo,
+                store.state.sectionContent.animeDetails.nextEpisodesInfo
+            )
+            assertNull(store.state.restoreTargetItemCount)
+        }
+
+    @Test
+    fun aRestoredItemCountAboveTheCapStopsPagingAtTheCap() = runTest(testDispatcher) {
+        //Given
+        val pageSize = 30
+        val requestedPages = mutableListOf<Int>()
+        val pages = (1..5).associateWith { page ->
+            CallResult.Success(
+                (1..pageSize).map { testListItem(id = (page - 1) * pageSize + it) }
+            )
+        }
+        val store = createStore(
+            pages = pages,
+            beforeOngoingResult = { page: Int -> requestedPages.add(page) }
+        )
+        store.accept(
+            OngoingSectionStore.Intent.RestoreSection(
+                itemCount = pageSize * pages.size,
+                enabledExtraEpisodesInfoIds = setOf(),
+                nextEpisodesInfo = mapOf()
+            )
+        )
+
+        //When
+        store.accept(OngoingSectionStore.Intent.OpenSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+        //Then
+        assertEquals(listOf(1, 2, 3), requestedPages)
+        assertEquals(pageSize * 3, store.state.sectionContent.listItems.size)
+    }
+
+    @Test
+    fun aRestoredNextEpisodeDateIsNotFetchedAgain() = runTest(testDispatcher) {
+        //Given
+        var detailsCallCount = 0
+        val item = testListItem(id = 1)
+        val store = createStore(
+            pages = mapOf(1 to CallResult.Success(listOf(item))),
+            details = {
+                detailsCallCount++
+                CallResult.Success(item)
+            }
+        )
+        store.accept(
+            OngoingSectionStore.Intent.RestoreSection(
+                itemCount = 1,
+                enabledExtraEpisodesInfoIds = setOf(),
+                nextEpisodesInfo = mapOf(item.id to "2026-09-10T12:00:00Z")
+            )
+        )
+        store.accept(OngoingSectionStore.Intent.OpenSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+        //When
+        store.accept(OngoingSectionStore.Intent.EpisodesInfoClick(id = item.id))
+        runCurrent()
+
+        //Then
+        assertEquals(0, detailsCallCount)
+    }
+
+    @Test
+    fun disposingTheStoreCancelsAnInFlightDetailsFetch() = runTest(testDispatcher) {
+        //Given
+        var detailsFetchWasCancelled = false
+        val item = testListItem(id = 1)
+        val store = createStore(
+            pages = mapOf(1 to CallResult.Success(listOf(item))),
+            details = {
+                try {
+                    awaitCancellation()
+                } finally {
+                    detailsFetchWasCancelled = true
+                }
+            }
+        )
+        store.accept(OngoingSectionStore.Intent.OpenSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+        store.accept(OngoingSectionStore.Intent.EpisodesInfoClick(id = item.id))
+
+        //When
+        store.dispose()
+
+        //Then
+        assertTrue(detailsFetchWasCancelled, "the details fetch outlived its store")
     }
 
     @Test

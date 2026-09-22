@@ -27,6 +27,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -49,14 +50,14 @@ class AnnouncedSectionExecutorImplTest {
 
     private class FakeAnnouncedSource(
         private val pages: Map<Int, CallResult<List<ListItemDomain>>>,
-        private val beforeAnnouncedResult: suspend () -> Unit = {}
+        private val beforeAnnouncedResult: suspend (page: Int) -> Unit = {}
     ) : AnimeListSource {
         override suspend fun getOngoingList(page: Int, sort: SortData): CallResult<List<ListItemDomain>> {
             error("not used in AnnouncedSectionExecutorImplTest")
         }
 
         override suspend fun getAnnouncedList(page: Int, sort: SortData): CallResult<List<ListItemDomain>> {
-            beforeAnnouncedResult()
+            beforeAnnouncedResult(page)
             return pages[page] ?: CallResult.Success(emptyList())
         }
 
@@ -88,8 +89,9 @@ class AnnouncedSectionExecutorImplTest {
 
     private fun createStore(
         pages: Map<Int, CallResult<List<ListItemDomain>>>,
-        beforeAnnouncedResult: suspend () -> Unit = {},
-        onConnectionErrorSystemMessage: () -> Unit = {}
+        beforeAnnouncedResult: suspend (page: Int) -> Unit = {},
+        onConnectionErrorSystemMessage: () -> Unit = {},
+        onUnknownErrorSystemMessage: () -> Unit = {}
     ): AnnouncedSectionStore {
         val source = FakeAnnouncedSource(pages, beforeAnnouncedResult)
         val coroutineContextProvider = object : CoroutineContextProviderBase() {
@@ -100,7 +102,7 @@ class AnnouncedSectionExecutorImplTest {
         )
         val systemMessageProvider = SystemMessageProvider(
             makeConnectionErrorSystemMessage = onConnectionErrorSystemMessage,
-            makeUnknownErrorSystemMessage = {}
+            makeUnknownErrorSystemMessage = onUnknownErrorSystemMessage
         )
         val executorFactory: AnnouncedSectionExecutorFactory = {
             AnnouncedSectionExecutorImpl(
@@ -163,7 +165,232 @@ class AnnouncedSectionExecutorImplTest {
         store.accept(AnnouncedSectionStore.Intent.EpisodesInfoClick(id = item.id))
 
         //Then
-        assertTrue(store.state.sectionContent.enabledExtraEpisodesInfoIds.contains(item.id))
+        assertEquals(setOf(item.id), store.state.sectionContent.enabledExtraEpisodesInfoIds)
+
+        //When
+        store.accept(AnnouncedSectionStore.Intent.EpisodesInfoClick(id = item.id))
+
+        //Then
+        assertEquals(emptySet(), store.state.sectionContent.enabledExtraEpisodesInfoIds)
+    }
+
+    @Test
+    fun loadNextPageAtEndOfListDoesNothing() = runTest(testDispatcher) {
+        //Given
+        val item = testListItem(id = 1)
+        val store = createStore(
+            pages = mapOf(
+                1 to CallResult.Success(listOf(item)),
+                2 to CallResult.Success(emptyList())
+            )
+        )
+        store.accept(AnnouncedSectionStore.Intent.OpenSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+        store.accept(AnnouncedSectionStore.Intent.LoadNextPage)
+        store.states.first { it.sectionContent.listItems.size == 1 }
+
+        //When
+        store.accept(AnnouncedSectionStore.Intent.LoadNextPage)
+
+        //Then
+        assertEquals(listOf(item), store.state.sectionContent.listItems)
+    }
+
+    @Test
+    fun openSectionOnFirstPageHttpErrorMarksErrorAndShowsConnectionMessage() = runTest(testDispatcher) {
+        //Given
+        var connectionErrorCount = 0
+        val store = createStore(
+            pages = mapOf(1 to CallResult.HttpError(code = 500, throwable = Throwable())),
+            onConnectionErrorSystemMessage = { connectionErrorCount++ }
+        )
+
+        //When
+        store.accept(AnnouncedSectionStore.Intent.OpenSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.ERROR }
+
+        //Then
+        assertEquals(1, connectionErrorCount)
+        assertTrue(store.state.sectionContent.listItems.isEmpty())
+    }
+
+    @Test
+    fun openSectionOnFirstPageOtherErrorMarksErrorAndShowsUnknownMessage() = runTest(testDispatcher) {
+        //Given
+        var unknownErrorCount = 0
+        val store = createStore(
+            pages = mapOf(1 to CallResult.OtherError(throwable = Throwable())),
+            onUnknownErrorSystemMessage = { unknownErrorCount++ }
+        )
+
+        //When
+        store.accept(AnnouncedSectionStore.Intent.OpenSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.ERROR }
+
+        //Then
+        assertEquals(1, unknownErrorCount)
+        assertTrue(store.state.sectionContent.listItems.isEmpty())
+    }
+
+    @Test
+    fun openSectionAfterARestorePagesInTheRestoredItemCount() = runTest(testDispatcher) {
+        //Given
+        val requestedPages = mutableListOf<Int>()
+        val firstPageItems = listOf(testListItem(id = 1), testListItem(id = 2))
+        val secondPageItems = listOf(testListItem(id = 3), testListItem(id = 4))
+        val store = createStore(
+            pages = mapOf(
+                1 to CallResult.Success(firstPageItems),
+                2 to CallResult.Success(secondPageItems)
+            ),
+            beforeAnnouncedResult = { page: Int -> requestedPages.add(page) }
+        )
+        store.accept(
+            AnnouncedSectionStore.Intent.RestoreSection(
+                itemCount = 3,
+                enabledExtraEpisodesInfoIds = setOf(1)
+            )
+        )
+
+        //When
+        store.accept(AnnouncedSectionStore.Intent.OpenSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+        //Then
+        assertEquals(firstPageItems + secondPageItems, store.state.sectionContent.listItems)
+        assertEquals(listOf(1, 2), requestedPages)
+        assertEquals(setOf(1), store.state.sectionContent.enabledExtraEpisodesInfoIds)
+        assertNull(store.state.restoreTargetItemCount)
+    }
+
+    @Test
+    fun aRestoredItemCountAboveTheCapStopsPagingAtTheCap() = runTest(testDispatcher) {
+        //Given
+        val pageSize = 30
+        val requestedPages = mutableListOf<Int>()
+        val pages = (1..5).associateWith { page ->
+            CallResult.Success(
+                (1..pageSize).map { testListItem(id = (page - 1) * pageSize + it) }
+            )
+        }
+        val store = createStore(
+            pages = pages,
+            beforeAnnouncedResult = { page: Int -> requestedPages.add(page) }
+        )
+        store.accept(
+            AnnouncedSectionStore.Intent.RestoreSection(
+                itemCount = pageSize * pages.size,
+                enabledExtraEpisodesInfoIds = setOf()
+            )
+        )
+
+        //When
+        store.accept(AnnouncedSectionStore.Intent.OpenSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+        //Then
+        assertEquals(listOf(1, 2, 3), requestedPages)
+        assertEquals(pageSize * 3, store.state.sectionContent.listItems.size)
+    }
+
+    @Test
+    fun aRestoreStoppedByAPagingErrorKeepsItsTargetForTheNextAttempt() = runTest(testDispatcher) {
+        //Given
+        var connectionErrorCount = 0
+        val store = createStore(
+            pages = mapOf(
+                1 to CallResult.Success(listOf(testListItem(id = 1))),
+                2 to CallResult.NetworkError(throwable = Throwable())
+            ),
+            onConnectionErrorSystemMessage = { connectionErrorCount++ }
+        )
+        store.accept(
+            AnnouncedSectionStore.Intent.RestoreSection(
+                itemCount = 5,
+                enabledExtraEpisodesInfoIds = setOf()
+            )
+        )
+
+        //When
+        store.accept(AnnouncedSectionStore.Intent.OpenSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.ERROR }
+
+        //Then
+        assertEquals(1, connectionErrorCount)
+        assertTrue(store.state.sectionContent.listItems.isEmpty())
+        assertEquals(5, store.state.restoreTargetItemCount)
+    }
+
+    @Test
+    fun aRestoreStoppedByAnUnexpectedErrorShowsTheUnknownMessage() = runTest(testDispatcher) {
+        //Given
+        var unknownErrorCount = 0
+        val store = createStore(
+            pages = mapOf(1 to CallResult.OtherError(throwable = Throwable())),
+            onUnknownErrorSystemMessage = { unknownErrorCount++ }
+        )
+        store.accept(
+            AnnouncedSectionStore.Intent.RestoreSection(
+                itemCount = 5,
+                enabledExtraEpisodesInfoIds = setOf()
+            )
+        )
+
+        //When
+        store.accept(AnnouncedSectionStore.Intent.OpenSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.ERROR }
+
+        //Then
+        assertEquals(1, unknownErrorCount)
+        assertTrue(store.state.sectionContent.listItems.isEmpty())
+    }
+
+    @Test
+    fun loadNextPageErrorsShowAMessageAndLeaveTheListAlone() = runTest(testDispatcher) {
+        //Given
+        var connectionErrorCount = 0
+        var unknownErrorCount = 0
+        val item = testListItem(id = 1)
+        val pages = mutableMapOf(
+            1 to CallResult.Success(listOf(item)),
+            2 to CallResult.HttpError(code = 500, throwable = Throwable())
+        )
+        val store = createStore(
+            pages = pages,
+            onConnectionErrorSystemMessage = { connectionErrorCount++ },
+            onUnknownErrorSystemMessage = { unknownErrorCount++ }
+        )
+        store.accept(AnnouncedSectionStore.Intent.OpenSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+        //When
+        store.accept(AnnouncedSectionStore.Intent.LoadNextPage)
+        pages[2] = CallResult.OtherError(throwable = Throwable())
+        store.accept(AnnouncedSectionStore.Intent.LoadNextPage)
+
+        //Then
+        assertEquals(1, connectionErrorCount)
+        assertEquals(1, unknownErrorCount)
+        assertEquals(listOf(item), store.state.sectionContent.listItems)
+        assertEquals(ContentTypeDomain.LOADED, store.state.sectionContent.contentType)
+    }
+
+    @Test
+    fun openingAnAlreadyLoadedSectionLoadsNothingAgain() = runTest(testDispatcher) {
+        //Given
+        val requestedPages = mutableListOf<Int>()
+        val store = createStore(
+            pages = mapOf(1 to CallResult.Success(listOf(testListItem(id = 1)))),
+            beforeAnnouncedResult = { page: Int -> requestedPages.add(page) }
+        )
+        store.accept(AnnouncedSectionStore.Intent.OpenSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+        //When
+        store.accept(AnnouncedSectionStore.Intent.OpenSection)
+
+        //Then
+        assertEquals(listOf(1), requestedPages)
     }
 
     @Test

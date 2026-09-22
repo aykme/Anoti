@@ -29,7 +29,10 @@ kotlin {
             enable = true
         }
 
-        withHostTestBuilder {}.configure {}
+        withHostTestBuilder {}.configure {
+            // Robolectric resolves ComponentActivity only from the merged resources.
+            isIncludeAndroidResources = true
+        }
     }
 
     listOf(
@@ -78,6 +81,11 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.mvikotlin.main)
+        }
+        getByName("androidHostTest").dependencies {
+            implementation(libs.robolectric)
+            implementation(libs.compose.ui.test.junit4)
+            implementation(libs.compose.ui.test.manifest)
         }
     }
 }
