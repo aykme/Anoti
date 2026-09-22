@@ -3,6 +3,7 @@ package com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.ANIMATION_DURATION_SHORT
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.LIST_ARRIVAL_TIMEOUT_SECONDS
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.source.AnimeFavoritesSource
@@ -75,6 +76,26 @@ class AnimeFavoritesExecutorImplTest {
             } finally {
                 wasCancelled = true
             }
+        }
+    }
+
+    private class FirstCallHangsSource(
+        private val item: ListItemDomain
+    ) : AnimeFavoritesSource {
+        var firstCallWasCancelled = false
+            private set
+        private var callCount = 0
+
+        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
+            callCount++
+            if (callCount == 1) {
+                try {
+                    awaitCancellation()
+                } finally {
+                    firstCallWasCancelled = true
+                }
+            }
+            return CallResult.Success(item)
         }
     }
 
@@ -416,6 +437,53 @@ class AnimeFavoritesExecutorImplTest {
 
         //Then
         assertEquals(2, source.callCount)
+    }
+
+    @Test
+    fun aRefreshWhoseListNeverArrivesStopsShowingLoading() = runTest(testDispatcher) {
+        //Given
+        val store = createStore()
+
+        //When
+        // Nothing dispatches UpdateListItems: the database answered no write, which is what a
+        // refresh that changes no row looks like once the repeated publish is gone.
+        store.accept(AnimeFavoritesMainStore.Intent.UpdateSection)
+        advanceTimeBy(
+            ANIMATION_DURATION_SHORT + LIST_ARRIVAL_TIMEOUT_SECONDS + 1L.milliseconds
+        )
+        runCurrent()
+
+        //Then
+        assertEquals(ContentTypeDomain.EMPTY, store.state.contentType)
+    }
+
+    @Test
+    fun aSecondDetailsFetchForTheSameItemReplacesTheFirst() = runTest(testDispatcher) {
+        //Given
+        val item = testListItem()
+        val fetched = item.copy(nextEpisodeAt = "2026-09-10T12:00:00Z")
+        val source = FirstCallHangsSource(fetched)
+        val store = createStore(source = source)
+        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
+        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
+        val emittedLabels = mutableListOf<AnimeFavoritesMainStore.Label>()
+        val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
+
+        //When
+        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
+        runCurrent()
+
+        //Then
+        assertTrue(source.firstCallWasCancelled, "the replaced fetch outlived its replacement")
+        assertTrue(
+            emittedLabels.contains(
+                AnimeFavoritesMainStore.Label.UpdateListItem(
+                    listItem = item.copy(nextEpisodeAt = fetched.nextEpisodeAt)
+                )
+            ),
+            "Expected the replacement fetch's result to be published among $emittedLabels"
+        )
+        collectJob.cancel()
     }
 
     @Test
