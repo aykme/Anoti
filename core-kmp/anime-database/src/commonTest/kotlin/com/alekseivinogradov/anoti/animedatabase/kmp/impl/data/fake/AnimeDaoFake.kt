@@ -33,7 +33,7 @@ class AnimeDaoFake(
     /** Number of collectors currently subscribed to [getAllItemsFlow]. */
     val subscriptionCount: StateFlow<Int> = emissions.subscriptionCount
 
-    /** Publishes the stored list again unchanged, as Room does after a write that changed no row. */
+    /** Publishes the stored list again unchanged, as Room does when a write changes no row. */
     fun republishStoredItems() {
         check(emissions.tryEmit(items.value.ordered())) { "the fake's emission buffer overflowed" }
     }

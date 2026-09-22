@@ -9,7 +9,6 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeList
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.diagnostics.DiagnosticLog
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -294,11 +293,6 @@ class AnimeListExecutorImpl(
     }
 
     private fun notificationClick(intent: AnimeListMainStore.Intent.NotificationClick) {
-        DiagnosticLog.log(
-            "list bell.click id=${intent.id} " +
-                "enabled=${state().enabledNotificationIds.contains(intent.id)} " +
-                "section=${state().selectedSection}"
-        )
         if (state().enabledNotificationIds.contains(intent.id).not()) {
             enableNotification(intent.id)
         } else {
@@ -307,17 +301,11 @@ class AnimeListExecutorImpl(
     }
 
     private fun enableNotification(id: AnimeId) {
-        val listItem = findSelectedSectionListItem(id)
-        if (listItem == null) {
-            DiagnosticLog.log("list bell.enable.itemNotFound id=$id section=${state().selectedSection}")
-            return
-        }
-        DiagnosticLog.log("list bell.enable.publish id=$id")
+        val listItem = findSelectedSectionListItem(id) ?: return
         publish(AnimeListMainStore.Label.EnableNotificationClick(listItem))
     }
 
     private fun disableNotification(id: AnimeId) {
-        DiagnosticLog.log("list bell.disable.publish id=$id")
         publish(AnimeListMainStore.Label.DisableNotificationClick(id))
     }
 
@@ -334,10 +322,6 @@ class AnimeListExecutorImpl(
     private fun updateEnabledNotificationIds(
         intent: AnimeListMainStore.Intent.UpdateEnabledNotificationIds
     ) {
-        DiagnosticLog.log(
-            "list enabledIds.arrived size=${intent.enabledNotificationIds.size} " +
-                "ids=${intent.enabledNotificationIds.take(MAX_LOGGED_IDS)}"
-        )
         dispatch(
             AnimeListMainStore.Message.UpdateEnabledNotificationIds(
                 intent.enabledNotificationIds
@@ -351,9 +335,5 @@ class AnimeListExecutorImpl(
             SectionHatDomain.ANNOUNCED -> publish(AnimeListMainStore.Label.LoadNextPageAnnouncedSection)
             SectionHatDomain.SEARCH -> publish(AnimeListMainStore.Label.LoadNextPageSearchSection)
         }
-    }
-
-    private companion object {
-        private const val MAX_LOGGED_IDS = 30
     }
 }

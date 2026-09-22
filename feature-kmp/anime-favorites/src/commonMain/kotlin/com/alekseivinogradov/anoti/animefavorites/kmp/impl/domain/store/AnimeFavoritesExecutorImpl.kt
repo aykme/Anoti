@@ -9,7 +9,6 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavo
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.wrapper.FavoritesUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.diagnostics.DiagnosticLog
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import kotlinx.coroutines.CompletableDeferred
@@ -173,7 +172,6 @@ class AnimeFavoritesExecutorImpl(
     }
 
     private fun notificationClick(intent: AnimeFavoritesMainStore.Intent.NotificationClick) {
-        DiagnosticLog.log("favorites bell.disable.publish id=${intent.id}")
         publish(AnimeFavoritesMainStore.Label.DisableNotificationClick(intent.id))
     }
 
