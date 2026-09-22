@@ -9,16 +9,38 @@ import com.alekseivinogradov.anoti.network.kmp.api.domain.model.test.DesiredCall
 import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 
 class FetchAnimeListBySearchUsecaseTest {
     private val maxDelay = 60000 //1 minute
-    private val page = 1
+    private val page = 3
     private val searchText = "search"
     private val sort = SortData.SCORE
-    private lateinit var source: AnimeListSource
+    private lateinit var source: RecordingSearchSource
     private lateinit var usecase: FetchAnimeListBySearchUsecase
+
+    private data class SearchListCall(val page: Int, val search: String, val sort: SortData)
+
+    // The shared fake answers the same way whatever it is asked, so the arguments it was asked
+    // with are recorded here instead.
+    private class RecordingSearchSource(
+        private val delegate: AnimeListSource
+    ) : AnimeListSource by delegate {
+
+        var lastCall: SearchListCall? = null
+            private set
+
+        override suspend fun getListBySearch(
+            page: Int,
+            search: String,
+            sort: SortData
+        ): CallResult<List<ListItemDomain>> {
+            lastCall = SearchListCall(page = page, search = search, sort = sort)
+            return delegate.getListBySearch(page = page, search = search, sort = sort)
+        }
+    }
 
     @Test
     fun testFetchAnimeListBySearchUsecaseSuccessResult() = runTest {
@@ -37,6 +59,10 @@ class FetchAnimeListBySearchUsecaseTest {
         )
 
         //Then
+        assertEquals(
+            SearchListCall(page = page, search = searchText, sort = sort),
+            source.lastCall
+        )
         assertTrue {
             expectedResult is CallResult.Success &&
                 actualResult is CallResult.Success &&
@@ -93,9 +119,11 @@ class FetchAnimeListBySearchUsecaseTest {
     }
 
     private fun initSourceAndUsecase(desiredCallResult: DesiredCallResult) {
-        source = AnimeListSourceImplFake(
-            desiredCallResult = desiredCallResult,
-            desiredDelay = Random.nextInt(maxDelay).milliseconds
+        source = RecordingSearchSource(
+            AnimeListSourceImplFake(
+                desiredCallResult = desiredCallResult,
+                desiredDelay = Random.nextInt(maxDelay).milliseconds
+            )
         )
         usecase = FetchAnimeListBySearchUsecase(source)
     }

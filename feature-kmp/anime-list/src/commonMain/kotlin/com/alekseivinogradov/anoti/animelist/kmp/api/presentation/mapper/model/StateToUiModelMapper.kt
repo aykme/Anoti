@@ -134,10 +134,10 @@ private fun mapReleaseStatusDomainToUi(releaseStatus: ReleaseStatusDomain): Rele
 }
 
 private fun mapNotificationDomainToUi(
-    listItemId: Int?,
-    enabledNotificationIds: Set<Int>
+    listItemId: AnimeId,
+    enabledNotificationIds: Set<AnimeId>
 ): NotificationUi {
-    return if (listItemId != null && enabledNotificationIds.contains(listItemId)) {
+    return if (enabledNotificationIds.contains(listItemId)) {
         NotificationUi.ENABLED
     } else {
         NotificationUi.DISABLED

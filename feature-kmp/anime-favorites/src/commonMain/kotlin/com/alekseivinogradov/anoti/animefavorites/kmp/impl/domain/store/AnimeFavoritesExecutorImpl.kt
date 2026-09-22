@@ -2,6 +2,7 @@ package com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.ANIMATION_DURATION_SHORT
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.LIST_ARRIVAL_TIMEOUT_SECONDS
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesExecutor
@@ -15,6 +16,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 // One function per Intent handled, not incidental growth.
 @Suppress("TooManyFunctions")
@@ -137,8 +139,9 @@ class AnimeFavoritesExecutorImpl(
             delay(ANIMATION_DURATION_SHORT)
             // Waits for the minimum duration AND a fresh list, whichever finishes later — a
             // slow database read must not resolve against the stale list.listItems from before
-            // this cycle started.
-            listItemsArrived.await()
+            // this cycle started. The timeout is the backstop: an answer that never comes would
+            // otherwise leave the screen loading for good.
+            withTimeoutOrNull(LIST_ARRIVAL_TIMEOUT_SECONDS) { listItemsArrived.await() }
             val contentType = state().contentType
             if (contentType is ContentTypeDomain.LOADING && contentType.hasMinimumDuration) {
                 val finalContentType = if (state().listItems.isEmpty()) {
@@ -242,28 +245,34 @@ class AnimeFavoritesExecutorImpl(
 
     private fun updateAnimeDetails(id: AnimeId) {
         updateAnimeDetailsJobMap[id]?.cancel()
-        updateAnimeDetailsJobMap[id] =
-            scope.launch {
-                val result = usecases
-                    .fetchAnimeDetailsByIdUsecase
-                    .execute(id)
+        val job = scope.launch {
+            val result = usecases
+                .fetchAnimeDetailsByIdUsecase
+                .execute(id)
 
-                when (result) {
-                    is CallResult.Success -> onSuccessUpdateAnimeDetails(
-                        currentItemId = id,
-                        updateListItem = result.value
-                    )
+            when (result) {
+                is CallResult.Success -> onSuccessUpdateAnimeDetails(
+                    currentItemId = id,
+                    updateListItem = result.value
+                )
 
-                    is CallResult.HttpError,
-                    is CallResult.NetworkError -> {
-                        systemMessageProvider.makeConnectionErrorSystemMessage()
-                    }
+                is CallResult.HttpError,
+                is CallResult.NetworkError -> {
+                    systemMessageProvider.makeConnectionErrorSystemMessage()
+                }
 
-                    is CallResult.OtherError -> {
-                        systemMessageProvider.makeUnknownErrorSystemMessage()
-                    }
+                is CallResult.OtherError -> {
+                    systemMessageProvider.makeUnknownErrorSystemMessage()
                 }
             }
+        }
+        updateAnimeDetailsJobMap[id] = job
+        // Keeping the finished job would hold every id the screen ever expanded for the
+        // executor's whole lifetime. Removed by identity, so the job canceled above cannot
+        // evict its own replacement.
+        job.invokeOnCompletion {
+            if (updateAnimeDetailsJobMap[id] === job) updateAnimeDetailsJobMap.remove(id)
+        }
     }
 
     private fun onSuccessUpdateAnimeDetails(

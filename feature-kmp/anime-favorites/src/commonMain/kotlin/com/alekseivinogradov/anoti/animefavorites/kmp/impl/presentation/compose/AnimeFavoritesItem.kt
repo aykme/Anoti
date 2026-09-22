@@ -156,7 +156,6 @@ fun AnimeFavoritesItem(
     modifier: Modifier = Modifier
 ) {
     val strokeColor = if (item.isNewEpisode) Silver else Grey700
-    val amikoBold = FontFamily(CmpFont(CelebrityRes.font.amiko_bold, FontWeight.Bold))
 
     val posterContent: @Composable () -> Unit = {
         PosterColumn(
@@ -164,7 +163,6 @@ fun AnimeFavoritesItem(
             score = item.score,
             infoType = item.infoType,
             isNewEpisode = item.isNewEpisode,
-            amikoBold = amikoBold,
             onInfoTypeClick = onInfoTypeClick
         )
     }
@@ -178,10 +176,11 @@ fun AnimeFavoritesItem(
             onEpisodesViewedPlusClick = onEpisodesViewedPlusClick
         )
     }
-    // The InfoMeasure slot below composes this same content a second time solely to learn its
-    // natural height before the real Info slot is measured; clearAndSetSemantics keeps that
-    // never-placed copy (and its interactive children, e.g. the notification button) out of the
-    // semantics tree so accessibility services and UI tests only ever see one live item.
+    // The InfoMeasure slot below composes this same content a second time, solely to learn its
+    // natural height before the real Info slot is measured. Never being placed keeps that copy
+    // out of the tree a screen reader walks, but not out of the item's own merged node, which
+    // would otherwise carry every line twice — that is what clearAndSetSemantics stops. A test
+    // reading the unmerged tree still sees the copy and has to filter on isPlaced.
     val infoMeasureContent: @Composable () -> Unit = {
         Box(Modifier.clearAndSetSemantics {}) {
             infoContent()
@@ -225,14 +224,13 @@ fun AnimeFavoritesItem(
     }
 }
 
-@Suppress("FunctionNaming", "LongParameterList")
+@Suppress("FunctionNaming")
 @Composable
 private fun PosterColumn(
     imageUrl: String?,
     score: String,
     infoType: InfoTypeUi,
     isNewEpisode: Boolean,
-    amikoBold: FontFamily,
     onInfoTypeClick: () -> Unit
 ) {
     Box(
@@ -244,7 +242,7 @@ private fun PosterColumn(
     ) {
         PosterImage(imageUrl)
         if (isNewEpisode) {
-            NewEpisodeBadge(amikoBold)
+            NewEpisodeBadge()
         }
         ScoreInfoBar(score = score, infoType = infoType, onInfoTypeClick = onInfoTypeClick)
     }
@@ -282,7 +280,8 @@ private fun PosterImage(imageUrl: String?) {
 
 @Suppress("FunctionNaming")
 @Composable
-private fun BoxScope.NewEpisodeBadge(amikoBold: FontFamily) {
+private fun BoxScope.NewEpisodeBadge() {
+    val amikoBold = FontFamily(CmpFont(CelebrityRes.font.amiko_bold, FontWeight.Bold))
     Text(
         text = stringResource(Res.string.new_episode),
         color = Silver,
@@ -313,7 +312,7 @@ private enum class ScoreInfoBarSlot { Icon, Score, Button }
 // built-in wrapping. This custom Layout measures all three at their natural size first, and only
 // switches to a two-line arrangement (button centered below) if that natural width would
 // overflow the poster; at normal/most scales it renders identically to the single-row layout.
-@Suppress("FunctionNaming", "LongParameterList")
+@Suppress("FunctionNaming")
 @Composable
 private fun BoxScope.ScoreInfoBar(
     score: String,
@@ -353,15 +352,18 @@ private fun BoxScope.ScoreInfoBar(
     }
 }
 
+// A measure pass runs for every visible item on every layout, so resolving three children by a
+// scan beats building a map for them.
+private fun List<Measurable>.slot(id: ScoreInfoBarSlot): Measurable = first { it.layoutId == id }
+
 private fun MeasureScope.measureScoreInfoBar(
     measurables: List<Measurable>,
     constraints: Constraints
 ): MeasureResult {
-    val byId = measurables.associateBy { it.layoutId }
     val loose = Constraints()
-    val icon = byId.getValue(ScoreInfoBarSlot.Icon).measure(loose)
-    val score = byId.getValue(ScoreInfoBarSlot.Score).measure(loose)
-    val button = byId.getValue(ScoreInfoBarSlot.Button).measure(loose)
+    val icon = measurables.slot(ScoreInfoBarSlot.Icon).measure(loose)
+    val score = measurables.slot(ScoreInfoBarSlot.Score).measure(loose)
+    val button = measurables.slot(ScoreInfoBarSlot.Button).measure(loose)
 
     val available = constraints.maxWidth
     return if (icon.width + score.width + button.width <= available) {
@@ -544,7 +546,7 @@ private fun ExtraInfoContent(
     }
 }
 
-@Suppress("FunctionNaming", "LongParameterList")
+@Suppress("FunctionNaming")
 @Composable
 private fun EpisodesViewedRow(
     episodesViewed: String,

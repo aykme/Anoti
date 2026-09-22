@@ -27,13 +27,26 @@ class NavAnimeListScreenComponent(
     diAnimeListComponent: DiAnimeListComponent
 ) : ComponentContext by componentContext {
 
+    /** Coroutine contexts the screen's executors run on. */
     val coroutineContextProvider: CoroutineContextProvider =
         diAnimeListComponent.coroutineContextProvider
+
+    /** Formats the air dates the screen shows. */
     val dateFormatter: DateFormatter = diAnimeListComponent.dateFormatter
+
+    /** The app-wide saved-anime store; drives the items' notification state. */
     val animeDatabaseStore: AnimeDatabaseStore = diAnimeListComponent.animeDatabaseStore
+
+    /** The screen's top-level store. */
     val mainStore: AnimeListMainStore = diAnimeListComponent.mainStore
+
+    /** The "ongoing" section's own store. */
     val ongoingSectionStore: OngoingSectionStore = diAnimeListComponent.ongoingSectionStore
+
+    /** The "announced" section's own store. */
     val announcedSectionStore: AnnouncedSectionStore = diAnimeListComponent.announcedSectionStore
+
+    /** The search section's own store. */
     val searchSectionStore: SearchSectionStore = diAnimeListComponent.searchSectionStore
 
     // Consumed once here (construction time), per StateKeeper's contract; replayed later via
@@ -207,8 +220,10 @@ internal fun applyRestoredMainState(
     // current search text the moment OpenSection runs. Restoring the text first means a later
     // OpenSection (here or from a subsequent manual tap into the section) already fetches the
     // restored query instead of blank results.
+    // Empty, not blank: the field restores whatever was typed, spaces included, and a query the
+    // stores never heard about would leave the two showing different things.
     val restoredSearchText = restoredState?.searchText
-    if (!restoredSearchText.isNullOrBlank()) {
+    if (!restoredSearchText.isNullOrEmpty()) {
         mainStore.accept(AnimeListMainStore.Intent.ChangeSearchText(restoredSearchText))
         searchSectionStore.accept(
             SearchSectionStore.Intent.ChangeSearchText(restoredSearchText)

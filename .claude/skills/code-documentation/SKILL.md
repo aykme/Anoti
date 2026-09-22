@@ -389,6 +389,23 @@ Each of these gets its own step:
 - every way the device can differ: no network, rotation, dark mode, large font, back from
   background, process death.
 
+### Keeping the app-wide index current
+
+The root `ANOTI-FULL-REGRESS.md` is the index a full-app regression is run from. It holds no
+steps itself — only links to every module's regression file. Keeping it in step is part of
+creating or deleting one of those files, not a follow-up:
+
+- a new regression file — add a link to it in `ANOTI-FULL-REGRESS.md`, under the section for
+  its kind of module, and take the module out of the "no regression file yet" list if it is
+  named there;
+- a deleted regression file — remove its link, and add the module to the "no regression file
+  yet" list if it still exists and simply has no file any more;
+- a renamed or moved file — update the link, since a dead link in the index reads as a module
+  that was checked when it was not.
+
+A module whose file exists but is not linked is worse than one with no file at all: a full
+regression skips it silently.
+
 ### Keeping it current
 
 Updating it is part of this job, not a follow-up. Whenever a change adds, removes or alters

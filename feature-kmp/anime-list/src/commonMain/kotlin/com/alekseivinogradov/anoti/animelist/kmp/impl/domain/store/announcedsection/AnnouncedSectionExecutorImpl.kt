@@ -139,6 +139,10 @@ class AnnouncedSectionExecutorImpl(
     }
 
     private fun loadNextPage() {
+        // A page already on its way keeps this slot. Overwriting it would leave that load
+        // untracked, and a later refresh could then no longer cancel it.
+        if (loadNextPageJob?.isActive == true) return
+
         loadNextPageJob = scope.launch {
             when (val result = paginator.loadNextPage()) {
                 is PageLoadResult.Success -> dispatch(
@@ -166,12 +170,8 @@ class AnnouncedSectionExecutorImpl(
     }
 
     private fun availableEpisodesInfoClick(listItem: ListItemDomain) {
-        val newEnabledExtraEpisodesInfoIds = state()
-            .sectionContent
-            .enabledExtraEpisodesInfoIds
-            .toMutableSet().apply {
-                remove(listItem.id)
-            }.toSet()
+        val newEnabledExtraEpisodesInfoIds =
+            state().sectionContent.enabledExtraEpisodesInfoIds - listItem.id
 
         dispatch(
             AnnouncedSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
@@ -181,12 +181,8 @@ class AnnouncedSectionExecutorImpl(
     }
 
     private fun extraEpisodesInfoClick(listItem: ListItemDomain) {
-        val newEnabledExtraEpisodesInfoIds = state()
-            .sectionContent
-            .enabledExtraEpisodesInfoIds
-            .toMutableSet().apply {
-                add(listItem.id)
-            }.toSet()
+        val newEnabledExtraEpisodesInfoIds =
+            state().sectionContent.enabledExtraEpisodesInfoIds + listItem.id
 
         dispatch(
             AnnouncedSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(

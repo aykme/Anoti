@@ -3,27 +3,22 @@ and per-item notification toggles.
 
 ## Entities
 
-- [AnimeFavoritesMainStore](src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/api/domain/store/AnimeFavoritesMainStore.kt) —
-  the store. `State`/`Intent`/`Label` are documented on the type itself.
-- [AnimeFavoritesView](src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/api/presentation/AnimeFavoritesView.kt) —
-  the view contract `AnimeFavoritesRoute` implements to render the store's state.
-- [AnimeFavoritesController](src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/impl/presentation/AnimeFavoritesController.kt) —
-  wires the store to its view and to `AnimeDatabaseStore`.
+- [DiAnimeFavoritesDependencies](src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/api/di/DiAnimeFavoritesDependencies.kt) —
+  what the screen's component takes from its parent.
+- [NavAnimeFavoritesScreenComponent](src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/impl/presentation/navigation/NavAnimeFavoritesScreenComponent.kt) —
+  owns the screen's dependency graph and its saved state.
 - [AnimeFavoritesRoute](src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/impl/presentation/navigation/AnimeFavoritesRoute.kt) —
-  renders the screen for a given `NavAnimeFavoritesScreenComponent`, wiring the view and
-  controller internally.
+  renders the screen for a given screen component.
 
 ## How to include it
 
 - Gradle: `implementation(project(":feature-kmp:anime-favorites"))`
-- `AnimeFavoritesMainStore`'s binding lives in this module's commonMain
-  `DiAnimeFavoritesComponent` (a `FeatureScope` kotlin-inject `@Component`, taking
-  `DiAnimeFavoritesDependencies` as its constructor parent). `AnimeFavoritesRoute` doesn't build
-  that component itself; it takes an already-built `NavAnimeFavoritesScreenComponent`
-  (`commonMain`), which wraps a Decompose `ComponentContext` around a
-  `DiAnimeFavoritesComponent` — the caller builds that instance and passes it in.
-  `AnimeFavoritesView` and `AnimeFavoritesController` have no DI wiring; `AnimeFavoritesRoute`
-  constructs and binds them internally.
+- Satisfy [DiAnimeFavoritesDependencies](src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/api/di/DiAnimeFavoritesDependencies.kt)
+  from the app's root component, then build a `DiAnimeFavoritesComponent` with
+  `createDiAnimeFavoritesComponent(parent)` and wrap it in a `NavAnimeFavoritesScreenComponent`
+  together with the Decompose `ComponentContext` the screen's navigation child owns. The store,
+  the view and the controller have no wiring of their own to do — `AnimeFavoritesRoute` builds
+  and binds them from that component.
 
 ## How to use it
 

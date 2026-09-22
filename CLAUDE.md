@@ -337,8 +337,14 @@ Read this before doing any task in this repository.
   tester who has never seen it. Anything provable from the code belongs in a test instead.
 - It is written and updated through the `code-documentation` skill, in the same pass as the
   module's README. The skill holds the rules for what goes in it and how far its scope reaches.
-- When a regression of a module or of the whole app is asked for, read these files and run the
-  checks written in them.
+- A regression **of one module** is run from that module's own `-REGRESS.md`, at the module's
+  root.
+- A regression **of the whole app** is run from `ANOTI-FULL-REGRESS.md` in the project root. It
+  carries no steps of its own — it links to every module's regression file, and a full run
+  means working through all of them.
+- Creating or deleting a module's regression file includes adding or removing its link in
+  `ANOTI-FULL-REGRESS.md`. A file that exists but is not linked is skipped silently by a full
+  regression.
 
 ## Root README.md
 

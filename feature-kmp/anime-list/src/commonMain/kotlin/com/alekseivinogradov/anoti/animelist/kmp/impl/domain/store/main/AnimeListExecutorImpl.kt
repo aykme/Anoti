@@ -159,72 +159,79 @@ class AnimeListExecutorImpl(
         }
     }
 
+    // A section store emits its whole state on every dispatch of its own, so this runs
+    // constantly. Only the content-type switch needs a coroutine, for its animation delay; the
+    // rest is dispatched straight away so the list never waits a frame for its own items.
     private fun updateOngoingContent(intent: AnimeListMainStore.Intent.UpdateOngoingContent) {
+        val state = state()
+        if (state.ongoingContent.listItems != intent.content.listItems) {
+            dispatch(
+                AnimeListMainStore.Message.UpdateOngoingListItems(intent.content.listItems)
+            )
+        }
+        if (
+            state.ongoingContent.enabledExtraEpisodesInfoIds !=
+            intent.content.enabledExtraEpisodesInfoIds
+        ) {
+            dispatch(
+                AnimeListMainStore.Message.UpdateOngoingEnabledExtraEpisodesInfoIds(
+                    intent.content.enabledExtraEpisodesInfoIds
+                )
+            )
+        }
+        if (state.ongoingContent.animeDetails != intent.content.animeDetails) {
+            dispatch(
+                AnimeListMainStore.Message.UpdateOngoingAnimeDetails(
+                    animeDetails = intent.content.animeDetails
+                )
+            )
+        }
+        // A switch still waiting out its delay was computed against content this update has
+        // just replaced, so it must not be allowed to land.
         updateOngoingContentJob?.cancel()
+        if (state.ongoingContent.contentType == intent.content.contentType) return
+
         updateOngoingContentJob = scope.launch {
-            val state = state()
-            if (state.ongoingContent.listItems != intent.content.listItems) {
-                dispatch(
-                    AnimeListMainStore.Message.UpdateOngoingListItems(intent.content.listItems)
-                )
-            }
-            if (
-                state.ongoingContent.enabledExtraEpisodesInfoIds !=
-                intent.content.enabledExtraEpisodesInfoIds
-            ) {
-                dispatch(
-                    AnimeListMainStore.Message.UpdateOngoingEnabledExtraEpisodesInfoIds(
-                        intent.content.enabledExtraEpisodesInfoIds
-                    )
-                )
-            }
-            if (state.ongoingContent.animeDetails != intent.content.animeDetails) {
-                dispatch(
-                    AnimeListMainStore.Message.UpdateOngoingAnimeDetails(
-                        animeDetails = intent.content.animeDetails
-                    )
-                )
-            }
-            if (state.ongoingContent.contentType != intent.content.contentType) {
-                dispatch(
-                    AnimeListMainStore.Message.ChangeOngoingContentType(ContentTypeDomain.LOADING)
-                )
-                delay(ANIMATION_DURATION_VERY_SHORT)
-                dispatch(
-                    AnimeListMainStore.Message.ChangeOngoingContentType(intent.content.contentType)
-                )
-            }
+            dispatch(
+                AnimeListMainStore.Message.ChangeOngoingContentType(ContentTypeDomain.LOADING)
+            )
+            delay(ANIMATION_DURATION_VERY_SHORT)
+            dispatch(
+                AnimeListMainStore.Message.ChangeOngoingContentType(intent.content.contentType)
+            )
         }
     }
 
     private fun updateAnnouncedContent(intent: AnimeListMainStore.Intent.UpdateAnnouncedContent) {
+        val state = state()
+        if (state.announcedContent.listItems != intent.content.listItems) {
+            dispatch(
+                AnimeListMainStore.Message.UpdateAnnouncedListItems(intent.content.listItems)
+            )
+        }
+        if (
+            state.announcedContent.enabledExtraEpisodesInfoIds !=
+            intent.content.enabledExtraEpisodesInfoIds
+        ) {
+            dispatch(
+                AnimeListMainStore.Message.UpdateAnnouncedEnabledExtraEpisodesInfoIds(
+                    intent.content.enabledExtraEpisodesInfoIds
+                )
+            )
+        }
+        // A switch still waiting out its delay was computed against content this update has
+        // just replaced, so it must not be allowed to land.
         updateAnnouncedContentJob?.cancel()
+        if (state.announcedContent.contentType == intent.content.contentType) return
+
         updateAnnouncedContentJob = scope.launch {
-            val state = state()
-            if (state.announcedContent.listItems != intent.content.listItems) {
-                dispatch(
-                    AnimeListMainStore.Message.UpdateAnnouncedListItems(intent.content.listItems)
-                )
-            }
-            if (
-                state.announcedContent.enabledExtraEpisodesInfoIds !=
-                intent.content.enabledExtraEpisodesInfoIds
-            ) {
-                dispatch(
-                    AnimeListMainStore.Message.UpdateAnnouncedEnabledExtraEpisodesInfoIds(
-                        intent.content.enabledExtraEpisodesInfoIds
-                    )
-                )
-            }
-            if (state.announcedContent.contentType != intent.content.contentType) {
-                dispatch(
-                    AnimeListMainStore.Message.ChangeAnnouncedContentType(ContentTypeDomain.LOADING)
-                )
-                delay(ANIMATION_DURATION_VERY_SHORT)
-                dispatch(
-                    AnimeListMainStore.Message.ChangeAnnouncedContentType(intent.content.contentType)
-                )
-            }
+            dispatch(
+                AnimeListMainStore.Message.ChangeAnnouncedContentType(ContentTypeDomain.LOADING)
+            )
+            delay(ANIMATION_DURATION_VERY_SHORT)
+            dispatch(
+                AnimeListMainStore.Message.ChangeAnnouncedContentType(intent.content.contentType)
+            )
         }
     }
 
@@ -239,40 +246,42 @@ class AnimeListExecutorImpl(
     }
 
     private fun updateSearchContent(intent: AnimeListMainStore.Intent.UpdateSearchContent) {
+        val state = state()
+        if (state.searchContent.listItems != intent.content.listItems) {
+            dispatch(
+                AnimeListMainStore.Message.UpdateSearchListItems(intent.content.listItems)
+            )
+        }
+        if (
+            state.searchContent.enabledExtraEpisodesInfoIds !=
+            intent.content.enabledExtraEpisodesInfoIds
+        ) {
+            dispatch(
+                AnimeListMainStore.Message.UpdateSearchEnabledExtraEpisodesInfoIds(
+                    intent.content.enabledExtraEpisodesInfoIds
+                )
+            )
+        }
+        if (state.searchContent.animeDetails != intent.content.animeDetails) {
+            dispatch(
+                AnimeListMainStore.Message.UpdateSearchAnimeDetails(
+                    animeDetails = intent.content.animeDetails
+                )
+            )
+        }
+        // A switch still waiting out its delay was computed against content this update has
+        // just replaced, so it must not be allowed to land.
         updateSearchContentJob?.cancel()
+        if (state.searchContent.contentType == intent.content.contentType) return
+
         updateSearchContentJob = scope.launch {
-            val state = state()
-            if (state.searchContent.listItems != intent.content.listItems) {
-                dispatch(
-                    AnimeListMainStore.Message.UpdateSearchListItems(intent.content.listItems)
-                )
-            }
-            if (
-                state.searchContent.enabledExtraEpisodesInfoIds !=
-                intent.content.enabledExtraEpisodesInfoIds
-            ) {
-                dispatch(
-                    AnimeListMainStore.Message.UpdateSearchEnabledExtraEpisodesInfoIds(
-                        intent.content.enabledExtraEpisodesInfoIds
-                    )
-                )
-            }
-            if (state.searchContent.animeDetails != intent.content.animeDetails) {
-                dispatch(
-                    AnimeListMainStore.Message.UpdateSearchAnimeDetails(
-                        animeDetails = intent.content.animeDetails
-                    )
-                )
-            }
-            if (state.searchContent.contentType != intent.content.contentType) {
-                dispatch(
-                    AnimeListMainStore.Message.ChangeSearchContentType(ContentTypeDomain.LOADING)
-                )
-                delay(ANIMATION_DURATION_VERY_SHORT)
-                dispatch(
-                    AnimeListMainStore.Message.ChangeSearchContentType(intent.content.contentType)
-                )
-            }
+            dispatch(
+                AnimeListMainStore.Message.ChangeSearchContentType(ContentTypeDomain.LOADING)
+            )
+            delay(ANIMATION_DURATION_VERY_SHORT)
+            dispatch(
+                AnimeListMainStore.Message.ChangeSearchContentType(intent.content.contentType)
+            )
         }
     }
 

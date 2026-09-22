@@ -190,6 +190,10 @@ class SearchSectionExecutorImpl(
     }
 
     private fun loadNextPage() {
+        // A page already on its way keeps this slot. Overwriting it would leave that load
+        // untracked, and a later refresh could then no longer cancel it.
+        if (loadNextPageJob?.isActive == true) return
+
         loadNextPageJob = scope.launch {
             when (val result = paginator.loadNextPage()) {
                 is PageLoadResult.Success -> dispatch(
@@ -222,12 +226,8 @@ class SearchSectionExecutorImpl(
     }
 
     private fun availableEpisodesInfoClick(listItem: ListItemDomain) {
-        val newEnabledExtraEpisodesInfoIds = state()
-            .sectionContent
-            .enabledExtraEpisodesInfoIds
-            .toMutableSet().apply {
-                remove(listItem.id)
-            }.toSet()
+        val newEnabledExtraEpisodesInfoIds =
+            state().sectionContent.enabledExtraEpisodesInfoIds - listItem.id
 
         dispatch(
             SearchSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
@@ -237,12 +237,8 @@ class SearchSectionExecutorImpl(
     }
 
     private fun extraEpisodesInfoClick(listItem: ListItemDomain) {
-        val newEnabledExtraEpisodesInfoIds = state()
-            .sectionContent
-            .enabledExtraEpisodesInfoIds
-            .toMutableSet().apply {
-                add(listItem.id)
-            }.toSet()
+        val newEnabledExtraEpisodesInfoIds =
+            state().sectionContent.enabledExtraEpisodesInfoIds + listItem.id
 
         dispatch(
             SearchSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
@@ -257,9 +253,9 @@ class SearchSectionExecutorImpl(
         }
     }
 
-    private fun updateAnimeDetails(id: Int) {
+    private fun updateAnimeDetails(id: AnimeId) {
         updateAnimeDetailsJobMap[id]?.cancel()
-        updateAnimeDetailsJobMap[id] = scope.launch {
+        val job = scope.launch {
             val result = usecases
                 .fetchAnimeDetailsByIdUsecase
                 .execute(id)
@@ -277,16 +273,18 @@ class SearchSectionExecutorImpl(
                 is CallResult.OtherError -> systemMessageProvider.makeUnknownErrorSystemMessage()
             }
         }
+        updateAnimeDetailsJobMap[id] = job
+        // Keeping the finished job would hold every id the section ever expanded for the
+        // executor's whole lifetime. Removed by identity, so the job canceled above cannot
+        // evict its own replacement.
+        job.invokeOnCompletion {
+            if (updateAnimeDetailsJobMap[id] === job) updateAnimeDetailsJobMap.remove(id)
+        }
     }
 
     private fun onSuccessUpdateAnimeDetails(updateListItem: ListItemDomain) {
-        val newNextEpisodesInfo = state()
-            .sectionContent
-            .animeDetails
-            .nextEpisodesInfo
-            .toMutableMap().apply {
-                this[updateListItem.id] = updateListItem.nextEpisodeAt
-            }
+        val newNextEpisodesInfo = state().sectionContent.animeDetails.nextEpisodesInfo +
+            (updateListItem.id to updateListItem.nextEpisodeAt)
 
         dispatch(
             SearchSectionStore.Message.UpdateAnimeDetails(
