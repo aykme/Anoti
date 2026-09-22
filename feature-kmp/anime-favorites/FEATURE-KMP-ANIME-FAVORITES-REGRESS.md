@@ -7,156 +7,279 @@ update that marks new episodes are checked in their own modules' files.
 
 Unless a step says otherwise, start from a fresh installation with the device online.
 
-## 1. The empty screen
+## 0. How to run this file
 
-1. Install the app, open it and go to "Favorites" without subscribing to anything.
-   - A spinner shows briefly, then a picture of a character next to a panel of text starting
-     "You haven't subscribed to notifications about new anime series yet."
-   - The picture sits at the top left, the text panel to its right. Neither is cut off.
-2. Leave to "Main" and come back.
-   - The same empty screen. The spinner shows again briefly each time.
+Every section below is run **four times**, once per combination:
 
-## 2. Filling the screen
+| Pass | System font size and display size | Orientation |
+|---|---|---|
+| 1 | default | portrait |
+| 2 | default | landscape |
+| 3 | both at maximum | portrait |
+| 4 | both at maximum | landscape |
 
-1. Go to "Main" and turn on the bell on three anime — pick one "Ongoing", one "Announced" and
-   one "Released".
-2. Go to "Favorites".
-   - A spinner shows briefly, then all three are listed.
-   - They are listed in the order they were added.
+Pass 1 is the one that must be perfect. Passes 2–4 are looking for the same failures every
+time: text cut off or overlapping, a control pushed off screen or shrunk until it cannot be
+tapped, a row that wraps in one pass and clips in another, and anything that stops responding
+to a tap because it moved. Where a step behaves differently by scale or orientation on purpose,
+that step says so.
 
-## 3. What one item shows
+Changing the font or display size restarts the app. Changing orientation does not — the screen
+keeps its state, which is itself checked in section 11.
 
-1. Look at an item.
-   - On the left, a poster taking a bit over a third of the item's width. Under the poster's
-     top edge, a bar with a star icon, the score and a round button.
-   - On the right, the title, a line "Episodes: <aired> / <total>", the release status and a
-     filled bell.
-2. Find an item whose total episode count is unknown.
-   - Its line reads "Episodes: <aired> / ?".
-3. Check a "Released" item.
-   - Its aired count equals its total, not a smaller number.
-4. Find an item with a very long title.
-   - The title takes at most three lines and ends with "…", and the rest of the panel still
-     fits.
-5. Turn the device off-line and open the screen with an item whose poster is not cached.
-   - A spinner shows in place of the poster first, then a broken-image icon. The rest of the
-     item still renders.
-   - Turn the network back on.
+## 1. The three states of the screen
 
-## 4. The extra-info button
+The area below the status bar is always in exactly one of three states.
 
-1. Tap the round button on the poster's score bar. Its description reads "Turn on the display
-   of extra information" before the tap.
-   - The right-hand panel changes: instead of "Episodes:" and the status it shows a date line
-     and a line "Episodes viewed:" with a number and a minus and a plus button.
-   - For an "Ongoing" anime the date line reads "Next:" with the date below it.
-   - For an "Announced" one it reads "Beginning:" with the date and "(Inaccurate)".
-   - For a "Released" one it reads "Finished:" with the date.
-   - Where the server has no date, "No data" is shown in its place.
-2. Tap the button again.
-   - The panel goes back to the title, episodes line and status.
-3. Long-press anywhere on the item instead of using the button.
-   - It switches the same way.
-4. Open the extra info on two items at once.
-   - Both stay open.
-5. Open the extra info on an "Ongoing" anime whose next-episode date the screen has not fetched
-   before.
-   - The date appears within a moment. Closing and reopening the extra info does not fetch it
-     again — it appears immediately.
+| State | What fills the area |
+|---|---|
+| Loading | One large spinner, centred, inset well away from the edges. |
+| Empty | A picture of a character at the top left, and to its right a panel of text starting "You haven't subscribed to notifications about new anime series yet." |
+| List | The scrollable list of subscribed anime. |
 
-## 5. Counting viewed episodes
+There is no error state. Losing the network never takes this screen out of List or Empty,
+because the list comes from the device, not the server.
 
-1. Open the extra info on an "Ongoing" item with several aired episodes. The counter starts
-   at 0.
-2. Tap the plus button once.
-   - The counter reads 1.
-3. Press and hold the plus button.
-   - The counter climbs on its own while held, and stops when released.
-4. Keep holding until the counter reaches the number of aired episodes.
-   - It stops there and goes no higher, however long you keep holding.
-5. Tap the minus button once.
+## 2. Every transition between those states
+
+1. Arriving with nothing subscribed: Loading → Empty.
+   - The spinner shows for a moment first. It is never skipped, even though the list is read
+     from the device and answers instantly.
+2. Arriving with something subscribed: Loading → List.
+   - Same brief spinner, then the items.
+3. Empty → List, without leaving the screen: go to "Main", subscribe to an anime, come back.
+   - Arriving runs Loading → List as in rule 2.
+4. List → Empty, without leaving the screen: remove the last remaining item with its bell.
+   - The item disappears, a spinner takes over the screen for a moment, and then the empty
+     panel appears.
+   - The spinner step is expected. The empty panel must not appear instantly.
+5. List → Loading → List: pull the list down.
+   - Spinner, then the items come back.
+6. Empty → Loading → Empty: pull the empty panel down.
+   - There is nothing to pull; the empty panel does not scroll. Confirm that pulling it does
+     nothing at all and leaves the panel alone.
+7. Removing one of several items.
+   - That item disappears from the list. No spinner, no reload of the others.
+8. Leaving and arriving again, from each of Empty and List.
+   - Every arrival runs its brief Loading first.
+
+## 3. The poster on an item
+
+The poster is loaded separately, so it has its own states inside the item's left-hand column.
+The right-hand panel is drawn immediately and does not wait for it.
+
+1. Subscribe to several anime, then open the screen before the pictures have been fetched.
+   - Where a picture has not arrived, a spinner spins inside the poster column, inset from its
+     edges. The score bar over it and the whole right-hand panel are already drawn.
+2. Turn the network off, clear the app's storage, subscribe again from a cached list if you
+   can, and open the screen.
+   - The poster column shows a spinner first, then a greyed broken-image icon filling the
+     column.
+   - The score bar, title, episodes line, status and bell are all still readable.
+3. Turn the network on and pull to refresh.
+   - Real pictures replace the broken-image icons.
+4. An anime the server has no picture for.
+   - Its column ends at the broken-image icon. The item is otherwise complete.
+
+## 4. What an item shows in the main mode
+
+1. An ordinary item.
+   - Left: the poster, taking a bit over a third of the item's width, with a bar across its
+     upper part carrying a star icon, the score, and a round info-mode button.
+   - Right: the title, a line "Episodes: <aired> / <total>", and at the bottom the release
+     status with a filled bell at its right.
+2. Total episode count unknown.
+   - The line reads "Episodes: <aired> / ?".
+3. A "Released" anime.
+   - The aired number equals the total.
+4. A "Released" anime the server gives no total for.
+   - The aired number is used instead. Neither number is blank.
+5. An "Announced" anime.
+   - The line reads "Episodes: 0 / ?" or with whatever counts exist.
+6. Score missing.
+   - The score place on the bar is blank; the star icon and the round button keep their places.
+7. A very long title.
+   - At most three lines ending in "…", and the episodes line, status and bell are all still
+     visible.
+8. The bell is filled on every item, always. An empty bell here would be a bug — an item is
+   only on this screen because it is subscribed.
+
+## 5. The info-mode button
+
+The round button on the poster's bar switches the whole right-hand panel between two modes.
+This is the part to check most carefully: it is not a partial change.
+
+1. On an "Ongoing" item, tap it. Its description before the tap is "Turn on the display of
+   extra information".
+   - The title, the "Episodes:" line, the release status **and the bell** all disappear
+     together.
+   - In their place: a date line reading "Next:" with the date below it, then a line
+     "Episodes viewed:", then a row with a minus button, a number and a plus button.
+   - The button's description becomes "Turn off the display of extra information" and its icon
+     changes.
+   - The poster, the star and the score do not change.
+2. Tap it again.
+   - The title, episodes line, status and bell all come back, and the date line, the
+     "Episodes viewed:" line and the counter row all go.
+3. Long-press anywhere on the item body instead of using the button.
+   - It switches the same way, in both directions.
+4. Repeat 1 on an "Announced" item.
+   - The date line reads "Beginning:" with the date and " (Inaccurate)".
+5. Repeat 1 on a "Released" item.
+   - The date line reads "Finished:" with the date.
+6. Repeat 1 on an item whose status is unknown.
+   - The date line is blank where the label would be.
+7. An item the server has no date for.
+   - The label is shown with "No data" in place of the date.
+8. An "Ongoing" item whose date has never been fetched.
+   - The panel switches immediately and the date fills in a moment later.
+   - Switching the mode off and on again does not fetch it again — the date is there at once.
+9. Turn the network off and switch an item with no known date into extra mode.
+   - The panel switches and shows "No data". An error banner appears at the bottom.
+10. Switch three items into extra mode at once.
+   - All three stay in extra mode independently.
+11. Switch an item into extra mode, scroll it far off screen and back.
+   - It is still in extra mode, and no other item switched by itself.
+12. Switch an item into extra mode and leave the screen to "Main" and back.
+   - It is back in main mode. Every arrival at this screen resets the mode on every item.
+
+## 6. Counting viewed episodes
+
+Only reachable in extra mode.
+
+1. Open extra mode on an "Ongoing" item with several aired episodes. The counter starts at 0.
+2. Tap plus once.
+   - The counter reads 1. One tap moves it by exactly one.
+3. Press and hold plus.
+   - The counter climbs on its own while held and stops the moment you let go.
+4. Keep holding plus past the number of aired episodes.
+   - It stops at that number and goes no further, however long you hold.
+5. Tap minus once.
    - The counter drops by one.
-6. Press and hold the minus button down to 0.
-   - It stops at 0 and does not go negative.
-7. Check the ceiling on the other statuses.
-   - On a "Released" anime the counter stops at its total episode count.
-   - On an "Announced" anime the plus button does nothing; the counter stays at 0.
-8. Leave to "Main" and come back.
-   - The counter shows the value you left it at.
+6. Press and hold minus down to 0.
+   - It stops at 0 and never goes negative.
+7. Tap minus at 0.
+   - Nothing happens.
+8. Check the ceiling per status.
+   - "Ongoing": stops at the aired count.
+   - "Released": stops at the total count.
+   - "Announced": plus does nothing at all; the counter stays at 0.
+   - Unknown status: plus does nothing; the counter stays at 0.
+9. An anime whose aired count the server does not give.
+   - Plus does nothing; the counter stays at 0.
+10. Set a counter to some value, switch the item out of extra mode and back.
+   - The value is still there.
+11. Set a counter, leave to "Main" and come back.
+   - The value is still there.
+12. Set a counter, pull to refresh.
+   - The value is still there.
 
-## 6. The bell
+## 7. The bell
 
-1. Tap the filled bell on an item.
-   - The item disappears from the list.
-2. Remove every item this way.
-   - The screen changes to the empty state from section 1.
-3. Go to "Main" and check the anime you removed.
+1. Tap the filled bell on an item in main mode.
+   - The item disappears from the list at once.
+2. Go to "Main" and find that anime.
    - Its bell is empty there.
+3. Remove items one by one down to the last.
+   - Removing the last one follows section 2, rule 4: spinner, then the empty panel.
+4. The bell is not reachable in extra mode — confirm that switching an item into extra mode
+   leaves no bell on it, and that switching back brings it returns.
 
-## 7. Opening an item with a new episode
+## 8. The new-episode mark
 
-A new-episode mark needs the background update to have run and found a newly aired episode;
-subscribe to an ongoing anime whose next episode is due shortly and leave the app installed
-overnight, or trigger the update as your team normally does.
+A new-episode mark needs the background update to have run and found a newly aired episode.
+Subscribe to an ongoing anime whose next episode is due shortly and leave the app installed
+until it airs, or trigger the update the way your team normally does.
 
-1. Open "Favorites" with such an item present.
-   - The item shows a "New episode" mark on its poster.
-2. Tap the item's body once.
-   - The mark goes away and does not come back when you leave and return.
+1. Open the screen with such an item present.
+   - The item shows a "New episode" caption over its poster, in bold with a dark shadow behind
+     it.
+2. The same item in extra mode.
+   - The caption is still on the poster; switching modes does not affect it.
+3. Tap the item's body once, in main mode.
+   - The caption goes away.
+   - It does not come back when you leave the screen and return.
+4. Have a marked item and pull to refresh.
+   - Every mark on the screen is cleared.
+5. Long-press a marked item.
+   - It switches to extra mode and the mark stays — a long press is not a tap.
 
-## 8. Pull to refresh
+## 9. Pull to refresh
 
-1. Open the extra info on one item.
-2. Pull the list down from the top and release.
-   - A spinner replaces the list briefly, then the list comes back.
-   - The extra info closes on every item.
-   - Any "New episode" marks are cleared.
+1. From List, with several items and one of them in extra mode.
+   - A spinner replaces the list, then the list comes back.
+   - Every item is back in main mode.
+   - Every new-episode mark is cleared.
+   - The viewed-episode counters are unchanged.
+   - The items themselves are all still there.
+2. Pull down only slightly and release, short of the trigger point.
+   - Nothing reloads.
 3. Pull to refresh three times in a row without pausing.
-   - Every time the list comes back. The screen must never stay on the spinner.
-4. Pull to refresh with a single item in the list, then with an empty list.
-   - With one item, the item comes back. With none, the empty screen comes back — not an
-     endless spinner.
-5. Go off-line and pull to refresh.
-   - The list comes back unchanged. The screen does not stay on the spinner and does not go
-     empty.
-   - Turn the network back on.
+   - Every time the screen ends in List. It must never stay on the spinner.
+4. Pull to refresh with exactly one item.
+   - The item comes back.
+5. Turn the network off and pull to refresh.
+   - The list comes back unchanged. The screen does not empty and does not stay on the spinner.
+6. Pull to refresh while the posters are still loading.
+   - The spinner replaces everything, then the list returns and the posters resume loading.
 
-## 9. Leaving and coming back
+## 10. Leaving and coming back
 
-1. Open "Favorites", open the extra info on one item and scroll the list.
-2. Switch to "Main" and back to "Favorites".
-   - A spinner shows briefly, then the list.
-   - The extra info is closed again on every item. This is expected on every arrival at the
-     screen.
-3. Press Home and return to the app from the task switcher.
-   - The list is as you left it and does not reload.
-4. Open the extra info on one item. Press Home, force-stop the app's process from a development
-   machine (`adb shell am kill com.alekseivinogradov.anoti`), then open the app again from the
+1. Open the screen, switch one item into extra mode, scroll the list.
+2. Go to "Main" and back.
+   - Brief Loading, then the list.
+   - Every item is back in main mode. This is expected on every arrival.
+   - New-episode marks are cleared too.
+3. Press Home and return from the task switcher.
+   - The list is exactly as you left it. Nothing reloads, extra mode is kept, the scroll
+     position holds.
+4. Switch an item into extra mode, press Home, force-stop the app's process from a development
+   machine (`adb shell am kill com.alekseivinogradov.anoti`), then open it again from the
    launcher.
-   - The screen comes back on "Favorites" with the list loaded.
-   - The extra info you left open is still open — unlike an ordinary arrival at the screen,
-     coming back from a killed process keeps it.
-   - No crash, no error screen, no endless spinner.
+   - It comes back on "Favorites" with the list loaded.
+   - The item you left in extra mode is still in extra mode — unlike an ordinary arrival, a
+     return from a killed process keeps it.
+   - No crash, no endless spinner.
+5. Repeat step 4 with nothing subscribed.
+   - It comes back on the empty panel, not on a spinner.
 
-## 10. Many items
+## 11. What changes with scale and orientation
 
-1. Subscribe to thirty or more anime from "Main", then open "Favorites".
-   - All of them are listed, and the list scrolls smoothly to the end.
-   - The last item is fully reachable and not cut off by the bottom bar.
-2. Open the extra info on an item near the bottom, scroll to the top and back.
-   - It is still open, and no other item opened by itself.
+The four passes from section 0 cover the whole file. These are the specific differences to look
+for, and the checks that only make sense once.
 
-## 11. Device settings
+1. Rotating mid-session, from Loading, Empty and List.
+   - The state is kept. Nothing reloads, the scroll position holds, items in extra mode stay in
+     extra mode, and the viewed counters keep their values.
+2. In landscape, with items shown.
+   - Each item is wider and shorter. The poster keeps its share of the width rather than
+     stretching; the right-hand panel keeps title, episodes line, status and bell.
+3. At maximum font and display size, an item in main mode.
+   - The poster still takes its share of the width and does not squeeze the panel out.
+   - The title still shows at most three lines with "…", and the status and bell are still on
+     screen.
+4. At maximum size, the poster's score bar.
+   - The star icon, the score and the round button all stay visible.
+   - If they no longer fit on one line, the button drops onto a second line below the score —
+     the score must not slide up out of the bar's dark background or over the picture.
+5. At maximum size, an item in extra mode.
+   - The date line takes at most three lines and is not cut mid-word.
+   - The minus button, the number and the plus button all stay on screen and all stay tappable.
+6. At maximum size, the empty panel.
+   - The character picture and the text panel are both fully visible, and the text is not cut
+     off at the bottom.
+7. At maximum size, the "New episode" caption.
+   - It stays on one line, shortening with "…" if it must, and does not cover the score bar.
+8. Turn on the system dark theme and repeat pass 1 of section 0 in outline.
+   - The right-hand panel's text and the caption over the poster stay readable.
+   - No white-on-white or black-on-black anywhere.
 
-1. Rotate the device to landscape.
-   - The list stays where it was and does not reload.
-   - Each item still shows its poster, score, title, episodes line, status and bell.
-2. Rotate back.
-3. Turn on the system dark theme.
-   - Text in the right-hand panel and over the poster stays readable.
-4. Set the system font size and display size to their largest.
-   - Every item still shows all of its parts. The poster keeps its share of the width rather
-     than squeezing the panel out.
-   - With the extra info open, the score bar may wrap its button onto a second line; the score
-     and the icon must still be visible.
-5. Return both settings to normal.
+## 12. Many items
+
+1. Subscribe to thirty or more anime, then open the screen.
+   - All of them are listed and the list scrolls smoothly to the end.
+   - The last item is fully reachable and not hidden behind the bottom bar.
+2. Switch an item near the bottom into extra mode, scroll to the top and back.
+   - It is still in extra mode and no other item switched.
+3. Scroll fast through the whole list several times.
+   - Posters load and stay loaded. No item renders blank or with another item's picture.

@@ -7,164 +7,301 @@ behind the bell are checked in their own modules' files.
 
 Unless a step says otherwise, start from a fresh installation with the device online.
 
-## 1. Opening the screen
+## 0. How to run this file
 
-1. Install the app and open it. Allow notifications when asked.
-   - The "On air" section opens by itself.
-   - While it loads, a spinner fills the screen.
-   - The spinner is replaced by a list of anime. Nothing else is needed to make it appear.
-2. Look at the top of the screen.
-   - Two buttons: "On air" and "Soon". "On air" is the highlighted one.
-   - To their right, a magnifier button.
+Every section below is run **four times**, once per combination:
 
-## 2. What one list item shows
+| Pass | System font size and display size | Orientation |
+|---|---|---|
+| 1 | default | portrait |
+| 2 | default | landscape |
+| 3 | both at maximum | portrait |
+| 4 | both at maximum | landscape |
 
-Pick the first item.
+Pass 1 is the one that must be perfect. Passes 2–4 are looking for the same failures every
+time: text cut off or overlapping, a control pushed off screen or shrunk until it cannot be
+tapped, a row that wraps in one pass and clips in another, and anything that stops responding
+to a tap because it moved. Where a step behaves differently by scale or orientation on purpose,
+that step says so.
 
-1. Check its parts.
-   - A poster picture filling the width with the item.
-   - Over the bottom of the poster, on a dark strip: the title, a line reading
-     "Episodes: <aired> / <total>", and below them a row with a star icon, a score, the release
-     status, and a bell button.
-2. Find an item whose total episode count is unknown.
-   - Its line reads "Episodes: <aired> / ?".
-3. Find an item with a very long title.
-   - The title takes at most four lines and ends with "…". It never pushes the episodes line or
-     the bottom row off the item.
-4. Turn the device off-line and scroll to an item whose poster has not been loaded yet.
-   - A spinner shows in place of the poster first, then a broken-image icon. The rest of the
-     item still renders.
-   - Turn the network back on before continuing.
+Changing the font or display size restarts the app. Changing orientation does not — the screen
+keeps its state, which is itself checked in section 12.
 
-## 3. The episode-info button on an item
+## 1. The three states of the section area
 
-1. Tap the round button at the right of the "Episodes:" line of an "Ongoing" item.
-   - The line changes to "Next episode:" with the date on the next line.
-   - The button's icon changes to its filled variant.
+The area below the top bar is always in exactly one of three states. Learn them first; the rest
+of this file refers to them by name.
+
+| State | What fills the area |
+|---|---|
+| Loading | One large spinner, centred, inset well away from the edges. No items, no picture. |
+| Error | One large broken-plug picture, greyed, centred. No items, no spinner. |
+| List | The scrollable list of items. |
+
+The top bar is drawn over all three. It never disappears.
+
+## 2. Every transition between those states
+
+Each section keeps its own state. Check these on "On air" first, then repeat 1–6 on "Soon", and
+1–8 on search.
+
+1. Cold start, online: Loading → List.
+   - The spinner appears first, on its own, and is replaced by items.
+   - The spinner is never shown together with items.
+2. Cold start, offline: Loading → Error.
+   - The spinner appears first, then the broken-plug picture replaces it.
+3. Error → List: with the picture shown, turn the network on and pull the picture down.
+   - Loading appears, then items.
+4. List → Loading → List: with items shown, pull the list down.
+   - The spinner replaces the items, then items come back.
+   - The spinner is visible for a moment even when the network answers instantly. It must not
+     blink in and out.
+5. List → Loading → Error: with items shown, turn the network off and pull down.
+   - The spinner replaces the items, then the picture replaces the spinner.
+   - The old items are gone; they do not stay behind the picture.
+6. Error → Loading → Error: with the picture shown and still offline, pull it down.
+   - The spinner appears briefly and the picture comes back.
+7. Switching into a section that has never loaded: it starts at Loading and follows 1 or 2.
+8. Switching into a section that already holds items: it goes straight to List, with no spinner
+   and no reload.
+
+## 3. The loading flash when a section changes state
+
+1. Have "On air" showing items. Switch to "Soon" and watch the area closely.
+   - Exactly one brief flash of the spinner, then the announced items.
+   - It must not flicker between spinner and list two or three times before settling.
+2. Pull "On air" down to refresh, and while the spinner is up, keep watching until items return.
+   - One continuous spinner, then items. No intermediate flash of a half-filled list.
+
+## 4. The poster on an item
+
+The poster is loaded separately from the item, so it has its own three states inside the item's
+own picture area. The rest of the item — title, episodes line, score, status, bell — is drawn
+immediately and does not wait for the poster.
+
+1. Scroll quickly through a freshly installed app so items appear before their pictures.
+   - Where a picture has not arrived, a spinner spins inside the poster area, inset from its
+     edges. The dark strip with the title and the bottom row is already drawn over it.
+   - The spinner is replaced by the picture when it arrives.
+2. Turn the network off, clear the app's storage, open it, and let items load from nothing.
+   - The poster area shows a spinner first, then a greyed broken-image icon.
+   - The title, episodes line, score, status and bell are all still readable over it.
+3. Turn the network on and pull to refresh.
+   - The broken-image icons are replaced by real pictures.
+4. Find an anime the server has no picture for at all.
+   - Its poster area ends at the broken-image icon. The item is otherwise complete.
+
+## 5. What an item shows, by data
+
+1. An ordinary item.
+   - Poster; over its lower part a dark strip carrying the title and the "Episodes:" line;
+     below them a row with a star icon, the score, the release status and a bell.
+2. Total episode count unknown.
+   - The line reads "Episodes: <aired> / ?".
+3. A "Released" anime.
+   - The aired number equals the total, not a smaller number.
+4. Score missing.
+   - The place where the score goes is blank. The star icon, the status and the bell keep
+     their positions and do not slide over.
+5. Release status unknown.
+   - No status word is shown, and the two thin dividers around it are gone too. The star,
+     score and bell spread out evenly across the row instead.
+6. A very long title.
+   - At most four lines, ending in "…". It never pushes the episodes line or the bottom row
+     off the item.
+7. A very long status word at a large font size — see section 13.
+
+## 6. The episode-info button
+
+This is the round button at the right end of the "Episodes:" line. It switches that one line
+between two modes and changes nothing else on the item.
+
+1. On an "Ongoing" item, tap it.
+   - The line becomes "Next episode:" with the date on the line below.
+   - The button's icon changes from outlined to filled.
+   - The title, score, status and bell do not move or change.
 2. Tap it again.
-   - The line goes back to "Episodes: <aired> / <total>".
-3. Do the same on an item in "Soon".
-   - The line reads "Beginning of the show:" with the date, followed by "(Inaccurate)".
-4. Find a "Released" item (the search section has many) and do the same.
+   - The line returns to "Episodes: <aired> / <total>" and the icon returns to outlined.
+3. Repeat on an item in "Soon".
+   - The line reads "Beginning of the show:" with the date, then " (Inaccurate)".
+4. Repeat on a "Released" item — the search section has many.
    - The line reads "Show is finished:" with the date.
-5. Open the extra info on an item whose date the server does not have.
-   - The line shows the label and "No data" in place of the date.
-6. Open the extra info on one item, then on a second one.
-   - Both stay open at the same time.
+5. Repeat on an item whose status is unknown.
+   - The line shows the date alone, with no label before it.
+6. Open the extra info on an item the server has no date for.
+   - The label is shown with "No data" where the date would be.
+7. On an "Ongoing" item that has never had its date fetched, tap the button and watch.
+   - The line switches immediately, and the date fills in a moment later when it arrives.
+   - Turning the mode off and on again does not fetch it a second time: the date is there at
+     once.
+8. Turn the network off and open the extra info on an "Ongoing" item whose date is not yet
+   known.
+   - The line switches and shows "No data". An error banner appears at the bottom of the
+     screen.
+9. Open the extra info on three items at once.
+   - All three stay open independently. Closing one leaves the others open.
+10. With extra info open on an item, scroll it far off screen and back.
+   - It is still open, and no other item has opened by itself.
 
-## 4. The bell on an item
+## 7. The bell
 
-1. Tap the bell on an item. Its description reads "Turn on notifications" before the tap.
-   - The bell fills in and its description becomes "Turn off notifications".
+1. Tap an empty bell. Its description before the tap is "Turn on notifications".
+   - It fills in at once and its description becomes "Turn off notifications".
 2. Go to "Favorites" in the bottom bar.
-   - That anime is in the list.
-3. Come back to "Main".
-   - The bell on that item is still filled.
+   - The anime is there.
+3. Return to "Main".
+   - The bell is still filled.
 4. Tap the filled bell.
-   - The bell empties. The anime disappears from "Favorites".
-5. Tap the bell on an item quickly, several times in a row.
-   - The bell ends in the state matching the number of taps, and no duplicate appears in
-     "Favorites".
+   - It empties at once, and the anime is gone from "Favorites".
+5. Tap a bell five times quickly.
+   - The final state matches an odd or even number of taps, and "Favorites" holds either one
+     copy or none — never two.
+6. Turn a bell on, then pull to refresh.
+   - After the refresh the bell is still filled.
+7. Turn a bell on in "On air", then find the same anime through search.
+   - Its bell is filled there too.
+8. Turn a bell on with the item's extra info open.
+   - The bell fills in and the extra info stays open.
 
-## 5. Switching sections
+## 8. Switching sections
 
-1. Tap "Soon".
-   - The highlight moves to "Soon".
-   - A spinner shows briefly, then a list of announced anime. Their status reads "Announced"
-     and their episode line reads "Episodes: 0 / ?".
-   - The loading flash happens once. The screen must not flicker between the spinner and the
-     list several times.
-2. Tap "On air".
-   - The ongoing list comes back without loading again, at the same scroll position it had.
-3. Scroll "On air" halfway down, switch to "Soon", then back to "On air".
-   - The scroll position is where you left it.
-4. In "On air", open the extra info on an item, switch to "Soon" and back.
-   - The extra info is still open on that item.
+1. Tap "Soon" from "On air".
+   - The highlight moves to "Soon" and the section area follows section 2, rule 7 or 8.
+2. Tap "On air" again.
+   - Its items come straight back, at the scroll position they had, with no spinner.
+3. Scroll "On air" a long way down, go to "Soon", come back.
+   - The scroll position is preserved.
+4. Open the extra info on an item in "On air", go to "Soon" and back.
+   - It is still open.
+5. Turn a bell on in "On air", go to "Soon" and back.
+   - It is still filled.
+6. Go to "Soon" while "On air" is still loading.
+   - "Soon" starts loading on its own. Coming back to "On air" shows it either still loading
+     or already loaded — never empty and never in error.
+7. Tap "On air" while already on "On air".
+   - Nothing happens. No reload, no flash, no scroll jump.
 
-## 6. Paging
+## 9. Paging
 
-1. In "On air", scroll to the bottom of the list.
-   - More items load and the list grows. This repeats as you keep scrolling.
-   - No spinner covers the screen while this happens; the items already shown stay put.
-2. Keep scrolling to the very end of what the server has.
-   - Scrolling stops growing the list and nothing breaks.
-3. Go off-line and scroll to the bottom.
-   - The list stops growing. The items already shown stay on screen and are not replaced by an
-     error screen.
-   - Turn the network back on.
+1. In "On air", scroll to the bottom.
+   - More items append and the list grows. The items already shown do not move or reload.
+   - No full-screen spinner appears while this happens.
+2. Keep scrolling. Repeat several times.
+   - Each time more items append.
+3. Scroll to the very end of what the server has.
+   - The list stops growing and nothing breaks.
+4. Scroll to the bottom, then immediately scroll up about ten items and back down while the
+   next page is still arriving.
+   - Only one page is added, not two. No item appears twice.
+5. While a page is loading, pull down to refresh.
+   - The list is replaced by the refreshed first page. The page that was loading must not be
+     appended to it afterwards.
+6. Go offline and scroll to the bottom.
+   - The list stops growing. The items already shown stay. An error banner appears at the
+     bottom of the screen. The section does not switch to Error.
+7. Turn the network back on and scroll up about ten items, then down again.
+   - Paging resumes.
+8. Repeat 1–7 in "Soon" and in search.
 
-## 7. Search
+## 10. Search
 
 1. Tap the magnifier.
    - The two section buttons are replaced by a text field with the hint "Enter the name of
-     anime" and a cross button at its right.
-   - The keyboard opens.
-2. Type `naruto`.
-   - After a short pause, the list below shows anime matching the query.
-   - The list must not reload on every letter — it reloads once you stop typing.
-3. Keep typing more letters.
-   - The results follow the new query.
-4. Clear the field.
+     anime" and a cross button at its right. The keyboard opens.
+   - The section area shows whatever the search section holds: Loading on the first ever
+     visit, otherwise its previous results.
+2. Type `naruto` and stop.
+   - Nothing happens for a moment, then Loading, then results.
+   - The list must not reload while you are still typing.
+3. Type three more letters quickly.
+   - Still only one reload, after you stop.
+4. Delete the whole query.
    - The list reloads with unfiltered results.
-5. Type a query no anime matches.
-   - The list ends up empty. No error screen.
-6. Paste or type more than 75 characters into the field.
-   - The field stops accepting input at 75 characters.
-7. Tap the cross button.
-   - The field closes and the two section buttons come back. The section shown is still search
-     with its results.
-8. Tap the magnifier again.
-   - The field reopens with the text you typed still in it.
-9. Open extra info on a search result, then run a new search.
-   - The extra info closes for every item and the list starts from the top.
+5. Type a query nothing matches.
+   - The section area ends up as an empty list — no items, no spinner, no picture.
+6. Type more than 75 characters.
+   - The field stops accepting input at 75. The text already there is not truncated or
+     cleared.
+7. Scroll the results down, then change the query.
+   - The new results start from the top, not from where you were.
+8. Open the extra info on a result, then change the query.
+   - The new results all show the plain "Episodes:" line.
+9. Tap the cross.
+   - The field closes and the two section buttons come back, with neither highlighted — the
+     search section is still the one showing.
+   - The keyboard closes.
+10. Tap the magnifier again.
+   - The field reopens with the previous text still in it, and the results below are unchanged.
+11. With the field open, tap "On air"… — there is no way to; the section buttons are hidden
+   while the field is open. Close the field first.
+12. Press system back with the keyboard up.
+   - The keyboard closes. The field stays open with its text.
 
-## 8. Pull to refresh
+## 11. Pull to refresh
 
-1. In "On air", pull the list down from the top and release.
-   - The list reloads from its first page.
-   - Any extra info left open closes.
-   - The list goes back to the top.
-2. Do the same in "Soon" and in search.
-   - Each refreshes only its own section.
-3. Go off-line and pull to refresh.
-   - The screen shows a large broken-plug picture in place of the list.
-4. Turn the network back on and pull that picture down.
-   - The list loads again and the picture goes away.
+1. From List, in each of the three sections in turn.
+   - Section 2, rule 4 applies: Loading, then items.
+   - Extra info closes on every item.
+   - Bells keep their state.
+   - The list returns to the top.
+2. From Error, in each section.
+   - Section 2, rules 3 and 6 apply.
+3. From an empty search result.
+   - The same query is run again.
+4. Pull down only slightly and release, without reaching the trigger point.
+   - Nothing reloads.
+5. Pull to refresh three times in a row without pausing.
+   - Every time the section ends in List or Error. It must never stay on the spinner.
 
-## 9. The error screen
+## 12. Leaving and coming back
 
-1. Turn the network off before opening the app, then open it.
-   - The screen shows the large broken-plug picture instead of a list.
-2. Switch to "Soon" while still off-line.
-   - The same picture is shown.
-3. Turn the network on and pull the picture down.
-   - The section loads.
+1. In "On air", scroll halfway and open the extra info on one item. Press Home, then return
+   from the task switcher.
+   - The same section, the same scroll position, the same item open. Nothing reloads.
+2. Rotate while in the background and return — see section 13.
+3. Switch to search, type `bleach`, wait for results, press Home.
+4. Force-stop the app's process from a development machine
+   (`adb shell am kill com.alekseivinogradov.anoti`) and open it again from the launcher.
+   - It comes back on the search section with `bleach` still in the field, and the results
+     load again.
+   - No crash, no error picture, no empty list.
+5. Repeat step 4 with the search bar closed but the search section selected.
+   - It comes back on the search section with the bar closed and the query still applied.
+6. Repeat step 4 with "Soon" selected and several pages scrolled in.
+   - It comes back on "Soon" with about as many items as before — up to eighty — not just the
+     first page.
+   - Items that had their extra info open have it open again.
+   - The bells are as they were.
+7. Repeat step 4 with "On air" selected and nothing scrolled.
+   - It comes back on "On air" with the first page.
 
-## 10. Leaving and coming back
+## 13. What changes with scale and orientation
 
-1. Open "On air", scroll halfway, open the extra info on one item.
-2. Press Home, then return to the app from the task switcher.
-   - The same section, the same scroll position, the same extra info open. Nothing reloads.
-3. Switch to search, type `bleach` and wait for results.
-4. Press Home. From a terminal on a development machine, force-stop the app's process
-   (`adb shell am kill com.alekseivinogradov.anoti`), then open the app again from the launcher.
-   - The screen comes back on the search section with `bleach` still in the field, and its
-     results load again.
-   - No error screen, no crash, no empty list.
-5. Repeat step 4 with "Soon" selected and a few pages scrolled in.
-   - The screen comes back on "Soon" with roughly as many items as before (up to eighty), not
-     just the first page.
+The four passes from section 0 cover the whole file. These are the specific differences to look
+for, and the checks that only make sense once.
 
-## 11. Device settings
-
-1. Rotate the device to landscape while the list is shown.
-   - The list stays where it was and does not reload.
-   - The title, episodes line, score, status and bell all still fit on each item.
-2. Rotate back.
-3. Turn on the system dark theme.
-   - Text stays readable against the dark strip over the poster; no white-on-white or
-     black-on-black.
-4. Set the system font size and display size to their largest.
-   - Every item still shows its title, episodes line, score, status and bell. The bell keeps
-     its full size; it is the release status that shortens with "…" when space runs out.
-5. Return both settings to normal.
+1. Rotating mid-session, from every state: List, Loading, Error, and with the search field open.
+   - The state is kept. Nothing reloads, the scroll position holds, open extra info stays open,
+     bells keep their state, and text typed into the search field is still there.
+2. Rotating in landscape, with items shown.
+   - Each item is wider and shorter. Title, episodes line, score, status and bell are all still
+     present and none overlaps another.
+3. At maximum font and display size, an item's bottom row.
+   - The bell keeps its full size. The status word is the one that shortens with "…" when the
+     row runs out of room — never the bell, never the score.
+   - The star icon, the score and the bell stay on one line.
+4. At maximum size, an item with an unknown release status.
+   - No status word and no dividers; the star, score and bell spread evenly and still fit.
+5. At maximum size, a long title.
+   - Still at most four lines with "…", and the episodes line and bottom row are still visible.
+6. At maximum size, with the extra info open.
+   - The date line takes at most three lines and is not cut mid-word.
+7. At maximum size, the top bar.
+   - Both section labels stay on one line each and remain tappable across their full height.
+   - With the search field open, the hint or the typed text does not run under the cross
+     button.
+8. At maximum size, the empty-search result and the Error picture.
+   - Both still fill the area sensibly and are not cut off.
+9. Turn on the system dark theme and repeat pass 1 of section 0 in outline.
+   - Text over the poster's dark strip stays readable, and so do the top bar's labels.
+   - No white-on-white or black-on-black anywhere.

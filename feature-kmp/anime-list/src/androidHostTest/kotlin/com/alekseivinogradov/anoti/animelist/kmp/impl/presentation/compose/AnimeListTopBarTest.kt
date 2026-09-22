@@ -1,13 +1,21 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.compose
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.isNotSelected
+import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTouchInput
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.SEARCH_TEXT_MAX_LENGTH
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.SearchUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.SectionHatUi
@@ -26,6 +34,8 @@ import org.robolectric.RobolectricTestRunner
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+// One function per case under test, plus the helpers those cases share.
+@Suppress("TooManyFunctions")
 @RunWith(RobolectricTestRunner::class)
 class AnimeListTopBarTest {
 
@@ -38,11 +48,14 @@ class AnimeListTopBarTest {
 
     private val reportedSearchTexts = mutableListOf<String>()
 
+    private val selectedSectionState = mutableStateOf(SectionHatUi.ONGOINGS)
+
     private fun setTopBar(selectedSection: SectionHatUi = SectionHatUi.ONGOINGS) {
+        selectedSectionState.value = selectedSection
         composeRule.setContent {
             AnotiTheme {
                 AnimeListTopBar(
-                    selectedSection = selectedSection,
+                    selectedSection = selectedSectionState.value,
                     search = searchState.value,
                     onOngoingClick = { clicks += ONGOING_CLICK },
                     onAnnouncedClick = { clicks += ANNOUNCED_CLICK },
@@ -163,6 +176,59 @@ class AnimeListTopBarTest {
     }
 
     @Test
+    fun eachTabReportsItselfAsATabAndOnlyTheOpenOneReportsItselfSelected() {
+        //Given
+        val ongoingLabel = runBlocking { getString(Res.string.on_air) }
+        val soonLabel = runBlocking { getString(Res.string.soon) }
+        val searchDescription = runBlocking { getString(Res.string.search_on_description) }
+
+        //When
+        setTopBar(selectedSection = SectionHatUi.ANNOUNCED)
+
+        //Then
+        // Selection is drawn in color, which a screen reader cannot read, so it has to reach
+        // the semantics tree as well.
+        composeRule.onNodeWithText(ongoingLabel).assert(isTab).assert(isNotSelected())
+        composeRule.onNodeWithText(soonLabel).assert(isTab).assert(isSelected())
+        composeRule.onNodeWithContentDescription(searchDescription)
+            .assert(isTab)
+            .assert(isNotSelected())
+    }
+
+    @Test
+    fun theSelectedTabFollowsTheSectionItReports() {
+        //Given
+        val ongoingLabel = runBlocking { getString(Res.string.on_air) }
+        setTopBar(selectedSection = SectionHatUi.ONGOINGS)
+        composeRule.onNodeWithText(ongoingLabel).assert(isSelected())
+
+        //When
+        selectedSectionState.value = SectionHatUi.SEARCH
+        composeRule.waitForIdle()
+
+        //Then
+        val searchDescription = runBlocking { getString(Res.string.search_on_description) }
+        composeRule.onNodeWithText(ongoingLabel).assert(isNotSelected())
+        composeRule.onNodeWithContentDescription(searchDescription).assert(isSelected())
+    }
+
+    @Test
+    fun aTabAnswersATapOnThePaddingAroundItsLabel() {
+        //Given
+        setTopBar(selectedSection = SectionHatUi.ONGOINGS)
+        val soonLabel = runBlocking { getString(Res.string.soon) }
+
+        //When
+        // The very top of the tab, inside the padding rather than on the glyphs. A tap has to
+        // reach there for the target to be the whole tab.
+        composeRule.onNodeWithText(soonLabel).performTouchInput { click(topCenter) }
+        composeRule.waitForIdle()
+
+        //Then
+        assertEquals(listOf(ANNOUNCED_CLICK), clicks)
+    }
+
+    @Test
     fun typedTextSurvivesClosingAndReopeningTheSearchBar() {
         //Given
         searchState.value = SearchUi.SHOWN
@@ -179,6 +245,8 @@ class AnimeListTopBarTest {
         composeRule.onNodeWithText("frieren").assertIsDisplayed()
     }
 }
+
+private val isTab = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
 
 private const val ONGOING_CLICK = "ongoing"
 private const val ANNOUNCED_CLICK = "announced"

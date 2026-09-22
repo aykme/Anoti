@@ -2,7 +2,6 @@ package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.compose
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -13,6 +12,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -32,6 +32,10 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -165,10 +169,17 @@ private fun TabsRow(
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
             style = TextStyle(shadow = tabShadow),
+            // selectable, not clickable: it tells a screen reader this is a tab and which tab
+            // is the open one. Color alone conveys neither. It also precedes the padding, so
+            // the whole tab answers a tap rather than only the glyphs.
             modifier = Modifier
                 .weight(1f)
+                .selectable(
+                    selected = selectedSection == SectionHatUi.ONGOINGS,
+                    role = Role.Tab,
+                    onClick = onOngoingClick
+                )
                 .padding(vertical = 12.dp)
-                .clickable(onClick = onOngoingClick)
                 .testTag("ongoing_button")
         )
 
@@ -192,8 +203,13 @@ private fun TabsRow(
             style = TextStyle(shadow = tabShadow),
             modifier = Modifier
                 .weight(1f)
+                .selectable(
+                    selected = selectedSection == SectionHatUi.ANNOUNCED,
+                    role = Role.Tab,
+                    onClick = onAnnouncedClick
+                )
                 .padding(vertical = 12.dp)
-                .clickable(onClick = onAnnouncedClick)
+                .testTag("announced_button")
         )
 
         Box(
@@ -209,7 +225,18 @@ private fun TabsRow(
                 colorFilter = ColorFilter.tint(BlackTransparent),
                 modifier = Modifier.size(34.dp)
             )
-            IconButton(onClick = onSearchClick, modifier = Modifier.size(TOP_BAR_CONTROL_SIZE_DP.dp)) {
+            IconButton(
+                onClick = onSearchClick,
+                // The third tab of the same row, so it carries the same tab semantics as the
+                // two above.
+                modifier = Modifier
+                    .size(TOP_BAR_CONTROL_SIZE_DP.dp)
+                    .semantics {
+                        role = Role.Tab
+                        selected = selectedSection == SectionHatUi.SEARCH
+                    }
+                    .testTag("search_button")
+            ) {
                 Image(
                     painter = painterResource(Res.drawable.ic_search_32),
                     contentDescription = stringResource(Res.string.search_on_description),
