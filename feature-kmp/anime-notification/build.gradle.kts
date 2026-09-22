@@ -27,9 +27,10 @@ kotlin {
             enable = true
         }
 
-        withJava()
-
-        withHostTestBuilder {}.configure {}
+        withHostTestBuilder {}.configure {
+            // Robolectric reads this module's Compose resources only from the merged ones.
+            isIncludeAndroidResources = true
+        }
     }
 
     listOf(
@@ -44,8 +45,10 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":core-kmp:di-scope"))
-            implementation(project(":core-kmp:celebrity"))
+            // Both appear in the platform DI components' own public signatures: the scope and
+            // qualifier annotations their bindings carry, and the coroutine context provider.
+            api(project(":core-kmp:di-scope"))
+            api(project(":core-kmp:celebrity"))
 
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.compose.components.resources)
@@ -57,6 +60,9 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
+        }
+        getByName("androidHostTest").dependencies {
+            implementation(libs.robolectric)
         }
         androidMain.dependencies {
             implementation(libs.androidx.core)
