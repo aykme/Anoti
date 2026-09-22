@@ -196,9 +196,10 @@ class OngoingSectionExecutorImplTest {
 
         //When
         store.accept(OngoingSectionStore.Intent.LoadNextPage)
-        store.states.first { systemMessageCount == 1 }
+        runCurrent()
 
         //Then
+        assertEquals(1, systemMessageCount)
         assertEquals(listOf(item), store.state.sectionContent.listItems)
         assertEquals(ContentTypeDomain.LOADED, store.state.sectionContent.contentType)
     }
@@ -206,12 +207,14 @@ class OngoingSectionExecutorImplTest {
     @Test
     fun loadNextPageAtEndOfListDoesNothing() = runTest(testDispatcher) {
         //Given
+        val requestedPages = mutableListOf<Int>()
         val item = testListItem(id = 1)
         val store = createStore(
             pages = mapOf(
                 1 to CallResult.Success(listOf(item)),
                 2 to CallResult.Success(emptyList())
-            )
+            ),
+            beforeOngoingResult = { page: Int -> requestedPages.add(page) }
         )
         store.accept(OngoingSectionStore.Intent.OpenSection)
         store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
@@ -222,6 +225,7 @@ class OngoingSectionExecutorImplTest {
         store.accept(OngoingSectionStore.Intent.LoadNextPage)
 
         //Then
+        assertEquals(listOf(1, 2), requestedPages)
         assertEquals(listOf(item), store.state.sectionContent.listItems)
     }
 

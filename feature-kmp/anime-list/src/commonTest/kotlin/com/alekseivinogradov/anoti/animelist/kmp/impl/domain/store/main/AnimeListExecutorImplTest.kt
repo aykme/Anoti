@@ -27,11 +27,13 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlin.coroutines.CoroutineContext
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -607,25 +609,42 @@ class AnimeListExecutorImplTest {
         )
     }
 
-    // This executor has no collaborator a fake could observe, so its coroutine is checked at the
-    // other visible edge: the app-wide job must never adopt work started by an executor.
     @Test
-    fun theDelayedContentTypeSwitchIsNotParentedToTheAppWideJob() = runTest(testDispatcher) {
+    fun theDelayedContentTypeSwitchRunsInTheStoresOwnScopeAndDiesWithIt() = runTest(testDispatcher) {
         //Given
-        val coroutineContextProvider = object : CoroutineContextProviderBase() {
-            override val exceptionHandlerCallback: (Throwable) -> Unit = {}
-        }
-        val store = createStore(coroutineContextProvider)
-
-        //When
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        val contextProvider = JobRecordingContextProvider()
+        val store = createStore(contextProvider)
         store.accept(
             AnimeListMainStore.Intent.UpdateOngoingContent(
                 content = SectionContentDomain(contentType = ContentTypeDomain.LOADED)
             )
         )
+        runCurrent()
+        advanceTimeBy(ANIMATION_DURATION_VERY_SHORT / 2)
+        val executorJob = assertNotNull(contextProvider.executorJob)
+        val coroutinesDuringTheDelay = executorJob.children.count()
+
+        //When
+        store.dispose()
+        advanceUntilIdle()
 
         //Then
-        val appWideJob = coroutineContextProvider.appMainCoroutineContext[Job]
-        assertEquals(0, appWideJob?.children?.count(), "the switch escaped its store's scope")
+        assertEquals(1, coroutinesDuringTheDelay, "the switch did not wait in the store's scope")
+        assertFalse(executorJob.isActive, "the switch outlived its store")
+        assertEquals(ContentTypeDomain.LOADING, store.state.ongoingContent.contentType)
+    }
+
+    // The scope a CoroutineExecutor exposes is built straight from this context, so the job
+    // handed out here is the one a store's dispose cancels.
+    private class JobRecordingContextProvider : CoroutineContextProviderBase() {
+
+        override val exceptionHandlerCallback: (Throwable) -> Unit = {}
+
+        var executorJob: Job? = null
+            private set
+
+        override fun newMainCoroutineContext(): CoroutineContext =
+            super.newMainCoroutineContext().also { executorJob = it[Job] }
     }
 }

@@ -167,12 +167,14 @@ class SearchSectionExecutorImplTest {
     @Test
     fun loadNextPageAtEndOfListDoesNothing() = runTest(testDispatcher) {
         //Given
+        val requestedPages = mutableListOf<Int>()
         val item = testListItem(id = 1)
         val store = createStore(
             pages = mapOf(
                 1 to CallResult.Success(listOf(item)),
                 2 to CallResult.Success(emptyList())
-            )
+            ),
+            beforeSearchResult = { page: Int, _: String -> requestedPages.add(page) }
         )
         store.accept(SearchSectionStore.Intent.UpdateSection)
         store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
@@ -183,6 +185,7 @@ class SearchSectionExecutorImplTest {
         store.accept(SearchSectionStore.Intent.LoadNextPage)
 
         //Then
+        assertEquals(listOf(1, 2), requestedPages)
         assertEquals(listOf(item), store.state.sectionContent.listItems)
     }
 
@@ -470,7 +473,11 @@ class SearchSectionExecutorImplTest {
     fun openSectionWithAlreadyRestoredSearchTextLoadsItWithoutResettingListPosition() = runTest(testDispatcher) {
         //Given
         val item = testListItem(id = 1)
-        val store = createStore(pages = mapOf(1 to CallResult.Success(listOf(item))))
+        val requestedQueries = mutableListOf<String>()
+        val store = createStore(
+            pages = mapOf(1 to CallResult.Success(listOf(item))),
+            beforeSearchResult = { _: Int, search: String -> requestedQueries.add(search) }
+        )
         val emittedLabels = mutableListOf<SearchSectionStore.Label>()
         val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
 
@@ -480,6 +487,7 @@ class SearchSectionExecutorImplTest {
         advanceUntilIdle()
 
         //Then
+        assertEquals(listOf("Attack on Titan"), requestedQueries)
         assertEquals(listOf(item), store.state.sectionContent.listItems)
         assertEquals(emptyList(), emittedLabels)
         collectJob.cancel()

@@ -9,15 +9,36 @@ import com.alekseivinogradov.anoti.network.kmp.api.domain.model.test.DesiredCall
 import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 
 class FetchAnnouncedAnimeListUsecaseTest {
     private val maxDelay = 60000 //1 minute
-    private val page = 1
+    private val page = 3
     private val sort = SortData.POPULARITY
-    private lateinit var source: AnimeListSource
+    private lateinit var source: RecordingAnnouncedSource
     private lateinit var usecase: FetchAnnouncedAnimeListUsecase
+
+    private data class AnnouncedListCall(val page: Int, val sort: SortData)
+
+    // The shared fake answers the same way whatever it is asked, so the arguments it was asked
+    // with are recorded here instead.
+    private class RecordingAnnouncedSource(
+        private val delegate: AnimeListSource
+    ) : AnimeListSource by delegate {
+
+        var lastCall: AnnouncedListCall? = null
+            private set
+
+        override suspend fun getAnnouncedList(
+            page: Int,
+            sort: SortData
+        ): CallResult<List<ListItemDomain>> {
+            lastCall = AnnouncedListCall(page = page, sort = sort)
+            return delegate.getAnnouncedList(page = page, sort = sort)
+        }
+    }
 
     @Test
     fun testFetchAnnouncedAnimeListUsecaseSuccessResult() = runTest {
@@ -32,6 +53,7 @@ class FetchAnnouncedAnimeListUsecaseTest {
         val actualResult: CallResult<List<ListItemDomain>> = usecase.execute(page)
 
         //Then
+        assertEquals(AnnouncedListCall(page = page, sort = sort), source.lastCall)
         assertTrue {
             expectedResult is CallResult.Success &&
                 actualResult is CallResult.Success &&
@@ -80,9 +102,11 @@ class FetchAnnouncedAnimeListUsecaseTest {
     }
 
     private fun initSourceAndUsecase(desiredCallResult: DesiredCallResult) {
-        source = AnimeListSourceImplFake(
-            desiredCallResult = desiredCallResult,
-            desiredDelay = Random.nextInt(maxDelay).milliseconds
+        source = RecordingAnnouncedSource(
+            AnimeListSourceImplFake(
+                desiredCallResult = desiredCallResult,
+                desiredDelay = Random.nextInt(maxDelay).milliseconds
+            )
         )
         usecase = FetchAnnouncedAnimeListUsecase(source)
     }

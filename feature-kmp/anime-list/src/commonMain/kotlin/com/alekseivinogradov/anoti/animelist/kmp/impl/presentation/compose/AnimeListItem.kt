@@ -121,7 +121,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as Cele
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.
-@Suppress("FunctionNaming", "LongParameterList")
+@Suppress("FunctionNaming")
 @Composable
 fun AnimeListItem(
     item: ListItemUi,

@@ -9,6 +9,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.filterToOne
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
@@ -22,6 +23,7 @@ import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.episodes
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.notifications_turn_off_description
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.ongoing
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.released
+import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.score_image_description
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.InfoTypeUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.ListItemUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.NotificationUi
@@ -158,8 +160,6 @@ class AnimeFavoritesItemTest {
         }
     }
 
-    // One parameter per part of the item this snapshot records.
-    @Suppress("LongParameterList")
     private fun itemSnapshot(
         statusLabel: String,
         notificationDescription: String,
@@ -172,6 +172,17 @@ class AnimeFavoritesItemTest {
         notificationShown = nodeWithDescription(notificationDescription).isDisplayed(),
         infoTypeShown = nodeWithDescription(infoTypeDescription).isDisplayed()
     )
+
+    // The score bar carries no semantics of its own, so its height is the span between its score
+    // icon and its info-type toggle: one row while they fit side by side, two once they don't.
+    private fun scoreBarHeight(infoTypeDescription: String): Dp {
+        val scoreImageDescription = runBlocking {
+            getString(BaseRes.string.score_image_description)
+        }
+        val icon = nodeWithDescription(scoreImageDescription).getUnclippedBoundsInRoot()
+        val toggle = nodeWithDescription(infoTypeDescription).getUnclippedBoundsInRoot()
+        return maxOf(icon.bottom, toggle.bottom) - minOf(icon.top, toggle.top)
+    }
 
     @Test
     fun theMainVariantShowsTheNameTheScoreAndTheAvailableEpisodeCounts() {
@@ -339,9 +350,11 @@ class AnimeFavoritesItemTest {
 
         //When
         val wide = itemSnapshot(ongoingLabel, notificationDescription, infoTypeDescription)
+        val wideScoreBarHeight = scoreBarHeight(infoTypeDescription)
         narrowWidthState.value = NARROW_ITEM_WIDTH_DP.dp
         composeRule.waitForIdle()
         val narrow = itemSnapshot(ongoingLabel, notificationDescription, infoTypeDescription)
+        val narrowScoreBarHeight = scoreBarHeight(infoTypeDescription)
 
         //Then
         listOf("wide" to wide, "narrow" to narrow).forEach { (label, snapshot) ->
@@ -352,6 +365,11 @@ class AnimeFavoritesItemTest {
             assertTrue(snapshot.notificationShown, "the $label item hides its notification toggle")
             assertTrue(snapshot.infoTypeShown, "the $label item hides its info-type toggle")
         }
+        assertTrue(
+            narrowScoreBarHeight > wideScoreBarHeight,
+            "the narrow item must drop its info-type toggle onto a second line, but its score " +
+                "bar stayed $narrowScoreBarHeight tall against $wideScoreBarHeight when wide"
+        )
     }
 }
 

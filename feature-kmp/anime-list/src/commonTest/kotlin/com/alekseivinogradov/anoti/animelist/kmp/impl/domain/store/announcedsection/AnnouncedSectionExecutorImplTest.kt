@@ -132,6 +132,32 @@ class AnnouncedSectionExecutorImplTest {
     }
 
     @Test
+    fun updateSectionReloadsTheFirstPageAndReplacesTheItems() = runTest(testDispatcher) {
+        //Given
+        val requestedPages = mutableListOf<Int>()
+        val loadedItem = testListItem(id = 1)
+        val refreshedItem = testListItem(id = 2)
+        val pages = mutableMapOf<Int, CallResult<List<ListItemDomain>>>(
+            1 to CallResult.Success(listOf(loadedItem))
+        )
+        val store = createStore(
+            pages = pages,
+            beforeAnnouncedResult = { page: Int -> requestedPages.add(page) }
+        )
+        store.accept(AnnouncedSectionStore.Intent.OpenSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+        pages[1] = CallResult.Success(listOf(refreshedItem))
+
+        //When
+        store.accept(AnnouncedSectionStore.Intent.UpdateSection)
+        store.states.first { it.sectionContent.listItems == listOf(refreshedItem) }
+
+        //Then
+        assertEquals(listOf(1, 1), requestedPages)
+        assertEquals(ContentTypeDomain.LOADED, store.state.sectionContent.contentType)
+    }
+
+    @Test
     fun loadNextPageAppendsSecondPageItems() = runTest(testDispatcher) {
         //Given
         val firstItem = testListItem(id = 1)
@@ -175,14 +201,31 @@ class AnnouncedSectionExecutorImplTest {
     }
 
     @Test
+    fun episodesInfoClickWithUnknownIdIsNoOp() = runTest(testDispatcher) {
+        //Given
+        val item = testListItem(id = 1)
+        val store = createStore(pages = mapOf(1 to CallResult.Success(listOf(item))))
+        store.accept(AnnouncedSectionStore.Intent.OpenSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+        //When
+        store.accept(AnnouncedSectionStore.Intent.EpisodesInfoClick(id = 999))
+
+        //Then
+        assertTrue(store.state.sectionContent.enabledExtraEpisodesInfoIds.isEmpty())
+    }
+
+    @Test
     fun loadNextPageAtEndOfListDoesNothing() = runTest(testDispatcher) {
         //Given
+        val requestedPages = mutableListOf<Int>()
         val item = testListItem(id = 1)
         val store = createStore(
             pages = mapOf(
                 1 to CallResult.Success(listOf(item)),
                 2 to CallResult.Success(emptyList())
-            )
+            ),
+            beforeAnnouncedResult = { page: Int -> requestedPages.add(page) }
         )
         store.accept(AnnouncedSectionStore.Intent.OpenSection)
         store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
@@ -193,6 +236,7 @@ class AnnouncedSectionExecutorImplTest {
         store.accept(AnnouncedSectionStore.Intent.LoadNextPage)
 
         //Then
+        assertEquals(listOf(1, 2), requestedPages)
         assertEquals(listOf(item), store.state.sectionContent.listItems)
     }
 

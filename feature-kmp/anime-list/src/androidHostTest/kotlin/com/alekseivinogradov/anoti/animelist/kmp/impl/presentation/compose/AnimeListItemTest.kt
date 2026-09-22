@@ -85,6 +85,7 @@ class AnimeListItemTest {
         val scoreShown: Boolean,
         val statusShown: Boolean,
         val notificationShown: Boolean,
+        val statusWidth: Dp,
         val notificationWidth: Dp
     )
 
@@ -137,6 +138,10 @@ class AnimeListItemTest {
             notificationShown = composeRule
                 .onNodeWithContentDescription(notificationDescription)
                 .isDisplayed(),
+            statusWidth = composeRule
+                .onNodeWithText(statusLabel)
+                .getUnclippedBoundsInRoot()
+                .width,
             notificationWidth = composeRule
                 .onNodeWithTag(NOTIFICATION_BUTTON_TAG)
                 .getUnclippedBoundsInRoot()
@@ -270,11 +275,17 @@ class AnimeListItemTest {
             narrow.notificationWidth,
             "the notification toggle must keep its full size however narrow the item gets"
         )
+        assertTrue(
+            narrow.statusWidth < wide.statusWidth,
+            "the narrow item must squeeze the release status, but it stayed " +
+                "${narrow.statusWidth} wide against ${wide.statusWidth} when wide"
+        )
     }
 }
 
 private const val NOTIFICATION_BUTTON_TAG = "notification_button"
 
 // Narrower than the score/status/notification chain needs, so the status text has to give up
-// part of its natural width.
-private const val NARROW_ITEM_WIDTH_DP = 260
+// part of its natural width. Robolectric measures a character as about one pixel, so that chain
+// only overflows well below the width a real device would need.
+private const val NARROW_ITEM_WIDTH_DP = 180

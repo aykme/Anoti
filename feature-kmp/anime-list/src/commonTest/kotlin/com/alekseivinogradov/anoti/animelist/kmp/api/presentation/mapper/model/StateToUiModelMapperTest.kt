@@ -228,6 +228,35 @@ class StateToUiModelMapperTest {
     }
 
     @Test
+    fun theExtraEpisodesInfoAndDetailsComeFromTheSelectedSectionsOwnContent() {
+        //Given
+        val state = AnimeListMainStore.State(
+            selectedSection = SectionHatDomain.ANNOUNCED,
+            ongoingContent = SectionContentDomain(
+                listItems = listOf(listItem(FIRST_ID)),
+                enabledExtraEpisodesInfoIds = setOf(),
+                animeDetails = AnimeDetails(
+                    nextEpisodesInfo = mapOf(SECOND_ID to ITEM_NEXT_EPISODE_AT)
+                )
+            ),
+            announcedContent = SectionContentDomain(
+                listItems = listOf(listItem(SECOND_ID)),
+                enabledExtraEpisodesInfoIds = setOf(SECOND_ID),
+                animeDetails = AnimeDetails(
+                    nextEpisodesInfo = mapOf(SECOND_ID to DETAILS_NEXT_EPISODE_AT)
+                )
+            )
+        )
+
+        //When
+        val item = mapStateToUiModel(state).listContent.listItems.single()
+
+        //Then
+        assertEquals(EpisodesInfoTypeUi.EXTRA, item.episodesInfoType)
+        assertEquals(DETAILS_NEXT_EPISODE_AT, item.nextEpisodeAt)
+    }
+
+    @Test
     fun anItemWithoutAScoreRendersAnEmptyScoreString() {
         //Given
         val content = SectionContentDomain(

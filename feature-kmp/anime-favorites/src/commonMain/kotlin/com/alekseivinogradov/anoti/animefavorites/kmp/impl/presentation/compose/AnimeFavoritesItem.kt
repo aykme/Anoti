@@ -224,7 +224,7 @@ fun AnimeFavoritesItem(
     }
 }
 
-@Suppress("FunctionNaming", "LongParameterList")
+@Suppress("FunctionNaming")
 @Composable
 private fun PosterColumn(
     imageUrl: String?,
@@ -313,7 +313,7 @@ private enum class ScoreInfoBarSlot { Icon, Score, Button }
 // built-in wrapping. This custom Layout measures all three at their natural size first, and only
 // switches to a two-line arrangement (button centered below) if that natural width would
 // overflow the poster; at normal/most scales it renders identically to the single-row layout.
-@Suppress("FunctionNaming", "LongParameterList")
+@Suppress("FunctionNaming")
 @Composable
 private fun BoxScope.ScoreInfoBar(
     score: String,
@@ -547,7 +547,7 @@ private fun ExtraInfoContent(
     }
 }
 
-@Suppress("FunctionNaming", "LongParameterList")
+@Suppress("FunctionNaming")
 @Composable
 private fun EpisodesViewedRow(
     episodesViewed: String,

@@ -18,6 +18,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -54,6 +55,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.Loadi
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.horizontalSystemBarsPadding
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.systemBarsTopPadding
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.flow.filter
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as BaseRes
@@ -203,10 +205,7 @@ private fun LoadNextPageEffect(
     // the boolean flips, without also keying on listState, would leave this stuck watching
     // whichever section was current on the first composition. Scrolling in any section switched
     // to afterward would then go unnoticed.
-    //
-    // Dispatches once per threshold-crossing: the effect only restarts when the derived boolean
-    // itself flips, not on every scroll position update while it stays true.
-    val shouldLoadNextPage by remember(listState) {
+    val shouldLoadNextPage = remember(listState) {
         derivedStateOf {
             val layoutInfo = listState.layoutInfo
             val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()?.index
@@ -215,12 +214,17 @@ private fun LoadNextPageEffect(
             totalCount > 0 && lastVisible >= totalCount - PAGING_PREFETCH_DISTANCE
         }
     }
-    // Also keyed on the first visible item: a page that comes back empty-handed leaves the flag
-    // true and the item count unchanged, and without this the list would never ask again.
-    LaunchedEffect(shouldLoadNextPage, listState.firstVisibleItemIndex) {
-        if (shouldLoadNextPage) {
-            currentDispatch(AnimeListMainStore.Intent.LoadNextPage)
-        }
+    // Read through a snapshotFlow, never in composition: the scroll position changes on every
+    // row and reading it here would recompose just as often.
+    //
+    // Asks again on each further scroll while the threshold stays passed. A page that came back
+    // empty-handed leaves both the flag and the item count untouched, so asking only on the
+    // crossing would leave the list stuck with no way to retry. A request arriving while one is
+    // still in flight is dropped by the section's own store.
+    LaunchedEffect(listState) {
+        snapshotFlow { shouldLoadNextPage.value to listState.firstVisibleItemIndex }
+            .filter { (isPastThreshold: Boolean, _: Int) -> isPastThreshold }
+            .collect { currentDispatch(AnimeListMainStore.Intent.LoadNextPage) }
     }
 }
 

@@ -33,6 +33,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as BaseRes
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as CelebrityRes
 
@@ -170,7 +171,7 @@ class AnimeListScreenTest {
     }
 
     @Test
-    fun reachingTheEndOfTheListDispatchesLoadNextPageOncePerThresholdCrossing() {
+    fun reachingTheEndOfTheListAsksForTheNextPage() {
         //Given
         uiModelState.value = loadedModel(itemCount = LONG_LIST_ITEM_COUNT)
         setScreen()
@@ -178,17 +179,45 @@ class AnimeListScreenTest {
 
         //When
         scrollListToIndex(LONG_LIST_ITEM_COUNT - 1)
-        val countAtTheEnd = loadNextPageCount()
-        scrollListToIndex(LONG_LIST_ITEM_COUNT - 2)
-        val countStillPastTheThreshold = loadNextPageCount()
-        scrollListToIndex(0)
-        scrollListToIndex(LONG_LIST_ITEM_COUNT - 1)
 
         //Then
         assertEquals(0, countBeforeScrolling, "a list opened at the top has no next page to load")
+        assertEquals(1, loadNextPageCount())
+    }
+
+    @Test
+    fun scrollingOnPastTheThresholdAsksAgainSoAFailedPageCanBeRetried() {
+        //Given
+        // A page that comes back empty-handed leaves both the item count and the threshold flag
+        // where they were, so asking only once per crossing would strand the list.
+        uiModelState.value = loadedModel(itemCount = LONG_LIST_ITEM_COUNT)
+        setScreen()
+        scrollListToIndex(LONG_LIST_ITEM_COUNT - 1)
+        val countAtTheEnd = loadNextPageCount()
+
+        //When
+        scrollListToIndex(LONG_LIST_ITEM_COUNT - SHORT_SCROLL_BACK)
+        scrollListToIndex(LONG_LIST_ITEM_COUNT - 1)
+
+        //Then
         assertEquals(1, countAtTheEnd)
-        assertEquals(1, countStillPastTheThreshold, "staying past the threshold asks only once")
-        assertEquals(2, loadNextPageCount(), "crossing the threshold again asks a second time")
+        assertTrue(
+            loadNextPageCount() > countAtTheEnd,
+            "scrolling on while still past the threshold must ask again"
+        )
+    }
+
+    @Test
+    fun scrollingWellShortOfTheThresholdAsksForNothing() {
+        //Given
+        uiModelState.value = loadedModel(itemCount = LONG_LIST_ITEM_COUNT)
+        setScreen()
+
+        //When
+        scrollListToIndex(SCROLLED_AWAY_INDEX)
+
+        //Then
+        assertEquals(0, loadNextPageCount())
     }
 
     @Test
@@ -226,3 +255,7 @@ private const val LONG_LIST_ITEM_COUNT = 40
 
 // Far enough from both ends that neither the paging threshold nor the first item is in view.
 private const val SCROLLED_AWAY_INDEX = 20
+
+// A few rows back up the list — still well past the paging threshold, so the list is asked
+// again rather than freshly crossing it.
+private const val SHORT_SCROLL_BACK = 4
