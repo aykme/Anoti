@@ -40,16 +40,49 @@ class AnimeDbMapperTest {
 
     @Test
     fun domainToDbMapsEveryField() {
-        assertEquals(entity, domain.toDb())
+        //Given
+        val source = domain
+
+        //When
+        val mapped = source.toDb()
+
+        //Then
+        assertEquals(entity, mapped)
     }
 
     @Test
     fun entityToDomainMapsEveryField() {
-        assertEquals(domain, entity.toDomain())
+        //Given
+        val source = entity
+
+        //When
+        val mapped = source.toDomain()
+
+        //Then
+        assertEquals(domain, mapped)
     }
 
     @Test
     fun domainToDbToDomainRoundTripsToTheOriginalValue() {
-        assertEquals(domain, domain.toDb().toDomain())
+        //Given
+        val source = domain
+
+        //When
+        val roundTripped = source.toDb().toDomain()
+
+        //Then
+        assertEquals(domain, roundTripped)
+    }
+
+    @Test
+    fun theExtraInfoModeSurvivesTheRoundTrip() {
+        //Given
+        val source = domain.copy(isExtraInfoEnabled = true)
+
+        //When
+        val roundTripped = source.toDb().toDomain()
+
+        //Then
+        assertEquals(source, roundTripped)
     }
 }

@@ -18,7 +18,11 @@ class Paginator<T>(
     private var endReached: Boolean = false
     private var isLoading: Boolean = false
 
-    /** Resets to [firstPage] and loads it. */
+    /**
+     * Resets to [firstPage] and loads it. A page load still in flight is not waited for, and
+     * would advance the page counter past the reset — cancel it, or build a new [Paginator],
+     * before calling this.
+     */
     suspend fun loadFirstPage(): PageLoadResult<T> {
         nextPage = firstPage
         endReached = false

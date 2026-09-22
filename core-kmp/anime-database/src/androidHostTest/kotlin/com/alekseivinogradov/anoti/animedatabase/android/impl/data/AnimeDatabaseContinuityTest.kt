@@ -17,14 +17,17 @@ class AnimeDatabaseContinuityTest {
 
     @Test
     fun opensAnExistingPreMigrationDatabaseFileWithoutWipingItsData() = runTest {
+        //Given
         val context: Context = RuntimeEnvironment.getApplication()
         val dbFile = context.getDatabasePath(ANIME_TABLE_NAME)
         seedLegacyDatabaseFile(dbFile)
 
+        //When
         val database = getAnimeDatabase(context)
         val items = database.animeDao().getAllItems()
         database.close()
 
+        //Then
         assertEquals(1, items.size)
         val item = items.first()
         assertEquals(SEEDED_ANIME_ID, item.id)
@@ -64,6 +67,25 @@ class AnimeDatabaseContinuityTest {
                     "9.0, 'ONGOING', 5, 1)"
             )
         }
+    }
+
+    @Test
+    fun openingTheDatabaseAgainAfterTheEarlierOneWasClosedStillReadsItsRows() = runTest {
+        //Given
+        val context: Context = RuntimeEnvironment.getApplication()
+        seedLegacyDatabaseFile(context.getDatabasePath(ANIME_TABLE_NAME))
+        val first = getAnimeDatabase(context)
+        first.animeDao().getAllItems()
+        first.close()
+
+        //When
+        val second = getAnimeDatabase(context)
+        val items = second.animeDao().getAllItems()
+        second.close()
+
+        //Then
+        // A closed handle must not be handed out again: the rows are still readable.
+        assertEquals(listOf(SEEDED_ANIME_ID), items.map { it.id })
     }
 
     private companion object {

@@ -19,10 +19,14 @@ class AnimeDatabaseRepositoryImpl(private val animeDao: AnimeDao) : AnimeDatabas
         animeDao.update(anime.toDb())
     }
 
+    // Every write to the table publishes the list again, even one that changed no row, and a
+    // caller waiting on the answer to its own write has nothing else to wait for. Nothing here
+    // may drop a repeated list.
     override fun getAllItemsFlow(): Flow<List<AnimeDbDomain>> {
-        return animeDao.getAllItemsFlow().map { entities: List<AnimeDbEntity> ->
-            entities.map { entity: AnimeDbEntity -> entity.toDomain() }
-        }
+        return animeDao.getAllItemsFlow()
+            .map { entities: List<AnimeDbEntity> ->
+                entities.map { entity: AnimeDbEntity -> entity.toDomain() }
+            }
     }
 
     override suspend fun getAllItems(): List<AnimeDbDomain> {

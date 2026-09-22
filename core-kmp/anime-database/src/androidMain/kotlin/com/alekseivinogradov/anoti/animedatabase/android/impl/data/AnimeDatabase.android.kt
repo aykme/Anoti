@@ -7,18 +7,12 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.ANIME_TABLE_NAME
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.AnimeDatabase
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.data.getRoomDatabase
 
-private object AnimeDatabaseHolder {
-    @Volatile
-    var instance: AnimeDatabase? = null
-}
-
-fun getAnimeDatabase(context: Context): AnimeDatabase {
-    return AnimeDatabaseHolder.instance ?: synchronized(AnimeDatabaseHolder) {
-        AnimeDatabaseHolder.instance ?: getRoomDatabase(getDatabaseBuilder(context)).also {
-            AnimeDatabaseHolder.instance = it
-        }
-    }
-}
+/**
+ * Opens the app's database. The app-wide DI binding is what keeps the single instance, so each
+ * call here opens a new one.
+ */
+fun getAnimeDatabase(context: Context): AnimeDatabase =
+    getRoomDatabase(getDatabaseBuilder(context))
 
 internal fun getDatabaseBuilder(context: Context): RoomDatabase.Builder<AnimeDatabase> {
     val appContext = context.applicationContext

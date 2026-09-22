@@ -15,8 +15,6 @@ kotlin {
         compilerOptions {
             jvmTarget.set(JvmTarget.fromTarget(libs.versions.jvmTarget.get()))
         }
-
-        withHostTestBuilder {}.configure {}
     }
 
     listOf(
@@ -32,7 +30,8 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.coroutines.core)
-            implementation(libs.compose.ui.test)
+            // safeComposeInteraction takes and returns Compose's own interaction types.
+            api(libs.compose.ui.test)
         }
     }
 }
