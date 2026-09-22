@@ -21,10 +21,17 @@ class NavAnimeFavoritesScreenComponent(
     diAnimeFavoritesComponent: DiAnimeFavoritesComponent
 ) : ComponentContext by componentContext {
 
+    /** Coroutine contexts the screen's executor runs on. */
     val coroutineContextProvider: CoroutineContextProvider =
         diAnimeFavoritesComponent.coroutineContextProvider
+
+    /** Formats the air dates the screen shows. */
     val dateFormatter: DateFormatter = diAnimeFavoritesComponent.dateFormatter
+
+    /** The app-wide saved-anime store; the source of the favorites list. */
     val animeDatabaseStore: AnimeDatabaseStore = diAnimeFavoritesComponent.animeDatabaseStore
+
+    /** The screen's own store. */
     val mainStore: AnimeFavoritesMainStore = diAnimeFavoritesComponent.mainStore
 
     // stateKeeper only round-trips a value through a real Android Bundle on genuine process

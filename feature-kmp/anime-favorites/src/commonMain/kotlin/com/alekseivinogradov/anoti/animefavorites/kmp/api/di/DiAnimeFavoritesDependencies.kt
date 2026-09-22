@@ -11,12 +11,28 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 
 /** What the anime-favorites screen's component takes from its parent. */
 interface DiAnimeFavoritesDependencies {
+
+    /** Builds the store the screen owns. */
     val storeFactory: StoreFactory
+
+    /** Coroutine contexts the screen's executor runs on. */
     val coroutineContextProvider: CoroutineContextProvider
+
+    /** Where the screen reports connection and unknown errors. */
     val systemMessageProvider: SystemMessageProvider
+
+    /** Formats the air dates the screen shows. */
     val dateFormatter: DateFormatter
+
+    /** The app-wide saved-anime store; the source of the favorites list. */
     val animeDatabaseStore: AnimeDatabaseStore
+
+    /** The anime API the screen fetches per-item details from. */
     val shikimoriApiService: ShikimoriApiService
+
+    /** Wraps every call to [shikimoriApiService] with retries and error classification. */
     val safeApi: SafeApi
+
+    /** Refreshes the whole saved library once the screen asks for it. */
     val updateAllAnimeInBackgroundOnceUsecase: UpdateAllAnimeInBackgroundOnceUsecase
 }
