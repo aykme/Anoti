@@ -59,7 +59,7 @@ class NavAnimeFavoritesScreenComponentTest {
         Dispatchers.resetMain()
     }
 
-    private object UnreachableApiService : ShikimoriApiService {
+    private object UnreachableApiServiceFake : ShikimoriApiService {
         override suspend fun getAnimeList(
             page: Int,
             releaseStatus: String?,
@@ -73,7 +73,7 @@ class NavAnimeFavoritesScreenComponentTest {
         }
     }
 
-    private object NoOpBackgroundUpdateUsecase : UpdateAllAnimeInBackgroundOnceUsecase {
+    private object NoOpBackgroundUpdateUsecaseFake : UpdateAllAnimeInBackgroundOnceUsecase {
         override fun execute() = Unit
     }
 
@@ -87,10 +87,10 @@ class NavAnimeFavoritesScreenComponentTest {
             makeUnknownErrorSystemMessage = {}
         )
         override val dateFormatter: DateFormatter = DateFormatterFake()
-        override val shikimoriApiService: ShikimoriApiService = UnreachableApiService
+        override val shikimoriApiService: ShikimoriApiService = UnreachableApiServiceFake
         override val safeApi: SafeApi = SafeApiFake()
         override val updateAllAnimeInBackgroundOnceUsecase: UpdateAllAnimeInBackgroundOnceUsecase =
-            NoOpBackgroundUpdateUsecase
+            NoOpBackgroundUpdateUsecaseFake
     }
 
     /** One component, the state keeper it saves through, and what its database reset reaches. */

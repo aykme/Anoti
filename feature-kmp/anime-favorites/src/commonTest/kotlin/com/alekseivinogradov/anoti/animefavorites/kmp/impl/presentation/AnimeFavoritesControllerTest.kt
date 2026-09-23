@@ -62,7 +62,7 @@ class AnimeFavoritesControllerTest {
         Dispatchers.resetMain()
     }
 
-    private class FakeAnimeFavoritesView :
+    private class AnimeFavoritesViewFake :
         BaseMviView<AnimeFavoritesUiModel, AnimeFavoritesMainStore.Intent>(),
         AnimeFavoritesView {
 
@@ -76,7 +76,7 @@ class AnimeFavoritesControllerTest {
             }
     }
 
-    private object NoOpFavoritesSource : AnimeFavoritesSource {
+    private object NoOpFavoritesSourceFake : AnimeFavoritesSource {
         override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
             error("not used in AnimeFavoritesControllerTest")
         }
@@ -86,7 +86,7 @@ class AnimeFavoritesControllerTest {
     /** Everything a test needs to drive one controller and see where its bindings lead. */
     private class Wiring(
         val lifecycle: LifecycleRegistry,
-        val view: FakeAnimeFavoritesView,
+        val view: AnimeFavoritesViewFake,
         val mainStore: AnimeFavoritesMainStore,
         val animeDatabaseStore: AnimeDatabaseStore,
         val database: AnimeDatabaseUsecasesFake,
@@ -138,7 +138,7 @@ class AnimeFavoritesControllerTest {
                 coroutineContextProvider = coroutineContextProvider,
                 usecases = FavoritesUsecases(
                     updateAllAnimeInBackgroundOnceUsecase = backgroundUpdateUsecase,
-                    fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(NoOpFavoritesSource)
+                    fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(NoOpFavoritesSourceFake)
                 ),
                 systemMessageProvider = SystemMessageProvider(
                     makeConnectionErrorSystemMessage = {},
@@ -160,7 +160,7 @@ class AnimeFavoritesControllerTest {
         val mainStore = createMainStore(backgroundUpdateUsecase, coroutineContextProvider)
 
         val lifecycle = LifecycleRegistry()
-        val view = FakeAnimeFavoritesView()
+        val view = AnimeFavoritesViewFake()
         AnimeFavoritesController(
             lifecycle = lifecycle,
             mainStore = mainStore,

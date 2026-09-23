@@ -63,7 +63,7 @@ class ApplyRestoredMainStateTest {
         Dispatchers.resetMain()
     }
 
-    private object EmptySource : AnimeListSource {
+    private object EmptySourceFake : AnimeListSource {
         override suspend fun getOngoingList(
             page: Int,
             sort: SortData
@@ -85,7 +85,7 @@ class ApplyRestoredMainStateTest {
         }
     }
 
-    private class PagedSource(
+    private class PagedSourceFake(
         private val pages: Map<Int, List<ListItemDomain>>
     ) : AnimeListSource {
         override suspend fun getOngoingList(
@@ -170,7 +170,7 @@ class ApplyRestoredMainStateTest {
         ).create()
     }
 
-    private fun createOngoingStore(source: AnimeListSource = EmptySource): OngoingSectionStore {
+    private fun createOngoingStore(source: AnimeListSource = EmptySourceFake): OngoingSectionStore {
         val usecases = OngoingUsecases(
             fetchOngoingAnimeListUsecase = FetchOngoingAnimeListUsecase(source),
             fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)
@@ -191,7 +191,7 @@ class ApplyRestoredMainStateTest {
         ).create()
     }
 
-    private fun createAnnouncedStore(source: AnimeListSource = EmptySource): AnnouncedSectionStore {
+    private fun createAnnouncedStore(source: AnimeListSource = EmptySourceFake): AnnouncedSectionStore {
         val usecases = AnnouncedUsecases(
             fetchAnnouncedAnimeListUsecase = FetchAnnouncedAnimeListUsecase(source)
         )
@@ -211,7 +211,7 @@ class ApplyRestoredMainStateTest {
         ).create()
     }
 
-    private fun createSearchStore(source: AnimeListSource = EmptySource): SearchSectionStore {
+    private fun createSearchStore(source: AnimeListSource = EmptySourceFake): SearchSectionStore {
         val usecases = SearchUsecases(
             fetchAnimeListBySearchUsecase = FetchAnimeListBySearchUsecase(source),
             fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)
@@ -389,7 +389,7 @@ class ApplyRestoredMainStateTest {
             3 to listOf(testListItem(5), testListItem(6))
         )
         val mainStore = createMainStore()
-        val ongoingStore = createOngoingStore(source = PagedSource(pages))
+        val ongoingStore = createOngoingStore(source = PagedSourceFake(pages))
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
 
@@ -414,7 +414,7 @@ class ApplyRestoredMainStateTest {
         //Given
         val pages = (1..10).associateWith { page -> listOf(testListItem(page)) }
         val mainStore = createMainStore()
-        val ongoingStore = createOngoingStore(source = PagedSource(pages))
+        val ongoingStore = createOngoingStore(source = PagedSourceFake(pages))
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
 
@@ -440,7 +440,7 @@ class ApplyRestoredMainStateTest {
         //Given
         val pages = sequentialPages(pageCount = 10)
         val mainStore = createMainStore()
-        val ongoingStore = createOngoingStore(source = PagedSource(pages))
+        val ongoingStore = createOngoingStore(source = PagedSourceFake(pages))
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
 
@@ -468,7 +468,7 @@ class ApplyRestoredMainStateTest {
         //Given
         val pages = sequentialPages(pageCount = 20)
         val mainStore = createMainStore()
-        val ongoingStore = createOngoingStore(source = PagedSource(pages))
+        val ongoingStore = createOngoingStore(source = PagedSourceFake(pages))
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
 
@@ -496,7 +496,7 @@ class ApplyRestoredMainStateTest {
         //Given
         val pages = sequentialPages(pageCount = 20)
         val mainStore = createMainStore()
-        val ongoingStore = createOngoingStore(source = PagedSource(pages))
+        val ongoingStore = createOngoingStore(source = PagedSourceFake(pages))
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
         applyRestoredMainState(
@@ -527,7 +527,7 @@ class ApplyRestoredMainStateTest {
         val pages = sequentialPages(pageCount = 10)
         val mainStore = createMainStore()
         val ongoingStore = createOngoingStore()
-        val announcedStore = createAnnouncedStore(source = PagedSource(pages))
+        val announcedStore = createAnnouncedStore(source = PagedSourceFake(pages))
         val searchStore = createSearchStore()
 
         //When
@@ -553,7 +553,7 @@ class ApplyRestoredMainStateTest {
         val pages = sequentialPages(pageCount = 20)
         val mainStore = createMainStore()
         val ongoingStore = createOngoingStore()
-        val announcedStore = createAnnouncedStore(source = PagedSource(pages))
+        val announcedStore = createAnnouncedStore(source = PagedSourceFake(pages))
         val searchStore = createSearchStore()
 
         //When
@@ -580,7 +580,7 @@ class ApplyRestoredMainStateTest {
         val mainStore = createMainStore()
         val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore()
-        val searchStore = createSearchStore(source = PagedSource(pages))
+        val searchStore = createSearchStore(source = PagedSourceFake(pages))
 
         //When
         applyRestoredMainState(
@@ -603,7 +603,7 @@ class ApplyRestoredMainStateTest {
         val mainStore = createMainStore()
         val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore()
-        val searchStore = createSearchStore(source = PagedSource(pages))
+        val searchStore = createSearchStore(source = PagedSourceFake(pages))
 
         //When
         applyRestoredMainState(

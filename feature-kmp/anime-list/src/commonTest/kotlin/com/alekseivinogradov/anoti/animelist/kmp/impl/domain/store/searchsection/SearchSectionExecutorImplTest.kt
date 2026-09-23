@@ -55,7 +55,7 @@ class SearchSectionExecutorImplTest {
         Dispatchers.resetMain()
     }
 
-    private class FakeSearchSource(
+    private class SearchSourceFake(
         private val pages: Map<Int, CallResult<List<ListItemDomain>>>,
         private val beforeSearchResult: suspend (page: Int, search: String) -> Unit = { _, _ -> },
         private val details: suspend (AnimeId) -> CallResult<ListItemDomain> = {
@@ -104,7 +104,7 @@ class SearchSectionExecutorImplTest {
         onConnectionErrorSystemMessage: () -> Unit = {},
         onUnknownErrorSystemMessage: () -> Unit = {}
     ): SearchSectionStore {
-        val source = FakeSearchSource(pages, beforeSearchResult, details)
+        val source = SearchSourceFake(pages, beforeSearchResult, details)
         val coroutineContextProvider = CoroutineContextProviderFake()
         val usecases = SearchUsecases(
             fetchAnimeListBySearchUsecase = FetchAnimeListBySearchUsecase(source),

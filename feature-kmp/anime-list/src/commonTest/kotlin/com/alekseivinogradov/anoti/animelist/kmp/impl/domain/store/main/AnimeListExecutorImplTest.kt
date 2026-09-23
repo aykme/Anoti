@@ -612,7 +612,7 @@ class AnimeListExecutorImplTest {
     fun theDelayedContentTypeSwitchRunsInTheStoresOwnScopeAndDiesWithIt() = runTest(testDispatcher) {
         //Given
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        val contextProvider = JobRecordingContextProvider()
+        val contextProvider = JobRecordingContextProviderFake()
         val store = createStore(contextProvider)
         store.accept(
             AnimeListMainStore.Intent.UpdateOngoingContent(
@@ -636,7 +636,7 @@ class AnimeListExecutorImplTest {
 
     // The scope a CoroutineExecutor exposes is built straight from this context, so the job
     // handed out here is the one a store's dispose cancels.
-    private class JobRecordingContextProvider : CoroutineContextProviderBase() {
+    private class JobRecordingContextProviderFake : CoroutineContextProviderBase() {
 
         override val exceptionHandlerCallback: (Throwable) -> Unit = {}
 

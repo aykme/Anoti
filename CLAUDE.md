@@ -133,10 +133,18 @@ Read this before doing any task in this repository.
   needed. A double used by more than one module lives in `commonMain` of the module that owns the
   type it stands in for, never in a test source set, since a test source set is invisible to other
   modules.
-- Name that class after the type it fakes, with `Fake` on the end: `SafeApi` is faked by
-  `SafeApiFake`. Put it in the package matching the real type's, with `fake` as the last package
-  segment — `impl/data/fake/SafeApiFake.kt` alongside `api/data/SafeApi.kt`. The `Fake` suffix is
-  also what keeps it out of the coverage numbers, so it is not optional.
+- **`Fake` goes at the end of the name, never at the front.** `SafeApi` is faked by `SafeApiFake`,
+  not by `FakeSafeApi`. This holds for every double without exception, down to a `private` one
+  nested inside a single test class. A name saying what the double does rather than what it
+  stands in for — `NoOpSource`, `HangingSource`, `RecordingUsecase` — still ends in `Fake`:
+  `NoOpSourceFake`, `HangingSourceFake`, `RecordingUsecaseFake`.
+- The suffix is also what keeps the class out of the coverage numbers, since the Kover filter
+  matches on it. Getting the name wrong therefore skews the measurement, not just the reading.
+- Put the class in the package matching the real type's, with `fake` as the last package segment
+  — `impl/data/fake/SafeApiFake.kt` alongside `api/data/SafeApi.kt`. One double per file, named
+  after it. A double `private` to one test class is the exception: it stays nested where it is
+  and only the name has to follow. Give it a file in a `fake` package the moment a second test
+  needs it.
 - A double used by exactly one module still follows the naming, and stays in that module's own
   test source set until a second module needs it.
 - `commonTest` is the default home for a test, and shared code stays the priority when effort has

@@ -80,7 +80,7 @@ class AnimeListControllerTest {
         Dispatchers.resetMain()
     }
 
-    private class FakeAnimeListView :
+    private class AnimeListViewFake :
         BaseMviView<AnimeListUiModel, AnimeListMainStore.Intent>(),
         AnimeListView {
 
@@ -95,7 +95,7 @@ class AnimeListControllerTest {
     }
 
     /** Serves each section its own first page, so a section's items identify their source. */
-    private class FakeAnimeListSource(
+    private class AnimeListSectionsSourceFake(
         private val ongoingItems: List<ListItemDomain>,
         private val announcedItems: List<ListItemDomain>,
         private val searchItems: List<ListItemDomain>
@@ -135,7 +135,7 @@ class AnimeListControllerTest {
     @Suppress("LongParameterList")
     private class Wiring(
         val lifecycle: LifecycleRegistry,
-        val view: FakeAnimeListView,
+        val view: AnimeListViewFake,
         val mainStore: AnimeListMainStore,
         val animeDatabaseStore: AnimeDatabaseStore,
         val ongoingSectionStore: OngoingSectionStore,
@@ -185,7 +185,7 @@ class AnimeListControllerTest {
         searchItems: List<ListItemDomain> = listOf(testListItem(id = 3, name = "Bleach")),
         databaseItems: List<AnimeDbDomain> = emptyList()
     ): Wiring {
-        val source = FakeAnimeListSource(ongoingItems, announcedItems, searchItems)
+        val source = AnimeListSectionsSourceFake(ongoingItems, announcedItems, searchItems)
         val database = AnimeDatabaseUsecasesFake(databaseItems)
 
         val mainStore = createMainStore()
@@ -195,7 +195,7 @@ class AnimeListControllerTest {
         val searchSectionStore = createSearchStore(source)
 
         val lifecycle = LifecycleRegistry()
-        val view = FakeAnimeListView()
+        val view = AnimeListViewFake()
         AnimeListController(
             lifecycle = lifecycle,
             mainStore = mainStore,

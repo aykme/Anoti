@@ -18,14 +18,14 @@ class FetchAnimeListBySearchUsecaseTest {
     private val page = 3
     private val searchText = "search"
     private val sort = SortData.SCORE
-    private lateinit var source: RecordingSearchSource
+    private lateinit var source: RecordingSearchSourceFake
     private lateinit var usecase: FetchAnimeListBySearchUsecase
 
     private data class SearchListCall(val page: Int, val search: String, val sort: SortData)
 
     // The shared fake answers the same way whatever it is asked, so the arguments it was asked
     // with are recorded here instead.
-    private class RecordingSearchSource(
+    private class RecordingSearchSourceFake(
         private val delegate: AnimeListSource
     ) : AnimeListSource by delegate {
 
@@ -119,7 +119,7 @@ class FetchAnimeListBySearchUsecaseTest {
     }
 
     private fun initSourceAndUsecase(callResultFake: CallResultFake) {
-        source = RecordingSearchSource(
+        source = RecordingSearchSourceFake(
             AnimeListSourceFake(
                 callResultFake = callResultFake,
                 desiredDelay = Random.nextInt(maxDelay).milliseconds

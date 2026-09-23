@@ -50,7 +50,7 @@ class AnnouncedSectionExecutorImplTest {
         Dispatchers.resetMain()
     }
 
-    private class FakeAnnouncedSource(
+    private class AnnouncedSourceFake(
         private val pages: Map<Int, CallResult<List<ListItemDomain>>>,
         private val beforeAnnouncedResult: suspend (page: Int) -> Unit = {}
     ) : AnimeListSource {
@@ -95,7 +95,7 @@ class AnnouncedSectionExecutorImplTest {
         onConnectionErrorSystemMessage: () -> Unit = {},
         onUnknownErrorSystemMessage: () -> Unit = {}
     ): AnnouncedSectionStore {
-        val source = FakeAnnouncedSource(pages, beforeAnnouncedResult)
+        val source = AnnouncedSourceFake(pages, beforeAnnouncedResult)
         val coroutineContextProvider = CoroutineContextProviderFake()
         val usecases = AnnouncedUsecases(
             fetchAnnouncedAnimeListUsecase = FetchAnnouncedAnimeListUsecase(source)

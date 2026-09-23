@@ -53,13 +53,13 @@ class AnimeFavoritesExecutorImplTest {
         Dispatchers.resetMain()
     }
 
-    private object NoOpSource : AnimeFavoritesSource {
+    private object NoOpSourceFake : AnimeFavoritesSource {
         override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
             error("not used in AnimeFavoritesExecutorImplTest")
         }
     }
 
-    private class FakeDetailsSource(
+    private class DetailsSourceFake(
         private val item: ListItemDomain
     ) : AnimeFavoritesSource {
         override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
@@ -67,7 +67,7 @@ class AnimeFavoritesExecutorImplTest {
         }
     }
 
-    private class HangingSource : AnimeFavoritesSource {
+    private class HangingSourceFake : AnimeFavoritesSource {
         var wasCancelled = false
             private set
 
@@ -80,7 +80,7 @@ class AnimeFavoritesExecutorImplTest {
         }
     }
 
-    private class FirstCallHangsSource(
+    private class FirstCallHangsSourceFake(
         private val item: ListItemDomain
     ) : AnimeFavoritesSource {
         var firstCallWasCancelled = false
@@ -100,7 +100,7 @@ class AnimeFavoritesExecutorImplTest {
         }
     }
 
-    private class TrackingCallSource(
+    private class TrackingCallSourceFake(
         private val item: ListItemDomain
     ) : AnimeFavoritesSource {
         var callCount = 0
@@ -113,14 +113,14 @@ class AnimeFavoritesExecutorImplTest {
         }
     }
 
-    private class FailingSource(
+    private class FailingSourceFake(
         private val failure: CallResult.Failure
     ) : AnimeFavoritesSource {
         override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> = failure
     }
 
     /** Answers only once [release] is called, so a test can act while the fetch is in flight. */
-    private class GatedSource(
+    private class GatedSourceFake(
         private val item: ListItemDomain
     ) : AnimeFavoritesSource {
         private val gate = CompletableDeferred<Unit>()
@@ -135,7 +135,7 @@ class AnimeFavoritesExecutorImplTest {
         }
     }
 
-    private class RecordingBackgroundUpdateUsecase : UpdateAllAnimeInBackgroundOnceUsecase {
+    private class RecordingBackgroundUpdateUsecaseFake : UpdateAllAnimeInBackgroundOnceUsecase {
         var executeCount = 0
             private set
 
@@ -167,8 +167,8 @@ class AnimeFavoritesExecutorImplTest {
     }
 
     private fun createStore(
-        source: AnimeFavoritesSource = NoOpSource,
-        backgroundUpdateUsecase: UpdateAllAnimeInBackgroundOnceUsecase = RecordingBackgroundUpdateUsecase(),
+        source: AnimeFavoritesSource = NoOpSourceFake,
+        backgroundUpdateUsecase: UpdateAllAnimeInBackgroundOnceUsecase = RecordingBackgroundUpdateUsecaseFake(),
         onConnectionErrorSystemMessage: () -> Unit = {},
         onUnknownErrorSystemMessage: () -> Unit = {}
     ): AnimeFavoritesMainStore {
@@ -392,7 +392,7 @@ class AnimeFavoritesExecutorImplTest {
         //Given
         val item = testListItem()
         val fetchedItem = item.copy(nextEpisodeAt = "2026-09-10T12:00:00Z")
-        val store = createStore(source = FakeDetailsSource(fetchedItem))
+        val store = createStore(source = DetailsSourceFake(fetchedItem))
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
         val emittedLabels = mutableListOf<AnimeFavoritesMainStore.Label>()
         val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
@@ -416,7 +416,7 @@ class AnimeFavoritesExecutorImplTest {
     fun infoTypeClickToExtraWithNextEpisodeAtAlreadyKnownDoesNotFetchDetails() = runTest(testDispatcher) {
         //Given
         val item = testListItem(nextEpisodeAt = "2026-09-10T12:00:00Z")
-        val source = TrackingCallSource(item)
+        val source = TrackingCallSourceFake(item)
         val store = createStore(source = source)
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
 
@@ -434,7 +434,7 @@ class AnimeFavoritesExecutorImplTest {
         val item = testListItem()
         // The API legitimately has no next-episode date: the fetch result keeps nextEpisodeAt
         // null, which must not be mistaken for "never fetched" on a later toggle.
-        val source = TrackingCallSource(item)
+        val source = TrackingCallSourceFake(item)
         val store = createStore(source = source)
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
 
@@ -452,7 +452,7 @@ class AnimeFavoritesExecutorImplTest {
     fun openSectionResetsFetchedAnimeDetailsIdsSoARefreshedNullResultIsRefetched() = runTest(testDispatcher) {
         //Given
         val item = testListItem()
-        val source = TrackingCallSource(item)
+        val source = TrackingCallSourceFake(item)
         val store = createStore(source = source)
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
         store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
@@ -491,7 +491,7 @@ class AnimeFavoritesExecutorImplTest {
         //Given
         val item = testListItem()
         val fetched = item.copy(nextEpisodeAt = "2026-09-10T12:00:00Z")
-        val source = FirstCallHangsSource(fetched)
+        val source = FirstCallHangsSourceFake(fetched)
         val store = createStore(source = source)
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
         store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
@@ -518,7 +518,7 @@ class AnimeFavoritesExecutorImplTest {
     @Test
     fun disposingTheStoreCancelsAnInFlightDetailsFetch() = runTest(testDispatcher) {
         //Given
-        val source = HangingSource()
+        val source = HangingSourceFake()
         val item = testListItem()
         val store = createStore(source = source)
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
@@ -884,7 +884,7 @@ class AnimeFavoritesExecutorImplTest {
     @Test
     fun updateAllItemsInBackgroundTriggersTheBackgroundUpdate() = runTest(testDispatcher) {
         //Given
-        val backgroundUpdateUsecase = RecordingBackgroundUpdateUsecase()
+        val backgroundUpdateUsecase = RecordingBackgroundUpdateUsecaseFake()
         val store = createStore(backgroundUpdateUsecase = backgroundUpdateUsecase)
 
         //When
@@ -901,7 +901,7 @@ class AnimeFavoritesExecutorImplTest {
         var unknownErrorCount = 0
         val item = testListItem()
         val store = createStore(
-            source = FailingSource(CallResult.HttpError(code = 500, throwable = Throwable())),
+            source = FailingSourceFake(CallResult.HttpError(code = 500, throwable = Throwable())),
             onConnectionErrorSystemMessage = { connectionErrorCount++ },
             onUnknownErrorSystemMessage = { unknownErrorCount++ }
         )
@@ -923,7 +923,7 @@ class AnimeFavoritesExecutorImplTest {
         var unknownErrorCount = 0
         val item = testListItem()
         val store = createStore(
-            source = FailingSource(CallResult.NetworkError(throwable = Throwable())),
+            source = FailingSourceFake(CallResult.NetworkError(throwable = Throwable())),
             onConnectionErrorSystemMessage = { connectionErrorCount++ },
             onUnknownErrorSystemMessage = { unknownErrorCount++ }
         )
@@ -945,7 +945,7 @@ class AnimeFavoritesExecutorImplTest {
         var unknownErrorCount = 0
         val item = testListItem()
         val store = createStore(
-            source = FailingSource(CallResult.OtherError(throwable = Throwable())),
+            source = FailingSourceFake(CallResult.OtherError(throwable = Throwable())),
             onConnectionErrorSystemMessage = { connectionErrorCount++ },
             onUnknownErrorSystemMessage = { unknownErrorCount++ }
         )
@@ -965,7 +965,7 @@ class AnimeFavoritesExecutorImplTest {
         //Given
         val item = testListItem()
         val fetched = item.copy(nextEpisodeAt = "2026-09-10T12:00:00Z")
-        val source = GatedSource(fetched)
+        val source = GatedSourceFake(fetched)
         val store = createStore(source = source)
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
         store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))

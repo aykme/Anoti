@@ -67,7 +67,7 @@ class NavAnimeListScreenComponentTest {
     }
 
     /** Answers every list request with the same page, and every details request with a date. */
-    private object SinglePageApiService : ShikimoriApiService {
+    private object SinglePageApiServiceFake : ShikimoriApiService {
         override suspend fun getAnimeList(
             page: Int,
             releaseStatus: String?,
@@ -100,7 +100,7 @@ class NavAnimeListScreenComponentTest {
             makeUnknownErrorSystemMessage = {}
         )
         override val dateFormatter: DateFormatter = DateFormatterFake()
-        override val shikimoriApiService: ShikimoriApiService = SinglePageApiService
+        override val shikimoriApiService: ShikimoriApiService = SinglePageApiServiceFake
         override val safeApi: SafeApi = SafeApiFake()
     }
 

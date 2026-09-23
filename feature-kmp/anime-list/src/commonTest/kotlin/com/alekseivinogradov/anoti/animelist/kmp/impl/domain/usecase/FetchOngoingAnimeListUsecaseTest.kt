@@ -17,14 +17,14 @@ class FetchOngoingAnimeListUsecaseTest {
     private val maxDelay = 60000 //1 minute
     private val page = 3
     private val sort = SortData.SCORE
-    private lateinit var source: RecordingOngoingSource
+    private lateinit var source: RecordingOngoingSourceFake
     private lateinit var usecase: FetchOngoingAnimeListUsecase
 
     private data class OngoingListCall(val page: Int, val sort: SortData)
 
     // The shared fake answers the same way whatever it is asked, so the arguments it was asked
     // with are recorded here instead.
-    private class RecordingOngoingSource(
+    private class RecordingOngoingSourceFake(
         private val delegate: AnimeListSource
     ) : AnimeListSource by delegate {
 
@@ -102,7 +102,7 @@ class FetchOngoingAnimeListUsecaseTest {
     }
 
     private fun initSourceAndUsecase(callResultFake: CallResultFake) {
-        source = RecordingOngoingSource(
+        source = RecordingOngoingSourceFake(
             AnimeListSourceFake(
                 callResultFake = callResultFake,
                 desiredDelay = Random.nextInt(maxDelay).milliseconds

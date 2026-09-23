@@ -51,7 +51,7 @@ class OngoingSectionExecutorImplTest {
         Dispatchers.resetMain()
     }
 
-    private class FakeOngoingSource(
+    private class OngoingSourceFake(
         private val pages: Map<Int, CallResult<List<ListItemDomain>>>,
         private val beforeOngoingResult: suspend (page: Int) -> Unit = {},
         private val details: suspend (AnimeId) -> CallResult<ListItemDomain> = {
@@ -100,7 +100,7 @@ class OngoingSectionExecutorImplTest {
         onConnectionErrorSystemMessage: () -> Unit = {},
         onUnknownErrorSystemMessage: () -> Unit = {}
     ): OngoingSectionStore {
-        val source = FakeOngoingSource(pages, beforeOngoingResult, details)
+        val source = OngoingSourceFake(pages, beforeOngoingResult, details)
         val coroutineContextProvider = CoroutineContextProviderFake()
         val usecases = OngoingUsecases(
             fetchOngoingAnimeListUsecase = FetchOngoingAnimeListUsecase(source),

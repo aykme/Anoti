@@ -17,14 +17,14 @@ class FetchAnnouncedAnimeListUsecaseTest {
     private val maxDelay = 60000 //1 minute
     private val page = 3
     private val sort = SortData.POPULARITY
-    private lateinit var source: RecordingAnnouncedSource
+    private lateinit var source: RecordingAnnouncedSourceFake
     private lateinit var usecase: FetchAnnouncedAnimeListUsecase
 
     private data class AnnouncedListCall(val page: Int, val sort: SortData)
 
     // The shared fake answers the same way whatever it is asked, so the arguments it was asked
     // with are recorded here instead.
-    private class RecordingAnnouncedSource(
+    private class RecordingAnnouncedSourceFake(
         private val delegate: AnimeListSource
     ) : AnimeListSource by delegate {
 
@@ -102,7 +102,7 @@ class FetchAnnouncedAnimeListUsecaseTest {
     }
 
     private fun initSourceAndUsecase(callResultFake: CallResultFake) {
-        source = RecordingAnnouncedSource(
+        source = RecordingAnnouncedSourceFake(
             AnimeListSourceFake(
                 callResultFake = callResultFake,
                 desiredDelay = Random.nextInt(maxDelay).milliseconds
