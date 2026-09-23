@@ -1,82 +1,83 @@
 package com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase
 
+import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ListItemDomain
-import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.source.AnimeFavoritesSource
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.data.source.fake.AnimeFavoritesSourceFake
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
-import com.alekseivinogradov.anoti.network.kmp.api.domain.model.fake.CallResultFake
 import kotlinx.coroutines.test.runTest
-import kotlin.random.Random
 import kotlin.test.Test
-import kotlin.test.assertTrue
-import kotlin.time.Duration.Companion.milliseconds
+import kotlin.test.assertEquals
+
+private const val ANIME_ID = 61316
+private const val HTTP_ERROR_CODE = 500
 
 class FetchAnimeDetailsByIdUsecaseTest {
-    private val maxDelay = 60000 //1 minute
-    private lateinit var source: AnimeFavoritesSource
-    private lateinit var usecase: FetchAnimeDetailsByIdUsecase
+
+    private val item = ListItemDomain(
+        id = ANIME_ID,
+        name = "Frieren",
+        imageUrl = null,
+        episodesAired = 7,
+        episodesTotal = 28,
+        nextEpisodeAt = null,
+        airedOn = "2025-10-01",
+        releasedOn = null,
+        score = 9.11F,
+        releaseStatus = ReleaseStatusDomain.ONGOING,
+        episodesViewed = 0,
+        isNewEpisode = false
+    )
 
     @Test
-    fun testFetchAnimeDetailsByIdUsecaseSuccessResult() = runTest {
+    fun theItemTheSourceAnswersWithIsHandedBackUnchanged() = runTest {
         //Given
-        initSourceAndUsecase(callResultFake = CallResultFake.SUCCESS)
-        val randomId: Int = createRandomId()
-        val expectedResult: CallResult<ListItemDomain> = source.getItemById(randomId)
-
-        //When
-        val actualResult: CallResult<ListItemDomain> = usecase.execute(randomId)
-
-        //Then
-        assertTrue {
-            expectedResult is CallResult.Success &&
-                actualResult is CallResult.Success &&
-                actualResult == expectedResult
-        }
-    }
-
-    @Test
-    fun testFetchAnimeDetailsByIdUsecaseHttpErrorResult() = runTest {
-        //Given
-        initSourceAndUsecase(callResultFake = CallResultFake.HTTP_ERROR)
-        val randomId: Int = createRandomId()
-        val expectedResult: CallResult<ListItemDomain> = source.getItemById(randomId)
-
-        //When
-        val actualResult: CallResult<ListItemDomain> = usecase.execute(randomId)
-
-        //Then
-        assertTrue {
-            expectedResult is CallResult.HttpError &&
-                actualResult is CallResult.HttpError &&
-                actualResult == expectedResult
-        }
-    }
-
-    @Test
-    fun testFetchAnimeDetailsByIdUsecaseOtherErrorResult() = runTest {
-        //Given
-        initSourceAndUsecase(callResultFake = CallResultFake.OTHER_ERROR)
-        val randomId: Int = createRandomId()
-        val expectedResult: CallResult<ListItemDomain> = source.getItemById(randomId)
-
-        //When
-        val actualResult: CallResult<ListItemDomain> = usecase.execute(randomId)
-
-        //Then
-        assertTrue {
-            expectedResult is CallResult.OtherError &&
-                actualResult is CallResult.OtherError &&
-                actualResult == expectedResult
-        }
-    }
-
-    private fun initSourceAndUsecase(callResultFake: CallResultFake) {
-        source = AnimeFavoritesSourceFake(
-            callResultFake = callResultFake,
-            desiredDelay = Random.nextInt(maxDelay).milliseconds
+        val usecase = FetchAnimeDetailsByIdUsecase(
+            AnimeFavoritesSourceFake { _, _ -> CallResult.Success(item) }
         )
-        usecase = FetchAnimeDetailsByIdUsecase(source)
+
+        //When
+        val result = usecase.execute(ANIME_ID)
+
+        //Then
+        assertEquals(CallResult.Success(item), result)
     }
 
-    private fun createRandomId(): Int = Random.nextInt(Int.MAX_VALUE)
+    @Test
+    fun theIdItIsCalledWithIsTheIdTheSourceIsAskedFor() = runTest {
+        //Given
+        var askedFor: AnimeId? = null
+        val usecase = FetchAnimeDetailsByIdUsecase(
+            AnimeFavoritesSourceFake { id, _ ->
+                askedFor = id
+                CallResult.Success(item)
+            }
+        )
+
+        //When
+        usecase.execute(ANIME_ID)
+
+        //Then
+        assertEquals(ANIME_ID, askedFor)
+    }
+
+    @Test
+    fun aFailureFromTheSourceIsHandedBackUnchanged() = runTest {
+        //Given
+        val failures = listOf(
+            CallResult.HttpError(code = HTTP_ERROR_CODE, throwable = Throwable("server is down")),
+            CallResult.NetworkError(throwable = Throwable("no route to host")),
+            CallResult.OtherError(throwable = Throwable("something else"))
+        )
+
+        //When
+        val results = failures.map { failure: CallResult.Failure ->
+            FetchAnimeDetailsByIdUsecase(
+                AnimeFavoritesSourceFake { _, _ -> failure }
+            ).execute(ANIME_ID)
+        }
+
+        //Then
+        assertEquals(failures, results)
+    }
 }

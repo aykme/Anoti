@@ -9,11 +9,10 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeData
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseStoreFactory
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.fake.AnimeDatabaseUsecasesFake
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ContentTypeDomain
-import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ListItemDomain
-import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.source.AnimeFavoritesSource
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.AnimeFavoritesView
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.AnimeFavoritesUiModel
+import com.alekseivinogradov.anoti.animefavorites.kmp.impl.data.source.fake.AnimeFavoritesSourceFake
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store.AnimeFavoritesExecutorFactory
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store.AnimeFavoritesExecutorImpl
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store.AnimeFavoritesMainStoreFactory
@@ -23,7 +22,6 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
-import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.destroy
 import com.arkivanov.essenty.lifecycle.resume
@@ -74,12 +72,6 @@ class AnimeFavoritesControllerTest {
                     renderedModels += model
                 }
             }
-    }
-
-    private object NoOpFavoritesSourceFake : AnimeFavoritesSource {
-        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
-            error("not used in AnimeFavoritesControllerTest")
-        }
     }
 
     /** The saved-anime database every [AnimeDatabaseStore] usecase reads from and writes to. */
@@ -138,7 +130,7 @@ class AnimeFavoritesControllerTest {
                 coroutineContextProvider = coroutineContextProvider,
                 usecases = FavoritesUsecases(
                     updateAllAnimeInBackgroundOnceUsecase = backgroundUpdateUsecase,
-                    fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(NoOpFavoritesSourceFake)
+                    fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(AnimeFavoritesSourceFake())
                 ),
                 systemMessageProvider = SystemMessageProvider(
                     makeConnectionErrorSystemMessage = {},

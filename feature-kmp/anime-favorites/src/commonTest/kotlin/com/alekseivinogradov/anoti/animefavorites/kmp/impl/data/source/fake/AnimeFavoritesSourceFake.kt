@@ -1,59 +1,46 @@
 package com.alekseivinogradov.anoti.animefavorites.kmp.impl.data.source.fake
 
-import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.source.AnimeFavoritesSource
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
-import com.alekseivinogradov.anoti.network.kmp.api.domain.model.fake.CallResultFake
-import kotlinx.coroutines.delay
-import kotlin.time.Duration
+import kotlin.coroutines.cancellation.CancellationException
 
+/**
+ * Answers a details fetch from [answer] and records what was asked. Hand it a lambda that
+ * suspends, throws or fails to cover the case under test; the default makes an unexpected call
+ * fail loudly rather than quietly returning nothing.
+ *
+ * @param answer what to answer with, given the id asked for and which call this is, counting
+ * from one.
+ */
 class AnimeFavoritesSourceFake(
-    private val callResultFake: CallResultFake,
-    private val desiredDelay: Duration
+    private val answer: suspend (id: AnimeId, callNumber: Int) -> CallResult<ListItemDomain> =
+        { _, _ -> error("AnimeFavoritesSourceFake was called with no answer configured") }
 ) : AnimeFavoritesSource {
 
-    private val error = Throwable("Simulated failure from AnimeFavoritesSourceFake")
+    /** How many times an item was asked for. */
+    var callCount = 0
+        private set
+
+    /** Whether an answer was ever asked for at all. */
+    val wasCalled: Boolean get() = callCount > 0
+
+    /** Which calls were canceled before they answered, counting from one. */
+    val canceledCalls: List<Int>
+        field = mutableListOf<Int>()
+
+    /** Whether any call was canceled before it answered. */
+    val wasCanceled: Boolean get() = canceledCalls.isNotEmpty()
 
     override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
-        delay(desiredDelay)
-        return when (callResultFake) {
-            CallResultFake.SUCCESS -> createAnimeDetailsSuccessResult(id)
-            CallResultFake.HTTP_ERROR -> createHttpErrorResult()
-            CallResultFake.OTHER_ERROR -> createOtherErrorResult()
+        callCount++
+        val callNumber = callCount
+        try {
+            return answer(id, callNumber)
+        } catch (e: CancellationException) {
+            canceledCalls += callNumber
+            throw e
         }
-    }
-
-    private fun createAnimeDetailsSuccessResult(id: AnimeId): CallResult.Success<ListItemDomain> {
-        return CallResult.Success(
-            ListItemDomain(
-                id = id,
-                name = "Shingeki no Kyojin: The Final Season",
-                imageUrl = "https://shikimori.io/system/animes/original/40028.jpg?1711973445",
-                episodesAired = 16,
-                episodesTotal = 16,
-                nextEpisodeAt = "2020-19-07",
-                airedOn = "2020-12-07",
-                releasedOn = "2021-03-29",
-                score = 8.78F,
-                releaseStatus = ReleaseStatusDomain.RELEASED,
-                episodesViewed = 0,
-                isNewEpisode = false
-            )
-        )
-    }
-
-    private fun createHttpErrorResult(): CallResult.HttpError {
-        return CallResult.HttpError(
-            code = 404,
-            throwable = error
-        )
-    }
-
-    private fun createOtherErrorResult(): CallResult.OtherError {
-        return CallResult.OtherError(
-            throwable = error
-        )
     }
 }

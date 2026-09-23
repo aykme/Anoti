@@ -1,130 +1,81 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.SortData
+import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
-import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anoti.animelist.kmp.impl.data.source.fake.AnimeListSourceFake
+import com.alekseivinogradov.anoti.animelist.kmp.impl.data.source.fake.SearchCall
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
-import com.alekseivinogradov.anoti.network.kmp.api.domain.model.fake.CallResultFake
 import kotlinx.coroutines.test.runTest
-import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import kotlin.time.Duration.Companion.milliseconds
+
+private const val PAGE = 3
+private const val HTTP_ERROR_CODE = 500
+private const val SEARCH_TEXT = "frieren"
 
 class FetchAnimeListBySearchUsecaseTest {
-    private val maxDelay = 60000 //1 minute
-    private val page = 3
-    private val searchText = "search"
-    private val sort = SortData.SCORE
-    private lateinit var source: RecordingSearchSourceFake
-    private lateinit var usecase: FetchAnimeListBySearchUsecase
 
-    private data class SearchListCall(val page: Int, val search: String, val sort: SortData)
-
-    // The shared fake answers the same way whatever it is asked, so the arguments it was asked
-    // with are recorded here instead.
-    private class RecordingSearchSourceFake(
-        private val delegate: AnimeListSource
-    ) : AnimeListSource by delegate {
-
-        var lastCall: SearchListCall? = null
-            private set
-
-        override suspend fun getListBySearch(
-            page: Int,
-            search: String,
-            sort: SortData
-        ): CallResult<List<ListItemDomain>> {
-            lastCall = SearchListCall(page = page, search = search, sort = sort)
-            return delegate.getListBySearch(page = page, search = search, sort = sort)
-        }
-    }
+    private val items = listOf(
+        ListItemDomain(
+            id = 1,
+            name = "Frieren",
+            imageUrl = null,
+            episodesAired = 7,
+            episodesTotal = 28,
+            nextEpisodeAt = null,
+            airedOn = "2025-10-01",
+            releasedOn = null,
+            score = 9.11F,
+            releaseStatus = ReleaseStatusDomain.ONGOING
+        )
+    )
 
     @Test
-    fun testFetchAnimeListBySearchUsecaseSuccessResult() = runTest {
+    fun thePageAndSearchTextAskedForAreFetchedSortedByScore() = runTest {
         //Given
-        initSourceAndUsecase(callResultFake = CallResultFake.SUCCESS)
-        val expectedResult: CallResult<List<ListItemDomain>> = source.getListBySearch(
-            page = page,
-            search = searchText,
-            sort = sort
-        )
+        val source = AnimeListSourceFake(search = { _, _, _ -> CallResult.Success(items) })
 
         //When
-        val actualResult: CallResult<List<ListItemDomain>> = usecase.execute(
-            page = page,
-            searchText = searchText
-        )
+        FetchAnimeListBySearchUsecase(source).execute(page = PAGE, searchText = SEARCH_TEXT)
 
         //Then
         assertEquals(
-            SearchListCall(page = page, search = searchText, sort = sort),
-            source.lastCall
+            listOf(SearchCall(page = PAGE, search = SEARCH_TEXT, sort = SortData.SCORE)),
+            source.searchCalls
         )
-        assertTrue {
-            expectedResult is CallResult.Success &&
-                actualResult is CallResult.Success &&
-                actualResult == expectedResult
-        }
     }
 
     @Test
-    fun testFetchAnimeListBySearchUsecaseHttpErrorResult() = runTest {
+    fun theListTheSourceAnswersWithIsHandedBackUnchanged() = runTest {
         //Given
-        initSourceAndUsecase(callResultFake = CallResultFake.HTTP_ERROR)
-        val expectedResult: CallResult<List<ListItemDomain>> = source.getListBySearch(
-            page = page,
-            search = searchText,
-            sort = sort
-        )
+        val source = AnimeListSourceFake(search = { _, _, _ -> CallResult.Success(items) })
 
         //When
-        val actualResult: CallResult<List<ListItemDomain>> = usecase.execute(
-            page = page,
-            searchText = searchText
-        )
+        val result = FetchAnimeListBySearchUsecase(source)
+            .execute(page = PAGE, searchText = SEARCH_TEXT)
 
         //Then
-        assertTrue {
-            expectedResult is CallResult.HttpError &&
-                actualResult is CallResult.HttpError &&
-                actualResult == expectedResult
-        }
+        assertEquals(CallResult.Success(items), result)
     }
 
     @Test
-    fun testFetchAnimeListBySearchUsecaseOtherErrorResult() = runTest {
+    fun aFailureFromTheSourceIsHandedBackUnchanged() = runTest {
         //Given
-        initSourceAndUsecase(callResultFake = CallResultFake.OTHER_ERROR)
-        val expectedResult: CallResult<List<ListItemDomain>> = source.getListBySearch(
-            page = page,
-            search = searchText,
-            sort = sort
+        val failures = listOf(
+            CallResult.HttpError(code = HTTP_ERROR_CODE, throwable = Throwable("server is down")),
+            CallResult.NetworkError(throwable = Throwable("no route to host")),
+            CallResult.OtherError(throwable = Throwable("something else"))
         )
 
         //When
-        val actualResult: CallResult<List<ListItemDomain>> = usecase.execute(
-            page = page,
-            searchText = searchText
-        )
+        val results = failures.map { failure: CallResult.Failure ->
+            FetchAnimeListBySearchUsecase(
+                AnimeListSourceFake(search = { _, _, _ -> failure })
+            ).execute(page = PAGE, searchText = SEARCH_TEXT)
+        }
 
         //Then
-        assertTrue {
-            expectedResult is CallResult.OtherError &&
-                actualResult is CallResult.OtherError &&
-                actualResult == expectedResult
-        }
-    }
-
-    private fun initSourceAndUsecase(callResultFake: CallResultFake) {
-        source = RecordingSearchSourceFake(
-            AnimeListSourceFake(
-                callResultFake = callResultFake,
-                desiredDelay = Random.nextInt(maxDelay).milliseconds
-            )
-        )
-        usecase = FetchAnimeListBySearchUsecase(source)
+        assertEquals(failures, results)
     }
 }

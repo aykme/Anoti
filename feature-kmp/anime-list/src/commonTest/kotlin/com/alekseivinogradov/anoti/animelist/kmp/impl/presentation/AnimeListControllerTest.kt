@@ -1,6 +1,5 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation
 
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.SortData
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.FIRST_PAGE
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.AnimeDbDomain
@@ -19,6 +18,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.AnimeListView
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.AnimeListUiModel
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.SectionHatUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.NotificationUi
+import com.alekseivinogradov.anoti.animelist.kmp.impl.data.source.fake.AnimeListSourceFake
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.announcedsection.AnnouncedSectionExecutorFactory
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.announcedsection.AnnouncedSectionExecutorImpl
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.announcedsection.AnnouncedSectionStoreFactory
@@ -95,41 +95,13 @@ class AnimeListControllerTest {
     }
 
     /** Serves each section its own first page, so a section's items identify their source. */
-    private class AnimeListSectionsSourceFake(
-        private val ongoingItems: List<ListItemDomain>,
-        private val announcedItems: List<ListItemDomain>,
-        private val searchItems: List<ListItemDomain>
-    ) : AnimeListSource {
-
-        override suspend fun getOngoingList(
-            page: Int,
-            sort: SortData
-        ): CallResult<List<ListItemDomain>> = firstPageOnly(page, ongoingItems)
-
-        override suspend fun getAnnouncedList(
-            page: Int,
-            sort: SortData
-        ): CallResult<List<ListItemDomain>> = firstPageOnly(page, announcedItems)
-
-        override suspend fun getListBySearch(
-            page: Int,
-            search: String,
-            sort: SortData
-        ): CallResult<List<ListItemDomain>> = firstPageOnly(page, searchItems)
-
-        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
-            error("not used in AnimeListControllerTest")
-        }
-
-        private fun firstPageOnly(
-            page: Int,
-            items: List<ListItemDomain>
-        ): CallResult<List<ListItemDomain>> {
-            return CallResult.Success(if (page == FIRST_PAGE) items else emptyList())
-        }
+    private fun firstPageOnly(
+        page: Int,
+        items: List<ListItemDomain>
+    ): CallResult<List<ListItemDomain>> {
+        return CallResult.Success(if (page == FIRST_PAGE) items else emptyList())
     }
 
-    /** The saved-anime database every [AnimeDatabaseStore] usecase reads from and writes to. */
     /** Everything a test needs to drive one controller and see where its bindings lead. */
     // One parameter per store the controller wires, so the count follows the controller itself.
     @Suppress("LongParameterList")
@@ -185,7 +157,11 @@ class AnimeListControllerTest {
         searchItems: List<ListItemDomain> = listOf(testListItem(id = 3, name = "Bleach")),
         databaseItems: List<AnimeDbDomain> = emptyList()
     ): Wiring {
-        val source = AnimeListSectionsSourceFake(ongoingItems, announcedItems, searchItems)
+        val source = AnimeListSourceFake(
+            ongoing = { page, _ -> firstPageOnly(page, ongoingItems) },
+            announced = { page, _ -> firstPageOnly(page, announcedItems) },
+            search = { page, _, _ -> firstPageOnly(page, searchItems) }
+        )
         val database = AnimeDatabaseUsecasesFake(databaseItems)
 
         val mainStore = createMainStore()
