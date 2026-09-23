@@ -18,19 +18,19 @@ the whole app.
 
 ## The build to run on
 
-Run a regression on a build that has been shrunk and obfuscated, the way the released one is:
-`./gradlew :app:assembleMinified` builds one that also installs, since the release build carries
-no signing config of its own.
-Shrinking removes and renames code, and it is the step that can break something which only
-shows once the app is running — a check on a build that skipped it proves nothing about what
-ships.
+Run a regression on a build that has been shrunk and obfuscated, the way the released one is.
+`./gradlew :app:assembleMinified` produces one that also installs. The release build carries no
+signing config of its own, so it cannot go on a device.
+
+Shrinking removes and renames code. It is the step that can break something which only shows
+once the app is running. A check on a build that skipped it proves nothing about what ships.
 
 ## Platforms
 
 Every file below describes what the app does, not what one platform does. Where a step goes
-through a system screen it names Android's, and a file whose behavior differs on iOS says so in
-a Platforms section of its own. A check only one platform can reach names that platform and
-says why. Running any of this on iOS needs an iOS build of the app to install first.
+through a system screen, it names Android's. A file whose behavior differs on iOS says so in a
+Platforms section of its own. A check only one platform can reach names that platform and says
+why. Running any of this on iOS needs an iOS build of the app to install first.
 
 ## App modules
 

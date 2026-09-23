@@ -32,7 +32,7 @@ internal class BackgroundRefreshPass(
         // handler installed after it would be left on a task the platform has taken back.
         task.setExpirationHandler {
             // Told before the pass is canceled, not after: canceling is cooperative, and a
-            // pass in the middle of a write can take longer to unwind than the platform waits.
+            // pass in the middle of write can take longer to unwind than the platform waits.
             completion.complete(success = false)
             job.cancel()
         }
