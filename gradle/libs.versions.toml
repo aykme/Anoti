@@ -17,9 +17,8 @@ versionName = "1.09"
 #iOS app versions
 
 #KMP library versions
-annotation = "1.10.0"
-coil = "3.6.2"
-composeMultiplatform = "1.12.0"
+coil = "3.6.3"
+composeMultiplatform = "1.12.1"
 coroutines = "1.11.0"
 decompose = "3.5.0"
 detekt = "1.23.8"
@@ -30,29 +29,28 @@ kotlinxDatetime = "0.8.0"
 kotlinxSerialization = "1.11.0"
 kover = "0.9.9"
 ksp = "2.3.12"
-ktor = "3.5.2"
+ktor = "3.6.0"
 mviKotlin = "4.4.0"
 room = "2.8.5"
 sqlite = "2.7.1"
 
-#Non maxed supressed library versions
+#Non maxed supressed KMP library versions
 
-# Material 3 is only published as 1.12.0-alpha03 on the Compose Multiplatform line.
-# 1.9.0 is its stable ceiling.
+# Material 3 has no stable release on the Compose Multiplatform line above 1.9.0. Everything
+# published since is an alpha, currently up to 1.13.0-alpha01.
 composeMaterial3 = "1.9.0"
 # Compose rules for detekt. Every release from 0.5.0 on is built against detekt 2.0.0-alpha,
-# so 0.4.22 is the ceiling while detekt stays on 1.23.
+# which has no stable release of its own, so 0.4.22 is the ceiling while detekt stays on 1.23.
 #noinspection NewerVersionAvailable
 composeRules = "0.4.22"
-# Pinned to the androidx.compose.ui:ui version that :app's androidTest classpath resolves to.
-# An instrumented test shares the app's process, so ui-test-junit4 must load the same UI classes.
-# 1.12.1 is newer, but composeMultiplatform 1.12.0 is built against androidx Compose UI 1.12.0.
-#noinspection GradleDependency
-composeUiTest = "1.12.0"
 
 #Android library versions
 activity = "1.13.0"
 agp = "9.4.1"
+# Tracks the androidx.compose.ui:ui version that :app's androidTest classpath resolves to, which
+# composeMultiplatform decides. An instrumented test shares the app's process, so ui-test-junit4
+# must load the same UI classes.
+composeUiTest = "1.12.1"
 core = "1.19.0"
 espressoCore = "3.7.0"
 playServicesAppset = "16.1.0"
@@ -64,11 +62,14 @@ robolectricSdk = "35"
 rules = "1.7.0"
 workRuntimeKtx = "2.11.2"
 
+#Non maxed supressed Android library versions
+
 #iOS library versions
+
+#Non maxed supressed iOS library versions
 
 [libraries]
 #KMP libraries
-androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
