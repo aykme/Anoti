@@ -4,6 +4,7 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.AnimeDbDom
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ChangeAnimeDatabaseItemNewEpisodeStatusUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.DeleteAnimeDatabaseItemUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsFlowUsecase
+import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.InsertAnimeDatabaseItemUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ResetAllAnimeDatabaseItemsExtraInfoUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecase
@@ -19,8 +20,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
  * what the code under test asked for rather than what a database would hold afterward.
  *
  * @param initialItems the saved anime the fake starts with.
+ * @param onRead runs before the one-shot read answers. Throw from it to stand in for a
+ * database that will not open.
  */
-class AnimeDatabaseUsecasesFake(initialItems: List<AnimeDbDomain> = listOf()) {
+class AnimeDatabaseUsecasesFake(
+    initialItems: List<AnimeDbDomain> = listOf(),
+    private val onRead: suspend () -> Unit = {}
+) {
 
     /** The saved anime the fetch usecase emits. Set it to drive the code under test. */
     val items = MutableStateFlow(initialItems)
@@ -48,6 +54,17 @@ class AnimeDatabaseUsecasesFake(initialItems: List<AnimeDbDomain> = listOf()) {
     /** How many times the whole library was asked to drop its extra episode info. */
     var resetExtraInfoCount = 0
         private set
+
+    /**
+     * The one-shot read of the whole library. Answers with whatever [items] currently holds.
+     * It sits outside [usecases] because [AnimeDatabaseUsecases] does not carry it.
+     */
+    val fetchAllAnimeDatabaseItemsUsecase = object : FetchAllAnimeDatabaseItemsUsecase {
+        override suspend fun execute(): List<AnimeDbDomain> {
+            onRead()
+            return items.value
+        }
+    }
 
     /** The set to hand to the code under test. */
     val usecases = AnimeDatabaseUsecases(

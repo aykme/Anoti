@@ -9,6 +9,7 @@ import androidx.work.WorkManager
 import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.scheduler.AnimeBackgroundSchedulerImpl
 import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecaseImpl
 import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.worker.ANIME_UPDATE_ONCE_WORK_NAME
+import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.worker.ANIME_UPDATE_WORK_CONSTRAINTS
 import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.worker.AnimeUpdateWorker
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.manager.AnimeUpdateManager
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.scheduler.AnimeBackgroundScheduler
@@ -51,7 +52,9 @@ interface DiAnimeBackgroundUpdatePlatformComponent {
     @Provides
     @AnimeBackgroundUpdate
     fun provideAnimeUpdateOnceWork(): OneTimeWorkRequest =
-        OneTimeWorkRequestBuilder<AnimeUpdateWorker>().build()
+        OneTimeWorkRequestBuilder<AnimeUpdateWorker>()
+            .setConstraints(ANIME_UPDATE_WORK_CONSTRAINTS)
+            .build()
 
     @Provides
     @AnimeBackgroundUpdate
@@ -59,22 +62,16 @@ interface DiAnimeBackgroundUpdatePlatformComponent {
         Configuration.Builder().setWorkerFactory(workerFactory).build()
 
     /**
-     * The app's single [WorkManager] handle.
-     *
-     * WorkManager initializes itself on first access through the app's `Configuration.Provider`.
-     * That provider serves the [Configuration] bound above.
+     * WorkManager is reached through a function rather than bound as a dependency. Reaching
+     * for it here would lock it while this graph is locked, and WorkManager asks this same
+     * graph for its configuration, so the two would wait on each other.
      */
     @Provides
-    @AppScope
-    fun provideWorkManager(@AppContext appContext: PlatformContext): WorkManager =
-        WorkManager.getInstance(context = appContext)
-
-    @Provides
     fun provideUpdateAllAnimeInBackgroundOnceUsecase(
-        workManager: WorkManager,
+        @AppContext appContext: PlatformContext,
         @AnimeBackgroundUpdate animeUpdateOnceWork: OneTimeWorkRequest
     ): UpdateAllAnimeInBackgroundOnceUsecase = UpdateAllAnimeInBackgroundOnceUsecaseImpl(
-        workManager = workManager,
+        workManager = { WorkManager.getInstance(context = appContext) },
         updateWork = animeUpdateOnceWork,
         uniqueWorkName = ANIME_UPDATE_ONCE_WORK_NAME
     )
@@ -85,15 +82,17 @@ interface DiAnimeBackgroundUpdatePlatformComponent {
         PeriodicWorkRequestBuilder<AnimeUpdateWorker>(
             repeatInterval = AnimeUpdateManager.DEFAULT_ANIME_UPDATE_INTERVAL_MINUTES,
             repeatIntervalTimeUnit = TimeUnit.MINUTES
-        ).build()
+        )
+            .setConstraints(ANIME_UPDATE_WORK_CONSTRAINTS)
+            .build()
 
     @Provides
     @AppScope
     fun provideAnimeBackgroundScheduler(
-        workManager: WorkManager,
+        @AppContext appContext: PlatformContext,
         @AnimeBackgroundUpdate animeUpdatePeriodicWork: PeriodicWorkRequest
     ): AnimeBackgroundScheduler = AnimeBackgroundSchedulerImpl(
-        workManager = workManager,
+        workManager = { WorkManager.getInstance(context = appContext) },
         animeUpdatePeriodicWork = animeUpdatePeriodicWork
     )
 }

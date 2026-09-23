@@ -11,7 +11,11 @@ import com.arkivanov.mvikotlin.core.rx.Observer
  * list, and [emit] replaces it outright for a test that would rather set the state than reach it.
  *
  * An intent naming an id the list does not hold is dropped without emitting. So is one that
- * would change nothing. Both match the real store, so a test sees the same stream of states.
+ * would change nothing. Both rules match the real store.
+ *
+ * Two things here are not the real store. The state changes inside [accept] instead of waiting
+ * for the database to emit again, and a reset arriving while another is still running is
+ * applied rather than dropped.
  *
  * @param initialItems the saved anime the store starts with.
  */
@@ -34,42 +38,42 @@ class AnimeDatabaseStoreFake(
     override fun accept(intent: AnimeDatabaseStore.Intent) {
         val items = state.animeDatabaseItems
         when (intent) {
-            is AnimeDatabaseStore.Intent.InsertAnimeDatabaseItem -> {
-                if (items.holds(intent.animeDatabaseItem.id)) return
-                emit(items + intent.animeDatabaseItem)
-            }
+            is AnimeDatabaseStore.Intent.InsertAnimeDatabaseItem ->
+                if (!items.holds(intent.animeDatabaseItem.id)) {
+                    emit(items + intent.animeDatabaseItem)
+                }
 
-            is AnimeDatabaseStore.Intent.DeleteAnimeDatabaseItem -> {
-                if (!items.holds(intent.id)) return
-                emit(items.filterNot { it.id == intent.id })
-            }
+            is AnimeDatabaseStore.Intent.DeleteAnimeDatabaseItem ->
+                if (items.holds(intent.id)) {
+                    emit(items.filterNot { it.id == intent.id })
+                }
 
-            is AnimeDatabaseStore.Intent.UpdateAnimeDatabaseItem -> {
-                if (!items.holds(intent.animeDatabaseItem.id)) return
-                emit(
-                    items.map { item: AnimeDbDomain ->
-                        if (item.id == intent.animeDatabaseItem.id) {
-                            intent.animeDatabaseItem
-                        } else {
-                            item
+            is AnimeDatabaseStore.Intent.UpdateAnimeDatabaseItem ->
+                if (items.holds(intent.animeDatabaseItem.id)) {
+                    emit(
+                        items.map { item: AnimeDbDomain ->
+                            if (item.id == intent.animeDatabaseItem.id) {
+                                intent.animeDatabaseItem
+                            } else {
+                                item
+                            }
                         }
-                    }
-                )
-            }
+                    )
+                }
 
-            is AnimeDatabaseStore.Intent.ChangeItemNewEpisodeStatus -> {
-                // The mark only ever comes off: an item that does not carry it is left alone.
-                if (items.none { it.id == intent.id && it.isNewEpisode }) return
-                emit(
-                    items.map { item: AnimeDbDomain ->
-                        if (item.id == intent.id) {
-                            item.copy(isNewEpisode = intent.isNewEpisode)
-                        } else {
-                            item
+            // The mark only ever comes off: an item that does not carry it is left alone.
+            is AnimeDatabaseStore.Intent.ChangeItemNewEpisodeStatus ->
+                if (items.any { it.id == intent.id && it.isNewEpisode }) {
+                    emit(
+                        items.map { item: AnimeDbDomain ->
+                            if (item.id == intent.id) {
+                                item.copy(isNewEpisode = intent.isNewEpisode)
+                            } else {
+                                item
+                            }
                         }
-                    }
-                )
-            }
+                    )
+                }
 
             AnimeDatabaseStore.Intent.ResetAllItemsNewEpisodeStatus -> {
                 emit(items.map { it.copy(isNewEpisode = false) })

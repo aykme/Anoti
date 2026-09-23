@@ -16,8 +16,6 @@ kotlin {
             jvmTarget.set(JvmTarget.fromTarget(libs.versions.jvmTarget.get()))
         }
 
-        withJava()
-
         withHostTestBuilder {}.configure {}
     }
 
@@ -44,9 +42,17 @@ kotlin {
 
             implementation(libs.kotlin.inject.runtime.kmp)
         }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.ktor.client.mock)
+        }
         androidMain.dependencies {
             implementation(libs.androidx.work.runtime)
-            implementation(libs.androidx.annotation)
+        }
+        getByName("androidHostTest").dependencies {
+            implementation(libs.robolectric)
+            implementation(libs.androidx.work.testing)
         }
     }
 }

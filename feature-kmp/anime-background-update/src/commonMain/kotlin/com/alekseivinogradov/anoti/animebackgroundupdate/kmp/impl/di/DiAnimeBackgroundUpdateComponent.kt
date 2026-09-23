@@ -23,7 +23,8 @@ interface DiAnimeBackgroundUpdateComponent {
     fun provideAnimeBackgroundUpdateSource(
         service: ShikimoriApiService,
         safeApi: SafeApi
-    ): AnimeBackgroundUpdateSource = AnimeBackgroundUpdateSourceImpl(service = service, safeApi = safeApi)
+    ): AnimeBackgroundUpdateSource =
+        AnimeBackgroundUpdateSourceImpl(service = service, safeApi = safeApi)
 
     @Provides
     @AppScope

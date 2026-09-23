@@ -3,6 +3,7 @@ package com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.data.source
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.data.mapper.toListItemDomain
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.source.AnimeBackgroundUpdateSource
+import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeShortResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.FIRST_PAGE
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
@@ -21,11 +22,7 @@ class AnimeBackgroundUpdateSourceImpl(
                 releaseStatus = null,
                 sort = null,
                 search = null
-            ).filter {
-                it.id != null
-            }.map {
-                it.toListItemDomain()
-            }
+            ).mapNotNull(AnimeShortResponse::toListItemDomain)
         }
     }
 }

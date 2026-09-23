@@ -97,9 +97,14 @@ subprojects {
             exclude { it.file.invariantSeparatorsPath.contains("/build/") }
         }
 
-        // The detekt Gradle plugin only generates tasks for main-compilation source sets, so
-        // these would otherwise never be analyzed.
-        mapOf("commonTest" to "src/commonTest/kotlin", "androidTest" to "src/androidTest/kotlin")
+        // The detekt Gradle plugin registers tasks per compilation, so a shared test source set
+        // belongs to none of them: the tasks it does register for the leaf targets report
+        // NO-SOURCE over these paths, and nothing else covers them.
+        mapOf(
+            "commonTest" to "src/commonTest/kotlin",
+            "iosTest" to "src/iosTest/kotlin",
+            "androidTest" to "src/androidTest/kotlin"
+        )
             .forEach { (sourceSetName, path) ->
                 val sources = file(path)
                 if (!sources.isDirectory) return@forEach
@@ -234,7 +239,7 @@ fun KoverReportFiltersConfig.excludeUnmeasuredCode() {
             "**.Inject*Component*",
             // Compose Resources
             "com.alekseivinogradov.anoti.**.generated.resources.**",
-            // Hand-written test doubles, which the targets exclude the same way they exclude
+            // Handwritten test doubles, which the targets exclude the same way they exclude
             // core-kmp:test-utils.
             "**Fake*"
         )
