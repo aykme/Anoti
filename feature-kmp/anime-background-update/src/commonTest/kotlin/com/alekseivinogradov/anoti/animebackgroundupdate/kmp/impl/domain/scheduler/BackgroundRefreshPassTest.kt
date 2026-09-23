@@ -7,10 +7,12 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -86,6 +88,28 @@ class BackgroundRefreshPassTest {
         // Telling the platform twice is what it treats as a programming error.
         assertEquals(listOf(false), task.outcomes)
         assertEquals(HANDED_OVER_AND_RELEASED, task.takeBackOffers)
+    }
+
+    @Test
+    fun aTaskTakenBackIsToldBeforeAPassThatCannotStopAtOnceHasUnwound() = runTest {
+        //Given
+        val passGate = CompletableDeferred<Unit>()
+        // Stands in for the part of a pass that cannot be interrupted, such as a write already
+        // handed over to the database.
+        val manager = AnimeUpdateManagerFake(
+            onUpdate = { withContext(NonCancellable) { passGate.await() } }
+        )
+        val task = BackgroundRefreshTaskFake()
+        createPass(manager).runIn(task)
+
+        //When
+        task.expire()
+
+        //Then
+        // The platform allows little time once it takes a task back, and canceling is
+        // cooperative, so waiting for the pass to unwind would be waiting too long.
+        assertEquals(listOf(false), task.outcomes)
+        passGate.complete(Unit)
     }
 
     @Test

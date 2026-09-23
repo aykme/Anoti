@@ -35,7 +35,12 @@ internal class BackgroundRefreshPass(
         // Installed before the completion handler below, which is what drops it again: on a
         // scope that is already gone, that handler runs the moment it is registered, and a
         // handler installed after it would be left on a task the platform has taken back.
-        task.setExpirationHandler { job.cancel() }
+        task.setExpirationHandler {
+            // Told before the pass is canceled, not after: canceling is cooperative, and a
+            // pass in the middle of a write can take longer to unwind than the platform waits.
+            completion.complete(success = false)
+            job.cancel()
+        }
         // Whatever ends the pass — a throw, the scope being canceled, the platform taking the
         // task back — the platform is told.
         job.invokeOnCompletion { completion.complete(success = false) }

@@ -12,6 +12,7 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.UpdateAn
 import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import me.tatarka.inject.annotations.Provides
@@ -50,7 +51,7 @@ interface DiAnimeBackgroundUpdatePlatformComponent {
         animeUpdateManager: AnimeUpdateManager
     ): AnimeBackgroundScheduler = AnimeBackgroundSchedulerImpl(
         animeUpdateManager = animeUpdateManager,
-        coroutineScope = CoroutineScope(SupervisorJob())
+        coroutineScope = updatePassScope()
     ).also { it.registerTaskHandler() }
 
     /**
@@ -65,6 +66,18 @@ interface DiAnimeBackgroundUpdatePlatformComponent {
         animeUpdateManager: AnimeUpdateManager
     ): UpdateAllAnimeInBackgroundOnceUsecase = SingleFlightUpdateAllAnimeInBackgroundOnceUsecase(
         animeUpdateManager = animeUpdateManager,
-        coroutineScope = CoroutineScope(SupervisorJob())
+        coroutineScope = updatePassScope()
     )
 }
+
+private const val TAG = "DiAnimeBackgroundUpdatePlatformComponent"
+
+/**
+ * A scope for update passes. A throw out of one is reported rather than left to end the
+ * process, which is what an unhandled one does on this platform.
+ */
+private fun updatePassScope(): CoroutineScope = CoroutineScope(
+    SupervisorJob() + CoroutineExceptionHandler { _, throwable: Throwable ->
+        println("$TAG: an update pass ended in $throwable")
+    }
+)
