@@ -33,6 +33,7 @@ the whole app.
 
 ## Feature modules
 
+- [feature-kmp:anime-background-update](feature-kmp/anime-background-update/FEATURE-KMP-ANIME-BACKGROUND-UPDATE-REGRESS.md)
 - [feature-kmp:anime-base](feature-kmp/anime-base/FEATURE-KMP-ANIME-BASE-REGRESS.md)
 - [feature-kmp:anime-favorites](feature-kmp/anime-favorites/FEATURE-KMP-ANIME-FAVORITES-REGRESS.md)
 - [feature-kmp:anime-list](feature-kmp/anime-list/FEATURE-KMP-ANIME-LIST-REGRESS.md)
@@ -41,9 +42,3 @@ the whole app.
 - [feature-kmp:bottom-navigation-bar](feature-kmp/bottom-navigation-bar/FEATURE-KMP-BOTTOM-NAVIGATION-BAR-REGRESS.md)
 - [feature-kmp:notifications-rationale-dialog](feature-kmp/notifications-rationale-dialog/FEATURE-KMP-NOTIFICATIONS-RATIONALE-DIALOG-REGRESS.md)
 
-## Modules with no regression file yet
-
-These have no file, so a full regression run does not cover them. Anything they add to the app
-is unchecked until each one gets its own file, at which point it is linked above instead.
-
-- `feature-kmp:anime-background-update`
