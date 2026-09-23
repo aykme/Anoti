@@ -16,6 +16,20 @@ Nothing is done a second time just because a second file asks for it too.
 To regress a single module instead, go straight to that module's own file; this index is for
 the whole app.
 
+## The build to run on
+
+Run a regression on a build that has been shrunk and obfuscated, the way the released one is.
+Shrinking removes and renames code, and it is the step that can break something which only
+shows once the app is running — a check on a build that skipped it proves nothing about what
+ships.
+
+## Platforms
+
+Every file below describes what the app does, not what one platform does. Where a step goes
+through a system screen, it names Android's, and an iOS run reaches the same setting through
+iOS's own screens and expects the same result. A check only one platform can reach says which
+one, and why.
+
 ## App modules
 
 - [app](app/APP-REGRESS.md)

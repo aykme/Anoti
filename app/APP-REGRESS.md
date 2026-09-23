@@ -4,8 +4,9 @@ This module is the app itself: the entry in the launcher, the registering of the
 channel, and the hourly background check for new episodes. It draws no screens of its own.
 Everything a screen shows is checked in its own module's file.
 
-Unless a step says otherwise, start from a clean installation with the app never opened before, on a
-device that is online.
+Unless a step says otherwise, start from a clean installation with the app never opened before, on
+a device that is online, using a build that has been shrunk and obfuscated the way the released
+one is.
 
 ## The app in the launcher
 

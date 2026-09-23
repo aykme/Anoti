@@ -151,6 +151,20 @@ Read this before doing any task in this repository.
   to be split. Platform code is covered too: an Android implementation gets its tests in
   `androidHostTest`, an iOS one in `iosTest` — the pair of `AnimeDatabaseContinuityTest` classes
   in `core-kmp:anime-database` shows the shape.
+- An `iosTest` runs on macOS and nowhere else: on this machine `iosSimulatorArm64Test` is skipped
+  outright, so a test there is compiled and never executed. Kover cannot measure Kotlin/Native
+  either. Such a test proves nothing here and counts for nothing.
+- So before writing one, check whether the code under it needs an iOS API at all. A class built
+  from coroutines, atomics and the module's own types belongs in `commonMain`, where its test
+  runs on every build and is measured — even when iOS is its only caller. `BackgroundRefreshPass`
+  and `BackgroundRefreshTask` in `feature-kmp:anime-background-update` show the shape: the
+  portable half of a background refresh is common and tested, and `AnimeBackgroundSchedulerImpl`
+  is left holding the `BGTaskScheduler` calls and nothing else.
+- What stays in `iosTest` is what only a real iOS runtime can answer, and it is written knowing
+  it will not run until someone builds on a Mac.
+- Where both platforms need the same thing built — wording, an id, a format — build it once in
+  `commonMain` and have both call it. Two copies drift, and review is not what should be holding
+  them together. `newEpisodeNotificationText` in `feature-kmp:anime-notification` is that shape.
 - A module that is not multiplatform keeps its host tests in `src/test/kotlin`, and its
   instrumented tests in `src/androidTest/kotlin`. Never a `java` directory, in any source set.
 - Composables get tests too, but not from `commonTest`: `runComposeUiTest` compiles there and then
@@ -188,40 +202,37 @@ Read this before doing any task in this repository.
 ## Test coverage
 
 - Kover is the project's coverage tool — measure with it rather than guessing from the diff.
-- While writing tests, check the affected module alone: `./gradlew :<module>:koverHtmlReport` for
-  the report, or `:<module>:koverLog` for just the number. Running the project-wide
-  `./gradlew koverHtmlReport` for these rebuilds every module and says little about yours; keep it
-  for reviewing the whole picture.
-- The numbers below are targets we aim for, not a gate. No `koverVerify` threshold is configured,
-  so they are upheld in review rather than by a failing build.
-- Apply them to the code you write or change: new code must meet them, and code you modify must
-  not end up below them. This part is not optional.
+- The bar is one number over the whole project, and it is enforced. `./gradlew koverVerify` fails
+  the build when aggregated line coverage falls below `wholeProjectLineCoverageMinimum` in the
+  root `build.gradle.kts`, currently 99%.
+- That number is what the project already holds, not something to grow into. New and changed code
+  arrives covered; there is no slack left to spend.
+- Nothing runs the task for you. It is deliberately outside `check` and `build`, so an ordinary
+  build never pays for it — "Finishing a task" below says when to run it.
+- It is checked over the project as a whole on purpose. A module's own report counts only that
+  module's test runs, so the coverage its classes get from a neighboring module's tests is
+  missing from it, and it reads lower than the truth.
+- While writing tests, still look at the affected module alone — `./gradlew :<module>:koverLog`
+  for the number, `:<module>:koverHtmlReport` for where the gaps are. Read those to find gaps,
+  not to decide whether the bar is met.
 - Where a module falls short in places you did not touch, neither fix it silently nor stay quiet.
   Name the uncovered parts, offer to cover them, and let the developer decide.
-- Targets by layer, measured on lines:
-    - Stores, executors, reducers — 85%
-    - Mappers — 90%
-    - Usecases, paging, api plumbing — 85%
-    - Models and responses — 90%
-    - Presentation outside Compose — 30%
-    - Composables — tested, but deliberately outside the numbers
-- Whole project — 70%. A module carrying domain logic — a 60% floor. Modules that are mostly
-  shared UI (`core-kmp:celebrity`) or an app shell (`main`, `app`) get no floor, since how much
-  Compose they hold sets their ceiling.
-- Generated code (Room, kotlin-inject, Compose Resources), `@Composable` functions, DI components
-  and `core-kmp:test-utils` do not count toward these targets.
+- Filtered out of the measurement by the root build, and therefore outside the number: generated
+  code (Room, kotlin-inject, Compose Resources, the Compose compiler's `ComposableSingletons`
+  holders), `@Composable` functions, the handwritten `Di*Component` interfaces, handwritten test
+  doubles and `core-kmp:test-utils`.
 - Keeping `@Composable` out is deliberate, not a gap waiting to be closed. The Compose compiler
   expands a composable into synthetic lambda classes (`...Kt$name$1$1$1`) of about two lines each,
   so a percentage over them measures generated shapes rather than tested behavior. Write the
   tests, judge them by what they assert, and ignore the number.
 - That exclusion follows the annotation, not the package. Compose-adjacent code without
   `@Composable` — `Modifier` extensions such as `repeatingClickable`, and token files like
-  `Colors.kt` and `Fonts.kt` — still counts, under the presentation target.
-- Android platform code does count; Kover measures it through `androidHostTest`. Kover cannot
-  measure Kotlin/Native, so `iosMain` falls outside every number here — cover it with `iosTest`
-  and judge that by what the tests exercise, not by a percentage.
-- A platform implementation is held to the same layer target as the shared code it stands in for.
-- A target is a floor, never a finish line. Hitting the percentage is not the goal: cover the
+  `Colors.kt` and `Fonts.kt` — is measured like anything else.
+- Android platform code counts too; Kover measures it through `androidHostTest`.
+- Kover cannot measure Kotlin/Native, so nothing in `iosMain` reaches the number. Together with
+  `iosTest` not running off macOS, that is the reason logic belongs in `commonMain` — see
+  "Tests" above.
+- The minimum is a floor, never a finish line. Hitting the percentage is not the goal: cover the
   main cases, the risky ones, the bottlenecks and the boundaries. Where concurrency is real,
   cover races and ordering as well. A test written only to move the number is worse than no test.
 
@@ -253,8 +264,10 @@ Read this before doing any task in this repository.
   never makes real API calls (this is forbidden).
 - Measure the coverage of every module you touched instead of estimating it from the diff.
   `./gradlew :<module>:koverLog` prints the number; `:<module>:koverHtmlReport` shows where the
-  gaps are. Hold the result to the targets in "Test coverage" above. Name what is still
-  uncovered rather than staying quiet about it.
+  gaps are. Name what is still uncovered rather than staying quiet about it.
+- Then run `./gradlew koverVerify` and get it green, before the code review below. Nothing else
+  in the build runs it, and it is the gate the whole project is held to — see "Test coverage"
+  above. A red one is not reported as a finding, it is fixed.
 - Check the change still works once R8 has had it — see "R8 and the minified build" below.
 - Review the Gradle files of every affected module. Look for dependencies nothing uses anymore,
   ones declared in the wrong configuration, and anything that could be expressed more simply.
@@ -309,10 +322,12 @@ Read this before doing any task in this repository.
 
 ## R8 and the minified build
 
-- `release` ships unshrunk. The `minified` build type in `:app` is the stand that exercises R8:
-  it is `initWith(release)` with `isMinifyEnabled` and `isShrinkResources` on, signed with the
-  debug key so it installs. Build it with `./gradlew :app:assembleMinified`.
-- `isDebuggable` must stay off there. AGP runs R8 in debug mode for a debuggable variant, which
+- `release` is shrunk and obfuscated: `isMinifyEnabled` and `isShrinkResources` are both on for
+  it, over `proguard-android-optimize.txt` plus `app/proguard-rules.pro`.
+- It carries no signing config, so what actually goes on a device is `minified` — `initWith`
+  release plus the debug key, and identical to it in everything R8 does. Build it with
+  `./gradlew :app:assembleMinified`; the two variants' `mapping.txt` files match byte for byte.
+- `isDebuggable` must stay off on both. AGP runs R8 in debug mode for a debuggable variant, which
   silently skips obfuscation — the part of R8 most likely to break something. Measured on the
   same variant: debuggable gave 0 renames and 18 170 429 bytes, non-debuggable 698 renames and
   9 664 344 bytes.
@@ -355,6 +370,9 @@ Read this before doing any task in this repository.
   (e.g. `:core-kmp:celebrity` → `CORE-KMP-CELEBRITY-REGRESS.md`).
 - It is the module's manual test script: only what cannot be checked from the code, written for a
   tester who has never seen it. Anything provable from the code belongs in a test instead.
+- A step is written for the app rather than for one platform. Where the same check can be walked
+  on iOS as on Android, it is one step phrased for both; where only one platform can reach it,
+  the step names that platform and says why.
 - It is written and updated through the `code-documentation` skill, in the same pass as the
   module's README. The skill holds the rules for what goes in it and how far its scope reaches.
 - A regression **of one module** is run from that module's own `-REGRESS.md`, at the module's
