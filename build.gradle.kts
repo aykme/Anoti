@@ -2,6 +2,8 @@ import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.HostTestBuilder
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
+import kotlinx.kover.gradle.plugin.dsl.AggregationType
+import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
 import kotlinx.kover.gradle.plugin.dsl.KoverProjectExtension
 import kotlinx.kover.gradle.plugin.dsl.KoverReportFiltersConfig
 import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
@@ -24,6 +26,11 @@ plugins {
 // once that project is being evaluated, which is after the block below runs.
 val robolectricSdk = libs.versions.robolectricSdk.get()
 val minSdk = libs.versions.minSdk.get()
+
+// The floor the whole project's line coverage may not fall below. It sits below what the
+// project holds on purpose, so the gate catches a change that arrived with no tests rather
+// than a branch no test can reach. `koverVerify` checks it; CLAUDE.md says when that is run.
+val wholeProjectLineCoverageMinimum = 95
 
 /** Writes the Robolectric properties a module's host tests read off their classpath. */
 abstract class GenerateRobolectricConfig : DefaultTask() {
@@ -223,6 +230,18 @@ dependencies {
 kover {
     reports {
         filters { excludeUnmeasuredCode() }
+
+        verify {
+            // Checked here rather than per module: a module's own report leaves out the coverage
+            // its classes get from another module's tests, so it reads lower than the truth.
+            rule("Whole project") {
+                bound {
+                    minValue = wholeProjectLineCoverageMinimum
+                    coverageUnits = CoverageUnit.LINE
+                    aggregationForGroup = AggregationType.COVERED_PERCENTAGE
+                }
+            }
+        }
     }
 }
 
@@ -235,16 +254,27 @@ fun KoverReportFiltersConfig.excludeUnmeasuredCode() {
         classes(
             // Room
             "**_Impl*",
+            "**.AnimeDatabaseConstructor",
             // kotlin-inject
             "**.Inject*Component*",
+            // Bodies the Kotlin compiler copies out of an interface into a static holder, so
+            // the same lines are not counted twice.
+            $$"**$DefaultImpls",
+            // The holders the Compose compiler generates for composable lambdas, which carry no
+            // code of their own.
+            "**.ComposableSingletons$*",
             // Compose Resources
             "com.alekseivinogradov.anoti.**.generated.resources.**",
-            // Handwritten test doubles, which the targets exclude the same way they exclude
-            // core-kmp:test-utils.
+            // Handwritten test doubles.
             "**Fake*"
         )
-        // The same doubles, caught by where they live rather than by what they are called.
-        packages("**.fake")
+        packages(
+            // The same doubles, caught by where they live rather than by what they are called.
+            "**.fake",
+            // core-kmp:test-utils serves the tests rather than the app, so what it does for them
+            // is what it is held to.
+            "com.alekseivinogradov.anoti.testutils"
+        )
     }
 }
 

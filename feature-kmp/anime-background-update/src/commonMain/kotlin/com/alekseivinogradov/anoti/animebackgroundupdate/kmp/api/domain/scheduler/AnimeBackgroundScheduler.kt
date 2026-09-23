@@ -5,6 +5,6 @@ package com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.schedul
  */
 interface AnimeBackgroundScheduler {
 
-    /** Schedules (or re-schedules) the next periodic update pass. */
+    /** Makes sure a periodic update pass is scheduled, without pushing back one already due. */
     fun schedulePeriodicUpdate()
 }

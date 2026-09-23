@@ -13,18 +13,16 @@ import com.alekseivinogradov.anoti.animenotification.android.impl.presentation.f
 import com.alekseivinogradov.anoti.animenotification.external.android.impl.presentation.provider.AnimeNotificationIntentProvider
 import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.Res
-import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.episode_aired
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.new_episodes
+import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.manager.newEpisodeNotificationText
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.poster.PosterLoader
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SilverTransparent
-import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.no_data
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.getString
 import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
-import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as celebrityRes
 
 internal class AnimeNotificationManagerImpl(
     private val appContext: Context,
@@ -60,11 +58,13 @@ internal class AnimeNotificationManagerImpl(
         imageUrl: String?
     ) {
         withContext(coroutineContextProvider.ioDispatcher) {
-            val noDataString = getString(celebrityRes.string.no_data)
-            val episodeAiredString = getString(Res.string.episode_aired)
+            val text = newEpisodeNotificationText(
+                animeName = animeName,
+                airedEpisode = airedEpisode
+            )
             val singleNotification = buildSingleNotification(
-                title = animeName ?: noDataString,
-                contentText = "$episodeAiredString: ${airedEpisode ?: noDataString}",
+                title = text.title,
+                contentText = text.body,
                 poster = posterLoader.loadImage(imageUrl)?.toBitmap()
             )
             val summaryNotification = buildSummaryNotification()
