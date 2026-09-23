@@ -6,12 +6,12 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
-import com.alekseivinogradov.anoti.network.kmp.api.domain.model.test.DesiredCallResult
+import com.alekseivinogradov.anoti.network.kmp.api.domain.model.fake.CallResultFake
 import kotlinx.coroutines.delay
 import kotlin.time.Duration
 
 class AnimeListSourceImplFake(
-    private val desiredCallResult: DesiredCallResult,
+    private val callResultFake: CallResultFake,
     private val desiredDelay: Duration
 ) : AnimeListSource {
 
@@ -22,14 +22,14 @@ class AnimeListSourceImplFake(
         sort: SortData
     ): CallResult<List<ListItemDomain>> {
         delay(desiredDelay)
-        return when (desiredCallResult) {
-            DesiredCallResult.SUCCESS -> createAnimeListSuccessResult(
+        return when (callResultFake) {
+            CallResultFake.SUCCESS -> createAnimeListSuccessResult(
                 itemNumber = 5,
                 releaseStatus = ReleaseStatusDomain.ONGOING
             )
 
-            DesiredCallResult.HTTP_ERROR -> createHttpErrorResult()
-            DesiredCallResult.OTHER_ERROR -> createOtherErrorResult()
+            CallResultFake.HTTP_ERROR -> createHttpErrorResult()
+            CallResultFake.OTHER_ERROR -> createOtherErrorResult()
         }
     }
 
@@ -38,14 +38,14 @@ class AnimeListSourceImplFake(
         sort: SortData
     ): CallResult<List<ListItemDomain>> {
         delay(desiredDelay)
-        return when (desiredCallResult) {
-            DesiredCallResult.SUCCESS -> createAnimeListSuccessResult(
+        return when (callResultFake) {
+            CallResultFake.SUCCESS -> createAnimeListSuccessResult(
                 itemNumber = 5,
                 releaseStatus = ReleaseStatusDomain.ANNOUNCED
             )
 
-            DesiredCallResult.HTTP_ERROR -> createHttpErrorResult()
-            DesiredCallResult.OTHER_ERROR -> createOtherErrorResult()
+            CallResultFake.HTTP_ERROR -> createHttpErrorResult()
+            CallResultFake.OTHER_ERROR -> createOtherErrorResult()
         }
     }
 
@@ -55,19 +55,19 @@ class AnimeListSourceImplFake(
         sort: SortData
     ): CallResult<List<ListItemDomain>> {
         delay(desiredDelay)
-        return when (desiredCallResult) {
-            DesiredCallResult.SUCCESS -> createAnimeListSuccessResult(itemNumber = 5)
-            DesiredCallResult.HTTP_ERROR -> createHttpErrorResult()
-            DesiredCallResult.OTHER_ERROR -> createOtherErrorResult()
+        return when (callResultFake) {
+            CallResultFake.SUCCESS -> createAnimeListSuccessResult(itemNumber = 5)
+            CallResultFake.HTTP_ERROR -> createHttpErrorResult()
+            CallResultFake.OTHER_ERROR -> createOtherErrorResult()
         }
     }
 
     override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
         delay(desiredDelay)
-        return when (desiredCallResult) {
-            DesiredCallResult.SUCCESS -> createAnimeDetailsSuccessResult(id)
-            DesiredCallResult.HTTP_ERROR -> createHttpErrorResult()
-            DesiredCallResult.OTHER_ERROR -> createOtherErrorResult()
+        return when (callResultFake) {
+            CallResultFake.SUCCESS -> createAnimeDetailsSuccessResult(id)
+            CallResultFake.HTTP_ERROR -> createHttpErrorResult()
+            CallResultFake.OTHER_ERROR -> createOtherErrorResult()
         }
     }
 

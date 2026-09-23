@@ -5,7 +5,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anoti.animelist.kmp.impl.data.source.fake.AnimeListSourceImplFake
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
-import com.alekseivinogradov.anoti.network.kmp.api.domain.model.test.DesiredCallResult
+import com.alekseivinogradov.anoti.network.kmp.api.domain.model.fake.CallResultFake
 import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.Test
@@ -45,7 +45,7 @@ class FetchAnimeListBySearchUsecaseTest {
     @Test
     fun testFetchAnimeListBySearchUsecaseSuccessResult() = runTest {
         //Given
-        initSourceAndUsecase(desiredCallResult = DesiredCallResult.SUCCESS)
+        initSourceAndUsecase(callResultFake = CallResultFake.SUCCESS)
         val expectedResult: CallResult<List<ListItemDomain>> = source.getListBySearch(
             page = page,
             search = searchText,
@@ -73,7 +73,7 @@ class FetchAnimeListBySearchUsecaseTest {
     @Test
     fun testFetchAnimeListBySearchUsecaseHttpErrorResult() = runTest {
         //Given
-        initSourceAndUsecase(desiredCallResult = DesiredCallResult.HTTP_ERROR)
+        initSourceAndUsecase(callResultFake = CallResultFake.HTTP_ERROR)
         val expectedResult: CallResult<List<ListItemDomain>> = source.getListBySearch(
             page = page,
             search = searchText,
@@ -97,7 +97,7 @@ class FetchAnimeListBySearchUsecaseTest {
     @Test
     fun testFetchAnimeListBySearchUsecaseOtherErrorResult() = runTest {
         //Given
-        initSourceAndUsecase(desiredCallResult = DesiredCallResult.OTHER_ERROR)
+        initSourceAndUsecase(callResultFake = CallResultFake.OTHER_ERROR)
         val expectedResult: CallResult<List<ListItemDomain>> = source.getListBySearch(
             page = page,
             search = searchText,
@@ -118,10 +118,10 @@ class FetchAnimeListBySearchUsecaseTest {
         }
     }
 
-    private fun initSourceAndUsecase(desiredCallResult: DesiredCallResult) {
+    private fun initSourceAndUsecase(callResultFake: CallResultFake) {
         source = RecordingSearchSource(
             AnimeListSourceImplFake(
-                desiredCallResult = desiredCallResult,
+                callResultFake = callResultFake,
                 desiredDelay = Random.nextInt(maxDelay).milliseconds
             )
         )

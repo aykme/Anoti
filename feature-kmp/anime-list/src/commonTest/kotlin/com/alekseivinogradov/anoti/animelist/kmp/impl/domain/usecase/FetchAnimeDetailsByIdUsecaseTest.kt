@@ -4,7 +4,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anoti.animelist.kmp.impl.data.source.fake.AnimeListSourceImplFake
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
-import com.alekseivinogradov.anoti.network.kmp.api.domain.model.test.DesiredCallResult
+import com.alekseivinogradov.anoti.network.kmp.api.domain.model.fake.CallResultFake
 import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.Test
@@ -19,7 +19,7 @@ class FetchAnimeDetailsByIdUsecaseTest {
     @Test
     fun testFetchAnimeDetailsByIdUsecaseSuccessResult() = runTest {
         //Given
-        initSourceAndUsecase(desiredCallResult = DesiredCallResult.SUCCESS)
+        initSourceAndUsecase(callResultFake = CallResultFake.SUCCESS)
         val randomId: Int = createRandomId()
         val expectedResult: CallResult<ListItemDomain> = source.getItemById(randomId)
 
@@ -37,7 +37,7 @@ class FetchAnimeDetailsByIdUsecaseTest {
     @Test
     fun testFetchAnimeDetailsByIdUsecaseHttpErrorResult() = runTest {
         //Given
-        initSourceAndUsecase(desiredCallResult = DesiredCallResult.HTTP_ERROR)
+        initSourceAndUsecase(callResultFake = CallResultFake.HTTP_ERROR)
         val randomId: Int = createRandomId()
         val expectedResult: CallResult<ListItemDomain> = source.getItemById(randomId)
 
@@ -55,7 +55,7 @@ class FetchAnimeDetailsByIdUsecaseTest {
     @Test
     fun testFetchAnimeDetailsByIdUsecaseOtherErrorResult() = runTest {
         //Given
-        initSourceAndUsecase(desiredCallResult = DesiredCallResult.OTHER_ERROR)
+        initSourceAndUsecase(callResultFake = CallResultFake.OTHER_ERROR)
         val randomId: Int = createRandomId()
         val expectedResult: CallResult<ListItemDomain> = source.getItemById(randomId)
 
@@ -70,9 +70,9 @@ class FetchAnimeDetailsByIdUsecaseTest {
         }
     }
 
-    private fun initSourceAndUsecase(desiredCallResult: DesiredCallResult) {
+    private fun initSourceAndUsecase(callResultFake: CallResultFake) {
         source = AnimeListSourceImplFake(
-            desiredCallResult = desiredCallResult,
+            callResultFake = callResultFake,
             desiredDelay = Random.nextInt(maxDelay).milliseconds
         )
         usecase = FetchAnimeDetailsByIdUsecase(source)

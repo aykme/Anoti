@@ -9,7 +9,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
-import com.alekseivinogradov.anoti.network.kmp.api.domain.model.test.DesiredCallResult
+import com.alekseivinogradov.anoti.network.kmp.api.domain.model.fake.CallResultFake
 import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
 import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
@@ -33,7 +33,7 @@ class AnimeListSourceImplTest {
     @Test
     fun testAnimeListSourceGetItemByIdSuccess() = runTest {
         //Given
-        initServiceAndSource(desiredCallResult = DesiredCallResult.SUCCESS)
+        initServiceAndSource(callResultFake = CallResultFake.SUCCESS)
         val randomId: Int = createRandomId()
         val expectedResult: ListItemDomain = service.getAnimeById(randomId).toListItemDomain()
 
@@ -50,7 +50,7 @@ class AnimeListSourceImplTest {
     @Test
     fun testAnimeListSourceGetItemByIdError() = runTest {
         //Given
-        initServiceAndSource(desiredCallResult = DesiredCallResult.OTHER_ERROR)
+        initServiceAndSource(callResultFake = CallResultFake.OTHER_ERROR)
         val randomId: Int = createRandomId()
         val expectedResult: CallResult.OtherError? = try {
             service.getAnimeById(randomId)
@@ -73,7 +73,7 @@ class AnimeListSourceImplTest {
     @Test
     fun testAnimeListSourceGetOngoingListSuccess() = runTest {
         //Given
-        initServiceAndSource(desiredCallResult = DesiredCallResult.SUCCESS)
+        initServiceAndSource(callResultFake = CallResultFake.SUCCESS)
         val sort = SortData.SCORE
         val expectedResult: List<ListItemDomain> = service.getAnimeList(
             page = page,
@@ -101,7 +101,7 @@ class AnimeListSourceImplTest {
     @Test
     fun testAnimeListSourceGetOngoingListError() = runTest {
         //Given
-        initServiceAndSource(desiredCallResult = DesiredCallResult.OTHER_ERROR)
+        initServiceAndSource(callResultFake = CallResultFake.OTHER_ERROR)
         val sort = SortData.SCORE
         val expectedResult: CallResult.OtherError? = try {
             service.getAnimeList(
@@ -133,7 +133,7 @@ class AnimeListSourceImplTest {
     @Test
     fun testAnimeListSourceGetAnnouncedListSuccess() = runTest {
         //Given
-        initServiceAndSource(desiredCallResult = DesiredCallResult.SUCCESS)
+        initServiceAndSource(callResultFake = CallResultFake.SUCCESS)
         val sort = SortData.POPULARITY
         val expectedResult: List<ListItemDomain> = service.getAnimeList(
             page = page,
@@ -161,7 +161,7 @@ class AnimeListSourceImplTest {
     @Test
     fun testAnimeListSourceGetAnnouncedListError() = runTest {
         //Given
-        initServiceAndSource(desiredCallResult = DesiredCallResult.OTHER_ERROR)
+        initServiceAndSource(callResultFake = CallResultFake.OTHER_ERROR)
         val sort = SortData.POPULARITY
         val expectedResult: CallResult.OtherError? = try {
             service.getAnimeList(
@@ -193,7 +193,7 @@ class AnimeListSourceImplTest {
     @Test
     fun testAnimeListSourceGetListBySearchSuccess() = runTest {
         //Given
-        initServiceAndSource(desiredCallResult = DesiredCallResult.SUCCESS)
+        initServiceAndSource(callResultFake = CallResultFake.SUCCESS)
         val sort = SortData.SCORE
         val search = "search"
         val expectedResult: List<ListItemDomain> = service.getAnimeList(
@@ -223,7 +223,7 @@ class AnimeListSourceImplTest {
     @Test
     fun testAnimeListSourceGetListBySearchError() = runTest {
         //Given
-        initServiceAndSource(desiredCallResult = DesiredCallResult.OTHER_ERROR)
+        initServiceAndSource(callResultFake = CallResultFake.OTHER_ERROR)
         val sort = SortData.SCORE
         val search = "search"
         val expectedResult: CallResult.OtherError? = try {
@@ -254,9 +254,9 @@ class AnimeListSourceImplTest {
         }
     }
 
-    private fun initServiceAndSource(desiredCallResult: DesiredCallResult) {
+    private fun initServiceAndSource(callResultFake: CallResultFake) {
         service = ShikimoriApiServiceImplFake(
-            desiredCallResult = desiredCallResult,
+            callResultFake = callResultFake,
             desiredDelay = Random.nextInt(maxDelay).milliseconds
         )
         source = AnimeListSourceImpl(

@@ -5,12 +5,12 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ListItemD
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.source.AnimeFavoritesSource
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
-import com.alekseivinogradov.anoti.network.kmp.api.domain.model.test.DesiredCallResult
+import com.alekseivinogradov.anoti.network.kmp.api.domain.model.fake.CallResultFake
 import kotlinx.coroutines.delay
 import kotlin.time.Duration
 
 class AnimeFavoritesSourceImplFake(
-    private val desiredCallResult: DesiredCallResult,
+    private val callResultFake: CallResultFake,
     private val desiredDelay: Duration
 ) : AnimeFavoritesSource {
 
@@ -18,10 +18,10 @@ class AnimeFavoritesSourceImplFake(
 
     override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
         delay(desiredDelay)
-        return when (desiredCallResult) {
-            DesiredCallResult.SUCCESS -> createAnimeDetailsSuccessResult(id)
-            DesiredCallResult.HTTP_ERROR -> createHttpErrorResult()
-            DesiredCallResult.OTHER_ERROR -> createOtherErrorResult()
+        return when (callResultFake) {
+            CallResultFake.SUCCESS -> createAnimeDetailsSuccessResult(id)
+            CallResultFake.HTTP_ERROR -> createHttpErrorResult()
+            CallResultFake.OTHER_ERROR -> createOtherErrorResult()
         }
     }
 

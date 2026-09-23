@@ -7,7 +7,7 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ListItemD
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.source.AnimeFavoritesSource
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
-import com.alekseivinogradov.anoti.network.kmp.api.domain.model.test.DesiredCallResult
+import com.alekseivinogradov.anoti.network.kmp.api.domain.model.fake.CallResultFake
 import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
 import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
@@ -30,7 +30,7 @@ class AnimeFavoritesSourceImplTest {
     @Test
     fun testAnimeFavoritesSourceGetItemByIdSuccess() = runTest {
         //Given
-        initServiceAndSource(desiredCallResult = DesiredCallResult.SUCCESS)
+        initServiceAndSource(callResultFake = CallResultFake.SUCCESS)
         val randomId: Int = createRandomId()
         val expectedResult: ListItemDomain = service.getAnimeById(randomId).toListItemDomain()
 
@@ -47,7 +47,7 @@ class AnimeFavoritesSourceImplTest {
     @Test
     fun testAnimeFavoritesSourceGetItemByIdError() = runTest {
         //Given
-        initServiceAndSource(desiredCallResult = DesiredCallResult.OTHER_ERROR)
+        initServiceAndSource(callResultFake = CallResultFake.OTHER_ERROR)
         val randomId: Int = createRandomId()
         val expectedResult: CallResult.OtherError? = try {
             service.getAnimeById(randomId)
@@ -67,9 +67,9 @@ class AnimeFavoritesSourceImplTest {
         }
     }
 
-    private fun initServiceAndSource(desiredCallResult: DesiredCallResult) {
+    private fun initServiceAndSource(callResultFake: CallResultFake) {
         service = ShikimoriApiServiceImplFake(
-            desiredCallResult = desiredCallResult,
+            callResultFake = callResultFake,
             desiredDelay = Random.nextInt(maxDelay).milliseconds
         )
         source = AnimeFavoritesSourceImpl(

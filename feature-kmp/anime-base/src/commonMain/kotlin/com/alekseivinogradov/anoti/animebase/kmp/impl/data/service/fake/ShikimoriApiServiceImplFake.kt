@@ -5,12 +5,12 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeShortRes
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.ImageResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
-import com.alekseivinogradov.anoti.network.kmp.api.domain.model.test.DesiredCallResult
+import com.alekseivinogradov.anoti.network.kmp.api.domain.model.fake.CallResultFake
 import kotlinx.coroutines.delay
 import kotlin.time.Duration
 
 class ShikimoriApiServiceImplFake(
-    private val desiredCallResult: DesiredCallResult,
+    private val callResultFake: CallResultFake,
     private val desiredDelay: Duration
 ) : ShikimoriApiService {
 
@@ -23,8 +23,8 @@ class ShikimoriApiServiceImplFake(
         search: String?,
         ids: String?
     ): List<AnimeShortResponse> {
-        return when (desiredCallResult) {
-            DesiredCallResult.SUCCESS -> createAnimeList(
+        return when (callResultFake) {
+            CallResultFake.SUCCESS -> createAnimeList(
                 releaseStatus = releaseStatus
             )
 
@@ -34,8 +34,8 @@ class ShikimoriApiServiceImplFake(
 
     override suspend fun getAnimeById(id: AnimeId): AnimeDetailsResponse {
         delay(desiredDelay)
-        return when (desiredCallResult) {
-            DesiredCallResult.SUCCESS -> createAnimeDetailsResponse(id)
+        return when (callResultFake) {
+            CallResultFake.SUCCESS -> createAnimeDetailsResponse(id)
             else -> throw error
         }
     }
