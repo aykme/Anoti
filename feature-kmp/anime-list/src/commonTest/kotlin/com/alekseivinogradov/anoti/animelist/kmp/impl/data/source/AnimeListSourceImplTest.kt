@@ -137,11 +137,12 @@ class AnimeListSourceImplTest {
         val source = createSource(animeListJsonResponse)
 
         //When
-        source.getAnnouncedList(page = PAGE, sort = SortData.SCORE)
+        val result = source.getAnnouncedList(page = PAGE, sort = SortData.SCORE)
 
         //Then
         assertEquals("anons", lastRequest.url.parameters["status"])
         assertEquals("ranked", lastRequest.url.parameters["order"])
+        assertEquals(CallResult.Success(listOf(expectedListItem)), result)
     }
 
     @Test
@@ -150,11 +151,16 @@ class AnimeListSourceImplTest {
         val source = createSource(animeListJsonResponse)
 
         //When
-        source.getListBySearch(page = PAGE, search = "frieren", sort = SortData.POPULARITY)
+        val result = source.getListBySearch(
+            page = PAGE,
+            search = "frieren",
+            sort = SortData.POPULARITY
+        )
 
         //Then
         assertEquals("frieren", lastRequest.url.parameters["search"])
         assertNull(lastRequest.url.parameters["status"])
+        assertEquals(CallResult.Success(listOf(expectedListItem)), result)
     }
 
     @Test

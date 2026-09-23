@@ -1,6 +1,7 @@
 package com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
+import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.fake.UpdateAllAnimeInBackgroundOnceUsecaseFake
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anoti.animebase.kmp.impl.data.service.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
@@ -28,6 +29,13 @@ import com.arkivanov.essenty.statekeeper.StateKeeperDispatcher
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockEngineConfig
+import io.ktor.client.engine.mock.respond
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import io.ktor.utils.io.ByteReadChannel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -48,6 +56,8 @@ class NavAnimeFavoritesScreenComponentTest {
 
     private val lifecycles = mutableListOf<LifecycleRegistry>()
 
+    private val catalogEngine = unreachableCatalog(testDispatcher)
+
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(testDispatcher)
@@ -57,15 +67,16 @@ class NavAnimeFavoritesScreenComponentTest {
     fun tearDown() {
         lifecycles.filter { it.state != Lifecycle.State.DESTROYED }.forEach { it.destroy() }
         Dispatchers.resetMain()
-    }
-
-    private object NoOpBackgroundUpdateUsecaseFake : UpdateAllAnimeInBackgroundOnceUsecase {
-        override fun execute() = Unit
+        assertTrue(
+            catalogEngine.requestHistory.isEmpty(),
+            "the favorites screen went to the catalog"
+        )
     }
 
     private class DiAnimeFavoritesDependenciesFake(
         override val animeDatabaseStore: AnimeDatabaseStore,
-        override val coroutineContextProvider: CoroutineContextProvider
+        override val coroutineContextProvider: CoroutineContextProvider,
+        catalogEngine: MockEngine
     ) : DiAnimeFavoritesDependencies {
         override val storeFactory: StoreFactory = DefaultStoreFactory()
         override val systemMessageProvider = SystemMessageProvider(
@@ -74,10 +85,10 @@ class NavAnimeFavoritesScreenComponentTest {
         )
         override val dateFormatter: DateFormatter = DateFormatterFake()
         override val shikimoriApiService: ShikimoriApiService =
-            ShikimoriApiServiceImpl(createHttpClient(unreachableCatalog()))
+            ShikimoriApiServiceImpl(createHttpClient(catalogEngine))
         override val safeApi: SafeApi = SafeApiFake()
         override val updateAllAnimeInBackgroundOnceUsecase: UpdateAllAnimeInBackgroundOnceUsecase =
-            NoOpBackgroundUpdateUsecaseFake
+            UpdateAllAnimeInBackgroundOnceUsecaseFake()
     }
 
     /** One component, the state keeper it saves through, and what its database reset reaches. */
@@ -111,7 +122,8 @@ class NavAnimeFavoritesScreenComponentTest {
             diAnimeFavoritesComponent = createDiAnimeFavoritesComponent(
                 parent = DiAnimeFavoritesDependenciesFake(
                     animeDatabaseStore = animeDatabaseStore,
-                    coroutineContextProvider = coroutineContextProvider
+                    coroutineContextProvider = coroutineContextProvider,
+                    catalogEngine = catalogEngine
                 )
             )
         )
@@ -194,9 +206,21 @@ class NavAnimeFavoritesScreenComponentTest {
 }
 
 /**
- * Refuses every request, since the favorites screen reads the device rather than the catalog.
- * A request reaching it means the screen asked for something it should not have.
+ * Answers nothing of use, since the favorites screen reads the device rather than the catalog.
+ * Every request it does get is kept in its history, which the teardown asserts is empty.
+ *
+ * @param dispatcher what the engine answers on. Left to itself it picks `Dispatchers.IO`, which
+ * takes the answer off the test's virtual clock and onto a second thread.
  */
-private fun unreachableCatalog() = MockEngine {
-    error("NavAnimeFavoritesScreenComponentTest expects no call to the anime catalog")
-}
+private fun unreachableCatalog(dispatcher: CoroutineDispatcher) = MockEngine(
+    MockEngineConfig().apply {
+        this.dispatcher = dispatcher
+        addHandler {
+            respond(
+                content = ByteReadChannel("[]"),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+    }
+)

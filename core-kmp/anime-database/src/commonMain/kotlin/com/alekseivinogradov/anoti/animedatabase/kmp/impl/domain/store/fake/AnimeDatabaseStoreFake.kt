@@ -2,12 +2,16 @@ package com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.fake
 
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.AnimeDbDomain
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.arkivanov.mvikotlin.core.rx.Disposable
 import com.arkivanov.mvikotlin.core.rx.Observer
 
 /**
  * The saved-anime store backed by a list in memory. It answers every intent by changing that
  * list, and [emit] replaces it outright for a test that would rather set the state than reach it.
+ *
+ * An intent naming an id the list does not hold is dropped without emitting. So is one that
+ * would change nothing. Both match the real store, so a test sees the same stream of states.
  *
  * @param initialItems the saved anime the store starts with.
  */
@@ -30,13 +34,18 @@ class AnimeDatabaseStoreFake(
     override fun accept(intent: AnimeDatabaseStore.Intent) {
         val items = state.animeDatabaseItems
         when (intent) {
-            is AnimeDatabaseStore.Intent.InsertAnimeDatabaseItem ->
+            is AnimeDatabaseStore.Intent.InsertAnimeDatabaseItem -> {
+                if (items.holds(intent.animeDatabaseItem.id)) return
                 emit(items + intent.animeDatabaseItem)
+            }
 
-            is AnimeDatabaseStore.Intent.DeleteAnimeDatabaseItem ->
+            is AnimeDatabaseStore.Intent.DeleteAnimeDatabaseItem -> {
+                if (!items.holds(intent.id)) return
                 emit(items.filterNot { it.id == intent.id })
+            }
 
-            is AnimeDatabaseStore.Intent.UpdateAnimeDatabaseItem ->
+            is AnimeDatabaseStore.Intent.UpdateAnimeDatabaseItem -> {
+                if (!items.holds(intent.animeDatabaseItem.id)) return
                 emit(
                     items.map { item: AnimeDbDomain ->
                         if (item.id == intent.animeDatabaseItem.id) {
@@ -46,8 +55,11 @@ class AnimeDatabaseStoreFake(
                         }
                     }
                 )
+            }
 
-            is AnimeDatabaseStore.Intent.ChangeItemNewEpisodeStatus ->
+            is AnimeDatabaseStore.Intent.ChangeItemNewEpisodeStatus -> {
+                // The mark only ever comes off: an item that does not carry it is left alone.
+                if (items.none { it.id == intent.id && it.isNewEpisode }) return
                 emit(
                     items.map { item: AnimeDbDomain ->
                         if (item.id == intent.id) {
@@ -57,6 +69,7 @@ class AnimeDatabaseStoreFake(
                         }
                     }
                 )
+            }
 
             AnimeDatabaseStore.Intent.ResetAllItemsNewEpisodeStatus -> {
                 emit(items.map { it.copy(isNewEpisode = false) })
@@ -64,7 +77,7 @@ class AnimeDatabaseStoreFake(
             }
 
             AnimeDatabaseStore.Intent.ResetAllItemsExtraInfo ->
-                emit(items.map { it.copy(isExtraInfoEnabled = false) })
+                emit(items.map { it.copy(isExtraInfoEnabled = false, nextEpisodeAt = null) })
         }
     }
 
@@ -97,4 +110,6 @@ class AnimeDatabaseStoreFake(
     private fun publish(label: AnimeDatabaseStore.Label) {
         labelObservers.toList().forEach { it.onNext(label) }
     }
+
+    private fun List<AnimeDbDomain>.holds(id: AnimeId): Boolean = any { it.id == id }
 }

@@ -8,8 +8,10 @@ import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Answers a details fetch from [answer] and records what was asked. Hand it a lambda that
- * suspends, throws or fails to cover the case under test; the default makes an unexpected call
- * fail loudly rather than quietly returning nothing.
+ * suspends, throws or fails to cover the case under test.
+ *
+ * The default throws, but a caller can turn that into an error path of its own. Assert on
+ * [callCount] to pin that a call was never made.
  *
  * @param answer what to answer with, given the id asked for and which call this is, counting
  * from one.

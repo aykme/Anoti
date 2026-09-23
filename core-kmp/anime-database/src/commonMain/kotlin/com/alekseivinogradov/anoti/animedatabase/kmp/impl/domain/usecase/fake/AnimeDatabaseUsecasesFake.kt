@@ -14,8 +14,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
- * The whole set of saved-anime usecases, backed by a list in memory. Every call is recorded, so
- * a test can assert what the code under test asked for without touching a database.
+ * The whole set of saved-anime usecases, standing in for a database. Reads come from [items],
+ * which the test sets. Write is only recorded, never applied to [items], so a test asserts
+ * what the code under test asked for rather than what a database would hold afterward.
  *
  * @param initialItems the saved anime the fake starts with.
  */

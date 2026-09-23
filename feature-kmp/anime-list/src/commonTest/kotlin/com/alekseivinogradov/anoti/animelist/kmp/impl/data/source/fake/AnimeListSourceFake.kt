@@ -14,8 +14,11 @@ data class SearchCall(val page: Int, val search: String, val sort: SortData)
 
 /**
  * Answers each of the four listings from its own lambda and records what was asked for. A
- * listing left unconfigured fails loudly when called, so a test that reaches for the wrong one
- * says so instead of quietly passing.
+ * listing left unconfigured throws when called.
+ *
+ * A caller that wraps the call turns that throw into an error path of its own. A paginator does,
+ * and so does a scope whose handler swallows. Assert on the recorded calls to pin that a listing
+ * was never reached.
  *
  * @param ongoing answers the on-air listing.
  * @param announced answers the upcoming listing.

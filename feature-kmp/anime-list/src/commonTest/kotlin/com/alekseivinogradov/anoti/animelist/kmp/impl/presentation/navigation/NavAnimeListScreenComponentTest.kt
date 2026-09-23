@@ -36,11 +36,13 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.states
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockEngineConfig
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -72,11 +74,10 @@ class NavAnimeListScreenComponentTest {
         Dispatchers.resetMain()
     }
 
-    /** Answers every list request with the same page, and every details request with a date. */
-
     private class DiAnimeListDependenciesFake(
         override val animeDatabaseStore: AnimeDatabaseStore,
-        override val coroutineContextProvider: CoroutineContextProvider
+        override val coroutineContextProvider: CoroutineContextProvider,
+        engineDispatcher: CoroutineDispatcher
     ) : DiAnimeListDependencies {
         override val storeFactory: StoreFactory = DefaultStoreFactory()
         override val systemMessageProvider = SystemMessageProvider(
@@ -85,7 +86,7 @@ class NavAnimeListScreenComponentTest {
         )
         override val dateFormatter: DateFormatter = DateFormatterFake()
         override val shikimoriApiService: ShikimoriApiService =
-            ShikimoriApiServiceImpl(createHttpClient(singlePageCatalog()))
+            ShikimoriApiServiceImpl(createHttpClient(singlePageCatalog(engineDispatcher)))
         override val safeApi: SafeApi = SafeApiFake()
     }
 
@@ -122,7 +123,8 @@ class NavAnimeListScreenComponentTest {
             diAnimeListComponent = createDiAnimeListComponent(
                 parent = DiAnimeListDependenciesFake(
                     animeDatabaseStore = createDatabaseStore(coroutineContextProvider),
-                    coroutineContextProvider = coroutineContextProvider
+                    coroutineContextProvider = coroutineContextProvider,
+                    engineDispatcher = testDispatcher
                 )
             )
         )
@@ -311,21 +313,29 @@ private const val SEARCH_TEXT = "totoro"
 /**
  * Answers every listing with one full page of the same items, and every details call with the
  * anime asked for, so the screen always has something to show.
+ *
+ * @param dispatcher what the engine answers on. Left to itself it picks `Dispatchers.IO`, which
+ * takes the answer off the test's virtual clock and onto a second thread.
  */
-private fun singlePageCatalog() = MockEngine { request ->
-    val path = request.url.encodedPath
-    val body = if (path.endsWith("/$ANIME_LIST_APPEND_URL")) {
-        (1..PAGE_ITEM_COUNT).joinToString(prefix = "[", postfix = "]") { id: Int ->
-            """{"id": $id, "name": "Item $id", "status": "ongoing"}"""
+private fun singlePageCatalog(dispatcher: CoroutineDispatcher) = MockEngine(
+    MockEngineConfig().apply {
+        this.dispatcher = dispatcher
+        addHandler { request ->
+            val path = request.url.encodedPath
+            val body = if (path.endsWith("/$ANIME_LIST_APPEND_URL")) {
+                (1..PAGE_ITEM_COUNT).joinToString(prefix = "[", postfix = "]") { id: Int ->
+                    """{"id": $id, "name": "Item $id", "status": "ongoing"}"""
+                }
+            } else {
+                val id = path.substringAfterLast(delimiter = "/")
+                """{"id": $id, "name": "Item $id", """ +
+                    """"next_episode_at": "$NEXT_EPISODE_AT", "status": "ongoing"}"""
+            }
+            respond(
+                content = ByteReadChannel(body),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
         }
-    } else {
-        val id = path.substringAfterLast(delimiter = "/")
-        """{"id": $id, "name": "Item $id", """ +
-            """"next_episode_at": "$NEXT_EPISODE_AT", "status": "ongoing"}"""
     }
-    respond(
-        content = ByteReadChannel(body),
-        status = HttpStatusCode.OK,
-        headers = headersOf(HttpHeaders.ContentType, "application/json")
-    )
-}
+)

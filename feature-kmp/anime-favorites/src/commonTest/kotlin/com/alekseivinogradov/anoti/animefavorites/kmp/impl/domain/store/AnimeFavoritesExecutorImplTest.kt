@@ -1,6 +1,7 @@
 package com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
+import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.fake.UpdateAllAnimeInBackgroundOnceUsecaseFake
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.ANIMATION_DURATION_SHORT
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.LIST_ARRIVAL_TIMEOUT_SECONDS
@@ -54,15 +55,6 @@ class AnimeFavoritesExecutorImplTest {
         Dispatchers.resetMain()
     }
 
-    private class RecordingBackgroundUpdateUsecaseFake : UpdateAllAnimeInBackgroundOnceUsecase {
-        var executeCount = 0
-            private set
-
-        override fun execute() {
-            executeCount++
-        }
-    }
-
     private fun testListItem(
         id: AnimeId = 1,
         isExtraInfoEnabled: Boolean = false,
@@ -87,7 +79,7 @@ class AnimeFavoritesExecutorImplTest {
 
     private fun createStore(
         source: AnimeFavoritesSource = AnimeFavoritesSourceFake(),
-        backgroundUpdateUsecase: UpdateAllAnimeInBackgroundOnceUsecase = RecordingBackgroundUpdateUsecaseFake(),
+        backgroundUpdateUsecase: UpdateAllAnimeInBackgroundOnceUsecase = UpdateAllAnimeInBackgroundOnceUsecaseFake(),
         onConnectionErrorSystemMessage: () -> Unit = {},
         onUnknownErrorSystemMessage: () -> Unit = {}
     ): AnimeFavoritesMainStore {
@@ -426,7 +418,7 @@ class AnimeFavoritesExecutorImplTest {
         runCurrent()
 
         //Then
-        assertEquals(source.canceledCalls, listOf(1), "the replaced fetch outlived its replacement")
+        assertEquals(listOf(1), source.canceledCalls, "the replaced fetch outlived its replacement")
         assertTrue(
             emittedLabels.contains(
                 AnimeFavoritesMainStore.Label.UpdateListItem(
@@ -807,7 +799,7 @@ class AnimeFavoritesExecutorImplTest {
     @Test
     fun updateAllItemsInBackgroundTriggersTheBackgroundUpdate() = runTest(testDispatcher) {
         //Given
-        val backgroundUpdateUsecase = RecordingBackgroundUpdateUsecaseFake()
+        val backgroundUpdateUsecase = UpdateAllAnimeInBackgroundOnceUsecaseFake()
         val store = createStore(backgroundUpdateUsecase = backgroundUpdateUsecase)
 
         //When

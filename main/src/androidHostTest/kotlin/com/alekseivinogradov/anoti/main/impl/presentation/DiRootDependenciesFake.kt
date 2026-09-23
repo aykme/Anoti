@@ -19,6 +19,7 @@ import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockEngineConfig
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -32,8 +33,16 @@ import kotlinx.coroutines.Dispatchers
  */
 internal class DiRootDependenciesFake : DiRootDependencies {
 
+    private val catalogEngine = emptyCatalogEngine()
+
     /** Every store handed out through [animeDatabaseStore], in the order they were asked for. */
     val animeDatabaseStores = mutableListOf<AnimeDatabaseStoreFake>()
+
+    /** The path of every details call a screen made. A test-driving the shell has none. */
+    val animeDetailsRequests: List<String>
+        get() = catalogEngine.requestHistory
+            .map { it.url.encodedPath }
+            .filterNot { it.endsWith("/$ANIME_LIST_APPEND_URL") }
 
     override val storeFactory: StoreFactory = DefaultStoreFactory()
     override val coroutineContextProvider: CoroutineContextProvider = CoroutineContextProviderFake(
@@ -48,7 +57,7 @@ internal class DiRootDependenciesFake : DiRootDependencies {
     override val systemMessageController = SystemMessageController()
     override val dateFormatter: DateFormatter = DateFormatterFake()
     override val shikimoriApiService: ShikimoriApiService =
-        ShikimoriApiServiceImpl(createHttpClient(emptyCatalogEngine()))
+        ShikimoriApiServiceImpl(createHttpClient(catalogEngine))
     override val safeApi: SafeApi = SafeApiFake()
     override val updateAllAnimeInBackgroundOnceUsecase = UpdateAllAnimeInBackgroundOnceUsecaseFake()
 
@@ -59,23 +68,21 @@ internal class DiRootDependenciesFake : DiRootDependencies {
 }
 
 /**
- * Routes every kind of work to whatever the test installed as the main dispatcher, so one virtual
- * clock drives all of it. Read on each access, not captured: the graph is built before the test
- * installs its dispatcher.
+ * Answers every listing with nothing, so the screens settle on their empty state. A details call
+ * gets the same, and is caught by asserting on [DiRootDependenciesFake.animeDetailsRequests].
+ *
+ * It answers on the main dispatcher the test installed. Left to itself it would pick
+ * `Dispatchers.IO`, taking the answer off the virtual clock and onto a second thread.
  */
-/** Answers every listing with nothing, so the screens settle on their empty state. */
-/**
- * Answers every listing with nothing, so the screens settle on their empty state. A details
- * call is a mistake in a test that only drives the shell, so it fails loudly instead.
- */
-private fun emptyCatalogEngine() = MockEngine { request ->
-    if (request.url.encodedPath.endsWith("/$ANIME_LIST_APPEND_URL")) {
-        respond(
-            content = ByteReadChannel("[]"),
-            status = HttpStatusCode.OK,
-            headers = headersOf(HttpHeaders.ContentType, "application/json")
-        )
-    } else {
-        error("No test opens an anime's details.")
+private fun emptyCatalogEngine() = MockEngine(
+    MockEngineConfig().apply {
+        dispatcher = Dispatchers.Main
+        addHandler {
+            respond(
+                content = ByteReadChannel("[]"),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
     }
-}
+)
