@@ -40,7 +40,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.Ong
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.SearchUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.destroy
@@ -172,9 +172,7 @@ class AnimeListControllerTest {
         isNewEpisode = false
     )
 
-    private fun createCoroutineContextProvider() = object : CoroutineContextProviderBase() {
-        override val exceptionHandlerCallback: (Throwable) -> Unit = {}
-    }
+    private fun createCoroutineContextProvider() = CoroutineContextProviderFake()
 
     private fun noOpSystemMessageProvider() = SystemMessageProvider(
         makeConnectionErrorSystemMessage = {},

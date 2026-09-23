@@ -1,269 +1,216 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.data.source
 
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.ReleaseStatusData
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.SortData
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
-import com.alekseivinogradov.anoti.animebase.kmp.impl.data.service.fake.ShikimoriApiServiceImplFake
-import com.alekseivinogradov.anoti.animelist.kmp.api.data.mapper.toListItemDomain
+import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
+import com.alekseivinogradov.anoti.animebase.kmp.impl.data.service.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
-import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
+import com.alekseivinogradov.anoti.network.kmp.api.domain.SHIKIMORI_BASE_URL
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
-import com.alekseivinogradov.anoti.network.kmp.api.domain.model.fake.CallResultFake
+import com.alekseivinogradov.anoti.network.kmp.impl.data.client.createHttpClient
 import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.request.HttpRequestData
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.test.runTest
-import kotlin.random.Random
-import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlin.time.Duration.Companion.milliseconds
 
+private const val ANIME_ID = 61316
+private const val ORIGINAL_IMAGE_PATH = "/system/animes/original/61316.jpg"
+private const val PAGE = 2
+private const val TRANSPORT_FAILURE_MESSAGE = "no route to host"
+
+// One function per case under test, plus the helpers those cases share.
+@Suppress("TooManyFunctions")
 class AnimeListSourceImplTest {
-    private val maxDelay = 60000 //1 minute
-    private val page = 1
-    private lateinit var safeApi: SafeApi
-    private lateinit var service: ShikimoriApiService
-    private lateinit var source: AnimeListSource
 
-    @BeforeTest
-    fun setup() {
-        safeApi = SafeApiFake()
-    }
+    private lateinit var lastRequest: HttpRequestData
 
-    @Test
-    fun testAnimeListSourceGetItemByIdSuccess() = runTest {
-        //Given
-        initServiceAndSource(callResultFake = CallResultFake.SUCCESS)
-        val randomId: Int = createRandomId()
-        val expectedResult: ListItemDomain = service.getAnimeById(randomId).toListItemDomain()
+    private val animeListJsonResponse = """
+        [
+          {
+            "id": $ANIME_ID,
+            "name": "Frieren",
+            "russian": "Фрирен",
+            "url": "/animes/$ANIME_ID",
+            "image": { "original": "$ORIGINAL_IMAGE_PATH" },
+            "episodes_aired": 7,
+            "episodes": 28,
+            "aired_on": "2025-10-01",
+            "released_on": null,
+            "score": 9.11,
+            "status": "ongoing",
+            "kind": "tv"
+          }
+        ]
+    """.trimIndent()
 
-        //When
-        val actualResult: CallResult<ListItemDomain> = source.getItemById(randomId)
+    private val animeListWithAnEntryMissingItsId = """
+        [
+          { "name": "No id at all", "status": "ongoing" },
+          {
+            "id": $ANIME_ID,
+            "name": "Frieren",
+            "status": "ongoing"
+          }
+        ]
+    """.trimIndent()
 
-        //Then
-        assertTrue {
-            actualResult is CallResult.Success &&
-                actualResult.value == expectedResult
+    private val animeDetailsJsonResponse = """
+        {
+          "id": $ANIME_ID,
+          "name": "Frieren",
+          "image": { "original": "$ORIGINAL_IMAGE_PATH" },
+          "episodes_aired": 7,
+          "episodes": 28,
+          "next_episode_at": "2026-01-05T18:00:00.000+03:00",
+          "aired_on": "2025-10-01",
+          "score": 9.11,
+          "status": "ongoing"
         }
-    }
+    """.trimIndent()
 
-    @Test
-    fun testAnimeListSourceGetItemByIdError() = runTest {
-        //Given
-        initServiceAndSource(callResultFake = CallResultFake.OTHER_ERROR)
-        val randomId: Int = createRandomId()
-        val expectedResult: CallResult.OtherError? = try {
-            service.getAnimeById(randomId)
-            null
-        } catch (e: Throwable) {
-            CallResult.OtherError(e)
-        }
+    private val expectedListItem = ListItemDomain(
+        id = ANIME_ID,
+        name = "Frieren",
+        imageUrl = SHIKIMORI_BASE_URL + ORIGINAL_IMAGE_PATH,
+        episodesAired = 7,
+        episodesTotal = 28,
+        nextEpisodeAt = null,
+        airedOn = "2025-10-01",
+        releasedOn = null,
+        score = 9.11F,
+        releaseStatus = ReleaseStatusDomain.ONGOING
+    )
 
-        //When
-        val actualResult: CallResult<ListItemDomain> = source.getItemById(randomId)
-
-        //Then
-        assertTrue {
-            expectedResult != null &&
-                actualResult is CallResult.OtherError &&
-                actualResult == expectedResult
-        }
-    }
-
-    @Test
-    fun testAnimeListSourceGetOngoingListSuccess() = runTest {
-        //Given
-        initServiceAndSource(callResultFake = CallResultFake.SUCCESS)
-        val sort = SortData.SCORE
-        val expectedResult: List<ListItemDomain> = service.getAnimeList(
-            page = page,
-            releaseStatus = ReleaseStatusData.ONGOING.value,
-            sort = sort.value,
-            search = null,
-            ids = null
-        ).map {
-            it.toListItemDomain()
-        }
-
-        //When
-        val actualResult: CallResult<List<ListItemDomain>> = source.getOngoingList(
-            page = page,
-            sort = sort
-        )
-
-        //Then
-        assertTrue {
-            actualResult is CallResult.Success &&
-                actualResult.value == expectedResult
-        }
-    }
-
-    @Test
-    fun testAnimeListSourceGetOngoingListError() = runTest {
-        //Given
-        initServiceAndSource(callResultFake = CallResultFake.OTHER_ERROR)
-        val sort = SortData.SCORE
-        val expectedResult: CallResult.OtherError? = try {
-            service.getAnimeList(
-                page = page,
-                releaseStatus = ReleaseStatusData.ONGOING.value,
-                sort = sort.value,
-                search = null,
-                ids = null
+    private fun createSource(jsonResponse: String): AnimeListSource {
+        val engine = MockEngine { request ->
+            lastRequest = request
+            respond(
+                content = ByteReadChannel(jsonResponse),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
-            null
-        } catch (e: Throwable) {
-            CallResult.OtherError(e)
         }
+        return AnimeListSourceImpl(
+            service = ShikimoriApiServiceImpl(createHttpClient(engine)),
+            safeApi = SafeApiFake()
+        )
+    }
 
-        //When
-        val actualResult: CallResult<List<ListItemDomain>> = source.getOngoingList(
-            page = page,
-            sort = sort
+    private fun createFailingSource(): AnimeListSource =
+        AnimeListSourceImpl(
+            service = ShikimoriApiServiceImpl(
+                createHttpClient(
+                    MockEngine { throw IllegalStateException(TRANSPORT_FAILURE_MESSAGE) }
+                )
+            ),
+            safeApi = SafeApiFake()
         )
 
+    @Test
+    fun theOngoingListIsAskedForByItsReleaseStatusAndComesBackParsed() = runTest {
+        //Given
+        val source = createSource(animeListJsonResponse)
+
+        //When
+        val result = source.getOngoingList(page = PAGE, sort = SortData.POPULARITY)
+
         //Then
-        assertTrue {
-            expectedResult != null &&
-                actualResult is CallResult.OtherError &&
-                actualResult == expectedResult
-        }
+        assertEquals(CallResult.Success(listOf(expectedListItem)), result)
+        assertEquals("ongoing", lastRequest.url.parameters["status"])
+        assertEquals("popularity", lastRequest.url.parameters["order"])
+        assertEquals(PAGE.toString(), lastRequest.url.parameters["page"])
+        assertNull(lastRequest.url.parameters["search"])
     }
 
     @Test
-    fun testAnimeListSourceGetAnnouncedListSuccess() = runTest {
+    fun theAnnouncedListIsAskedForByItsOwnReleaseStatus() = runTest {
         //Given
-        initServiceAndSource(callResultFake = CallResultFake.SUCCESS)
-        val sort = SortData.POPULARITY
-        val expectedResult: List<ListItemDomain> = service.getAnimeList(
-            page = page,
-            releaseStatus = ReleaseStatusData.ANNOUNCED.value,
-            sort = sort.value,
-            search = null,
-            ids = null
-        ).map {
-            it.toListItemDomain()
-        }
+        val source = createSource(animeListJsonResponse)
 
         //When
-        val actualResult: CallResult<List<ListItemDomain>> = source.getAnnouncedList(
-            page = page,
-            sort = sort
-        )
+        source.getAnnouncedList(page = PAGE, sort = SortData.SCORE)
 
         //Then
-        assertTrue {
-            actualResult is CallResult.Success &&
-                actualResult.value == expectedResult
-        }
+        assertEquals("anons", lastRequest.url.parameters["status"])
+        assertEquals("ranked", lastRequest.url.parameters["order"])
     }
 
     @Test
-    fun testAnimeListSourceGetAnnouncedListError() = runTest {
+    fun aSearchIsSentAsAQueryWithNoReleaseStatus() = runTest {
         //Given
-        initServiceAndSource(callResultFake = CallResultFake.OTHER_ERROR)
-        val sort = SortData.POPULARITY
-        val expectedResult: CallResult.OtherError? = try {
-            service.getAnimeList(
-                page = page,
-                releaseStatus = ReleaseStatusData.ANNOUNCED.value,
-                sort = sort.value,
-                search = null,
-                ids = null
-            )
-            null
-        } catch (e: Throwable) {
-            CallResult.OtherError(e)
-        }
+        val source = createSource(animeListJsonResponse)
 
         //When
-        val actualResult: CallResult<List<ListItemDomain>> = source.getAnnouncedList(
-            page = page,
-            sort = sort
-        )
+        source.getListBySearch(page = PAGE, search = "frieren", sort = SortData.POPULARITY)
 
         //Then
-        assertTrue {
-            expectedResult != null &&
-                actualResult is CallResult.OtherError &&
-                actualResult == expectedResult
-        }
+        assertEquals("frieren", lastRequest.url.parameters["search"])
+        assertNull(lastRequest.url.parameters["status"])
     }
 
     @Test
-    fun testAnimeListSourceGetListBySearchSuccess() = runTest {
+    fun anAnimeTheServerSendsWithoutAnIdIsLeftOutOfTheList() = runTest {
         //Given
-        initServiceAndSource(callResultFake = CallResultFake.SUCCESS)
-        val sort = SortData.SCORE
-        val search = "search"
-        val expectedResult: List<ListItemDomain> = service.getAnimeList(
-            page = page,
-            releaseStatus = null,
-            sort = sort.value,
-            search = search,
-            ids = null
-        ).map {
-            it.toListItemDomain()
-        }
+        val source = createSource(animeListWithAnEntryMissingItsId)
 
         //When
-        val actualResult: CallResult<List<ListItemDomain>> = source.getListBySearch(
-            page = page,
-            search = search,
-            sort = sort
-        )
+        val result = source.getOngoingList(page = PAGE, sort = SortData.POPULARITY)
 
         //Then
-        assertTrue {
-            actualResult is CallResult.Success &&
-                actualResult.value == expectedResult
-        }
+        assertTrue(result is CallResult.Success)
+        assertEquals(listOf(ANIME_ID), result.value.map(ListItemDomain::id))
     }
 
     @Test
-    fun testAnimeListSourceGetListBySearchError() = runTest {
+    fun oneAnimeIsAskedForByIdAndComesBackParsed() = runTest {
         //Given
-        initServiceAndSource(callResultFake = CallResultFake.OTHER_ERROR)
-        val sort = SortData.SCORE
-        val search = "search"
-        val expectedResult: CallResult.OtherError? = try {
-            service.getAnimeList(
-                page = page,
-                releaseStatus = null,
-                sort = sort.value,
-                search = search,
-                ids = null
-            )
-            null
-        } catch (e: Throwable) {
-            CallResult.OtherError(e)
-        }
+        val source = createSource(animeDetailsJsonResponse)
 
         //When
-        val actualResult: CallResult<List<ListItemDomain>> = source.getListBySearch(
-            page = page,
-            search = search,
-            sort = sort
-        )
+        val result = source.getItemById(ANIME_ID)
 
         //Then
-        assertTrue {
-            expectedResult != null &&
-                actualResult is CallResult.OtherError &&
-                actualResult == expectedResult
-        }
+        assertEquals(
+            CallResult.Success(
+                expectedListItem.copy(nextEpisodeAt = "2026-01-05T18:00:00.000+03:00")
+            ),
+            result
+        )
+        assertTrue(lastRequest.url.encodedPath.endsWith("/api/animes/$ANIME_ID"))
     }
 
-    private fun initServiceAndSource(callResultFake: CallResultFake) {
-        service = ShikimoriApiServiceImplFake(
-            callResultFake = callResultFake,
-            desiredDelay = Random.nextInt(maxDelay).milliseconds
-        )
-        source = AnimeListSourceImpl(
-            service = service,
-            safeApi = safeApi
-        )
+    @Test
+    fun aListCallThatNeverReachesTheServerComesBackAsAnError() = runTest {
+        //Given
+        val source = createFailingSource()
+
+        //When
+        val result = source.getOngoingList(page = PAGE, sort = SortData.POPULARITY)
+
+        //Then
+        assertTrue(result is CallResult.OtherError)
+        assertEquals(TRANSPORT_FAILURE_MESSAGE, result.throwable.message)
     }
 
-    private fun createRandomId(): Int = Random.nextInt(Int.MAX_VALUE)
+    @Test
+    fun aSingleAnimeCallThatNeverReachesTheServerComesBackAsAnError() = runTest {
+        //Given
+        val source = createFailingSource()
+
+        //When
+        val result = source.getItemById(ANIME_ID)
+
+        //Then
+        assertTrue(result is CallResult.OtherError)
+        assertEquals(TRANSPORT_FAILURE_MESSAGE, result.throwable.message)
+    }
 }

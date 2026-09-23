@@ -21,7 +21,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.formatter.fake.DateFormatterFake
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
@@ -90,7 +90,7 @@ class NavAnimeListScreenComponentTest {
         )
     }
 
-    private class FakeDependencies(
+    private class DiAnimeListDependenciesFake(
         override val animeDatabaseStore: AnimeDatabaseStore,
         override val coroutineContextProvider: CoroutineContextProvider
     ) : DiAnimeListDependencies {
@@ -126,9 +126,7 @@ class NavAnimeListScreenComponentTest {
     ).create()
 
     private fun createWiring(savedState: SerializableContainer? = null): Wiring {
-        val coroutineContextProvider = object : CoroutineContextProviderBase() {
-            override val exceptionHandlerCallback: (Throwable) -> Unit = {}
-        }
+        val coroutineContextProvider = CoroutineContextProviderFake()
         val lifecycle = LifecycleRegistry().also(lifecycles::add)
         val stateKeeper = StateKeeperDispatcher(savedState)
         val component = NavAnimeListScreenComponent(
@@ -137,7 +135,7 @@ class NavAnimeListScreenComponentTest {
                 stateKeeper = stateKeeper
             ),
             diAnimeListComponent = createDiAnimeListComponent(
-                parent = FakeDependencies(
+                parent = DiAnimeListDependenciesFake(
                     animeDatabaseStore = createDatabaseStore(coroutineContextProvider),
                     coroutineContextProvider = coroutineContextProvider
                 )

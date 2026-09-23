@@ -47,7 +47,9 @@ class PosterLoaderTest {
     @AfterTest
     fun tearDown() {
         diskCache?.shutdown()
-        FileSystem.SYSTEM.deleteRecursively(cacheDirectory)
+        // Windows keeps a handle on a cache file for a moment after the cache is shut down, and
+        // a temporary directory left behind is not worth failing a passing test over.
+        runCatching { FileSystem.SYSTEM.deleteRecursively(cacheDirectory) }
         FileSystem.SYSTEM.delete(copiedPoster, mustExist = false)
     }
 

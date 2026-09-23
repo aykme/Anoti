@@ -2,7 +2,7 @@ package com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase
 
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.source.AnimeFavoritesSource
-import com.alekseivinogradov.anoti.animefavorites.kmp.impl.data.source.fake.AnimeFavoritesSourceImplFake
+import com.alekseivinogradov.anoti.animefavorites.kmp.impl.data.source.fake.AnimeFavoritesSourceFake
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.fake.CallResultFake
 import kotlinx.coroutines.test.runTest
@@ -71,7 +71,7 @@ class FetchAnimeDetailsByIdUsecaseTest {
     }
 
     private fun initSourceAndUsecase(callResultFake: CallResultFake) {
-        source = AnimeFavoritesSourceImplFake(
+        source = AnimeFavoritesSourceFake(
             callResultFake = callResultFake,
             desiredDelay = Random.nextInt(maxDelay).milliseconds
         )

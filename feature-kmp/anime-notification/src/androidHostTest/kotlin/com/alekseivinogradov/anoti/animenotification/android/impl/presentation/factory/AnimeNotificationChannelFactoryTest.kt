@@ -4,7 +4,7 @@ import android.app.NotificationManager
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.anime_notification_channel
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.anime_notification_channel_description
-import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -14,7 +14,6 @@ import kotlinx.coroutines.test.setMain
 import org.jetbrains.compose.resources.getString
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import kotlin.coroutines.CoroutineContext
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -27,10 +26,7 @@ class AnimeNotificationChannelFactoryTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
 
-    private val coroutineContextProvider = object : CoroutineContextProviderBase() {
-        override val exceptionHandlerCallback: (Throwable) -> Unit = {}
-        override val ioDispatcher: CoroutineContext = testDispatcher
-    }
+    private val coroutineContextProvider = CoroutineContextProviderFake(ioDispatcher = testDispatcher)
 
     private val factory = AnimeNotificationChannelFactory(coroutineContextProvider)
 

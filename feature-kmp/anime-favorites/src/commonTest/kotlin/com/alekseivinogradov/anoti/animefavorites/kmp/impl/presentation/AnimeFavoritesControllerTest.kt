@@ -22,6 +22,7 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.wrappe
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.destroy
@@ -110,9 +111,7 @@ class AnimeFavoritesControllerTest {
     }
 
     private fun createCoroutineContextProvider(): CoroutineContextProviderBase {
-        return object : CoroutineContextProviderBase() {
-            override val exceptionHandlerCallback: (Throwable) -> Unit = {}
-        }
+        return CoroutineContextProviderFake()
     }
 
     private fun createAnimeDatabaseStore(

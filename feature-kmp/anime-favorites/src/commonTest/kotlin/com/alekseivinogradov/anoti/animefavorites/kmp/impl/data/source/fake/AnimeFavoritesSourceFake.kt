@@ -9,12 +9,12 @@ import com.alekseivinogradov.anoti.network.kmp.api.domain.model.fake.CallResultF
 import kotlinx.coroutines.delay
 import kotlin.time.Duration
 
-class AnimeFavoritesSourceImplFake(
+class AnimeFavoritesSourceFake(
     private val callResultFake: CallResultFake,
     private val desiredDelay: Duration
 ) : AnimeFavoritesSource {
 
-    private val error = Throwable("Simulated failure from AnimeFavoritesSourceImplFake")
+    private val error = Throwable("Simulated failure from AnimeFavoritesSourceFake")
 
     override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
         delay(desiredDelay)

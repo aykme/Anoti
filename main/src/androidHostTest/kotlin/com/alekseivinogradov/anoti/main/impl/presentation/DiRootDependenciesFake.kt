@@ -1,6 +1,6 @@
 package com.alekseivinogradov.anoti.main.impl.presentation
 
-import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
+import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.fake.UpdateAllAnimeInBackgroundOnceUsecaseFake
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeDetailsResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeShortResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
@@ -11,36 +11,39 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.Cor
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.controller.SystemMessageController
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.formatter.fake.DateFormatterFake
 import com.alekseivinogradov.anoti.main.api.di.DiRootDependencies
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
-import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
+import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlin.coroutines.CoroutineContext
 
 /**
  * The whole root graph built from fakes, so it can be created without a database, a network
  * client or a real dispatcher.
  */
-internal class FakeDiRootDependencies : DiRootDependencies {
+internal class DiRootDependenciesFake : DiRootDependencies {
 
     /** Every store handed out through [animeDatabaseStore], in the order they were asked for. */
     val animeDatabaseStores = mutableListOf<AnimeDatabaseStoreFake>()
 
     override val storeFactory: StoreFactory = DefaultStoreFactory()
-    override val coroutineContextProvider: CoroutineContextProvider = FakeCoroutineContextProvider()
+    override val coroutineContextProvider: CoroutineContextProvider = CoroutineContextProviderFake(
+        ioDispatcher = Dispatchers.Main,
+        defaultDispatcher = Dispatchers.Main,
+        workManagerCoroutineContext = Dispatchers.Main
+    )
     override val systemMessageProvider = SystemMessageProvider(
         makeConnectionErrorSystemMessage = {},
         makeUnknownErrorSystemMessage = {}
     )
     override val systemMessageController = SystemMessageController()
-    override val dateFormatter: DateFormatter = FakeDateFormatter()
-    override val shikimoriApiService: ShikimoriApiService = FakeShikimoriApiService()
-    override val safeApi: SafeApi = FakeSafeApi()
-    override val updateAllAnimeInBackgroundOnceUsecase = FakeUpdateAllAnimeInBackgroundOnceUsecase()
+    override val dateFormatter: DateFormatter = DateFormatterFake()
+    override val shikimoriApiService: ShikimoriApiService = ShikimoriApiServiceFake()
+    override val safeApi: SafeApi = SafeApiFake()
+    override val updateAllAnimeInBackgroundOnceUsecase = UpdateAllAnimeInBackgroundOnceUsecaseFake()
 
     // The real graph leaves this binding unscoped, so each consumer builds its own store. Mirrored
     // here, or the bar and the screens would share one and disposal would look global.
@@ -53,27 +56,8 @@ internal class FakeDiRootDependencies : DiRootDependencies {
  * clock drives all of it. Read on each access, not captured: the graph is built before the test
  * installs its dispatcher.
  */
-internal class FakeCoroutineContextProvider : CoroutineContextProvider {
-
-    override val mainCoroutineContext: CoroutineContext get() = Dispatchers.Main
-    override val appMainCoroutineContext: CoroutineContext
-        get() = SupervisorJob() + Dispatchers.Main
-
-    override fun newMainCoroutineContext(): CoroutineContext = SupervisorJob() + Dispatchers.Main
-
-    override val workManagerCoroutineContext: CoroutineContext get() = Dispatchers.Main
-    override val mainDispatcher: CoroutineDispatcher get() = Dispatchers.Main
-    override val defaultDispatcher: CoroutineDispatcher get() = Dispatchers.Main
-    override val ioDispatcher: CoroutineContext get() = Dispatchers.Main
-    override val unconfinedDispatcher: CoroutineDispatcher get() = Dispatchers.Main
-}
-
-internal class FakeDateFormatter : DateFormatter {
-    override fun getFormattedDate(inputText: String, fallbackText: String): String = inputText
-}
-
 /** Answers every listing with nothing, so the screens settle on their empty state. */
-internal class FakeShikimoriApiService : ShikimoriApiService {
+internal class ShikimoriApiServiceFake : ShikimoriApiService {
 
     override suspend fun getAnimeList(
         page: Int,
@@ -85,17 +69,4 @@ internal class FakeShikimoriApiService : ShikimoriApiService {
 
     override suspend fun getAnimeById(id: AnimeId): AnimeDetailsResponse =
         error("No test opens an anime's details.")
-}
-
-/** Runs the call once and reports its outcome, without the real one's retries or delays. */
-internal class FakeSafeApi : SafeApi {
-    override suspend fun <T> call(apiCall: suspend () -> T): CallResult<T> =
-        runCatching { apiCall() }.fold(
-            onSuccess = { CallResult.Success(it) },
-            onFailure = { CallResult.OtherError(it) }
-        )
-}
-
-internal class FakeUpdateAllAnimeInBackgroundOnceUsecase : UpdateAllAnimeInBackgroundOnceUsecase {
-    override fun execute() = Unit
 }

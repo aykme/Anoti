@@ -14,7 +14,7 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.ResetAl
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecaseImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.UpdateAnimeDatabaseItemUsecaseImpl
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
-import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
@@ -71,9 +71,7 @@ class AnimeDatabaseExecutorImplTest {
         onUncaughtThrowable: (Throwable) -> Unit = {}
     ): AnimeDatabaseStore {
         val repository = AnimeDatabaseRepositoryImpl(dao)
-        val coroutineContextProvider = object : CoroutineContextProviderBase() {
-            override val exceptionHandlerCallback: (Throwable) -> Unit = onUncaughtThrowable
-        }
+        val coroutineContextProvider = CoroutineContextProviderFake(onUncaughtThrowable)
         val usecases = AnimeDatabaseUsecases(
             fetchAllAnimeDatabaseItemsFlowUsecase =
             FetchAllAnimeDatabaseItemsFlowUsecaseImpl(repository),
@@ -463,7 +461,7 @@ class AnimeDatabaseExecutorImplTest {
 
             //Then
             assertEquals(listOf(false, false), dao.getAllItems().map { it.isNewEpisode })
-            assertEquals<List<AnimeDatabaseStore.Label>>(
+            assertEquals<List<*>>(
                 listOf(AnimeDatabaseStore.Label.ResetAllItemsNewEpisodeStatusWasFinished),
                 published
             )

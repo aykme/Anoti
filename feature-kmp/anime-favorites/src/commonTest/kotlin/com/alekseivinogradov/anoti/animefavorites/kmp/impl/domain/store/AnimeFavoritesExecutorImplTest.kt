@@ -12,7 +12,7 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.FetchA
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.wrapper.FavoritesUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
@@ -172,9 +172,7 @@ class AnimeFavoritesExecutorImplTest {
         onConnectionErrorSystemMessage: () -> Unit = {},
         onUnknownErrorSystemMessage: () -> Unit = {}
     ): AnimeFavoritesMainStore {
-        val coroutineContextProvider = object : CoroutineContextProviderBase() {
-            override val exceptionHandlerCallback: (Throwable) -> Unit = {}
-        }
+        val coroutineContextProvider = CoroutineContextProviderFake()
         val usecases = FavoritesUsecases(
             updateAllAnimeInBackgroundOnceUsecase = backgroundUpdateUsecase,
             fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)

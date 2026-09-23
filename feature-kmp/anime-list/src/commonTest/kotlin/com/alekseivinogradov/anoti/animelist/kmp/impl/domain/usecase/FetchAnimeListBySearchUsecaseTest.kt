@@ -3,7 +3,7 @@ package com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.SortData
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
-import com.alekseivinogradov.anoti.animelist.kmp.impl.data.source.fake.AnimeListSourceImplFake
+import com.alekseivinogradov.anoti.animelist.kmp.impl.data.source.fake.AnimeListSourceFake
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.fake.CallResultFake
 import kotlinx.coroutines.test.runTest
@@ -120,7 +120,7 @@ class FetchAnimeListBySearchUsecaseTest {
 
     private fun initSourceAndUsecase(callResultFake: CallResultFake) {
         source = RecordingSearchSource(
-            AnimeListSourceImplFake(
+            AnimeListSourceFake(
                 callResultFake = callResultFake,
                 desiredDelay = Random.nextInt(maxDelay).milliseconds
             )

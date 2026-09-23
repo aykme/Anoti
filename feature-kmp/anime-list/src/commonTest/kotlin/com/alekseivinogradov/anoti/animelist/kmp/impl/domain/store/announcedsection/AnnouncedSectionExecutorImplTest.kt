@@ -10,7 +10,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnnoun
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.AnnouncedUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.extensions.coroutines.states
@@ -96,9 +96,7 @@ class AnnouncedSectionExecutorImplTest {
         onUnknownErrorSystemMessage: () -> Unit = {}
     ): AnnouncedSectionStore {
         val source = FakeAnnouncedSource(pages, beforeAnnouncedResult)
-        val coroutineContextProvider = object : CoroutineContextProviderBase() {
-            override val exceptionHandlerCallback: (Throwable) -> Unit = {}
-        }
+        val coroutineContextProvider = CoroutineContextProviderFake()
         val usecases = AnnouncedUsecases(
             fetchAnnouncedAnimeListUsecase = FetchAnnouncedAnimeListUsecase(source)
         )

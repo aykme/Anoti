@@ -12,7 +12,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnimeL
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.SearchUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
@@ -105,9 +105,7 @@ class SearchSectionExecutorImplTest {
         onUnknownErrorSystemMessage: () -> Unit = {}
     ): SearchSectionStore {
         val source = FakeSearchSource(pages, beforeSearchResult, details)
-        val coroutineContextProvider = object : CoroutineContextProviderBase() {
-            override val exceptionHandlerCallback: (Throwable) -> Unit = {}
-        }
+        val coroutineContextProvider = CoroutineContextProviderFake()
         val usecases = SearchUsecases(
             fetchAnimeListBySearchUsecase = FetchAnimeListBySearchUsecase(source),
             fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)

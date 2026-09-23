@@ -20,9 +20,9 @@ internal const val ANIME_LIST_TAB_TAG = "anime_list_button"
 internal const val ANIME_FAVORITES_TAB_TAG = "anime_favorites_button"
 
 /** The fakes the activity under test is wired to, reachable from a test that never built them. */
-internal val fakeDependencies: FakeDiRootDependencies
-    get() = checkNotNull(RuntimeEnvironment.getApplication() as? FakeHostApplication) {
-        "The test must run with FakeHostApplication."
+internal val fakeDependencies: DiRootDependenciesFake
+    get() = checkNotNull(RuntimeEnvironment.getApplication() as? HostApplicationFake) {
+        "The test must run with HostApplicationFake."
     }.dependencies
 
 /** What the launcher sends, with no deep link on it. */

@@ -10,9 +10,9 @@ import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponentHold
  * process happens to have, so a test that launches the activity has to put one there. This one
  * hands out a graph built from fakes.
  */
-internal class FakeHostApplication : Application(), DiRootComponentHolder {
+internal class HostApplicationFake : Application(), DiRootComponentHolder {
 
-    val dependencies = FakeDiRootDependencies()
+    val dependencies = DiRootDependenciesFake()
 
     override fun createDiRootComponent(): DiRootComponent =
         DiRootComponent::class.create(parent = dependencies)

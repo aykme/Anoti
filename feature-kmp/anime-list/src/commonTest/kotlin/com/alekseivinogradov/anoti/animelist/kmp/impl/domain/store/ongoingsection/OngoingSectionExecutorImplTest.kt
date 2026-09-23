@@ -11,7 +11,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchOngoin
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.OngoingUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.extensions.coroutines.states
@@ -101,9 +101,7 @@ class OngoingSectionExecutorImplTest {
         onUnknownErrorSystemMessage: () -> Unit = {}
     ): OngoingSectionStore {
         val source = FakeOngoingSource(pages, beforeOngoingResult, details)
-        val coroutineContextProvider = object : CoroutineContextProviderBase() {
-            override val exceptionHandlerCallback: (Throwable) -> Unit = {}
-        }
+        val coroutineContextProvider = CoroutineContextProviderFake()
         val usecases = OngoingUsecases(
             fetchOngoingAnimeListUsecase = FetchOngoingAnimeListUsecase(source),
             fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)

@@ -10,12 +10,12 @@ import com.alekseivinogradov.anoti.network.kmp.api.domain.model.fake.CallResultF
 import kotlinx.coroutines.delay
 import kotlin.time.Duration
 
-class AnimeListSourceImplFake(
+class AnimeListSourceFake(
     private val callResultFake: CallResultFake,
     private val desiredDelay: Duration
 ) : AnimeListSource {
 
-    private val error = Throwable("Simulated failure from AnimeListSourceImplFake")
+    private val error = Throwable("Simulated failure from AnimeListSourceFake")
 
     override suspend fun getOngoingList(
         page: Int,

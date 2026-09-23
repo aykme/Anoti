@@ -19,7 +19,7 @@ import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.epi
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.poster.PosterLoader
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.poster.fake.ImageLoaderFake
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.no_data
-import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -31,7 +31,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
-import kotlin.coroutines.CoroutineContext
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -59,10 +58,7 @@ class AnimeNotificationManagerImplTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
 
-    private val coroutineContextProvider = object : CoroutineContextProviderBase() {
-        override val exceptionHandlerCallback: (Throwable) -> Unit = {}
-        override val ioDispatcher: CoroutineContext = testDispatcher
-    }
+    private val coroutineContextProvider = CoroutineContextProviderFake(ioDispatcher = testDispatcher)
 
     private val notificationManager =
         appContext.getSystemService(NotificationManager::class.java)

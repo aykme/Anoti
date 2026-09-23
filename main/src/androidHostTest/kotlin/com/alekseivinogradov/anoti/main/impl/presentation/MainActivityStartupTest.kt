@@ -19,7 +19,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = FakeHostApplication::class)
+@Config(application = HostApplicationFake::class)
 class MainActivityStartupTest {
 
     private val mainDispatcher = TestMainDispatcher()

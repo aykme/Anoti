@@ -12,6 +12,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeList
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
@@ -55,9 +56,7 @@ class AnimeListExecutorImplTest {
     }
 
     private fun createStore(
-        coroutineContextProvider: CoroutineContextProvider = object : CoroutineContextProviderBase() {
-            override val exceptionHandlerCallback: (Throwable) -> Unit = {}
-        }
+        coroutineContextProvider: CoroutineContextProvider = CoroutineContextProviderFake()
     ): AnimeListMainStore {
         val executorFactory: AnimeListExecutorFactory = {
             AnimeListExecutorImpl(coroutineContextProvider = coroutineContextProvider)
