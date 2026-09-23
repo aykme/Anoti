@@ -4,6 +4,7 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.AnimeDbDom
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ChangeAnimeDatabaseItemNewEpisodeStatusUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.DeleteAnimeDatabaseItemUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsFlowUsecase
+import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.InsertAnimeDatabaseItemUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ResetAllAnimeDatabaseItemsExtraInfoUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecase
@@ -48,6 +49,14 @@ class AnimeDatabaseUsecasesFake(initialItems: List<AnimeDbDomain> = listOf()) {
     /** How many times the whole library was asked to drop its extra episode info. */
     var resetExtraInfoCount = 0
         private set
+
+    /**
+     * The one-shot read of the whole library. Answers with whatever [items] currently holds.
+     * It sits outside [usecases] because [AnimeDatabaseUsecases] does not carry it.
+     */
+    val fetchAllAnimeDatabaseItemsUsecase = object : FetchAllAnimeDatabaseItemsUsecase {
+        override suspend fun execute(): List<AnimeDbDomain> = items.value
+    }
 
     /** The set to hand to the code under test. */
     val usecases = AnimeDatabaseUsecases(

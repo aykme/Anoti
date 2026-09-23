@@ -9,6 +9,7 @@ import androidx.work.WorkManager
 import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.scheduler.AnimeBackgroundSchedulerImpl
 import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecaseImpl
 import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.worker.ANIME_UPDATE_ONCE_WORK_NAME
+import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.worker.ANIME_UPDATE_WORK_CONSTRAINTS
 import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.worker.AnimeUpdateWorker
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.manager.AnimeUpdateManager
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.scheduler.AnimeBackgroundScheduler
@@ -51,7 +52,9 @@ interface DiAnimeBackgroundUpdatePlatformComponent {
     @Provides
     @AnimeBackgroundUpdate
     fun provideAnimeUpdateOnceWork(): OneTimeWorkRequest =
-        OneTimeWorkRequestBuilder<AnimeUpdateWorker>().build()
+        OneTimeWorkRequestBuilder<AnimeUpdateWorker>()
+            .setConstraints(ANIME_UPDATE_WORK_CONSTRAINTS)
+            .build()
 
     @Provides
     @AnimeBackgroundUpdate
@@ -85,7 +88,9 @@ interface DiAnimeBackgroundUpdatePlatformComponent {
         PeriodicWorkRequestBuilder<AnimeUpdateWorker>(
             repeatInterval = AnimeUpdateManager.DEFAULT_ANIME_UPDATE_INTERVAL_MINUTES,
             repeatIntervalTimeUnit = TimeUnit.MINUTES
-        ).build()
+        )
+            .setConstraints(ANIME_UPDATE_WORK_CONSTRAINTS)
+            .build()
 
     @Provides
     @AppScope
