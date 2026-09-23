@@ -23,8 +23,8 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.minutes
 
 /**
- * The one other worker in this app, shipped by WorkManager itself. Resolved rather than
- * spelled out, so a rename on its side fails this loudly instead of quietly passing.
+ * One of the workers WorkManager itself ships into the app. Resolved rather than spelled out,
+ * so a rename on its side fails this loudly instead of quietly passing.
  */
 private val diagnosticsWorkerClassName: String
     get() = Class.forName("androidx.work.impl.workers.DiagnosticsWorker").name
@@ -110,7 +110,7 @@ class AnimeUpdateWorkerTest {
     }
 
     @Test
-    fun theFactoryDeclinesTheOneOtherWorkerThisAppShipsWith() {
+    fun theFactoryDeclinesAWorkerTheLibraryShipsWith() {
         //Given
         val factory = AnimeUpdateWorker.Factory(AnimeUpdateManagerFake())
 
@@ -122,8 +122,8 @@ class AnimeUpdateWorkerTest {
         )
 
         //Then
-        // WorkManager ships this one and runs it on a diagnostics broadcast. Claiming it would
-        // start an update pass in its place and leave the diagnostics never run.
+        // WorkManager runs this one on a diagnostics broadcast. Claiming it would start an
+        // update pass in its place and leave the diagnostics never run.
         assertNull(worker)
     }
 

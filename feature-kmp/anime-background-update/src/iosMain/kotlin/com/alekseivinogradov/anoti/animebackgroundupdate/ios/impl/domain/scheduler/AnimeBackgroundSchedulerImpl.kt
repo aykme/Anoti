@@ -5,10 +5,11 @@ import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.model.Wo
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.scheduler.AnimeBackgroundScheduler
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.scheduler.OneShotCompletion
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import platform.BackgroundTasks.BGAppRefreshTaskRequest
+import platform.BackgroundTasks.BGTask
 import platform.BackgroundTasks.BGTaskScheduler
 import platform.Foundation.NSDate
 import platform.Foundation.dateByAddingTimeInterval
@@ -35,33 +36,7 @@ class AnimeBackgroundSchedulerImpl(
         val registered = BGTaskScheduler.sharedScheduler.registerForTaskWithIdentifier(
             identifier = ANIME_UPDATE_TASK_IDENTIFIER,
             usingQueue = null
-        ) { task ->
-            if (task == null) return@registerForTaskWithIdentifier
-
-            // Before any work: a task the system expires, or one whose pass ends badly, would
-            // otherwise leave nothing submitted, and background refresh would stop for good.
-            schedulePeriodicUpdate()
-
-            val completion = OneShotCompletion { success: Boolean ->
-                task.setTaskCompletedWithSuccess(success = success)
-            }
-
-            val job = coroutineScope.launch {
-                try {
-                    completion.complete(animeUpdateManager.update() == WorkResult.Success)
-                } catch (exception: CancellationException) {
-                    throw exception
-                } catch (@Suppress("TooGenericExceptionCaught") throwable: Throwable) {
-                    println("$TAG: the update pass ended badly: $throwable")
-                    completion.complete(success = false)
-                }
-            }
-
-            task.expirationHandler = {
-                job.cancel()
-                completion.complete(success = false)
-            }
-        }
+        ) { task -> task?.let(::runUpdateFor) }
 
         if (!registered) {
             println("$TAG: $ANIME_UPDATE_TASK_IDENTIFIER is missing from the Info.plist")
@@ -79,6 +54,30 @@ class AnimeBackgroundSchedulerImpl(
             // already pending. Either way there is no next pass until something submits one.
             println("$TAG: the next background refresh was refused")
         }
+    }
+
+    private fun runUpdateFor(task: BGTask) {
+        // Before any work: a task the system expires, or one whose pass ends badly, would
+        // otherwise leave nothing submitted, and background refresh would stop for good.
+        schedulePeriodicUpdate()
+
+        val completion = OneShotCompletion { success: Boolean ->
+            task.setTaskCompletedWithSuccess(success = success)
+            // The handler holds this completion and this completion holds the task, so leaving
+            // it in place keeps every finished task alive for as long as the process runs.
+            task.expirationHandler = null
+        }
+
+        val job = coroutineScope.launch(start = CoroutineStart.LAZY) {
+            completion.complete(animeUpdateManager.update() == WorkResult.Success)
+        }
+        // Whatever ends the pass — a throw, the scope being canceled, the system expiring the
+        // task — the system is told. A task left uncompleted costs the app its future refreshes.
+        job.invokeOnCompletion { completion.complete(success = false) }
+
+        // Set before the pass starts: the system can expire a task the moment it hands it over.
+        task.expirationHandler = { job.cancel() }
+        job.start()
     }
 
     private companion object {

@@ -336,15 +336,20 @@ class AnimeUpdateManagerImplTest {
         )
 
         //When
-        val first = launch { manager.update() }
-        val second = launch { manager.update() }
+        // Started on a dispatcher that runs them right away, so the second pass is inside its
+        // fetch before the first one gets its answer. Queued instead, they would simply follow
+        // one another and this would not be an overlap at all.
+        val eagerly = UnconfinedTestDispatcher(testScheduler)
+        val first = launch(eagerly) { manager.update() }
+        val second = launch(eagerly) { manager.update() }
         bothPassesReachedTheServer.complete(Unit)
         first.join()
         second.join()
 
         //Then
-        // Neither pass has written the new count by the time the other reads it, so both see the
-        // episode as new. One aired episode reaches the user as two notifications.
+        // Both were inside the same fetch, so neither had written the new count when the other
+        // read it. One aired episode reaches the user as two notifications.
+        assertEquals(2, source.requestedIds.size, "the passes did not overlap")
         assertEquals(2, notifications.notifications.size)
         assertEquals(2, database.updatedItems.size)
     }
@@ -352,8 +357,8 @@ class AnimeUpdateManagerImplTest {
     @Test
     fun aDatabaseThatWillNotOpenIsReportedAsErrorRatherThanEscaping() = runTest {
         //Given
-        // The read is the one step of the pass that can throw: everything after it sits behind
-        // SafeApi, which turns a throwable into a result of its own.
+        // The fetch cannot throw — it sits behind SafeApi, which turns a throwable into a
+        // result. The database read is the step before that, with nothing catching for it.
         val database = AnimeDatabaseUsecasesFake(
             initialItems = listOf(savedAnime(1)),
             onRead = { error("the database would not open") }

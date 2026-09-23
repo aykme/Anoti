@@ -8,6 +8,9 @@ import kotlin.concurrent.atomics.ExperimentalAtomicApi
  * as the platform expires it would otherwise be completed twice, which the platform treats as
  * a programming error.
  *
+ * The two outcomes arrive on different threads, so the flag is compared and set in one step. A
+ * plain read followed by write would let both through.
+ *
  * @param report receives the first outcome handed in, and nothing after that.
  */
 @OptIn(ExperimentalAtomicApi::class)

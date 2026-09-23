@@ -75,7 +75,7 @@ class UpdateAllAnimeInBackgroundOnceUsecaseImplTest {
     }
 
     private fun createUsecase() = UpdateAllAnimeInBackgroundOnceUsecaseImpl(
-        workManager = workManager,
+        workManager = { workManager },
         updateWork = OneTimeWorkRequestBuilder<AnimeUpdateWorker>()
             .setConstraints(ANIME_UPDATE_WORK_CONSTRAINTS)
             .build(),

@@ -40,7 +40,7 @@ class OneShotCompletionTest {
     }
 
     @Test
-    fun outcomesArrivingAtOnceStillReportOnlyOne() = runTest {
+    fun noNumberOfLaterOutcomesGetsThrough() = runTest {
         //Given
         val reported = mutableListOf<Boolean>()
         val completion = OneShotCompletion { reported += it }
@@ -51,6 +51,8 @@ class OneShotCompletionTest {
             .awaitAll()
 
         //Then
+        // On one thread this pins that the guard latches rather than counts. The thread race
+        // it also has to survive belongs to the platform and cannot be staged here.
         assertEquals(1, reported.size)
     }
 }

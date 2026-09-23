@@ -6,6 +6,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
@@ -24,6 +25,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.minutes
 
@@ -38,6 +40,8 @@ private const val SETTLED_MARGIN_MILLIS = 10_000L
  * Each case waits on WorkManager's own stream of work info rather than on a clock, so the wait
  * ends when the library says the pass is over.
  */
+// One function per case under test, plus the helpers those cases share.
+@Suppress("TooManyFunctions")
 @RunWith(RobolectricTestRunner::class)
 class AnimeUpdateWorkSchedulingTest {
 
@@ -70,16 +74,9 @@ class AnimeUpdateWorkSchedulingTest {
     @Test
     fun aFailedHourlyPassStillWaitsAnHourForTheNextOne() = runTest {
         //Given
-        val request = PeriodicWorkRequestBuilder<AnimeUpdateWorker>(
-            repeatInterval = AnimeUpdateManager.DEFAULT_ANIME_UPDATE_INTERVAL_MINUTES,
-            repeatIntervalTimeUnit = TimeUnit.MINUTES
-        ).setConstraints(ANIME_UPDATE_WORK_CONSTRAINTS).build()
+        val request = periodicRequest()
         val enqueuedAt = System.currentTimeMillis()
-        workManager.enqueueUniquePeriodicWork(
-            uniqueWorkName = ANIME_UPDATE_PERIODIC_WORK_NAME,
-            existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
-            request = request
-        )
+        enqueuePeriodic(request)
 
         //When
         letTheWorkRun(request.id)
@@ -100,29 +97,74 @@ class AnimeUpdateWorkSchedulingTest {
     }
 
     @Test
-    fun aFailedPassOnTheButtonLetsTheNextPressStartAFreshOne() = runTest {
+    fun aFailedRefreshLetsTheNextPullStartAFreshPass() = runTest {
         //Given
-        val first = oneOffRequest()
-        enqueueOneOff(first)
-        letTheWorkRun(first.id)
-        workInfoFor(first.id) { info: WorkInfo ->
+        // The screen keeps one of these, and it keeps one request, so every pull enqueues the
+        // same work rather than a new piece of it.
+        val request = oneOffRequest()
+        enqueueOneOff(request)
+        letTheWorkRun(request.id)
+        workInfoFor(request.id) { info: WorkInfo ->
             info.state.isFinished || info.runAttemptCount > 0
         }
 
         //When
-        val second = oneOffRequest()
-        enqueueOneOff(second)
+        enqueueOneOff(request)
 
         //Then
-        // The button enqueues under one name with KEEP, and KEEP declines while the previous
-        // work is still enqueued or running. A pass left waiting in backoff would swallow every
-        // press until that backoff ran out.
-        val enqueued = workManager
-            .getWorkInfosForUniqueWork(ANIME_UPDATE_ONCE_WORK_NAME)
-            .get()
-        assertTrue(
-            enqueued.any { it.id == second.id },
-            "the press was dropped on the pass that had already failed"
+        // KEEP declines while the previous work is still enqueued or running, so a pass left
+        // waiting in backoff would swallow every pull until that backoff ran out. A pass that
+        // ended is replaced instead, and the replacement starts its attempts from nothing.
+        val accepted = workInfoFor(request.id) { info: WorkInfo ->
+            info.state == WorkInfo.State.ENQUEUED
+        }
+        assertEquals(
+            0,
+            accepted.runAttemptCount,
+            "the pull was dropped onto the pass that had already failed"
+        )
+    }
+
+    @Test
+    fun aRefreshInBetweenLeavesTheHourlySchedulePlanned() = runTest {
+        //Given
+        // The two are separate work, and the refresh one ends for good once it has run. The
+        // hourly one has to be standing afterwards, or the app stops updating on its own.
+        val periodic = periodicRequest()
+        enqueuePeriodic(periodic)
+        letTheWorkRun(periodic.id)
+        val afterFirstHourlyPass = workInfoFor(periodic.id) { info: WorkInfo ->
+            info.state == WorkInfo.State.ENQUEUED && info.runAttemptCount == 0
+        }
+
+        //When
+        val refresh = oneOffRequest()
+        enqueueOneOff(refresh)
+        letTheWorkRun(refresh.id)
+        workInfoFor(refresh.id) { info: WorkInfo -> info.state.isFinished }
+
+        //Then
+        val hourly = workInfoFor(periodic.id) { info: WorkInfo ->
+            info.state == WorkInfo.State.ENQUEUED
+        }
+        assertEquals(0, hourly.runAttemptCount, "the refresh pushed the hourly pass into backoff")
+        assertEquals(
+            afterFirstHourlyPass.nextScheduleTimeMillis,
+            hourly.nextScheduleTimeMillis,
+            "the refresh moved when the next hourly pass runs"
+        )
+    }
+
+    private fun periodicRequest() = PeriodicWorkRequestBuilder<AnimeUpdateWorker>(
+        repeatInterval = AnimeUpdateManager.DEFAULT_ANIME_UPDATE_INTERVAL_MINUTES,
+        repeatIntervalTimeUnit = TimeUnit.MINUTES
+    ).setConstraints(ANIME_UPDATE_WORK_CONSTRAINTS).build()
+
+    private fun enqueuePeriodic(request: PeriodicWorkRequest) {
+        workManager.enqueueUniquePeriodicWork(
+            uniqueWorkName = ANIME_UPDATE_PERIODIC_WORK_NAME,
+            existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
+            request = request
         )
     }
 

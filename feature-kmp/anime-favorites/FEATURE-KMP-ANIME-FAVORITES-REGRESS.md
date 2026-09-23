@@ -221,6 +221,19 @@ until it airs, or trigger the update the way your team normally does.
    - The list comes back unchanged. The screen does not empty and does not stay on the spinner.
 6. Pull to refresh while the posters are still loading.
    - The spinner replaces everything, then the list returns and the posters resume loading.
+7. A pull also starts a fetch of fresh data for every item, separate from the hourly one the
+   app runs on its own. Pull to refresh while that hourly update is running — either wait for
+   it or ask a developer to start one.
+   - The pull is not ignored: the spinner appears, the marks clear, and the list comes back.
+   - Within about a minute the items show whatever the server changed.
+   - Expected for now: an episode that aired can be announced twice when the two overlap.
+     Note it, do not treat it as a new fault of this screen.
+8. Pull to refresh with the network off so the fetch fails, turn the network on, and pull
+   again.
+   - The second pull starts a new fetch: within about a minute the items show fresh data.
+   - It must not be silently swallowed because of the pull that failed.
+9. Pull to refresh, then leave the screen and come back before a minute has passed.
+   - The fresh data still arrives on the items.
 
 ## 10. Leaving and coming back
 

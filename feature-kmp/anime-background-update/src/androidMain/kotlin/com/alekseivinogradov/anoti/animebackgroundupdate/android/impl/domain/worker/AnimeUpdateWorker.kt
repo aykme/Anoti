@@ -67,7 +67,7 @@ class AnimeUpdateWorker(
 }
 
 /**
- * How long one pass may take. WorkManager stops a worker at ten minutes, and a pass stopped
+ * How long one pass may take. The platform stops a job at about ten minutes, and a pass stopped
  * that way is cut off wherever it happens to be. Finishing first leaves room to report a result
  * and to let the pages already applied stand.
  */

@@ -2,6 +2,7 @@ package com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.presentat
 
 import androidx.work.Constraints
 import androidx.work.NetworkType
+import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.worker.AnimeUpdateWorker
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.manager.AnimeUpdateManager
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -43,6 +44,23 @@ class DiAnimeBackgroundUpdatePlatformComponentTest {
 
         //Then
         assertEquals(listOf(NetworkType.CONNECTED, NetworkType.CONNECTED), networkTypes)
+    }
+
+    @Test
+    fun bothUpdateRequestsNameTheWorkerTheFactoryBuilds() {
+        //Given
+        val periodic = component.provideAnimeUpdatePeriodicWork()
+        val once = component.provideAnimeUpdateOnceWork()
+
+        //When
+        val named = listOf(periodic, once).map { it.workSpec.workerClassName }
+
+        //Then
+        // WorkManager stores this name and hands it back to the factory, which builds the
+        // update worker for its own name and declines anything else. Another class here would
+        // be declined and then looked for by reflection, which a shrunk build cannot satisfy.
+        val expected = AnimeUpdateWorker::class.java.name
+        assertEquals(listOf(expected, expected), named)
     }
 
     @Test

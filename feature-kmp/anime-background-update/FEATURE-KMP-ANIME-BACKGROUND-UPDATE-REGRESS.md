@@ -58,7 +58,30 @@ Pulling the Favorites list down starts a pass of its own, separate from the hour
    - The refresh still works: marks clear, the list reloads, fresh data arrives.
    - It is never ignored because the other pass is busy.
 
-## 3. Connection
+## 3. The two updates together
+
+The hourly update and the one the screen asks for are separate. Either can be running when the
+other starts, and neither may break the other.
+
+1. Let an hourly pass run, then pull the Favorites list down, then let another hourly pass run.
+   - All three happen. The pull does not stop the hourly updates from continuing afterward.
+2. Start an hourly pass, and pull the list down while it is still running.
+   - Both finish. The screen refreshes, and the subscriptions end up to date.
+   - Expected for now: an episode that aired can be announced twice when the two passes
+     overlap like this. Note it, do not treat it as a new fault.
+3. Pull the list down, and let an hourly pass start while that one is still running.
+   - Both finish, with the same result as above.
+4. Open and close the app several times in a row over a few minutes, then wait for the hourly
+   update.
+   - It still arrives about an hour after the first one, not an hour after the last time the
+     app was opened.
+5. Let a pass fail (turn the connection off just as it starts), then wait for the next hourly
+   one.
+   - It arrives about an hour later, not within a minute and not hours later.
+6. Let a pull-to-refresh pass fail the same way, then pull down again.
+   - The second pull starts a new pass rather than being ignored.
+
+## 4. Connection
 
 1. Turn on airplane mode, close the app, and wait an hour.
    - No notification, no row changes.
@@ -74,7 +97,7 @@ Pulling the Favorites list down starts a pass of its own, separate from the hour
 5. Switch from Wi-Fi to mobile data and let a pass run.
    - The update happens. Mobile data is not treated differently from Wi-Fi.
 
-## 4. Restarts, force-stops and app updates
+## 5. Restarts, force-stops and app updates
 
 1. Restart the phone, open the app once, close it, and let a pass run.
    - The update happens as before.
@@ -88,10 +111,10 @@ Pulling the Favorites list down starts a pass of its own, separate from the hour
    - Every subscribed anime is still there with its counts and its marks.
    - The update happens as before.
 5. Straight after step 4, turn on airplane mode and wait an hour.
-   - Nothing happens, exactly as in section 3. The newer build's rule about needing a
+   - Nothing happens, exactly as in section 4. The newer build's rule about needing a
      connection reaches the installation that was already on the phone.
 
-## 5. Different data
+## 6. Different data
 
 1. Subscribe to more than twenty animes and let a pass run.
    - Every one of them is updated, not only the first twenty.
@@ -104,7 +127,7 @@ Pulling the Favorites list down starts a pass of its own, separate from the hour
 5. Remove every subscription and let a pass run.
    - Nothing happens and nothing goes wrong. Favorites still opens on its empty panel.
 
-## 6. The phone's own power rules
+## 7. The phone's own power rules
 
 1. Turn on battery saver and let a pass run.
    - The update may arrive late, but when it arrives it behaves as in section 1.
@@ -117,7 +140,7 @@ Pulling the Favorites list down starts a pass of its own, separate from the hour
    - If the app is listed there, take it out. A sleeping app gets no updates at all, and that
      is a phone setting rather than anything the app can change.
 
-## 7. While the app is open
+## 8. While the app is open
 
 1. Let a pass run with Favorites on screen.
    - Rows update in place. The screen does not flicker and does not drop back to loading.

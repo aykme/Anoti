@@ -23,6 +23,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 private const val OTHER_INTERVAL_MINUTES = 30L
+private const val REPEATED_APP_STARTS = 5
 
 @RunWith(RobolectricTestRunner::class)
 class AnimeBackgroundSchedulerImplTest {
@@ -104,6 +105,27 @@ class AnimeBackgroundSchedulerImplTest {
     }
 
     @Test
+    fun openingTheAppAgainDoesNotPushTheNextPassBack() {
+        //Given
+        // Every process start schedules again, so a phone the app is opened on often would
+        // never reach its next pass if each one moved the schedule along.
+        val scheduler = createScheduler(periodicWork())
+        scheduler.schedulePeriodicUpdate()
+        val firstNextRun = scheduledWork().single().nextScheduleTimeMillis
+
+        //When
+        repeat(REPEATED_APP_STARTS) { scheduler.schedulePeriodicUpdate() }
+
+        //Then
+        assertEquals(1, scheduledWork().size)
+        assertEquals(
+            firstNextRun,
+            scheduledWork().single().nextScheduleTimeMillis,
+            "the hourly pass was pushed further away by opening the app"
+        )
+    }
+
+    @Test
     fun aChangedRequestTakesOverTheScheduleAlreadyRunning() {
         //Given
         createScheduler(periodicWork()).schedulePeriodicUpdate()
@@ -127,7 +149,7 @@ class AnimeBackgroundSchedulerImplTest {
     }
 
     private fun createScheduler(request: PeriodicWorkRequest) = AnimeBackgroundSchedulerImpl(
-        workManager = workManager,
+        workManager = { workManager },
         animeUpdatePeriodicWork = request
     )
 
