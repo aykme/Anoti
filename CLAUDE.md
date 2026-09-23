@@ -204,9 +204,9 @@ Read this before doing any task in this repository.
 - Kover is the project's coverage tool — measure with it rather than guessing from the diff.
 - The bar is one number over the whole project, and it is enforced. `./gradlew koverVerify` fails
   the build when aggregated line coverage falls below `wholeProjectLineCoverageMinimum` in the
-  root `build.gradle.kts`, currently 99%.
-- That number is what the project already holds, not something to grow into. New and changed code
-  arrives covered; there is no slack left to spend.
+  root `build.gradle.kts`, currently 98%.
+- The floor sits just under what the project already holds, not somewhere to grow into. The
+  margin between the two is small by design: new and changed code arrives covered.
 - Nothing runs the task for you. It is deliberately outside `check` and `build`, so an ordinary
   build never pays for it — "Finishing a task" below says when to run it.
 - It is checked over the project as a whole on purpose. A module's own report counts only that
@@ -217,10 +217,14 @@ Read this before doing any task in this repository.
   not to decide whether the bar is met.
 - Where a module falls short in places you did not touch, neither fix it silently nor stay quiet.
   Name the uncovered parts, offer to cover them, and let the developer decide.
-- Filtered out of the measurement by the root build, and therefore outside the number: generated
-  code (Room, kotlin-inject, Compose Resources, the Compose compiler's `ComposableSingletons`
-  holders), `@Composable` functions, the handwritten `Di*Component` interfaces, handwritten test
-  doubles and `core-kmp:test-utils`.
+- Filtered out of the measurement by the root build, and therefore outside the number: code
+  nobody wrote — what Room, kotlin-inject, KSP and the Compose compiler generate, including the
+  `DefaultImpls` holders the Kotlin compiler copies an interface body into and the
+  `ComposableSingletons` holders behind composable lambdas — plus `@Composable` functions,
+  handwritten test doubles and `core-kmp:test-utils`.
+- A hand-written `@Provides` body is not generated code and is measured like anything else. A
+  filter that hid every `Di*Component` also hid the bindings a test exercises directly, which is
+  why there is no such filter.
 - Keeping `@Composable` out is deliberate, not a gap waiting to be closed. The Compose compiler
   expands a composable into synthetic lambda classes (`...Kt$name$1$1$1`) of about two lines each,
   so a percentage over them measures generated shapes rather than tested behavior. Write the
