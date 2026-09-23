@@ -259,6 +259,10 @@ Read this before doing any task in this repository.
 - Run every test in each affected module, not only the ones this task wrote, and confirm they are
   all green. Then take the "Tests" section above rule by rule against what the module now holds,
   and fix whatever doesn't conform.
+- The instrumented tests are part of that, on every task and not only on one that touched the UI.
+  They need a device, so `./gradlew allTests :app:testDebugUnitTest` never reaches them —
+  `./gradlew :app:connectedDebugAndroidTest` is what runs them. They drive the app against the
+  live backend, so the emulator needs a connection. Report their result with the rest.
 - Every check that needs the app running belongs on an emulator. A physical device attached for
   development is the developer's own and is not a test bench. An emulator also allows what a
   phone refuses — `adb root`, forcing an orientation, and picking the API level a branch needs.
