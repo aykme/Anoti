@@ -16,7 +16,7 @@ import coil3.request.ImageResult
  * @param cache the disk cache to report, or null for a loader that caches nothing.
  */
 internal class ImageLoaderFake(
-    private val onExecute: (ImageRequest) -> ImageResult,
+    private val onExecute: suspend (ImageRequest) -> ImageResult,
     private val cache: DiskCache? = null
 ) : ImageLoader {
 

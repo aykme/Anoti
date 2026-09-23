@@ -1,12 +1,11 @@
 package com.alekseivinogradov.anoti.main.impl.presentation
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.fake.UpdateAllAnimeInBackgroundOnceUsecaseFake
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeDetailsResponse
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeShortResponse
+import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ANIME_LIST_APPEND_URL
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
+import com.alekseivinogradov.anoti.animebase.kmp.impl.data.service.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.fake.AnimeDatabaseStoreFake
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.controller.SystemMessageController
@@ -15,9 +14,16 @@ import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fa
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.formatter.fake.DateFormatterFake
 import com.alekseivinogradov.anoti.main.api.di.DiRootDependencies
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
+import com.alekseivinogradov.anoti.network.kmp.impl.data.client.createHttpClient
 import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.Dispatchers
 
 /**
@@ -41,7 +47,8 @@ internal class DiRootDependenciesFake : DiRootDependencies {
     )
     override val systemMessageController = SystemMessageController()
     override val dateFormatter: DateFormatter = DateFormatterFake()
-    override val shikimoriApiService: ShikimoriApiService = ShikimoriApiServiceFake()
+    override val shikimoriApiService: ShikimoriApiService =
+        ShikimoriApiServiceImpl(createHttpClient(emptyCatalogEngine()))
     override val safeApi: SafeApi = SafeApiFake()
     override val updateAllAnimeInBackgroundOnceUsecase = UpdateAllAnimeInBackgroundOnceUsecaseFake()
 
@@ -57,16 +64,18 @@ internal class DiRootDependenciesFake : DiRootDependencies {
  * installs its dispatcher.
  */
 /** Answers every listing with nothing, so the screens settle on their empty state. */
-internal class ShikimoriApiServiceFake : ShikimoriApiService {
-
-    override suspend fun getAnimeList(
-        page: Int,
-        releaseStatus: String?,
-        sort: String?,
-        search: String?,
-        ids: String?
-    ): List<AnimeShortResponse> = listOf()
-
-    override suspend fun getAnimeById(id: AnimeId): AnimeDetailsResponse =
+/**
+ * Answers every listing with nothing, so the screens settle on their empty state. A details
+ * call is a mistake in a test that only drives the shell, so it fails loudly instead.
+ */
+private fun emptyCatalogEngine() = MockEngine { request ->
+    if (request.url.encodedPath.endsWith("/$ANIME_LIST_APPEND_URL")) {
+        respond(
+            content = ByteReadChannel("[]"),
+            status = HttpStatusCode.OK,
+            headers = headersOf(HttpHeaders.ContentType, "application/json")
+        )
+    } else {
         error("No test opens an anime's details.")
+    }
 }

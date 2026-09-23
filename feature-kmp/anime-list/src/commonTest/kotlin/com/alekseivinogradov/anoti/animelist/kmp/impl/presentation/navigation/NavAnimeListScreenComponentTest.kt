@@ -1,9 +1,8 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation
 
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.ReleaseStatusData
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeDetailsResponse
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeShortResponse
+import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ANIME_LIST_APPEND_URL
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
+import com.alekseivinogradov.anoti.animebase.kmp.impl.data.service.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseExecutorImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseStoreFactory
@@ -24,6 +23,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provid
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.formatter.fake.DateFormatterFake
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
+import com.alekseivinogradov.anoti.network.kmp.impl.data.client.createHttpClient
 import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.Lifecycle
@@ -35,6 +35,12 @@ import com.arkivanov.essenty.statekeeper.StateKeeperDispatcher
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.states
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -67,28 +73,6 @@ class NavAnimeListScreenComponentTest {
     }
 
     /** Answers every list request with the same page, and every details request with a date. */
-    private object SinglePageApiServiceFake : ShikimoriApiService {
-        override suspend fun getAnimeList(
-            page: Int,
-            releaseStatus: String?,
-            sort: String?,
-            search: String?,
-            ids: String?
-        ): List<AnimeShortResponse> = (1..PAGE_ITEM_COUNT).map { id ->
-            AnimeShortResponse(
-                id = id,
-                englishName = "Item $id",
-                releaseStatus = ReleaseStatusData.ONGOING.value
-            )
-        }
-
-        override suspend fun getAnimeById(id: AnimeId): AnimeDetailsResponse = AnimeDetailsResponse(
-            id = id,
-            englishName = "Item $id",
-            nextEpisodeAt = NEXT_EPISODE_AT,
-            releaseStatus = ReleaseStatusData.ONGOING.value
-        )
-    }
 
     private class DiAnimeListDependenciesFake(
         override val animeDatabaseStore: AnimeDatabaseStore,
@@ -100,7 +84,8 @@ class NavAnimeListScreenComponentTest {
             makeUnknownErrorSystemMessage = {}
         )
         override val dateFormatter: DateFormatter = DateFormatterFake()
-        override val shikimoriApiService: ShikimoriApiService = SinglePageApiServiceFake
+        override val shikimoriApiService: ShikimoriApiService =
+            ShikimoriApiServiceImpl(createHttpClient(singlePageCatalog()))
         override val safeApi: SafeApi = SafeApiFake()
     }
 
@@ -176,6 +161,20 @@ class NavAnimeListScreenComponentTest {
         component.searchSectionStore.accept(
             SearchSectionStore.Intent.EpisodesInfoClick(EXPANDED_ITEM_ID)
         )
+        awaitExpandedDetails(component)
+    }
+
+    /**
+     * The details behind an expanded item arrive after the list it sits in. Only the sections
+     * that fetch them are waited on; the upcoming one shows no next-episode date.
+     */
+    private suspend fun awaitExpandedDetails(component: NavAnimeListScreenComponent) {
+        component.ongoingSectionStore.states.first {
+            it.sectionContent.animeDetails.nextEpisodesInfo.containsKey(EXPANDED_ITEM_ID)
+        }
+        component.searchSectionStore.states.first {
+            it.sectionContent.animeDetails.nextEpisodesInfo.containsKey(EXPANDED_ITEM_ID)
+        }
     }
 
     @Test
@@ -248,10 +247,15 @@ class NavAnimeListScreenComponentTest {
             //When
             val afterProcessDeath = createWiring(savedState = savedState)
             afterProcessDeath.component.applyRestoredStateIfAny()
-            awaitOngoingLoaded(afterProcessDeath.component)
+            // The restored section reloads its list and refetches the expanded item's details,
+            // so the state to assert on is the one where both have landed, not whichever is
+            // current once the wait returns.
+            val ongoing = afterProcessDeath.component.ongoingSectionStore.states.first {
+                it.sectionContent.contentType == ContentTypeDomain.LOADED &&
+                    it.sectionContent.animeDetails.nextEpisodesInfo.containsKey(EXPANDED_ITEM_ID)
+            }
 
             //Then
-            val ongoing = afterProcessDeath.component.ongoingSectionStore.state
             assertEquals(PAGE_ITEM_COUNT, ongoing.sectionContent.listItems.size)
             assertEquals(setOf(EXPANDED_ITEM_ID), ongoing.sectionContent.enabledExtraEpisodesInfoIds)
             assertEquals(
@@ -303,3 +307,25 @@ private const val EXPANDED_ITEM_ID = 1
 private const val NEXT_EPISODE_AT = "2024-01-05T10:00:00+03:00"
 
 private const val SEARCH_TEXT = "totoro"
+
+/**
+ * Answers every listing with one full page of the same items, and every details call with the
+ * anime asked for, so the screen always has something to show.
+ */
+private fun singlePageCatalog() = MockEngine { request ->
+    val path = request.url.encodedPath
+    val body = if (path.endsWith("/$ANIME_LIST_APPEND_URL")) {
+        (1..PAGE_ITEM_COUNT).joinToString(prefix = "[", postfix = "]") { id: Int ->
+            """{"id": $id, "name": "Item $id", "status": "ongoing"}"""
+        }
+    } else {
+        val id = path.substringAfterLast(delimiter = "/")
+        """{"id": $id, "name": "Item $id", """ +
+            """"next_episode_at": "$NEXT_EPISODE_AT", "status": "ongoing"}"""
+    }
+    respond(
+        content = ByteReadChannel(body),
+        status = HttpStatusCode.OK,
+        headers = headersOf(HttpHeaders.ContentType, "application/json")
+    )
+}

@@ -1,9 +1,8 @@
 package com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeDetailsResponse
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeShortResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
+import com.alekseivinogradov.anoti.animebase.kmp.impl.data.service.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseExecutorImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseStoreFactory
@@ -11,13 +10,13 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.fake.An
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.di.DiAnimeFavoritesDependencies
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.di.createDiAnimeFavoritesComponent
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.formatter.fake.DateFormatterFake
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
+import com.alekseivinogradov.anoti.network.kmp.impl.data.client.createHttpClient
 import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.Lifecycle
@@ -28,6 +27,7 @@ import com.arkivanov.essenty.statekeeper.SerializableContainer
 import com.arkivanov.essenty.statekeeper.StateKeeperDispatcher
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
+import io.ktor.client.engine.mock.MockEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -59,20 +59,6 @@ class NavAnimeFavoritesScreenComponentTest {
         Dispatchers.resetMain()
     }
 
-    private object UnreachableApiServiceFake : ShikimoriApiService {
-        override suspend fun getAnimeList(
-            page: Int,
-            releaseStatus: String?,
-            sort: String?,
-            search: String?,
-            ids: String?
-        ): List<AnimeShortResponse> = error("the favorites screen never lists anime")
-
-        override suspend fun getAnimeById(id: AnimeId): AnimeDetailsResponse {
-            error("no anime details are fetched in NavAnimeFavoritesScreenComponentTest")
-        }
-    }
-
     private object NoOpBackgroundUpdateUsecaseFake : UpdateAllAnimeInBackgroundOnceUsecase {
         override fun execute() = Unit
     }
@@ -87,7 +73,8 @@ class NavAnimeFavoritesScreenComponentTest {
             makeUnknownErrorSystemMessage = {}
         )
         override val dateFormatter: DateFormatter = DateFormatterFake()
-        override val shikimoriApiService: ShikimoriApiService = UnreachableApiServiceFake
+        override val shikimoriApiService: ShikimoriApiService =
+            ShikimoriApiServiceImpl(createHttpClient(unreachableCatalog()))
         override val safeApi: SafeApi = SafeApiFake()
         override val updateAllAnimeInBackgroundOnceUsecase: UpdateAllAnimeInBackgroundOnceUsecase =
             NoOpBackgroundUpdateUsecaseFake
@@ -204,4 +191,12 @@ class NavAnimeFavoritesScreenComponentTest {
             "the database store outlived its screen"
         )
     }
+}
+
+/**
+ * Refuses every request, since the favorites screen reads the device rather than the catalog.
+ * A request reaching it means the screen asked for something it should not have.
+ */
+private fun unreachableCatalog() = MockEngine {
+    error("NavAnimeFavoritesScreenComponentTest expects no call to the anime catalog")
 }

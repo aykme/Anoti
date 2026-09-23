@@ -20,8 +20,10 @@ import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.poste
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.poster.fake.ImageLoaderFake
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.no_data
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -76,8 +78,12 @@ class AnimeNotificationManagerImplTest {
         Dispatchers.resetMain()
     }
 
-    private fun createManager(loadsPoster: Boolean = true): AnimeNotificationManager {
+    private fun createManager(
+        loadsPoster: Boolean = true,
+        posterGate: CompletableDeferred<Unit>? = null
+    ): AnimeNotificationManager {
         val imageLoader = ImageLoaderFake(onExecute = { request: ImageRequest ->
+            posterGate?.await()
             if (loadsPoster) {
                 SuccessResult(image = poster, request = request)
             } else {
@@ -246,6 +252,28 @@ class AnimeNotificationManagerImplTest {
         //Then
         assertEquals(ANIME_NAME, titleOf(assertNotNull(notificationWithId(FIRST_SINGLE_ID))))
         assertEquals("Bleach", titleOf(assertNotNull(notificationWithId(FIRST_SINGLE_ID + 1))))
+    }
+
+    // The mutex guarding the posting itself is not what this pins: its block suspends nowhere,
+    // so a single-threaded test dispatcher cannot interleave two calls inside it. What is pinned
+    // is that overlapping calls each end up with an id of their own.
+    @Test
+    fun twoEpisodesAiringAtOnceEachGetTheirOwnNotification() = runTest {
+        //Given
+        val posterGate = CompletableDeferred<Unit>()
+        val manager = createManager(posterGate = posterGate)
+        val first = launch { manager.makeNewEpisodeNotification(ANIME_NAME, AIRED_EPISODE, IMAGE_URL) }
+        val second = launch { manager.makeNewEpisodeNotification("Bleach", AIRED_EPISODE, IMAGE_URL) }
+
+        //When
+        posterGate.complete(Unit)
+        first.join()
+        second.join()
+
+        //Then
+        assertEquals(ANIME_NAME, titleOf(assertNotNull(notificationWithId(FIRST_SINGLE_ID))))
+        assertEquals("Bleach", titleOf(assertNotNull(notificationWithId(FIRST_SINGLE_ID + 1))))
+        assertNotNull(notificationWithId(SUMMARY_ID))
     }
 
     @Test
