@@ -30,7 +30,7 @@ val minSdk = libs.versions.minSdk.get()
 // The floor the whole project's line coverage may not fall below. It sits below what the
 // project holds on purpose, so the gate catches a change that arrived with no tests rather
 // than a branch no test can reach. `koverVerify` checks it; CLAUDE.md says when that is run.
-val wholeProjectLineCoverageMinimum = 90
+val wholeProjectLineCoverageMinimum = 95
 
 /** Writes the Robolectric properties a module's host tests read off their classpath. */
 abstract class GenerateRobolectricConfig : DefaultTask() {

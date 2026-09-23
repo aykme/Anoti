@@ -43,5 +43,5 @@ Technology stack:
 8. Unit testing of KMP modules is done with
    [kotlin-test](https://github.com/JetBrains/kotlin/tree/master/libraries/kotlin.test). For test
    doubles I mostly use a "mock" approach, with a "fake" approach used less often. Line coverage
-   over the whole project is held at no less than 90%, measured with
+   over the whole project is held at no less than 95%, measured with
    [Kover](https://github.com/Kotlin/kotlinx-kover) and enforced by a build that fails below it.

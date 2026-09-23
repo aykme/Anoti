@@ -204,7 +204,7 @@ Read this before doing any task in this repository.
 - Kover is the project's coverage tool — measure with it rather than guessing from the diff.
 - The bar is one number over the whole project, and it is enforced. `./gradlew koverVerify` fails
   the build when aggregated line coverage falls below `wholeProjectLineCoverageMinimum` in the
-  root `build.gradle.kts`, currently 90%.
+  root `build.gradle.kts`, currently 95%.
 - The floor is not where the project sits — it holds a good deal more. The room between the two
   is deliberate: the gate is there to catch a change that arrived with no tests at all, not a
   branch or two no test can reach. Cover what you write regardless; the number is a safety net,
