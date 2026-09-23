@@ -17,7 +17,6 @@ versionName = "1.09"
 #iOS app versions
 
 #KMP library versions
-annotation = "1.10.0"
 coil = "3.6.2"
 composeMultiplatform = "1.12.0"
 coroutines = "1.11.0"
@@ -68,7 +67,6 @@ workRuntimeKtx = "2.11.2"
 
 [libraries]
 #KMP libraries
-androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
