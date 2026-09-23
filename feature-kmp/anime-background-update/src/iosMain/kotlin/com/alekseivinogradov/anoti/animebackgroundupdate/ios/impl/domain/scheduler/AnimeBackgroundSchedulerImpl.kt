@@ -66,11 +66,9 @@ class AnimeBackgroundSchedulerImpl(
 
         refreshPass.runIn(
             object : BackgroundRefreshTask {
-                override var expirationHandler: (() -> Unit)?
-                    get() = task.expirationHandler
-                    set(value) {
-                        task.expirationHandler = value
-                    }
+                override fun setExpirationHandler(handler: (() -> Unit)?) {
+                    task.expirationHandler = handler
+                }
 
                 override fun complete(success: Boolean) =
                     task.setTaskCompletedWithSuccess(success = success)

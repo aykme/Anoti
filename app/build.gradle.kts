@@ -20,8 +20,6 @@ android {
     }
 
     buildTypes {
-        // Debuggable is left off on purpose: AGP skips obfuscation for a debuggable variant, and
-        // obfuscation is the part of R8 most likely to break something.
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -30,8 +28,10 @@ android {
                 "proguard-rules.pro"
             )
         }
-        // What release ships, signed with the debug key so it installs. Release carries no signing
-        // config of its own, so it cannot be put on a device to walk the app through.
+        // What release ships, signed with the debug key so it installs — release carries no
+        // signing config of its own and cannot be put on a device. Neither variant is
+        // debuggable, and neither may become so: AGP runs R8 in debug mode for a debuggable
+        // variant, which silently skips obfuscation.
         create("minified") {
             initWith(getByName("release"))
             signingConfig = signingConfigs.getByName("debug")

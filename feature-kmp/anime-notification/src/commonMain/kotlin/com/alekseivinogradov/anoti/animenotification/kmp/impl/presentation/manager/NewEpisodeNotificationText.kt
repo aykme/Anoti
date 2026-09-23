@@ -9,14 +9,14 @@ import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as cele
 /**
  * What a new-episode notification says.
  *
- * @param title the anime the episode belongs to.
- * @param body the episode that aired.
+ * @param title the name of the anime the episode belongs to.
+ * @param body the line naming the episode that aired.
  */
 internal data class NewEpisodeNotificationText(val title: String, val body: String)
 
 /**
  * The wording for [animeName]'s newly aired [airedEpisode]. Anything the update pass could not
- * read reads as the shared "no data" text, so a notification never arrives blank.
+ * read falls back to the shared "no data" text, so a notification never arrives blank.
  */
 internal suspend fun newEpisodeNotificationText(
     animeName: String?,

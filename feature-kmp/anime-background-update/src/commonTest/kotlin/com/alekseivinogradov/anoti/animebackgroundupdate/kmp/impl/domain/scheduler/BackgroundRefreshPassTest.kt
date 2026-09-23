@@ -13,7 +13,10 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
+
+// A handed-over task that is left able to be taken back keeps the platform holding it, so every
+// case checks that the pass hands it back as well as what it reported.
+private val HANDED_OVER_AND_RELEASED = listOf(true, false)
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class BackgroundRefreshPassTest {
@@ -29,6 +32,7 @@ class BackgroundRefreshPassTest {
 
         //Then
         assertEquals(listOf(true), task.outcomes)
+        assertEquals(HANDED_OVER_AND_RELEASED, task.takeBackOffers)
     }
 
     @Test
@@ -43,6 +47,7 @@ class BackgroundRefreshPassTest {
         //Then
         // The platform backs the next refresh off after a failure instead of retrying at once.
         assertEquals(listOf(false), task.outcomes)
+        assertEquals(HANDED_OVER_AND_RELEASED, task.takeBackOffers)
     }
 
     @Test
@@ -55,12 +60,14 @@ class BackgroundRefreshPassTest {
             UnconfinedTestDispatcher(testScheduler) + CoroutineExceptionHandler { _, _ -> }
         )
         val manager = AnimeUpdateManagerFake(onUpdate = { error("the database is gone") })
+        val pass = BackgroundRefreshPass(animeUpdateManager = manager, coroutineScope = scope)
 
         //When
-        BackgroundRefreshPass(animeUpdateManager = manager, coroutineScope = scope).runIn(task)
+        pass.runIn(task)
 
         //Then
         assertEquals(listOf(false), task.outcomes)
+        assertEquals(HANDED_OVER_AND_RELEASED, task.takeBackOffers)
     }
 
     @Test
@@ -78,7 +85,7 @@ class BackgroundRefreshPassTest {
         //Then
         // Telling the platform twice is what it treats as a programming error.
         assertEquals(listOf(false), task.outcomes)
-        assertEquals(0, manager.updateCount)
+        assertEquals(HANDED_OVER_AND_RELEASED, task.takeBackOffers)
     }
 
     @Test
@@ -88,29 +95,16 @@ class BackgroundRefreshPassTest {
         scope.cancel()
         val manager = AnimeUpdateManagerFake()
         val task = BackgroundRefreshTaskFake()
-
-        //When
-        BackgroundRefreshPass(animeUpdateManager = manager, coroutineScope = scope).runIn(task)
-
-        //Then
-        // A task left unended costs the app every background refresh after it.
-        assertEquals(listOf(false), task.outcomes)
-        assertEquals(0, manager.updateCount)
-    }
-
-    @Test
-    fun anEndedTaskIsNotHeldOnToByItsExpirationHandler() = runTest {
-        //Given
-        val task = BackgroundRefreshTaskFake()
-        val pass = createPass(AnimeUpdateManagerFake())
+        val pass = BackgroundRefreshPass(animeUpdateManager = manager, coroutineScope = scope)
 
         //When
         pass.runIn(task)
 
         //Then
-        // The handler holds the completion and the completion holds the task, so a handler left
-        // in place keeps every finished task alive for as long as the process runs.
-        assertNull(task.expirationHandler)
+        // A task left unended costs the app every background refresh after it.
+        assertEquals(listOf(false), task.outcomes)
+        assertEquals(HANDED_OVER_AND_RELEASED, task.takeBackOffers)
+        assertEquals(0, manager.updateCount)
     }
 
     private fun TestScope.createPass(manager: AnimeUpdateManagerFake) = BackgroundRefreshPass(

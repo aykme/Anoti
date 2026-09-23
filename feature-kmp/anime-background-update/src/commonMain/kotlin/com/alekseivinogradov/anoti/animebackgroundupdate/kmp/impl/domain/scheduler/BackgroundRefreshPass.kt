@@ -26,19 +26,20 @@ internal class BackgroundRefreshPass(
             task.complete(success)
             // The handler holds this completion and this completion holds the task, so leaving
             // it in place keeps every finished task alive for as long as the process runs.
-            task.expirationHandler = null
+            task.setExpirationHandler(null)
         }
 
         val job = coroutineScope.launch(start = CoroutineStart.LAZY) {
             completion.complete(animeUpdateManager.update() == WorkResult.Success)
         }
+        // Installed before the completion handler below, which is what drops it again: on a
+        // scope that is already gone, that handler runs the moment it is registered, and a
+        // handler installed after it would be left on a task the platform has taken back.
+        task.setExpirationHandler { job.cancel() }
         // Whatever ends the pass — a throw, the scope being canceled, the platform taking the
         // task back — the platform is told.
         job.invokeOnCompletion { completion.complete(success = false) }
 
-        // Set before the pass starts: the platform can take a task back the moment it hands it
-        // over.
-        task.expirationHandler = { job.cancel() }
         job.start()
     }
 }
