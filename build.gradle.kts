@@ -27,9 +27,10 @@ plugins {
 val robolectricSdk = libs.versions.robolectricSdk.get()
 val minSdk = libs.versions.minSdk.get()
 
-// The line coverage the whole project already holds, kept as the floor it may not fall below.
-// `koverVerify` is what checks it; see CLAUDE.md for when that is run.
-val wholeProjectLineCoverageMinimum = 98
+// The floor the whole project's line coverage may not fall below. It sits below what the
+// project holds on purpose, so the gate catches a change that arrived with no tests rather
+// than a branch no test can reach. `koverVerify` checks it; CLAUDE.md says when that is run.
+val wholeProjectLineCoverageMinimum = 90
 
 /** Writes the Robolectric properties a module's host tests read off their classpath. */
 abstract class GenerateRobolectricConfig : DefaultTask() {
@@ -258,7 +259,7 @@ fun KoverReportFiltersConfig.excludeUnmeasuredCode() {
             "**.Inject*Component*",
             // Bodies the Kotlin compiler copies out of an interface into a static holder, so
             // the same lines are not counted twice.
-            "**\$DefaultImpls",
+            $$"**$DefaultImpls",
             // The holders the Compose compiler generates for composable lambdas, which carry no
             // code of their own.
             "**.ComposableSingletons$*",

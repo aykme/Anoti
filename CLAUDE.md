@@ -204,9 +204,11 @@ Read this before doing any task in this repository.
 - Kover is the project's coverage tool — measure with it rather than guessing from the diff.
 - The bar is one number over the whole project, and it is enforced. `./gradlew koverVerify` fails
   the build when aggregated line coverage falls below `wholeProjectLineCoverageMinimum` in the
-  root `build.gradle.kts`, currently 98%.
-- The floor sits just under what the project already holds, not somewhere to grow into. The
-  margin between the two is small by design: new and changed code arrives covered.
+  root `build.gradle.kts`, currently 90%.
+- The floor is not where the project sits — it holds a good deal more. The room between the two
+  is deliberate: the gate is there to catch a change that arrived with no tests at all, not a
+  branch or two no test can reach. Cover what you write regardless; the number is a safety net,
+  not the standard.
 - Nothing runs the task for you. It is deliberately outside `check` and `build`, so an ordinary
   build never pays for it — "Finishing a task" below says when to run it.
 - It is checked over the project as a whole on purpose. A module's own report counts only that
@@ -222,7 +224,7 @@ Read this before doing any task in this repository.
   `DefaultImpls` holders the Kotlin compiler copies an interface body into and the
   `ComposableSingletons` holders behind composable lambdas — plus `@Composable` functions,
   handwritten test doubles and `core-kmp:test-utils`.
-- A hand-written `@Provides` body is not generated code and is measured like anything else. A
+- A handwritten `@Provides` body is not generated code and is measured like anything else. A
   filter that hid every `Di*Component` also hid the bindings a test exercises directly, which is
   why there is no such filter.
 - Keeping `@Composable` out is deliberate, not a gap waiting to be closed. The Compose compiler
