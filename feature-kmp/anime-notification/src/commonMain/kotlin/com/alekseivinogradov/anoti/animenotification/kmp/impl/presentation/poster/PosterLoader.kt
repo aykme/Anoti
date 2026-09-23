@@ -20,13 +20,19 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * Loads an anime poster for a notification through the app-wide Coil loader. Any failure or a
- * stalled host yields no poster, since the notification is still worth posting without one.
+ * Loads an anime poster for a notification. Any failure or a stalled host yields no poster,
+ * since the notification is still worth posting without one.
+ *
+ * @param platformContext context the image requests are built against.
+ * @param imageLoaderProvider supplies the loader to fetch through. Defaults to the app-wide one,
+ * so a poster already shown on screen comes from its cache.
  */
-internal class PosterLoader(private val platformContext: PlatformContext) {
+internal class PosterLoader(
+    private val platformContext: PlatformContext,
+    imageLoaderProvider: () -> ImageLoader = { SingletonImageLoader.get(platformContext) }
+) {
 
-    // The app-wide loader, so a poster already shown on screen comes from its cache.
-    private val imageLoader: ImageLoader by lazy { SingletonImageLoader.get(platformContext) }
+    private val imageLoader: ImageLoader by lazy(imageLoaderProvider)
 
     /** Loads the poster decoded into memory. */
     suspend fun loadImage(imageUrl: String?): Image? = execute(imageUrl) { this }?.image

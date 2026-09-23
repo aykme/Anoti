@@ -5,7 +5,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-private class TestComposeMviView(
+private class ComposeMviViewFake(
     initialModel: String? = null
 ) : ComposeMviView<String, Int>(initialModel)
 
@@ -14,7 +14,7 @@ class ComposeMviViewTest {
     @Test
     fun modelStartsAsNull() {
         //Given
-        val view = TestComposeMviView()
+        val view = ComposeMviViewFake()
 
         //When
         val model = view.model.value
@@ -26,7 +26,7 @@ class ComposeMviViewTest {
     @Test
     fun modelStartsAtTheInitialModelWhenOneIsGiven() {
         //Given
-        val view = TestComposeMviView(initialModel = "seeded")
+        val view = ComposeMviViewFake(initialModel = "seeded")
 
         //When
         val model = view.model.value
@@ -38,7 +38,7 @@ class ComposeMviViewTest {
     @Test
     fun theFirstRenderReplacesTheInitialModel() {
         //Given
-        val view = TestComposeMviView(initialModel = "seeded")
+        val view = ComposeMviViewFake(initialModel = "seeded")
 
         //When
         view.render("rendered")
@@ -50,7 +50,7 @@ class ComposeMviViewTest {
     @Test
     fun renderUpdatesModel() {
         //Given
-        val view = TestComposeMviView()
+        val view = ComposeMviViewFake()
 
         //When
         view.render("first")
@@ -65,7 +65,7 @@ class ComposeMviViewTest {
     @Test
     fun dispatchEmitsToEventsInOrder() {
         //Given
-        val view = TestComposeMviView()
+        val view = ComposeMviViewFake()
         val emitted = mutableListOf<Int>()
         view.events(observer(onNext = { emitted.add(it) }))
 

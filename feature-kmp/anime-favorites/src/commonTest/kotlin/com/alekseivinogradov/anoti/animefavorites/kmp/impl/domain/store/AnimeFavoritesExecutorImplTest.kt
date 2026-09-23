@@ -1,6 +1,7 @@
 package com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
+import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.fake.UpdateAllAnimeInBackgroundOnceUsecaseFake
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.ANIMATION_DURATION_SHORT
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.LIST_ARRIVAL_TIMEOUT_SECONDS
@@ -8,11 +9,12 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ContentTy
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.source.AnimeFavoritesSource
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
+import com.alekseivinogradov.anoti.animefavorites.kmp.impl.data.source.fake.AnimeFavoritesSourceFake
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.wrapper.FavoritesUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
@@ -53,97 +55,6 @@ class AnimeFavoritesExecutorImplTest {
         Dispatchers.resetMain()
     }
 
-    private object NoOpSource : AnimeFavoritesSource {
-        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
-            error("not used in AnimeFavoritesExecutorImplTest")
-        }
-    }
-
-    private class FakeDetailsSource(
-        private val item: ListItemDomain
-    ) : AnimeFavoritesSource {
-        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
-            return CallResult.Success(item)
-        }
-    }
-
-    private class HangingSource : AnimeFavoritesSource {
-        var wasCancelled = false
-            private set
-
-        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
-            try {
-                awaitCancellation()
-            } finally {
-                wasCancelled = true
-            }
-        }
-    }
-
-    private class FirstCallHangsSource(
-        private val item: ListItemDomain
-    ) : AnimeFavoritesSource {
-        var firstCallWasCancelled = false
-            private set
-        private var callCount = 0
-
-        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
-            callCount++
-            if (callCount == 1) {
-                try {
-                    awaitCancellation()
-                } finally {
-                    firstCallWasCancelled = true
-                }
-            }
-            return CallResult.Success(item)
-        }
-    }
-
-    private class TrackingCallSource(
-        private val item: ListItemDomain
-    ) : AnimeFavoritesSource {
-        var callCount = 0
-            private set
-        val wasCalled: Boolean get() = callCount > 0
-
-        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
-            callCount++
-            return CallResult.Success(item)
-        }
-    }
-
-    private class FailingSource(
-        private val failure: CallResult.Failure
-    ) : AnimeFavoritesSource {
-        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> = failure
-    }
-
-    /** Answers only once [release] is called, so a test can act while the fetch is in flight. */
-    private class GatedSource(
-        private val item: ListItemDomain
-    ) : AnimeFavoritesSource {
-        private val gate = CompletableDeferred<Unit>()
-
-        fun release() {
-            gate.complete(Unit)
-        }
-
-        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
-            gate.await()
-            return CallResult.Success(item)
-        }
-    }
-
-    private class RecordingBackgroundUpdateUsecase : UpdateAllAnimeInBackgroundOnceUsecase {
-        var executeCount = 0
-            private set
-
-        override fun execute() {
-            executeCount++
-        }
-    }
-
     private fun testListItem(
         id: AnimeId = 1,
         isExtraInfoEnabled: Boolean = false,
@@ -167,14 +78,12 @@ class AnimeFavoritesExecutorImplTest {
     }
 
     private fun createStore(
-        source: AnimeFavoritesSource = NoOpSource,
-        backgroundUpdateUsecase: UpdateAllAnimeInBackgroundOnceUsecase = RecordingBackgroundUpdateUsecase(),
+        source: AnimeFavoritesSource = AnimeFavoritesSourceFake(),
+        backgroundUpdateUsecase: UpdateAllAnimeInBackgroundOnceUsecase = UpdateAllAnimeInBackgroundOnceUsecaseFake(),
         onConnectionErrorSystemMessage: () -> Unit = {},
         onUnknownErrorSystemMessage: () -> Unit = {}
     ): AnimeFavoritesMainStore {
-        val coroutineContextProvider = object : CoroutineContextProviderBase() {
-            override val exceptionHandlerCallback: (Throwable) -> Unit = {}
-        }
+        val coroutineContextProvider = CoroutineContextProviderFake()
         val usecases = FavoritesUsecases(
             updateAllAnimeInBackgroundOnceUsecase = backgroundUpdateUsecase,
             fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)
@@ -394,7 +303,9 @@ class AnimeFavoritesExecutorImplTest {
         //Given
         val item = testListItem()
         val fetchedItem = item.copy(nextEpisodeAt = "2026-09-10T12:00:00Z")
-        val store = createStore(source = FakeDetailsSource(fetchedItem))
+        val store = createStore(
+            source = AnimeFavoritesSourceFake { _, _ -> CallResult.Success(fetchedItem) }
+        )
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
         val emittedLabels = mutableListOf<AnimeFavoritesMainStore.Label>()
         val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
@@ -418,7 +329,7 @@ class AnimeFavoritesExecutorImplTest {
     fun infoTypeClickToExtraWithNextEpisodeAtAlreadyKnownDoesNotFetchDetails() = runTest(testDispatcher) {
         //Given
         val item = testListItem(nextEpisodeAt = "2026-09-10T12:00:00Z")
-        val source = TrackingCallSource(item)
+        val source = AnimeFavoritesSourceFake { _, _ -> CallResult.Success(item) }
         val store = createStore(source = source)
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
 
@@ -436,7 +347,7 @@ class AnimeFavoritesExecutorImplTest {
         val item = testListItem()
         // The API legitimately has no next-episode date: the fetch result keeps nextEpisodeAt
         // null, which must not be mistaken for "never fetched" on a later toggle.
-        val source = TrackingCallSource(item)
+        val source = AnimeFavoritesSourceFake { _, _ -> CallResult.Success(item) }
         val store = createStore(source = source)
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
 
@@ -454,7 +365,7 @@ class AnimeFavoritesExecutorImplTest {
     fun openSectionResetsFetchedAnimeDetailsIdsSoARefreshedNullResultIsRefetched() = runTest(testDispatcher) {
         //Given
         val item = testListItem()
-        val source = TrackingCallSource(item)
+        val source = AnimeFavoritesSourceFake { _, _ -> CallResult.Success(item) }
         val store = createStore(source = source)
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
         store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
@@ -493,7 +404,9 @@ class AnimeFavoritesExecutorImplTest {
         //Given
         val item = testListItem()
         val fetched = item.copy(nextEpisodeAt = "2026-09-10T12:00:00Z")
-        val source = FirstCallHangsSource(fetched)
+        val source = AnimeFavoritesSourceFake { _, callNumber ->
+            if (callNumber == 1) awaitCancellation() else CallResult.Success(fetched)
+        }
         val store = createStore(source = source)
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
         store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
@@ -505,7 +418,7 @@ class AnimeFavoritesExecutorImplTest {
         runCurrent()
 
         //Then
-        assertTrue(source.firstCallWasCancelled, "the replaced fetch outlived its replacement")
+        assertEquals(listOf(1), source.canceledCalls, "the replaced fetch outlived its replacement")
         assertTrue(
             emittedLabels.contains(
                 AnimeFavoritesMainStore.Label.UpdateListItem(
@@ -520,7 +433,7 @@ class AnimeFavoritesExecutorImplTest {
     @Test
     fun disposingTheStoreCancelsAnInFlightDetailsFetch() = runTest(testDispatcher) {
         //Given
-        val source = HangingSource()
+        val source = AnimeFavoritesSourceFake { _, _ -> awaitCancellation() }
         val item = testListItem()
         val store = createStore(source = source)
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
@@ -530,7 +443,7 @@ class AnimeFavoritesExecutorImplTest {
         store.dispose()
 
         //Then
-        assertTrue(source.wasCancelled, "the details fetch outlived its store")
+        assertTrue(source.wasCanceled, "the details fetch outlived its store")
     }
 
     @Test
@@ -886,7 +799,7 @@ class AnimeFavoritesExecutorImplTest {
     @Test
     fun updateAllItemsInBackgroundTriggersTheBackgroundUpdate() = runTest(testDispatcher) {
         //Given
-        val backgroundUpdateUsecase = RecordingBackgroundUpdateUsecase()
+        val backgroundUpdateUsecase = UpdateAllAnimeInBackgroundOnceUsecaseFake()
         val store = createStore(backgroundUpdateUsecase = backgroundUpdateUsecase)
 
         //When
@@ -903,7 +816,7 @@ class AnimeFavoritesExecutorImplTest {
         var unknownErrorCount = 0
         val item = testListItem()
         val store = createStore(
-            source = FailingSource(CallResult.HttpError(code = 500, throwable = Throwable())),
+            source = AnimeFavoritesSourceFake { _, _ -> CallResult.HttpError(code = 500, throwable = Throwable()) },
             onConnectionErrorSystemMessage = { connectionErrorCount++ },
             onUnknownErrorSystemMessage = { unknownErrorCount++ }
         )
@@ -925,7 +838,7 @@ class AnimeFavoritesExecutorImplTest {
         var unknownErrorCount = 0
         val item = testListItem()
         val store = createStore(
-            source = FailingSource(CallResult.NetworkError(throwable = Throwable())),
+            source = AnimeFavoritesSourceFake { _, _ -> CallResult.NetworkError(throwable = Throwable()) },
             onConnectionErrorSystemMessage = { connectionErrorCount++ },
             onUnknownErrorSystemMessage = { unknownErrorCount++ }
         )
@@ -947,7 +860,7 @@ class AnimeFavoritesExecutorImplTest {
         var unknownErrorCount = 0
         val item = testListItem()
         val store = createStore(
-            source = FailingSource(CallResult.OtherError(throwable = Throwable())),
+            source = AnimeFavoritesSourceFake { _, _ -> CallResult.OtherError(throwable = Throwable()) },
             onConnectionErrorSystemMessage = { connectionErrorCount++ },
             onUnknownErrorSystemMessage = { unknownErrorCount++ }
         )
@@ -967,7 +880,11 @@ class AnimeFavoritesExecutorImplTest {
         //Given
         val item = testListItem()
         val fetched = item.copy(nextEpisodeAt = "2026-09-10T12:00:00Z")
-        val source = GatedSource(fetched)
+        val gate = CompletableDeferred<Unit>()
+        val source = AnimeFavoritesSourceFake { _, _ ->
+            gate.await()
+            CallResult.Success(fetched)
+        }
         val store = createStore(source = source)
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
         store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
@@ -976,7 +893,7 @@ class AnimeFavoritesExecutorImplTest {
 
         //When
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(emptyList()))
-        source.release()
+        gate.complete(Unit)
         runCurrent()
 
         //Then

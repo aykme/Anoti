@@ -14,7 +14,7 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.ite
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.ReleaseStatusUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_list
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.formatter.fake.DateFormatterFake
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.AnotiTheme
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.runBlocking
@@ -31,10 +31,6 @@ class AnimeFavoritesScreenTest {
 
     @get:Rule
     val composeRule = createComposeRule()
-
-    private object PassThroughDateFormatter : DateFormatter {
-        override fun getFormattedDate(inputText: String, fallbackText: String): String = inputText
-    }
 
     private val listItem = ListItemUi(
         id = 1,
@@ -58,7 +54,7 @@ class AnimeFavoritesScreenTest {
             AnotiTheme {
                 AnimeFavoritesScreen(
                     uiModel = uiModel,
-                    dateFormatter = PassThroughDateFormatter,
+                    dateFormatter = DateFormatterFake(),
                     dispatch = dispatch
                 )
             }

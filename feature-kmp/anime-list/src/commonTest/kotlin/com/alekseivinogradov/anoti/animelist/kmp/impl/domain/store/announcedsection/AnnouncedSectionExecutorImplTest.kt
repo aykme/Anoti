@@ -1,16 +1,15 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.announcedsection
 
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.SortData
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
-import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsection.AnnouncedSectionStore
+import com.alekseivinogradov.anoti.animelist.kmp.impl.data.source.fake.AnimeListSourceFake
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnnouncedAnimeListUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.AnnouncedUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.extensions.coroutines.states
@@ -50,32 +49,6 @@ class AnnouncedSectionExecutorImplTest {
         Dispatchers.resetMain()
     }
 
-    private class FakeAnnouncedSource(
-        private val pages: Map<Int, CallResult<List<ListItemDomain>>>,
-        private val beforeAnnouncedResult: suspend (page: Int) -> Unit = {}
-    ) : AnimeListSource {
-        override suspend fun getOngoingList(page: Int, sort: SortData): CallResult<List<ListItemDomain>> {
-            error("not used in AnnouncedSectionExecutorImplTest")
-        }
-
-        override suspend fun getAnnouncedList(page: Int, sort: SortData): CallResult<List<ListItemDomain>> {
-            beforeAnnouncedResult(page)
-            return pages[page] ?: CallResult.Success(emptyList())
-        }
-
-        override suspend fun getListBySearch(
-            page: Int,
-            search: String,
-            sort: SortData
-        ): CallResult<List<ListItemDomain>> {
-            error("not used in AnnouncedSectionExecutorImplTest")
-        }
-
-        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
-            error("not used in AnnouncedSectionExecutorImplTest")
-        }
-    }
-
     private fun testListItem(id: AnimeId) = ListItemDomain(
         id = id,
         name = "Item $id",
@@ -95,10 +68,13 @@ class AnnouncedSectionExecutorImplTest {
         onConnectionErrorSystemMessage: () -> Unit = {},
         onUnknownErrorSystemMessage: () -> Unit = {}
     ): AnnouncedSectionStore {
-        val source = FakeAnnouncedSource(pages, beforeAnnouncedResult)
-        val coroutineContextProvider = object : CoroutineContextProviderBase() {
-            override val exceptionHandlerCallback: (Throwable) -> Unit = {}
-        }
+        val source = AnimeListSourceFake(
+            announced = { page, _ ->
+                beforeAnnouncedResult(page)
+                pages[page] ?: CallResult.Success(emptyList())
+            }
+        )
+        val coroutineContextProvider = CoroutineContextProviderFake()
         val usecases = AnnouncedUsecases(
             fetchAnnouncedAnimeListUsecase = FetchAnnouncedAnimeListUsecase(source)
         )

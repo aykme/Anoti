@@ -233,8 +233,13 @@ fun KoverReportFiltersConfig.excludeUnmeasuredCode() {
             // kotlin-inject
             "**.Inject*Component*",
             // Compose Resources
-            "com.alekseivinogradov.anoti.**.generated.resources.**"
+            "com.alekseivinogradov.anoti.**.generated.resources.**",
+            // Hand-written test doubles, which the targets exclude the same way they exclude
+            // core-kmp:test-utils.
+            "**Fake*"
         )
+        // The same doubles, caught by where they live rather than by what they are called.
+        packages("**.fake")
     }
 }
 

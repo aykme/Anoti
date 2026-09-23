@@ -1,4 +1,5 @@
 <resources>
     <string name="main">Main</string>
     <string name="favorites">Favorites</string>
+    <string name="favorites_new_episodes_description">%1$s, %2$s with new episodes</string>
 </resources>

@@ -23,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,6 +39,7 @@ import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.mode
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.SectionUi
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.generated.resources.favorites
+import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.generated.resources.favorites_new_episodes_description
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.generated.resources.ic_favorite_24
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.generated.resources.ic_main_24
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.generated.resources.main
@@ -82,14 +85,23 @@ fun BottomNavigationBar(
                         modifier = Modifier.size(NAV_BAR_ICON_SIZE_DP)
                     )
                 },
-                label = stringResource(Res.string.main),
+                label = { NavigationBarLabel(text = stringResource(Res.string.main)) },
                 testTag = "anime_list_button"
             )
+            val favoritesLabel = stringResource(Res.string.favorites)
             BottomNavigationBarItem(
                 selected = uiModel.selectedSection == SectionUi.FAVORITES,
                 onClick = { dispatch(BottomNavigationBarStore.Intent.FavoritesSectionClick) },
                 icon = { FavoritesIcon(favoritesBadgeNumber = uiModel.favoritesBadgeNumber) },
-                label = stringResource(Res.string.favorites),
+                label = {
+                    NavigationBarLabel(
+                        text = favoritesLabel,
+                        contentDescription = favoritesBadgeDescription(
+                            favoritesBadgeNumber = uiModel.favoritesBadgeNumber,
+                            label = favoritesLabel
+                        )
+                    )
+                },
                 testTag = "anime_favorites_button"
             )
         }
@@ -108,24 +120,50 @@ private fun RowScope.BottomNavigationBarItem(
     selected: Boolean,
     onClick: () -> Unit,
     icon: @Composable () -> Unit,
-    label: String,
+    label: @Composable () -> Unit,
     testTag: String
 ) {
     NavigationBarItem(
         selected = selected,
         onClick = onClick,
         icon = icon,
-        label = { NavigationBarLabel(label) },
+        label = label,
         alwaysShowLabel = true,
         colors = navigationBarItemColors(),
         modifier = Modifier.testTag(testTag)
     )
 }
 
+private fun Modifier.describedAs(contentDescription: String?): Modifier =
+    if (contentDescription == null) {
+        this
+    } else {
+        semantics { this.contentDescription = contentDescription }
+    }
+
+@Composable
+private fun favoritesBadgeDescription(favoritesBadgeNumber: Int, label: String): String? {
+    if (favoritesBadgeNumber <= 0) return null
+
+    return stringResource(
+        Res.string.favorites_new_episodes_description,
+        label,
+        formatBadgeNumber(favoritesBadgeNumber)
+    )
+}
+
 @Suppress("FunctionNaming")
 @Composable
-private fun NavigationBarLabel(text: String) {
-    Text(text = text, fontSize = CAPTION_SP, fontWeight = FontWeight.Normal)
+private fun NavigationBarLabel(text: String, contentDescription: String? = null) {
+    Text(
+        text = text,
+        fontSize = CAPTION_SP,
+        fontWeight = FontWeight.Normal,
+        // NavigationBarItem drops the icon slot's semantics when the item has a label, taking
+        // the badge's number with it. The label carries the number instead. Describing it
+        // replaces its own text for a screen reader, rather than adding a second thing to read.
+        modifier = Modifier.describedAs(contentDescription)
+    )
 }
 
 @Suppress("FunctionNaming")

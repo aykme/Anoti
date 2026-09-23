@@ -15,14 +15,15 @@ import kotlinx.serialization.json.Json
 import org.robolectric.Robolectric
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.android.controller.ActivityController
+import kotlin.test.assertEquals
 
 internal const val ANIME_LIST_TAB_TAG = "anime_list_button"
 internal const val ANIME_FAVORITES_TAB_TAG = "anime_favorites_button"
 
 /** The fakes the activity under test is wired to, reachable from a test that never built them. */
-internal val fakeDependencies: FakeDiRootDependencies
-    get() = checkNotNull(RuntimeEnvironment.getApplication() as? FakeHostApplication) {
-        "The test must run with FakeHostApplication."
+internal val fakeDependencies: DiRootDependenciesFake
+    get() = checkNotNull(RuntimeEnvironment.getApplication() as? HostApplicationFake) {
+        "The test must run with HostApplicationFake."
     }.dependencies
 
 /** What the launcher sends, with no deep link on it. */
@@ -68,6 +69,15 @@ internal class TestMainDispatcher {
     fun remove() {
         Dispatchers.resetMain()
     }
+}
+
+/** Fails when a screen asked the catalog for an anime's details, which no test here opens. */
+internal fun assertNoAnimeDetailsRequested() {
+    assertEquals(
+        listOf(),
+        fakeDependencies.animeDetailsRequests,
+        "a screen went to the catalog for details"
+    )
 }
 
 /** Takes the activity all the way to resumed and lets the first composition settle. */

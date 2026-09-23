@@ -19,7 +19,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = FakeHostApplication::class)
+@Config(application = HostApplicationFake::class)
 class MainActivityNotificationsRationaleTest {
 
     private val mainDispatcher = TestMainDispatcher()
@@ -31,7 +31,10 @@ class MainActivityNotificationsRationaleTest {
     fun installTestDispatcher() = mainDispatcher.install()
 
     @AfterTest
-    fun removeTestDispatcher() = mainDispatcher.remove()
+    fun removeTestDispatcher() {
+        mainDispatcher.remove()
+        assertNoAnimeDetailsRequested()
+    }
 
     @Test
     fun explainsItselfWhenTheSystemSaysAnExplanationIsOwed() {

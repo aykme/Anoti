@@ -1,6 +1,5 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation
 
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.SortData
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
@@ -11,6 +10,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsecti
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.ongoingsection.OngoingSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.SearchSectionStore
+import com.alekseivinogradov.anoti.animelist.kmp.impl.data.source.fake.AnimeListSourceFake
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.announcedsection.AnnouncedSectionExecutorFactory
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.announcedsection.AnnouncedSectionExecutorImpl
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.announcedsection.AnnouncedSectionStoreFactory
@@ -32,7 +32,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.Ong
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.SearchUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.mvikotlin.extensions.coroutines.states
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
@@ -63,51 +63,17 @@ class ApplyRestoredMainStateTest {
         Dispatchers.resetMain()
     }
 
-    private object EmptySource : AnimeListSource {
-        override suspend fun getOngoingList(
-            page: Int,
-            sort: SortData
-        ): CallResult<List<ListItemDomain>> = CallResult.Success(emptyList())
+    private fun emptySource() = AnimeListSourceFake(
+        ongoing = { _, _ -> CallResult.Success(emptyList()) },
+        announced = { _, _ -> CallResult.Success(emptyList()) },
+        search = { _, _, _ -> CallResult.Success(emptyList()) }
+    )
 
-        override suspend fun getAnnouncedList(
-            page: Int,
-            sort: SortData
-        ): CallResult<List<ListItemDomain>> = CallResult.Success(emptyList())
-
-        override suspend fun getListBySearch(
-            page: Int,
-            search: String,
-            sort: SortData
-        ): CallResult<List<ListItemDomain>> = CallResult.Success(emptyList())
-
-        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
-            error("not used in ApplyRestoredMainStateTest")
-        }
-    }
-
-    private class PagedSource(
-        private val pages: Map<Int, List<ListItemDomain>>
-    ) : AnimeListSource {
-        override suspend fun getOngoingList(
-            page: Int,
-            sort: SortData
-        ): CallResult<List<ListItemDomain>> = CallResult.Success(pages[page] ?: emptyList())
-
-        override suspend fun getAnnouncedList(
-            page: Int,
-            sort: SortData
-        ): CallResult<List<ListItemDomain>> = CallResult.Success(pages[page] ?: emptyList())
-
-        override suspend fun getListBySearch(
-            page: Int,
-            search: String,
-            sort: SortData
-        ): CallResult<List<ListItemDomain>> = CallResult.Success(pages[page] ?: emptyList())
-
-        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
-            error("not used in ApplyRestoredMainStateTest")
-        }
-    }
+    private fun pagedSource(pages: Map<Int, List<ListItemDomain>>) = AnimeListSourceFake(
+        ongoing = { page, _ -> CallResult.Success(pages[page] ?: emptyList()) },
+        announced = { page, _ -> CallResult.Success(pages[page] ?: emptyList()) },
+        search = { page, _, _ -> CallResult.Success(pages[page] ?: emptyList()) }
+    )
 
     private fun testListItem(id: AnimeId) = ListItemDomain(
         id = id,
@@ -158,9 +124,7 @@ class ApplyRestoredMainStateTest {
         search = search
     )
 
-    private fun createCoroutineContextProvider() = object : CoroutineContextProviderBase() {
-        override val exceptionHandlerCallback: (Throwable) -> Unit = {}
-    }
+    private fun createCoroutineContextProvider() = CoroutineContextProviderFake()
 
     private fun createMainStore(): AnimeListMainStore {
         val executorFactory: AnimeListExecutorFactory = {
@@ -172,7 +136,7 @@ class ApplyRestoredMainStateTest {
         ).create()
     }
 
-    private fun createOngoingStore(source: AnimeListSource = EmptySource): OngoingSectionStore {
+    private fun createOngoingStore(source: AnimeListSource = emptySource()): OngoingSectionStore {
         val usecases = OngoingUsecases(
             fetchOngoingAnimeListUsecase = FetchOngoingAnimeListUsecase(source),
             fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)
@@ -193,7 +157,7 @@ class ApplyRestoredMainStateTest {
         ).create()
     }
 
-    private fun createAnnouncedStore(source: AnimeListSource = EmptySource): AnnouncedSectionStore {
+    private fun createAnnouncedStore(source: AnimeListSource = emptySource()): AnnouncedSectionStore {
         val usecases = AnnouncedUsecases(
             fetchAnnouncedAnimeListUsecase = FetchAnnouncedAnimeListUsecase(source)
         )
@@ -213,7 +177,7 @@ class ApplyRestoredMainStateTest {
         ).create()
     }
 
-    private fun createSearchStore(source: AnimeListSource = EmptySource): SearchSectionStore {
+    private fun createSearchStore(source: AnimeListSource = emptySource()): SearchSectionStore {
         val usecases = SearchUsecases(
             fetchAnimeListBySearchUsecase = FetchAnimeListBySearchUsecase(source),
             fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)
@@ -391,7 +355,7 @@ class ApplyRestoredMainStateTest {
             3 to listOf(testListItem(5), testListItem(6))
         )
         val mainStore = createMainStore()
-        val ongoingStore = createOngoingStore(source = PagedSource(pages))
+        val ongoingStore = createOngoingStore(source = pagedSource(pages))
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
 
@@ -416,7 +380,7 @@ class ApplyRestoredMainStateTest {
         //Given
         val pages = (1..10).associateWith { page -> listOf(testListItem(page)) }
         val mainStore = createMainStore()
-        val ongoingStore = createOngoingStore(source = PagedSource(pages))
+        val ongoingStore = createOngoingStore(source = pagedSource(pages))
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
 
@@ -442,7 +406,7 @@ class ApplyRestoredMainStateTest {
         //Given
         val pages = sequentialPages(pageCount = 10)
         val mainStore = createMainStore()
-        val ongoingStore = createOngoingStore(source = PagedSource(pages))
+        val ongoingStore = createOngoingStore(source = pagedSource(pages))
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
 
@@ -470,7 +434,7 @@ class ApplyRestoredMainStateTest {
         //Given
         val pages = sequentialPages(pageCount = 20)
         val mainStore = createMainStore()
-        val ongoingStore = createOngoingStore(source = PagedSource(pages))
+        val ongoingStore = createOngoingStore(source = pagedSource(pages))
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
 
@@ -498,7 +462,7 @@ class ApplyRestoredMainStateTest {
         //Given
         val pages = sequentialPages(pageCount = 20)
         val mainStore = createMainStore()
-        val ongoingStore = createOngoingStore(source = PagedSource(pages))
+        val ongoingStore = createOngoingStore(source = pagedSource(pages))
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
         applyRestoredMainState(
@@ -529,7 +493,7 @@ class ApplyRestoredMainStateTest {
         val pages = sequentialPages(pageCount = 10)
         val mainStore = createMainStore()
         val ongoingStore = createOngoingStore()
-        val announcedStore = createAnnouncedStore(source = PagedSource(pages))
+        val announcedStore = createAnnouncedStore(source = pagedSource(pages))
         val searchStore = createSearchStore()
 
         //When
@@ -555,7 +519,7 @@ class ApplyRestoredMainStateTest {
         val pages = sequentialPages(pageCount = 20)
         val mainStore = createMainStore()
         val ongoingStore = createOngoingStore()
-        val announcedStore = createAnnouncedStore(source = PagedSource(pages))
+        val announcedStore = createAnnouncedStore(source = pagedSource(pages))
         val searchStore = createSearchStore()
 
         //When
@@ -582,7 +546,7 @@ class ApplyRestoredMainStateTest {
         val mainStore = createMainStore()
         val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore()
-        val searchStore = createSearchStore(source = PagedSource(pages))
+        val searchStore = createSearchStore(source = pagedSource(pages))
 
         //When
         applyRestoredMainState(
@@ -605,7 +569,7 @@ class ApplyRestoredMainStateTest {
         val mainStore = createMainStore()
         val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore()
-        val searchStore = createSearchStore(source = PagedSource(pages))
+        val searchStore = createSearchStore(source = pagedSource(pages))
 
         //When
         applyRestoredMainState(

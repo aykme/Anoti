@@ -1,21 +1,12 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation
 
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.ReleaseStatusData
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeDetailsResponse
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeShortResponse
+import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ANIME_LIST_APPEND_URL
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.AnimeDbDomain
+import com.alekseivinogradov.anoti.animebase.kmp.impl.data.service.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ChangeAnimeDatabaseItemNewEpisodeStatusUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.DeleteAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsFlowUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.InsertAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ResetAllAnimeDatabaseItemsExtraInfoUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.wrapper.AnimeDatabaseUsecases
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseExecutorImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseStoreFactory
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.fake.AnimeDatabaseUsecasesFake
 import com.alekseivinogradov.anoti.animelist.kmp.api.di.DiAnimeListDependencies
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SearchDomain
@@ -29,9 +20,11 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.formatter.fake.DateFormatterFake
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
-import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
+import com.alekseivinogradov.anoti.network.kmp.impl.data.client.createHttpClient
+import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
@@ -42,10 +35,16 @@ import com.arkivanov.essenty.statekeeper.StateKeeperDispatcher
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.states
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockEngineConfig
+import io.ktor.client.engine.mock.respond
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import io.ktor.utils.io.ByteReadChannel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -75,81 +74,20 @@ class NavAnimeListScreenComponentTest {
         Dispatchers.resetMain()
     }
 
-    private object PassThroughDateFormatter : DateFormatter {
-        override fun getFormattedDate(inputText: String, fallbackText: String): String = inputText
-    }
-
-    /** Answers every list request with the same page, and every details request with a date. */
-    private object SinglePageApiService : ShikimoriApiService {
-        override suspend fun getAnimeList(
-            page: Int,
-            releaseStatus: String?,
-            sort: String?,
-            search: String?,
-            ids: String?
-        ): List<AnimeShortResponse> = (1..PAGE_ITEM_COUNT).map { id ->
-            AnimeShortResponse(
-                id = id,
-                englishName = "Item $id",
-                releaseStatus = ReleaseStatusData.ONGOING.value
-            )
-        }
-
-        override suspend fun getAnimeById(id: AnimeId): AnimeDetailsResponse = AnimeDetailsResponse(
-            id = id,
-            englishName = "Item $id",
-            nextEpisodeAt = NEXT_EPISODE_AT,
-            releaseStatus = ReleaseStatusData.ONGOING.value
-        )
-    }
-
-    private object DirectSafeApi : SafeApi {
-        override suspend fun <T> call(apiCall: suspend () -> T): CallResult<T> =
-            CallResult.Success(apiCall())
-    }
-
-    private object EmptyItemsFlowUsecase : FetchAllAnimeDatabaseItemsFlowUsecase {
-        override fun execute(): Flow<List<AnimeDbDomain>> = MutableStateFlow(emptyList())
-    }
-
-    private object NoOpInsertUsecase : InsertAnimeDatabaseItemUsecase {
-        override suspend fun execute(anime: AnimeDbDomain) = Unit
-    }
-
-    private object NoOpDeleteUsecase : DeleteAnimeDatabaseItemUsecase {
-        override suspend fun execute(id: AnimeId) = Unit
-    }
-
-    private object NoOpResetNewEpisodeStatusUsecase :
-        ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecase {
-        override suspend fun execute() = Unit
-    }
-
-    private object NoOpChangeNewEpisodeStatusUsecase :
-        ChangeAnimeDatabaseItemNewEpisodeStatusUsecase {
-        override suspend fun execute(id: Int, isNewEpisode: Boolean) = Unit
-    }
-
-    private object NoOpUpdateUsecase : UpdateAnimeDatabaseItemUsecase {
-        override suspend fun execute(anime: AnimeDbDomain) = Unit
-    }
-
-    private object NoOpResetExtraInfoUsecase : ResetAllAnimeDatabaseItemsExtraInfoUsecase {
-        override suspend fun execute() = Unit
-    }
-
-    private class FakeDependencies(
+    private class DiAnimeListDependenciesFake(
         override val animeDatabaseStore: AnimeDatabaseStore,
-        override val coroutineContextProvider: CoroutineContextProvider
+        override val coroutineContextProvider: CoroutineContextProvider,
+        engineDispatcher: CoroutineDispatcher
     ) : DiAnimeListDependencies {
         override val storeFactory: StoreFactory = DefaultStoreFactory()
         override val systemMessageProvider = SystemMessageProvider(
             makeConnectionErrorSystemMessage = {},
             makeUnknownErrorSystemMessage = {}
         )
-        override val dateFormatter: DateFormatter = PassThroughDateFormatter
-        override val shikimoriApiService: ShikimoriApiService = SinglePageApiService
-        override val safeApi: SafeApi = DirectSafeApi
+        override val dateFormatter: DateFormatter = DateFormatterFake()
+        override val shikimoriApiService: ShikimoriApiService =
+            ShikimoriApiServiceImpl(createHttpClient(singlePageCatalog(engineDispatcher)))
+        override val safeApi: SafeApi = SafeApiFake()
     }
 
     /** One component and the state keeper it consumes from and saves through. */
@@ -159,15 +97,7 @@ class NavAnimeListScreenComponentTest {
         val component: NavAnimeListScreenComponent
     )
 
-    private val databaseUsecases = AnimeDatabaseUsecases(
-        fetchAllAnimeDatabaseItemsFlowUsecase = EmptyItemsFlowUsecase,
-        insertAnimeDatabaseItemUsecase = NoOpInsertUsecase,
-        deleteAnimeDatabaseItemUsecase = NoOpDeleteUsecase,
-        resetAllAnimeDatabaseItemsNewEpisodeStatusUsecase = NoOpResetNewEpisodeStatusUsecase,
-        changeAnimeDatabaseItemNewEpisodeStatusUsecase = NoOpChangeNewEpisodeStatusUsecase,
-        updateAnimeDatabaseItemUsecase = NoOpUpdateUsecase,
-        resetAllAnimeDatabaseItemsExtraInfoUsecase = NoOpResetExtraInfoUsecase
-    )
+    private val databaseUsecases = AnimeDatabaseUsecasesFake().usecases
 
     private fun createDatabaseStore(
         coroutineContextProvider: CoroutineContextProvider
@@ -182,9 +112,7 @@ class NavAnimeListScreenComponentTest {
     ).create()
 
     private fun createWiring(savedState: SerializableContainer? = null): Wiring {
-        val coroutineContextProvider = object : CoroutineContextProviderBase() {
-            override val exceptionHandlerCallback: (Throwable) -> Unit = {}
-        }
+        val coroutineContextProvider = CoroutineContextProviderFake()
         val lifecycle = LifecycleRegistry().also(lifecycles::add)
         val stateKeeper = StateKeeperDispatcher(savedState)
         val component = NavAnimeListScreenComponent(
@@ -193,9 +121,10 @@ class NavAnimeListScreenComponentTest {
                 stateKeeper = stateKeeper
             ),
             diAnimeListComponent = createDiAnimeListComponent(
-                parent = FakeDependencies(
+                parent = DiAnimeListDependenciesFake(
                     animeDatabaseStore = createDatabaseStore(coroutineContextProvider),
-                    coroutineContextProvider = coroutineContextProvider
+                    coroutineContextProvider = coroutineContextProvider,
+                    engineDispatcher = testDispatcher
                 )
             )
         )
@@ -234,6 +163,20 @@ class NavAnimeListScreenComponentTest {
         component.searchSectionStore.accept(
             SearchSectionStore.Intent.EpisodesInfoClick(EXPANDED_ITEM_ID)
         )
+        awaitExpandedDetails(component)
+    }
+
+    /**
+     * The details behind an expanded item arrive after the list it sits in. Only the sections
+     * that fetch them are waited on; the upcoming one shows no next-episode date.
+     */
+    private suspend fun awaitExpandedDetails(component: NavAnimeListScreenComponent) {
+        component.ongoingSectionStore.states.first {
+            it.sectionContent.animeDetails.nextEpisodesInfo.containsKey(EXPANDED_ITEM_ID)
+        }
+        component.searchSectionStore.states.first {
+            it.sectionContent.animeDetails.nextEpisodesInfo.containsKey(EXPANDED_ITEM_ID)
+        }
     }
 
     @Test
@@ -306,10 +249,15 @@ class NavAnimeListScreenComponentTest {
             //When
             val afterProcessDeath = createWiring(savedState = savedState)
             afterProcessDeath.component.applyRestoredStateIfAny()
-            awaitOngoingLoaded(afterProcessDeath.component)
+            // The restored section reloads its list and refetches the expanded item's details,
+            // so the state to assert on is the one where both have landed, not whichever is
+            // current once the wait returns.
+            val ongoing = afterProcessDeath.component.ongoingSectionStore.states.first {
+                it.sectionContent.contentType == ContentTypeDomain.LOADED &&
+                    it.sectionContent.animeDetails.nextEpisodesInfo.containsKey(EXPANDED_ITEM_ID)
+            }
 
             //Then
-            val ongoing = afterProcessDeath.component.ongoingSectionStore.state
             assertEquals(PAGE_ITEM_COUNT, ongoing.sectionContent.listItems.size)
             assertEquals(setOf(EXPANDED_ITEM_ID), ongoing.sectionContent.enabledExtraEpisodesInfoIds)
             assertEquals(
@@ -361,3 +309,33 @@ private const val EXPANDED_ITEM_ID = 1
 private const val NEXT_EPISODE_AT = "2024-01-05T10:00:00+03:00"
 
 private const val SEARCH_TEXT = "totoro"
+
+/**
+ * Answers every listing with one full page of the same items, and every details call with the
+ * anime asked for, so the screen always has something to show.
+ *
+ * @param dispatcher what the engine answers on. Left to itself it picks `Dispatchers.IO`, which
+ * takes the answer off the test's virtual clock and onto a second thread.
+ */
+private fun singlePageCatalog(dispatcher: CoroutineDispatcher) = MockEngine(
+    MockEngineConfig().apply {
+        this.dispatcher = dispatcher
+        addHandler { request ->
+            val path = request.url.encodedPath
+            val body = if (path.endsWith("/$ANIME_LIST_APPEND_URL")) {
+                (1..PAGE_ITEM_COUNT).joinToString(prefix = "[", postfix = "]") { id: Int ->
+                    """{"id": $id, "name": "Item $id", "status": "ongoing"}"""
+                }
+            } else {
+                val id = path.substringAfterLast(delimiter = "/")
+                """{"id": $id, "name": "Item $id", """ +
+                    """"next_episode_at": "$NEXT_EPISODE_AT", "status": "ongoing"}"""
+            }
+            respond(
+                content = ByteReadChannel(body),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+    }
+)

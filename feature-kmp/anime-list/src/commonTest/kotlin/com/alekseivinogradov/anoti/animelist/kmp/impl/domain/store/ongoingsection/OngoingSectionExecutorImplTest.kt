@@ -1,17 +1,16 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.ongoingsection
 
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.SortData
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
-import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.ongoingsection.OngoingSectionStore
+import com.alekseivinogradov.anoti.animelist.kmp.impl.data.source.fake.AnimeListSourceFake
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchOngoingAnimeListUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.OngoingUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.extensions.coroutines.states
@@ -51,33 +50,6 @@ class OngoingSectionExecutorImplTest {
         Dispatchers.resetMain()
     }
 
-    private class FakeOngoingSource(
-        private val pages: Map<Int, CallResult<List<ListItemDomain>>>,
-        private val beforeOngoingResult: suspend (page: Int) -> Unit = {},
-        private val details: suspend (AnimeId) -> CallResult<ListItemDomain> = {
-            error("no details source in this test")
-        }
-    ) : AnimeListSource {
-        override suspend fun getOngoingList(page: Int, sort: SortData): CallResult<List<ListItemDomain>> {
-            beforeOngoingResult(page)
-            return pages[page] ?: CallResult.Success(emptyList())
-        }
-
-        override suspend fun getAnnouncedList(page: Int, sort: SortData): CallResult<List<ListItemDomain>> {
-            error("not used in OngoingSectionExecutorImplTest")
-        }
-
-        override suspend fun getListBySearch(
-            page: Int,
-            search: String,
-            sort: SortData
-        ): CallResult<List<ListItemDomain>> {
-            error("not used in OngoingSectionExecutorImplTest")
-        }
-
-        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> = details(id)
-    }
-
     private fun testListItem(id: AnimeId) = ListItemDomain(
         id = id,
         name = "Item $id",
@@ -100,10 +72,14 @@ class OngoingSectionExecutorImplTest {
         onConnectionErrorSystemMessage: () -> Unit = {},
         onUnknownErrorSystemMessage: () -> Unit = {}
     ): OngoingSectionStore {
-        val source = FakeOngoingSource(pages, beforeOngoingResult, details)
-        val coroutineContextProvider = object : CoroutineContextProviderBase() {
-            override val exceptionHandlerCallback: (Throwable) -> Unit = {}
-        }
+        val source = AnimeListSourceFake(
+            ongoing = { page, _ ->
+                beforeOngoingResult(page)
+                pages[page] ?: CallResult.Success(emptyList())
+            },
+            byId = details
+        )
+        val coroutineContextProvider = CoroutineContextProviderFake()
         val usecases = OngoingUsecases(
             fetchOngoingAnimeListUsecase = FetchOngoingAnimeListUsecase(source),
             fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)

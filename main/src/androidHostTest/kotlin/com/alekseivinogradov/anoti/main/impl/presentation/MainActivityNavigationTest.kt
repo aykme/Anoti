@@ -20,7 +20,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = FakeHostApplication::class)
+@Config(application = HostApplicationFake::class)
 class MainActivityNavigationTest {
 
     private val mainDispatcher = TestMainDispatcher()
@@ -34,7 +34,10 @@ class MainActivityNavigationTest {
     fun installTestDispatcher() = mainDispatcher.install()
 
     @AfterTest
-    fun removeTestDispatcher() = mainDispatcher.remove()
+    fun removeTestDispatcher() {
+        mainDispatcher.remove()
+        assertNoAnimeDetailsRequested()
+    }
 
     @Test
     fun switchesToFavoritesWhenItsTabIsTapped() {

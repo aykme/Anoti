@@ -30,7 +30,7 @@ import kotlin.test.assertEquals
  * where this code never runs. It names `minSdk`, the oldest version the app supports.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [MIN_SDK], application = FakeHostApplication::class)
+@Config(sdk = [MIN_SDK], application = HostApplicationFake::class)
 class MainActivityNotificationSettingsTest {
 
     private val mainDispatcher = TestMainDispatcher()
@@ -42,7 +42,10 @@ class MainActivityNotificationSettingsTest {
     fun installTestDispatcher() = mainDispatcher.install()
 
     @AfterTest
-    fun removeTestDispatcher() = mainDispatcher.remove()
+    fun removeTestDispatcher() {
+        mainDispatcher.remove()
+        assertNoAnimeDetailsRequested()
+    }
 
     @Test
     fun saysNothingWhileNotificationsAreAlreadyOn() {

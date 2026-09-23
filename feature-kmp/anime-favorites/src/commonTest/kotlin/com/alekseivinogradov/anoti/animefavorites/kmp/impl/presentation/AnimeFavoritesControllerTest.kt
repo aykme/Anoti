@@ -1,25 +1,18 @@
 package com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
+import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.fake.UpdateAllAnimeInBackgroundOnceUsecaseFake
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.AnimeDbDomain
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.ReleaseStatusDb
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ChangeAnimeDatabaseItemNewEpisodeStatusUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.DeleteAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsFlowUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.InsertAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ResetAllAnimeDatabaseItemsExtraInfoUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.wrapper.AnimeDatabaseUsecases
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseExecutorImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseStoreFactory
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.fake.AnimeDatabaseUsecasesFake
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ContentTypeDomain
-import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ListItemDomain
-import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.source.AnimeFavoritesSource
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.AnimeFavoritesView
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.AnimeFavoritesUiModel
+import com.alekseivinogradov.anoti.animefavorites.kmp.impl.data.source.fake.AnimeFavoritesSourceFake
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store.AnimeFavoritesExecutorFactory
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store.AnimeFavoritesExecutorImpl
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store.AnimeFavoritesMainStoreFactory
@@ -28,7 +21,7 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.wrappe
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
-import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.destroy
 import com.arkivanov.essenty.lifecycle.resume
@@ -38,8 +31,6 @@ import com.arkivanov.mvikotlin.core.view.ViewRenderer
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
@@ -69,7 +60,7 @@ class AnimeFavoritesControllerTest {
         Dispatchers.resetMain()
     }
 
-    private class FakeAnimeFavoritesView :
+    private class AnimeFavoritesViewFake :
         BaseMviView<AnimeFavoritesUiModel, AnimeFavoritesMainStore.Intent>(),
         AnimeFavoritesView {
 
@@ -83,87 +74,15 @@ class AnimeFavoritesControllerTest {
             }
     }
 
-    private object NoOpFavoritesSource : AnimeFavoritesSource {
-        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
-            error("not used in AnimeFavoritesControllerTest")
-        }
-    }
-
-    private class RecordingBackgroundUpdateUsecase : UpdateAllAnimeInBackgroundOnceUsecase {
-        var executeCount = 0
-            private set
-
-        override fun execute() {
-            executeCount++
-        }
-    }
-
-    private class FakeItemsFlowUsecase(
-        private val items: Flow<List<AnimeDbDomain>>
-    ) : FetchAllAnimeDatabaseItemsFlowUsecase {
-        override fun execute(): Flow<List<AnimeDbDomain>> = items
-    }
-
-    private class RecordingDeleteUsecase : DeleteAnimeDatabaseItemUsecase {
-        val deletedIds = mutableListOf<AnimeId>()
-
-        override suspend fun execute(id: AnimeId) {
-            deletedIds += id
-        }
-    }
-
-    private class RecordingResetNewEpisodeStatusUsecase :
-        ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecase {
-        var executeCount = 0
-            private set
-
-        override suspend fun execute() {
-            executeCount++
-        }
-    }
-
-    private object NoOpInsertUsecase : InsertAnimeDatabaseItemUsecase {
-        override suspend fun execute(anime: AnimeDbDomain) = Unit
-    }
-
-    private object NoOpChangeNewEpisodeStatusUsecase :
-        ChangeAnimeDatabaseItemNewEpisodeStatusUsecase {
-        override suspend fun execute(id: Int, isNewEpisode: Boolean) = Unit
-    }
-
-    private object NoOpUpdateUsecase : UpdateAnimeDatabaseItemUsecase {
-        override suspend fun execute(anime: AnimeDbDomain) = Unit
-    }
-
-    private object NoOpResetExtraInfoUsecase : ResetAllAnimeDatabaseItemsExtraInfoUsecase {
-        override suspend fun execute() = Unit
-    }
-
     /** The saved-anime database every [AnimeDatabaseStore] usecase reads from and writes to. */
-    private class FakeAnimeDatabase(initialItems: List<AnimeDbDomain>) {
-        val items = MutableStateFlow(initialItems)
-        val deleteUsecase = RecordingDeleteUsecase()
-        val resetNewEpisodeStatusUsecase = RecordingResetNewEpisodeStatusUsecase()
-
-        val usecases = AnimeDatabaseUsecases(
-            fetchAllAnimeDatabaseItemsFlowUsecase = FakeItemsFlowUsecase(items),
-            insertAnimeDatabaseItemUsecase = NoOpInsertUsecase,
-            deleteAnimeDatabaseItemUsecase = deleteUsecase,
-            resetAllAnimeDatabaseItemsNewEpisodeStatusUsecase = resetNewEpisodeStatusUsecase,
-            changeAnimeDatabaseItemNewEpisodeStatusUsecase = NoOpChangeNewEpisodeStatusUsecase,
-            updateAnimeDatabaseItemUsecase = NoOpUpdateUsecase,
-            resetAllAnimeDatabaseItemsExtraInfoUsecase = NoOpResetExtraInfoUsecase
-        )
-    }
-
     /** Everything a test needs to drive one controller and see where its bindings lead. */
     private class Wiring(
         val lifecycle: LifecycleRegistry,
-        val view: FakeAnimeFavoritesView,
+        val view: AnimeFavoritesViewFake,
         val mainStore: AnimeFavoritesMainStore,
         val animeDatabaseStore: AnimeDatabaseStore,
-        val database: FakeAnimeDatabase,
-        val backgroundUpdateUsecase: RecordingBackgroundUpdateUsecase
+        val database: AnimeDatabaseUsecasesFake,
+        val backgroundUpdateUsecase: UpdateAllAnimeInBackgroundOnceUsecaseFake
     )
 
     private fun testDbItem(id: AnimeId, name: String = "Item $id"): AnimeDbDomain {
@@ -184,13 +103,11 @@ class AnimeFavoritesControllerTest {
     }
 
     private fun createCoroutineContextProvider(): CoroutineContextProviderBase {
-        return object : CoroutineContextProviderBase() {
-            override val exceptionHandlerCallback: (Throwable) -> Unit = {}
-        }
+        return CoroutineContextProviderFake()
     }
 
     private fun createAnimeDatabaseStore(
-        database: FakeAnimeDatabase,
+        database: AnimeDatabaseUsecasesFake,
         coroutineContextProvider: CoroutineContextProviderBase
     ): AnimeDatabaseStore {
         return AnimeDatabaseStoreFactory(
@@ -213,7 +130,7 @@ class AnimeFavoritesControllerTest {
                 coroutineContextProvider = coroutineContextProvider,
                 usecases = FavoritesUsecases(
                     updateAllAnimeInBackgroundOnceUsecase = backgroundUpdateUsecase,
-                    fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(NoOpFavoritesSource)
+                    fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(AnimeFavoritesSourceFake())
                 ),
                 systemMessageProvider = SystemMessageProvider(
                     makeConnectionErrorSystemMessage = {},
@@ -229,13 +146,13 @@ class AnimeFavoritesControllerTest {
 
     private fun createWiring(databaseItems: List<AnimeDbDomain> = emptyList()): Wiring {
         val coroutineContextProvider = createCoroutineContextProvider()
-        val database = FakeAnimeDatabase(databaseItems)
-        val backgroundUpdateUsecase = RecordingBackgroundUpdateUsecase()
+        val database = AnimeDatabaseUsecasesFake(databaseItems)
+        val backgroundUpdateUsecase = UpdateAllAnimeInBackgroundOnceUsecaseFake()
         val animeDatabaseStore = createAnimeDatabaseStore(database, coroutineContextProvider)
         val mainStore = createMainStore(backgroundUpdateUsecase, coroutineContextProvider)
 
         val lifecycle = LifecycleRegistry()
-        val view = FakeAnimeFavoritesView()
+        val view = AnimeFavoritesViewFake()
         AnimeFavoritesController(
             lifecycle = lifecycle,
             mainStore = mainStore,
@@ -292,7 +209,7 @@ class AnimeFavoritesControllerTest {
         runCurrent()
 
         //Then
-        assertEquals(listOf(7), wiring.database.deleteUsecase.deletedIds)
+        assertEquals(listOf(7), wiring.database.deletedIds)
     }
 
     @Test
@@ -305,7 +222,7 @@ class AnimeFavoritesControllerTest {
         runCurrent()
 
         //Then
-        assertEquals(1, wiring.database.resetNewEpisodeStatusUsecase.executeCount)
+        assertEquals(1, wiring.database.resetNewEpisodeStatusCount)
         assertEquals(1, wiring.backgroundUpdateUsecase.executeCount)
     }
 

@@ -36,7 +36,7 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.extra_
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.extra_info_on_description
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.new_episode
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.next_episode_short
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.formatter.fake.DateFormatterFake
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.AnotiTheme
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.getString
@@ -55,10 +55,6 @@ class AnimeFavoritesItemTest {
 
     @get:Rule
     val composeRule = createComposeRule()
-
-    private object PassThroughDateFormatter : DateFormatter {
-        override fun getFormattedDate(inputText: String, fallbackText: String): String = inputText
-    }
 
     private val baseItem = ListItemUi(
         id = 1,
@@ -110,7 +106,7 @@ class AnimeFavoritesItemTest {
                 Box(widthModifier) {
                     AnimeFavoritesItem(
                         item = itemState.value,
-                        dateFormatter = PassThroughDateFormatter,
+                        dateFormatter = DateFormatterFake(),
                         onItemClick = { itemClicks++ },
                         onInfoTypeClick = { infoTypeClicks++ },
                         onNotificationClick = { notificationClicks++ },

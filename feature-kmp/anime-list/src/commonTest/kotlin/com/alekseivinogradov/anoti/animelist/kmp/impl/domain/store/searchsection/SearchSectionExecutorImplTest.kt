@@ -1,18 +1,17 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.searchsection
 
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.SortData
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.SEARCH_DEBOUNCE_MILLISECONDS
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
-import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.SearchSectionStore
+import com.alekseivinogradov.anoti.animelist.kmp.impl.data.source.fake.AnimeListSourceFake
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnimeListBySearchUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.SearchUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
@@ -55,33 +54,6 @@ class SearchSectionExecutorImplTest {
         Dispatchers.resetMain()
     }
 
-    private class FakeSearchSource(
-        private val pages: Map<Int, CallResult<List<ListItemDomain>>>,
-        private val beforeSearchResult: suspend (page: Int, search: String) -> Unit = { _, _ -> },
-        private val details: suspend (AnimeId) -> CallResult<ListItemDomain> = {
-            error("no details source in this test")
-        }
-    ) : AnimeListSource {
-        override suspend fun getOngoingList(page: Int, sort: SortData): CallResult<List<ListItemDomain>> {
-            error("not used in SearchSectionExecutorImplTest")
-        }
-
-        override suspend fun getAnnouncedList(page: Int, sort: SortData): CallResult<List<ListItemDomain>> {
-            error("not used in SearchSectionExecutorImplTest")
-        }
-
-        override suspend fun getListBySearch(
-            page: Int,
-            search: String,
-            sort: SortData
-        ): CallResult<List<ListItemDomain>> {
-            beforeSearchResult(page, search)
-            return pages[page] ?: CallResult.Success(emptyList())
-        }
-
-        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> = details(id)
-    }
-
     private fun testListItem(id: AnimeId) = ListItemDomain(
         id = id,
         name = "Item $id",
@@ -104,10 +76,14 @@ class SearchSectionExecutorImplTest {
         onConnectionErrorSystemMessage: () -> Unit = {},
         onUnknownErrorSystemMessage: () -> Unit = {}
     ): SearchSectionStore {
-        val source = FakeSearchSource(pages, beforeSearchResult, details)
-        val coroutineContextProvider = object : CoroutineContextProviderBase() {
-            override val exceptionHandlerCallback: (Throwable) -> Unit = {}
-        }
+        val source = AnimeListSourceFake(
+            search = { page, searchText, _ ->
+                beforeSearchResult(page, searchText)
+                pages[page] ?: CallResult.Success(emptyList())
+            },
+            byId = details
+        )
+        val coroutineContextProvider = CoroutineContextProviderFake()
         val usecases = SearchUsecases(
             fetchAnimeListBySearchUsecase = FetchAnimeListBySearchUsecase(source),
             fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)

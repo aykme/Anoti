@@ -1,21 +1,13 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation
 
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.SortData
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.FIRST_PAGE
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.AnimeDbDomain
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.ReleaseStatusDb
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ChangeAnimeDatabaseItemNewEpisodeStatusUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.DeleteAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsFlowUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.InsertAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ResetAllAnimeDatabaseItemsExtraInfoUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.wrapper.AnimeDatabaseUsecases
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseExecutorImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseStoreFactory
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.fake.AnimeDatabaseUsecasesFake
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsection.AnnouncedSectionStore
@@ -26,6 +18,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.AnimeListView
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.AnimeListUiModel
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.SectionHatUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.NotificationUi
+import com.alekseivinogradov.anoti.animelist.kmp.impl.data.source.fake.AnimeListSourceFake
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.announcedsection.AnnouncedSectionExecutorFactory
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.announcedsection.AnnouncedSectionExecutorImpl
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.announcedsection.AnnouncedSectionStoreFactory
@@ -47,7 +40,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.Ong
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.SearchUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.destroy
@@ -58,8 +51,6 @@ import com.arkivanov.mvikotlin.core.view.ViewRenderer
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
@@ -89,7 +80,7 @@ class AnimeListControllerTest {
         Dispatchers.resetMain()
     }
 
-    private class FakeAnimeListView :
+    private class AnimeListViewFake :
         BaseMviView<AnimeListUiModel, AnimeListMainStore.Intent>(),
         AnimeListView {
 
@@ -104,95 +95,11 @@ class AnimeListControllerTest {
     }
 
     /** Serves each section its own first page, so a section's items identify their source. */
-    private class FakeAnimeListSource(
-        private val ongoingItems: List<ListItemDomain>,
-        private val announcedItems: List<ListItemDomain>,
-        private val searchItems: List<ListItemDomain>
-    ) : AnimeListSource {
-
-        override suspend fun getOngoingList(
-            page: Int,
-            sort: SortData
-        ): CallResult<List<ListItemDomain>> = firstPageOnly(page, ongoingItems)
-
-        override suspend fun getAnnouncedList(
-            page: Int,
-            sort: SortData
-        ): CallResult<List<ListItemDomain>> = firstPageOnly(page, announcedItems)
-
-        override suspend fun getListBySearch(
-            page: Int,
-            search: String,
-            sort: SortData
-        ): CallResult<List<ListItemDomain>> = firstPageOnly(page, searchItems)
-
-        override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
-            error("not used in AnimeListControllerTest")
-        }
-
-        private fun firstPageOnly(
-            page: Int,
-            items: List<ListItemDomain>
-        ): CallResult<List<ListItemDomain>> {
-            return CallResult.Success(if (page == FIRST_PAGE) items else emptyList())
-        }
-    }
-
-    private class FakeItemsFlowUsecase(
-        private val items: Flow<List<AnimeDbDomain>>
-    ) : FetchAllAnimeDatabaseItemsFlowUsecase {
-        override fun execute(): Flow<List<AnimeDbDomain>> = items
-    }
-
-    private class RecordingInsertUsecase : InsertAnimeDatabaseItemUsecase {
-        val insertedItems = mutableListOf<AnimeDbDomain>()
-
-        override suspend fun execute(anime: AnimeDbDomain) {
-            insertedItems += anime
-        }
-    }
-
-    private class RecordingDeleteUsecase : DeleteAnimeDatabaseItemUsecase {
-        val deletedIds = mutableListOf<AnimeId>()
-
-        override suspend fun execute(id: AnimeId) {
-            deletedIds += id
-        }
-    }
-
-    private object NoOpResetNewEpisodeStatusUsecase :
-        ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecase {
-        override suspend fun execute() = Unit
-    }
-
-    private object NoOpChangeNewEpisodeStatusUsecase :
-        ChangeAnimeDatabaseItemNewEpisodeStatusUsecase {
-        override suspend fun execute(id: Int, isNewEpisode: Boolean) = Unit
-    }
-
-    private object NoOpUpdateUsecase : UpdateAnimeDatabaseItemUsecase {
-        override suspend fun execute(anime: AnimeDbDomain) = Unit
-    }
-
-    private object NoOpResetExtraInfoUsecase : ResetAllAnimeDatabaseItemsExtraInfoUsecase {
-        override suspend fun execute() = Unit
-    }
-
-    /** The saved-anime database every [AnimeDatabaseStore] usecase reads from and writes to. */
-    private class FakeAnimeDatabase(initialItems: List<AnimeDbDomain>) {
-        val items = MutableStateFlow(initialItems)
-        val insertUsecase = RecordingInsertUsecase()
-        val deleteUsecase = RecordingDeleteUsecase()
-
-        val usecases = AnimeDatabaseUsecases(
-            fetchAllAnimeDatabaseItemsFlowUsecase = FakeItemsFlowUsecase(items),
-            insertAnimeDatabaseItemUsecase = insertUsecase,
-            deleteAnimeDatabaseItemUsecase = deleteUsecase,
-            resetAllAnimeDatabaseItemsNewEpisodeStatusUsecase = NoOpResetNewEpisodeStatusUsecase,
-            changeAnimeDatabaseItemNewEpisodeStatusUsecase = NoOpChangeNewEpisodeStatusUsecase,
-            updateAnimeDatabaseItemUsecase = NoOpUpdateUsecase,
-            resetAllAnimeDatabaseItemsExtraInfoUsecase = NoOpResetExtraInfoUsecase
-        )
+    private fun firstPageOnly(
+        page: Int,
+        items: List<ListItemDomain>
+    ): CallResult<List<ListItemDomain>> {
+        return CallResult.Success(if (page == FIRST_PAGE) items else emptyList())
     }
 
     /** Everything a test needs to drive one controller and see where its bindings lead. */
@@ -200,13 +107,13 @@ class AnimeListControllerTest {
     @Suppress("LongParameterList")
     private class Wiring(
         val lifecycle: LifecycleRegistry,
-        val view: FakeAnimeListView,
+        val view: AnimeListViewFake,
         val mainStore: AnimeListMainStore,
         val animeDatabaseStore: AnimeDatabaseStore,
         val ongoingSectionStore: OngoingSectionStore,
         val announcedSectionStore: AnnouncedSectionStore,
         val searchSectionStore: SearchSectionStore,
-        val database: FakeAnimeDatabase
+        val database: AnimeDatabaseUsecasesFake
     )
 
     private fun testListItem(id: AnimeId, name: String = "Item $id") = ListItemDomain(
@@ -237,9 +144,7 @@ class AnimeListControllerTest {
         isNewEpisode = false
     )
 
-    private fun createCoroutineContextProvider() = object : CoroutineContextProviderBase() {
-        override val exceptionHandlerCallback: (Throwable) -> Unit = {}
-    }
+    private fun createCoroutineContextProvider() = CoroutineContextProviderFake()
 
     private fun noOpSystemMessageProvider() = SystemMessageProvider(
         makeConnectionErrorSystemMessage = {},
@@ -252,8 +157,12 @@ class AnimeListControllerTest {
         searchItems: List<ListItemDomain> = listOf(testListItem(id = 3, name = "Bleach")),
         databaseItems: List<AnimeDbDomain> = emptyList()
     ): Wiring {
-        val source = FakeAnimeListSource(ongoingItems, announcedItems, searchItems)
-        val database = FakeAnimeDatabase(databaseItems)
+        val source = AnimeListSourceFake(
+            ongoing = { page, _ -> firstPageOnly(page, ongoingItems) },
+            announced = { page, _ -> firstPageOnly(page, announcedItems) },
+            search = { page, _, _ -> firstPageOnly(page, searchItems) }
+        )
+        val database = AnimeDatabaseUsecasesFake(databaseItems)
 
         val mainStore = createMainStore()
         val animeDatabaseStore = createAnimeDatabaseStore(database)
@@ -262,7 +171,7 @@ class AnimeListControllerTest {
         val searchSectionStore = createSearchStore(source)
 
         val lifecycle = LifecycleRegistry()
-        val view = FakeAnimeListView()
+        val view = AnimeListViewFake()
         AnimeListController(
             lifecycle = lifecycle,
             mainStore = mainStore,
@@ -295,7 +204,7 @@ class AnimeListControllerTest {
         ).create().also(createdStores::add)
     }
 
-    private fun createAnimeDatabaseStore(database: FakeAnimeDatabase): AnimeDatabaseStore {
+    private fun createAnimeDatabaseStore(database: AnimeDatabaseUsecasesFake): AnimeDatabaseStore {
         return AnimeDatabaseStoreFactory(
             storeFactory = DefaultStoreFactory(),
             executorFactory = {
@@ -488,9 +397,9 @@ class AnimeListControllerTest {
             //Then
             assertEquals(
                 listOf(1),
-                wiring.database.insertUsecase.insertedItems.map(AnimeDbDomain::id)
+                wiring.database.insertedItems.map(AnimeDbDomain::id)
             )
-            assertEquals(emptyList(), wiring.database.deleteUsecase.deletedIds)
+            assertEquals(emptyList(), wiring.database.deletedIds)
         }
 
     @Test
@@ -505,8 +414,8 @@ class AnimeListControllerTest {
         runCurrent()
 
         //Then
-        assertEquals(listOf(1), wiring.database.deleteUsecase.deletedIds)
-        assertEquals(emptyList(), wiring.database.insertUsecase.insertedItems)
+        assertEquals(listOf(1), wiring.database.deletedIds)
+        assertEquals(emptyList(), wiring.database.insertedItems)
     }
 
     @Test
