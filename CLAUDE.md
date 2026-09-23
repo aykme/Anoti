@@ -124,9 +124,21 @@ Read this before doing any task in this repository.
   `//When`, `//Then` comments, even for a short test — this is the established convention across
   the existing test suites (e.g. `SafeApiImplTest`) and keeps setup, action, and assertion
   visually distinct.
-- No mocking library is used in this project: `commonTest` targets Kotlin/Native (iOS) alongside
-  Android, and handwritten fakes (as already used throughout `commonTest`, e.g. `FakeOngoingSource`
-  in `OngoingSectionExecutorImplTest`) are the established, KMP-portable way to stub dependencies.
+- Where a library already mocks the thing being stubbed, use it rather than writing a double by
+  hand — Ktor's `MockEngine` for an HTTP client is the example. No general-purpose mocking
+  framework is used, though: `commonTest` targets Kotlin/Native (iOS) alongside Android, and none
+  of them run there. Everything a library does not cover is a handwritten fake.
+- **A double is never duplicated.** One class per thing being faked, across the whole repository.
+  Two copies are unacceptable even when their bodies differ — the one class takes on what both
+  needed. A double used by more than one module lives in `commonMain` of the module that owns the
+  type it stands in for, never in a test source set, since a test source set is invisible to other
+  modules.
+- Name that class after the type it fakes, with `Fake` on the end: `SafeApi` is faked by
+  `SafeApiFake`. Put it in the package matching the real type's, with `fake` as the last package
+  segment — `impl/data/fake/SafeApiFake.kt` alongside `api/data/SafeApi.kt`. The `Fake` suffix is
+  also what keeps it out of the coverage numbers, so it is not optional.
+- A double used by exactly one module still follows the naming, and stays in that module's own
+  test source set until a second module needs it.
 - `commonTest` is the default home for a test, and shared code stays the priority when effort has
   to be split. Platform code is covered too: an Android implementation gets its tests in
   `androidHostTest`, an iOS one in `iosTest` — the pair of `AnimeDatabaseContinuityTest` classes
