@@ -2,6 +2,7 @@ package com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.sc
 
 import android.content.Context
 import androidx.work.Configuration
+import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
@@ -63,18 +64,26 @@ class AnimeBackgroundSchedulerImplTest {
     }
 
     @Test
-    fun theScheduledUpdateOnlyRunsWhileThereIsAConnection() {
+    fun theRequestItWasGivenIsTheOneThatGetsScheduled() {
         //Given
-        val scheduler = createScheduler(periodicWork())
+        // Deliberately not the constraint production uses: a scheduler building a request of
+        // its own would still look right against that one.
+        val distinctConstraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.UNMETERED)
+            .build()
+        val scheduler = createScheduler(
+            PeriodicWorkRequestBuilder<AnimeUpdateWorker>(
+                repeatInterval = OTHER_INTERVAL_MINUTES,
+                repeatIntervalTimeUnit = TimeUnit.MINUTES
+            ).setConstraints(distinctConstraints).build()
+        )
 
         //When
         scheduler.schedulePeriodicUpdate()
 
         //Then
-        // Every page of the pass is a network call. Waking without a connection spends the
-        // battery on a pass that cannot do anything but fail.
         assertEquals(
-            NetworkType.CONNECTED,
+            NetworkType.UNMETERED,
             scheduledWork().single().constraints.requiredNetworkType
         )
     }

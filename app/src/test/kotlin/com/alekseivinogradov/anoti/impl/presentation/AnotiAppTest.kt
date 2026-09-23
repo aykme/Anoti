@@ -48,7 +48,7 @@ class AnotiAppTest {
             /* context = */
             app,
             /* configuration = */
-            Configuration.Builder().setWorkerFactory(DoNothingWorkerFactory()).build()
+            Configuration.Builder().setWorkerFactory(DoNothingWorkerFactoryFake()).build()
         )
     }
 
@@ -166,7 +166,7 @@ class AnotiAppTest {
  * Stands in for the app's own factory while WorkManager is under test. Scheduling is what these
  * tests exercise; running the update is not, and a worker that did would reach the network.
  */
-private class DoNothingWorkerFactory : WorkerFactory() {
+private class DoNothingWorkerFactoryFake : WorkerFactory() {
     override fun createWorker(
         appContext: Context,
         workerClassName: String,

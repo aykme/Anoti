@@ -11,7 +11,11 @@ import com.arkivanov.mvikotlin.core.rx.Observer
  * list, and [emit] replaces it outright for a test that would rather set the state than reach it.
  *
  * An intent naming an id the list does not hold is dropped without emitting. So is one that
- * would change nothing. Both match the real store, so a test sees the same stream of states.
+ * would change nothing. Both rules match the real store.
+ *
+ * Two things here are not the real store. The state changes inside [accept] instead of waiting
+ * for the database to emit again, and a reset arriving while another is still running is
+ * applied rather than dropped.
  *
  * @param initialItems the saved anime the store starts with.
  */

@@ -7,8 +7,9 @@ import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 /**
  * Answers every fetch from [answer] and records the ids it was asked for.
  *
- * Left to itself it answers with an empty success rather than throwing. Everything above this
- * sits behind a `try`, so a throw would come back as an ordinary error and prove nothing.
+ * Left to itself it answers with an empty success rather than throwing. The real source keeps
+ * its whole body behind `SafeApi`, which turns a throwable into a result, so a throw from here
+ * stands for nothing the real one can do. Cancellation is the exception: `SafeApi` rethrows it.
  * Assert on [requestedIds] to pin what was asked for.
  *
  * @param answer decides the outcome of one fetch from the ids it was given.

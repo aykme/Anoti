@@ -29,10 +29,12 @@ class AnimeUpdateWorker(
 
         return when (result) {
             WorkResult.Success -> Result.success()
-            // A page the server did not answer for, and a pass that ran out of budget, are both
-            // worth another go. The pass applies each page as it arrives, so a retry picks up
-            // where this run stopped instead of starting over.
-            WorkResult.Error, null -> Result.retry()
+            // Not the end of the schedule: for periodic work WorkManager clears the attempt
+            // count and waits out the interval as usual. Asking for a retry keeps that count
+            // instead, and the backoff it drives takes the place of the interval, growing from
+            // half a minute to five hours. For the one-off pass this ends the work, so the next
+            // press starts a fresh one rather than being dropped into that same backoff.
+            WorkResult.Error, null -> Result.failure()
         }
     }
 
@@ -49,9 +51,11 @@ class AnimeUpdateWorker(
             workerClassName: String,
             workerParameters: WorkerParameters
         ): ListenableWorker? {
-            // Null sends WorkManager to its own reflective fallback. Answering for a worker this
-            // module does not own would hand out the update worker in its place.
-            if (workerClassName != AnimeUpdateWorker::class.qualifiedName) return null
+            // Matched against the same source WorkManager stored the name from, so an obfuscated
+            // build compares like with like. Null sends it to its own reflective fallback;
+            // answering for a worker this module does not own would hand out the update worker
+            // in its place.
+            if (workerClassName != AnimeUpdateWorker::class.java.name) return null
 
             return AnimeUpdateWorker(
                 appContext = appContext,
@@ -64,8 +68,8 @@ class AnimeUpdateWorker(
 
 /**
  * How long one pass may take. WorkManager stops a worker at ten minutes, and a pass stopped
- * that way loses the result it was about to report. Finishing first leaves room to report a
- * retry instead.
+ * that way is cut off wherever it happens to be. Finishing first leaves room to report a result
+ * and to let the pages already applied stand.
  */
 private val UPDATE_PASS_BUDGET = 9.minutes
 

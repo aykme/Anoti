@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.presentation.di
 
+import androidx.work.Constraints
 import androidx.work.NetworkType
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.manager.AnimeUpdateManager
 import org.junit.runner.RunWith
@@ -7,7 +8,6 @@ import org.robolectric.RobolectricTestRunner
 import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 
 /**
  * Covers the work requests the component hands to WorkManager. Everything else it binds needs a
@@ -48,15 +48,22 @@ class DiAnimeBackgroundUpdatePlatformComponentTest {
     @Test
     fun neitherUpdateRequestWaitsForTheThingsThatWouldStallItForDays() {
         //Given
-        val periodic = component.provideAnimeUpdatePeriodicWork()
+        val requests = listOf(
+            component.provideAnimeUpdatePeriodicWork().workSpec.constraints,
+            component.provideAnimeUpdateOnceWork().workSpec.constraints
+        )
 
         //When
-        val constraints = periodic.workSpec.constraints
+        val stalling = requests.map { constraints: Constraints ->
+            listOf(
+                constraints.requiresCharging(),
+                constraints.requiresDeviceIdle(),
+                constraints.requiresBatteryNotLow()
+            )
+        }
 
         //Then
         // A new episode is worth knowing about on a phone that is in use and not on a charger.
-        assertFalse(constraints.requiresCharging())
-        assertFalse(constraints.requiresDeviceIdle())
-        assertFalse(constraints.requiresBatteryNotLow())
+        assertEquals(listOf(listOf(false, false, false), listOf(false, false, false)), stalling)
     }
 }

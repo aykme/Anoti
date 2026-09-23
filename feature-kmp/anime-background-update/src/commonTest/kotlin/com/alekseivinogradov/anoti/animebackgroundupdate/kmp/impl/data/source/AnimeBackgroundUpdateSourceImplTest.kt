@@ -2,8 +2,6 @@ package com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.data.source
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.source.AnimeBackgroundUpdateSource
-import com.alekseivinogradov.anoti.animebase.kmp.api.domain.FIRST_PAGE
-import com.alekseivinogradov.anoti.animebase.kmp.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animebase.kmp.impl.data.service.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anoti.network.kmp.api.domain.SHIKIMORI_BASE_URL
@@ -85,8 +83,8 @@ class AnimeBackgroundUpdateSourceImplTest {
 
         //Then
         assertEquals(REQUESTED_IDS, lastRequest.url.parameters["ids"])
-        assertEquals(FIRST_PAGE.toString(), lastRequest.url.parameters["page"])
-        assertEquals(ITEMS_PER_PAGE.toString(), lastRequest.url.parameters["limit"])
+        // Asking by id is asking for those anime exactly, so there is never a second page.
+        assertEquals("1", lastRequest.url.parameters["page"])
         // Asking by id means asking for those anime whatever they are, so none of the listing
         // filters may narrow the answer.
         assertNull(lastRequest.url.parameters["status"])
@@ -107,14 +105,13 @@ class AnimeBackgroundUpdateSourceImplTest {
         val result = source.getListByIds(REQUESTED_IDS)
 
         //Then
-        // Nothing downstream can match an id-less anime to a saved row, and the mapper would
-        // stand in a placeholder id for it.
+        // Nothing downstream could match an id-less anime to a saved row.
         assertTrue(result is CallResult.Success)
         assertEquals(listOf(FRIEREN_ID), result.value.map(ListItemDomain::id))
     }
 
     @Test
-    fun aCallThatNeverReachesTheServerComesBackAsAnError() = runTest {
+    fun anExceptionFromTheCallComesBackAsAFailureRatherThanEscaping() = runTest {
         //Given
         val source = AnimeBackgroundUpdateSourceImpl(
             service = ShikimoriApiServiceImpl(
@@ -134,7 +131,9 @@ class AnimeBackgroundUpdateSourceImplTest {
         val result = source.getListByIds(REQUESTED_IDS)
 
         //Then
-        assertTrue(result is CallResult.OtherError)
+        // Which kind of failure it is belongs to SafeApi; what matters here is that the source
+        // answers with one instead of letting the throwable out.
+        assertTrue(result is CallResult.Failure)
         assertEquals(TRANSPORT_FAILURE_MESSAGE, result.throwable.message)
     }
 

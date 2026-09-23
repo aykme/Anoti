@@ -45,10 +45,10 @@ class AnimeUpdateManagerImpl(
 
     /**
      * Walks the saved library one page at a time, applying each page as soon as it arrives. The
-     * API caps how many anime a single call may return, so the ids are split to fit.
+     * API caps how many anime a single call may return, so the rows are split to fit.
      *
-     * Only one page is held at a time, and a pass that is stopped part-way keeps the pages it
-     * already applied.
+     * Only one page of fetched data is held at a time, and a pass that is stopped part-way
+     * keeps the pages it already applied.
      *
      * @return [WorkResult.Success] once every page arrived. A page the server did not answer
      * for gives [WorkResult.Error]; the rest is still applied and that page waits for the next
@@ -58,27 +58,22 @@ class AnimeUpdateManagerImpl(
         withContext(coroutineContextProvider.ioDispatcher) {
             var everyPageArrived = true
 
-            // Grouped by id first, so an id is asked for once however many rows carry it.
-            databaseItems
-                .groupBy(AnimeDbDomain::id)
-                .values
-                .chunked(ITEMS_PER_PAGE)
-                .forEach { page: List<List<AnimeDbDomain>> ->
-                    val fetched = fetchAnimeListByIdsUsecase.execute(
-                        page.joinToString(separator = ",") { rows: List<AnimeDbDomain> ->
-                            rows.first().id.toString()
-                        }
+            databaseItems.chunked(ITEMS_PER_PAGE).forEach { page: List<AnimeDbDomain> ->
+                val fetched = fetchAnimeListByIdsUsecase.execute(
+                    page.joinToString(separator = ",") { item: AnimeDbDomain ->
+                        item.id.toString()
+                    }
+                )
+
+                when (fetched) {
+                    is CallResult.Success -> applyPage(
+                        currentDatabaseItems = page,
+                        remoteItems = fetched.value
                     )
 
-                    when (fetched) {
-                        is CallResult.Success -> applyPage(
-                            currentDatabaseItems = page.flatten(),
-                            remoteItems = fetched.value
-                        )
-
-                        is CallResult.Failure -> everyPageArrived = false
-                    }
+                    is CallResult.Failure -> everyPageArrived = false
                 }
+            }
 
             if (everyPageArrived) WorkResult.Success else WorkResult.Error
         }

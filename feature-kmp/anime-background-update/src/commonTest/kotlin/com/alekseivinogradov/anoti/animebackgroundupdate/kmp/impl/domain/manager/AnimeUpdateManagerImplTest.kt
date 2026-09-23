@@ -14,7 +14,9 @@ import com.alekseivinogradov.anoti.animenotification.kmp.impl.domain.manager.fak
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -70,19 +72,6 @@ class AnimeUpdateManagerImplTest {
     }
 
     @Test
-    fun anIdSavedTwiceIsOnlyAskedForOnce() = runTest {
-        //Given
-        val database = databaseWith(listOf(savedAnime(1), savedAnime(1), savedAnime(2)))
-        val source = AnimeBackgroundUpdateSourceFake()
-
-        //When
-        createManager(database = database, source = source).update()
-
-        //Then
-        assertEquals(listOf("1,2"), source.requestedIds)
-    }
-
-    @Test
     fun aPassWhereEveryFetchSucceedsReportsSuccess() = runTest {
         //Given
         val database = databaseWith(listOf(savedAnime(1)))
@@ -115,19 +104,6 @@ class AnimeUpdateManagerImplTest {
         //Then
         assertEquals(WorkResult.Error, result)
         assertEquals(listOf(1), database.updatedItems.map(AnimeDbDomain::id))
-    }
-
-    @Test
-    fun anAnimeWhoseRemoteDataMatchesTheSavedRowIsNotWrittenBack() = runTest {
-        //Given
-        val database = databaseWith(listOf(savedAnime(1)))
-        val source = AnimeBackgroundUpdateSourceFake { succeedWith(remoteAnime(1)) }
-
-        //When
-        createManager(database = database, source = source).update()
-
-        //Then
-        assertEquals(listOf(), database.updatedItems)
     }
 
     @Test
@@ -211,6 +187,59 @@ class AnimeUpdateManagerImplTest {
     }
 
     @Test
+    fun aResponseWithNoEpisodeCountNotifiesNobodyAndOverwritesTheSavedCount() = runTest {
+        //Given
+        // Every field of the response is optional, so a count the server omits arrives as null.
+        val database = databaseWith(listOf(savedAnime(1, episodesAired = 5)))
+        val notifications = AnimeNotificationManagerFake()
+        val source = AnimeBackgroundUpdateSourceFake {
+            succeedWith(remoteAnime(1, episodesAired = null))
+        }
+
+        //When
+        createManager(
+            database = database,
+            source = source,
+            notifications = notifications
+        ).update()
+
+        //Then
+        // A missing count reads as zero, so nothing looks newly aired and nobody is told. The
+        // row is still rewritten, and the count the app knew is gone.
+        assertEquals(listOf(), notifications.notifications)
+        assertEquals(null, database.updatedItems.single().episodesAired)
+    }
+
+    @Test
+    fun anAnimeFinishingWithNoTotalIsNotifiedWithWhatLastAired() = runTest {
+        //Given
+        val database = databaseWith(listOf(savedAnime(1, episodesAired = 9)))
+        val notifications = AnimeNotificationManagerFake()
+        val source = AnimeBackgroundUpdateSourceFake {
+            succeedWith(
+                remoteAnime(
+                    id = 1,
+                    episodesAired = 9,
+                    episodesTotal = null,
+                    releaseStatus = ReleaseStatusDomain.RELEASED
+                )
+            )
+        }
+
+        //When
+        createManager(
+            database = database,
+            source = source,
+            notifications = notifications
+        ).update()
+
+        //Then
+        // A finished anime is announced by its total, and with no total the last aired episode
+        // is the only number left to name.
+        assertEquals(9, notifications.notifications.single().airedEpisode)
+    }
+
+    @Test
     fun theNewEpisodeMarkStaysOnUntilSomethingElseTakesItOff() = runTest {
         //Given
         val database = databaseWith(listOf(savedAnime(1, isNewEpisode = true, score = 7.0F)))
@@ -289,16 +318,54 @@ class AnimeUpdateManagerImplTest {
     }
 
     @Test
-    fun aFailureAnywhereInThePassIsReportedAsError() = runTest {
+    fun twoPassesOverlappingEachNotifyAboutTheSameEpisode() = runTest {
         //Given
-        val database = databaseWith(listOf(savedAnime(1)))
-        val source = AnimeBackgroundUpdateSourceFake { error("the fetch blew up") }
+        // The hourly pass and the one the favorites button starts are separate work, so the
+        // platform is free to run them at the same time over the same library.
+        val database = databaseWith(listOf(savedAnime(1, episodesAired = 6)))
+        val notifications = AnimeNotificationManagerFake()
+        val bothPassesReachedTheServer = CompletableDeferred<Unit>()
+        val source = AnimeBackgroundUpdateSourceFake {
+            bothPassesReachedTheServer.await()
+            succeedWith(remoteAnime(1, episodesAired = 7))
+        }
+        val manager = createManager(
+            database = database,
+            source = source,
+            notifications = notifications
+        )
+
+        //When
+        val first = launch { manager.update() }
+        val second = launch { manager.update() }
+        bothPassesReachedTheServer.complete(Unit)
+        first.join()
+        second.join()
+
+        //Then
+        // Neither pass has written the new count by the time the other reads it, so both see the
+        // episode as new. One aired episode reaches the user as two notifications.
+        assertEquals(2, notifications.notifications.size)
+        assertEquals(2, database.updatedItems.size)
+    }
+
+    @Test
+    fun aDatabaseThatWillNotOpenIsReportedAsErrorRatherThanEscaping() = runTest {
+        //Given
+        // The read is the one step of the pass that can throw: everything after it sits behind
+        // SafeApi, which turns a throwable into a result of its own.
+        val database = AnimeDatabaseUsecasesFake(
+            initialItems = listOf(savedAnime(1)),
+            onRead = { error("the database would not open") }
+        )
+        val source = AnimeBackgroundUpdateSourceFake()
 
         //When
         val result = createManager(database = database, source = source).update()
 
         //Then
         assertEquals(WorkResult.Error, result)
+        assertEquals(listOf(), source.requestedIds)
     }
 
     @Test
@@ -357,13 +424,14 @@ class AnimeUpdateManagerImplTest {
     private fun remoteAnime(
         id: AnimeId,
         episodesAired: Int? = 1,
+        episodesTotal: Int? = EPISODES_TOTAL,
         releaseStatus: ReleaseStatusDomain = ReleaseStatusDomain.ONGOING
     ) = ListItemDomain(
         id = id,
         name = "Anime $id",
         imageUrl = "$POSTER_URL_PREFIX$id.jpg",
         episodesAired = episodesAired,
-        episodesTotal = EPISODES_TOTAL,
+        episodesTotal = episodesTotal,
         airedOn = AIRED_ON,
         releasedOn = null,
         score = SCORE,
