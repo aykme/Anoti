@@ -14,7 +14,7 @@ import kotlin.concurrent.atomics.ExperimentalAtomicApi
  * @param report receives the first outcome handed in, and nothing after that.
  */
 @OptIn(ExperimentalAtomicApi::class)
-class OneShotCompletion(private val report: (success: Boolean) -> Unit) {
+internal class OneShotCompletion(private val report: (success: Boolean) -> Unit) {
 
     private val reported = AtomicBoolean(false)
 

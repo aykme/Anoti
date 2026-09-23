@@ -1,13 +1,11 @@
 package com.alekseivinogradov.anoti.animebackgroundupdate.ios.impl.domain.scheduler
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.manager.AnimeUpdateManager
-import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.model.WorkResult
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.scheduler.AnimeBackgroundScheduler
-import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.scheduler.OneShotCompletion
+import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.scheduler.BackgroundRefreshPass
+import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.scheduler.BackgroundRefreshTask
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.launch
 import platform.BackgroundTasks.BGAppRefreshTaskRequest
 import platform.BackgroundTasks.BGTask
 import platform.BackgroundTasks.BGTaskScheduler
@@ -28,9 +26,14 @@ private const val TAG = "AnimeBackgroundSchedulerImpl"
  */
 @OptIn(ExperimentalForeignApi::class)
 class AnimeBackgroundSchedulerImpl(
-    private val animeUpdateManager: AnimeUpdateManager,
-    private val coroutineScope: CoroutineScope
+    animeUpdateManager: AnimeUpdateManager,
+    coroutineScope: CoroutineScope
 ) : AnimeBackgroundScheduler {
+
+    private val refreshPass = BackgroundRefreshPass(
+        animeUpdateManager = animeUpdateManager,
+        coroutineScope = coroutineScope
+    )
 
     fun registerTaskHandler() {
         val registered = BGTaskScheduler.sharedScheduler.registerForTaskWithIdentifier(
@@ -61,23 +64,18 @@ class AnimeBackgroundSchedulerImpl(
         // otherwise leave nothing submitted, and background refresh would stop for good.
         schedulePeriodicUpdate()
 
-        val completion = OneShotCompletion { success: Boolean ->
-            task.setTaskCompletedWithSuccess(success = success)
-            // The handler holds this completion and this completion holds the task, so leaving
-            // it in place keeps every finished task alive for as long as the process runs.
-            task.expirationHandler = null
-        }
+        refreshPass.runIn(
+            object : BackgroundRefreshTask {
+                override var expirationHandler: (() -> Unit)?
+                    get() = task.expirationHandler
+                    set(value) {
+                        task.expirationHandler = value
+                    }
 
-        val job = coroutineScope.launch(start = CoroutineStart.LAZY) {
-            completion.complete(animeUpdateManager.update() == WorkResult.Success)
-        }
-        // Whatever ends the pass — a throw, the scope being canceled, the system expiring the
-        // task — the system is told. A task left uncompleted costs the app its future refreshes.
-        job.invokeOnCompletion { completion.complete(success = false) }
-
-        // Set before the pass starts: the system can expire a task the moment it hands it over.
-        task.expirationHandler = { job.cancel() }
-        job.start()
+                override fun complete(success: Boolean) =
+                    task.setTaskCompletedWithSuccess(success = success)
+            }
+        )
     }
 
     private companion object {

@@ -1,12 +1,12 @@
 package com.alekseivinogradov.anoti.animebackgroundupdate.ios.impl.di
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.ios.impl.domain.scheduler.AnimeBackgroundSchedulerImpl
-import com.alekseivinogradov.anoti.animebackgroundupdate.ios.impl.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecaseImpl
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.manager.AnimeUpdateManager
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.scheduler.AnimeBackgroundScheduler
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.manager.AnimeUpdateManagerImpl
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.FetchAnimeListByIdsUsecase
+import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.SingleFlightUpdateAllAnimeInBackgroundOnceUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
 import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
@@ -54,15 +54,16 @@ interface DiAnimeBackgroundUpdatePlatformComponent {
     ).also { it.registerTaskHandler() }
 
     /**
-     * `@AppScope` is load-bearing: [UpdateAllAnimeInBackgroundOnceUsecaseImpl]'s single-flight
-     * guard lives in the instance, so every injection point must share one instance. Without the
-     * scope, each injection point would get its own guard and concurrent passes could run.
+     * `@AppScope` is load-bearing: the single-flight guard of
+     * [SingleFlightUpdateAllAnimeInBackgroundOnceUsecase] lives in the instance, so every
+     * injection point must share one. Without the scope, each would get its own guard and
+     * concurrent passes could run.
      */
     @Provides
     @AppScope
     fun provideUpdateAllAnimeInBackgroundOnceUsecase(
         animeUpdateManager: AnimeUpdateManager
-    ): UpdateAllAnimeInBackgroundOnceUsecase = UpdateAllAnimeInBackgroundOnceUsecaseImpl(
+    ): UpdateAllAnimeInBackgroundOnceUsecase = SingleFlightUpdateAllAnimeInBackgroundOnceUsecase(
         animeUpdateManager = animeUpdateManager,
         coroutineScope = CoroutineScope(SupervisorJob())
     )

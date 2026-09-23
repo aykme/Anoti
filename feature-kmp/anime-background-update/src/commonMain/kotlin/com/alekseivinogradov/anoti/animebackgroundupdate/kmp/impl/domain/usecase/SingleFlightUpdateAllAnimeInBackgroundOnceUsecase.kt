@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.animebackgroundupdate.ios.impl.domain.usecase
+package com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.manager.AnimeUpdateManager
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
@@ -10,16 +10,17 @@ import kotlin.concurrent.atomics.AtomicReference
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 /**
- * iOS [UpdateAllAnimeInBackgroundOnceUsecase]: runs one update pass in [coroutineScope].
+ * [UpdateAllAnimeInBackgroundOnceUsecase] that runs the pass in [coroutineScope] itself, for a
+ * platform with no background work scheduler to hand it to.
  *
- * `BGTaskScheduler` is deliberately not used here — `BGAppRefreshTask` never fires while the app
- * is in the foreground, and this usecase is triggered by a tap on the favorites screen.
+ * A pass already in flight is kept rather than restarted, so a library is never fetched twice at
+ * once.
  *
- * A pass already in flight is kept rather than restarted, mirroring Android's
- * `ExistingWorkPolicy.KEEP`.
+ * @param animeUpdateManager runs the pass.
+ * @param coroutineScope scope the pass runs in.
  */
 @OptIn(ExperimentalAtomicApi::class)
-class UpdateAllAnimeInBackgroundOnceUsecaseImpl(
+internal class SingleFlightUpdateAllAnimeInBackgroundOnceUsecase(
     private val animeUpdateManager: AnimeUpdateManager,
     private val coroutineScope: CoroutineScope
 ) : UpdateAllAnimeInBackgroundOnceUsecase {

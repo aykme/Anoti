@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.animebackgroundupdate.ios.impl.domain.usecase
+package com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.manager.fake.AnimeUpdateManagerFake
 import kotlinx.coroutines.CompletableDeferred
@@ -11,7 +11,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class UpdateAllAnimeInBackgroundOnceUsecaseImplTest {
+class SingleFlightUpdateAllAnimeInBackgroundOnceUsecaseTest {
 
     @Test
     fun askingForAnUpdateRunsOnePass() = runTest {
@@ -60,7 +60,7 @@ class UpdateAllAnimeInBackgroundOnceUsecaseImplTest {
 
     private fun TestScope.createUsecase(
         manager: AnimeUpdateManagerFake
-    ) = UpdateAllAnimeInBackgroundOnceUsecaseImpl(
+    ) = SingleFlightUpdateAllAnimeInBackgroundOnceUsecase(
         animeUpdateManager = manager,
         coroutineScope = CoroutineScope(UnconfinedTestDispatcher(testScheduler))
     )

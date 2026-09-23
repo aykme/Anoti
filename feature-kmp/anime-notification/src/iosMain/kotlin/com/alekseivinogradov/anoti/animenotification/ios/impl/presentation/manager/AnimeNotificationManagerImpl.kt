@@ -1,13 +1,11 @@
 package com.alekseivinogradov.anoti.animenotification.ios.impl.presentation.manager
 
 import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
-import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.Res
-import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.episode_aired
+import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.manager.newEpisodeNotificationText
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.poster.PosterLoader
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.withContext
-import org.jetbrains.compose.resources.getString
 import platform.Foundation.NSError
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSURL
@@ -15,6 +13,8 @@ import platform.UserNotifications.UNMutableNotificationContent
 import platform.UserNotifications.UNNotificationAttachment
 import platform.UserNotifications.UNNotificationRequest
 import platform.UserNotifications.UNUserNotificationCenter
+
+private const val TAG = "ANIME_NOTIFICATION_MANAGER"
 
 /**
  * Posts a local notification via `UNUserNotificationCenter`. Unlike Android, iOS has no
@@ -26,17 +26,18 @@ internal class AnimeNotificationManagerImpl(
     private val posterLoader: PosterLoader
 ) : AnimeNotificationManager {
 
-    private val tag = "ANIME_NOTIFICATION_MANAGER"
-
     override suspend fun makeNewEpisodeNotification(
         animeName: String?,
         airedEpisode: Int?,
         imageUrl: String?
     ) = withContext(coroutineContextProvider.ioDispatcher) {
-        val episodeAiredString = getString(Res.string.episode_aired)
+        val text = newEpisodeNotificationText(
+            animeName = animeName,
+            airedEpisode = airedEpisode
+        )
         val content = UNMutableNotificationContent().apply {
-            setTitle(animeName ?: "")
-            setBody("$episodeAiredString: ${airedEpisode ?: ""}")
+            setTitle(text.title)
+            setBody(text.body)
             createPosterAttachment(imageUrl)?.let { attachment: UNNotificationAttachment ->
                 setAttachments(listOf(attachment))
             }
@@ -48,7 +49,7 @@ internal class AnimeNotificationManagerImpl(
         )
         UNUserNotificationCenter.currentNotificationCenter()
             .addNotificationRequest(request) { error: NSError? ->
-                error?.let { println("$tag: notification was not scheduled: $it") }
+                error?.let { println("$TAG: notification was not scheduled: $it") }
             }
     }
 
@@ -70,7 +71,7 @@ internal class AnimeNotificationManagerImpl(
             // A rejected file is never moved into the attachment store, so it would stay in the
             // temporary directory for good.
             if (attachment == null) {
-                println("$tag: poster was rejected as an attachment, removing $localUrl")
+                println("$TAG: poster was rejected as an attachment, removing $localUrl")
                 NSFileManager.defaultManager.removeItemAtURL(localUrl, null)
             }
         }
