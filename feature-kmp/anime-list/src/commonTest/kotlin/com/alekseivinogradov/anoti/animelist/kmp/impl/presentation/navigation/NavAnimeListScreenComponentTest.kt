@@ -4,18 +4,10 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.ReleaseStatusDat
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeDetailsResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeShortResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.AnimeDbDomain
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ChangeAnimeDatabaseItemNewEpisodeStatusUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.DeleteAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsFlowUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.InsertAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ResetAllAnimeDatabaseItemsExtraInfoUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.wrapper.AnimeDatabaseUsecases
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseExecutorImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseStoreFactory
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.fake.AnimeDatabaseUsecasesFake
 import com.alekseivinogradov.anoti.animelist.kmp.api.di.DiAnimeListDependencies
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SearchDomain
@@ -32,7 +24,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provid
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.formatter.fake.DateFormatterFake
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
-import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
+import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
@@ -45,8 +37,6 @@ import com.arkivanov.mvikotlin.extensions.coroutines.states
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -100,41 +90,6 @@ class NavAnimeListScreenComponentTest {
         )
     }
 
-    private object DirectSafeApi : SafeApi {
-        override suspend fun <T> call(apiCall: suspend () -> T): CallResult<T> =
-            CallResult.Success(apiCall())
-    }
-
-    private object EmptyItemsFlowUsecase : FetchAllAnimeDatabaseItemsFlowUsecase {
-        override fun execute(): Flow<List<AnimeDbDomain>> = MutableStateFlow(emptyList())
-    }
-
-    private object NoOpInsertUsecase : InsertAnimeDatabaseItemUsecase {
-        override suspend fun execute(anime: AnimeDbDomain) = Unit
-    }
-
-    private object NoOpDeleteUsecase : DeleteAnimeDatabaseItemUsecase {
-        override suspend fun execute(id: AnimeId) = Unit
-    }
-
-    private object NoOpResetNewEpisodeStatusUsecase :
-        ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecase {
-        override suspend fun execute() = Unit
-    }
-
-    private object NoOpChangeNewEpisodeStatusUsecase :
-        ChangeAnimeDatabaseItemNewEpisodeStatusUsecase {
-        override suspend fun execute(id: Int, isNewEpisode: Boolean) = Unit
-    }
-
-    private object NoOpUpdateUsecase : UpdateAnimeDatabaseItemUsecase {
-        override suspend fun execute(anime: AnimeDbDomain) = Unit
-    }
-
-    private object NoOpResetExtraInfoUsecase : ResetAllAnimeDatabaseItemsExtraInfoUsecase {
-        override suspend fun execute() = Unit
-    }
-
     private class FakeDependencies(
         override val animeDatabaseStore: AnimeDatabaseStore,
         override val coroutineContextProvider: CoroutineContextProvider
@@ -146,7 +101,7 @@ class NavAnimeListScreenComponentTest {
         )
         override val dateFormatter: DateFormatter = DateFormatterFake()
         override val shikimoriApiService: ShikimoriApiService = SinglePageApiService
-        override val safeApi: SafeApi = DirectSafeApi
+        override val safeApi: SafeApi = SafeApiFake()
     }
 
     /** One component and the state keeper it consumes from and saves through. */
@@ -156,15 +111,7 @@ class NavAnimeListScreenComponentTest {
         val component: NavAnimeListScreenComponent
     )
 
-    private val databaseUsecases = AnimeDatabaseUsecases(
-        fetchAllAnimeDatabaseItemsFlowUsecase = EmptyItemsFlowUsecase,
-        insertAnimeDatabaseItemUsecase = NoOpInsertUsecase,
-        deleteAnimeDatabaseItemUsecase = NoOpDeleteUsecase,
-        resetAllAnimeDatabaseItemsNewEpisodeStatusUsecase = NoOpResetNewEpisodeStatusUsecase,
-        changeAnimeDatabaseItemNewEpisodeStatusUsecase = NoOpChangeNewEpisodeStatusUsecase,
-        updateAnimeDatabaseItemUsecase = NoOpUpdateUsecase,
-        resetAllAnimeDatabaseItemsExtraInfoUsecase = NoOpResetExtraInfoUsecase
-    )
+    private val databaseUsecases = AnimeDatabaseUsecasesFake().usecases
 
     private fun createDatabaseStore(
         coroutineContextProvider: CoroutineContextProvider

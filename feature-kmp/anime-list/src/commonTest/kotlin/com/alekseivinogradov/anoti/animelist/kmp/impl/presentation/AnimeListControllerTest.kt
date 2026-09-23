@@ -6,16 +6,9 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusD
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.AnimeDbDomain
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.ReleaseStatusDb
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ChangeAnimeDatabaseItemNewEpisodeStatusUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.DeleteAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsFlowUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.InsertAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ResetAllAnimeDatabaseItemsExtraInfoUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.wrapper.AnimeDatabaseUsecases
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseExecutorImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseStoreFactory
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.fake.AnimeDatabaseUsecasesFake
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsection.AnnouncedSectionStore
@@ -58,8 +51,6 @@ import com.arkivanov.mvikotlin.core.view.ViewRenderer
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
@@ -138,63 +129,7 @@ class AnimeListControllerTest {
         }
     }
 
-    private class FakeItemsFlowUsecase(
-        private val items: Flow<List<AnimeDbDomain>>
-    ) : FetchAllAnimeDatabaseItemsFlowUsecase {
-        override fun execute(): Flow<List<AnimeDbDomain>> = items
-    }
-
-    private class RecordingInsertUsecase : InsertAnimeDatabaseItemUsecase {
-        val insertedItems = mutableListOf<AnimeDbDomain>()
-
-        override suspend fun execute(anime: AnimeDbDomain) {
-            insertedItems += anime
-        }
-    }
-
-    private class RecordingDeleteUsecase : DeleteAnimeDatabaseItemUsecase {
-        val deletedIds = mutableListOf<AnimeId>()
-
-        override suspend fun execute(id: AnimeId) {
-            deletedIds += id
-        }
-    }
-
-    private object NoOpResetNewEpisodeStatusUsecase :
-        ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecase {
-        override suspend fun execute() = Unit
-    }
-
-    private object NoOpChangeNewEpisodeStatusUsecase :
-        ChangeAnimeDatabaseItemNewEpisodeStatusUsecase {
-        override suspend fun execute(id: Int, isNewEpisode: Boolean) = Unit
-    }
-
-    private object NoOpUpdateUsecase : UpdateAnimeDatabaseItemUsecase {
-        override suspend fun execute(anime: AnimeDbDomain) = Unit
-    }
-
-    private object NoOpResetExtraInfoUsecase : ResetAllAnimeDatabaseItemsExtraInfoUsecase {
-        override suspend fun execute() = Unit
-    }
-
     /** The saved-anime database every [AnimeDatabaseStore] usecase reads from and writes to. */
-    private class FakeAnimeDatabase(initialItems: List<AnimeDbDomain>) {
-        val items = MutableStateFlow(initialItems)
-        val insertUsecase = RecordingInsertUsecase()
-        val deleteUsecase = RecordingDeleteUsecase()
-
-        val usecases = AnimeDatabaseUsecases(
-            fetchAllAnimeDatabaseItemsFlowUsecase = FakeItemsFlowUsecase(items),
-            insertAnimeDatabaseItemUsecase = insertUsecase,
-            deleteAnimeDatabaseItemUsecase = deleteUsecase,
-            resetAllAnimeDatabaseItemsNewEpisodeStatusUsecase = NoOpResetNewEpisodeStatusUsecase,
-            changeAnimeDatabaseItemNewEpisodeStatusUsecase = NoOpChangeNewEpisodeStatusUsecase,
-            updateAnimeDatabaseItemUsecase = NoOpUpdateUsecase,
-            resetAllAnimeDatabaseItemsExtraInfoUsecase = NoOpResetExtraInfoUsecase
-        )
-    }
-
     /** Everything a test needs to drive one controller and see where its bindings lead. */
     // One parameter per store the controller wires, so the count follows the controller itself.
     @Suppress("LongParameterList")
@@ -206,7 +141,7 @@ class AnimeListControllerTest {
         val ongoingSectionStore: OngoingSectionStore,
         val announcedSectionStore: AnnouncedSectionStore,
         val searchSectionStore: SearchSectionStore,
-        val database: FakeAnimeDatabase
+        val database: AnimeDatabaseUsecasesFake
     )
 
     private fun testListItem(id: AnimeId, name: String = "Item $id") = ListItemDomain(
@@ -253,7 +188,7 @@ class AnimeListControllerTest {
         databaseItems: List<AnimeDbDomain> = emptyList()
     ): Wiring {
         val source = FakeAnimeListSource(ongoingItems, announcedItems, searchItems)
-        val database = FakeAnimeDatabase(databaseItems)
+        val database = AnimeDatabaseUsecasesFake(databaseItems)
 
         val mainStore = createMainStore()
         val animeDatabaseStore = createAnimeDatabaseStore(database)
@@ -295,7 +230,7 @@ class AnimeListControllerTest {
         ).create().also(createdStores::add)
     }
 
-    private fun createAnimeDatabaseStore(database: FakeAnimeDatabase): AnimeDatabaseStore {
+    private fun createAnimeDatabaseStore(database: AnimeDatabaseUsecasesFake): AnimeDatabaseStore {
         return AnimeDatabaseStoreFactory(
             storeFactory = DefaultStoreFactory(),
             executorFactory = {
@@ -488,9 +423,9 @@ class AnimeListControllerTest {
             //Then
             assertEquals(
                 listOf(1),
-                wiring.database.insertUsecase.insertedItems.map(AnimeDbDomain::id)
+                wiring.database.insertedItems.map(AnimeDbDomain::id)
             )
-            assertEquals(emptyList(), wiring.database.deleteUsecase.deletedIds)
+            assertEquals(emptyList(), wiring.database.deletedIds)
         }
 
     @Test
@@ -505,8 +440,8 @@ class AnimeListControllerTest {
         runCurrent()
 
         //Then
-        assertEquals(listOf(1), wiring.database.deleteUsecase.deletedIds)
-        assertEquals(emptyList(), wiring.database.insertUsecase.insertedItems)
+        assertEquals(listOf(1), wiring.database.deletedIds)
+        assertEquals(emptyList(), wiring.database.insertedItems)
     }
 
     @Test

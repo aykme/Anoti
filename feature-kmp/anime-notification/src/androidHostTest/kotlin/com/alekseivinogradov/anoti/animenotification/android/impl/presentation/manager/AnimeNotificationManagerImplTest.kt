@@ -6,16 +6,10 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import coil3.ComponentRegistry
 import coil3.Image
-import coil3.ImageLoader
 import coil3.asImage
-import coil3.disk.DiskCache
-import coil3.memory.MemoryCache
-import coil3.request.Disposable
 import coil3.request.ErrorResult
 import coil3.request.ImageRequest
-import coil3.request.ImageResult
 import coil3.request.SuccessResult
 import com.alekseivinogradov.anoti.animenotification.android.impl.presentation.factory.CHANNEL_ID
 import com.alekseivinogradov.anoti.animenotification.external.android.impl.presentation.provider.AnimeNotificationIntentProvider
@@ -23,6 +17,7 @@ import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.Anim
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.episode_aired
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.poster.PosterLoader
+import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.poster.fake.ImageLoaderFake
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.no_data
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
 import kotlinx.coroutines.Dispatchers
@@ -86,16 +81,16 @@ class AnimeNotificationManagerImplTest {
     }
 
     private fun createManager(loadsPoster: Boolean = true): AnimeNotificationManager {
-        val imageLoader = FakeImageLoader { request: ImageRequest ->
+        val imageLoader = ImageLoaderFake(onExecute = { request: ImageRequest ->
             if (loadsPoster) {
                 SuccessResult(image = poster, request = request)
             } else {
                 ErrorResult(image = null, request = request, throwable = Throwable("no poster"))
             }
-        }
+        })
         return AnimeNotificationManagerImpl(
             appContext = appContext,
-            animeNotificationIntentProvider = FakeIntentProvider,
+            animeNotificationIntentProvider = AnimeNotificationIntentProviderFake,
             coroutineContextProvider = coroutineContextProvider,
             posterLoader = PosterLoader(
                 platformContext = appContext,
@@ -279,7 +274,7 @@ class AnimeNotificationManagerImplTest {
     }
 }
 
-private object FakeIntentProvider : AnimeNotificationIntentProvider {
+private object AnimeNotificationIntentProviderFake : AnimeNotificationIntentProvider {
     override fun getNewEpisodeNotificationIntent(appContext: Context): PendingIntent =
         PendingIntent.getActivity(
             appContext,
@@ -287,27 +282,4 @@ private object FakeIntentProvider : AnimeNotificationIntentProvider {
             Intent(),
             PendingIntent.FLAG_IMMUTABLE
         )
-}
-
-private class FakeImageLoader(
-    private val onExecute: (ImageRequest) -> ImageResult
-) : ImageLoader {
-
-    override val defaults: ImageRequest.Defaults = ImageRequest.Defaults.DEFAULT
-
-    override val components: ComponentRegistry = ComponentRegistry()
-
-    override val memoryCache: MemoryCache? = null
-
-    override val diskCache: DiskCache? = null
-
-    override suspend fun execute(request: ImageRequest): ImageResult = onExecute(request)
-
-    override fun enqueue(request: ImageRequest): Disposable =
-        error("not used in AnimeNotificationManagerImplTest")
-
-    override fun newBuilder(): ImageLoader.Builder =
-        error("not used in AnimeNotificationManagerImplTest")
-
-    override fun shutdown() = Unit
 }

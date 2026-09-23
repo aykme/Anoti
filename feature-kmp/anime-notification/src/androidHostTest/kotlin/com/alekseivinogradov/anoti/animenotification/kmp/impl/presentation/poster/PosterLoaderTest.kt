@@ -1,17 +1,14 @@
 package com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.poster
 
 import android.graphics.Bitmap
-import coil3.ComponentRegistry
 import coil3.Image
-import coil3.ImageLoader
 import coil3.asImage
 import coil3.disk.DiskCache
-import coil3.memory.MemoryCache
-import coil3.request.Disposable
 import coil3.request.ErrorResult
 import coil3.request.ImageRequest
 import coil3.request.ImageResult
 import coil3.request.SuccessResult
+import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.poster.fake.ImageLoaderFake
 import kotlinx.coroutines.test.runTest
 import okio.FileSystem
 import okio.Path
@@ -58,7 +55,7 @@ class PosterLoaderTest {
         result: (ImageRequest) -> ImageResult,
         cache: DiskCache? = null
     ): PosterLoader {
-        val imageLoader = FakeImageLoader(onExecute = result, cache = cache)
+        val imageLoader = ImageLoaderFake(onExecute = result, cache = cache)
         return PosterLoader(
             platformContext = platformContext,
             imageLoaderProvider = { imageLoader }
@@ -208,7 +205,7 @@ class PosterLoaderTest {
             result = { request ->
                 SuccessResult(image = image, request = request, diskCacheKey = DISK_CACHE_KEY)
             },
-            cache = UnreadableDiskCache(missingFile)
+            cache = DiskCacheFake(missingFile)
         )
 
         //When
@@ -221,7 +218,7 @@ class PosterLoaderTest {
 }
 
 /** Hands out a snapshot pointing at a file that is not there, so reading it fails. */
-private class UnreadableDiskCache(private val missingFile: Path) : DiskCache {
+private class DiskCacheFake(private val missingFile: Path) : DiskCache {
 
     override val size: Long = 0
 
@@ -243,30 +240,6 @@ private class UnreadableDiskCache(private val missingFile: Path) : DiskCache {
     override fun remove(key: String): Boolean = false
 
     override fun clear() = Unit
-
-    override fun shutdown() = Unit
-}
-
-private class FakeImageLoader(
-    private val onExecute: (ImageRequest) -> ImageResult,
-    private val cache: DiskCache?
-) : ImageLoader {
-
-    override val defaults: ImageRequest.Defaults = ImageRequest.Defaults.DEFAULT
-
-    override val components: ComponentRegistry = ComponentRegistry()
-
-    override val memoryCache: MemoryCache? = null
-
-    override val diskCache: DiskCache? get() = cache
-
-    override suspend fun execute(request: ImageRequest): ImageResult = onExecute(request)
-
-    override fun enqueue(request: ImageRequest): Disposable =
-        error("not used in PosterLoaderTest")
-
-    override fun newBuilder(): ImageLoader.Builder =
-        error("not used in PosterLoaderTest")
 
     override fun shutdown() = Unit
 }

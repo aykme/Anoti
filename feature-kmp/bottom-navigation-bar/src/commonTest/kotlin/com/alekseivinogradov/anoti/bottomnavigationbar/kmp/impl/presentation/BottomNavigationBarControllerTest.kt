@@ -3,6 +3,7 @@ package com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.AnimeDbDomain
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.ReleaseStatusDb
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.fake.AnimeDatabaseStoreFake
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.model.SectionDomain
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.BottomNavigationBarView
@@ -17,11 +18,7 @@ import com.arkivanov.essenty.lifecycle.destroy
 import com.arkivanov.essenty.lifecycle.resume
 import com.arkivanov.essenty.lifecycle.start
 import com.arkivanov.essenty.lifecycle.stop
-import com.arkivanov.mvikotlin.core.store.Reducer
-import com.arkivanov.mvikotlin.core.store.Store
-import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.core.view.BaseMviView
-import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -47,7 +44,7 @@ class BottomNavigationBarControllerTest {
 
     private val viewLifecycle = LifecycleRegistry()
 
-    private val view = FakeBottomNavigationBarView()
+    private val view = BottomNavigationBarViewFake()
 
     private lateinit var mainStore: BottomNavigationBarStore
 
@@ -57,7 +54,7 @@ class BottomNavigationBarControllerTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         mainStore = BottomNavigationBarStoreFactory(DefaultStoreFactory()).create()
-        databaseStore = FakeAnimeDatabaseStoreFactory(DefaultStoreFactory()).create()
+        databaseStore = AnimeDatabaseStoreFake()
     }
 
     @AfterTest
@@ -233,7 +230,7 @@ class BottomNavigationBarControllerTest {
     }
 }
 
-private class FakeBottomNavigationBarView :
+private class BottomNavigationBarViewFake :
     BaseMviView<BottomNavigationBarUiModel, BottomNavigationBarStore.Intent>(),
     BottomNavigationBarView {
 
@@ -248,85 +245,5 @@ private class FakeBottomNavigationBarView :
 
     override fun handle(label: BottomNavigationBarStore.Label) {
         handledLabels += label
-    }
-}
-
-/**
- * An in-memory stand-in for the real database store. Same contract, backed by a list the test
- * mutates through the intents the store already accepts.
- */
-private class FakeAnimeDatabaseStoreFactory(private val storeFactory: StoreFactory) {
-
-    fun create(): AnimeDatabaseStore = object :
-        AnimeDatabaseStore,
-        Store<AnimeDatabaseStore.Intent, AnimeDatabaseStore.State, AnimeDatabaseStore.Label>
-        by storeFactory.create(
-            name = "FakeAnimeDatabaseStore",
-            initialState = AnimeDatabaseStore.State(),
-            executorFactory = ::FakeAnimeDatabaseExecutor,
-            reducer = FakeAnimeDatabaseReducer
-        ) {}
-}
-
-private class FakeAnimeDatabaseExecutor : CoroutineExecutor<
-    AnimeDatabaseStore.Intent,
-    AnimeDatabaseStore.Action,
-    AnimeDatabaseStore.State,
-    AnimeDatabaseStore.Message,
-    AnimeDatabaseStore.Label
-    >() {
-
-    override fun executeIntent(intent: AnimeDatabaseStore.Intent) {
-        val items = state().animeDatabaseItems
-        when (intent) {
-            is AnimeDatabaseStore.Intent.InsertAnimeDatabaseItem ->
-                replaceItems(items + intent.animeDatabaseItem)
-
-            is AnimeDatabaseStore.Intent.DeleteAnimeDatabaseItem ->
-                replaceItems(items.filterNot { it.id == intent.id })
-
-            is AnimeDatabaseStore.Intent.UpdateAnimeDatabaseItem ->
-                replaceItems(
-                    items.map { item: AnimeDbDomain ->
-                        if (item.id == intent.animeDatabaseItem.id) {
-                            intent.animeDatabaseItem
-                        } else {
-                            item
-                        }
-                    }
-                )
-
-            is AnimeDatabaseStore.Intent.ChangeItemNewEpisodeStatus ->
-                replaceItems(
-                    items.map { item: AnimeDbDomain ->
-                        if (item.id == intent.id) {
-                            item.copy(isNewEpisode = intent.isNewEpisode)
-                        } else {
-                            item
-                        }
-                    }
-                )
-
-            AnimeDatabaseStore.Intent.ResetAllItemsNewEpisodeStatus ->
-                replaceItems(items.map { it.copy(isNewEpisode = false) })
-
-            AnimeDatabaseStore.Intent.ResetAllItemsExtraInfo ->
-                replaceItems(items.map { it.copy(isExtraInfoEnabled = false) })
-        }
-    }
-
-    private fun replaceItems(items: List<AnimeDbDomain>) {
-        dispatch(AnimeDatabaseStore.Message.UpdateAnimeDatabaseItems(items))
-    }
-}
-
-private object FakeAnimeDatabaseReducer :
-    Reducer<AnimeDatabaseStore.State, AnimeDatabaseStore.Message> {
-
-    override fun AnimeDatabaseStore.State.reduce(
-        msg: AnimeDatabaseStore.Message
-    ): AnimeDatabaseStore.State = when (msg) {
-        is AnimeDatabaseStore.Message.UpdateAnimeDatabaseItems ->
-            copy(animeDatabaseItems = msg.animeDatabaseItems)
     }
 }

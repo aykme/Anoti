@@ -4,8 +4,8 @@ import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeDetailsResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeShortResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.AnimeDbDomain
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.fake.AnimeDatabaseStoreFake
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
@@ -14,8 +14,6 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provid
 import com.alekseivinogradov.anoti.main.api.di.DiRootDependencies
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
-import com.arkivanov.mvikotlin.core.rx.Disposable
-import com.arkivanov.mvikotlin.core.rx.Observer
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlinx.coroutines.CoroutineDispatcher
@@ -30,7 +28,7 @@ import kotlin.coroutines.CoroutineContext
 internal class FakeDiRootDependencies : DiRootDependencies {
 
     /** Every store handed out through [animeDatabaseStore], in the order they were asked for. */
-    val animeDatabaseStores = mutableListOf<FakeAnimeDatabaseStore>()
+    val animeDatabaseStores = mutableListOf<AnimeDatabaseStoreFake>()
 
     override val storeFactory: StoreFactory = DefaultStoreFactory()
     override val coroutineContextProvider: CoroutineContextProvider = FakeCoroutineContextProvider()
@@ -47,7 +45,7 @@ internal class FakeDiRootDependencies : DiRootDependencies {
     // The real graph leaves this binding unscoped, so each consumer builds its own store. Mirrored
     // here, or the bar and the screens would share one and disposal would look global.
     override val animeDatabaseStore: AnimeDatabaseStore
-        get() = FakeAnimeDatabaseStore().also(animeDatabaseStores::add)
+        get() = AnimeDatabaseStoreFake().also(animeDatabaseStores::add)
 }
 
 /**
@@ -68,49 +66,6 @@ internal class FakeCoroutineContextProvider : CoroutineContextProvider {
     override val defaultDispatcher: CoroutineDispatcher get() = Dispatchers.Main
     override val ioDispatcher: CoroutineContext get() = Dispatchers.Main
     override val unconfinedDispatcher: CoroutineDispatcher get() = Dispatchers.Main
-}
-
-/** A store whose state only ever changes through [emit]. */
-internal class FakeAnimeDatabaseStore : AnimeDatabaseStore {
-
-    private val stateObservers = mutableListOf<Observer<AnimeDatabaseStore.State>>()
-    private val labelObservers = mutableListOf<Observer<AnimeDatabaseStore.Label>>()
-
-    override var state = AnimeDatabaseStore.State()
-        private set
-
-    override var isDisposed = false
-        private set
-
-    override fun init() = Unit
-
-    override fun accept(intent: AnimeDatabaseStore.Intent) = Unit
-
-    override fun states(observer: Observer<AnimeDatabaseStore.State>): Disposable {
-        observer.onNext(state)
-        stateObservers += observer
-        return Disposable { stateObservers -= observer }
-    }
-
-    override fun labels(observer: Observer<AnimeDatabaseStore.Label>): Disposable {
-        labelObservers += observer
-        return Disposable { labelObservers -= observer }
-    }
-
-    // A disposed store completes both streams and keeps nobody subscribed, same as a real one.
-    override fun dispose() {
-        isDisposed = true
-        stateObservers.toList().forEach(Observer<AnimeDatabaseStore.State>::onComplete)
-        labelObservers.toList().forEach(Observer<AnimeDatabaseStore.Label>::onComplete)
-        stateObservers.clear()
-        labelObservers.clear()
-    }
-
-    /** Publishes [items] as the new saved-anime list to everyone subscribed. */
-    fun emit(items: List<AnimeDbDomain>) {
-        state = AnimeDatabaseStore.State(animeDatabaseItems = items)
-        stateObservers.toList().forEach { it.onNext(state) }
-    }
 }
 
 internal class FakeDateFormatter : DateFormatter {

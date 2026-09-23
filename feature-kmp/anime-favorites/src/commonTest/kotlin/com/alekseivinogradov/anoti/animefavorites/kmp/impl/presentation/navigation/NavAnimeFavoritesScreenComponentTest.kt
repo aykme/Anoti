@@ -4,18 +4,10 @@ import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeDetailsResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeShortResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.AnimeDbDomain
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ChangeAnimeDatabaseItemNewEpisodeStatusUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.DeleteAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsFlowUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.InsertAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ResetAllAnimeDatabaseItemsExtraInfoUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.wrapper.AnimeDatabaseUsecases
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseExecutorImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseStoreFactory
+import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.fake.AnimeDatabaseUsecasesFake
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.di.DiAnimeFavoritesDependencies
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.di.createDiAnimeFavoritesComponent
@@ -26,7 +18,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provid
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.formatter.fake.DateFormatterFake
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
-import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
+import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
@@ -38,8 +30,6 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
@@ -83,48 +73,8 @@ class NavAnimeFavoritesScreenComponentTest {
         }
     }
 
-    private object DirectSafeApi : SafeApi {
-        override suspend fun <T> call(apiCall: suspend () -> T): CallResult<T> =
-            CallResult.Success(apiCall())
-    }
-
     private object NoOpBackgroundUpdateUsecase : UpdateAllAnimeInBackgroundOnceUsecase {
         override fun execute() = Unit
-    }
-
-    private object EmptyItemsFlowUsecase : FetchAllAnimeDatabaseItemsFlowUsecase {
-        override fun execute(): Flow<List<AnimeDbDomain>> = MutableStateFlow(emptyList())
-    }
-
-    private object NoOpInsertUsecase : InsertAnimeDatabaseItemUsecase {
-        override suspend fun execute(anime: AnimeDbDomain) = Unit
-    }
-
-    private object NoOpDeleteUsecase : DeleteAnimeDatabaseItemUsecase {
-        override suspend fun execute(id: AnimeId) = Unit
-    }
-
-    private object NoOpResetNewEpisodeStatusUsecase :
-        ResetAllAnimeDatabaseItemsNewEpisodeStatusUsecase {
-        override suspend fun execute() = Unit
-    }
-
-    private object NoOpChangeNewEpisodeStatusUsecase :
-        ChangeAnimeDatabaseItemNewEpisodeStatusUsecase {
-        override suspend fun execute(id: Int, isNewEpisode: Boolean) = Unit
-    }
-
-    private object NoOpUpdateUsecase : UpdateAnimeDatabaseItemUsecase {
-        override suspend fun execute(anime: AnimeDbDomain) = Unit
-    }
-
-    private class RecordingResetExtraInfoUsecase : ResetAllAnimeDatabaseItemsExtraInfoUsecase {
-        var executeCount = 0
-            private set
-
-        override suspend fun execute() {
-            executeCount++
-        }
     }
 
     private class FakeDependencies(
@@ -138,7 +88,7 @@ class NavAnimeFavoritesScreenComponentTest {
         )
         override val dateFormatter: DateFormatter = DateFormatterFake()
         override val shikimoriApiService: ShikimoriApiService = UnreachableApiService
-        override val safeApi: SafeApi = DirectSafeApi
+        override val safeApi: SafeApi = SafeApiFake()
         override val updateAllAnimeInBackgroundOnceUsecase: UpdateAllAnimeInBackgroundOnceUsecase =
             NoOpBackgroundUpdateUsecase
     }
@@ -148,32 +98,20 @@ class NavAnimeFavoritesScreenComponentTest {
         val lifecycle: LifecycleRegistry,
         val stateKeeper: StateKeeperDispatcher,
         val component: NavAnimeFavoritesScreenComponent,
-        val resetExtraInfoUsecase: RecordingResetExtraInfoUsecase
-    )
-
-    private fun createDatabaseUsecases(
-        resetExtraInfoUsecase: ResetAllAnimeDatabaseItemsExtraInfoUsecase
-    ) = AnimeDatabaseUsecases(
-        fetchAllAnimeDatabaseItemsFlowUsecase = EmptyItemsFlowUsecase,
-        insertAnimeDatabaseItemUsecase = NoOpInsertUsecase,
-        deleteAnimeDatabaseItemUsecase = NoOpDeleteUsecase,
-        resetAllAnimeDatabaseItemsNewEpisodeStatusUsecase = NoOpResetNewEpisodeStatusUsecase,
-        changeAnimeDatabaseItemNewEpisodeStatusUsecase = NoOpChangeNewEpisodeStatusUsecase,
-        updateAnimeDatabaseItemUsecase = NoOpUpdateUsecase,
-        resetAllAnimeDatabaseItemsExtraInfoUsecase = resetExtraInfoUsecase
+        val databaseUsecases: AnimeDatabaseUsecasesFake
     )
 
     private fun createWiring(savedState: SerializableContainer? = null): Wiring {
         val coroutineContextProvider = object : CoroutineContextProviderBase() {
             override val exceptionHandlerCallback: (Throwable) -> Unit = {}
         }
-        val resetExtraInfoUsecase = RecordingResetExtraInfoUsecase()
+        val databaseUsecases = AnimeDatabaseUsecasesFake()
         val animeDatabaseStore = AnimeDatabaseStoreFactory(
             storeFactory = DefaultStoreFactory(),
             executorFactory = {
                 AnimeDatabaseExecutorImpl(
                     coroutineContextProvider = coroutineContextProvider,
-                    usecases = createDatabaseUsecases(resetExtraInfoUsecase)
+                    usecases = databaseUsecases.usecases
                 )
             }
         ).create()
@@ -197,7 +135,7 @@ class NavAnimeFavoritesScreenComponentTest {
             lifecycle = lifecycle,
             stateKeeper = stateKeeper,
             component = component,
-            resetExtraInfoUsecase = resetExtraInfoUsecase
+            databaseUsecases = databaseUsecases
         )
     }
 
@@ -226,7 +164,7 @@ class NavAnimeFavoritesScreenComponentTest {
         runCurrent()
 
         //Then
-        assertEquals(1, wiring.resetExtraInfoUsecase.executeCount)
+        assertEquals(1, wiring.databaseUsecases.resetExtraInfoCount)
     }
 
     @Test
@@ -243,7 +181,7 @@ class NavAnimeFavoritesScreenComponentTest {
         //Then
         assertEquals(
             0,
-            afterProcessDeath.resetExtraInfoUsecase.executeCount,
+            afterProcessDeath.databaseUsecases.resetExtraInfoCount,
             "a restored screen must keep the extra info it was showing"
         )
         // The loading treatment is unconditional: only the reset above is skipped on a restore.
