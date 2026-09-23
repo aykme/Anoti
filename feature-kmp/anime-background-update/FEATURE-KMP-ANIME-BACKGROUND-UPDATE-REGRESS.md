@@ -89,7 +89,7 @@ Pulling the Favorites list down starts a pass of its own, separate from the hour
    - The update happens as before.
 5. Straight after step 4, turn on airplane mode and wait an hour.
    - Nothing happens, exactly as in section 3. The newer build's rule about needing a
-     connection reaches the install that was already on the phone.
+     connection reaches the installation that was already on the phone.
 
 ## 5. Different data
 
@@ -100,7 +100,7 @@ Pulling the Favorites list down starts a pass of its own, separate from the hour
 3. An anime the server has no picture for, gaining an episode.
    - Its notification appears with the title and episode number, and no picture.
 4. An anime with a very long title, gaining an episode.
-   - Its notification shows the title cut off at the end rather than overflowing.
+   - Its notification shows the title cut-off at the end rather than overflowing.
 5. Remove every subscription and let a pass run.
    - Nothing happens and nothing goes wrong. Favorites still opens on its empty panel.
 
@@ -112,7 +112,7 @@ Pulling the Favorites list down starts a pass of its own, separate from the hour
    - In the morning the subscriptions are up to date, and every episode that aired overnight
      has its notification.
 3. Exclude the app from battery optimization in Android settings, then repeat step 2.
-   - The same, and the updates arrive closer to once an hour.
+   - The same and the updates arrive closer to once an hour.
 4. On a Samsung phone, open Device care and check the sleeping-apps list.
    - If the app is listed there, take it out. A sleeping app gets no updates at all, and that
      is a phone setting rather than anything the app can change.
