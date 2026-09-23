@@ -238,6 +238,8 @@ fun KoverReportFiltersConfig.excludeUnmeasuredCode() {
             // core-kmp:test-utils.
             "**Fake*"
         )
+        // The same doubles, caught by where they live rather than by what they are called.
+        packages("**.fake")
     }
 }
 
