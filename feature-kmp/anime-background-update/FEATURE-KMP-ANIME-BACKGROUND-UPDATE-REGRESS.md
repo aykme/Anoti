@@ -12,6 +12,16 @@ the anime-notification script.
 Where a step says "let a pass run", either leave the phone online and untouched for an hour,
 or ask a developer to start one — it takes them seconds. Both amount to the same thing.
 
+## Platforms
+
+The steps below name Android's screens, because what they go through — force-stopping, battery
+optimization, the sleeping-apps list, swiping away from recents — is Android's own. An iOS run
+makes the same checks through the Background App Refresh settings, and expects the same results
+with two differences: the app asks for its next pass about fifteen minutes ahead rather than an
+hour, and the system decides when that pass actually runs, so it can arrive much later than
+asked. Turning Background App Refresh off for the app is what airplane mode and a force-stop
+stand for there.
+
 ## Before you start
 
 1. Install the app and open it. Allow notifications when asked. Without that permission every

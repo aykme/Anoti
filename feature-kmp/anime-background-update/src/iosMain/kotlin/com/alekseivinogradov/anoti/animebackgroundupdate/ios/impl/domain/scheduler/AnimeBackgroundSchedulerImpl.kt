@@ -53,7 +53,8 @@ class AnimeBackgroundSchedulerImpl(
 
     /**
      * Takes on the background task the platform launches this app for. It has to run before the
-     * app finishes launching, and it takes effect once per process however often it is called.
+     * app finishes launching. Calling it again once it has taken does nothing, since the
+     * platform kills the app when one identifier is registered twice.
      */
     fun registerTaskHandler() {
         if (!taskHandlerRegistered.compareAndSet(expectedValue = false, newValue = true)) return
@@ -72,7 +73,9 @@ class AnimeBackgroundSchedulerImpl(
     override fun schedulePeriodicUpdate() {
         BGTaskScheduler.sharedScheduler.getPendingTaskRequestsWithCompletionHandler { pending ->
             // Submitting again replaces the request already waiting, which moves its earliest
-            // start along. An app opened often would then never reach a refresh at all.
+            // start along. An app opened often would then never reach a refresh at all. The
+            // cost is that a changed delay below only takes effect once the waiting request has
+            // fired.
             val alreadyWaiting = pending.orEmpty().any { request: Any? ->
                 (request as? BGTaskRequest)?.identifier == ANIME_UPDATE_TASK_IDENTIFIER
             }
@@ -100,9 +103,11 @@ class AnimeBackgroundSchedulerImpl(
     }
 
     private fun runUpdateFor(task: BGTask) {
-        // Before any work: a task the system expires, or one whose pass ends badly, would
-        // otherwise leave nothing submitted, and background refresh would stop for good.
-        schedulePeriodicUpdate()
+        // Before any work, and without asking what is already waiting: this task has been
+        // handed over but not yet completed, so the platform still lists it, and skipping the
+        // submit here would leave nothing behind once it is completed. A task the system
+        // expires, or one whose pass ends badly, would then stop background refresh for good.
+        submitUpdateRequest()
 
         refreshPass.runIn(
             object : BackgroundRefreshTask {

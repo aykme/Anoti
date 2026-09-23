@@ -22,12 +22,7 @@ internal class BackgroundRefreshPass(
 
     /** Starts the pass for [task]. */
     fun runIn(task: BackgroundRefreshTask) {
-        val completion = OneShotCompletion { success: Boolean ->
-            task.complete(success)
-            // The handler holds this completion and this completion holds the task, so leaving
-            // it in place keeps every finished task alive for as long as the process runs.
-            task.setExpirationHandler(null)
-        }
+        val completion = OneShotCompletion { success: Boolean -> task.complete(success) }
 
         val job = coroutineScope.launch(start = CoroutineStart.LAZY) {
             completion.complete(animeUpdateManager.update() == WorkResult.Success)
@@ -42,8 +37,13 @@ internal class BackgroundRefreshPass(
             job.cancel()
         }
         // Whatever ends the pass — a throw, the scope being canceled, the platform taking the
-        // task back — the platform is told.
-        job.invokeOnCompletion { completion.complete(success = false) }
+        // task back — the platform is told, and the handler is dropped once the pass is over.
+        // The handler holds this completion and this completion holds the task, so one left in
+        // place keeps every finished task alive for as long as the process runs.
+        job.invokeOnCompletion {
+            completion.complete(success = false)
+            task.setExpirationHandler(null)
+        }
 
         job.start()
     }
