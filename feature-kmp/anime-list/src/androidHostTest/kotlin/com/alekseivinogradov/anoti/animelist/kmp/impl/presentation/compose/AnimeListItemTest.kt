@@ -29,7 +29,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcont
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.extra_episodes_info_description
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.next_episode
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.formatter.fake.DateFormatterFake
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.AnotiTheme
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.getString
@@ -48,10 +48,6 @@ class AnimeListItemTest {
 
     @get:Rule
     val composeRule = createComposeRule()
-
-    private object PassThroughDateFormatter : DateFormatter {
-        override fun getFormattedDate(inputText: String, fallbackText: String): String = inputText
-    }
 
     private val baseItem = ListItemUi(
         id = 1,
@@ -102,7 +98,7 @@ class AnimeListItemTest {
                 ) {
                     AnimeListItem(
                         item = itemState.value,
-                        dateFormatter = PassThroughDateFormatter,
+                        dateFormatter = DateFormatterFake(),
                         onEpisodesInfoClick = { episodesInfoClicks++ },
                         onNotificationClick = { notificationClicks++ }
                     )

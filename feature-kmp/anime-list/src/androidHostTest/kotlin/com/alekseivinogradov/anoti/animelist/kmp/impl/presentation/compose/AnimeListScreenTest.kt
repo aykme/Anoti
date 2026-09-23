@@ -22,8 +22,8 @@ import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.on_air
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.search_on_description
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.soon
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.connection_error
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.formatter.fake.DateFormatterFake
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.AnotiTheme
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.runBlocking
@@ -48,10 +48,6 @@ class AnimeListScreenTest {
     private val uiModelState = mutableStateOf(AnimeListUiModel())
 
     private val dispatched = mutableListOf<AnimeListMainStore.Intent>()
-
-    private object PassThroughDateFormatter : DateFormatter {
-        override fun getFormattedDate(inputText: String, fallbackText: String): String = inputText
-    }
 
     private fun listItem(id: AnimeId) = ListItemUi(
         id = id,
@@ -82,7 +78,7 @@ class AnimeListScreenTest {
             AnotiTheme {
                 AnimeListScreen(
                     uiModel = uiModelState.value,
-                    dateFormatter = PassThroughDateFormatter,
+                    dateFormatter = DateFormatterFake(),
                     dispatch = { dispatched += it }
                 )
             }

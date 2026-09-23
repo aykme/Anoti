@@ -30,6 +30,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.Cor
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.formatter.fake.DateFormatterFake
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.decompose.DefaultComponentContext
@@ -73,10 +74,6 @@ class NavAnimeListScreenComponentTest {
     fun tearDown() {
         lifecycles.filter { it.state != Lifecycle.State.DESTROYED }.forEach { it.destroy() }
         Dispatchers.resetMain()
-    }
-
-    private object PassThroughDateFormatter : DateFormatter {
-        override fun getFormattedDate(inputText: String, fallbackText: String): String = inputText
     }
 
     /** Answers every list request with the same page, and every details request with a date. */
@@ -147,7 +144,7 @@ class NavAnimeListScreenComponentTest {
             makeConnectionErrorSystemMessage = {},
             makeUnknownErrorSystemMessage = {}
         )
-        override val dateFormatter: DateFormatter = PassThroughDateFormatter
+        override val dateFormatter: DateFormatter = DateFormatterFake()
         override val shikimoriApiService: ShikimoriApiService = SinglePageApiService
         override val safeApi: SafeApi = DirectSafeApi
     }
