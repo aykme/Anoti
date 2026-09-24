@@ -51,7 +51,7 @@ agp = "9.4.1"
 # composeMultiplatform decides. An instrumented test shares the app's process, so ui-test-junit4
 # must load the same UI classes.
 composeUiTest = "1.12.1"
-core = "1.19.0"
+core = "1.19.1"
 espressoCore = "3.7.0"
 playServicesAppset = "16.1.0"
 robolectric = "4.17"
@@ -60,7 +60,7 @@ robolectric = "4.17"
 #noinspection UnusedVersionCatalogEntry
 robolectricSdk = "35"
 rules = "1.7.0"
-workRuntimeKtx = "2.11.2"
+workRuntimeKtx = "2.12.0"
 
 #Non maxed supressed Android library versions
 
