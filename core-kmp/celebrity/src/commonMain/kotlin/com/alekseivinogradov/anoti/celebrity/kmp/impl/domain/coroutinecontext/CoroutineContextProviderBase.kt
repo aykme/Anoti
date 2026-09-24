@@ -43,7 +43,7 @@ abstract class CoroutineContextProviderBase : CoroutineContextProvider {
     // No Job here: a Job in the context would make this the parent of whatever runs in it, and
     // the worker's own cancellation would stop reaching the work it started.
     override val workManagerCoroutineContext: CoroutineContext =
-        Dispatchers.Default + emptyExceptionHandler
+        Dispatchers.IO + emptyExceptionHandler
 
     override val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
     override val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default

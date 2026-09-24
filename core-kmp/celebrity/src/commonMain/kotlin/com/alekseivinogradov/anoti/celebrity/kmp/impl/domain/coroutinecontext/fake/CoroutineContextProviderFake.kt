@@ -20,5 +20,5 @@ class CoroutineContextProviderFake(
     override val exceptionHandlerCallback: (Throwable) -> Unit = {},
     override val ioDispatcher: CoroutineContext = Dispatchers.IO,
     override val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default,
-    override val workManagerCoroutineContext: CoroutineContext = Dispatchers.Default
+    override val workManagerCoroutineContext: CoroutineContext = Dispatchers.IO
 ) : CoroutineContextProviderBase()
