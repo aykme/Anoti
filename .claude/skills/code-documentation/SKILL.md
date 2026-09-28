@@ -31,8 +31,8 @@ Name the file after the module's full Gradle path, not just `README.md`: upperca
 replaced with dashes, `-README.md` on the end. `:core-kmp:celebrity` becomes
 `CORE-KMP-CELEBRITY-README.md`; `:feature-kmp:anime-base` becomes
 `FEATURE-KMP-ANIME-BASE-README.md`. Put it at the module's root, next to `build.gradle.kts`.
-Only KMP modules (`core-kmp/*`, `feature-kmp/*`, `main`) get one — see `CLAUDE.md` for the
-full rule and the root `README.md` exception.
+Every Gradle module gets one, `androidApp` included — see `CLAUDE.md` for the full rule and the
+root `README.md` exception.
 
 ## Before you write anything: confirm the entity list
 
@@ -43,7 +43,8 @@ way this goes sideways: too many entities, an impl class snuck in, a Store's int
 separately, a platform-only type pulled in from `androidMain`/`iosMain`. It's cheap to check up
 front and expensive to unwind after the fact. The one platform type that does belong in the
 table is an entry point or a composition root — see "Platform entry points and composition
-roots" below.
+roots" below. A module that is not multiplatform, such as `androidApp`, has one source set,
+`src/main`. Survey that one instead.
 
 | Entity             | File                                 | Proposed one-liner                        | Notes                                 |
 |--------------------|--------------------------------------|-------------------------------------------|---------------------------------------|
@@ -435,11 +436,11 @@ it believes the module is covered.
 ## After writing: check for siblings you might have missed
 
 When you finish documenting the module(s) the current task actually touched, take one more
-look at their sibling KMP modules (same `core-kmp/`/`feature-kmp/` parent, modules worked on
+look at their sibling modules (same `core-kmp/`/`feature-kmp/` parent, modules worked on
 around the same time). Module work often happens in batches, and it's easy for the last one or
 two in a batch to slip through without a README or a regression file. A quick pass catches
-this cheaply: `ls main/*-README.md core-kmp/*/*-README.md feature-kmp/*/*-README.md` for
-the READMEs, the same three patterns ending `-REGRESS.md` plus `androidApp/*-REGRESS.md` for
+this cheaply: `ls androidApp/*-README.md main/*-README.md core-kmp/*/*-README.md
+feature-kmp/*/*-README.md` for the READMEs, and the same four patterns ending `-REGRESS.md` for
 the regression files. Diff each list against the actual modules. Don't silently
 create the missing ones, though: surface what's missing and let the user decide whether to
 include them in the current task or handle them separately, same as any other scope decision.

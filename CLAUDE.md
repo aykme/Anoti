@@ -325,8 +325,7 @@ these rules and load together with them.
 - Call the `code-documentation` skill (`.claude/skills/code-documentation/`) once a module's
   changes are otherwise finished — documenting it is part of finishing the task, not a
   separate follow-up to do later.
-- READMEs are only for KMP modules: `core-kmp/*`, `feature-kmp/*` and `main`. A module that is
-  not multiplatform, such as `androidApp`, doesn't get one.
+- Every Gradle module gets a README: `androidApp`, `main`, `core-kmp/*` and `feature-kmp/*`.
 - File name: the module's full Gradle path, uppercase, colons replaced with dashes, suffixed
   `-README.md` (e.g. `:core-kmp:celebrity` → `CORE-KMP-CELEBRITY-README.md`), placed at the
   module's root.
