@@ -55,8 +55,8 @@ kotlin {
 }
 
 dependencies {
+    // The app's one entry into the shared code, as the iOS app's framework is. It exposes `main`.
     implementation(project(":core-kmp:di-app"))
-    implementation(project(":main"))
 
     // No direct Kotlin usage, but required for the manifest's AD_ID permission (Google Play
     // review) — a past cleanup pass already dropped this as apparently unused and had to
