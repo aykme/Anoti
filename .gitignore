@@ -78,3 +78,13 @@ androidApp/release/output.json
 docs/superpowers/
 # Subagent-driven-development workspace (ledgers, briefs, review packages)
 .superpowers/
+# Xcode user data and build output
+xcuserdata/
+*.xcuserstate
+DerivedData/
+.build/
+.swiftpm/
+*.ipa
+*.dSYM
+*.dSYM.zip
+*.hmap

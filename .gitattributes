@@ -1,0 +1,11 @@
+# Text files are stored with LF and checked out with LF on every machine.
+* text=auto eol=lf
+
+# Windows runs these itself and needs CRLF.
+*.bat text eol=crlf
+
+# Never converted and never compared as text.
+*.jar binary
+*.jpg binary
+*.png binary
+*.ttf binary
