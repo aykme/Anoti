@@ -1,0 +1,4 @@
+// Generated from gradle/libs.versions.toml. Do not edit.
+MARKETING_VERSION = 1.09
+CURRENT_PROJECT_VERSION = 9
+IPHONEOS_DEPLOYMENT_TARGET = 16.0

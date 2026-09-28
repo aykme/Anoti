@@ -101,3 +101,8 @@ dependencies {
         }
     }
 }
+
+// The iOS version settings come from the same catalog as the versions above.
+tasks.named("preBuild") {
+    dependsOn(":generateIosVersionXcconfig")
+}
