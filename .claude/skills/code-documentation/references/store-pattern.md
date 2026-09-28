@@ -176,8 +176,9 @@ episode progress, "new episode" flags).
 ## How to include it
 
 - Gradle: `implementation(project(":core-kmp:anime-database"))`
-- The `AnimeDatabaseStore` instance is provided via this module's own androidMain Dagger setup —
-  inject it, don't construct it yourself.
+- The `AnimeDatabaseStore` instance is provided via this module's kotlin-inject bindings, mixed
+  into `core-kmp:di-app`'s `DiAppComponent` on both platforms — inject it, don't construct it
+  yourself.
 
 ## How to use it
 
@@ -192,12 +193,11 @@ find along the way.
 ## Variant B: Store + View + Controller — `feature-kmp/bottom-navigation-bar`
 
 Same MVIKotlin shape, but this module *also* defines `BottomNavigationBarView` (an `MviView`
-contract) and `BottomNavigationBarController` (wires the store to the view). The platform
-module (`main`) implements the view directly —
-`class BottomNavigationBarViewImpl(...) : BottomNavigationBarView` — and constructs the
-controller directly in `MainActivity`, with no `@Provides` in between for either. That's the
-signal this is Variant B, not Variant A: a real consumer reaches for all three types, not just
-the Store.
+contract) and `BottomNavigationBarController` (wires the store to the view). The consumer
+(`main`) implements the view directly — an `object : ComposeMviView<...>(...),
+BottomNavigationBarView` inside `BottomNavigationBarRoute` — and constructs the controller in
+that same composable, with no `@Provides` in between for either. That's the signal this is
+Variant B, not Variant A: a real consumer reaches for all three types, not just the Store.
 
 ### The Store's own KDoc
 
@@ -272,8 +272,8 @@ interface BottomNavigationBarStore : Store<
 ### The resulting README
 
 Three entities this time, and "how to use it" is prose, not a fabricated code block — the real
-wiring already lives in `main`'s `BottomNavigationBarViewImpl`/`MainActivity`, and restating it
-as invented-but-plausible-looking Kotlin risks drifting from what those files actually do:
+wiring already lives in `main`'s `BottomNavigationBarRoute`, and restating it as
+invented-but-plausible-looking Kotlin risks drifting from what that file actually does:
 
 ```markdown
 The app's bottom navigation bar: an MVI store tracking the selected section and the favorites
@@ -284,30 +284,31 @@ badge count.
 - [BottomNavigationBarStore](src/commonMain/kotlin/.../api/domain/store/BottomNavigationBarStore.kt) —
   the store. `State`/`Intent`/`Label` are documented on the type itself.
 - [BottomNavigationBarView](src/commonMain/kotlin/.../api/presentation/BottomNavigationBarView.kt) —
-  the view contract the platform layer implements to render the store's state.
+  the view contract the host implements to render the store's state.
 - [BottomNavigationBarController](src/commonMain/kotlin/.../impl/presentation/BottomNavigationBarController.kt) —
   wires the store to its view and to `AnimeDatabaseStore`.
 
 ## How to include it
 
 - Gradle: `implementation(project(":feature-kmp:bottom-navigation-bar"))`
-- `BottomNavigationBarStore` is provided via `main`'s Dagger setup — inject it, don't construct
-  it yourself. `BottomNavigationBarView` has no DI wiring; the consumer implements it directly
-  (see `main`'s `BottomNavigationBarViewImpl`). `BottomNavigationBarController` has no DI wiring
-  either; construct it directly with the store and lifecycle.
+- `BottomNavigationBarStore`'s binding is provided by this module's commonMain
+  `DiBottomNavigationBarComponent` and mixed into `main`'s `DiRootComponent` — inject it, don't
+  construct it yourself. `BottomNavigationBarView` has no DI wiring; the consumer implements it
+  directly (see `main`'s `BottomNavigationBarRoute`). `BottomNavigationBarController` has no DI
+  wiring either; construct it directly with the store and lifecycle.
 
 ## How to use it
 
-Implement `BottomNavigationBarView` (a `BottomNavigationBarViewImpl`): render `UiModel` in
-`render()`, call `dispatch(Intent)` from the relevant UI callbacks (tab clicks), and handle
-navigation in `handle(Label)`. On the screen hosting the bar, construct
-`BottomNavigationBarController` with the store, `AnimeDatabaseStore`, and the screen's lifecycle,
-then call `controller.onViewCreated(viewImpl, viewLifecycle)`.
+Implement `BottomNavigationBarView`: feed the observed `UiModel` into the bar's composable,
+call `dispatch(Intent)` from its click callbacks, and handle navigation in `handle(Label)`. On
+the screen hosting the bar, construct `BottomNavigationBarController` with the store,
+`AnimeDatabaseStore`, and the screen's lifecycle, then call
+`controller.onViewCreated(viewImpl, viewLifecycle)`.
 ```
 
 Compare this to what an earlier draft of this same README looked like — it included a full
-`BottomNavigationBarViewImpl`/`MainActivity` code sample built from scratch to illustrate the
-pattern. It got cut for two reasons once reviewed: it was long enough to feel like the README
-had grown an essay again, and it wasn't real code — a handwritten approximation of what
-`main`'s actual `BottomNavigationBarViewImpl` does, which is exactly the kind of second source
-of truth this whole skill exists to avoid.
+view-and-host code sample built from scratch to illustrate the pattern. It got cut for two
+reasons once reviewed: it was long enough to feel like the README had grown an essay again, and
+it wasn't real code — a handwritten approximation of what `main`'s actual
+`BottomNavigationBarRoute` does, which is exactly the kind of second source of truth this whole
+skill exists to avoid.
