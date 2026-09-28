@@ -7,10 +7,10 @@ plugins {
     alias(libs.plugins.detekt)
 }
 
-// Hosts both app-wide composition roots: `DiAppComponent` in androidMain is `:app`'s Android root,
-// and its twin in iosMain is the iOS root an iOS host app would create. Same class name, same
-// package, one per platform source set — no `expect`/`actual` needed since each compiles only for
-// its own target.
+// Hosts both app-wide composition roots: `DiAppComponent` in androidMain is `:androidApp`'s Android
+// root, and its twin in iosMain is the iOS root an iOS host app would create. Same class name,
+// same package, one per platform source set — no `expect`/`actual` needed since each compiles
+// only for its own target.
 kotlin {
     android {
         namespace = "com.alekseivinogradov.anoti.di.kmp"

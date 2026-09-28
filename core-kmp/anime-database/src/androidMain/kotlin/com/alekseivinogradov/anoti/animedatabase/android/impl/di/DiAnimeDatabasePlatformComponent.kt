@@ -8,7 +8,8 @@ import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import me.tatarka.inject.annotations.Provides
 
 /**
- * Provides the Android [AnimeDatabase] binding; mixed into `:app`'s `DiAppComponent`.
+ * Provides the Android [AnimeDatabase] binding; mixed into `:androidApp`'s
+ * `DiAppComponent`.
  */
 interface DiAnimeDatabasePlatformComponent {
     @Provides

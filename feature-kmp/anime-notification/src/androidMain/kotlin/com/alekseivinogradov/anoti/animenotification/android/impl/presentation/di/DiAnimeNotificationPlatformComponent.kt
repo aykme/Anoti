@@ -11,9 +11,9 @@ import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import me.tatarka.inject.annotations.Provides
 
 /**
- * Provides the Android [AnimeNotificationManager] binding; mixed into `:app`'s `DiAppComponent`.
- * [AnimeNotificationIntentProvider] is consumed, not provided — the module owning the navigation
- * graph and the target activity (`main`) contributes its implementation.
+ * Provides the Android [AnimeNotificationManager] binding; mixed into `:androidApp`'s
+ * `DiAppComponent`. [AnimeNotificationIntentProvider] is consumed, not provided — the module
+ * owning the navigation graph and the target activity (`main`) contributes its implementation.
  */
 interface DiAnimeNotificationPlatformComponent {
     @Provides

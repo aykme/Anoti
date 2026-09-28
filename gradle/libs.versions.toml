@@ -48,9 +48,9 @@ composeRules = "0.4.22"
 
 # Android library versions
 activity = "1.13.0"
-# Tracks the androidx.compose.ui:ui version that :app's androidTest classpath resolves to, which
-# composeMultiplatform decides. An instrumented test shares the app's process, so ui-test-junit4
-# must load the same UI classes.
+# Tracks the androidx.compose.ui:ui version that :androidApp's androidTest classpath resolves
+# to, which composeMultiplatform decides. An instrumented test shares the app's process, so
+# ui-test-junit4 must load the same UI classes.
 composeUiTest = "1.12.1"
 core = "1.19.1"
 espressoCore = "3.7.0"
