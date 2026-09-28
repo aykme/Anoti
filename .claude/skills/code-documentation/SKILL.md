@@ -31,8 +31,8 @@ Name the file after the module's full Gradle path, not just `README.md`: upperca
 replaced with dashes, `-README.md` on the end. `:core-kmp:celebrity` becomes
 `CORE-KMP-CELEBRITY-README.md`; `:feature-kmp:anime-base` becomes
 `FEATURE-KMP-ANIME-BASE-README.md`. Put it at the module's root, next to `build.gradle.kts`.
-Only KMP modules (`core-kmp/*`, `feature-kmp/*`) get one — see `CLAUDE.md` for the full rule
-and the root `README.md` exception.
+Every Gradle module gets one, `androidApp` included — see `CLAUDE.md` for the full rule and the
+root `README.md` exception.
 
 ## Before you write anything: confirm the entity list
 
@@ -41,7 +41,10 @@ Survey the module's public types **in `commonMain` only**, and apply "What count
 jump straight to writing KDoc or the README. Getting the entity list wrong is the most common
 way this goes sideways: too many entities, an impl class snuck in, a Store's internals listed
 separately, a platform-only type pulled in from `androidMain`/`iosMain`. It's cheap to check up
-front and expensive to unwind after the fact.
+front and expensive to unwind after the fact. The one platform type that does belong in the
+table is an entry point or a composition root — see "Platform entry points and composition
+roots" below. A module that is not multiplatform, such as `androidApp`, has one source set,
+`src/main`. Survey that one instead.
 
 | Entity             | File                                 | Proposed one-liner                        | Notes                                 |
 |--------------------|--------------------------------------|-------------------------------------------|---------------------------------------|
@@ -120,7 +123,7 @@ Don't default to a code block. Decide based on what kind of entry point the modu
 
   or, with a View/Controller:
 
-  > Implement `XView` (an `XViewImpl`): render `UiModel` in `render()` and call
+  > Implement `XView`: render `UiModel` in `render()` and call
   > `dispatch(Intent)` from the relevant UI callbacks. On the screen hosting it, construct
   > `XController` with the store(s) and the screen's lifecycle, then call
   > `controller.onViewCreated(viewImpl, viewLifecycle)`.
@@ -191,11 +194,19 @@ this shows up in most often, and its refinement for when a Store *isn't* alone.
   `jvmMain`, and similar), including `actual` declarations. The README indexes the module's
   `commonMain` contract; platform code has no line of its own, even if it's public. This
   includes the "How to use it" example — see "Marking a platform-specific example" above for
-  the one exception (a `commonMain` entity whose *only current usage example* happens to come
-  from one platform).
+  one exception (a `commonMain` entity whose *only current usage example* happens to come
+  from one platform). The other exception is a platform entry point or a composition root,
+  described below.
 
 If you're unsure whether something crosses the line, read `references/before-after.md` — a
 real before/after of the same README, with the specific things that got cut and why.
+
+### Platform entry points and composition roots
+
+A module that holds a platform's app entry point, or the root of its dependency graph, gives
+each one README line labeled with the platform. `MainActivity` in `main` and the two
+`DiAppComponent`s in `core-kmp:di-app` are the cases. Nothing else from a platform source set
+gets a line.
 
 ## Store-shaped modules (MVI, or similar single-orchestrator patterns)
 
@@ -217,18 +228,18 @@ Store genuinely is the only major entity — `core-kmp:anime-database` is the re
 (see `references/store-pattern.md`).
 
 **Variant B — Store + View + Controller.** The module *also* defines a `View` interface (an
-`MviView`-shaped contract) and/or a `Controller` class, and the platform/consumer layer
-directly implements the `View` (`class SomeScreenViewImpl(...) : SomeScreenView`) and directly
-constructs the `Controller` (`SomeScreenController(lifecycle, store, ...)` called straight in a
-`Fragment`/`Activity`, not resolved through `@Provides`). In this variant, the Store, the View,
+`MviView`-shaped contract) and/or a `Controller` class, and the consumer directly implements
+the `View` (`object : ComposeMviView<...>(...), SomeScreenView`) and directly constructs the
+`Controller` (`SomeScreenController(lifecycle, store, ...)` called straight in a route
+composable, not resolved through `@Provides`). In this variant, the Store, the View,
 and the Controller are **all three major entities** — a real consumer reaches for all three,
 not just the Store. This project's `bottom-navigation-bar`, `anime-favorites`, and `anime-list`
 modules are all Variant B.
 
 To tell which one you're in: grep the platform module(s) that consume this one for the
 `View`'s and `Controller`'s names. If you find a `@Provides fun provide...(): XView`, DI hides
-it, and it doesn't count on its own — but if you instead find a plain `class XViewImpl(...) :
-XView` and/or `XController(...)` being constructed directly, that's the signal for Variant B.
+it, and it doesn't count on its own — but if you instead find a plain `object : ..., XView`
+and/or `XController(...)` being constructed directly, that's the signal for Variant B.
 
 For **Variant A**, follow the original shape:
 
@@ -395,11 +406,9 @@ The root `ANOTI-FULL-REGRESS.md` is the index a full-app regression is run from.
 steps itself — only links to every module's regression file. Keeping it in step is part of
 creating or deleting one of those files, not a follow-up:
 
-- a new regression file — add a link to it in `ANOTI-FULL-REGRESS.md`, under the section for
-  its kind of module, and take the module out of the "no regression file yet" list if it is
-  named there;
-- a deleted regression file — remove its link, and add the module to the "no regression file
-  yet" list if it still exists and simply has no file any more;
+- a new regression file — add a link to it in `ANOTI-FULL-REGRESS.md`, under the group it
+  belongs to: the Android app, or the shared modules by their kind;
+- a deleted regression file — remove its link;
 - a renamed or moved file — update the link, since a dead link in the index reads as a module
   that was checked when it was not.
 
@@ -427,13 +436,14 @@ it believes the module is covered.
 ## After writing: check for siblings you might have missed
 
 When you finish documenting the module(s) the current task actually touched, take one more
-look at their sibling KMP modules (same `core-kmp/`/`feature-kmp/` parent, modules worked on
+look at their sibling modules (same `core-kmp/`/`feature-kmp/` parent, modules worked on
 around the same time). Module work often happens in batches, and it's easy for the last one or
-two in a batch to slip through without a README. A quick pass —
-`ls core-kmp/*/*-README.md feature-kmp/*/*-README.md` and diff against the actual module list
-— catches this cheaply. Don't silently create the missing ones, though: surface what's missing
-and let the user decide whether to include them in the current task or handle them separately,
-same as any other scope decision.
+two in a batch to slip through without a README or a regression file. A quick pass catches
+this cheaply: `ls androidApp/*-README.md main/*-README.md core-kmp/*/*-README.md
+feature-kmp/*/*-README.md` for the READMEs, and the same four patterns ending `-REGRESS.md` for
+the regression files. Diff each list against the actual modules. Don't silently
+create the missing ones, though: surface what's missing and let the user decide whether to
+include them in the current task or handle them separately, same as any other scope decision.
 
 ## Reference examples
 

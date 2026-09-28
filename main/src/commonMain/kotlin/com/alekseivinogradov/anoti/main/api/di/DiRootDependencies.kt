@@ -15,13 +15,30 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
  * component implements it, so neither side has to know the other's concrete type.
  */
 interface DiRootDependencies {
+    /** The MVIKotlin factory every store is created through. */
     val storeFactory: StoreFactory
+
+    /** The coroutine contexts and dispatchers the app's work runs on. */
     val coroutineContextProvider: CoroutineContextProvider
+
+    /** The callbacks that show an error message to the user. */
     val systemMessageProvider: SystemMessageProvider
+
+    /** The stream of system messages the on-screen host shows. */
     val systemMessageController: SystemMessageController
+
+    /** Formats date strings for display. */
     val dateFormatter: DateFormatter
+
+    /** The store over the saved anime. Every read hands out a new one. */
     val animeDatabaseStore: AnimeDatabaseStore
+
+    /** The Shikimori endpoints for the anime list and an anime's details. */
     val shikimoriApiService: ShikimoriApiService
+
+    /** Runs a network call with retries and returns its outcome as a `CallResult`. */
     val safeApi: SafeApi
+
+    /** Triggers a one-off background update of every saved anime. */
     val updateAllAnimeInBackgroundOnceUsecase: UpdateAllAnimeInBackgroundOnceUsecase
 }

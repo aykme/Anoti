@@ -2,6 +2,13 @@
 
 Read this before doing any task in this repository.
 
+The rules that belong to one platform live in two files next to this one. Both are part of
+these rules and load together with them.
+
+@CLAUDE-ANDROID.md
+
+@CLAUDE-IOS.md
+
 ## Language
 
 - Everything written into the project itself must be in English: code comments, KDoc,
@@ -167,34 +174,11 @@ Read this before doing any task in this repository.
   them together. `newEpisodeNotificationText` in `feature-kmp:anime-notification` is that shape.
 - A module that is not multiplatform keeps its host tests in `src/test/kotlin`, and its
   instrumented tests in `src/androidTest/kotlin`. Never a `java` directory, in any source set.
-- Composables get tests too, but not from `commonTest`: `runComposeUiTest` compiles there and then
-  fails at runtime on the Android host test. They belong in `androidHostTest`, driven by
-  Robolectric and `androidx.compose.ui.test.junit4.v2.createComposeRule` — the non-`v2` rule is
-  deprecated, and v2 defaults to `StandardTestDispatcher`, so coroutines need the scheduler
-  advanced. The module needs `robolectric` and `compose-ui-test-junit4` in that source set, both
-  already in the version catalog, plus
-  `withHostTestBuilder {}.configure { isIncludeAndroidResources = true }` — without the merged
-  resources the rendered screens find neither their theme nor their Compose resources. Add
-  `compose-ui-test-manifest` only where the rule has to launch its own host activity; a test that
-  launches the module's own activity does not need it.
-- No test ever boots the real app. A host test stays on the JVM with Robolectric standing in for
-  the framework, and never uses the app's own `Application` — it supplies a stub of its own. The
-  one exception is the `androidApp` module, where that `Application` is the subject. Robolectric
-  creates it there and the test drives it directly, with every background service it reaches
-  still faked.
+- Composable tests, the app's own `Application`, instrumented tests and the SDK level
+  Robolectric emulates have rules of their own. See "Tests on Android" in `CLAUDE-ANDROID.md`.
 - The code under test is the real thing, wiring included; what it reaches for is where the fakes
   start. A test may build a real DI component, as long as everything handed to that component is
   a handwritten fake: no real database, no network, no background work.
-- An instrumented test on a device is the furthest a test may go, and only where a host test
-  genuinely cannot reach. It is never the first tool reached for.
-- The SDK Robolectric emulates is set for the whole project, from `robolectricSdk` in the version
-  catalog: the root build writes it into a `robolectric.properties` on each module's host-test
-  classpath. Don't put `@Config(sdk = ...)` on a test — it belongs there only when that one class
-  genuinely needs a different level, and then it says why. Name the level through the generated
-  `MIN_SDK` where that is the one it needs; the root build writes that constant from the catalog
-  too, since an annotation cannot read one. Left to itself Robolectric targets
-  `compileSdk` and dies inside `ApplicationSharedMemory.create`, which it cannot emulate; the
-  message it prints blames the JRE rather than the SDK level.
 - Drive time and concurrency through the test infrastructure rather than the real thing: `runTest`
   and its virtual clock, `advanceTimeBy`/`advanceUntilIdle`, and `UnconfinedTestDispatcher` or
   `StandardTestDispatcher` installed via `Dispatchers.setMain` — all already established across
@@ -260,17 +244,9 @@ Read this before doing any task in this repository.
 - Run every test in each affected module, not only the ones this task wrote, and confirm they are
   all green. Then take the "Tests" section above rule by rule against what the module now holds,
   and fix whatever doesn't conform.
-- The instrumented tests are part of that, on every task and not only on one that touched the UI.
-  They need a device, so `./gradlew allTests :androidApp:testDebugUnitTest` never reaches them —
-  `./gradlew :androidApp:connectedDebugAndroidTest` is what runs them. They drive the app against
-  the live backend, so the emulator needs a connection. Report their result with the rest.
-  The one exception is a task that changes no logic, described further down.
-- Every check that needs the app running belongs on an emulator. A physical device attached for
-  development is the developer's own and is not a test bench. An emulator also allows what a
-  phone refuses — `adb root`, forcing an orientation, and picking the API level a branch needs.
-- When running UI (instrumented/`androidTest`) tests, always do a clean installation of the app
-  first — uninstall it from the emulator before installing and running, so a stale build
-  doesn't mask a failure or fake a pass.
+- On Android the instrumented tests are part of that run, and every check that needs the app
+  running belongs on an emulator. See "Instrumented tests and the emulator" in
+  `CLAUDE-ANDROID.md`.
 - For any test that's new or was fixed, confirm it doesn't flake, doesn't rely on real time
   (highly undesirable — acceptable only in exceptional cases agreed with the developer), and
   never makes real API calls (this is forbidden).
@@ -280,15 +256,16 @@ Read this before doing any task in this repository.
 - Then run `./gradlew koverVerify` and get it green, before the code review below. Nothing else
   in the build runs it, and it is the gate the whole project is held to — see "Test coverage"
   above. A red one is not reported as a finding, it is fixed.
-- Check the change still works once R8 has had it — see "R8 and the minified build" below.
+- Check the change still works once R8 has had it — see "R8 and the minified build" in
+  `CLAUDE-ANDROID.md`.
 - A task that changes no logic skips every on-device check: the instrumented tests, the
   minified walk and the manual regression. A rename, a file move, and an edit to comments or
   documentation are such tasks.
-- Such a task proves itself another way. Build the minified variant before the change and
-  after it, then compare `mapping.txt` and the APK size. They must match, apart from the
-  renamed names and shifted source line numbers.
-- Any other difference means the change was not as harmless as it looked. Run the on-device
-  checks in full then.
+- Such a task proves itself another way: a build made before the change is compared with one
+  made after it. What is compared on Android, and what may differ, is in "Proving a task that
+  changes no logic" in `CLAUDE-ANDROID.md`.
+- A difference beyond what that section allows means the change was not as harmless as it
+  looked. Run the on-device checks in full then.
 - Review the Gradle files of every affected module. Look for dependencies nothing uses anymore,
   ones declared in the wrong configuration, and anything that could be expressed more simply.
 - Finish with a maximally thorough code review of the change. This one is mandatory. Dispatch
@@ -340,37 +317,6 @@ Read this before doing any task in this repository.
 - Compose annotations stay out of domain types. A `@Stable` interface in `api/domain` leaks the
   UI layer into it. Leave it alone and note the report entry instead.
 
-## R8 and the minified build
-
-- `release` is shrunk and obfuscated: `isMinifyEnabled` and `isShrinkResources` are both on for
-  it, over `proguard-android-optimize.txt` plus `androidApp/proguard-rules.pro`.
-- It carries no signing config, so what actually goes on a device is `minified` — `initWith`
-  release plus the debug key, and identical to it in everything R8 does. Build it with
-  `./gradlew :androidApp:assembleMinified`; the two variants' `mapping.txt` files match byte for
-  byte.
-- `isDebuggable` must stay off on both. AGP runs R8 in debug mode for a debuggable variant, which
-  silently skips obfuscation — the part of R8 most likely to break something. Measured on the
-  same variant: debuggable gave 0 renames and 18 170 429 bytes, non-debuggable 698 renames and
-  9 664 344 bytes.
-- Run this whenever the change touches anything reached by name: reflection, `Class.forName`,
-  kotlinx.serialization, Room entities and DAOs, WorkManager workers, or a class the manifest
-  names. A change that touches none of those does not need the pass.
-- Look for a library's own rules before writing any. An AAR carries `proguard.txt` or
-  `consumer-rules.pro` inside it, and AGP merges those automatically. Everything actually
-  applied, and where it came from, is listed in
-  `androidApp/build/outputs/mapping/minified/configuration.txt`. Only add a rule to
-  `androidApp/proguard-rules.pro` once that file shows nobody supplied it.
-- Read the other artifacts next to it. `missing_rules.txt` appears only when something needed a
-  keep rule. `seeds.txt` lists what was kept and why. `usage.txt` lists what was stripped.
-  `mapping.txt` shows what was renamed — check there that the names that must survive did.
-- A successful build proves nothing on its own. Install the minified APK on an emulator, clean,
-  and walk the flows the change touches. Confirm they really ran, that the log holds no
-  `ClassNotFoundException` or `NoSuchMethodException`, and that no screen fell back to an empty
-  or error state the unminified build doesn't show.
-- `androidApp/proguard-rules.pro` keeps `SourceFile` and `LineNumberTable` and renames the source
-  file to a constant, so an obfuscated stack trace stays decodable through `mapping.txt` with
-  retrace while leaking nothing.
-
 ## Module READMEs
 
 - Whenever a module is created or changed, create (if missing) or update its README to
@@ -379,8 +325,7 @@ Read this before doing any task in this repository.
 - Call the `code-documentation` skill (`.claude/skills/code-documentation/`) once a module's
   changes are otherwise finished — documenting it is part of finishing the task, not a
   separate follow-up to do later.
-- READMEs are only for KMP modules (`core-kmp/*`, `feature-kmp/*`). Non-KMP modules
-  (app-level modules such as `androidApp`/`main`, etc.) don't get one.
+- Every Gradle module gets a README: `androidApp`, `main`, `core-kmp/*` and `feature-kmp/*`.
 - File name: the module's full Gradle path, uppercase, colons replaced with dashes, suffixed
   `-README.md` (e.g. `:core-kmp:celebrity` → `CORE-KMP-CELEBRITY-README.md`), placed at the
   module's root.

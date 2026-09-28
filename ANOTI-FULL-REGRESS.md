@@ -16,7 +16,10 @@ Nothing is done a second time just because a second file asks for it too.
 To regress a single module instead, go straight to that module's own file; this index is for
 the whole app.
 
-## The build to run on
+A full regression is run for one platform at a time. A run on Android works through the
+Android app and the shared modules.
+
+## The build to run on, on Android
 
 Run a regression on a build that has been shrunk and obfuscated, the way the released one is.
 `./gradlew :androidApp:assembleMinified` produces one that also installs. The release build
@@ -27,17 +30,23 @@ once the app is running. A check on a build that skipped it proves nothing about
 
 ## Platforms
 
-Every file below describes what the app does, not what one platform does. Where a step goes
-through a system screen, it names Android's. A file whose behavior differs on iOS says so in a
-Platforms section of its own. A check only one platform can reach names that platform and says
-why. Running any of this on iOS needs an iOS build of the app to install first.
+Every file under "Shared modules" describes what the app does, not what one platform does. The
+file under "Android app" covers what only the Android shell does. Where a step goes through a
+system screen, it names Android's. A file whose behavior differs on iOS says so in a Platforms
+section of its own. A check only one platform can reach names that platform and says why.
+Running any of this on iOS needs an iOS build of the app to install first.
 
-## App modules
+## Android app
 
 - [androidApp](androidApp/ANDROIDAPP-REGRESS.md)
+
+## Shared modules
+
+### Entry module
+
 - [main](main/MAIN-REGRESS.md)
 
-## Core modules
+### Core modules
 
 - [core-kmp:anime-database](core-kmp/anime-database/CORE-KMP-ANIME-DATABASE-REGRESS.md)
 - [core-kmp:celebrity](core-kmp/celebrity/CORE-KMP-CELEBRITY-REGRESS.md)
@@ -47,7 +56,7 @@ why. Running any of this on iOS needs an iOS build of the app to install first.
 - [core-kmp:network](core-kmp/network/CORE-KMP-NETWORK-REGRESS.md)
 - [core-kmp:test-utils](core-kmp/test-utils/CORE-KMP-TEST-UTILS-REGRESS.md)
 
-## Feature modules
+### Feature modules
 
 - [feature-kmp:anime-background-update](feature-kmp/anime-background-update/FEATURE-KMP-ANIME-BACKGROUND-UPDATE-REGRESS.md)
 - [feature-kmp:anime-base](feature-kmp/anime-base/FEATURE-KMP-ANIME-BASE-REGRESS.md)
@@ -57,4 +66,3 @@ why. Running any of this on iOS needs an iOS build of the app to install first.
 - [feature-kmp:anime-notification-external](feature-kmp/anime-notification-external/FEATURE-KMP-ANIME-NOTIFICATION-EXTERNAL-REGRESS.md)
 - [feature-kmp:bottom-navigation-bar](feature-kmp/bottom-navigation-bar/FEATURE-KMP-BOTTOM-NAVIGATION-BAR-REGRESS.md)
 - [feature-kmp:notifications-rationale-dialog](feature-kmp/notifications-rationale-dialog/FEATURE-KMP-NOTIFICATIONS-RATIONALE-DIALOG-REGRESS.md)
-

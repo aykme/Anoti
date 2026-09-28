@@ -39,6 +39,10 @@ import com.arkivanov.essenty.lifecycle.asEssentyLifecycle
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import kotlinx.serialization.json.Json
 
+/**
+ * The Android entry point. Builds the root navigation, shows the root content, and asks for the
+ * notification permission. Opens on the screen a tapped notification names.
+ */
 class MainActivity : ComponentActivity() {
 
     private lateinit var diRootComponent: DiRootComponent

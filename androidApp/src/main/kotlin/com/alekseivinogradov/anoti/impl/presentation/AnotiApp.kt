@@ -12,6 +12,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/**
+ * The Android `Application`. Builds the app-wide dependency graph and hands every screen host a
+ * new root graph. Supplies WorkManager's configuration and schedules the background updates.
+ */
 class AnotiApp : Application(), DiRootComponentHolder, Configuration.Provider {
 
     private lateinit var diAppComponent: DiAppComponent

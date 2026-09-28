@@ -87,6 +87,45 @@ fun Project.registerTestSdkVersions(oldestSupportedSdk: String): TaskProvider<Ta
     }
 }
 
+/** Writes the version settings the iOS app is built with, from the version catalog. */
+abstract class GenerateIosVersionXcconfig : DefaultTask() {
+
+    @get:Input
+    abstract val marketingVersion: Property<String>
+
+    @get:Input
+    abstract val projectVersion: Property<String>
+
+    @get:Input
+    abstract val deploymentTarget: Property<String>
+
+    @get:OutputFile
+    abstract val outputFile: RegularFileProperty
+
+    @TaskAction
+    fun generate() {
+        val lines = listOf(
+            "// Generated from gradle/libs.versions.toml. Do not edit.",
+            "MARKETING_VERSION = ${marketingVersion.get()}",
+            "CURRENT_PROJECT_VERSION = ${projectVersion.get()}",
+            "IPHONEOS_DEPLOYMENT_TARGET = ${deploymentTarget.get()}"
+        )
+        // Joined by hand so the file holds LF on every machine.
+        outputFile.get().asFile.writeText(lines.joinToString(separator = "\n", postfix = "\n"))
+    }
+}
+
+// Committed rather than ignored, so the iOS project opens on a fresh clone with its versions in
+// place. The Android build runs this task, which makes a version change show up in git at once.
+tasks.register<GenerateIosVersionXcconfig>("generateIosVersionXcconfig") {
+    description = "Writes the iOS version settings from the version catalog."
+    group = "build"
+    marketingVersion.set(libs.versions.versionName)
+    projectVersion.set(libs.versions.versionCode)
+    deploymentTarget.set(libs.versions.iosDeploymentTarget)
+    outputFile.set(layout.projectDirectory.file("iosApp/Configuration/Version.xcconfig"))
+}
+
 subprojects {
     plugins.withId("io.gitlab.arturbosch.detekt") {
         val detektExtension = extensions.getByType<DetektExtension>()
