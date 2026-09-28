@@ -7,7 +7,7 @@ on `core-kmp:di-scope` in turn. It also depends on `:main` for `DiRootDependenci
 `DiAppComponent` implements.
 
 - [`DiAppComponent` (Android)](src/androidMain/kotlin/com/alekseivinogradov/anoti/di/kmp/DiAppComponent.kt)
-  — `:app`'s root, created once in `AnotiApp.onCreate`.
+  — `:androidApp`'s root, created once in `AnotiApp.onCreate`.
 - [`DiAppComponent` (iOS)](src/iosMain/kotlin/com/alekseivinogradov/anoti/di/kmp/DiAppComponent.kt)
   — the iOS mirror, an iOS host app would create it the same way. Until that host app exists, it
   also serves as the compile-time proof that every iOS binding in the repo actually wires

@@ -131,7 +131,7 @@ class AnimeFavoritesUserFlowTest {
     // runBlocking, not runTest: the retries below need real delays, not virtual time.
     @Test
     fun addOngoingToAnimeFavorites(): Unit = runBlocking {
-        // Given
+        //Given
         val rvPosition = 0
         val expectedScoreImageDescription = getString(base_Res.string.score_image_description)
         val expectedExtraInfoButtonDescription =
@@ -140,14 +140,14 @@ class AnimeFavoritesUserFlowTest {
         val expectedReleaseStatusText = ongoingStatusText()
         val expectedNotificationButtonDescription = notificationButtonTurnOffDescription()
 
-        // When
+        //When
         goToOngoingSection()
         checkNotificationButtonIsTurnedOff(rvPosition)
         clickOnNotificationButtonInAnimeList(rvPosition)
         checkNotificationButtonIsTurnedOn(rvPosition)
         goToAnimeFavorites()
 
-        // Then
+        //Then
         // "New episode" isn't checked: it reflects live backend data, not test-controlled state.
         safeComposeInteraction {
             // useUnmergedTree: hasAnyDescendant can't see Text merged into the clickable root.
@@ -172,10 +172,10 @@ class AnimeFavoritesUserFlowTest {
     // runBlocking, not runTest: the retries below need real delays, not virtual time.
     @Test
     fun removeOngoingFromAnimeFavorites(): Unit = runBlocking {
-        // Given
+        //Given
         val rvPosition = 0
 
-        // When
+        //When
         goToOngoingSection()
         checkNotificationButtonIsTurnedOff(rvPosition)
         clickOnNotificationButtonInAnimeList(rvPosition)
@@ -196,7 +196,7 @@ class AnimeFavoritesUserFlowTest {
 
         clickOnNotificationButtonInAnimeFavorites(rvPosition)
 
-        // Then
+        //Then
         // Removing the only favorite empties the list, which switches the screen to EmptyState.
         val expectedEmptyListText = getString(favorites_Res.string.empty_list)
         // assertIsDisplayed() must be inside the retry lambda: onNodeWithText() alone never

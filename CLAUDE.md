@@ -179,8 +179,9 @@ Read this before doing any task in this repository.
   launches the module's own activity does not need it.
 - No test ever boots the real app. A host test stays on the JVM with Robolectric standing in for
   the framework, and never uses the app's own `Application` — it supplies a stub of its own. The
-  one exception is the `app` module, where that `Application` is the subject. Robolectric creates
-  it there and the test drives it directly, with every background service it reaches still faked.
+  one exception is the `androidApp` module, where that `Application` is the subject. Robolectric
+  creates it there and the test drives it directly, with every background service it reaches
+  still faked.
 - The code under test is the real thing, wiring included; what it reaches for is where the fakes
   start. A test may build a real DI component, as long as everything handed to that component is
   a handwritten fake: no real database, no network, no background work.
@@ -260,9 +261,10 @@ Read this before doing any task in this repository.
   all green. Then take the "Tests" section above rule by rule against what the module now holds,
   and fix whatever doesn't conform.
 - The instrumented tests are part of that, on every task and not only on one that touched the UI.
-  They need a device, so `./gradlew allTests :app:testDebugUnitTest` never reaches them —
-  `./gradlew :app:connectedDebugAndroidTest` is what runs them. They drive the app against the
-  live backend, so the emulator needs a connection. Report their result with the rest.
+  They need a device, so `./gradlew allTests :androidApp:testDebugUnitTest` never reaches them —
+  `./gradlew :androidApp:connectedDebugAndroidTest` is what runs them. They drive the app against
+  the live backend, so the emulator needs a connection. Report their result with the rest.
+  The one exception is a task that changes no logic, described further down.
 - Every check that needs the app running belongs on an emulator. A physical device attached for
   development is the developer's own and is not a test bench. An emulator also allows what a
   phone refuses — `adb root`, forcing an orientation, and picking the API level a branch needs.
@@ -279,6 +281,14 @@ Read this before doing any task in this repository.
   in the build runs it, and it is the gate the whole project is held to — see "Test coverage"
   above. A red one is not reported as a finding, it is fixed.
 - Check the change still works once R8 has had it — see "R8 and the minified build" below.
+- A task that changes no logic skips every on-device check: the instrumented tests, the
+  minified walk and the manual regression. A rename, a file move, and an edit to comments or
+  documentation are such tasks.
+- Such a task proves itself another way. Build the minified variant before the change and
+  after it, then compare `mapping.txt` and the APK size. They must match, apart from the
+  renamed names and shifted source line numbers.
+- Any other difference means the change was not as harmless as it looked. Run the on-device
+  checks in full then.
 - Review the Gradle files of every affected module. Look for dependencies nothing uses anymore,
   ones declared in the wrong configuration, and anything that could be expressed more simply.
 - Finish with a maximally thorough code review of the change. This one is mandatory. Dispatch
@@ -319,7 +329,7 @@ Read this before doing any task in this repository.
   to `*.toml` files, including `gradle/libs.versions.toml` — they're code too, so reformat them
   and check that their formatting matches established conventions the same as any other file.
 - When the commit writes or changes Compose UI, run the Compose compiler reports over it:
-  `./gradlew :app:assembleDebug -PcomposeCompilerReports`. They land in
+  `./gradlew :androidApp:assembleDebug -PcomposeCompilerReports`. They land in
   `<module>/build/compose_compiler/`, and only modules that recompiled get fresh files. Read them
   for the entities being committed, not for the whole project:
     - every `restartable` composable must also be `skippable`;
@@ -333,10 +343,11 @@ Read this before doing any task in this repository.
 ## R8 and the minified build
 
 - `release` is shrunk and obfuscated: `isMinifyEnabled` and `isShrinkResources` are both on for
-  it, over `proguard-android-optimize.txt` plus `app/proguard-rules.pro`.
+  it, over `proguard-android-optimize.txt` plus `androidApp/proguard-rules.pro`.
 - It carries no signing config, so what actually goes on a device is `minified` — `initWith`
   release plus the debug key, and identical to it in everything R8 does. Build it with
-  `./gradlew :app:assembleMinified`; the two variants' `mapping.txt` files match byte for byte.
+  `./gradlew :androidApp:assembleMinified`; the two variants' `mapping.txt` files match byte for
+  byte.
 - `isDebuggable` must stay off on both. AGP runs R8 in debug mode for a debuggable variant, which
   silently skips obfuscation — the part of R8 most likely to break something. Measured on the
   same variant: debuggable gave 0 renames and 18 170 429 bytes, non-debuggable 698 renames and
@@ -347,8 +358,8 @@ Read this before doing any task in this repository.
 - Look for a library's own rules before writing any. An AAR carries `proguard.txt` or
   `consumer-rules.pro` inside it, and AGP merges those automatically. Everything actually
   applied, and where it came from, is listed in
-  `app/build/outputs/mapping/minified/configuration.txt`. Only add a rule to
-  `app/proguard-rules.pro` once that file shows nobody supplied it.
+  `androidApp/build/outputs/mapping/minified/configuration.txt`. Only add a rule to
+  `androidApp/proguard-rules.pro` once that file shows nobody supplied it.
 - Read the other artifacts next to it. `missing_rules.txt` appears only when something needed a
   keep rule. `seeds.txt` lists what was kept and why. `usage.txt` lists what was stripped.
   `mapping.txt` shows what was renamed — check there that the names that must survive did.
@@ -356,9 +367,9 @@ Read this before doing any task in this repository.
   and walk the flows the change touches. Confirm they really ran, that the log holds no
   `ClassNotFoundException` or `NoSuchMethodException`, and that no screen fell back to an empty
   or error state the unminified build doesn't show.
-- `app/proguard-rules.pro` keeps `SourceFile` and `LineNumberTable` and renames the source file
-  to a constant, so an obfuscated stack trace stays decodable through `mapping.txt` with retrace
-  while leaking nothing.
+- `androidApp/proguard-rules.pro` keeps `SourceFile` and `LineNumberTable` and renames the source
+  file to a constant, so an obfuscated stack trace stays decodable through `mapping.txt` with
+  retrace while leaking nothing.
 
 ## Module READMEs
 
@@ -369,7 +380,7 @@ Read this before doing any task in this repository.
   changes are otherwise finished — documenting it is part of finishing the task, not a
   separate follow-up to do later.
 - READMEs are only for KMP modules (`core-kmp/*`, `feature-kmp/*`). Non-KMP modules
-  (app-level modules such as `app`/`main`, etc.) don't get one.
+  (app-level modules such as `androidApp`/`main`, etc.) don't get one.
 - File name: the module's full Gradle path, uppercase, colons replaced with dashes, suffixed
   `-README.md` (e.g. `:core-kmp:celebrity` → `CORE-KMP-CELEBRITY-README.md`), placed at the
   module's root.

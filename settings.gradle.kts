@@ -22,7 +22,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Anoti"
-include(":app")
+include(":androidApp")
 include(":main")
 include(":core-kmp:celebrity")
 include(":core-kmp:anime-database")

@@ -6,7 +6,7 @@ Everything a screen shows is checked in its own module's file.
 
 Unless a step says otherwise, start from a clean installation with the app never opened before,
 on a device that is online. The build has to be shrunk and obfuscated, the way the released one
-is. `./gradlew :app:assembleMinified` produces one that also installs.
+is. `./gradlew :androidApp:assembleMinified` produces one that also installs.
 
 ## The app in the launcher
 

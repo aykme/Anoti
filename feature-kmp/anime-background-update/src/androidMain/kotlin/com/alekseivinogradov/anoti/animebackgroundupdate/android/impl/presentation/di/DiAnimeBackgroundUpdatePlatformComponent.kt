@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Provides the Android [AnimeUpdateManager], the app's [WorkManager] handle and its work
  * requests, and the WorkManager-backed [AnimeBackgroundScheduler]/
- * [UpdateAllAnimeInBackgroundOnceUsecase] bindings; mixed into `:app`'s `DiAppComponent`.
+ * [UpdateAllAnimeInBackgroundOnceUsecase] bindings; mixed into `:androidApp`'s `DiAppComponent`.
  */
 interface DiAnimeBackgroundUpdatePlatformComponent {
     @Provides
