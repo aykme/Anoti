@@ -17,6 +17,14 @@ minSdk = "29"
 targetSdk = "37"
 
 # iOS app versions
+#noinspection UnusedVersionCatalogEntry
+iosDeploymentTarget = "16.0"
+# The Xcode the iOS app is built with. Kotlin 2.4.20 is documented against this release.
+#noinspection UnusedVersionCatalogEntry
+xcode = "26.4"
+# Generates the Xcode project from iosApp/project.yml.
+#noinspection UnusedVersionCatalogEntry
+xcodeGen = "2.46.0"
 
 # KMP library versions
 coil = "3.6.3"
@@ -36,7 +44,7 @@ mviKotlin = "4.4.0"
 room = "2.8.5"
 sqlite = "2.7.1"
 
-# Non maxed supressed KMP library versions
+# Non maxed suppressed KMP library versions
 
 # Material 3 has no stable release on the Compose Multiplatform line above 1.9.0. Everything
 # published since is an alpha, currently up to 1.13.0-alpha01.
@@ -63,7 +71,7 @@ robolectricSdk = "35"
 rules = "1.7.0"
 workRuntimeKtx = "2.12.0"
 
-# Non maxed supressed Android library versions
+# Non maxed suppressed Android library versions
 
 # The AGP minor sets the oldest Android Studio that can open the project, so it is not maxed.
 # It is chosen in three steps:
@@ -81,7 +89,7 @@ agp = "9.1.1"
 
 # iOS library versions
 
-# Non maxed supressed iOS library versions
+# Non maxed suppressed iOS library versions
 
 [libraries]
 # KMP libraries
