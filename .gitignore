@@ -12,7 +12,7 @@ bin/
 gen/
 out/
 # App Release Files
-app/release/*
+androidApp/release/*
 #  Uncomment the following line in case you need and you don't have the release build type files in your app
 # release/
 # Gradle files
@@ -71,7 +71,7 @@ lint/reports/
 # MacOS
 .DS_Store
 # App Specific cases
-app/release/output.json
+androidApp/release/output.json
 # Local git worktrees
 .worktrees/
 # Agent planning docs (local reference only, not tracked)

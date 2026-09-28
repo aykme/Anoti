@@ -19,8 +19,8 @@ the whole app.
 ## The build to run on
 
 Run a regression on a build that has been shrunk and obfuscated, the way the released one is.
-`./gradlew :app:assembleMinified` produces one that also installs. The release build carries no
-signing config of its own, so it cannot go on a device.
+`./gradlew :androidApp:assembleMinified` produces one that also installs. The release build
+carries no signing config of its own, so it cannot go on a device.
 
 Shrinking removes and renames code. It is the step that can break something which only shows
 once the app is running. A check on a build that skipped it proves nothing about what ships.
@@ -34,7 +34,7 @@ why. Running any of this on iOS needs an iOS build of the app to install first.
 
 ## App modules
 
-- [app](app/APP-REGRESS.md)
+- [androidApp](androidApp/ANDROIDAPP-REGRESS.md)
 - [main](main/MAIN-REGRESS.md)
 
 ## Core modules
