@@ -1,7 +1,13 @@
 [versions]
-#Android app versions — all used via libs.versions.<name>.get() in build.gradle.kts,
-#Studio's unused-entry inspection just doesn't recognize that accessor pattern
-#noinspection GradleDependency,UnusedVersionCatalogEntry
+# KMP app versions — all used via libs.versions.<name>.get() in build.gradle.kts,
+# Studio's unused-entry inspection just doesn't recognize that accessor pattern
+#noinspection UnusedVersionCatalogEntry
+versionCode = "9"
+#noinspection UnusedVersionCatalogEntry
+versionName = "1.09"
+
+# Android app versions
+#noinspection UnusedVersionCatalogEntry
 compileSdk = "37"
 #noinspection UnusedVersionCatalogEntry
 jvmTarget = "17"
@@ -9,14 +15,10 @@ jvmTarget = "17"
 minSdk = "29"
 #noinspection EditedTargetSdkVersion,UnusedVersionCatalogEntry
 targetSdk = "37"
-#noinspection UnusedVersionCatalogEntry
-versionCode = "9"
-#noinspection UnusedVersionCatalogEntry
-versionName = "1.09"
 
-#iOS app versions
+# iOS app versions
 
-#KMP library versions
+# KMP library versions
 coil = "3.6.3"
 composeMultiplatform = "1.12.1"
 coroutines = "1.11.0"
@@ -34,7 +36,7 @@ mviKotlin = "4.4.0"
 room = "2.8.5"
 sqlite = "2.7.1"
 
-#Non maxed supressed KMP library versions
+# Non maxed supressed KMP library versions
 
 # Material 3 has no stable release on the Compose Multiplatform line above 1.9.0. Everything
 # published since is an alpha, currently up to 1.13.0-alpha01.
@@ -44,7 +46,7 @@ composeMaterial3 = "1.9.0"
 #noinspection NewerVersionAvailable
 composeRules = "0.4.22"
 
-#Android library versions
+# Android library versions
 activity = "1.13.0"
 # Tracks the androidx.compose.ui:ui version that :app's androidTest classpath resolves to, which
 # composeMultiplatform decides. An instrumented test shares the app's process, so ui-test-junit4
@@ -54,14 +56,14 @@ core = "1.19.1"
 espressoCore = "3.7.0"
 playServicesAppset = "16.1.0"
 robolectric = "4.17"
-#The SDK Robolectric emulates. It sits below compileSdk on purpose.
-#Past 35 it dies inside ApplicationSharedMemory.create, which it cannot emulate.
+# The SDK Robolectric emulates. It sits below compileSdk on purpose.
+# Past 35 it dies inside ApplicationSharedMemory.create, which it cannot emulate.
 #noinspection UnusedVersionCatalogEntry
 robolectricSdk = "35"
 rules = "1.7.0"
 workRuntimeKtx = "2.12.0"
 
-#Non maxed supressed Android library versions
+# Non maxed supressed Android library versions
 
 # The AGP minor sets the oldest Android Studio that can open the project, so it is not maxed.
 # It is chosen in three steps:
@@ -77,12 +79,12 @@ workRuntimeKtx = "2.12.0"
 #noinspection AndroidGradlePluginVersion,NewerVersionAvailable
 agp = "9.1.1"
 
-#iOS library versions
+# iOS library versions
 
-#Non maxed supressed iOS library versions
+# Non maxed supressed iOS library versions
 
 [libraries]
-#KMP libraries
+# KMP libraries
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
@@ -119,7 +121,7 @@ mvikotlin = { group = "com.arkivanov.mvikotlin", name = "mvikotlin", version.ref
 mvikotlin-extensions-coroutines = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-extensions-coroutines", version.ref = "mviKotlin" }
 mvikotlin-main = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-main", version.ref = "mviKotlin" }
 
-#Android libraries
+# Android libraries
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity" }
 androidx-core = { group = "androidx.core", name = "core", version.ref = "core" }
@@ -129,18 +131,18 @@ androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "
 androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "workRuntimeKtx" }
 compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "composeUiTest" }
 compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "composeUiTest" }
-#Wires kotlin-test's assertions to JUnit 4 and brings JUnit in. A module without the Kotlin
-#Gradle plugin gets neither from plain kotlin-test.
+# Wires kotlin-test's assertions to JUnit 4 and brings JUnit in. A module without the Kotlin
+# Gradle plugin gets neither from plain kotlin-test.
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 play-services-appset = { module = "com.google.android.gms:play-services-appset", version.ref = "playServicesAppset" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 
-#iOS libraries
+# iOS libraries
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 
 [plugins]
-#KMP plugins
+# KMP plugins
 androidx-room = { id = "androidx.room", version.ref = "room" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
@@ -150,8 +152,8 @@ kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", versio
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
-#Android plugins
+# Android plugins
 android-application = { id = "com.android.application", version.ref = "agp" }
 androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 
-#iOS plugins
+# iOS plugins
