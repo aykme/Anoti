@@ -264,6 +264,7 @@ Read this before doing any task in this repository.
   They need a device, so `./gradlew allTests :androidApp:testDebugUnitTest` never reaches them —
   `./gradlew :androidApp:connectedDebugAndroidTest` is what runs them. They drive the app against
   the live backend, so the emulator needs a connection. Report their result with the rest.
+  The one exception is a task that changes no logic, described further down.
 - Every check that needs the app running belongs on an emulator. A physical device attached for
   development is the developer's own and is not a test bench. An emulator also allows what a
   phone refuses — `adb root`, forcing an orientation, and picking the API level a branch needs.
@@ -280,6 +281,14 @@ Read this before doing any task in this repository.
   in the build runs it, and it is the gate the whole project is held to — see "Test coverage"
   above. A red one is not reported as a finding, it is fixed.
 - Check the change still works once R8 has had it — see "R8 and the minified build" below.
+- A task that changes no logic skips every on-device check: the instrumented tests, the
+  minified walk and the manual regression. A rename, a file move, and an edit to comments or
+  documentation are such tasks.
+- Such a task proves itself another way. Build the minified variant before the change and
+  after it, then compare `mapping.txt` and the APK size. They must match, apart from the
+  renamed names and shifted source line numbers.
+- Any other difference means the change was not as harmless as it looked. Run the on-device
+  checks in full then.
 - Review the Gradle files of every affected module. Look for dependencies nothing uses anymore,
   ones declared in the wrong configuration, and anything that could be expressed more simply.
 - Finish with a maximally thorough code review of the change. This one is mandatory. Dispatch
