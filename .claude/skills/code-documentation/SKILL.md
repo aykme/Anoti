@@ -202,10 +202,10 @@ real before/after of the same README, with the specific things that got cut and 
 
 ### Platform entry points and composition roots
 
-A module that holds the place a platform starts the app from, or the root of a platform's
-dependency graph, gives each of them one README line, labeled with its platform. `MainActivity`
-in `main` and the two `DiAppComponent`s in `core-kmp:di-app` are the cases. Nothing else from
-a platform source set gets a line.
+A module that holds a platform's app entry point, or the root of its dependency graph, gives
+each one README line labeled with the platform. `MainActivity` in `main` and the two
+`DiAppComponent`s in `core-kmp:di-app` are the cases. Nothing else from a platform source set
+gets a line.
 
 ## Store-shaped modules (MVI, or similar single-orchestrator patterns)
 
@@ -437,10 +437,10 @@ it believes the module is covered.
 When you finish documenting the module(s) the current task actually touched, take one more
 look at their sibling KMP modules (same `core-kmp/`/`feature-kmp/` parent, modules worked on
 around the same time). Module work often happens in batches, and it's easy for the last one or
-two in a batch to slip through without a README or a regression file. A quick pass —
-`ls main/*-README.md core-kmp/*/*-README.md feature-kmp/*/*-README.md` for the READMEs, the
-same three patterns ending `-REGRESS.md` plus `androidApp/*-REGRESS.md` for the regression
-files, each diffed against the actual module list — catches this cheaply. Don't silently
+two in a batch to slip through without a README or a regression file. A quick pass catches
+this cheaply: `ls main/*-README.md core-kmp/*/*-README.md feature-kmp/*/*-README.md` for
+the READMEs, the same three patterns ending `-REGRESS.md` plus `androidApp/*-REGRESS.md` for
+the regression files. Diff each list against the actual modules. Don't silently
 create the missing ones, though: surface what's missing and let the user decide whether to
 include them in the current task or handle them separately, same as any other scope decision.
 

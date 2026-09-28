@@ -264,8 +264,8 @@ these rules and load together with them.
 - Such a task proves itself another way: a build made before the change is compared with one
   made after it. What is compared on Android, and what may differ, is in "Proving a task that
   changes no logic" in `CLAUDE-ANDROID.md`.
-- Any other difference means the change was not as harmless as it looked. Run the on-device
-  checks in full then.
+- A difference beyond what that section allows means the change was not as harmless as it
+  looked. Run the on-device checks in full then.
 - Review the Gradle files of every affected module. Look for dependencies nothing uses anymore,
   ones declared in the wrong configuration, and anything that could be expressed more simply.
 - Finish with a maximally thorough code review of the change. This one is mandatory. Dispatch

@@ -55,6 +55,8 @@ The finishing checks below apply to every task, not only to one that touched And
   entries of the two APKs. `unzip -v` lists every entry with its checksum.
 - `mapping.txt` must match, apart from the renamed names and shifted source line numbers.
 - Every APK entry must keep its checksum, apart from the ones the change is known to touch.
+- An edit that only shifts line numbers still rewrites `classes.dex` and the profile files
+  under `assets/dexopt/`. Those are expected to differ then; nothing else is.
 - `META-INF/version-control-info.textproto` is left out of the comparison. It holds the commit
   hash, so it differs on every commit.
 - The APK size is not compared. That one file compresses to a different length from one commit
