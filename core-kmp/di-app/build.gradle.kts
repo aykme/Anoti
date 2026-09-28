@@ -1,16 +1,21 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
+    alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.kotlinCompose) // required alongside composeMultiplatform
     alias(libs.plugins.ksp)
     alias(libs.plugins.detekt)
 }
 
-// Hosts both app-wide composition roots: `DiAppComponent` in androidMain is `:androidApp`'s Android
-// root, and its twin in iosMain is the iOS root an iOS host app would create. Same class name,
-// same package, one per platform source set — no `expect`/`actual` needed since each compiles
-// only for its own target.
+// Hosts both app-wide composition roots: `DiAppComponent` in androidMain is `:androidApp`'s
+// Android root, and its twin in iosMain is the iOS root. Same class name, same package, one per
+// platform source set — no `expect`/`actual` needed since each compiles only for its own target.
+// It also links `Shared`, the project's one iOS framework, since it sits above every other
+// module. The Compose plugins are applied for that: Compose copies the resources of the modules
+// below into an app bundle through the module that links the framework.
 kotlin {
     android {
         namespace = "com.alekseivinogradov.anoti.di.kmp"
@@ -27,7 +32,7 @@ kotlin {
         iosSimulatorArm64()
     ).forEach {
         it.binaries.framework {
-            baseName = "di-app"
+            baseName = "Shared"
             isStatic = true
         }
     }
@@ -53,6 +58,12 @@ kotlin {
             implementation(libs.androidx.work.runtime)
         }
     }
+}
+
+// This module holds no composable code. On Android the compiler would only add stability
+// members to the DI classes, which changes what R8 produces.
+composeCompiler {
+    targetKotlinPlatforms.set(setOf(KotlinPlatformType.native))
 }
 
 dependencies {

@@ -16,6 +16,7 @@ on `core-kmp:di-scope` in turn. It also depends on `:main` for `DiRootDependenci
 ## How to include it
 
 - Gradle: `implementation(project(":core-kmp:di-app"))`.
+- On iOS the module links `Shared`, the project's one framework. No other module declares one.
 - `DiAppComponent::class.create(appContext)` builds the graph on either platform; read its
   accessors instead of constructing the values yourself.
 - `DiRootComponent::class.create(appComponent)` builds `:main`'s `DiRootComponent`, the root UI

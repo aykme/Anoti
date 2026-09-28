@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
-    alias(libs.plugins.kotlinCompose) // required alongside composeMultiplatform, see Task 1 step 3
+    alias(libs.plugins.kotlinCompose) // required alongside composeMultiplatform
     alias(libs.plugins.ksp)
     alias(libs.plugins.detekt)
 }
@@ -26,15 +26,8 @@ kotlin {
         }
     }
 
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach {
-        it.binaries.framework {
-            baseName = "main"
-            isStatic = true
-        }
-    }
+    iosArm64()
+    iosSimulatorArm64()
 
     sourceSets {
         commonMain.dependencies {
