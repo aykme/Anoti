@@ -2,9 +2,9 @@
 # KMP app versions — all used via libs.versions.<name>.get() in build.gradle.kts,
 # Studio's unused-entry inspection just doesn't recognize that accessor pattern
 #noinspection UnusedVersionCatalogEntry
-versionCode = "9"
+versionCode = "10"
 #noinspection UnusedVersionCatalogEntry
-versionName = "1.09"
+versionName = "1.1"
 
 # Android app versions
 #noinspection UnusedVersionCatalogEntry
