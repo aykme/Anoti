@@ -13,6 +13,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.snapshots.SnapshotMutableState
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.runtime.structuralEqualityPolicy
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -81,6 +83,10 @@ internal object SaveableStateCodec {
 
     private fun encodeValue(value: Any?): JsonElement = when (value) {
         null -> JsonNull
+        // They would come back as a plain list or map and fail their cast on restore.
+        is SnapshotStateList<*>, is SnapshotStateMap<*, *> ->
+            throw IllegalArgumentException("a ${value::class.simpleName} cannot be saved")
+
         is List<*> -> tagged(LIST, JsonArray(value.map(::encodeValue)))
         is Map<*, *> -> tagged(
             MAP,

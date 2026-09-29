@@ -44,8 +44,9 @@ internal class SavedStateStorage(
                 )
             )
         }.onSuccess { text: String ->
-            file.write(text)
-            println("$TAG: saved root $rootNumber, session $sessionId")
+            if (file.write(text)) {
+                println("$TAG: saved root $rootNumber, session $sessionId")
+            }
         }.onFailure { throwable: Throwable ->
             file.delete()
             println("$TAG: root $rootNumber was not saved: $throwable")

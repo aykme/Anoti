@@ -9,6 +9,8 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.referentialEqualityPolicy
@@ -160,7 +162,9 @@ class SaveableStateCodecTest {
         val values = mapOf(
             "kept" to listOf<Any?>(1, 2),
             "dropped" to listOf<Any?>(1, Unknown),
-            "stateWithItsOwnPolicy" to listOf<Any?>(mutableStateOf(1, OwnPolicy))
+            "stateWithItsOwnPolicy" to listOf<Any?>(mutableStateOf(1, OwnPolicyFake)),
+            "stateList" to listOf<Any?>(mutableStateListOf(1)),
+            "stateMap" to listOf<Any?>(mutableStateMapOf(1 to 1))
         )
 
         //When
@@ -197,7 +201,7 @@ class SaveableStateCodecTest {
 
     private object Unknown
 
-    private object OwnPolicy : SnapshotMutationPolicy<Int> {
+    private object OwnPolicyFake : SnapshotMutationPolicy<Int> {
         override fun equivalent(a: Int, b: Int): Boolean = a == b
     }
 }

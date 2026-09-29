@@ -34,10 +34,10 @@ anime and leave the device overnight — at least one episode will air.
 
 ## 2. The channel it uses
 
-Android only, since iOS has no notification categories. On the iPhone, the app's page in
-Settings, under Notifications, shows Sounds switched on.
+iPhone: iOS has no notification categories. Check instead that the app's page in Settings, under
+Notifications, shows Sounds switched on.
 
-Open system settings for the app, then its notification categories.
+Android: open system settings for the app, then its notification categories.
 
 - There is exactly one category, named "Anime notification channel".
 - Its description reads "Notifications about anime".
@@ -79,7 +79,7 @@ Check these variants:
 2. Expand the group.
    - Every anime is listed, each with its own title and episode line.
 3. Swipe one notification away and leave the rest.
-   - Only that one goes. The others and the group summary stay.
+   - Only that one goes. The others stay. Android: the group summary stays too.
 4. Android only, since the iPhone stack has no summary: swipe the group summary away.
    - The whole group goes.
 5. With the app open, get a new notification.

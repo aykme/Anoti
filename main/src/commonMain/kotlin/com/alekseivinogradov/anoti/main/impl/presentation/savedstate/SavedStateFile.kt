@@ -23,20 +23,28 @@ internal class SavedStateFile(
     // Written first and moved over the file, so a write cut short leaves the old file whole.
     private val temporaryPath: Path = directory / "${path.name}.tmp"
 
-    /** Replaces the file's content with [text]. A write that fails leaves no file at all. */
-    fun write(text: String) {
+    /**
+     * Replaces the file's content with [text], and tells whether it did. A write that fails leaves
+     * no file at all.
+     */
+    fun write(text: String): Boolean =
         try {
             fileSystem.createDirectories(directory)
             fileSystem.write(temporaryPath) { writeUtf8(text) }
             fileSystem.atomicMove(source = temporaryPath, target = path)
+            true
         } catch (exception: IOException) {
             println("$TAG: the state was not written: $exception")
             deleteQuietly(temporaryPath)
             delete()
+            false
         }
-    }
 
-    /** Reads the file and deletes it, or gives `null` when it is missing or cannot be read. */
+    /**
+     * Reads the file and deletes it, or gives `null` when it is missing or cannot be read. A text
+     * whose file cannot be deleted is not given either: a state that crashes the app on restore
+     * would otherwise crash every launch.
+     */
     fun take(): String? {
         val text = try {
             if (fileSystem.exists(path)) fileSystem.read(path) { readUtf8() } else null
@@ -44,18 +52,18 @@ internal class SavedStateFile(
             println("$TAG: the state was not read: $exception")
             null
         }
-        delete()
-        return text
+        return text.takeIf { delete() }
     }
 
-    /** Deletes the file, if there is one. */
-    fun delete() = deleteQuietly(path)
+    /** Deletes the file, if there is one, and tells whether it is gone. */
+    fun delete(): Boolean = deleteQuietly(path)
 
-    private fun deleteQuietly(target: Path) {
+    private fun deleteQuietly(target: Path): Boolean =
         try {
             fileSystem.deleteRecursively(target)
+            true
         } catch (exception: IOException) {
             println("$TAG: $target was not deleted: $exception")
+            false
         }
-    }
 }

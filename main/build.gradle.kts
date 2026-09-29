@@ -51,10 +51,12 @@ kotlin {
             implementation(project(":feature-kmp:notifications-rationale-dialog"))
             implementation(project(":core-kmp:di-scope"))
             implementation(libs.compose.runtime) // required once kotlinCompose is applied
+            implementation(libs.compose.runtime.saveable)
             implementation(libs.compose.foundation)
             implementation(libs.compose.ui)
             implementation(libs.decompose)
             implementation(libs.essenty.lifecycle)
+            implementation(libs.essenty.state.keeper)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.okio)
 

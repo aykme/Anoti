@@ -11,6 +11,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class SavedStateFileTest {
 
@@ -28,12 +29,13 @@ class SavedStateFileTest {
     @Test
     fun aWrittenTextIsTakenBackAndTakingItDeletesTheFile() {
         //Given
-        file.write("saved")
+        val written = file.write("saved")
 
         //When
         val taken = file.take()
 
         //Then
+        assertTrue(written)
         assertEquals("saved", taken)
         assertFalse(fileSystem.exists(path))
     }
@@ -98,14 +100,15 @@ class SavedStateFileTest {
         fileSystem.write(directory / "root_saved_state.json.tmp" / "blocker") { writeUtf8("x") }
 
         //When
-        file.write("newer")
+        val written = file.write("newer")
 
         //Then
+        assertFalse(written)
         assertNull(file.take())
     }
 
     @Test
-    fun aFileThatCannotBeDeletedIsStillTakenWithoutAThrow() {
+    fun aFileThatCannotBeDeletedGivesNothingAndDoesNotThrow() {
         //Given
         file.write("saved")
         val refusing = SavedStateFile(
@@ -117,7 +120,7 @@ class SavedStateFileTest {
         val taken = refusing.take()
 
         //Then
-        assertEquals("saved", taken)
+        assertNull(taken)
     }
 
     @Test

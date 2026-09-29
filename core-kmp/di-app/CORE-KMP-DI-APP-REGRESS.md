@@ -43,8 +43,8 @@ The steps name Android's tools. On the iPhone:
 - Instead of `adb shell am kill`, start the app from Xcode, go to the home screen and stop it in
   Xcode, then open it again from the home screen. Instead of a force-stop, swipe the app away in
   the app switcher.
-- Start the app from Xcode and read its log in Xcode's console. No line says the background task
-  identifier is missing from the Info.plist, and none says the next background refresh was
-  refused. Either one means the app will never update in the background.
+- Start the app from Xcode and read its log in Xcode's console. No line ends in "is missing from
+  the Info.plist", and none contains "the next background refresh was refused". Either one means
+  the app will never update in the background.
 
 The iPhone steps are unverified until the iPhone app has been built and run.

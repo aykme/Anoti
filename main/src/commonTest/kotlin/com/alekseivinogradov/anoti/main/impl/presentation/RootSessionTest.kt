@@ -236,6 +236,26 @@ class RootSessionTest {
     }
 
     @Test
+    fun aSaveableValueNoScreenReadIsSavedAgainForTheProcessAfter() {
+        //Given
+        saveWhileOn(
+            screen = NavRootConfig.AnimeList,
+            saveable = mapOf("search" to mutableStateOf("Frieren"))
+        )
+        val unread = session.createRoot()
+        session.saveState()
+        session.endRoot(unread)
+
+        //When
+        val registry = createSession().createRoot().saveableStateRegistry
+
+        //Then
+        val search = registry.consumeRestored("search")
+        assertIs<MutableState<*>>(search)
+        assertEquals("Frieren", search.value)
+    }
+
+    @Test
     fun savingWithoutARootWritesNothingAndKeepsAnOlderFile() {
         //Given
         saveWhileOn(NavRootConfig.AnimeFavorites)

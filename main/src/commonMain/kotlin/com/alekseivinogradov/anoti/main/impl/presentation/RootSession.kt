@@ -154,6 +154,8 @@ internal class RootSession(
     ): SaveableStateRegistry {
         val restored = runCatching {
             stateKeeper.consume(key = SAVEABLE_STATE_KEY, strategy = JsonElement.serializer())
+        }.onFailure { throwable: Throwable ->
+            println("$TAG: the saved composition state was not readable: $throwable")
         }.getOrNull()
         // Anything a registry hands over is accepted: a stricter check throws inside the
         // composition, and the codec drops what it cannot carry.
