@@ -51,6 +51,8 @@ kover = "0.9.9"
 ksp = "2.3.12"
 ktor = "3.6.0"
 mviKotlin = "4.4.0"
+# Android also takes okio through OkHttp, so raising this raises the APK's okio as well.
+okio = "3.18.2"
 room = "2.8.5"
 sqlite = "2.7.1"
 
@@ -139,6 +141,8 @@ ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx
 mvikotlin = { group = "com.arkivanov.mvikotlin", name = "mvikotlin", version.ref = "mviKotlin" }
 mvikotlin-extensions-coroutines = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-extensions-coroutines", version.ref = "mviKotlin" }
 mvikotlin-main = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-main", version.ref = "mviKotlin" }
+okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+okio-fakefilesystem = { module = "com.squareup.okio:okio-fakefilesystem", version.ref = "okio" }
 
 # Android libraries
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }

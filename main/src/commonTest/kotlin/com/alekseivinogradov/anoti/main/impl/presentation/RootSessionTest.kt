@@ -1,9 +1,13 @@
 package com.alekseivinogradov.anoti.main.impl.presentation
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import com.alekseivinogradov.anoti.main.impl.di.createDiRootComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.compose.RememberedRoot
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionStatus
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.fake.NotificationPermissionRequestsFake
+import com.alekseivinogradov.anoti.main.impl.presentation.savedstate.SavedStateFile
+import com.alekseivinogradov.anoti.main.impl.presentation.savedstate.SavedStateStorage
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
@@ -19,11 +23,25 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonObject
+import okio.Path.Companion.toPath
+import okio.fakefilesystem.FakeFileSystem
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 
@@ -42,6 +60,12 @@ class RootSessionTest {
 
     private var permissionStatus = CompletableDeferred(ASKABLE)
 
+    private val fileSystem = FakeFileSystem()
+
+    private val savedStatePath = "/app/saved_state/root_saved_state.json".toPath()
+
+    private var sceneSessionId: String? = FIRST_SESSION
+
     private lateinit var session: RootSession
 
     @BeforeTest
@@ -56,6 +80,7 @@ class RootSessionTest {
     fun tearDown() {
         lifecycles.forEach { it.destroy() }
         Dispatchers.resetMain()
+        fileSystem.checkNoOpenFiles()
     }
 
     @Test
@@ -181,6 +206,180 @@ class RootSessionTest {
     }
 
     @Test
+    fun theNextProcessReopensTheScreenTheStateWasSavedOn() {
+        //Given
+        saveWhileOn(NavRootConfig.AnimeFavorites)
+
+        //When
+        val root = session.createRoot()
+
+        //Then
+        assertEquals(NavRootConfig.AnimeFavorites, root.activeScreen)
+    }
+
+    @Test
+    fun aSaveableValueComesBackFromTheNextRootsRegistryAsTheSameKind() {
+        //Given
+        saveWhileOn(
+            screen = NavRootConfig.AnimeList,
+            saveable = mapOf("search" to mutableStateOf("Frieren"), "scroll" to listOf(3, 40))
+        )
+
+        //When
+        val registry = session.createRoot().saveableStateRegistry
+
+        //Then
+        val search = registry.consumeRestored("search")
+        assertIs<MutableState<*>>(search)
+        assertEquals("Frieren", search.value)
+        assertEquals(listOf(3, 40), registry.consumeRestored("scroll"))
+    }
+
+    @Test
+    fun savingWithoutARootWritesNothingAndKeepsAnOlderFile() {
+        //Given
+        saveWhileOn(NavRootConfig.AnimeFavorites)
+        val older = savedText()
+
+        //When
+        session.saveState()
+
+        //Then
+        assertEquals(older, savedText())
+    }
+
+    @Test
+    fun savingWithoutASceneSessionWritesNothingAndKeepsAnOlderFile() {
+        //Given
+        session.createRoot()
+        saveWhileOn(NavRootConfig.AnimeFavorites)
+        val older = savedText()
+        sceneSessionId = null
+
+        //When
+        session.saveState()
+
+        //Then
+        assertEquals(older, savedText())
+    }
+
+    @Test
+    fun aSaveThatFailsLeavesNoFileEvenWhenAnOlderOneExisted() {
+        //Given
+        val root = session.createRoot()
+        saveWhileOn(NavRootConfig.AnimeFavorites)
+        root.stateKeeper.register(key = "refused", strategy = ThrowingSerializerFake) { 1 }
+
+        //When
+        session.saveState()
+
+        //Then
+        assertFalse(fileSystem.exists(savedStatePath))
+    }
+
+    @Test
+    fun everyRootTakesTheFileAndAFileOfGarbageStartsItFresh() {
+        //Given
+        fileSystem.createDirectories(checkNotNull(savedStatePath.parent))
+        fileSystem.write(savedStatePath) { writeUtf8("not a saved state") }
+
+        //When
+        val root = session.createRoot()
+
+        //Then
+        assertEquals(NavRootConfig.AnimeList, root.activeScreen)
+        assertFalse(fileSystem.exists(savedStatePath))
+    }
+
+    @Test
+    fun aStateSavedInAnotherFormatIsDropped() {
+        //Given
+        saveWhileOn(NavRootConfig.AnimeFavorites)
+        rewriteSavedFile(field = "formatVersion", value = JsonPrimitive(2))
+
+        //When
+        val root = session.createRoot()
+
+        //Then
+        assertEquals(NavRootConfig.AnimeList, root.activeScreen)
+        assertFalse(fileSystem.exists(savedStatePath))
+    }
+
+    @Test
+    fun aStateSavedByAnotherAppVersionIsDropped() {
+        //Given
+        saveWhileOn(NavRootConfig.AnimeFavorites)
+        session = createSession(appVersion = "1.2 (11)")
+
+        //When
+        val root = session.createRoot()
+
+        //Then
+        assertEquals(NavRootConfig.AnimeList, root.activeScreen)
+        assertFalse(fileSystem.exists(savedStatePath))
+    }
+
+    @Test
+    fun aStateSavedInAnotherSceneSessionIsDropped() {
+        //Given
+        saveWhileOn(NavRootConfig.AnimeFavorites)
+        sceneSessionId = "second-session"
+
+        //When
+        val root = session.createRoot()
+
+        //Then
+        assertEquals(NavRootConfig.AnimeList, root.activeScreen)
+        assertFalse(fileSystem.exists(savedStatePath))
+    }
+
+    @Test
+    fun aRootBuiltWithNoSceneSessionIgnoresTheFileAndDeletesIt() {
+        //Given
+        saveWhileOn(NavRootConfig.AnimeFavorites)
+        sceneSessionId = null
+
+        //When
+        val root = session.createRoot()
+
+        //Then
+        assertEquals(NavRootConfig.AnimeList, root.activeScreen)
+        assertFalse(fileSystem.exists(savedStatePath))
+    }
+
+    @Test
+    fun aStateTheStateKeeperCannotReadStartsTheRootFresh() {
+        //Given
+        saveWhileOn(NavRootConfig.AnimeFavorites)
+        rewriteSavedFile(field = "state", value = JsonPrimitive("bm90IGEgc3RhdGU="))
+
+        //When
+        val root = session.createRoot()
+
+        //Then
+        assertEquals(NavRootConfig.AnimeList, root.activeScreen)
+        assertFalse(fileSystem.exists(savedStatePath))
+    }
+
+    @Test
+    fun aPendingTapDiscardsTheSavedState() {
+        //Given
+        saveWhileOn(
+            screen = NavRootConfig.AnimeList,
+            saveable = mapOf("search" to mutableStateOf("Frieren"))
+        )
+        session.openFromNotification(NavRootConfig.AnimeFavorites)
+
+        //When
+        val root = session.createRoot()
+
+        //Then
+        assertEquals(NavRootConfig.AnimeFavorites, root.activeScreen)
+        assertNull(root.saveableStateRegistry.consumeRestored("search"))
+        assertFalse(fileSystem.exists(savedStatePath))
+    }
+
+    @Test
     fun thePermissionCheckActsOnTheStatusOfItsRoot() = runTest {
         //Given
         val root = session.createRoot()
@@ -228,12 +427,40 @@ class RootSessionTest {
         assertFalse(second.host.notificationsRationale.visible.value)
     }
 
-    private fun createSession() = RootSession(
+    private fun createSession(appVersion: String = APP_VERSION) = RootSession(
         createDiRootComponent = { createDiRootComponent(parent = dependencies) },
         createLifecycle = ::createLifecycle,
         notificationPermissionRequests = requests,
-        readNotificationPermissionStatus = { permissionStatus.await() }
+        readNotificationPermissionStatus = { permissionStatus.await() },
+        savedStateStorage = SavedStateStorage(
+            file = SavedStateFile(fileSystem = fileSystem, path = savedStatePath),
+            appVersion = appVersion,
+            sceneSessionId = { sceneSessionId }
+        )
     )
+
+    /**
+     * What a session left behind that saved while [screen] was open and its composition had
+     * [saveable] in its registry, as the process before this one did.
+     */
+    private fun saveWhileOn(screen: NavRootConfig, saveable: Map<String, Any> = emptyMap()) {
+        val earlier = createSession()
+        val root = earlier.createRoot()
+        root.host.dependencies.rootComponent.navigateTo(screen)
+        saveable.forEach { (key: String, value: Any) ->
+            root.saveableStateRegistry.registerProvider(key) { value }
+        }
+        earlier.saveState()
+        earlier.endRoot(root)
+    }
+
+    private fun savedText(): String = fileSystem.read(savedStatePath) { readUtf8() }
+
+    private fun rewriteSavedFile(field: String, value: JsonPrimitive) {
+        val saved = Json.parseToJsonElement(fileSystem.read(savedStatePath) { readUtf8() })
+        val rewritten = JsonObject(saved.jsonObject + (field to value))
+        fileSystem.write(savedStatePath) { writeUtf8(rewritten.toString()) }
+    }
 
     // Created at once, as iOS's own lifecycle settles right after the root is built. Ended the
     // way iOS ends its own, from any state.
@@ -246,7 +473,20 @@ class RootSessionTest {
     private val SessionRoot.activeScreen: NavRootConfig
         get() = host.dependencies.rootComponent.childStack.value.active.configuration
 
+    // Fails the save the way a screen's serializer would.
+    private object ThrowingSerializerFake : KSerializer<Int> {
+        override val descriptor: SerialDescriptor =
+            PrimitiveSerialDescriptor("ThrowingSerializerFake", PrimitiveKind.INT)
+
+        override fun serialize(encoder: Encoder, value: Int) =
+            throw SerializationException("refused")
+
+        override fun deserialize(decoder: Decoder): Int = decoder.decodeInt()
+    }
+
     private companion object {
+        const val FIRST_SESSION = "first-session"
+        const val APP_VERSION = "1.1 (10)"
         val ASKABLE = NotificationPermissionStatus(
             isAllowed = false,
             canPrompt = true,
