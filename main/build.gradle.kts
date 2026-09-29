@@ -75,6 +75,8 @@ kotlin {
         getByName("androidHostTest").dependencies {
             implementation(libs.robolectric)
             implementation(libs.compose.ui.test.junit4)
+            // The rule of the root session's content test launches its own host activity.
+            implementation(libs.compose.ui.test.manifest)
             // Two of the host tests write the deep-link payload with Json themselves.
             implementation(libs.kotlinx.serialization.json)
         }

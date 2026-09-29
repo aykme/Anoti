@@ -15,19 +15,22 @@ import com.alekseivinogradov.anoti.main.api.di.DiRootDependencies
 import com.alekseivinogradov.anoti.network.ios.impl.di.DiNetworkPlatformComponent
 import com.alekseivinogradov.anoti.network.kmp.impl.di.DiNetworkComponent
 import me.tatarka.inject.annotations.Component
+import me.tatarka.inject.annotations.KmpComponentCreate
 import me.tatarka.inject.annotations.Provides
 
 /**
  * The iOS app-wide component: the root of the `AppScope` → `RootScope` → `FeatureScope`
- * hierarchy, the mirror of the Android `DiAppComponent` in this module's `androidMain`. A host app
- * creates it once, via `DiAppComponent::class.create(appContext)`.
+ * hierarchy, the mirror of the Android `DiAppComponent` in this module's `androidMain`. [IosApp]
+ * creates it once, through [createDiAppComponent].
  *
- * @param appContext the application [PlatformContext] app-scoped bindings are built from. No iOS
- *   binding reads it yet; it is here so both platforms are built the same way.
+ * Internal, so the framework's header shows [IosApp] and nothing of the graph.
+ *
+ * @param appContext the application [PlatformContext] app-scoped bindings are built from. It is
+ *   here so both platforms are built the same way.
  */
 @Component
 @AppScope
-abstract class DiAppComponent(
+internal abstract class DiAppComponent(
     @get:Provides @AppContext val appContext: PlatformContext
 ) : DiNetworkComponent,
     DiNetworkPlatformComponent,
@@ -46,3 +49,7 @@ abstract class DiAppComponent(
     /** Schedules the periodic background update pass. */
     abstract val animeBackgroundScheduler: AnimeBackgroundScheduler
 }
+
+/** Builds the iOS app-wide graph. KSP writes the body for each iOS target. */
+@KmpComponentCreate
+internal expect fun createDiAppComponent(appContext: PlatformContext): DiAppComponent
