@@ -4,13 +4,7 @@ import com.alekseivinogradov.anoti.animebackgroundupdate.ios.impl.domain.schedul
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.manager.AnimeUpdateManager
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.scheduler.AnimeBackgroundScheduler
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
-import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.manager.AnimeUpdateManagerImpl
-import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.FetchAnimeListByIdsUsecase
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.SingleFlightUpdateAllAnimeInBackgroundOnceUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -18,28 +12,13 @@ import kotlinx.coroutines.SupervisorJob
 import me.tatarka.inject.annotations.Provides
 
 /**
- * Provides the iOS [AnimeUpdateManager], [AnimeBackgroundScheduler] and
- * [UpdateAllAnimeInBackgroundOnceUsecase] bindings; mixed into `core-kmp:di-app`'s
- * `DiAppComponent` — the mirror of `androidMain`'s `DiAnimeBackgroundUpdatePlatformComponent`,
- * minus the WorkManager plumbing iOS has no use for.
+ * Provides the iOS [AnimeBackgroundScheduler] and [UpdateAllAnimeInBackgroundOnceUsecase]
+ * bindings; mixed into `core-kmp:di-app`'s `DiAppComponent` — the mirror of `androidMain`'s
+ * `DiAnimeBackgroundUpdatePlatformComponent`, minus the WorkManager plumbing iOS has no use for.
+ * The [AnimeUpdateManager] both of them run comes from the common
+ * `DiAnimeBackgroundUpdateComponent`.
  */
 interface DiAnimeBackgroundUpdatePlatformComponent {
-    @Provides
-    @AppScope
-    fun provideAnimeUpdateManager(
-        coroutineContextProvider: CoroutineContextProvider,
-        fetchAllAnimeDatabaseItemsUsecase: FetchAllAnimeDatabaseItemsUsecase,
-        fetchAnimeListByIdsUsecase: FetchAnimeListByIdsUsecase,
-        updateAnimeDatabaseItemUsecase: UpdateAnimeDatabaseItemUsecase,
-        notificationManager: AnimeNotificationManager
-    ): AnimeUpdateManager = AnimeUpdateManagerImpl(
-        coroutineContextProvider = coroutineContextProvider,
-        fetchAllAnimeDatabaseItemsUsecase = fetchAllAnimeDatabaseItemsUsecase,
-        fetchAnimeListByIdsUsecase = fetchAnimeListByIdsUsecase,
-        updateAnimeDatabaseItemUsecase = updateAnimeDatabaseItemUsecase,
-        notificationManager = notificationManager
-    )
-
     /**
      * Registers the `BGAppRefreshTask` handler as soon as the scheduler is created. The task
      * identifier must also be listed in the iOS app target's Info.plist under
