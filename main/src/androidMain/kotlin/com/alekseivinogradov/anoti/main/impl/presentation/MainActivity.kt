@@ -32,12 +32,12 @@ import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponentHold
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootComponent
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
+import com.alekseivinogradov.anoti.navigation.kmp.NavRootDeepLink
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.defaultComponentContext
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.asEssentyLifecycle
 import com.arkivanov.essenty.lifecycle.doOnDestroy
-import kotlinx.serialization.json.Json
 
 /**
  * The Android entry point. Builds the root navigation, shows the root content, and asks for the
@@ -148,11 +148,9 @@ class MainActivity : ComponentActivity() {
      * the extra is inside the guard as well: extras that arrive from another process are
      * unpacked on first access, and one naming a class this app doesn't have throws right there.
      */
-    private fun readDeepLinkTarget(): NavRootConfig? = runCatching {
-        intent?.getStringExtra(EXTRA_DEEP_LINK_TARGET)?.let { encoded ->
-            Json.decodeFromString(NavRootConfig.serializer(), encoded)
-        }
-    }.getOrNull()
+    private fun readDeepLinkTarget(): NavRootConfig? = NavRootDeepLink.decode(
+        payload = runCatching { intent?.getStringExtra(EXTRA_DEEP_LINK_TARGET) }.getOrNull()
+    )
 
     @SuppressLint("SourceLockedOrientationActivity")
     private fun setSystemSettings() {

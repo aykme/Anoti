@@ -64,7 +64,6 @@ kotlin {
 
             implementation(libs.androidx.core)
             implementation(libs.androidx.activity.compose)
-            implementation(libs.kotlinx.serialization.json)
         }
         getByName("androidHostTest").dependencies {
             implementation(libs.kotlin.test)
@@ -74,6 +73,8 @@ kotlin {
             implementation(libs.mvikotlin.main)
             implementation(libs.robolectric)
             implementation(libs.compose.ui.test.junit4)
+            // Two of the host tests write the deep-link payload with Json themselves.
+            implementation(libs.kotlinx.serialization.json)
         }
     }
 }
