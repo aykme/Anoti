@@ -6,15 +6,17 @@ leaving the app and coming back. The content of the two sections, the look of th
 and the look of the permission dialog are each checked in their own module's file.
 
 Unless a step says otherwise, start from a clean installation with the app never opened before.
+Steps run on both platforms unless they name one. The iPhone steps are unverified until the
+iPhone app has been built and run.
 
 ## First launch
 
-1. Install the app and open it from the launcher.
+1. Install the app and open it from the home screen.
    The anime list opens. The bottom bar shows two items, and the left one is the selected one.
 2. The system asks whether the app may send notifications, on top of the list.
    Choose **Allow**.
    The question disappears and the list stays where it was.
-3. Close the app and open it again from the launcher.
+3. Close the app and open it again.
    The question does not come back.
 4. Uninstall, install again and open it. When the system asks, choose **Don't allow**.
    The question disappears and the list stays where it was.
@@ -24,8 +26,10 @@ Unless a step says otherwise, start from a clean installation with the app never
 6. Press the refusing button.
    The dialog closes. Nothing else appears. The list is usable.
 7. Close the app and open it again, then press the accepting button on the dialog.
-   The system's own notification question appears on top.
-8. Repeat step 4 on a device running Android 10, 11 or 12.
+   Android 13 and later: the system's own notification question appears on top.
+   iPhone: the Settings app opens on this app's notification settings, since iOS asks only once.
+8. Android only, since only Android 10 to 12 lack the question: repeat step 4 on a device running
+   Android 10, 11 or 12.
    The system never asks its own question. Instead, on the second launch the app's dialog
    appears, and its accepting button opens this app's page in the system settings, on the
    screen where notifications are switched on and off.
@@ -34,13 +38,18 @@ Unless a step says otherwise, start from a clean installation with the app never
 
 Requires at least one saved anime that has a new episode, so a notification actually arrives.
 
-1. With the app fully closed, pull down the notification shade and tap the new-episode
-   notification.
-   The app opens on the favorites section. The right bottom-bar item is the selected one.
-2. Leave the app open on the anime list. Send the app to the background with the home button.
-   Tap the new-episode notification.
+1. With the app fully closed, open the notification list and tap the new-episode notification.
+   The app opens on the favorites section. The right bottom-bar item is the selected one. On
+   the iPhone the screen the app was saved on may show for a moment first.
+2. Leave the app open on the anime list. Go to the home screen. Tap the new-episode notification.
    The app comes to the front on the favorites section, not on the list.
-3. From there, press system back until the app closes. Open the app from the launcher.
+3. Leave the app open on favorites, scrolled down. Go to the home screen and tap the
+   notification.
+   The app comes to the front on favorites, rebuilt: the list is back at the top.
+4. Android only, since the iPhone has no back button: from there, press system back until the
+   app closes. Open the app from the launcher.
+   The app opens on the anime list, not on favorites.
+5. iPhone only: from there, close the app in the app switcher and open it again.
    The app opens on the anime list, not on favorites.
 
 ## Moving between the two sections
@@ -63,10 +72,12 @@ Requires at least one saved anime that has a new episode, so a notification actu
 2. Look at the clock, battery and signal icons in the status bar.
    They are light against the dark content behind them, on a device set to light theme and on
    one set to dark theme alike.
-3. Look at the area below the bottom bar, where the system's navigation gesture bar sits.
+3. Look at the area below the bottom bar: Android's navigation bar, or the iPhone's home
+   indicator.
    It is solid black, matching the bottom bar above it. There is no lighter strip and no
    translucent overlay between them.
-4. Switch the device to gesture navigation, then to three-button navigation.
+4. Android only, since the iPhone has one way to navigate: switch the device to gesture
+   navigation, then to three-button navigation.
    In both cases the bottom bar's two items stay fully visible and tappable, and nothing of the
    app is hidden underneath the system navigation.
 
@@ -75,7 +86,7 @@ Requires at least one saved anime that has a new episode, so a notification actu
 1. On a phone, open the app and turn the device on its side, with the device's own rotation
    lock off.
    The app stays upright. It does not turn.
-2. On a tablet or an unfolded foldable, do the same.
+2. On a tablet, an iPad or an unfolded foldable, do the same.
    The app turns with the device. The bottom bar stretches across the wider edge, still with
    its two items, and the section that was open stays open.
 3. Turn it back.
@@ -84,6 +95,7 @@ Requires at least one saved anime that has a new episode, so a notification actu
 ## The keyboard
 
 1. Go to the anime list and open its search input, so the keyboard appears.
+   The search input stays where it is. The screen does not slide up as a whole.
 2. While the keyboard is up, do something that makes the app show a message strip, such as
    turning the network off and letting a request fail.
    The message strip sits directly above the keyboard. It is not hidden behind it.
@@ -93,17 +105,27 @@ Requires at least one saved anime that has a new episode, so a notification actu
 
 ## Leaving and coming back
 
-1. Open favorites. Press home. Open several other heavy apps, then return to this app from the
-   recents list.
-   The app comes back on favorites, with the right bottom-bar item selected.
-2. Open favorites. Press home. In the device's developer options turn on "Don't keep
-   activities", then return to the app from recents.
-   The app comes back on favorites, not on the anime list. Turn the setting back off afterward.
-3. Open favorites. Press home. Force-stop the app from the system settings. Open it again from
-   the launcher.
+1. Open favorites and scroll it down. Go to the home screen. Open several other heavy apps, then
+   return to this app from the recent apps.
+   The app comes back on favorites, with the right bottom-bar item selected and the list where
+   it was scrolled.
+2. Open favorites and scroll it down. Go to the home screen. Then end the app the way the system
+   does:
+   - Android: in the device's developer options turn on "Don't keep activities", then return to
+     the app from recents. Turn the setting back off afterward.
+   - iPhone: with the app started from Xcode, stop it in Xcode, then open it again from the home
+     screen.
+
+   The app comes back on favorites, not on the anime list, and the list where it was scrolled.
+3. Open favorites. Go to the home screen. Close the app the way the user does:
+   - Android: force-stop the app from the system settings, then open it from the launcher;
+   - iPhone: swipe the app away in the app switcher, then open it from the home screen.
+
    The app opens on the anime list — a fresh start, not a restored one.
 
 ## Back
+
+Android only, since the iPhone has no back button.
 
 1. On the anime list, press system back.
    The app closes and the launcher appears.
@@ -122,3 +144,14 @@ Requires at least one saved anime that has a new episode, so a notification actu
 3. Turn the network off completely and open the app from a clean start.
    The app opens on the anime list and shows its own failure state. It does not close by
    itself and shows no system crash dialog.
+
+## Platforms
+
+| What | Android | iPhone |
+| --- | --- | --- |
+| Asking for the permission again | Android 13+ asks again after one refusal | asks once; a refusal leads to the app's dialog and Settings |
+| A cold notification tap | opens favorites directly | may show the saved screen for a moment first |
+| Dark mode or text size changes | the screen is rebuilt and its state restored | the screen stays as it is |
+| After a reboot | the saved screen is gone | may come back, since the window session can survive |
+| A launch the system starts in the background | not applicable | the state it restores is lost if the system then ends the app |
+| System back | closes the app | none |

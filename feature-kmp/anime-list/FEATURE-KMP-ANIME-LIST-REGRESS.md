@@ -308,3 +308,18 @@ for, and the checks that only make sense once.
 9. Turn on the system dark theme and repeat pass 1 of section 0 in outline.
    - Text over the poster's dark strip stays readable, and so do the top bar's labels.
    - No white-on-white or black-on-black anywhere.
+
+## 14. Platforms
+
+The steps name Android's tools. On the iPhone:
+
+- Section 12 ends the app with `adb shell am kill`. On the iPhone, start the app from Xcode, go
+  to the home screen and stop it in Xcode, then open it from the home screen. Everything section
+  12 expects comes back the same way, the text in the search field and the scroll position
+  included.
+- Swiping the app away in the app switcher is the user closing it. The app then starts fresh.
+- Changing the font or display size does not restart the app on the iPhone. The screen stays as
+  it is, so the passes in section 0 check only the layout there.
+- An iPhone keeps the app upright. The rotation steps of section 13 run on an iPad.
+
+The iPhone steps are unverified until the iPhone app has been built and run.

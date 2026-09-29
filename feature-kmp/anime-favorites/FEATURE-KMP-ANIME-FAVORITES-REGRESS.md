@@ -295,3 +295,17 @@ for, and the checks that only make sense once.
    - It is still in extra mode and no other item switched.
 3. Scroll fast through the whole list several times.
    - Posters load and stay loaded. No item renders blank or with another item's picture.
+
+## 13. Platforms
+
+The steps name Android's tools. On the iPhone:
+
+- Section 10 ends the app with `adb shell am kill`. On the iPhone, start the app from Xcode, go
+  to the home screen and stop it in Xcode, then open it from the home screen. Everything section
+  10 expects comes back the same way, the scroll position included.
+- Swiping the app away in the app switcher is the user closing it. The app then starts fresh.
+- Changing the font or display size does not restart the app on the iPhone. The screen stays as
+  it is, so the passes in section 0 check only the layout there.
+- An iPhone keeps the app upright. The rotation steps of section 11 run on an iPad.
+
+The iPhone steps are unverified until the iPhone app has been built and run.

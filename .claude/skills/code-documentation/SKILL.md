@@ -204,9 +204,10 @@ real before/after of the same README, with the specific things that got cut and 
 ### Platform entry points and composition roots
 
 A module that holds a platform's app entry point, or the root of its dependency graph, gives
-each one README line labeled with the platform. `MainActivity` in `main` and the two
-`DiAppComponent`s in `core-kmp:di-app` are the cases. Nothing else from a platform source set
-gets a line.
+each one README line labeled with the platform. `MainActivity` in `main`, and the Android
+`DiAppComponent` and the iOS `IosApp` in `core-kmp:di-app`, are the cases. The iOS
+`DiAppComponent` is internal behind `IosApp`, so it gets none. Nothing else from a platform
+source set gets a line.
 
 ## Store-shaped modules (MVI, or similar single-orchestrator patterns)
 

@@ -1,5 +1,5 @@
 The app's entry module: the root UI host's dependency graph, the root content with its
-navigation, and the Android entry point.
+navigation, and the screen hosts of both platforms.
 
 ## Entities
 
@@ -22,6 +22,8 @@ navigation, and the Android entry point.
 - `createDiRootComponent(appComponent)` builds the graph from that component on every platform.
   Android code can also call `DiRootComponent::class.create(appComponent)`.
 - `MainActivity` is declared in this module's manifest and started by the system.
+- On iOS, `IosScreenHost` is the counterpart of `MainActivity`. `IosApp` in `core-kmp:di-app`
+  builds one over its graph and hands out its screen.
 
 ## How to use it
 
@@ -30,3 +32,8 @@ from every call. `MainActivity` asks it for one each time it is created and hand
 `RootHost`. With it go the screen a tapped notification names, a way to build its component
 context, and its notification-permission requests. The host builds the root navigation, and the
 activity shows the host's content.
+
+On iOS, `IosScreenHost` lives for the whole process, and each composition of its screen builds a
+new `RootHost`. A tapped notification replaces that `RootHost` with one opening on the screen it
+names. The root's state goes to a file when the app goes to the background, and the next
+process restores it from there.

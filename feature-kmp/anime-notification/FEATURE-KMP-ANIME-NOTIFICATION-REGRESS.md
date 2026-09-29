@@ -14,6 +14,9 @@ preconditions from there.
 Font and display size change the notification too, since the system draws it at the current
 size. Check sections 3 and 4 in each pass.
 
+Steps run on both platforms unless they name one. The iPhone steps are unverified until the
+iPhone app has been built and run.
+
 ## 1. Getting a notification to appear
 
 The app must be allowed to post notifications first. Grant the permission when asked, or turn
@@ -31,21 +34,29 @@ anime and leave the device overnight — at least one episode will air.
 
 ## 2. The channel it uses
 
+Android only, since iOS has no notification categories. On the iPhone, the app's page in
+Settings, under Notifications, shows Sounds switched on.
+
 Open system settings for the app, then its notification categories.
 
 - There is exactly one category, named "Anime notification channel".
 - Its description reads "Notifications about anime".
-- It is set to the default importance, the level that shows a banner and makes a sound.
+- It is set to the default importance, the level that makes a sound and does not pop up over
+  the screen.
 - Vibration is on for it.
 - Turning that category off stops the notifications, and nothing else about the app changes.
 
 ## 3. What one notification shows
 
-- The small icon in the status bar is the app's own icon.
+- It arrives with the device's default notification sound, and vibrates where the device
+  vibrates for notifications.
+- Android: the small icon in the status bar is the app's own icon. iPhone: the app's icon is
+  shown at the left of the notification.
 - The title is the anime's name, the same name the favorites screen shows for it.
 - The line below reads "Episode aired: " followed by the episode number.
 - The anime's poster is shown as the large image at the right.
-- The notification is tinted with the app's own color rather than the system default gray.
+- Android only: the notification is tinted with the app's own color rather than the system
+  default gray.
 
 Check these variants:
 
@@ -63,23 +74,29 @@ Check these variants:
      counting the group summary, a later one never replaces an earlier one. Section 8 covers
      what happens at twenty.
    - They are collected under one group rather than scattered through the shade.
-   - The group's summary line reads "New Episodes".
+   - Android: the group's summary line reads "New Episodes". iPhone: they show as one stack,
+     with no summary line.
 2. Expand the group.
    - Every anime is listed, each with its own title and episode line.
 3. Swipe one notification away and leave the rest.
    - Only that one goes. The others and the group summary stay.
-4. Swipe the group summary away.
+4. Android only, since the iPhone stack has no summary: swipe the group summary away.
    - The whole group goes.
+5. With the app open, get a new notification.
+   - It plays its sound and goes into the notification list. No banner slides over the app.
+     The iPhone shows a banner only while the app is closed, as the user's Settings choose.
 
 ## 5. Tapping one
 
 1. Tap a notification while the app is closed.
-   - The app opens on the favorites screen.
+   - The app opens on the favorites screen. On the iPhone the screen it was saved on may show
+     for a moment first.
    - The notification disappears from the shade on its own.
 2. Tap one while the app is already open on "Main".
    - The app comes forward and moves to the favorites screen.
-3. Tap one while the app is already open on "Favorites".
-   - The app comes forward and stays there. Nothing is opened twice.
+3. Tap one while the app is already open on "Favorites", scrolled down.
+   - The app comes forward on favorites, rebuilt: the list is back at the top. Nothing is
+     opened twice.
 
 ## 6. Without the permission
 
@@ -99,9 +116,11 @@ Check these variants:
 
 ## 8. Twenty at most, and which one gives way
 
-Android only: the iPhone app does not limit its notifications to twenty. Waiting for twenty
-real episodes is impractical, so this section forces the background update on an emulator. Each
-forced pass posts one notification for every subscribed anime.
+Android only, since forcing a pass needs `adb` and an emulator. The iPhone app keeps to the same
+twenty and replaces them by the same rule. Waiting for twenty real episodes is impractical, so
+this section forces the background update on an emulator. Each forced pass posts one
+notification for every subscribed anime. A notification that replaces an older one plays its
+sound again, on both platforms.
 
 Everything here is checked in the notification shade. Expand the app's group to see each
 notification. Each one shows how long ago it arrived. The clock moves a day forward before every
@@ -154,3 +173,12 @@ The steps:
 Optional, for a closer look: `adb shell dumpsys notification --noredact` lists the app's
 notifications with their numbers. Singles use 10 to 29, and the summary uses 0. A freed number is
 taken first, and when none is free, the number whose notification is oldest is reused.
+
+## 9. Platforms
+
+| What | Android | iPhone |
+| --- | --- | --- |
+| The group | a "New Episodes" summary over it | a stack with no summary line |
+| A notification while the app is open | the sound, no banner | the sound, into the list, no banner |
+| A notification while the app is closed | the sound and a status-bar icon, no banner | a banner, as the user's Settings choose |
+| The category in system settings | one, "Anime notification channel" | none; the app's own notification settings |

@@ -61,3 +61,16 @@ notification arrives.
 3. With that setting still on, go to the main screen, press home and return from recents.
    The main screen is showing.
 4. Switch **Don't keep activities** back off.
+
+## Platforms
+
+The steps name Android's tools. On the iPhone:
+
+- "The system back button" has no counterpart: the iPhone has no back button.
+- "Don't keep activities" has none either. To end the app the way the system does, start it from
+  Xcode, go to the home screen and stop it in Xcode, then open it from the home screen. It comes
+  back on the screen it was left on.
+- A tapped notification replaces the open screen with a new one on favorites, as on Android, and
+  after a cold start the screen the app was saved on may show for a moment first.
+
+The iPhone steps are unverified until the iPhone app has been built and run.

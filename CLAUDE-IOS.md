@@ -34,6 +34,23 @@ the rules both platforms share and loads this file.
 - The Compose compiler is switched on for the native targets only in that module. On Android it
   would change the DI classes, and with them what R8 produces. Keep the restriction.
 
+## What Swift calls
+
+- Swift reaches the shared code only through `IosApp` in the `iosMain` of `core-kmp:di-app`.
+  Keep the iOS `DiAppComponent` `internal`. A public one would put itself and every one of its
+  supertypes into the framework's header.
+- Call `IosApp.start()` inside `application(_:didFinishLaunchingWithOptions:)`, reached through
+  `@UIApplicationDelegateAdaptor`. iOS wants the background task registered and the
+  notification delegate set before launch ends.
+- Call `IosApp.viewController()` from `makeUIViewController` only, never from
+  `updateUIViewController`. Each call builds a new screen.
+- The view controller's representable ignores every safe area, the keyboard's included. The
+  Compose content pads itself for the system bars and the keyboard.
+- The app has one scene: `UIApplicationSupportsMultipleScenes` is `false`.
+- `Info.plist` lists the background-task identifier the iOS `AnimeBackgroundSchedulerImpl`
+  registers. It also sets `CADisableMinimumFrameDurationOnPhone` to `true`, or Compose stops the
+  app at launch.
+
 ## Versions
 
 - Every iOS version lives in `gradle/libs.versions.toml`, under the iOS headers.

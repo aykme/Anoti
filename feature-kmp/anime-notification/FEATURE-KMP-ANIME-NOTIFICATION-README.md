@@ -10,9 +10,11 @@ Shows the "new episode aired" notification for anime in the user's favorites.
 - Gradle: `implementation(project(":feature-kmp:anime-notification"))`
 - `AnimeNotificationManager` is provided via this module's per-platform
   `DiAnimeNotificationPlatformComponent`, mixed into `DiAppComponent` on both Android and iOS —
-  inject it, don't construct it yourself. Android's binding also needs an
-  [AnimeNotificationIntentProvider](../anime-notification-external/FEATURE-KMP-ANIME-NOTIFICATION-EXTERNAL-README.md)
-  implementation contributed by the consuming app.
+  inject it, don't construct it yourself. Each binding also needs the consuming app to
+  contribute a provider from
+  [`anime-notification-external`](../anime-notification-external/FEATURE-KMP-ANIME-NOTIFICATION-EXTERNAL-README.md):
+  an `AnimeNotificationIntentProvider` on Android, an `AnimeNotificationTapPayloadProvider` on
+  iOS.
 
 ## How to use it
 
