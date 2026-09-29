@@ -31,6 +31,11 @@ kotlin {
             // Robolectric reads this module's Compose resources only from the merged ones.
             isIncludeAndroidResources = true
         }
+
+        // The notification service applies posts on its own schedule, which only a device shows.
+        withDeviceTestBuilder {}.configure {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
     }
 
     iosArm64()
@@ -57,10 +62,21 @@ kotlin {
         getByName("androidHostTest").dependencies {
             implementation(libs.robolectric)
         }
+        getByName("androidDeviceTest").dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.androidx.rules)
+        }
         androidMain.dependencies {
             implementation(libs.androidx.core)
             implementation(libs.compose.ui)
             api(project(":feature-kmp:anime-notification-external"))
         }
     }
+}
+
+// Compose copies the device test's resources into a folder the host test's asset merge reads as
+// well, without Gradle seeing that dependency on its own.
+tasks.matching { it.name == "mergeAndroidHostTestAssets" }.configureEach {
+    dependsOn("copyAndroidDeviceTestComposeResourcesToAndroidAssets")
 }

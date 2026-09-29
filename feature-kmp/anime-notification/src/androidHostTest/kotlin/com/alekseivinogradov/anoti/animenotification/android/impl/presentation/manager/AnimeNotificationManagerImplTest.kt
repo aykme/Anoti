@@ -2,17 +2,16 @@ package com.alekseivinogradov.anoti.animenotification.android.impl.presentation.
 
 import android.app.Notification
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
+import android.os.Looper
 import coil3.Image
 import coil3.asImage
 import coil3.request.ErrorResult
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import com.alekseivinogradov.anoti.animenotification.android.impl.presentation.factory.CHANNEL_ID
-import com.alekseivinogradov.anoti.animenotification.external.android.impl.presentation.provider.AnimeNotificationIntentProvider
+import com.alekseivinogradov.anoti.animenotification.external.android.impl.presentation.provider.fake.AnimeNotificationIntentProviderFake
 import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.episode_aired
@@ -33,10 +32,13 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
+import java.time.Duration
+import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -46,9 +48,12 @@ private const val ANIME_NAME = "Frieren"
 private const val AIRED_EPISODE = 7
 private const val IMAGE_URL = "https://shikimori.io/system/animes/original/1.jpg"
 private const val FIRST_SINGLE_ID = 10
-private const val LAST_SINGLE_ID = 99
+private const val LAST_SINGLE_ID = 29
 private const val SUMMARY_ID = 0
 private const val SINGLE_ID_COUNT = LAST_SINGLE_ID - FIRST_SINGLE_ID + 1
+
+// Picks an order whose first id is not the lowest, so posting time and id order disagree.
+private const val SHUFFLE_SEED = 7
 
 // One function per case under test, plus the helpers those cases share.
 @Suppress("TooManyFunctions")
@@ -254,9 +259,9 @@ class AnimeNotificationManagerImplTest {
         assertEquals("Bleach", titleOf(assertNotNull(notificationWithId(FIRST_SINGLE_ID + 1))))
     }
 
-    // The mutex guarding the posting itself is not what this pins: its block suspends nowhere,
-    // so a single-threaded test dispatcher cannot interleave two calls inside it. What is pinned
-    // is that overlapping calls each end up with an id of their own.
+    // The ring's lock is not what this pins: the read, the choice and the post inside it suspend
+    // nowhere here, so a single-threaded test dispatcher cannot interleave two calls there. What
+    // is pinned is that overlapping calls each end up with an id of their own.
     @Test
     fun twoEpisodesAiringAtOnceEachGetTheirOwnNotification() = runTest {
         //Given
@@ -276,9 +281,12 @@ class AnimeNotificationManagerImplTest {
         assertNotNull(notificationWithId(SUMMARY_ID))
     }
 
+    // Robolectric's cap is stricter than Android's, since it drops updates too, so the post past
+    // the wrap only lands if it replaces a notification instead of adding one.
     @Test
     fun theNotificationIdWrapsBackAroundOnceTheLastOneIsUsed() = runTest {
         //Given
+        shadowOf(notificationManager).setEnforceMaxNotificationLimit(true)
         val manager = createManager()
         repeat(SINGLE_ID_COUNT) { number: Int ->
             manager.makeNewEpisodeNotification("Anime $number", number, IMAGE_URL)
@@ -296,14 +304,66 @@ class AnimeNotificationManagerImplTest {
             titleOf(assertNotNull(notificationWithId(FIRST_SINGLE_ID)))
         )
     }
-}
 
-private object AnimeNotificationIntentProviderFake : AnimeNotificationIntentProvider {
-    override fun getNewEpisodeNotificationIntent(appContext: Context): PendingIntent =
-        PendingIntent.getActivity(
-            appContext,
-            0,
-            Intent(),
-            PendingIntent.FLAG_IMMUTABLE
+    @Test
+    fun aNotificationLeftOnScreenBeforeTheManagerExistedIsKept() = runTest {
+        //Given
+        postElsewhere(id = FIRST_SINGLE_ID, title = "Left by an earlier process")
+        val manager = createManager()
+
+        //When
+        manager.makeNewEpisodeNotification(ANIME_NAME, AIRED_EPISODE, IMAGE_URL)
+
+        //Then
+        assertEquals(
+            "Left by an earlier process",
+            titleOf(assertNotNull(notificationWithId(FIRST_SINGLE_ID)))
         )
+        assertEquals(ANIME_NAME, titleOf(assertNotNull(notificationWithId(FIRST_SINGLE_ID + 1))))
+    }
+
+    @Test
+    fun aTaggedNotificationDoesNotTakeARingId() = runTest {
+        //Given
+        postElsewhere(id = FIRST_SINGLE_ID, title = "Tagged", tag = "someone else's")
+        val manager = createManager()
+
+        //When
+        manager.makeNewEpisodeNotification(ANIME_NAME, AIRED_EPISODE, IMAGE_URL)
+
+        //Then
+        assertEquals(ANIME_NAME, titleOf(assertNotNull(notificationWithId(FIRST_SINGLE_ID))))
+    }
+
+    @Test
+    fun withEveryIdOnScreenTheNotificationPostedFirstIsReplaced() = runTest {
+        //Given
+        // Every id of the ring, in an order unrelated to the ids, with the clock moving between.
+        val postingOrder = (FIRST_SINGLE_ID..LAST_SINGLE_ID).shuffled(Random(SHUFFLE_SEED))
+        postingOrder.forEach { id: Int ->
+            postElsewhere(id = id, title = "Earlier $id")
+            shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(1))
+        }
+        val manager = createManager()
+
+        //When
+        manager.makeNewEpisodeNotification(ANIME_NAME, AIRED_EPISODE, IMAGE_URL)
+
+        //Then
+        assertNotEquals(FIRST_SINGLE_ID, postingOrder.first())
+        assertEquals(ANIME_NAME, titleOf(assertNotNull(notificationWithId(postingOrder.first()))))
+        assertEquals(
+            "Earlier $FIRST_SINGLE_ID",
+            titleOf(assertNotNull(notificationWithId(FIRST_SINGLE_ID)))
+        )
+    }
+
+    /** Puts a notification on screen the way an earlier process or another code path would. */
+    private fun postElsewhere(id: Int, title: String, tag: String? = null) {
+        val notification = Notification.Builder(appContext, CHANNEL_ID)
+            .setContentTitle(title)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .build()
+        notificationManager.notify(tag, id, notification)
+    }
 }
