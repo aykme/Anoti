@@ -83,10 +83,10 @@ Requires at least one saved anime that has a new episode, so a notification actu
 
 ## Rotation
 
-1. On a phone, open the app and turn the device on its side, with the device's own rotation
-   lock off.
+1. On a phone, folded if it folds, open the app and turn the device on its side, with the
+   device's own rotation lock off.
    The app stays upright. It does not turn.
-2. On a tablet, an iPad or an unfolded foldable, do the same.
+2. On a wide screen, do the same: a tablet, an iPad, or a foldable phone or iPhone unfolded.
    The app turns with the device. The bottom bar stretches across the wider edge, still with
    its two items, and the section that was open stays open.
 3. Turn it back.

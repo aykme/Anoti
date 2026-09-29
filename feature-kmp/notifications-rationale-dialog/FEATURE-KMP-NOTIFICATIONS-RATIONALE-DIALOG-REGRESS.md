@@ -129,7 +129,8 @@ On the iPhone:
 - Accepting the dialog opens the Settings app on this app's notification settings, and never the
   system's prompt again. `main`'s file checks where it leads.
 - There is no system back button, so answer 3 of section 4 does not apply.
-- An iPhone keeps the app upright. Section 6 runs on an iPad.
+- A narrow screen keeps the app upright, as on Android. Section 6 runs on a wide one: an iPad, or
+  a foldable iPhone unfolded.
 - To kill the app in section 7, start it from Xcode, go to the home screen and stop it in Xcode.
 
 The iPhone steps are unverified until the iPhone app has been built and run.

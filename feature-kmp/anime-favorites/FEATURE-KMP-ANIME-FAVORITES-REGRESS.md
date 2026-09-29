@@ -245,10 +245,10 @@ until it airs, or trigger the update the way your team normally does.
 3. Press Home and return from the task switcher.
    - The list is exactly as you left it. Nothing reloads, extra mode is kept, the scroll
      position holds.
-4. Switch an item into extra mode, press Home, force-stop the app's process from a development
-   machine (`adb shell am kill com.alekseivinogradov.anoti`), then open it again from the
-   launcher.
-   - It comes back on "Favorites" with the list loaded.
+4. Scroll the list down and switch an item into extra mode. Press Home, force-stop the app's
+   process from a development machine (`adb shell am kill com.alekseivinogradov.anoti`), then
+   open it again from the launcher.
+   - It comes back on "Favorites" with the list loaded, scrolled where you left it.
    - The item you left in extra mode is still in extra mode — unlike an ordinary arrival, a
      return from a killed process keeps it.
    - No crash, no endless spinner.
@@ -306,6 +306,7 @@ The steps name Android's tools. On the iPhone:
 - Swiping the app away in the app switcher is the user closing it. The app then starts fresh.
 - Changing the font or display size does not restart the app on the iPhone. The screen stays as
   it is, so the passes in section 0 check only the layout there.
-- An iPhone keeps the app upright. The rotation steps of section 11 run on an iPad.
+- A narrow screen keeps the app upright, as on Android. The rotation steps of section 11 run on a
+  wide one: an iPad, or a foldable iPhone unfolded.
 
 The iPhone steps are unverified until the iPhone app has been built and run.

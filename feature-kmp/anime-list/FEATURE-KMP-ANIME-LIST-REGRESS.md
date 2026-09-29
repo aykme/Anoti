@@ -320,6 +320,7 @@ The steps name Android's tools. On the iPhone:
 - Swiping the app away in the app switcher is the user closing it. The app then starts fresh.
 - Changing the font or display size does not restart the app on the iPhone. The screen stays as
   it is, so the passes in section 0 check only the layout there.
-- An iPhone keeps the app upright. The rotation steps of section 13 run on an iPad.
+- A narrow screen keeps the app upright, as on Android. The rotation steps of section 13 run on a
+  wide one: an iPad, or a foldable iPhone unfolded.
 
 The iPhone steps are unverified until the iPhone app has been built and run.
