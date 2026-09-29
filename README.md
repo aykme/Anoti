@@ -51,8 +51,8 @@ Minimum versions:
 1. The app runs on Android 10 (API 29) and newer, and on iOS 16 and newer.
 2. The Android app is built with Android Studio Panda 2 (2025.3.2) or newer. It is the oldest
    Android Studio that supports the project's Android Gradle Plugin.
-3. Gradle runs on JDK 21. When the machine has no JDK 21, it is downloaded automatically during
-   the first Gradle sync.
+3. Gradle runs on JDK 21. When Gradle finds no JDK 21 on the machine, it downloads one during the
+   first Gradle sync.
 4. The iOS app is built with Xcode 26.4 or newer, the release the project's Kotlin version is
    documented against. Xcode 26.4 runs on macOS Tahoe 26.2 and newer.
 5. The iOS build runs the project's Gradle build as well, so the Mac also needs a JDK and the
@@ -62,6 +62,8 @@ Setting up the Android project:
 
 1. Install Android Studio Panda 2 (2025.3.2) or newer. Its first-launch wizard downloads the
    Android SDK.
-2. Open the repository root in Android Studio and wait for the Gradle sync to finish. JDK 21 is
-   downloaded during that sync if the machine has none, so no separate JDK install is needed.
+2. Open the repository root in Android Studio and wait for the Gradle sync to finish. No separate
+   JDK install is needed. Gradle first looks for an installed JDK 21: the one `JAVA_HOME` points
+   to, the usual install folders of the system, and JDKs installed through Android Studio. Only
+   when it finds none does it download JDK 21 during that sync.
 3. Run the `androidApp` configuration.
