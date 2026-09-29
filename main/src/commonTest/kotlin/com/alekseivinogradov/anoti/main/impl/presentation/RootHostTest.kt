@@ -155,7 +155,10 @@ class RootHostTest {
         val root = createRoot(openingTarget = openingTarget)
 
         //Then
-        assertSame(dependencies.animeDatabaseStores.first(), root.host.dependencies.animeDatabaseStore)
+        assertSame(
+            dependencies.animeDatabaseStores.first(),
+            root.host.dependencies.animeDatabaseStore
+        )
     }
 
     @Test
@@ -190,7 +193,9 @@ class RootHostTest {
         val root = createRoot()
 
         //When
-        root.host.onNotificationPermissionStatus(status(canPrompt = true, isExplanationOwed = false))
+        root.host.onNotificationPermissionStatus(
+            status(canPrompt = true, isExplanationOwed = false)
+        )
 
         //Then
         assertEquals(1, requests.prompts)
@@ -203,7 +208,9 @@ class RootHostTest {
         val root = createRoot()
 
         //When
-        root.host.onNotificationPermissionStatus(status(canPrompt = true, isExplanationOwed = true))
+        root.host.onNotificationPermissionStatus(
+            status(canPrompt = true, isExplanationOwed = true)
+        )
 
         //Then
         assertTrue(root.host.notificationsRationale.visible.value)
@@ -214,7 +221,9 @@ class RootHostTest {
     fun asksTheSystemOnceTheExplanationIsAccepted() {
         //Given
         val root = createRoot()
-        root.host.onNotificationPermissionStatus(status(canPrompt = true, isExplanationOwed = true))
+        root.host.onNotificationPermissionStatus(
+            status(canPrompt = true, isExplanationOwed = true)
+        )
 
         //When
         root.host.notificationsRationale.onApprove()
@@ -229,7 +238,9 @@ class RootHostTest {
     fun opensTheSettingsOnceTheExplanationIsAcceptedWhenTheSystemCannotAsk() {
         //Given
         val root = createRoot()
-        root.host.onNotificationPermissionStatus(status(canPrompt = false, isExplanationOwed = false))
+        root.host.onNotificationPermissionStatus(
+            status(canPrompt = false, isExplanationOwed = false)
+        )
         val shownBeforeApproval = root.host.notificationsRationale.visible.value
 
         //When
@@ -246,7 +257,9 @@ class RootHostTest {
     fun dropsTheExplanationAndAsksNothingWhenItIsRefused() {
         //Given
         val root = createRoot()
-        root.host.onNotificationPermissionStatus(status(canPrompt = true, isExplanationOwed = true))
+        root.host.onNotificationPermissionStatus(
+            status(canPrompt = true, isExplanationOwed = true)
+        )
 
         //When
         root.host.notificationsRationale.onDismiss()
@@ -264,7 +277,11 @@ class RootHostTest {
 
         //When
         root.host.onNotificationPermissionStatus(
-            NotificationPermissionStatus(isAllowed = true, canPrompt = true, isExplanationOwed = false)
+            NotificationPermissionStatus(
+                isAllowed = true,
+                canPrompt = true,
+                isExplanationOwed = false
+            )
         )
 
         //Then

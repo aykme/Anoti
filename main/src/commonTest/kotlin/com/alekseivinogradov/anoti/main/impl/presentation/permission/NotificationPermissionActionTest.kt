@@ -73,9 +73,21 @@ class NotificationPermissionActionTest {
     fun allowedNotificationsOutweighEverythingElse() {
         //Given
         val statuses = listOf(
-            NotificationPermissionStatus(isAllowed = true, canPrompt = false, isExplanationOwed = true),
-            NotificationPermissionStatus(isAllowed = true, canPrompt = true, isExplanationOwed = true),
-            NotificationPermissionStatus(isAllowed = true, canPrompt = false, isExplanationOwed = false)
+            NotificationPermissionStatus(
+                isAllowed = true,
+                canPrompt = false,
+                isExplanationOwed = true
+            ),
+            NotificationPermissionStatus(
+                isAllowed = true,
+                canPrompt = true,
+                isExplanationOwed = true
+            ),
+            NotificationPermissionStatus(
+                isAllowed = true,
+                canPrompt = false,
+                isExplanationOwed = false
+            )
         )
 
         //When
