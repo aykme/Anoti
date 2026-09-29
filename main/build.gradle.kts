@@ -65,12 +65,14 @@ kotlin {
             implementation(libs.androidx.core)
             implementation(libs.androidx.activity.compose)
         }
-        getByName("androidHostTest").dependencies {
+        commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.ktor.client.mock)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.mvikotlin.main)
+        }
+        getByName("androidHostTest").dependencies {
             implementation(libs.robolectric)
             implementation(libs.compose.ui.test.junit4)
             // Two of the host tests write the deep-link payload with Json themselves.

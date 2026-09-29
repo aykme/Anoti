@@ -16,49 +16,45 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
-import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation.NavAnimeFavoritesScreenComponent
-import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation.NavAnimeListScreenComponent
-import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
-import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
-import com.alekseivinogradov.anoti.main.impl.presentation.compose.NotificationsRationaleState
 import com.alekseivinogradov.anoti.main.impl.presentation.compose.RootContent
-import com.alekseivinogradov.anoti.main.impl.presentation.compose.RootDependencies
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponentHolder
-import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
-import com.alekseivinogradov.anoti.navigation.kmp.NavRootComponent
+import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionRequests
+import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionStatus
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootDeepLink
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.defaultComponentContext
-import com.arkivanov.essenty.lifecycle.Lifecycle
-import com.arkivanov.essenty.lifecycle.asEssentyLifecycle
-import com.arkivanov.essenty.lifecycle.doOnDestroy
 
 /**
- * The Android entry point. Builds the root navigation, shows the root content, and asks for the
- * notification permission. Opens on the screen a tapped notification names.
+ * The Android entry point. Hands the root UI's shared work to a [RootHost], shows the root
+ * content, and supplies what only Android can: the saved state, the notification permission and
+ * the screen a tapped notification names.
  */
 class MainActivity : ComponentActivity() {
-
-    private lateinit var diRootComponent: DiRootComponent
-
-    private lateinit var rootComponent: NavRootComponent<NavRootChild>
 
     private val requestPermissionLauncher: ActivityResultLauncher<String> =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
-    private lateinit var mainStore: BottomNavigationBarStore
+    private val notificationPermissionRequests = object : NotificationPermissionRequests {
+        override fun prompt() {
+            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
 
-    private lateinit var animeDatabaseStore: AnimeDatabaseStore
-
-    private val notificationsRationaleVisible = mutableStateOf(false)
-
-    private val essentyLifecycle: Lifecycle = lifecycle.asEssentyLifecycle()
+        override fun openSettings() {
+            val intent = Intent().also {
+                it.action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
+                it.putExtra(
+                    /* name = */
+                    Settings.EXTRA_APP_PACKAGE,
+                    /* value = */
+                    packageName
+                )
+            }
+            startActivity(intent)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // defaultComponentContext() reads the SavedStateRegistry, which only becomes readable
@@ -68,79 +64,27 @@ class MainActivity : ComponentActivity() {
         // The cast emits its own null check anyway, and that one names the expected type.
         @Suppress("CastNullableToNonNullableType")
         val componentHolder = application as DiRootComponentHolder
-        diRootComponent = componentHolder.createDiRootComponent()
-        mainStore = diRootComponent.bottomNavigationBarStore
-        animeDatabaseStore = diRootComponent.animeDatabaseStore
-        // These are closed from where they are created. The binding that would otherwise close
-        // them only starts once the first composition's effects run. The activity can be gone by
-        // then. A second dispose is a no-op, so the binding's own call stays harmless.
-        essentyLifecycle.doOnDestroy {
-            mainStore.dispose()
-            animeDatabaseStore.dispose()
-        }
         // getIntent() keeps returning the launching Intent for the whole task, so the deep link
         // must only be honored on a fresh start. Otherwise, every Activity recreation would
         // discard the restored navigation state and jump back to the deep link's target.
-        val deepLinkTarget = if (savedInstanceState == null) readDeepLinkTarget() else null
-        val initialNavConfig = deepLinkTarget ?: NavRootConfig.AnimeList
-        rootComponent = NavRootComponent(
-            componentContext = defaultComponentContext(discardSavedState = deepLinkTarget != null),
-            initialConfiguration = initialNavConfig,
-            childFactory = ::createRootChild
-        )
-        // The only path that gets the bar's first tab right, not a shortcut for one. The view
-        // dispatches the same intent, but its binder attaches on a later main-thread message, so
-        // that first dispatch reaches no subscriber and is dropped. Removing this line leaves the
-        // bar highlighting the wrong tab after a launch into favorites. `childStack.value` is
-        // already valid here: it resolves the initial or restored child on construction.
-        mainStore.accept(
-            BottomNavigationBarStore.Intent.ChangeSelectedSection(
-                selectedSection = rootComponent.childStack.value.active.instance.section
-            )
+        val rootHost = RootHost(
+            diRootComponent = componentHolder.createDiRootComponent(),
+            openingTarget = if (savedInstanceState == null) readDeepLinkTarget() else null,
+            createComponentContext = { discardSavedState: Boolean ->
+                defaultComponentContext(discardSavedState = discardSavedState)
+            },
+            notificationPermissionRequests = notificationPermissionRequests
         )
 
         setSystemSettings()
         setContent {
             RootContent(
-                dependencies = RootDependencies(
-                    rootComponent = rootComponent,
-                    mainStore = mainStore,
-                    animeDatabaseStore = animeDatabaseStore,
-                    systemMessageController = diRootComponent.parent.systemMessageController,
-                    lifecycle = essentyLifecycle
-                ),
-                notificationsRationale = NotificationsRationaleState(
-                    visible = notificationsRationaleVisible,
-                    onDismiss = { notificationsRationaleVisible.value = false },
-                    onApprove = {
-                        notificationsRationaleVisible.value = false
-                        onNotificationRequestApproved()
-                    }
-                )
+                dependencies = rootHost.dependencies,
+                notificationsRationale = rootHost.notificationsRationale
             )
         }
-        requestToEnableNotificationsIfNecessary()
+        rootHost.onNotificationPermissionStatus(readNotificationPermissionStatus())
     }
-
-    private fun createRootChild(
-        config: NavRootConfig,
-        componentContext: ComponentContext
-    ): NavRootChild =
-        when (config) {
-            NavRootConfig.AnimeList -> NavRootChild.List(
-                NavAnimeListScreenComponent(
-                    componentContext = componentContext,
-                    diAnimeListComponent = diRootComponent.createDiAnimeListComponent()
-                )
-            )
-
-            NavRootConfig.AnimeFavorites -> NavRootChild.Favorites(
-                NavAnimeFavoritesScreenComponent(
-                    componentContext = componentContext,
-                    diAnimeFavoritesComponent = diRootComponent.createDiAnimeFavoritesComponent()
-                )
-            )
-        }
 
     /**
      * This Activity is exported, so any app can launch it with an arbitrary extra — a malformed
@@ -167,56 +111,32 @@ class MainActivity : ComponentActivity() {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }
 
-    private fun requestToEnableNotificationsIfNecessary() {
+    // Below Android 13 notifications need no runtime permission, so the system has no question
+    // to ask. They can only be switched back on in the settings.
+    private fun readNotificationPermissionStatus(): NotificationPermissionStatus =
         if (Build.VERSION.SDK_INT >= TIRAMISU) {
-            when {
-                ContextCompat.checkSelfPermission(
+            NotificationPermissionStatus(
+                isAllowed = ContextCompat.checkSelfPermission(
                     /* context = */
                     this,
                     /* permission = */
                     Manifest.permission.POST_NOTIFICATIONS
-                ) == PackageManager.PERMISSION_GRANTED -> Unit
-
-                ActivityCompat.shouldShowRequestPermissionRationale(
+                ) == PackageManager.PERMISSION_GRANTED,
+                canPrompt = true,
+                isExplanationOwed = ActivityCompat.shouldShowRequestPermissionRationale(
                     /* activity = */
                     this,
                     /* permission = */
                     Manifest.permission.POST_NOTIFICATIONS
-                ) -> {
-                    showNotificationsRationale()
-                }
-
-                else -> {
-                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                }
-            }
-        } else {
-            if (NotificationManagerCompat.from(this).areNotificationsEnabled().not()) {
-                showNotificationsRationale()
-            }
-        }
-    }
-
-    private fun showNotificationsRationale() {
-        notificationsRationaleVisible.value = true
-    }
-
-    private fun onNotificationRequestApproved() {
-        if (Build.VERSION.SDK_INT >= TIRAMISU) {
-            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-        } else {
-            val intent = Intent().also {
-                it.action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
-                it.putExtra(
-                    /* name = */
-                    Settings.EXTRA_APP_PACKAGE,
-                    /* value = */
-                    this.packageName
                 )
-            }
-            this.startActivity(intent)
+            )
+        } else {
+            NotificationPermissionStatus(
+                isAllowed = NotificationManagerCompat.from(this).areNotificationsEnabled(),
+                canPrompt = false,
+                isExplanationOwed = false
+            )
         }
-    }
 
     companion object {
         const val EXTRA_DEEP_LINK_TARGET = "deep_link_target"

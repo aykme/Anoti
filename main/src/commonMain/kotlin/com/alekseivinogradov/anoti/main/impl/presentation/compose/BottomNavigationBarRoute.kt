@@ -16,7 +16,7 @@ import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
 
 /**
  * Renders the bottom navigation bar and keeps its selected tab synced to [activeChild]. The
- * view/controller/store binding is created once for the Activity's lifetime, matching
+ * view/controller/store binding is created once for the root host's lifetime, matching
  * [BottomNavigationBarStore]'s own lifetime.
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
