@@ -7,15 +7,18 @@ import com.alekseivinogradov.anoti.main.impl.di.createDiRootComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.RootLifecycle
 import com.alekseivinogradov.anoti.main.impl.presentation.RootSession
 import com.alekseivinogradov.anoti.main.impl.presentation.compose.RootSessionContent
+import com.alekseivinogradov.anoti.main.impl.presentation.notification.NotificationTapDelegate
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.IosNotificationPermissionRequests
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.readIosNotificationPermissionStatus
 import com.arkivanov.essenty.lifecycle.ApplicationLifecycle
 import platform.UIKit.UIViewController
+import platform.UserNotifications.UNUserNotificationCenter
 
 /**
  * The iOS screen host, the counterpart of `MainActivity`. It shows the app's screen and supplies
- * what only iOS can: the lifecycle and the notification permission. One instance lives for the
- * whole process, and each composition of its screen gets a new root.
+ * what only iOS can: the lifecycle, the notification permission and the screen a tapped
+ * notification names. One instance lives for the whole process, and each composition of its
+ * screen gets a new root.
  *
  * Main thread only.
  *
@@ -29,6 +32,19 @@ class IosScreenHost(diRootDependencies: DiRootDependencies) {
         notificationPermissionRequests = IosNotificationPermissionRequests(),
         readNotificationPermissionStatus = ::readIosNotificationPermissionStatus
     )
+
+    // Held here: the notification center keeps only a weak reference to its delegate.
+    private val notificationTapDelegate = NotificationTapDelegate(
+        openFromNotification = session::openFromNotification
+    )
+
+    /**
+     * Starts what the host serves for the whole process. Called once, before the app finishes
+     * launching, so a tap that launched the app reaches the delegate.
+     */
+    fun start() {
+        UNUserNotificationCenter.currentNotificationCenter().delegate = notificationTapDelegate
+    }
 
     /** Builds a new view controller over the app's screen. */
     fun viewController(): UIViewController = ComposeUIViewController(

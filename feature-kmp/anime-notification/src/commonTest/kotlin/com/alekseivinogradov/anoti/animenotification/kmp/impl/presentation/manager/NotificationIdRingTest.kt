@@ -283,6 +283,42 @@ class NotificationIdRingTest {
         assertEquals(10, id)
     }
 
+    @Test
+    fun anIdPostedUnderItsIdentifierReadsBackWithItsMomentInMilliseconds() {
+        //Given
+        val identifier = ringNotificationIdentifier(17)
+
+        //When
+        val shown = shownNotificationOf(identifier, deliveredAtEpochSeconds = 1_700_000_000.123)
+
+        //Then
+        assertEquals(ShownNotification(id = 17, postedAtMillis = 1_700_000_000_123), shown)
+    }
+
+    @Test
+    fun anIdentifierThatIsNotANumberIsNotTheRings() {
+        //Given
+        val identifiers = listOf("summary", "ANIME_NOTIFICATION_Frieren_12", "")
+
+        //When
+        val shown = identifiers.map { shownNotificationOf(it, deliveredAtEpochSeconds = 1.0) }
+
+        //Then
+        assertEquals(listOf(null, null, null), shown)
+    }
+
+    @Test
+    fun anIdOutsideTheRingReadsBackAsItselfForTheRingToIgnore() {
+        //Given
+        val identifier = ringNotificationIdentifier(99)
+
+        //When
+        val shown = shownNotificationOf(identifier, deliveredAtEpochSeconds = 2.0)
+
+        //Then
+        assertEquals(ShownNotification(id = 99, postedAtMillis = 2000), shown)
+    }
+
     private fun shown(id: Int, at: Long): ShownNotification =
         ShownNotification(id = id, postedAtMillis = at)
 

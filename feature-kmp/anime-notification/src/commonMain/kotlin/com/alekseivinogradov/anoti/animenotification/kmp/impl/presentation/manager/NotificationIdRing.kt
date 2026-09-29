@@ -2,6 +2,7 @@ package com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.mana
 
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlin.math.roundToLong
 
 /**
  * A notification the platform shows for this app.
@@ -10,6 +11,27 @@ import kotlinx.coroutines.sync.withLock
  * @param postedAtMillis when it was last posted, in epoch milliseconds.
  */
 internal data class ShownNotification(val id: Int, val postedAtMillis: Long)
+
+/** The text identifier a platform that names its notifications by text posts [id] under. */
+internal fun ringNotificationIdentifier(id: Int): String = id.toString()
+
+/**
+ * Reads a notification shown under [identifier] back, or `null` when the identifier is not a
+ * number and so was not written by [ringNotificationIdentifier].
+ *
+ * @param deliveredAtEpochSeconds when it was shown, in epoch seconds with a fraction.
+ */
+internal fun shownNotificationOf(
+    identifier: String,
+    deliveredAtEpochSeconds: Double
+): ShownNotification? = identifier.toIntOrNull()?.let { id: Int ->
+    ShownNotification(
+        id = id,
+        postedAtMillis = (deliveredAtEpochSeconds * MILLIS_PER_SECOND).roundToLong()
+    )
+}
+
+private const val MILLIS_PER_SECOND = 1000
 
 /**
  * Hands out the ids of new-episode notifications, from 10 to 29. The next id is the first free

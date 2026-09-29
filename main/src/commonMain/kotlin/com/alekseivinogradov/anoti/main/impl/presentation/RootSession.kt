@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionRequests
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionStatus
+import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.statekeeper.StateKeeperDispatcher
 
@@ -39,15 +40,23 @@ internal class RootSession(
     var currentRoot: SessionRoot? = null
         private set
 
+    // The screen a tapped notification asked for, until a root opens on it.
+    private var pendingTarget: NavRootConfig? = null
+
     // Only numbers the roots in the log.
     private var builtRoots = 0
 
-    /** Builds a new root and makes it the current one. */
+    /**
+     * Builds a new root and makes it the current one. A root built after a notification tap opens
+     * on the screen the tap asked for, with saved state discarded. Later roots no longer see it.
+     */
     fun createRoot(): SessionRoot {
+        val openingTarget = pendingTarget
+        pendingTarget = null
         val lifecycle = createLifecycle()
         val host = RootHost(
             diRootComponent = createDiRootComponent(),
-            openingTarget = null,
+            openingTarget = openingTarget,
             createComponentContext = { _: Boolean ->
                 DefaultComponentContext(
                     lifecycle = lifecycle.lifecycle,
@@ -69,6 +78,19 @@ internal class RootSession(
             currentRoot = null
         }
         println("$TAG: ended root ${root.number}")
+    }
+
+    /**
+     * Opens the app on [target], the screen a tapped notification names. A cold tap and a warm one
+     * are alike: the next root opens on it, and a live root is replaced by a new one at once.
+     */
+    fun openFromNotification(target: NavRootConfig) {
+        pendingTarget = target
+        val rebuilds = currentRoot != null
+        if (rebuilds) {
+            generationState.intValue++
+        }
+        println("$TAG: a notification opens $target, rebuilding: $rebuilds")
     }
 
     /**

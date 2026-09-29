@@ -16,7 +16,8 @@ object IosApp {
 
     /**
      * Builds the app. Called from `application(_:didFinishLaunchingWithOptions:)`: the platform
-     * wants the background task registered before launch ends. A second call does nothing.
+     * wants the background task registered and the notification delegate set before launch
+     * ends. A second call does nothing.
      */
     fun start() {
         if (::screenHost.isInitialized) return
@@ -24,7 +25,7 @@ object IosApp {
         val diAppComponent = createDiAppComponent(appContext = IosAppContext)
         // Building the scheduler registers its background-task handler.
         diAppComponent.animeBackgroundScheduler.schedulePeriodicUpdate()
-        screenHost = IosScreenHost(diRootDependencies = diAppComponent)
+        screenHost = IosScreenHost(diRootDependencies = diAppComponent).also { it.start() }
     }
 
     /**

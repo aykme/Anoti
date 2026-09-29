@@ -12,6 +12,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.impl.di.DiCelebrityComponent
 import com.alekseivinogradov.anoti.di.kmp.qualifier.AppContext
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import com.alekseivinogradov.anoti.main.api.di.DiRootDependencies
+import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootNotificationTapComponent
 import com.alekseivinogradov.anoti.network.ios.impl.di.DiNetworkPlatformComponent
 import com.alekseivinogradov.anoti.network.kmp.impl.di.DiNetworkComponent
 import me.tatarka.inject.annotations.Component
@@ -41,6 +42,7 @@ internal abstract class DiAppComponent(
     DiAnimeBackgroundUpdateComponent,
     DiAnimeBackgroundUpdatePlatformComponent,
     DiAnimeNotificationPlatformComponent,
+    DiRootNotificationTapComponent,
     DiRootDependencies {
 
     /** The app-wide [AnimeNotificationManager]. */

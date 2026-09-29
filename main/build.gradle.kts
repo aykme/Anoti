@@ -42,6 +42,9 @@ kotlin {
             api(project(":core-kmp:network"))
             api(project(":core-kmp:anime-database"))
             api(project(":core-kmp:navigation"))
+            // The notification providers and their DI bindings are public and name the contracts
+            // from this module.
+            api(project(":feature-kmp:anime-notification-external"))
             api(libs.mvikotlin)
 
             implementation(project(":feature-kmp:notifications-rationale-dialog"))
@@ -57,9 +60,7 @@ kotlin {
             api(libs.kotlin.inject.runtime.kmp)
         }
         androidMain.dependencies {
-            // Same reason as above: `DiRootPlatformComponent` hands back this module's provider
-            // type, and `MainActivity` is a public `ComponentActivity`.
-            api(project(":feature-kmp:anime-notification-external"))
+            // `MainActivity` is a public `ComponentActivity`.
             api(libs.androidx.activity)
 
             implementation(libs.androidx.core)

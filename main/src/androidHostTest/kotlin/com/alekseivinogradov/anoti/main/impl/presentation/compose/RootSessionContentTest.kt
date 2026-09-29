@@ -1,14 +1,18 @@
 package com.alekseivinogradov.anoti.main.impl.presentation.compose
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import com.alekseivinogradov.anoti.main.impl.di.createDiRootComponent
+import com.alekseivinogradov.anoti.main.impl.presentation.ANIME_FAVORITES_TAB_TAG
 import com.alekseivinogradov.anoti.main.impl.presentation.DiRootDependenciesFake
 import com.alekseivinogradov.anoti.main.impl.presentation.RootLifecycle
 import com.alekseivinogradov.anoti.main.impl.presentation.RootSession
 import com.alekseivinogradov.anoti.main.impl.presentation.TestMainDispatcher
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionStatus
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.fake.NotificationPermissionRequestsFake
+import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.destroy
@@ -92,6 +96,28 @@ class RootSessionContentTest {
         //Then
         assertEquals(Lifecycle.State.DESTROYED, lifecycles.single().state)
         assertNull(session.currentRoot)
+    }
+
+    @Test
+    fun aTapEndsTheRootShownAndShowsANewOneOnItsScreen() {
+        //Given
+        composeRule.setContent { RootSessionContent(session = session) }
+        composeRule.waitForIdle()
+
+        //When
+        session.openFromNotification(NavRootConfig.AnimeFavorites)
+        composeRule.waitForIdle()
+
+        //Then
+        assertEquals(2, lifecycles.size)
+        assertEquals(Lifecycle.State.DESTROYED, lifecycles.first().state)
+        assertSame(lifecycles.last(), session.currentRoot?.lifecycle?.lifecycle)
+        assertEquals(
+            NavRootConfig.AnimeFavorites,
+            session.currentRoot?.host?.dependencies?.rootComponent?.childStack?.value?.active
+                ?.configuration
+        )
+        composeRule.onNodeWithTag(ANIME_FAVORITES_TAB_TAG).assertIsSelected()
     }
 
     @Test

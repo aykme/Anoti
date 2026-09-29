@@ -21,6 +21,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.alekseivinogradov.anoti.main.impl.presentation.compose.RootContent
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponentHolder
+import com.alekseivinogradov.anoti.main.impl.presentation.notification.NOTIFICATION_TAP_TARGET_KEY
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionRequests
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionStatus
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
@@ -139,6 +140,6 @@ class MainActivity : ComponentActivity() {
         }
 
     companion object {
-        const val EXTRA_DEEP_LINK_TARGET = "deep_link_target"
+        const val EXTRA_DEEP_LINK_TARGET = NOTIFICATION_TAP_TARGET_KEY
     }
 }

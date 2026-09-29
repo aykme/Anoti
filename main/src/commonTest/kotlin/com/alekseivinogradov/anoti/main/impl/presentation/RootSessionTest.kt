@@ -126,6 +126,61 @@ class RootSessionTest {
     }
 
     @Test
+    fun aTapBeforeAnyRootOpensTheFirstRootOnItsScreenWithoutARebuild() {
+        //Given
+        session.openFromNotification(NavRootConfig.AnimeFavorites)
+
+        //When
+        val first = session.createRoot()
+
+        //Then
+        assertEquals(NavRootConfig.AnimeFavorites, first.activeScreen)
+        assertEquals(0, session.generation)
+    }
+
+    @Test
+    fun theRootAfterTheOneATapOpenedNoLongerSeesTheTap() {
+        //Given
+        session.openFromNotification(NavRootConfig.AnimeFavorites)
+        session.endRoot(session.createRoot())
+
+        //When
+        val next = session.createRoot()
+
+        //Then
+        assertEquals(NavRootConfig.AnimeList, next.activeScreen)
+    }
+
+    @Test
+    fun aTapWithALiveRootAsksForANewRootThatOpensOnItsScreen() {
+        //Given
+        val live = session.createRoot()
+
+        //When
+        session.openFromNotification(NavRootConfig.AnimeFavorites)
+        val next = session.createRoot()
+        session.endRoot(live)
+
+        //Then
+        assertEquals(1, session.generation)
+        assertEquals(NavRootConfig.AnimeFavorites, next.activeScreen)
+        assertSame(next, session.currentRoot)
+    }
+
+    @Test
+    fun aTapOnTheScreenAlreadyOpenStillRebuilds() {
+        //Given
+        session.openFromNotification(NavRootConfig.AnimeFavorites)
+        session.createRoot()
+
+        //When
+        session.openFromNotification(NavRootConfig.AnimeFavorites)
+
+        //Then
+        assertEquals(1, session.generation)
+    }
+
+    @Test
     fun thePermissionCheckActsOnTheStatusOfItsRoot() = runTest {
         //Given
         val root = session.createRoot()

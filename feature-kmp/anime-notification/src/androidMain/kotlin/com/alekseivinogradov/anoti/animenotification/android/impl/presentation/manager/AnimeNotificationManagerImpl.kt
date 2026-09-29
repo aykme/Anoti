@@ -14,6 +14,7 @@ import com.alekseivinogradov.anoti.animenotification.external.android.impl.prese
 import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.new_episodes
+import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.manager.NEW_EPISODES_GROUP_KEY
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.manager.NotificationIdRing
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.manager.ShownNotification
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.manager.newEpisodeNotificationText
@@ -38,8 +39,6 @@ internal class AnimeNotificationManagerImpl(
 
     private val notificationManager: NotificationManagerCompat =
         NotificationManagerCompat.from(appContext)
-
-    private val newEpisodesGroupKey = "ANIME_NOTIFICATION_NEW_EPISODE_GROUP_KEY"
 
     // The periodic and the one-off update passes can run at the same time, and the ring hands
     // each of them its own id.
@@ -112,7 +111,7 @@ internal class AnimeNotificationManagerImpl(
         CHANNEL_ID
     )
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-        .setGroup(newEpisodesGroupKey)
+        .setGroup(NEW_EPISODES_GROUP_KEY)
         .setColor(iconColor)
         .setColorized(true)
         .setSmallIcon(res_R.mipmap.ic_notification)
