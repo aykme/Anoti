@@ -14,12 +14,6 @@ import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.wor
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.manager.AnimeUpdateManager
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.scheduler.AnimeBackgroundScheduler
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
-import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.manager.AnimeUpdateManagerImpl
-import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.FetchAnimeListByIdsUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsUsecase
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
-import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.di.kmp.PlatformContext
 import com.alekseivinogradov.anoti.di.kmp.qualifier.AnimeBackgroundUpdate
 import com.alekseivinogradov.anoti.di.kmp.qualifier.AppContext
@@ -28,27 +22,12 @@ import me.tatarka.inject.annotations.Provides
 import java.util.concurrent.TimeUnit
 
 /**
- * Provides the Android [AnimeUpdateManager], the app's [WorkManager] handle and its work
- * requests, and the WorkManager-backed [AnimeBackgroundScheduler]/
- * [UpdateAllAnimeInBackgroundOnceUsecase] bindings; mixed into `:androidApp`'s `DiAppComponent`.
+ * Provides the app's [WorkManager] handle and its work requests, and the WorkManager-backed
+ * [AnimeBackgroundScheduler]/[UpdateAllAnimeInBackgroundOnceUsecase] bindings; mixed into
+ * `core-kmp:di-app`'s Android `DiAppComponent`. The [AnimeUpdateManager] the worker runs comes
+ * from the common `DiAnimeBackgroundUpdateComponent`.
  */
 interface DiAnimeBackgroundUpdatePlatformComponent {
-    @Provides
-    @AppScope
-    fun provideAnimeUpdateManager(
-        coroutineContextProvider: CoroutineContextProvider,
-        fetchAllAnimeDatabaseItemsUsecase: FetchAllAnimeDatabaseItemsUsecase,
-        fetchAnimeListByIdsUsecase: FetchAnimeListByIdsUsecase,
-        updateAnimeDatabaseItemUsecase: UpdateAnimeDatabaseItemUsecase,
-        notificationManager: AnimeNotificationManager
-    ): AnimeUpdateManager = AnimeUpdateManagerImpl(
-        coroutineContextProvider = coroutineContextProvider,
-        fetchAllAnimeDatabaseItemsUsecase = fetchAllAnimeDatabaseItemsUsecase,
-        fetchAnimeListByIdsUsecase = fetchAnimeListByIdsUsecase,
-        updateAnimeDatabaseItemUsecase = updateAnimeDatabaseItemUsecase,
-        notificationManager = notificationManager
-    )
-
     @Provides
     @AnimeBackgroundUpdate
     fun provideAnimeUpdateOnceWork(): OneTimeWorkRequest =

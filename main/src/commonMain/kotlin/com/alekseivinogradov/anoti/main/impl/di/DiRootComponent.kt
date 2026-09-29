@@ -11,6 +11,7 @@ import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.di.DiBottomNavig
 import com.alekseivinogradov.anoti.di.kmp.scope.RootScope
 import com.alekseivinogradov.anoti.main.api.di.DiRootDependencies
 import me.tatarka.inject.annotations.Component
+import me.tatarka.inject.annotations.KmpComponentCreate
 
 /**
  * The root UI host's graph — one instance per host, built from the app-wide component. Owns the
@@ -35,3 +36,7 @@ abstract class DiRootComponent(
     fun createDiAnimeFavoritesComponent(): DiAnimeFavoritesComponent =
         createDiAnimeFavoritesComponent(parent = this)
 }
+
+/** Builds the root UI host's graph on top of the app-wide [parent]. */
+@KmpComponentCreate
+expect fun createDiRootComponent(parent: DiRootDependencies): DiRootComponent

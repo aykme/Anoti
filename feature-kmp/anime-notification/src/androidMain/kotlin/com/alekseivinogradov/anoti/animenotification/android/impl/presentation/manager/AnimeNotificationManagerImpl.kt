@@ -14,12 +14,12 @@ import com.alekseivinogradov.anoti.animenotification.external.android.impl.prese
 import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.Res
 import com.alekseivinogradov.anoti.animenotification.kmp.generated.resources.new_episodes
+import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.manager.NotificationIdRing
+import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.manager.ShownNotification
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.manager.newEpisodeNotificationText
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.poster.PosterLoader
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SilverTransparent
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.getString
 import com.alekseivinogradov.anoti.celebrity.kmp.R as res_R
@@ -39,14 +39,11 @@ internal class AnimeNotificationManagerImpl(
     private val notificationManager: NotificationManagerCompat =
         NotificationManagerCompat.from(appContext)
 
-    // The periodic and the one-off update passes can run at the same time, and each id may only
-    // be handed out once.
-    private val postingMutex = Mutex()
-
     private val newEpisodesGroupKey = "ANIME_NOTIFICATION_NEW_EPISODE_GROUP_KEY"
 
-    /** Single id should be from [DEFAULT_SINGLE_ID] to [MAX_SINGLE_ID] */
-    private var singleId = DEFAULT_SINGLE_ID
+    // The periodic and the one-off update passes can run at the same time, and the ring hands
+    // each of them its own id.
+    private val singleIds = NotificationIdRing(shownNotifications = ::readShownNotifications)
 
     /** Group ids should be from 0 to 9 */
     private val newEpisodesSummaryId = 0
@@ -69,22 +66,21 @@ internal class AnimeNotificationManagerImpl(
             )
             val summaryNotification = buildSummaryNotification()
 
-            postingMutex.withLock {
+            singleIds.withNextId { singleId: Int ->
                 notificationManager.notify(
                     /* id = */
                     singleId,
                     /* notification = */
                     singleNotification
                 )
-                changeSingleIdToNext()
-
-                notificationManager.notify(
-                    /* id = */
-                    newEpisodesSummaryId,
-                    /* notification = */
-                    summaryNotification
-                )
             }
+            // Outside the ring, so a failed summary cannot undo the record of a posted single.
+            notificationManager.notify(
+                /* id = */
+                newEpisodesSummaryId,
+                /* notification = */
+                summaryNotification
+            )
         }
     }
 
@@ -121,16 +117,10 @@ internal class AnimeNotificationManagerImpl(
         .setColorized(true)
         .setSmallIcon(res_R.mipmap.ic_notification)
 
-    private fun changeSingleIdToNext() {
-        if (singleId < MAX_SINGLE_ID) {
-            singleId++
-        } else {
-            singleId = DEFAULT_SINGLE_ID
-        }
-    }
-
-    private companion object {
-        private const val DEFAULT_SINGLE_ID = 10
-        private const val MAX_SINGLE_ID = 99
-    }
+    // A notification is identified by its tag and id together. Only untagged ones are this
+    // manager's, and the tagged group summary the system may add is not.
+    private fun readShownNotifications(): List<ShownNotification> =
+        notificationManager.activeNotifications
+            .filter { it.tag == null }
+            .map { ShownNotification(id = it.id, postedAtMillis = it.postTime) }
 }

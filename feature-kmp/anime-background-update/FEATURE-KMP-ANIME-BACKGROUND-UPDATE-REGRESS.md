@@ -38,7 +38,8 @@ stand for.
    - Every anime that gained an episode carries the new-episode mark.
    - Animes that gained nothing look exactly as they did before.
 2. Look at the notification shade straight after.
-   - One notification per anime that gained an episode, naming it and the episode number.
+   - One notification per anime that gained an episode, naming it and the episode number. At
+     most twenty stay in the shade; the anime notification file checks that limit.
    - One grouping notification above them.
    - Nothing at all for the animes that gained nothing.
 3. Let a second pass run without anything changing on the server in between.
