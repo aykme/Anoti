@@ -9,10 +9,10 @@ Provides access to the "main" module from the "anime-notification" module withou
 
 - Gradle: `api(project(":feature-kmp:anime-notification-external"))`
 - `AnimeNotificationIntentProvider` is a contract with no implementation in this module besides
-  a test double — a consuming app must implement it and contribute the binding itself. The current implementation
-  lives in `:main` (`AnimeNotificationIntentProviderImpl`, provided via `DiRootPlatformComponent`
-  and mixed into `core-kmp:di-app`'s `DiAppComponent`); inject the interface, don't construct it
-  yourself.
+  a test double — a consuming app must implement it and contribute the binding itself. The
+  current implementation lives in `:main` (`AnimeNotificationIntentProviderImpl`, provided via
+  `DiRootPlatformComponent` and mixed into `core-kmp:di-app`'s `DiAppComponent`); inject the
+  interface, don't construct it yourself.
 
 ## How to use it
 

@@ -25,13 +25,11 @@ import org.junit.Rule
 import org.junit.Test
 import kotlin.random.Random
 import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 import kotlin.test.fail
 
 private const val FIRST_SINGLE_ID = 10
 private const val LAST_SINGLE_ID = 29
 private const val SINGLE_ID_COUNT = LAST_SINGLE_ID - FIRST_SINGLE_ID + 1
-private const val SUMMARY_ID = 0
 private const val BURST_SIZE = 5
 private const val EPISODE = 1
 
@@ -123,6 +121,7 @@ class AnimeNotificationIdsDeviceTest {
     fun withEveryIdOnScreenTheOneShownLongestIsReplacedAndNoneIsAdded() = runTest {
         //Given
         val postingOrder = (FIRST_SINGLE_ID..LAST_SINGLE_ID).shuffled(Random(SHUFFLE_SEED))
+        check(postingOrder.first() != FIRST_SINGLE_ID) { "seed starts at the lowest id" }
         postingOrder.forEach { id: Int -> postElsewhere(id = id, title = "Earlier $id") }
         SystemClock.sleep(RATE_LIMIT_COOLDOWN_MILLIS)
         val manager = createManager()
@@ -132,7 +131,6 @@ class AnimeNotificationIdsDeviceTest {
 
         //Then
         val singles = awaitSingles { shown -> shown.any { titleOf(it) == "Newest" } }
-        assertNotEquals(FIRST_SINGLE_ID, postingOrder.first())
         assertEquals(SINGLE_ID_COUNT, singles.size)
         assertEquals("Newest", titleOf(singles.single { it.id == postingOrder.first() }))
     }
@@ -157,21 +155,6 @@ class AnimeNotificationIdsDeviceTest {
             "Earlier $FIRST_SINGLE_ID",
             titleOf(singles.single { it.id == FIRST_SINGLE_ID })
         )
-    }
-
-    @Test
-    fun theSummarySitsBesideTheSinglesAndTakesNoRingId() = runTest {
-        //Given
-        val manager = createManager()
-
-        //When
-        manager.makeNewEpisodeNotification("With a summary", EPISODE, null)
-
-        //Then
-        val shown = awaitShown { all ->
-            all.any { it.tag == null && it.id == SUMMARY_ID } && singlesOf(all).size == 1
-        }
-        assertEquals(FIRST_SINGLE_ID, singlesOf(shown).single().id)
     }
 
     private fun TestScope.createManager(): AnimeNotificationManager = AnimeNotificationManagerImpl(

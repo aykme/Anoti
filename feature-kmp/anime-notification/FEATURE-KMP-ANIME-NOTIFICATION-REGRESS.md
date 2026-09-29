@@ -59,8 +59,9 @@ Check these variants:
 ## 4. Several notifications at once
 
 1. Get new episodes for two or more subscribed anime.
-   - Each one appears as its own notification. While fewer than twenty are in the shade, a
-     later one never replaces an earlier one. Section 8 covers what happens at twenty.
+   - Each one appears as its own notification. While fewer than twenty are in the shade, not
+     counting the group summary, a later one never replaces an earlier one. Section 8 covers
+     what happens at twenty.
    - They are collected under one group rather than scattered through the shade.
    - The group's summary line reads "New Episodes".
 2. Expand the group.
@@ -98,9 +99,9 @@ Check these variants:
 
 ## 8. Twenty at most, and which one gives way
 
-Android only for now: the iPhone app does not number its notifications this way yet. Waiting
-for twenty real episodes is impractical, so this section forces the background update on an
-emulator. Each forced pass posts one notification for every subscribed anime.
+Android only: the iPhone app does not limit its notifications to twenty. Waiting for twenty
+real episodes is impractical, so this section forces the background update on an emulator. Each
+forced pass posts one notification for every subscribed anime.
 
 Everything here is checked in the notification shade. Expand the app's group to see each
 notification. Each one shows how long ago it arrived. The clock moves a day forward before every
@@ -108,17 +109,21 @@ pass, so the five notifications of one pass share an age, and the passes differ 
 
 Preparation:
 
-1. Subscribe to five ongoing anime and turn on their bells.
-2. On the emulator, run `adb root`.
-3. Turn off automatic date and time: `adb shell settings put global auto_time 0`.
+1. Use an Android emulator running Android 15 or newer, with a Google APIs system image. Images
+   with Google Play refuse the `adb root` below.
+2. Make sure exactly five ongoing anime are subscribed with their bell, and no others. Every
+   subscribed anime posts in every pass, so a sixth one breaks every count below.
+3. Allow notifications for the app, keep the network on, and clear the shade.
+4. On the emulator, run `adb root`.
+5. Turn off automatic date and time: `adb shell settings put global auto_time 0`.
 
 One forced pass is three commands:
 
 1. Make every subscribed anime look behind:
    `adb shell "sqlite3 /data/data/com.alekseivinogradov.anoti/databases/anoti_anime_table
    'UPDATE anoti_anime_table SET episodes_aired = 0, is_new_episode = 0;'"`.
-2. Move the device clock one day forward: `adb shell date @<seconds since 1970 plus 86400>`.
-   The clock only ever moves forward in this section.
+2. Read the device time with `adb shell date +%s`, add 86400 to it, and set the result:
+   `adb shell date @<the sum>`. The clock only ever moves forward in this section.
 3. Find the update job's number in `adb shell dumpsys jobscheduler`, on the line ending in
    `#AnimeUpdateWorker#`, and run it: `adb shell cmd jobscheduler run -f -n
    androidx.work.systemjobscheduler com.alekseivinogradov.anoti <number>`.
@@ -136,13 +141,14 @@ The steps:
 4. Make one more forced pass.
    - Still twenty. The five oldest are gone, and five new ones with the newest age are there.
      The other fifteen are untouched.
-5. Swipe away one notification that is not among the oldest. Make one more forced pass.
-   - Still twenty. The swiped one does not come back. The five new ones are there, and only
-     four older ones are gone: the four oldest.
-6. Tap one notification that is not among the oldest, then return to the launcher. Make one
-   more forced pass.
-   - Same as the previous step: the tapped one freed its place, and only the four oldest gave
+5. Swipe away one of the five newest notifications. Make one more forced pass.
+   - Still twenty. From the oldest age to the newest, the group holds 1, 5, 5, 4 and 5
+     notifications. The swiped one's place went to a new one, and only four of the oldest gave
      way.
+6. Tap one of the five newest notifications, then return to the launcher. Make one more forced
+   pass.
+   - Still twenty. From the oldest age to the newest, the group holds 2, 5, 4, 4 and 5
+     notifications. The tapped one freed its place the same way.
 7. Turn automatic date and time back on: `adb shell settings put global auto_time 1`.
 
 Optional, for a closer look: `adb shell dumpsys notification --noredact` lists the app's

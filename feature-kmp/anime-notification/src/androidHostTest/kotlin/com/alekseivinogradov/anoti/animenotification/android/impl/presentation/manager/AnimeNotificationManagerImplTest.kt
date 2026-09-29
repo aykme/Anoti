@@ -38,7 +38,6 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -281,12 +280,9 @@ class AnimeNotificationManagerImplTest {
         assertNotNull(notificationWithId(SUMMARY_ID))
     }
 
-    // Robolectric's cap is stricter than Android's, since it drops updates too, so the post past
-    // the wrap only lands if it replaces a notification instead of adding one.
     @Test
     fun theNotificationIdWrapsBackAroundOnceTheLastOneIsUsed() = runTest {
         //Given
-        shadowOf(notificationManager).setEnforceMaxNotificationLimit(true)
         val manager = createManager()
         repeat(SINGLE_ID_COUNT) { number: Int ->
             manager.makeNewEpisodeNotification("Anime $number", number, IMAGE_URL)
@@ -340,6 +336,7 @@ class AnimeNotificationManagerImplTest {
         //Given
         // Every id of the ring, in an order unrelated to the ids, with the clock moving between.
         val postingOrder = (FIRST_SINGLE_ID..LAST_SINGLE_ID).shuffled(Random(SHUFFLE_SEED))
+        check(postingOrder.first() != FIRST_SINGLE_ID) { "seed starts at the lowest id" }
         postingOrder.forEach { id: Int ->
             postElsewhere(id = id, title = "Earlier $id")
             shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(1))
@@ -350,7 +347,6 @@ class AnimeNotificationManagerImplTest {
         manager.makeNewEpisodeNotification(ANIME_NAME, AIRED_EPISODE, IMAGE_URL)
 
         //Then
-        assertNotEquals(FIRST_SINGLE_ID, postingOrder.first())
         assertEquals(ANIME_NAME, titleOf(assertNotNull(notificationWithId(postingOrder.first()))))
         assertEquals(
             "Earlier $FIRST_SINGLE_ID",

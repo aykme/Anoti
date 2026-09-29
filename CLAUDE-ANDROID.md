@@ -39,13 +39,13 @@ The finishing checks below apply to every task, not only to one that touched And
   that touched the UI. They need a device, so
   `./gradlew allTests :androidApp:testDebugUnitTest` never reaches them. Two tasks run them:
   `./gradlew :androidApp:connectedDebugAndroidTest` and
-  `./gradlew :feature-kmp:anime-notification:connectedAndroidDeviceTest`. The first drives the app against the live backend, so the emulator needs a connection. The
-  second posts through the device's own notification service. Report their result with the
-  rest. The one exception is a task that changes no logic, described in "Finishing a task" in
-  `CLAUDE.md`.
+  `./gradlew :feature-kmp:anime-notification:connectedAndroidDeviceTest`. The first drives the
+  app against the live backend, so the emulator needs a connection. The second posts through
+  the device's own notification service. Report their result with the rest. The one exception
+  is a task that changes no logic, described in "Finishing a task" in `CLAUDE.md`.
 - A multiplatform module keeps its instrumented tests in `src/androidDeviceTest/kotlin`, enabled
-  by `withDeviceTestBuilder`. Its task is `connectedAndroidDeviceTest`, and it joins the list
-  above.
+  by `withDeviceTestBuilder`. A module that gains them adds its `connectedAndroidDeviceTest` to
+  the tasks above.
 - Every check that needs the app running belongs on an emulator. A physical device attached for
   development is the developer's own and is not a test bench. An emulator also allows what a
   phone refuses — `adb root`, forcing an orientation, and picking the API level a branch needs.

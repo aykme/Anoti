@@ -18,8 +18,8 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 
 /**
- * The work every screen host does around the root UI: builds the root navigation, sets the
- * bottom bar's opening tab, closes the root stores with the host, and runs the notification
+ * The work every screen host does around the root UI. It builds the root navigation and sets the
+ * bottom bar's opening tab. It closes the root stores with the host and runs the notification
  * permission flow. The platform host shows [dependencies] and [notificationsRationale].
  *
  * One instance is one root. A host that rebuilds its root builds a new instance over a new

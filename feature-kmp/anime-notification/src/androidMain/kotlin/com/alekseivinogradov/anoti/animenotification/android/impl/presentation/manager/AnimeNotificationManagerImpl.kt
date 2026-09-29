@@ -73,14 +73,14 @@ internal class AnimeNotificationManagerImpl(
                     /* notification = */
                     singleNotification
                 )
-
-                notificationManager.notify(
-                    /* id = */
-                    newEpisodesSummaryId,
-                    /* notification = */
-                    summaryNotification
-                )
             }
+            // Outside the ring, so a failed summary cannot undo the record of a posted single.
+            notificationManager.notify(
+                /* id = */
+                newEpisodesSummaryId,
+                /* notification = */
+                summaryNotification
+            )
         }
     }
 

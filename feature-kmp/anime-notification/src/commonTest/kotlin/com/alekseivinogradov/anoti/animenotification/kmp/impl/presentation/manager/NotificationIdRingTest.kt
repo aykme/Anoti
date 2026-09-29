@@ -222,11 +222,14 @@ class NotificationIdRingTest {
         }
         val second = async { nextId() }
         advanceUntilIdle()
+        // The second request waits for the first one's post before it even reads.
+        val readsWhileTheFirstPosts = screen.reads
 
         //When
         postGate.complete(Unit)
 
         //Then
+        assertEquals(1, readsWhileTheFirstPosts)
         assertEquals(10, first.await())
         assertEquals(11, second.await())
     }

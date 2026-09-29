@@ -27,5 +27,6 @@ navigation, and the Android entry point.
 
 The app's `Application` implements `DiRootComponentHolder` and returns a new `DiRootComponent`
 from every call. `MainActivity` asks it for one each time it is created and hands it to a new
-`RootHost`, together with its saved state and its notification-permission requests. The host
-builds the root navigation, and the activity shows the host's content.
+`RootHost`. With it go the screen a tapped notification names, a way to build its component
+context, and its notification-permission requests. The host builds the root navigation, and the
+activity shows the host's content.

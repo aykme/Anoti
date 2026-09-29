@@ -6,6 +6,7 @@ import kotlinx.coroutines.sync.withLock
 /**
  * A notification the platform shows for this app.
  *
+ * @param id the id it was posted under.
  * @param postedAtMillis when it was last posted, in epoch milliseconds.
  */
 internal data class ShownNotification(val id: Int, val postedAtMillis: Long)
@@ -14,8 +15,9 @@ internal data class ShownNotification(val id: Int, val postedAtMillis: Long)
  * Hands out the ids of new-episode notifications, from 10 to 29. The next id is the first free
  * one after the newest notification on screen. With all twenty on screen, the oldest is replaced.
  *
- * The platform's own list is the only record, so a new process continues after what an earlier
- * one left on screen, and a dismissed notification frees its id.
+ * The platform's own list is the only record. So a new process continues after what an earlier
+ * one left on screen, and a dismissed notification frees its id. The id handed out last is the
+ * exception: it counts as taken, since the platform may not list it yet.
  *
  * @param shownNotifications reads the notifications on screen. Their order means nothing.
  */

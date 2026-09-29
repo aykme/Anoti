@@ -200,6 +200,7 @@ class RootHostTest {
         //Then
         assertEquals(1, requests.prompts)
         assertFalse(root.host.notificationsRationale.visible.value)
+        assertEquals(0, requests.settingsOpenings)
     }
 
     @Test
@@ -215,6 +216,7 @@ class RootHostTest {
         //Then
         assertTrue(root.host.notificationsRationale.visible.value)
         assertEquals(0, requests.prompts)
+        assertEquals(0, requests.settingsOpenings)
     }
 
     @Test

@@ -13,9 +13,9 @@ import me.tatarka.inject.annotations.Provides
 
 /**
  * Provides the iOS [AnimeBackgroundScheduler] and [UpdateAllAnimeInBackgroundOnceUsecase]
- * bindings; mixed into `core-kmp:di-app`'s `DiAppComponent` — the mirror of `androidMain`'s
+ * bindings; mixed into `core-kmp:di-app`'s `DiAppComponent`. It mirrors `androidMain`'s
  * `DiAnimeBackgroundUpdatePlatformComponent`, minus the WorkManager plumbing iOS has no use for.
- * The [AnimeUpdateManager] both of them run comes from the common
+ * The scheduler and the usecase run the [AnimeUpdateManager] from the common
  * `DiAnimeBackgroundUpdateComponent`.
  */
 interface DiAnimeBackgroundUpdatePlatformComponent {
