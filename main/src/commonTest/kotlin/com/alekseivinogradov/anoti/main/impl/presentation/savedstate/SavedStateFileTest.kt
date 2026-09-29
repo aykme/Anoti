@@ -1,5 +1,9 @@
 package com.alekseivinogradov.anoti.main.impl.presentation.savedstate
 
+import okio.FileSystem
+import okio.ForwardingFileSystem
+import okio.IOException
+import okio.Path
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
 import kotlin.test.AfterTest
@@ -101,6 +105,22 @@ class SavedStateFileTest {
     }
 
     @Test
+    fun aFileThatCannotBeDeletedIsStillTakenWithoutAThrow() {
+        //Given
+        file.write("saved")
+        val refusing = SavedStateFile(
+            fileSystem = DeleteRefusingFileSystemFake(fileSystem),
+            path = path
+        )
+
+        //When
+        val taken = refusing.take()
+
+        //Then
+        assertEquals("saved", taken)
+    }
+
+    @Test
     fun deletingRemovesTheFile() {
         //Given
         file.write("saved")
@@ -110,5 +130,13 @@ class SavedStateFileTest {
 
         //Then
         assertFalse(fileSystem.exists(path))
+    }
+
+    // Refuses every delete, the way a locked or read-only file would.
+    private class DeleteRefusingFileSystemFake(
+        delegate: FileSystem
+    ) : ForwardingFileSystem(delegate) {
+        override fun delete(path: Path, mustExist: Boolean) =
+            throw IOException("$path cannot be deleted")
     }
 }

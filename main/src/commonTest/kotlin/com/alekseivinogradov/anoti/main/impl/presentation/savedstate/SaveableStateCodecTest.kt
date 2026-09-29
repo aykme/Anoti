@@ -173,12 +173,14 @@ class SaveableStateCodecTest {
     @Test
     fun jsonOfAnotherShapeRestoresNothingAndDoesNotThrow() {
         //Given
+        val unknownType =
+            JsonObject(mapOf("t" to JsonPrimitive("unknown"), "v" to JsonPrimitive(1)))
         val shapes = listOf(
             JsonPrimitive("text"),
             JsonArray(listOf(JsonPrimitive(1))),
             buildJsonObject { put("key", "not a list") },
             buildJsonObject {
-                put("key", JsonArray(listOf(JsonObject(mapOf("t" to JsonPrimitive("unknown"))))))
+                put("key", JsonArray(listOf(unknownType)))
             }
         )
 
