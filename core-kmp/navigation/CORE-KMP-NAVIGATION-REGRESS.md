@@ -71,6 +71,6 @@ The steps name Android's tools. On the iPhone:
   Xcode and go to the home screen. Stop it in Xcode, then open it from the home screen. It comes
   back on the screen it was left on.
 - A tapped notification replaces the open screen with a new one on favorites, as on Android.
-  After a cold start, the screen the app was saved on may show for a moment first.
+  After a cold start, another screen may show for a moment first.
 
 The iPhone steps are unverified until the iPhone app has been built and run.

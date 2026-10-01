@@ -20,6 +20,8 @@ iPhone app has been built and run.
    The question does not come back.
 4. Uninstall, install again and open it. When the system asks, choose **Don't allow**.
    The question disappears and the list stays where it was.
+   iPhone: if the question does not come back after the reinstall, erase the Simulator or use a
+   device that never had the app.
 5. Close the app and open it again.
    The app explains in its own dialog why it wants notifications, with a refusing button and an
    accepting one.
@@ -40,7 +42,7 @@ Requires at least one saved anime that has a new episode, so a notification actu
 
 1. With the app fully closed, open the notification list and tap the new-episode notification.
    The app opens on the favorites section. The right bottom-bar item is the selected one. On
-   the iPhone the screen the app was saved on may show for a moment first.
+   the iPhone another screen may show for a moment first.
 2. Leave the app open on the anime list. Go to the home screen. Tap the new-episode notification.
    The app comes to the front on the favorites section, not on the list.
 3. Leave the app open on favorites, scrolled down. Go to the home screen and tap the
@@ -49,7 +51,8 @@ Requires at least one saved anime that has a new episode, so a notification actu
 4. Android only, since the iPhone has no back button: from there, press system back until the
    app closes. Open the app from the launcher.
    The app opens on the anime list, not on favorites.
-5. iPhone only: from there, close the app in the app switcher and open it again.
+5. From there, close the app the way a user does: swipe it away in recents or in the app
+   switcher. Open it again.
    The app opens on the anime list, not on favorites.
 
 ## Moving between the two sections
@@ -147,11 +150,14 @@ Android only, since the iPhone has no back button.
 
 ## Platforms
 
-| What | Android | iPhone |
-| --- | --- | --- |
-| Asking for the permission again | Android 13+ asks again after one refusal | asks once; a refusal leads to the app's dialog and Settings |
-| A cold notification tap | opens favorites directly | may show the saved screen for a moment first |
-| Dark mode or text size changes | the screen is rebuilt and its state restored | the screen stays as it is |
-| After a reboot | the saved screen is gone | may come back, since the window session can survive |
-| A launch the system starts in the background | not applicable | the state it restores is lost if the system then ends the app |
-| System back | closes the app | none |
+- Asking for the permission again. Android 13 and later ask again after one refusal. The iPhone
+  asks once, and a refusal leads to the app's dialog and to Settings.
+- A cold notification tap. Android opens favorites directly. The iPhone may show another screen
+  for a moment first.
+- Dark mode. Android rebuilds the screen and restores its state. On the iPhone the screen stays
+  as it is.
+- A new text size. Android rebuilds the screen with it. The iPhone app shows it only after it is
+  closed and opened again.
+- After a reboot. Android opens on the anime list. The iPhone may reopen on the screen it was
+  left on.
+- System back. Android closes the app. The iPhone has none.

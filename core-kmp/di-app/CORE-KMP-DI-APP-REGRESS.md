@@ -43,8 +43,10 @@ The steps name Android's tools. On the iPhone:
 - Instead of `adb shell am kill`, start the app from Xcode, go to the home screen and stop it in
   Xcode, then open it again from the home screen. Instead of a force-stop, swipe the app away in
   the app switcher.
-- Start the app from Xcode and read its log in Xcode's console. No line ends in "is missing from
-  the Info.plist", and none contains "the next background refresh was refused". Either one means
-  the app will never update in the background.
+- On an iPhone with Background App Refresh on for the app and Low Power Mode off, start the app
+  from Xcode and read its log in Xcode's console. No line ends in "is missing from the
+  Info.plist", and none contains "the next background refresh was refused". Either one means the
+  app does not update in the background until it is fixed. The Simulator refuses every refresh,
+  so there the second line always appears.
 
 The iPhone steps are unverified until the iPhone app has been built and run.

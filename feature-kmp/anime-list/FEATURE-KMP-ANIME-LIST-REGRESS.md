@@ -318,8 +318,9 @@ The steps name Android's tools. On the iPhone:
   12 expects comes back the same way, the text in the search field and the scroll position
   included.
 - Swiping the app away in the app switcher is the user closing it. The app then starts fresh.
-- Changing the font or display size does not restart the app on the iPhone. The screen stays as
-  it is, so the passes in section 0 check only the layout there.
+- A new text size reaches the iPhone app only when it is opened again. After changing it, close
+  the app in the app switcher and open it before walking the pass. Changing Display Zoom restarts
+  the iPhone, so that pass starts from a cold launch.
 - A narrow screen keeps the app upright, as on Android. The rotation steps of section 13 run on a
   wide one: an iPad, or a foldable iPhone unfolded.
 

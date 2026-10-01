@@ -44,12 +44,15 @@ the rules both platforms share and loads this file.
   notification delegate set before launch ends.
 - Call `IosApp.viewController()` from `makeUIViewController` only, never from
   `updateUIViewController`. Each call builds a new screen.
+- Create the representable once per scene and keep its identity: no `.id`, no condition around
+  it. A representable made again while the app is in front starts the screen afresh.
 - The view controller's representable must ignore every safe area, the keyboard's included. The
   Compose content pads itself for the system bars and the keyboard.
 - The app must have one scene: `UIApplicationSupportsMultipleScenes` is `false`.
 - `Info.plist` must list the background-task identifier the iOS `AnimeBackgroundSchedulerImpl`
-  registers. It must also set `CADisableMinimumFrameDurationOnPhone` to `true`, or Compose stops
-  the app at launch.
+  registers, and `UIBackgroundModes` must hold `fetch`. Without that mode iOS refuses every
+  refresh request. It must also set `CADisableMinimumFrameDurationOnPhone` to `true`, or Compose
+  stops the app at launch.
 - The app turns only on a wide window, whatever the device, as on Android. A window whose smaller
   side is under 600 points keeps it upright, as Android keeps a screen below sw600dp. So
   `Info.plist` must allow every orientation on the iPhone too, and the app must decide from the

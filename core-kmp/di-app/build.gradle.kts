@@ -12,7 +12,8 @@ plugins {
 
 // Hosts both app-wide composition roots: `DiAppComponent` in androidMain is `:androidApp`'s
 // Android root, and its twin in iosMain is the iOS root. Same class name, same package, one per
-// platform source set — no `expect`/`actual` needed since each compiles only for its own target.
+// platform source set. On iOS, `IosApp` is what Swift calls; it builds the component through
+// `createDiAppComponent`, whose body KSP generates.
 // It also links `Shared`, the project's one iOS framework, since it sits above every other
 // module. The Compose plugins are applied for that: Compose copies the resources of the modules
 // below into an app bundle through the module that links the framework.
@@ -39,8 +40,8 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            // `DiAppComponent`'s supertypes and accessors expose types from these modules, so
-            // they're part of this module's own API surface, not just an implementation detail.
+            // The Android `DiAppComponent`'s supertypes and accessors expose types from these
+            // modules, so they're part of this module's own API surface.
             api(project(":core-kmp:di-scope"))
             api(project(":core-kmp:network"))
             api(project(":core-kmp:celebrity"))

@@ -20,7 +20,8 @@ iPhone app has been built and run.
 ## 1. Getting a notification to appear
 
 The app must be allowed to post notifications first. Grant the permission when asked, or turn
-notifications on for the app in system settings.
+notifications on for the app in system settings. iPhone: Background App Refresh must also be on
+for the app, and Low Power Mode off, or the update that posts notifications never runs.
 
 Then:
 
@@ -55,8 +56,8 @@ Android: open system settings for the app, then its notification categories.
 - The title is the anime's name, the same name the favorites screen shows for it.
 - The line below reads "Episode aired: " followed by the episode number.
 - The anime's poster is shown as the large image at the right.
-- Android only: the notification is tinted with the app's own color rather than the system
-  default gray.
+- Android only, since iOS draws every notification in the system's own style: the notification
+  is tinted with the app's own color rather than the system default gray.
 
 Check these variants:
 
@@ -82,15 +83,18 @@ Check these variants:
    - Only that one goes. The others stay. Android: the group summary stays too.
 4. Android only, since the iPhone stack has no summary: swipe the group summary away.
    - The whole group goes.
-5. With the app open, get a new notification.
+5. With the app open, get a new notification. iPhone: the hourly update never runs while the app
+   is open. Once an episode has aired and is not yet announced, open "Favorites" and pull the
+   list down instead.
    - It plays its sound and goes into the notification list. No banner slides over the app.
-     The iPhone shows a banner only while the app is closed, as the user's Settings choose.
+     The iPhone shows a banner only while the app is not on screen, as the user's Settings
+     choose.
 
 ## 5. Tapping one
 
 1. Tap a notification while the app is closed.
-   - The app opens on the favorites screen. On the iPhone the screen it was saved on may show
-     for a moment first.
+   - The app opens on the favorites screen. On the iPhone another screen may show for a moment
+     first.
    - The notification disappears from the shade on its own.
 2. Tap one while the app is already open on "Main".
    - The app comes forward and moves to the favorites screen.
@@ -109,18 +113,21 @@ Check these variants:
 
 - Get a notification while the screen is locked.
   - It appears on the lock screen, with the same title and line.
-- Get one while the device is in battery saver.
+- Android: get one while the device is in battery saver.
   - It still appears, possibly later than it otherwise would.
+- iPhone: turn Low Power Mode on and wait for an episode to air.
+  - Nothing arrives while it is on, since iOS stops background refresh. Once it is off, the
+    notification comes with a later update.
 - Get one, then clear the shade without tapping it.
   - Nothing is left behind. Opening the app still shows the new-episode mark.
 
 ## 8. Twenty at most, and which one gives way
 
-Android only, since forcing a pass needs `adb` and an emulator. The iPhone app keeps to the same
-twenty and replaces them by the same rule. Waiting for twenty real episodes is impractical, so
-this section forces the background update on an emulator. Each forced pass posts one
-notification for every subscribed anime. A notification that replaces an older one plays its
-sound again, on both platforms.
+Android only, since forcing a pass needs `adb` and an emulator. The iPhone app is built to keep
+to the same twenty and replace them by the same rule, which no iPhone run has confirmed yet.
+Waiting for twenty real episodes is impractical, so this section forces the background update on
+an emulator. Each forced pass posts one notification for every subscribed anime. A notification
+that replaces an older one plays its sound again.
 
 Everything here is checked in the notification shade. Expand the app's group to see each
 notification. Each one shows how long ago it arrived. The clock moves a day forward before every
@@ -176,9 +183,10 @@ taken first, and when none is free, the number whose notification is oldest is r
 
 ## 9. Platforms
 
-| What | Android | iPhone |
-| --- | --- | --- |
-| The group | a "New Episodes" summary over it | a stack with no summary line |
-| A notification while the app is open | the sound, no banner | the sound, into the list, no banner |
-| A notification while the app is closed | the sound and a status-bar icon, no banner | a banner, as the user's Settings choose |
-| The category in system settings | one, "Anime notification channel" | none; the app's own notification settings |
+- The group. Android: a "New Episodes" summary over it. iPhone: a stack with no summary line.
+- A notification while the app is open. Android: the sound, no banner. iPhone: the sound, into
+  the list, no banner.
+- A notification while the app is not on screen. Android: the sound and a status-bar icon, no
+  banner. iPhone: a banner, as the user's Settings choose.
+- The category in system settings. Android: one, "Anime notification channel". iPhone: none,
+  only the app's own notification settings.

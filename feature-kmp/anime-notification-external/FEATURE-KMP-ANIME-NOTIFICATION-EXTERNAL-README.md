@@ -5,8 +5,9 @@ depending on the "main" module that owns them.
 
 - [AnimeNotificationTapPayloadProvider](src/commonMain/kotlin/com/alekseivinogradov/anoti/animenotification/external/kmp/api/presentation/provider/AnimeNotificationTapPayloadProvider.kt) —
   builds what a notification carries for its tap.
-- [AnimeNotificationIntentProvider](src/androidMain/kotlin/com/alekseivinogradov/anoti/animenotification/external/android/impl/presentation/provider/AnimeNotificationIntentProvider.kt) —
-  supplies the deep-link intent for navigating to the anime favorites screen from notifications.
+
+Android notifications open the app through an intent instead, supplied by the module's Android
+contract, `AnimeNotificationIntentProvider`.
 
 ## How to include it
 
@@ -20,6 +21,7 @@ depending on the "main" module that owns them.
 
 ## How to use it
 
-The Android notification manager builds the intent once, when it is created, and sets it as every
-notification's content intent. The iOS manager builds the payload for each notification and puts
-it in the notification's `userInfo`. The app reads it back when the notification is tapped.
+The Android notification manager builds the intent once, when it is created, and sets it as the
+content intent of every new-episode notification. The group summary carries none. The iOS
+manager builds the payload for each notification and puts it in the notification's `userInfo`.
+The app reads it back when the notification is tapped.
