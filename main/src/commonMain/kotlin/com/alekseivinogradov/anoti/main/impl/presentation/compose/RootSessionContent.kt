@@ -11,8 +11,9 @@ import com.alekseivinogradov.anoti.main.impl.presentation.RootSession
 /**
  * The root content of a screen host whose root lives as long as one composition. Each generation
  * of [session] gets a new root, shown by the same [RootContent] every host shows. What the
- * content saves with `rememberSaveable` goes into the root's own registry, which the session
- * saves with the root. The root's notification-permission check runs once it is built.
+ * screen saves with `rememberSaveable` goes into the root's own registry, which the session
+ * saves with the root. A dialog's content on iOS is composed apart and keeps its own. The root's
+ * notification-permission check runs once it is built.
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.
@@ -21,7 +22,7 @@ import com.alekseivinogradov.anoti.main.impl.presentation.RootSession
 internal fun RootSessionContent(session: RootSession) {
     key(RootGenerationKey(session.generation)) {
         val root = remember(session) { RememberedRoot(session) }.root
-        // Replaces the platform's own registry, which keeps nothing past the process.
+        // Replaces the host's registry, so the values are saved with the root's state keeper.
         CompositionLocalProvider(LocalSaveableStateRegistry provides root.saveableStateRegistry) {
             RootContent(
                 dependencies = root.host.dependencies,

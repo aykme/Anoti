@@ -9,14 +9,14 @@ import kotlinx.serialization.Serializable
  *
  * @param formatVersion the version of this envelope's own layout.
  * @param appVersion the app version that saved it. An update can change what the screens save.
- * @param sceneSessionId the platform's session of the window the state was saved from.
+ * @param windowSessionId the platform's session of the window the state was saved from.
  * @param state the root's saved state.
  */
 @Serializable
 internal class SavedStateEnvelope(
     val formatVersion: Int,
     val appVersion: String,
-    val sceneSessionId: String,
+    val windowSessionId: String,
     val state: SerializableContainer
 ) {
     companion object {

@@ -44,6 +44,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertSame
+import kotlin.test.assertTrue
 
 // One function per case under test, plus the helpers those cases share.
 @Suppress("TooManyFunctions")
@@ -64,7 +65,7 @@ class RootSessionTest {
 
     private val savedStatePath = "/app/saved_state/root_saved_state.json".toPath()
 
-    private var sceneSessionId: String? = FIRST_SESSION
+    private var windowSessionId: String? = FIRST_SESSION
 
     private lateinit var session: RootSession
 
@@ -86,15 +87,16 @@ class RootSessionTest {
     @Test
     fun theFirstRootOpensOnTheAnimeListAndBecomesTheCurrentOne() {
         //Given
-        val generation = session.generation
+        val before = session.currentRoot
 
         //When
         val root = session.createRoot()
 
         //Then
+        assertNull(before)
         assertEquals(NavRootConfig.AnimeList, root.activeScreen)
         assertSame(root, session.currentRoot)
-        assertEquals(0, generation)
+        assertEquals(0, session.generation)
     }
 
     @Test
@@ -269,12 +271,12 @@ class RootSessionTest {
     }
 
     @Test
-    fun savingWithoutASceneSessionWritesNothingAndKeepsAnOlderFile() {
+    fun savingWithoutAWindowSessionWritesNothingAndKeepsAnOlderFile() {
         //Given
         session.createRoot()
         saveWhileOn(NavRootConfig.AnimeFavorites)
         val older = savedText()
-        sceneSessionId = null
+        windowSessionId = null
 
         //When
         session.saveState()
@@ -340,10 +342,10 @@ class RootSessionTest {
     }
 
     @Test
-    fun aStateSavedInAnotherSceneSessionIsDropped() {
+    fun aStateSavedInAnotherWindowSessionIsDropped() {
         //Given
         saveWhileOn(NavRootConfig.AnimeFavorites)
-        sceneSessionId = "second-session"
+        windowSessionId = "second-session"
 
         //When
         val root = session.createRoot()
@@ -354,10 +356,10 @@ class RootSessionTest {
     }
 
     @Test
-    fun aRootBuiltWithNoSceneSessionIgnoresTheFileAndDeletesIt() {
+    fun aRootBuiltWithNoWindowSessionIgnoresTheFileAndDeletesIt() {
         //Given
         saveWhileOn(NavRootConfig.AnimeFavorites)
-        sceneSessionId = null
+        windowSessionId = null
 
         //When
         val root = session.createRoot()
@@ -397,6 +399,45 @@ class RootSessionTest {
         assertEquals(NavRootConfig.AnimeFavorites, root.activeScreen)
         assertNull(root.saveableStateRegistry.consumeRestored("search"))
         assertFalse(fileSystem.exists(savedStatePath))
+    }
+
+    @Test
+    fun backInFrontWithALiveRootTheSavedStateIsDropped() {
+        //Given
+        session.createRoot()
+        saveWhileOn(NavRootConfig.AnimeFavorites)
+
+        //When
+        session.dropSavedStateOfLiveRoot()
+
+        //Then
+        assertFalse(fileSystem.exists(savedStatePath))
+    }
+
+    @Test
+    fun backInFrontWithNoRootTheSavedStateStaysForTheNextRoot() {
+        //Given
+        saveWhileOn(NavRootConfig.AnimeFavorites)
+
+        //When
+        session.dropSavedStateOfLiveRoot()
+        val root = session.createRoot()
+
+        //Then
+        assertEquals(NavRootConfig.AnimeFavorites, root.activeScreen)
+    }
+
+    @Test
+    fun aFileThatCannotBeReadYetIsKeptForALaterRoot() {
+        //Given
+        fileSystem.createDirectories(savedStatePath)
+
+        //When
+        val root = session.createRoot()
+
+        //Then
+        assertEquals(NavRootConfig.AnimeList, root.activeScreen)
+        assertTrue(fileSystem.exists(savedStatePath))
     }
 
     @Test
@@ -455,7 +496,7 @@ class RootSessionTest {
         savedStateStorage = SavedStateStorage(
             file = SavedStateFile(fileSystem = fileSystem, path = savedStatePath),
             appVersion = appVersion,
-            sceneSessionId = { sceneSessionId }
+            windowSessionId = { windowSessionId }
         )
     )
 
@@ -482,8 +523,8 @@ class RootSessionTest {
         fileSystem.write(savedStatePath) { writeUtf8(rewritten.toString()) }
     }
 
-    // Created at once, as iOS's own lifecycle settles right after the root is built. Ended the
-    // way iOS ends its own, from any state.
+    // Created at once. iOS's own lifecycle settles a main-queue turn after the root is built,
+    // which none of these cases depends on. Ended the way iOS ends its own, from any state.
     private fun createLifecycle(): RootLifecycle {
         val lifecycle = LifecycleRegistry().also(lifecycles::add)
         lifecycle.create()

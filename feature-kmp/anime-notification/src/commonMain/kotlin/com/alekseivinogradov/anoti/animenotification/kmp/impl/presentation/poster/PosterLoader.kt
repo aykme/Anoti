@@ -16,6 +16,9 @@ import okio.FileSystem
 import okio.IOException
 import okio.Path
 import okio.SYSTEM
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
+import kotlin.concurrent.atomics.incrementAndFetch
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -34,12 +37,16 @@ internal class PosterLoader(
 
     private val imageLoader: ImageLoader by lazy(imageLoaderProvider)
 
+    // Numbers the copies, so two posts at once never share one file.
+    @OptIn(ExperimentalAtomicApi::class)
+    private val copies = AtomicInt(0)
+
     /** Loads the poster decoded into memory. */
     suspend fun loadImage(imageUrl: String?): Image? = execute(imageUrl) { this }?.image
 
     /**
      * Fetches the poster without decoding it and copies its file into the temporary directory.
-     * The copy is named by [posterFileName].
+     * Each copy gets its own file, named by [posterFileName].
      */
     @OptIn(ExperimentalCoilApi::class)
     suspend fun loadFile(imageUrl: String?): Path? = imageUrl?.let { url: String ->
@@ -51,6 +58,7 @@ internal class PosterLoader(
         }
     }
 
+    @OptIn(ExperimentalAtomicApi::class)
     private fun copyFromDiskCache(url: String, diskCacheKey: String?): Path? {
         val diskCache = imageLoader.diskCache
         if (diskCacheKey == null || diskCache == null) {
@@ -59,7 +67,8 @@ internal class PosterLoader(
         }
         return try {
             diskCache.openSnapshot(diskCacheKey)?.use { snapshot: DiskCache.Snapshot ->
-                val posterFile = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / posterFileName(url)
+                val posterFile = FileSystem.SYSTEM_TEMPORARY_DIRECTORY /
+                    posterFileName(imageUrl = url, copyNumber = copies.incrementAndFetch())
                 // The cache's file system need not be the one the temporary directory lives on.
                 diskCache.fileSystem.read(snapshot.data) {
                     val cachedPoster = this
@@ -115,11 +124,11 @@ internal suspend fun <T : Any> loadWithTimeout(
 }
 
 /**
- * The local file name for [imageUrl]'s poster: a fixed prefix plus the URL's last path
- * segment.
+ * The local file name of copy number [copyNumber] of [imageUrl]'s poster: a fixed prefix, the
+ * number and the URL's last path segment, whose extension tells the poster's type.
  */
-internal fun posterFileName(imageUrl: String): String =
-    POSTER_FILE_PREFIX + imageUrl.substringBefore('?').substringAfterLast('/')
+internal fun posterFileName(imageUrl: String, copyNumber: Int): String =
+    "$POSTER_FILE_PREFIX${copyNumber}_" + imageUrl.substringBefore('?').substringAfterLast('/')
 
 private const val TAG = "ANIME_NOTIFICATION_POSTER"
 private const val POSTER_TIMEOUT_MILLIS = 10_000L

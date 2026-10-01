@@ -26,8 +26,8 @@ import me.tatarka.inject.annotations.Provides
  *
  * Internal, so the framework's header shows [IosApp] and nothing of the graph.
  *
- * @param appContext the application [PlatformContext] app-scoped bindings are built from. It is
- *   here so both platforms are built the same way.
+ * @param appContext the app's [PlatformContext]. No iOS binding reads it; it keeps both
+ *   platforms' components built the same way.
  */
 @Component
 @AppScope

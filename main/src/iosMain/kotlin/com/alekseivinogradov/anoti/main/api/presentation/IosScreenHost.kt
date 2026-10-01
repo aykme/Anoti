@@ -21,13 +21,22 @@ import platform.Foundation.NSApplicationSupportDirectory
 import platform.Foundation.NSBundle
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSNotificationCenter
+import platform.Foundation.NSNumber
 import platform.Foundation.NSOperationQueue
+import platform.Foundation.NSTemporaryDirectory
 import platform.Foundation.NSURL
 import platform.Foundation.NSURLIsExcludedFromBackupKey
 import platform.Foundation.NSUserDomainMask
 import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationDidEnterBackgroundNotification
+import platform.UIKit.UIApplicationState
+import platform.UIKit.UIApplicationWillEnterForegroundNotification
 import platform.UIKit.UIScene
+import platform.UIKit.UISceneActivationState
+import platform.UIKit.UISceneActivationStateBackground
+import platform.UIKit.UISceneActivationStateForegroundActive
+import platform.UIKit.UISceneActivationStateForegroundInactive
+import platform.UIKit.UISceneActivationStateUnattached
 import platform.UIKit.UIViewController
 import platform.UserNotifications.UNUserNotificationCenter
 
@@ -58,7 +67,7 @@ class IosScreenHost(diRootDependencies: DiRootDependencies) {
                 path = "${savedStateDirectory()}/$SAVED_STATE_FILE".toPath()
             ),
             appVersion = appVersion(),
-            sceneSessionId = ::connectedSceneSessionId
+            windowSessionId = ::connectedSceneSessionId
         )
     )
 
@@ -82,12 +91,19 @@ class IosScreenHost(diRootDependencies: DiRootDependencies) {
         ) { _ ->
             session.saveState()
         }
+        NSNotificationCenter.defaultCenter.addObserverForName(
+            name = UIApplicationWillEnterForegroundNotification,
+            `object` = null,
+            queue = NSOperationQueue.mainQueue
+        ) { _ ->
+            session.dropSavedStateOfLiveRoot()
+        }
     }
 
     /** Builds a new view controller over the app's screen. */
     fun viewController(): UIViewController = ComposeUIViewController(
         configure = {
-            // The screen keeps the focused field above the keyboard itself, as on Android.
+            // The screen lifts its message strip above the keyboard by the keyboard's insets.
             // The default would pan the whole view on top of that.
             onFocusBehavior = OnFocusBehavior.DoNothing
         }
@@ -104,37 +120,35 @@ private fun createRootLifecycle(): RootLifecycle {
 }
 
 // Application Support survives until the app is deleted, unlike Caches. The directory is kept
-// out of backups: a restored copy would carry another session and never be accepted.
+// out of backups: a restored copy would carry another session and never be accepted. Without
+// Application Support the state goes to the temporary directory, which iOS may clear.
 @OptIn(ExperimentalForeignApi::class)
 private fun savedStateDirectory(): String {
     val fileManager = NSFileManager.defaultManager
-    val applicationSupport = checkNotNull(
-        fileManager.URLForDirectory(
-            directory = NSApplicationSupportDirectory,
-            inDomain = NSUserDomainMask,
-            appropriateForURL = null,
-            create = true,
-            error = null
-        )
-    ) { "Application Support is not available" }
-    val directory: NSURL = checkNotNull(
-        applicationSupport.URLByAppendingPathComponent(SAVED_STATE_DIRECTORY)
-    )
-    val path = checkNotNull(directory.path)
-    if (!fileManager.fileExistsAtPath(path)) {
-        val created = fileManager.createDirectoryAtURL(
-            url = directory,
-            withIntermediateDirectories = true,
-            attributes = null,
-            error = null
-        )
-        val excluded = directory.setResourceValue(
-            value = true,
-            forKey = NSURLIsExcludedFromBackupKey,
-            error = null
-        )
-        println("$TAG: saved-state directory created: $created, kept out of backups: $excluded")
+    val directory: NSURL? = fileManager.URLForDirectory(
+        directory = NSApplicationSupportDirectory,
+        inDomain = NSUserDomainMask,
+        appropriateForURL = null,
+        create = true,
+        error = null
+    )?.URLByAppendingPathComponent(SAVED_STATE_DIRECTORY)
+    val path = directory?.path
+    if (directory == null || path == null) {
+        println("$TAG: Application Support is not available, the state goes to tmp")
+        return "${NSTemporaryDirectory()}$SAVED_STATE_DIRECTORY"
     }
+    val created = fileManager.fileExistsAtPath(path) || fileManager.createDirectoryAtURL(
+        url = directory,
+        withIntermediateDirectories = true,
+        attributes = null,
+        error = null
+    )
+    val excluded = created && directory.setResourceValue(
+        value = NSNumber(bool = true),
+        forKey = NSURLIsExcludedFromBackupKey,
+        error = null
+    )
+    println("$TAG: saved-state directory ready: $created, kept out of backups: $excluded")
     return path
 }
 
@@ -145,13 +159,25 @@ private fun appVersion(): String {
     return "$name ($build)"
 }
 
-// The app has one scene. The states are logged to learn how a launch really starts.
+// The app has one scene. Its state and the app's are logged at every save and root build.
 private fun connectedSceneSessionId(): String? {
     val application = UIApplication.sharedApplication
     val scene = application.connectedScenes.firstOrNull() as? UIScene
     println(
-        "$TAG: app state ${application.applicationState}, " +
-            "scene state ${scene?.activationState}"
+        "$TAG: app state ${applicationStateName(application.applicationState)}, " +
+            "scene state ${scene?.let { sceneStateName(it.activationState) }}"
     )
     return scene?.session?.persistentIdentifier
 }
+
+private fun applicationStateName(state: UIApplicationState): String =
+    state.name.removePrefix("UIApplicationState").lowercase()
+
+private fun sceneStateName(state: UISceneActivationState): String =
+    when (state) {
+        UISceneActivationStateUnattached -> "unattached"
+        UISceneActivationStateForegroundActive -> "foreground active"
+        UISceneActivationStateForegroundInactive -> "foreground inactive"
+        UISceneActivationStateBackground -> "background"
+        else -> "unknown $state"
+    }

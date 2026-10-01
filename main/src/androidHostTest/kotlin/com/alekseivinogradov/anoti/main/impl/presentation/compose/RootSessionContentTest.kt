@@ -165,16 +165,23 @@ class RootSessionContentTest {
     @Test
     fun theSearchTextComesBackInTheNextProcess() {
         //Given
+        val composed = mutableStateOf(true)
         val shown = mutableStateOf(session)
-        composeRule.setContent { RootSessionContent(session = shown.value) }
+        composeRule.setContent {
+            if (composed.value) RootSessionContent(session = shown.value)
+        }
         typeSearchText()
         session.saveState()
+        composed.value = false
+        composeRule.waitForIdle()
 
         //When
         shown.value = createSession()
+        composed.value = true
         composeRule.waitForIdle()
 
         //Then
+        assertEquals(Lifecycle.State.DESTROYED, lifecycles.first().state)
         composeRule.onNodeWithText(SEARCH_TEXT).assertIsDisplayed()
     }
 
@@ -246,11 +253,12 @@ class RootSessionContentTest {
                 path = "/app/saved_state/root_saved_state.json".toPath()
             ),
             appVersion = "1.1 (10)",
-            sceneSessionId = { "scene-session" }
+            windowSessionId = { "scene-session" }
         )
     )
 
-    // Resumed at once, as iOS's own lifecycle is once the app is in front.
+    // Resumed at once. iOS's own lifecycle gets there a main-queue turn later, once the app is
+    // in front.
     private fun createLifecycle(): RootLifecycle {
         val lifecycle = LifecycleRegistry().also(lifecycles::add)
         lifecycle.resume()

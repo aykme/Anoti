@@ -296,6 +296,18 @@ class NotificationIdRingTest {
     }
 
     @Test
+    fun aMomentBetweenTwoMillisecondsRoundsToTheNearest() {
+        //Given
+        val identifier = ringNotificationIdentifier(17)
+
+        //When
+        val shown = shownNotificationOf(identifier, deliveredAtEpochSeconds = 1.0006)
+
+        //Then
+        assertEquals(ShownNotification(id = 17, postedAtMillis = 1001), shown)
+    }
+
+    @Test
     fun anIdentifierThatIsNotANumberIsNotTheRings() {
         //Given
         val identifiers = listOf("summary", "ANIME_NOTIFICATION_Frieren_12", "")

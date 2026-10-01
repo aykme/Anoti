@@ -16,7 +16,9 @@ import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.compose.runtime.structuralEqualityPolicy
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
@@ -68,6 +70,26 @@ class SaveableStateCodecTest {
             doubles.map { it.toRawBits() },
             restoredDoubles.map { (it as Double).toRawBits() }
         )
+    }
+
+    @Test
+    fun boundaryValuesComeBackExactly() {
+        //Given
+        val values = listOf<Any?>(
+            Long.MAX_VALUE,
+            Long.MIN_VALUE,
+            Int.MIN_VALUE,
+            "",
+            "Фрирен 葬送のフリーレン \uD83C\uDF38",
+            emptyList<Any?>(),
+            emptyMap<Any?, Any?>()
+        )
+
+        //When
+        val restored = roundTrip(values)
+
+        //Then
+        assertEquals(values, restored)
     }
 
     @Test
@@ -151,9 +173,12 @@ class SaveableStateCodecTest {
         val restored = roundTrip(values)
 
         //Then
-        assertIs<MutableList<Any?>>(restored)
-        assertIs<MutableList<Any?>>(restored[0])
-        assertIs<MutableMap<Any?, Any?>>(restored[1])
+        val list = assertIs<MutableList<Any?>>(restored[0])
+        val map = assertIs<MutableMap<Any?, Any?>>(restored[1])
+        list += 2
+        map["other"] = 2
+        assertEquals(listOf<Any?>(1, 2), list)
+        assertEquals(mapOf<Any?, Any?>("key" to 1, "other" to 2), map)
     }
 
     @Test
@@ -195,9 +220,14 @@ class SaveableStateCodecTest {
         assertEquals(List(shapes.size) { emptyMap<String, List<Any?>>() }, restored)
     }
 
-    private fun roundTrip(values: List<Any?>): List<Any?> =
-        SaveableStateCodec.decode(SaveableStateCodec.encode(mapOf("key" to values)))
-            .getValue("key")
+    // Through the text the file holds, where a number JSON cannot spell would fail.
+    private fun roundTrip(values: List<Any?>): List<Any?> {
+        val text = Json.encodeToString(
+            JsonElement.serializer(),
+            SaveableStateCodec.encode(mapOf("key" to values))
+        )
+        return SaveableStateCodec.decode(Json.parseToJsonElement(text)).getValue("key")
+    }
 
     private object Unknown
 

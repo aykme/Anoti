@@ -11,10 +11,10 @@ class PosterFileNameTest {
         val imageUrl = "https://shikimori.io/system/animes/original/61316.jpg?1757000000"
 
         //When
-        val fileName = posterFileName(imageUrl)
+        val fileName = posterFileName(imageUrl = imageUrl, copyNumber = 1)
 
         //Then
-        assertEquals("anime_notification_poster_61316.jpg", fileName)
+        assertEquals("anime_notification_poster_1_61316.jpg", fileName)
     }
 
     @Test
@@ -23,9 +23,9 @@ class PosterFileNameTest {
         val imageUrl = "https://shikimori.io/assets/globals/missing_original.jpg"
 
         //When
-        val fileName = posterFileName(imageUrl)
+        val fileName = posterFileName(imageUrl = imageUrl, copyNumber = 7)
 
         //Then
-        assertEquals("anime_notification_poster_missing_original.jpg", fileName)
+        assertEquals("anime_notification_poster_7_missing_original.jpg", fileName)
     }
 }

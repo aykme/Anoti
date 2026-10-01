@@ -3,6 +3,7 @@ package com.alekseivinogradov.anoti.main.impl.presentation.notification
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
 import platform.Foundation.NSThread
 import platform.UserNotifications.UNNotification
+import platform.UserNotifications.UNNotificationDefaultActionIdentifier
 import platform.UserNotifications.UNNotificationPresentationOptionList
 import platform.UserNotifications.UNNotificationPresentationOptionSound
 import platform.UserNotifications.UNNotificationPresentationOptions
@@ -36,15 +37,18 @@ internal class NotificationTapDelegate(
         )
     }
 
-    // A payload with no screen in it just brings the app forward.
+    // Only a tap on the notification itself opens a screen. A payload with no screen in it just
+    // brings the app forward.
     override fun userNotificationCenter(
         center: UNUserNotificationCenter,
         didReceiveNotificationResponse: UNNotificationResponse,
         withCompletionHandler: () -> Unit
     ) {
+        val isTap = didReceiveNotificationResponse.actionIdentifier ==
+            UNNotificationDefaultActionIdentifier
         val target = notificationTapTarget(
             payload = didReceiveNotificationResponse.notification.request.content.userInfo
-        )
+        ).takeIf { isTap }
         onMainThread {
             target?.let(openFromNotification)
             withCompletionHandler()

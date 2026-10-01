@@ -3,6 +3,7 @@ package com.alekseivinogradov.anoti.main.impl.presentation.notification
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootNotificationTapComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.provider.AnimeNotificationTapPayloadProviderImpl
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
+import com.alekseivinogradov.anoti.navigation.kmp.NavRootDeepLink
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -37,7 +38,7 @@ class NotificationTapTargetTest {
     @Test
     fun aPayloadWithoutTheKeyOpensNothing() {
         //Given
-        val payload = mapOf("another_key" to "AnimeFavorites")
+        val payload = mapOf("another_key" to NavRootDeepLink.encode(NavRootConfig.AnimeFavorites))
 
         //When
         val target = notificationTapTarget(payload)
@@ -61,7 +62,9 @@ class NotificationTapTargetTest {
     @Test
     fun textThatNamesNoScreenOpensNothing() {
         //Given
-        val payload = mapOf(NOTIFICATION_TAP_TARGET_KEY to "\"Settings\"")
+        val unknownScreen = NavRootDeepLink.encode(NavRootConfig.AnimeFavorites)
+            .replace("AnimeFavorites", "Settings")
+        val payload = mapOf(NOTIFICATION_TAP_TARGET_KEY to unknownScreen)
 
         //When
         val target = notificationTapTarget(payload)

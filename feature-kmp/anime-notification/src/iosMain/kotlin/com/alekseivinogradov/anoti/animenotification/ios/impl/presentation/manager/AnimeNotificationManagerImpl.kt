@@ -10,13 +10,23 @@ import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.manag
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.manager.shownNotificationOf
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.poster.PosterLoader
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
+import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.ObjCObjectVar
+import kotlinx.cinterop.alloc
+import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.ptr
+import kotlinx.cinterop.value
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import okio.Path
 import platform.Foundation.NSError
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSURL
 import platform.Foundation.timeIntervalSince1970
+import platform.UserNotifications.UNErrorCodeAttachmentCorrupt
+import platform.UserNotifications.UNErrorCodeAttachmentInvalidURL
+import platform.UserNotifications.UNErrorDomain
 import platform.UserNotifications.UNMutableNotificationContent
 import platform.UserNotifications.UNNotification
 import platform.UserNotifications.UNNotificationAttachment
@@ -57,36 +67,54 @@ internal class AnimeNotificationManagerImpl(
             airedEpisode = airedEpisode
         )
         val tapPayload = animeNotificationTapPayloadProvider.getNewEpisodeTapPayload()
+        val posterFile = posterLoader.loadFile(imageUrl)
+        val poster = posterFile?.let(::createPosterAttachment)
         val content = UNMutableNotificationContent().apply {
             setTitle(text.title)
             setBody(text.body)
             setSound(UNNotificationSound.defaultSound)
             setThreadIdentifier(NEW_EPISODES_GROUP_KEY)
             setUserInfo(tapPayload.toMap<Any?, Any?>())
-            createPosterAttachment(imageUrl)?.let { attachment: UNNotificationAttachment ->
+            poster?.let { attachment: UNNotificationAttachment ->
                 setAttachments(listOf(attachment))
             }
         }
-        singleIds.withNextId { id: Int ->
-            // An identifier already in use replaces the notification shown under it.
-            post(
-                UNNotificationRequest.requestWithIdentifier(
-                    identifier = ringNotificationIdentifier(id),
-                    content = content,
-                    trigger = null
-                )
-            )
+        // The system moves a poster it takes out of the temporary directory. One it never took
+        // would stay there.
+        var isPosterTaken = false
+        try {
+            singleIds.withNextId { id: Int ->
+                // An identifier already in use replaces the notification shown under it.
+                val identifier = ringNotificationIdentifier(id)
+                val error = post(identifier = identifier, content = content)
+                isPosterTaken = poster != null && error == null
+                if (poster != null && error?.isRefusedAttachment() == true) {
+                    println("$TAG: the poster was refused, posting without it: $error")
+                    content.setAttachments(emptyList<UNNotificationAttachment>())
+                    post(identifier = identifier, content = content)
+                }
+            }
+        } finally {
+            if (!isPosterTaken) {
+                posterFile?.let(::deleteLeftover)
+            }
         }
     }
 
     // Waits for the system to take the request, and a cancellation cannot cut the wait short,
     // so the ring records every id the system was handed. A refused request still counts.
-    private suspend fun post(request: UNNotificationRequest) = suspendCoroutine { continuation ->
-        notificationCenter.addNotificationRequest(request) { error: NSError? ->
-            error?.let { println("$TAG: notification was not scheduled: $it") }
-            continuation.resume(Unit)
+    private suspend fun post(identifier: String, content: UNMutableNotificationContent): NSError? =
+        suspendCoroutine { continuation ->
+            val request = UNNotificationRequest.requestWithIdentifier(
+                identifier = identifier,
+                content = content,
+                trigger = null
+            )
+            notificationCenter.addNotificationRequest(request) { error: NSError? ->
+                error?.let { println("$TAG: notification was not scheduled: $it") }
+                continuation.resume(error)
+            }
         }
-    }
 
     // The list lacks a request added a moment ago. The ring covers that for the id it handed out
     // last.
@@ -107,26 +135,34 @@ internal class AnimeNotificationManagerImpl(
         }
 
     /**
-     * A `UNNotificationAttachment` can only reference a local file, so the downloaded poster file
-     * is copied into the temporary directory first.
+     * A `UNNotificationAttachment` can only reference a local file, which is why the poster is a
+     * copy in the temporary directory.
      */
-    @OptIn(ExperimentalForeignApi::class)
-    private suspend fun createPosterAttachment(imageUrl: String?): UNNotificationAttachment? {
-        val posterFile = posterLoader.loadFile(imageUrl) ?: return null
-        val localUrl = NSURL.fileURLWithPath(posterFile.toString())
-
-        return UNNotificationAttachment.attachmentWithIdentifier(
+    @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
+    private fun createPosterAttachment(posterFile: Path): UNNotificationAttachment? = memScoped {
+        val error = alloc<ObjCObjectVar<NSError?>>()
+        UNNotificationAttachment.attachmentWithIdentifier(
             identifier = posterFile.name,
-            URL = localUrl,
+            URL = NSURL.fileURLWithPath(posterFile.toString()),
             options = null,
-            error = null
+            error = error.ptr
         ).also { attachment: UNNotificationAttachment? ->
-            // A rejected file is never moved into the attachment store, so it would stay in the
-            // temporary directory for good.
             if (attachment == null) {
-                println("$TAG: poster was rejected as an attachment, removing $localUrl")
-                NSFileManager.defaultManager.removeItemAtURL(localUrl, null)
+                println("$TAG: poster was rejected as an attachment: ${error.value}")
             }
         }
     }
+
+    @OptIn(ExperimentalForeignApi::class)
+    private fun deleteLeftover(posterFile: Path) {
+        val fileManager = NSFileManager.defaultManager
+        val path = posterFile.toString()
+        if (fileManager.fileExistsAtPath(path)) {
+            fileManager.removeItemAtPath(path, null)
+        }
+    }
 }
+
+// The codes of a request refused for one of its attachments.
+private fun NSError.isRefusedAttachment(): Boolean =
+    domain == UNErrorDomain && code in UNErrorCodeAttachmentInvalidURL..UNErrorCodeAttachmentCorrupt

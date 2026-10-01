@@ -10,6 +10,7 @@ import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -54,7 +55,7 @@ class SavedStateFileTest {
     }
 
     @Test
-    fun aFileThatCannotBeReadIsDeletedAndGivesNothing() {
+    fun aFileThatCannotBeReadIsKeptAndGivesNothing() {
         //Given
         fileSystem.createDirectories(path)
 
@@ -63,7 +64,20 @@ class SavedStateFileTest {
 
         //Then
         assertNull(taken)
-        assertFalse(fileSystem.exists(path))
+        assertTrue(fileSystem.exists(path))
+    }
+
+    @Test
+    fun theNextWriteClearsAFileThatCouldNotBeRead() {
+        //Given
+        fileSystem.createDirectories(path)
+        file.take()
+
+        //When
+        file.write("saved")
+
+        //Then
+        assertNotEquals(true, fileSystem.metadataOrNull(path)?.isDirectory)
     }
 
     @Test
@@ -104,6 +118,7 @@ class SavedStateFileTest {
 
         //Then
         assertFalse(written)
+        assertFalse(fileSystem.exists(directory / "root_saved_state.json.tmp"))
         assertNull(file.take())
     }
 

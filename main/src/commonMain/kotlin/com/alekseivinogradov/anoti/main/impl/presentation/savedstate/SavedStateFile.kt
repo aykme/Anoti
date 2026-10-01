@@ -41,9 +41,10 @@ internal class SavedStateFile(
         }
 
     /**
-     * Reads the file and deletes it, or gives `null` when it is missing or cannot be read. A text
-     * whose file cannot be deleted is not given either: a state that crashes the app on restore
-     * would otherwise crash every launch.
+     * Reads the file and deletes it, or gives `null` when it is missing or cannot be read. A file
+     * that cannot be read stays, since the read may succeed later. A text whose file cannot be
+     * deleted is not given either: a state that crashes the app on restore would otherwise crash
+     * every launch.
      */
     fun take(): String? {
         val text = try {
@@ -52,7 +53,7 @@ internal class SavedStateFile(
             println("$TAG: the state was not read: $exception")
             null
         }
-        return text.takeIf { delete() }
+        return text?.takeIf { delete() }
     }
 
     /** Deletes the file, if there is one, and tells whether it is gone. */

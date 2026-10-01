@@ -23,7 +23,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 private const val IMAGE_URL = "https://shikimori.io/system/animes/original/61316.jpg?175700"
-private const val POSTER_FILE_NAME = "anime_notification_poster_61316.jpg"
+private const val POSTER_FILE_NAME = "anime_notification_poster_1_61316.jpg"
 private const val DISK_CACHE_KEY = "poster-cache-key"
 private const val POSTER_BYTES = "poster bytes"
 
@@ -135,6 +135,30 @@ class PosterLoaderTest {
         assertEquals(
             POSTER_BYTES,
             FileSystem.SYSTEM.read(copiedPoster) { readUtf8() }
+        )
+    }
+
+    @Test
+    fun eachCopyOfOnePosterGetsItsOwnFile() = runTest {
+        //Given
+        val cache = createPopulatedDiskCache()
+        val loader = createLoader(
+            result = { request ->
+                SuccessResult(image = image, request = request, diskCacheKey = DISK_CACHE_KEY)
+            },
+            cache = cache
+        )
+        val first = loader.loadFile(IMAGE_URL)
+
+        //When
+        val second = loader.loadFile(IMAGE_URL)
+
+        //Then
+        second?.let { FileSystem.SYSTEM.delete(it, mustExist = false) }
+        assertEquals(copiedPoster, first)
+        assertEquals(
+            FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "anime_notification_poster_2_61316.jpg",
+            second
         )
     }
 

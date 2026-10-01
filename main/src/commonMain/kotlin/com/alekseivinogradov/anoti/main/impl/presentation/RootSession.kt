@@ -118,6 +118,17 @@ internal class RootSession(
     }
 
     /**
+     * Drops the saved state once the app is back in front with a live root. That root moves on
+     * from the saved screen, and a crash would otherwise reopen the older one. Without a root
+     * the state stays for the root still to be built.
+     */
+    fun dropSavedStateOfLiveRoot() {
+        if (currentRoot != null) {
+            savedStateStorage.discard()
+        }
+    }
+
+    /**
      * Opens the app on [target], the screen a tapped notification names. A cold tap and a warm one
      * are alike: the next root opens on it, and a live root is replaced by a new one at once.
      */
