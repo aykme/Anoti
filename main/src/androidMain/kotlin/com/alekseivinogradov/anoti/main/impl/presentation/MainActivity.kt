@@ -16,6 +16,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -39,6 +40,9 @@ class MainActivity : ComponentActivity() {
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
     private val notificationPermissionRequests = object : NotificationPermissionRequests {
+        // Only the status read on Android 13 and later lets the system ask, so nothing calls
+        // this below that.
+        @RequiresApi(TIRAMISU)
         override fun prompt() {
             requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }

@@ -16,7 +16,6 @@ import com.arkivanov.essenty.lifecycle.ApplicationLifecycle
 import kotlinx.cinterop.ExperimentalForeignApi
 import okio.FileSystem
 import okio.Path.Companion.toPath
-import okio.SYSTEM
 import platform.Foundation.NSApplicationSupportDirectory
 import platform.Foundation.NSBundle
 import platform.Foundation.NSFileManager
@@ -83,7 +82,7 @@ class IosScreenHost(diRootDependencies: DiRootDependencies) {
     fun start() {
         UNUserNotificationCenter.currentNotificationCenter().delegate = notificationTapDelegate
         // The state is written inside the callback, so the write ends before the app is
-        // suspended. UIKit posts it whether or not the app uses scenes.
+        // suspended. UIKit posts it with scenes and without them.
         NSNotificationCenter.defaultCenter.addObserverForName(
             name = UIApplicationDidEnterBackgroundNotification,
             `object` = null,
@@ -159,7 +158,7 @@ private fun appVersion(): String {
     return "$name ($build)"
 }
 
-// The app has one scene. Its state and the app's are logged at every save and root build.
+// The app has one scene. The app and scene states are logged at every save and root build.
 private fun connectedSceneSessionId(): String? {
     val application = UIApplication.sharedApplication
     val scene = application.connectedScenes.firstOrNull() as? UIScene
