@@ -6,12 +6,8 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.IntState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Measurable
@@ -27,7 +23,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.Syste
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.horizontalSystemBarsPadding
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
 import com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.impl.presentation.compose.NotificationsRationaleDialog
-import com.arkivanov.decompose.value.Value
+import com.arkivanov.decompose.extensions.compose.stack.Children
 import kotlin.math.max
 
 /**
@@ -44,14 +40,17 @@ internal fun RootContent(
     notificationsRationale: NotificationsRationaleState
 ) {
     AnotiTheme {
-        val stack by dependencies.rootComponent.childStack.observeAsState()
-        val activeChild = stack.active.instance
         val bottomBarHeight = remember { mutableIntStateOf(0) }
         Column(modifier = Modifier.fillMaxSize()) {
-            Box(modifier = Modifier.weight(1f)) {
-                when (activeChild) {
-                    is NavRootChild.List -> AnimeListRoute(activeChild.component)
-                    is NavRootChild.Favorites -> AnimeFavoritesRoute(activeChild.component)
+            // Children keeps each screen's rememberSaveable values under that screen's own key, and
+            // drops them once the screen leaves the stack.
+            Children(
+                stack = dependencies.rootComponent.childStack,
+                modifier = Modifier.weight(1f)
+            ) { child ->
+                when (val screen = child.instance) {
+                    is NavRootChild.List -> AnimeListRoute(screen.component)
+                    is NavRootChild.Favorites -> AnimeFavoritesRoute(screen.component)
                 }
             }
             Box(
@@ -97,17 +96,4 @@ private fun Modifier.aboveBottomBarAndKeyboard(bottomBarHeight: IntState): Modif
             )
         }
     }
-}
-
-// Decompose's Value doesn't have a first-party Compose State bridge in the plain
-// com.arkivanov.decompose:decompose artifact (only the separate extensions-compose one does) —
-// this is that bridge's whole mechanism, kept local since RootContent is its only caller.
-@Composable
-private fun <T : Any> Value<T>.observeAsState(): State<T> {
-    val state = remember { mutableStateOf(value) }
-    DisposableEffect(this) {
-        val cancellation = subscribe { state.value = it }
-        onDispose { cancellation.cancel() }
-    }
-    return state
 }

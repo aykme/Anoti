@@ -53,6 +53,7 @@ kotlin {
             implementation(libs.compose.foundation)
             implementation(libs.compose.ui)
             implementation(libs.decompose)
+            implementation(libs.decompose.extensions.compose)
             implementation(libs.essenty.lifecycle)
 
             // The component KSP generates from `DiRootComponent` is public and carries this

@@ -60,9 +60,10 @@ Requires at least one saved anime that has a new episode, so a notification actu
    settings open and tap a new-episode notification once one arrives.
    The settings close and the app shows favorites. Pressing system back from there closes the
    app; it does not return to the settings.
-7. Open the anime list. Go to the home screen and end the app the way the system does, as in
-   step 2 of "Leaving and coming back". Tap the notification.
-   The app opens on favorites with the right bottom-bar item selected.
+7. Open the anime list and type something into its search. Go to the home screen and end the app
+   the way the system does, as in step 2 of "Leaving and coming back". Tap the notification.
+   The app opens on favorites with the right bottom-bar item selected. Switch to the list and
+   open its search: the field is empty, and no old text comes back.
 
 ## Moving between the two sections
 

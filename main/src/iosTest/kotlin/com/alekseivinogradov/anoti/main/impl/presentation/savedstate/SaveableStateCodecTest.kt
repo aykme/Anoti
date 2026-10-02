@@ -108,6 +108,26 @@ class SaveableStateCodecTest {
     }
 
     @Test
+    fun theScreensStateAScreenStackSavesComesBackUnderEachScreensKey() {
+        //Given
+        // A stack of screens saves one map: each screen's key to what that screen saved.
+        val screens = mapOf<Any, Map<String, List<Any?>>>(
+            "AnimeList" to mapOf("search" to listOf(mutableStateOf("frieren"))),
+            "AnimeFavorites" to mapOf("scroll" to listOf(3, 120))
+        )
+
+        //When
+        val restored = roundTrip(listOf(screens)).single()
+
+        //Then
+        assertIs<Map<*, *>>(restored)
+        val list = assertIs<Map<*, *>>(restored["AnimeList"])
+        val search = assertIs<SnapshotMutableState<*>>(assertIs<List<*>>(list["search"]).single())
+        assertEquals("frieren", search.value)
+        assertEquals(mapOf("scroll" to listOf(3, 120)), restored["AnimeFavorites"])
+    }
+
+    @Test
     fun aLazyListsIndexAndOffsetComeBackAsInts() {
         //Given
         val values = listOf<Any?>(listOf(12, 340))

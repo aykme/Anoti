@@ -2,11 +2,13 @@ package com.alekseivinogradov.anoti.main.impl.presentation
 
 import android.os.Bundle
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -19,6 +21,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+
+private const val SEARCH_BUTTON_TAG = "search_button"
+private const val SEARCH_TEXT = "frieren"
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = HostApplicationFake::class)
@@ -105,6 +110,32 @@ class MainActivityNotificationTapTest {
         //Then
         composeRule.onNodeWithTag(ANIME_FAVORITES_TAB_TAG).assertIsSelected()
         assertTrue(restoredListStore.isDisposed)
+    }
+
+    @Test
+    fun aTapIntoARebuiltActivityLeavesNoStaleSearchTextOnTheList() {
+        //Given
+        val first = composeRule.launchMainActivity(plainLaunchingIntent())
+        composeRule.onNodeWithTag(SEARCH_BUTTON_TAG).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNode(hasSetTextAction()).performTextInput(SEARCH_TEXT)
+        composeRule.waitForIdle()
+        val saved = Bundle()
+        first.saveInstanceState(saved).pause().stop().destroy()
+        val second = Robolectric.buildActivity(MainActivity::class.java, plainLaunchingIntent())
+            .create(saved).start().restoreInstanceState(saved).postCreate(saved)
+        second.newIntent(favoritesDeepLinkIntent())
+        second.resume().visible()
+        composeRule.waitForIdle()
+
+        //When
+        composeRule.onNodeWithTag(ANIME_LIST_TAB_TAG).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag(SEARCH_BUTTON_TAG).performClick()
+        composeRule.waitForIdle()
+
+        //Then
+        composeRule.onNodeWithText(SEARCH_TEXT).assertDoesNotExist()
     }
 
     @Test
