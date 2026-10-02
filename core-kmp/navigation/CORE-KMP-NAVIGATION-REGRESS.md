@@ -29,6 +29,9 @@ notification arrives.
 4. With the app already open on the main screen, tap a new-episode notification.
    The app moves to **Favorites**, and the bottom bar follows — the selected item and the screen
    shown are never out of step.
+5. With the app already open on **Favorites**, scrolled down, tap a new-episode notification.
+   **Favorites** stays as it was: the same scroll position, nothing reloads, and **Favorites**
+   stays the selected item.
 
 ## Switching
 
@@ -70,7 +73,7 @@ The steps name Android's tools. On the iPhone:
 - "Don't keep activities" has none either. To end the app the way the system does, start it from
   Xcode and go to the home screen. Stop it in Xcode, then open it from the home screen. It comes
   back on the screen it was left on.
-- A tapped notification replaces the open screen with a new one on favorites, as on Android.
-  After a cold start, another screen may show for a moment first.
+- A tapped notification opens favorites as on Android, and favorites already open stay as they
+  were. After a cold start, another screen may show for a moment first.
 
 The iPhone steps are unverified until the iPhone app has been built and run.

@@ -69,6 +69,27 @@ class ChildLifecycleTest {
     }
 
     @Test
+    fun aCallbackUnsubscribedFromItHearsNothingMore() {
+        //Given
+        val parent = LifecycleRegistry().apply { resume() }
+        val child = ChildLifecycle(parent = parent)
+        var stops = 0
+        val callbacks = object : Lifecycle.Callbacks {
+            override fun onStop() {
+                stops++
+            }
+        }
+        child.subscribe(callbacks)
+
+        //When
+        child.unsubscribe(callbacks)
+        parent.stop()
+
+        //Then
+        assertEquals(0, stops)
+    }
+
+    @Test
     fun endsWithTheParent() {
         //Given
         val parent = LifecycleRegistry().apply { resume() }
@@ -76,7 +97,6 @@ class ChildLifecycleTest {
 
         //When
         parent.destroy()
-        child.destroy()
 
         //Then
         assertEquals(Lifecycle.State.DESTROYED, child.state)

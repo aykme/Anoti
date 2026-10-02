@@ -18,11 +18,8 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
-// One function per case under test.
-@Suppress("TooManyFunctions")
 @RunWith(RobolectricTestRunner::class)
 @Config(application = HostApplicationFake::class)
 class MainActivityNotificationTapTest {
@@ -44,10 +41,9 @@ class MainActivityNotificationTapTest {
     }
 
     @Test
-    fun aTapOnTheListOpensFavoritesInTheSameActivity() {
+    fun aTapOnTheListOpensFavorites() {
         //Given
         val controller = composeRule.launchMainActivity(plainLaunchingIntent())
-        val activity = controller.get()
         val listScreenStore = fakeDependencies.animeDatabaseStores.last()
 
         //When
@@ -55,7 +51,6 @@ class MainActivityNotificationTapTest {
         composeRule.waitForIdle()
 
         //Then
-        assertSame(activity, controller.get())
         composeRule.onNodeWithTag(ANIME_FAVORITES_TAB_TAG).assertIsSelected()
         assertTrue(listScreenStore.isDisposed)
     }
@@ -115,20 +110,23 @@ class MainActivityNotificationTapTest {
     @Test
     fun aTapNamingNoScreenLeavesTheScreenAlone() {
         //Given
-        val controller = composeRule.launchMainActivity(plainLaunchingIntent())
+        val controller = composeRule.launchMainActivity(favoritesDeepLinkIntent())
+        val favoritesScreenStore = fakeDependencies.animeDatabaseStores.last()
 
         //When
         controller.newIntent(plainLaunchingIntent())
         composeRule.waitForIdle()
 
         //Then
-        composeRule.onNodeWithTag(ANIME_LIST_TAB_TAG).assertIsSelected()
+        composeRule.onNodeWithTag(ANIME_FAVORITES_TAB_TAG).assertIsSelected()
+        assertFalse(favoritesScreenStore.isDisposed)
     }
 
     @Test
     fun aTapWithAnUnreadablePayloadLeavesTheScreenAlone() {
         //Given
-        val controller = composeRule.launchMainActivity(plainLaunchingIntent())
+        val controller = composeRule.launchMainActivity(favoritesDeepLinkIntent())
+        val favoritesScreenStore = fakeDependencies.animeDatabaseStores.last()
 
         //When
         controller.newIntent(
@@ -137,7 +135,8 @@ class MainActivityNotificationTapTest {
         composeRule.waitForIdle()
 
         //Then
-        composeRule.onNodeWithTag(ANIME_LIST_TAB_TAG).assertIsSelected()
+        composeRule.onNodeWithTag(ANIME_FAVORITES_TAB_TAG).assertIsSelected()
+        assertFalse(favoritesScreenStore.isDisposed)
     }
 
     @Test

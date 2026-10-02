@@ -3,7 +3,10 @@ package com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigat
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.fake.UpdateAllAnimeInBackgroundOnceUsecaseFake
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
+import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.ANIMATION_DURATION_SHORT
 import com.alekseivinogradov.anoti.animebase.kmp.impl.data.service.ShikimoriApiServiceImpl
+import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.AnimeDbDomain
+import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.ReleaseStatusDb
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseExecutorImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseStoreFactory
@@ -24,6 +27,7 @@ import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.destroy
 import com.arkivanov.essenty.lifecycle.resume
+import com.arkivanov.essenty.lifecycle.stop
 import com.arkivanov.essenty.statekeeper.SerializableContainer
 import com.arkivanov.essenty.statekeeper.StateKeeperDispatcher
 import com.arkivanov.mvikotlin.core.store.StoreFactory
@@ -39,6 +43,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
@@ -48,7 +53,6 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -101,9 +105,12 @@ class NavAnimeFavoritesScreenComponentTest {
         val databaseUsecases: AnimeDatabaseUsecasesFake
     )
 
-    private fun createWiring(savedState: SerializableContainer? = null): Wiring {
+    private fun createWiring(
+        savedState: SerializableContainer? = null,
+        databaseItems: List<AnimeDbDomain> = listOf()
+    ): Wiring {
         val coroutineContextProvider = CoroutineContextProviderFake()
-        val databaseUsecases = AnimeDatabaseUsecasesFake()
+        val databaseUsecases = AnimeDatabaseUsecasesFake(databaseItems)
         val animeDatabaseStore = AnimeDatabaseStoreFactory(
             storeFactory = DefaultStoreFactory(),
             executorFactory = {
@@ -139,12 +146,12 @@ class NavAnimeFavoritesScreenComponentTest {
     }
 
     @Test
-    fun openingTheSectionPutsTheMainStoreIntoItsMinimumDurationLoadingState() = runTest(testDispatcher) {
+    fun startingPutsTheMainStoreIntoItsMinimumDurationLoadingState() = runTest(testDispatcher) {
         //Given
-        val wiring = createWiring()
+        val savedState: SerializableContainer? = null
 
         //When
-        wiring.component.openSectionUnlessRestored()
+        val wiring = createWiring(savedState = savedState)
 
         //Then
         assertEquals(
@@ -156,10 +163,10 @@ class NavAnimeFavoritesScreenComponentTest {
     @Test
     fun aFreshArrivalResetsTheDatabaseStoresExtraInfo() = runTest(testDispatcher) {
         //Given
-        val wiring = createWiring()
+        val savedState: SerializableContainer? = null
 
         //When
-        wiring.component.openSectionUnlessRestored()
+        val wiring = createWiring(savedState = savedState)
         runCurrent()
 
         //Then
@@ -174,7 +181,6 @@ class NavAnimeFavoritesScreenComponentTest {
 
         //When
         val afterProcessDeath = createWiring(savedState = savedState)
-        afterProcessDeath.component.openSectionUnlessRestored()
         runCurrent()
 
         //Then
@@ -191,19 +197,56 @@ class NavAnimeFavoritesScreenComponentTest {
     }
 
     @Test
-    fun aSecondOpeningChangesNothing() = runTest(testDispatcher) {
+    fun aFreshArrivalAtAnEmptyDatabaseSettlesOnceTheMinimumLoadingTimeIsOver() =
+        runTest(testDispatcher) {
+            //Given
+            val databaseItems = listOf<AnimeDbDomain>()
+
+            //When
+            val wiring = createWiring(databaseItems = databaseItems)
+            advanceTimeBy(ANIMATION_DURATION_SHORT)
+            runCurrent()
+
+            //Then
+            assertEquals(ContentTypeDomain.EMPTY, wiring.component.mainStore.state.contentType)
+        }
+
+    @Test
+    fun aRestoredArrivalSettlesOnceTheMinimumLoadingTimeIsOver() = runTest(testDispatcher) {
+        //Given
+        val beforeProcessDeath = createWiring()
+        val savedState = beforeProcessDeath.stateKeeper.save()
+
+        //When
+        val afterProcessDeath = createWiring(
+            savedState = savedState,
+            databaseItems = listOf(SAVED_ANIME)
+        )
+        advanceTimeBy(ANIMATION_DURATION_SHORT)
+        runCurrent()
+
+        //Then
+        assertEquals(
+            ContentTypeDomain.LOADED,
+            afterProcessDeath.component.mainStore.state.contentType,
+            "the open waited for a list the database had already delivered"
+        )
+    }
+
+    @Test
+    fun theSectionOpensOnceWhateverTheLifecycleDoesNext() = runTest(testDispatcher) {
         //Given
         val wiring = createWiring()
-        wiring.component.openSectionUnlessRestored()
         advanceUntilIdle()
         val settled = wiring.component.mainStore.state.contentType
 
         //When
-        wiring.component.openSectionUnlessRestored()
+        wiring.lifecycle.stop()
+        wiring.lifecycle.resume()
 
         //Then
         assertEquals(settled, wiring.component.mainStore.state.contentType)
-        assertNotEquals(ContentTypeDomain.LOADING(hasMinimumDuration = true), settled)
+        assertEquals(1, wiring.databaseUsecases.resetExtraInfoCount)
     }
 
     @Test
@@ -241,4 +284,20 @@ private fun unreachableCatalog(dispatcher: CoroutineDispatcher) = MockEngine(
             )
         }
     }
+)
+
+/** A saved anime with only what the favorites list needs to show it. */
+private val SAVED_ANIME = AnimeDbDomain(
+    id = 7,
+    imageUrl = null,
+    name = "Frieren",
+    episodesAired = null,
+    episodesTotal = null,
+    nextEpisodeAt = null,
+    airedOn = null,
+    releasedOn = null,
+    score = null,
+    releaseStatus = ReleaseStatusDb.ONGOING,
+    episodesViewed = 0,
+    isNewEpisode = false
 )

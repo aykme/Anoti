@@ -14,9 +14,10 @@ import me.tatarka.inject.annotations.Inject
  * the only module that owns both the root navigation component and the notification's target
  * activity.
  *
- * `NEW_TASK`, `CLEAR_TOP` and `SINGLE_TOP` bring the task forward, close whatever this app opened
- * above [MainActivity], such as the notification settings, and hand the tap to the running
- * activity's `onNewIntent`. With no task, the activity starts with it.
+ * `NEW_TASK`, `CLEAR_TOP` and `SINGLE_TOP` bring the task forward and close whatever this app
+ * opened above [MainActivity], such as the notification settings. The running activity then gets
+ * the tap in `onNewIntent`. With no task, a new one starts and the activity reads the target at
+ * launch.
  */
 @Inject
 class AnimeNotificationIntentProviderImpl : AnimeNotificationIntentProvider {

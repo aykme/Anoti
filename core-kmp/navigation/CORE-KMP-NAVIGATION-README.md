@@ -6,7 +6,8 @@ that owns navigation between them, and the text form a notification carries to o
 - [NavRootConfig](src/commonMain/kotlin/com/alekseivinogradov/anoti/navigation/kmp/NavRootConfig.kt) —
   a screen reachable from the root navigation stack.
 - [NavRootComponent](src/commonMain/kotlin/com/alekseivinogradov/anoti/navigation/kmp/NavRootComponent.kt) —
-  owns the root navigation stack and drives navigation between `NavRootConfig` screens.
+  owns the root navigation stack and drives navigation between `NavRootConfig` screens,
+  replacing the whole stack.
 - [NavRootDeepLink](src/commonMain/kotlin/com/alekseivinogradov/anoti/navigation/kmp/NavRootDeepLink.kt) —
   writes and reads a `NavRootConfig` as a notification's payload.
 
@@ -28,6 +29,3 @@ val root = NavRootComponent(
     childFactory = ::createRootChild
 )
 ```
-
-`navigateTo` replaces the whole stack, so the back stack never grows. A screen already shown stays
-as it is.

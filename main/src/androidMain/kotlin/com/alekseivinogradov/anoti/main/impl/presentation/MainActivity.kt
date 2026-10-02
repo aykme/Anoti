@@ -79,8 +79,8 @@ class MainActivity : ComponentActivity() {
             },
             notificationPermissionRequests = notificationPermissionRequests
         )
-        // A tap while this activity is alive arrives here. getIntent() keeps the launching
-        // intent, so a rebuild still finds savedInstanceState and ignores the tap.
+        // A tap while this activity is alive arrives here and navigates the live root. The
+        // launching intent is left as it is.
         addOnNewIntentListener { newIntent: Intent ->
             readDeepLinkTarget(newIntent)?.let(rootHost::openFromNotification)
         }

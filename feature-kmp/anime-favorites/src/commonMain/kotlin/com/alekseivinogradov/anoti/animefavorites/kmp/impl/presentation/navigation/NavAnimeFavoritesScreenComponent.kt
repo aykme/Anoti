@@ -1,7 +1,6 @@
 package com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation
 
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
-import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.di.DiAnimeFavoritesComponent
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.AnimeFavoritesController
@@ -9,14 +8,15 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.Cor
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
+import com.arkivanov.essenty.lifecycle.doOnStart
 import kotlinx.serialization.Serializable
 
 /**
  * Owns the anime-favorites screen's `FeatureScope` DI subgraph for as long as this component's
  * lifecycle (inherited from [componentContext]) is alive — created once when
  * `NavRootConfig.AnimeFavorites` becomes the active root config, disposed when
- * `NavRootComponent.navigateTo()` replaces it. It builds the screen's [controller];
- * [AnimeFavoritesRoute] only binds a view per composition and opens the section.
+ * `NavRootComponent.navigateTo()` replaces it. It builds the screen's [controller] and opens the
+ * section on its first start; [AnimeFavoritesRoute] only binds a view per composition.
  */
 class NavAnimeFavoritesScreenComponent(
     componentContext: ComponentContext,
@@ -36,11 +36,20 @@ class NavAnimeFavoritesScreenComponent(
     /** The screen's own store. */
     val mainStore: AnimeFavoritesMainStore = diAnimeFavoritesComponent.mainStore
 
-    // stateKeeper only round-trips a value through the platform's saved state on genuine
-    // process recreation, never on an ordinary top-level navigation switch (this component is
-    // fully destroyed and recreated then, before ever having registered anything). So a non-null
-    // consume() here means process death happened while this screen was the active one.
-    private val wasRestoredFromProcessDeath: Boolean =
+    init {
+        // Registered before the saved state is read. A state the screen rejects throws there, and
+        // the stores must still close with the lifecycle.
+        lifecycle.doOnDestroy {
+            animeDatabaseStore.dispose()
+            mainStore.dispose()
+        }
+    }
+
+    // stateKeeper hands a value back only when the screen is rebuilt from saved state: after
+    // process death, or after a platform rebuild of its host. A top-level navigation switch
+    // creates this component afresh, with nothing registered. So a non-null consume() means the
+    // screen was rebuilt while it was the active one.
+    private val wasRestoredFromSavedState: Boolean =
         stateKeeper.consume(key = RESTORED_MARKER_KEY, strategy = RestoredMarker.serializer()) !=
             null
 
@@ -49,10 +58,9 @@ class NavAnimeFavoritesScreenComponent(
             RestoredMarker
         }
 
-        lifecycle.doOnDestroy {
-            animeDatabaseStore.dispose()
-            mainStore.dispose()
-        }
+        // Subscribed before the controller binds, so the section opens before the database's
+        // first list reaches the store. Opening waits for a list that arrives after it.
+        lifecycle.doOnStart(isOneTime = true) { openSection() }
     }
 
     /** Wires the screen's stores while this component lives, and a view per composition. */
@@ -63,22 +71,18 @@ class NavAnimeFavoritesScreenComponent(
     )
 
     /**
-     * Opens the section once per component. Opening drives [mainStore]'s minimum-visible loading
-     * state, so every arrival gets the same loading treatment. The extra-info reset is skipped
-     * after process death while the section was open, so that display state survives. Every other
-     * arrival resets it.
-     *
-     * A later composition of the same component finds the content type moved off its untouched
-     * default and does nothing.
+     * Opens the section when the component first starts. Opening drives [mainStore]'s
+     * minimum-visible loading state, so every arrival gets the same loading treatment. The
+     * extra-info reset is skipped when the screen comes back from saved state, so that display
+     * state survives. Every other arrival resets it.
      *
      * Resets [animeDatabaseStore] directly rather than through [mainStore]'s
      * `Label.ResetExtraInfo`: that label only reaches [animeDatabaseStore] once the controller's
      * binder has started, which is posted to a later main-thread turn.
      */
-    fun openSectionUnlessRestored() {
-        if (mainStore.state.contentType != ContentTypeDomain.LOADING()) return
+    private fun openSection() {
         mainStore.accept(AnimeFavoritesMainStore.Intent.OpenSection)
-        if (!wasRestoredFromProcessDeath) {
+        if (!wasRestoredFromSavedState) {
             animeDatabaseStore.accept(AnimeDatabaseStore.Intent.ResetAllItemsExtraInfo)
         }
     }

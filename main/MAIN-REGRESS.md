@@ -20,7 +20,7 @@ iPhone app has been built and run.
    The question does not come back.
 4. Uninstall, install again and open it. When the system asks, choose **Don't allow**.
    The question disappears and the list stays where it was.
-   iPhone: if the question does not come back after the reinstall, erase the Simulator or use a
+   iPhone: if the question does not come back after the reinstallation, erase the Simulator or use a
    device that never had the app.
 5. Close the app and open it again.
    The app explains in its own dialog why it wants notifications, with a refusing button and an
@@ -55,7 +55,7 @@ Requires at least one saved anime that has a new episode, so a notification actu
 5. From there, close the app the way a user does: swipe it away in recents or in the app
    switcher. Open it again.
    The app opens on the anime list, not on favorites.
-6. Android 10 to 12 only, where the app itself opens its notification settings: open them from
+6. Android 10 to 12 only, where the app itself opens its notification settings. Open them from
    the app's dialog as in step 8 of "First launch", and switch notifications on there. Leave the
    settings open and tap a new-episode notification once one arrives.
    The settings close and the app shows favorites. Pressing system back from there closes the
@@ -169,4 +169,6 @@ Android only, since the iPhone has no back button.
   closed and opened again.
 - After a reboot. Android opens on the anime list. The iPhone may reopen on the screen it was
   left on.
+- After an app update. The iPhone opens on the anime list, since a state another build saved is
+  dropped.
 - System back. Android closes the app. The iPhone has none.

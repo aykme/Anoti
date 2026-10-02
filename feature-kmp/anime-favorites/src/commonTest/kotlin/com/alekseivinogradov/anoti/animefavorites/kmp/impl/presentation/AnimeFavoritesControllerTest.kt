@@ -79,7 +79,6 @@ class AnimeFavoritesControllerTest {
         val viewLifecycle: LifecycleRegistry,
         val view: AnimeFavoritesViewFake,
         val mainStore: AnimeFavoritesMainStore,
-        val animeDatabaseStore: AnimeDatabaseStore,
         val database: AnimeDatabaseUsecasesFake,
         val backgroundUpdateUsecase: UpdateAllAnimeInBackgroundOnceUsecaseFake
     )
@@ -165,7 +164,6 @@ class AnimeFavoritesControllerTest {
             viewLifecycle = viewLifecycle,
             view = view,
             mainStore = mainStore,
-            animeDatabaseStore = animeDatabaseStore,
             database = database,
             backgroundUpdateUsecase = backgroundUpdateUsecase
         )

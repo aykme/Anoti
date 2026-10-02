@@ -128,7 +128,7 @@ class SaveableStateCodecTest {
             referentialEqualityPolicy(),
             neverEqualPolicy<Any?>()
         )
-        val states = policies.map { mutableStateOf<Any?>("text", it) }
+        val states = policies.map { mutableStateOf("text", it) }
 
         //When
         val restored = roundTrip(states)
@@ -217,7 +217,7 @@ class SaveableStateCodecTest {
         val restored = shapes.map(SaveableStateCodec::decode)
 
         //Then
-        assertEquals(List(shapes.size) { emptyMap<String, List<Any?>>() }, restored)
+        assertEquals(List(shapes.size) { emptyMap() }, restored)
     }
 
     // Through the text the file holds, where a number JSON cannot spell would fail.

@@ -12,8 +12,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.lifecycle.Chi
 
 /**
  * Renders the anime-favorites screen of [screenComponent]. Each composition gets its own view,
- * bound to the component's controller for as long as the composition lasts. The first one opens
- * the section.
+ * bound to the component's controller for as long as the composition lasts.
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.
@@ -35,7 +34,6 @@ fun AnimeFavoritesRoute(screenComponent: NavAnimeFavoritesScreenComponent) {
             mainView = composeView,
             viewLifecycle = viewLifecycle
         )
-        screenComponent.openSectionUnlessRestored()
         onDispose { viewLifecycle.destroy() }
     }
     composeView.model.value?.let { uiModel ->

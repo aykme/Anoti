@@ -51,6 +51,18 @@ class NavAnimeListScreenComponent(
     /** The search section's own store. */
     val searchSectionStore: SearchSectionStore = diAnimeListComponent.searchSectionStore
 
+    init {
+        // Registered before the saved state is read. A state the screen rejects throws there, and
+        // the stores must still close with the lifecycle.
+        lifecycle.doOnDestroy {
+            ongoingSectionStore.dispose()
+            announcedSectionStore.dispose()
+            searchSectionStore.dispose()
+            animeDatabaseStore.dispose()
+            mainStore.dispose()
+        }
+    }
+
     // Consumed once at construction, per StateKeeper's contract, and replayed when the component
     // first starts.
     private val restoredState: RestoredMainState? =
@@ -84,14 +96,6 @@ class NavAnimeListScreenComponent(
                     )
                 }
             )
-        }
-
-        lifecycle.doOnDestroy {
-            ongoingSectionStore.dispose()
-            announcedSectionStore.dispose()
-            searchSectionStore.dispose()
-            animeDatabaseStore.dispose()
-            mainStore.dispose()
         }
 
         // Subscribed before the controller binds, so the replay always comes before the wiring.

@@ -26,9 +26,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 
 /**
- * Wires the main store, its three section stores and [AnimeDatabaseStore] to each other for the
- * screen component's lifetime, and a view to the main store for the view's own. The component
- * that owns the stores builds it once and disposes them.
+ * Wires the main store, its three section stores and [AnimeDatabaseStore] to each other while the
+ * screen component is started. It also binds a view to the main store for that view's own
+ * lifecycle. The component that owns the stores builds it once and disposes them.
  *
  * @param lifecycle the screen component's lifecycle; the stores are wired while it is started.
  * @param mainStore the anime list screen's top-level store.

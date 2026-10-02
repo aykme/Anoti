@@ -34,7 +34,7 @@ class BottomNavigationBarController(
     /**
      * Binds [mainView] to the store while [viewLifecycle] lasts.
      *
-     * @param mainView the view of one composition of the screen.
+     * @param mainView the view of one composition of the bar.
      * @param viewLifecycle the lifecycle of that composition.
      */
     fun onViewCreated(mainView: BottomNavigationBarView, viewLifecycle: Lifecycle) {

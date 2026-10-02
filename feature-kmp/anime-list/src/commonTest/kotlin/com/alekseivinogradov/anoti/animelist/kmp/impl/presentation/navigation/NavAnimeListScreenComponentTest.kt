@@ -51,6 +51,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.serialization.builtins.serializer
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -316,6 +317,40 @@ class NavAnimeListScreenComponentTest {
     }
 
     @Test
+    fun aSavedStateTheScreenCannotReadStillLeavesItsStoresClosedWithTheLifecycle() =
+        runTest(testDispatcher) {
+            //Given
+            val unreadable = StateKeeperDispatcher().apply {
+                register(key = RESTORED_STATE_KEY, strategy = String.serializer()) { "not a state" }
+            }.save()
+            val coroutineContextProvider = CoroutineContextProviderFake()
+            val databaseStore = createDatabaseStore(coroutineContextProvider)
+            val lifecycle = LifecycleRegistry().also(lifecycles::add).apply { resume() }
+            val built = runCatching {
+                NavAnimeListScreenComponent(
+                    componentContext = DefaultComponentContext(
+                        lifecycle = lifecycle,
+                        stateKeeper = StateKeeperDispatcher(unreadable)
+                    ),
+                    diAnimeListComponent = createDiAnimeListComponent(
+                        parent = DiAnimeListDependenciesFake(
+                            animeDatabaseStore = databaseStore,
+                            coroutineContextProvider = coroutineContextProvider,
+                            engine = singlePageCatalog(testDispatcher)
+                        )
+                    )
+                )
+            }
+
+            //When
+            lifecycle.destroy()
+
+            //Then
+            assertTrue(built.isFailure, "the screen read a state it cannot decode")
+            assertTrue(databaseStore.isDisposed, "the rejected screen left its stores running")
+        }
+
+    @Test
     fun destroyingTheLifecycleDisposesEveryStoreTheComponentOwns() = runTest(testDispatcher) {
         //Given
         val wiring = createWiring()
@@ -345,6 +380,9 @@ private const val NEXT_EPISODE_AT = "2024-01-05T10:00:00+03:00"
 private const val SEARCH_TEXT = "totoro"
 
 private const val CHANGED_SEARCH_TEXT = "kiki"
+
+// The key the screen saves its state under.
+private const val RESTORED_STATE_KEY = "AnimeListMainStoreRestoredState"
 
 /**
  * Answers every listing with one full page of the same items, and every details call with the
