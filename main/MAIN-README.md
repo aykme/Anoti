@@ -31,9 +31,10 @@ The app's `Application` implements `DiRootComponentHolder` and returns a new `Di
 from every call. `MainActivity` asks it for one each time it is created and hands it to a new
 `RootHost`. With it go the screen a tapped notification names, a way to build its component
 context, and its notification-permission requests. The host builds the root navigation, and the
-activity shows the host's content.
+activity shows the host's content. A notification tapped while the activity runs opens its screen
+in the same root.
 
-On iOS, `IosScreenHost` lives for the whole process, and each composition of its screen builds a
-new `RootHost`. A tapped notification replaces that `RootHost` with one opening on the screen it
-names. The root's state goes to a file when the app goes to the background, and the next
-process restores it from there.
+On iOS, `IosScreenHost` lives for the whole process and holds the app's one `RootHost`, built the
+first time the scene asks for its screen. The scene keeps the root's state as one string in its
+`@SceneStorage`, which the host writes and reads back. A tapped notification opens its screen in
+that root, or in the one still to be built.

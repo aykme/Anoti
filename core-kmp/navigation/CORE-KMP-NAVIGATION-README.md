@@ -28,3 +28,6 @@ val root = NavRootComponent(
     childFactory = ::createRootChild
 )
 ```
+
+`navigateTo` replaces the whole stack, so the back stack never grows. A screen already shown stays
+as it is.

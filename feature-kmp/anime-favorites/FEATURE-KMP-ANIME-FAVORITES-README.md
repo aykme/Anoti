@@ -6,7 +6,7 @@ and per-item notification toggles.
 - [DiAnimeFavoritesDependencies](src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/api/di/DiAnimeFavoritesDependencies.kt) —
   what the screen's component takes from its parent.
 - [NavAnimeFavoritesScreenComponent](src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/impl/presentation/navigation/NavAnimeFavoritesScreenComponent.kt) —
-  owns the screen's dependency graph and its saved state.
+  owns the screen's dependency graph, its controller and its saved state.
 - [AnimeFavoritesRoute](src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/impl/presentation/navigation/AnimeFavoritesRoute.kt) —
   renders the screen for a given screen component.
 
@@ -17,13 +17,13 @@ and per-item notification toggles.
   from the app's root component, then build a `DiAnimeFavoritesComponent` with
   `createDiAnimeFavoritesComponent(parent)` and wrap it in a `NavAnimeFavoritesScreenComponent`
   together with the Decompose `ComponentContext` the screen's navigation child owns. The store,
-  the view and the controller have no wiring of their own to do — `AnimeFavoritesRoute` builds
-  and binds them from that component.
+  the view and the controller have no wiring of their own to do. The component builds the
+  controller once, and `AnimeFavoritesRoute` binds a view to it for each composition.
 
 ## How to use it
 
 ```kotlin
-// Called once per NavRootConfig.AnimeFavorites activation, with the screen component that
-// activation built:
+// Called in each composition of a NavRootConfig.AnimeFavorites activation, with the screen
+// component that activation built:
 AnimeFavoritesRoute(screenComponent = navAnimeFavoritesScreenComponent)
 ```

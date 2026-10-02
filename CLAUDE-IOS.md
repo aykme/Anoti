@@ -42,10 +42,13 @@ the rules both platforms share and loads this file.
 - Call `IosApp.start()` inside `application(_:didFinishLaunchingWithOptions:)`, reached through
   `@UIApplicationDelegateAdaptor`. iOS wants the background task registered and the
   notification delegate set before launch ends.
-- Call `IosApp.viewController()` from `makeUIViewController` only, never from
-  `updateUIViewController`. Each call builds a new screen.
+- Call `IosApp.viewController(restoredState:)` from `makeUIViewController` only, never from
+  `updateUIViewController`. Pass it the scene's `@SceneStorage` string; an empty one means
+  nothing was kept.
+- Call `IosApp.saveState()` whenever the scene phase leaves `.active`. Store a returned string
+  in the same `@SceneStorage`. On `nil`, leave the stored value as it is.
 - Create the representable once per scene and keep its identity: no `.id`, no condition around
-  it. A representable made again while the app is in front starts the screen afresh.
+  it. A second representable shows a second screen over the same root, and both bind to it.
 - The view controller's representable must ignore every safe area, the keyboard's included. The
   Compose content pads itself for the system bars and the keyboard.
 - The app must have one scene: `UIApplicationSupportsMultipleScenes` is `false`.

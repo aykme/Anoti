@@ -45,15 +45,24 @@ Requires at least one saved anime that has a new episode, so a notification actu
    the iPhone another screen may show for a moment first.
 2. Leave the app open on the anime list. Go to the home screen. Tap the new-episode notification.
    The app comes to the front on the favorites section, not on the list.
-3. Leave the app open on favorites, scrolled down. Go to the home screen and tap the
-   notification.
-   The app comes to the front on favorites, rebuilt: the list is back at the top.
+3. Leave the app open on favorites, scrolled down, with one item showing its extra info. Go to
+   the home screen and tap the notification.
+   The app comes to the front on favorites exactly as it was left: the same scroll position, the
+   same item still showing its extra info. Nothing reloads and no screen animates in.
 4. Android only, since the iPhone has no back button: from there, press system back until the
    app closes. Open the app from the launcher.
    The app opens on the anime list, not on favorites.
 5. From there, close the app the way a user does: swipe it away in recents or in the app
    switcher. Open it again.
    The app opens on the anime list, not on favorites.
+6. Android 10 to 12 only, where the app itself opens its notification settings: open them from
+   the app's dialog as in step 8 of "First launch", and switch notifications on there. Leave the
+   settings open and tap a new-episode notification once one arrives.
+   The settings close and the app shows favorites. Pressing system back from there closes the
+   app; it does not return to the settings.
+7. Open the anime list. Go to the home screen and end the app the way the system does, as in
+   step 2 of "Leaving and coming back". Tap the notification.
+   The app opens on favorites with the right bottom-bar item selected.
 
 ## Moving between the two sections
 

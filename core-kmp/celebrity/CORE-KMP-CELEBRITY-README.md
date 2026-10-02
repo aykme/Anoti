@@ -23,6 +23,8 @@ formatting, error system messages, pagination, and Compose UI helpers for MVIKot
   outcome of a `Paginator` page load.
 - [ComposeMviView](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/presentation/compose/ComposeMviView.kt) —
   base `MviView` that renders a store's state into a Compose `State` instead of a real View.
+- [ChildLifecycle](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/impl/presentation/lifecycle/ChildLifecycle.kt) —
+  a lifecycle that follows its parent until it is destroyed on its own.
 - [Modifier.repeatingClickable](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/impl/presentation/compose/RepeatingClickable.kt) —
   press-and-hold-to-repeat click behavior for Compose.
 - [LoadingSpinner](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/impl/presentation/compose/LoadingSpinner.kt) —
@@ -40,8 +42,8 @@ formatting, error system messages, pagination, and Compose UI helpers for MVIKot
   (`DiCelebrityComponent`), mixed into
   [`core-kmp:di-app`](../di-app/CORE-KMP-DI-APP-README.md)'s `DiAppComponent` on both platforms —
   inject them, don't construct them yourself. `SystemMessageHost`, `Paginator`, `ComposeMviView`,
-  `repeatingClickable`, `LoadingSpinner`, `horizontalSystemBarsPadding` and `systemBarsTopPadding`
-  have no DI wiring; callers subclass/construct/call them directly.
+  `ChildLifecycle`, `repeatingClickable`, `LoadingSpinner`, `horizontalSystemBarsPadding` and
+  `systemBarsTopPadding` have no DI wiring; callers subclass/construct/call them directly.
 
 ## How to use it
 

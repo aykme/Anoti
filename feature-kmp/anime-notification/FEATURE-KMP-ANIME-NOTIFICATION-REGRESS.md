@@ -99,8 +99,8 @@ Check these variants:
 2. Tap one while the app is already open on "Main".
    - The app comes forward and moves to the favorites screen.
 3. Tap one while the app is already open on "Favorites", scrolled down.
-   - The app comes forward on favorites, rebuilt: the list is back at the top. Nothing is
-     opened twice.
+   - The app comes forward on favorites as it was left, still scrolled down. Nothing reloads
+     and nothing is opened twice.
 
 ## 6. Without the permission
 
