@@ -50,13 +50,10 @@ kotlin {
             implementation(project(":feature-kmp:notifications-rationale-dialog"))
             implementation(project(":core-kmp:di-scope"))
             implementation(libs.compose.runtime) // required once kotlinCompose is applied
-            implementation(libs.compose.runtime.saveable)
             implementation(libs.compose.foundation)
             implementation(libs.compose.ui)
             implementation(libs.decompose)
             implementation(libs.essenty.lifecycle)
-            implementation(libs.essenty.state.keeper)
-            implementation(libs.kotlinx.serialization.json)
 
             // The component KSP generates from `DiRootComponent` is public and carries this
             // library's types in its own supertypes.
@@ -69,9 +66,15 @@ kotlin {
             implementation(libs.androidx.core)
             implementation(libs.androidx.activity.compose)
         }
+        iosMain.dependencies {
+            implementation(libs.compose.runtime.saveable)
+            implementation(libs.essenty.state.keeper)
+            implementation(libs.kotlinx.serialization.json)
+        }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.ktor.client.mock)
+            implementation(libs.essenty.state.keeper)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.mvikotlin.main)
@@ -79,8 +82,10 @@ kotlin {
         getByName("androidHostTest").dependencies {
             implementation(libs.robolectric)
             implementation(libs.compose.ui.test.junit4)
-            // The iOS root content's test launches its own host activity.
-            implementation(libs.compose.ui.test.manifest)
+            implementation(libs.kotlinx.serialization.json)
+        }
+        iosTest.dependencies {
+            implementation(libs.compose.ui.test)
         }
     }
 }
