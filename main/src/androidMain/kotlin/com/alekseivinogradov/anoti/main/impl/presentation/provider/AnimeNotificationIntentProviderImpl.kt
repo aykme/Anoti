@@ -14,15 +14,19 @@ import me.tatarka.inject.annotations.Inject
  * the only module that owns both the root navigation component and the notification's target
  * activity.
  *
- * `FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK` guarantees this always goes through
- * [MainActivity.onCreate] — never `onNewIntent` — whether the app was already running or not;
- * `FLAG_ACTIVITY_CLEAR_TASK` specifically is what forces the existing task to be torn down first.
+ * `NEW_TASK`, `CLEAR_TOP` and `SINGLE_TOP` bring the task forward, close whatever this app opened
+ * above [MainActivity], such as the notification settings, and hand the tap to the running
+ * activity's `onNewIntent`. With no task, the activity starts with it.
  */
 @Inject
 class AnimeNotificationIntentProviderImpl : AnimeNotificationIntentProvider {
     override fun getNewEpisodeNotificationIntent(appContext: Context): PendingIntent {
         val intent = Intent(appContext, MainActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP
+            )
             putExtra(
                 MainActivity.EXTRA_DEEP_LINK_TARGET,
                 NavRootDeepLink.encode(NEW_EPISODE_TAP_TARGET)

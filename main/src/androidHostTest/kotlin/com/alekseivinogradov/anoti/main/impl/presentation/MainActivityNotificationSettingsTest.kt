@@ -98,7 +98,3 @@ class MainActivityNotificationSettingsTest {
         shadowOf(manager).setNotificationsEnabled(false)
     }
 }
-
-// The dialog is drawn by another module, which ships one set of strings and keeps its resource
-// accessors to itself, so its button can only be reached here by the words on it.
-private const val ACCEPT_LABEL = "Kawaii nya ≽^•⩊•^≼"

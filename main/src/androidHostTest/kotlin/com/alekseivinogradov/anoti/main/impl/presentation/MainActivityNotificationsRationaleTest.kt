@@ -10,7 +10,6 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import kotlin.test.AfterTest
@@ -91,14 +90,4 @@ class MainActivityNotificationsRationaleTest {
         composeRule.onNode(isDialog()).assertDoesNotExist()
         assertEquals(null, shadowOf(controller.get()).lastRequestedPermission)
     }
-
-    private fun expectAnExplanation() {
-        shadowOf(RuntimeEnvironment.getApplication().packageManager)
-            .setShouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS, true)
-    }
 }
-
-// The dialog is drawn by another module, which ships one set of strings and keeps its resource
-// accessors to itself, so its buttons can only be reached here by the words on them.
-private const val ACCEPT_LABEL = "Kawaii nya ≽^•⩊•^≼"
-private const val REFUSE_LABEL = "Angry nya ฅ^•ﻌ•^ฅ"

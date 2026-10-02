@@ -176,6 +176,33 @@ class RootHostTest {
     }
 
     @Test
+    fun aTapOpensItsScreenInTheLiveRoot() {
+        //Given
+        val root = createRoot()
+
+        //When
+        root.host.openFromNotification(NavRootConfig.AnimeFavorites)
+
+        //Then
+        assertEquals(NavRootConfig.AnimeFavorites, root.activeScreen)
+        assertEquals(SectionDomain.FAVORITES, root.selectedSection)
+        assertFalse(root.host.dependencies.mainStore.isDisposed)
+    }
+
+    @Test
+    fun aTapOnTheScreenAlreadyShownKeepsIt() {
+        //Given
+        val root = createRoot(openingTarget = NavRootConfig.AnimeFavorites)
+        val shown = root.host.dependencies.rootComponent.childStack.value.active.instance
+
+        //When
+        root.host.openFromNotification(NavRootConfig.AnimeFavorites)
+
+        //Then
+        assertSame(shown, root.host.dependencies.rootComponent.childStack.value.active.instance)
+    }
+
+    @Test
     fun theBarTakesItsDatabaseStoreBeforeTheFirstScreenTakesOne() {
         //Given
         val openingTarget: NavRootConfig? = null

@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anoti.main.impl.presentation
 
+import android.Manifest
 import android.content.Intent
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
@@ -12,6 +13,7 @@ import kotlinx.coroutines.test.setMain
 import kotlinx.serialization.json.Json
 import org.robolectric.Robolectric
 import org.robolectric.RuntimeEnvironment
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import kotlin.test.assertEquals
 
@@ -34,6 +36,17 @@ internal fun favoritesDeepLinkIntent(): Intent =
         MainActivity.EXTRA_DEEP_LINK_TARGET,
         Json.encodeToString(NavRootConfig.serializer(), NavRootConfig.AnimeFavorites)
     )
+
+// The dialog is drawn by another module, which ships one set of strings and keeps its resource
+// accessors to itself, so its buttons can only be reached here by the words on them.
+internal const val ACCEPT_LABEL = "Kawaii nya ≽^•⩊•^≼"
+internal const val REFUSE_LABEL = "Angry nya ฅ^•ﻌ•^ฅ"
+
+/** Makes the system report that the notification permission owes the user an explanation. */
+internal fun expectAnExplanation() {
+    shadowOf(RuntimeEnvironment.getApplication().packageManager)
+        .setShouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS, true)
+}
 
 /**
  * One virtual clock for the composition and for the stores alike, so nothing in a test waits on

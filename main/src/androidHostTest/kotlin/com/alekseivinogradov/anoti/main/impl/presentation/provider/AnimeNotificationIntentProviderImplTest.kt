@@ -34,7 +34,7 @@ class AnimeNotificationIntentProviderImplTest {
     }
 
     @Test
-    fun tearsDownTheExistingTaskSoTheEntryPointIsEntered() {
+    fun handsTheTapToTheRunningEntryPointAboveWhateverIsOpen() {
         //Given
         val provider = AnimeNotificationIntentProviderImpl()
 
@@ -45,7 +45,9 @@ class AnimeNotificationIntentProviderImplTest {
 
         //Then
         assertTrue(flags and Intent.FLAG_ACTIVITY_NEW_TASK != 0)
-        assertTrue(flags and Intent.FLAG_ACTIVITY_CLEAR_TASK != 0)
+        assertTrue(flags and Intent.FLAG_ACTIVITY_CLEAR_TOP != 0)
+        assertTrue(flags and Intent.FLAG_ACTIVITY_SINGLE_TOP != 0)
+        assertEquals(0, flags and Intent.FLAG_ACTIVITY_CLEAR_TASK)
     }
 
     @Test

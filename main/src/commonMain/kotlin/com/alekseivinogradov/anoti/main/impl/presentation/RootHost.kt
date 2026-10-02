@@ -121,6 +121,14 @@ internal class RootHost(
         }
     }
 
+    /**
+     * Opens [target], the screen a tapped notification names, in this root. A screen already
+     * showing it stays as it is. Main thread only.
+     */
+    fun openFromNotification(target: NavRootConfig) {
+        rootComponent.navigateTo(target)
+    }
+
     private fun explainThen(request: () -> Unit) {
         onRationaleApproved = request
         rationaleVisible.value = true
