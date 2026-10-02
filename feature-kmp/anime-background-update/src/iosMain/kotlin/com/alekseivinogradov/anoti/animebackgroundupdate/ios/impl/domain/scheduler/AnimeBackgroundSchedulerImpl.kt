@@ -37,19 +37,23 @@ private val taskHandlerRegistered = AtomicBoolean(false)
  * The task identifier below must also be listed in the iOS app target's Info.plist under
  * `BGTaskSchedulerPermittedIdentifiers`.
  *
- * @param animeUpdateManager runs the update when the background task fires.
+ * @param animeUpdateManager builds the manager that runs the update, on the first pass. The
+ * scheduler is built while the app launches, and the manager brings the database and the HTTP
+ * client with it.
  * @param coroutineScope scope the update work runs in.
  */
 @OptIn(ExperimentalForeignApi::class, ExperimentalAtomicApi::class, BetaInteropApi::class)
 class AnimeBackgroundSchedulerImpl(
-    animeUpdateManager: AnimeUpdateManager,
+    animeUpdateManager: () -> AnimeUpdateManager,
     coroutineScope: CoroutineScope
 ) : AnimeBackgroundScheduler {
 
-    private val refreshPass = BackgroundRefreshPass(
-        animeUpdateManager = animeUpdateManager,
-        coroutineScope = coroutineScope
-    )
+    private val refreshPass by lazy {
+        BackgroundRefreshPass(
+            animeUpdateManager = animeUpdateManager(),
+            coroutineScope = coroutineScope
+        )
+    }
 
     /**
      * Takes on the background task the platform launches this app for. It has to run before the
@@ -122,6 +126,8 @@ class AnimeBackgroundSchedulerImpl(
     }
 
     private companion object {
-        private const val EARLIEST_REFRESH_DELAY_SECONDS = 15 * 60.0
+        // The platform treats it as a floor only. Android repeats its pass on the same interval.
+        private const val EARLIEST_REFRESH_DELAY_SECONDS =
+            AnimeUpdateManager.DEFAULT_ANIME_UPDATE_INTERVAL_MINUTES * 60.0
     }
 }

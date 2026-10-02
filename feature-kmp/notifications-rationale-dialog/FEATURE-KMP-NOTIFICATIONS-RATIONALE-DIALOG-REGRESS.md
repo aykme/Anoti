@@ -118,3 +118,19 @@ With the screen reader on, open the dialog.
 - It reads the title and then the message.
 - Both buttons are reachable and are announced by their own labels.
 - Nothing behind the dialog is reachable while it is open.
+
+## 9. Platforms
+
+On the iPhone:
+
+- Section 1 follows the Android 13 route: decline the system's prompt on the first launch, and
+  the dialog appears from the second launch on. iOS asks only once, so every later launch
+  without the permission shows the dialog.
+- Accepting the dialog opens the Settings app on this app's notification settings, and never the
+  system's prompt again. `main`'s file checks where it leads.
+- There is no system back button, so answer 3 of section 4 does not apply.
+- A narrow screen keeps the app upright, as on Android. Section 6 runs on a wide one: an iPad, or
+  a foldable iPhone unfolded.
+- To kill the app in section 7, start it from Xcode, go to the home screen and stop it in Xcode.
+
+The iPhone steps are unverified until the iPhone app has been built and run.

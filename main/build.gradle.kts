@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
+    alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.kotlinCompose) // required alongside composeMultiplatform
     alias(libs.plugins.ksp)
@@ -42,24 +43,29 @@ kotlin {
             api(project(":core-kmp:network"))
             api(project(":core-kmp:anime-database"))
             api(project(":core-kmp:navigation"))
+            // The notification providers and their DI bindings are public and name the contracts
+            // from this module.
+            api(project(":feature-kmp:anime-notification-external"))
             api(libs.mvikotlin)
 
             implementation(project(":feature-kmp:notifications-rationale-dialog"))
             implementation(project(":core-kmp:di-scope"))
             implementation(libs.compose.runtime) // required once kotlinCompose is applied
+            implementation(libs.compose.runtime.saveable)
             implementation(libs.compose.foundation)
             implementation(libs.compose.ui)
             implementation(libs.decompose)
             implementation(libs.essenty.lifecycle)
+            implementation(libs.essenty.state.keeper)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.okio)
 
             // The component KSP generates from `DiRootComponent` is public and carries this
             // library's types in its own supertypes.
             api(libs.kotlin.inject.runtime.kmp)
         }
         androidMain.dependencies {
-            // Same reason as above: `DiRootPlatformComponent` hands back this module's provider
-            // type, and `MainActivity` is a public `ComponentActivity`.
-            api(project(":feature-kmp:anime-notification-external"))
+            // `MainActivity` is a public `ComponentActivity`.
             api(libs.androidx.activity)
 
             implementation(libs.androidx.core)
@@ -71,12 +77,13 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.mvikotlin.main)
+            implementation(libs.okio.fakefilesystem)
         }
         getByName("androidHostTest").dependencies {
             implementation(libs.robolectric)
             implementation(libs.compose.ui.test.junit4)
-            // Two of the host tests write the deep-link payload with Json themselves.
-            implementation(libs.kotlinx.serialization.json)
+            // The rule of the root session's content test launches its own host activity.
+            implementation(libs.compose.ui.test.manifest)
         }
     }
 }

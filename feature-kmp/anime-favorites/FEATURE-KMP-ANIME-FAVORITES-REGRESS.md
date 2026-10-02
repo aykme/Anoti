@@ -245,10 +245,10 @@ until it airs, or trigger the update the way your team normally does.
 3. Press Home and return from the task switcher.
    - The list is exactly as you left it. Nothing reloads, extra mode is kept, the scroll
      position holds.
-4. Switch an item into extra mode, press Home, force-stop the app's process from a development
-   machine (`adb shell am kill com.alekseivinogradov.anoti`), then open it again from the
-   launcher.
-   - It comes back on "Favorites" with the list loaded.
+4. Scroll the list down and switch an item into extra mode. Press Home, force-stop the app's
+   process from a development machine (`adb shell am kill com.alekseivinogradov.anoti`), then
+   open it again from the launcher.
+   - It comes back on "Favorites" with the list loaded, scrolled where you left it.
    - The item you left in extra mode is still in extra mode — unlike an ordinary arrival, a
      return from a killed process keeps it.
    - No crash, no endless spinner.
@@ -295,3 +295,19 @@ for, and the checks that only make sense once.
    - It is still in extra mode and no other item switched.
 3. Scroll fast through the whole list several times.
    - Posters load and stay loaded. No item renders blank or with another item's picture.
+
+## 13. Platforms
+
+The steps name Android's tools. On the iPhone:
+
+- Section 10 ends the app with `adb shell am kill`. On the iPhone, start the app from Xcode, go
+  to the home screen and stop it in Xcode, then open it from the home screen. Everything section
+  10 expects comes back the same way, the scroll position included.
+- Swiping the app away in the app switcher is the user closing it. The app then starts fresh.
+- A new text size reaches the iPhone app only when it is opened again. After changing it, close
+  the app in the app switcher and open it before walking the pass. Changing Display Zoom restarts
+  the iPhone, so that pass starts from a cold launch.
+- A narrow screen keeps the app upright, as on Android. The rotation steps of section 11 run on a
+  wide one: an iPad, or a foldable iPhone unfolded.
+
+The iPhone steps are unverified until the iPhone app has been built and run.

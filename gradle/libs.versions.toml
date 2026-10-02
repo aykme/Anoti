@@ -47,10 +47,12 @@ kotlinInject = "0.9.0"
 kotlinxCollectionsImmutable = "0.5.2"
 kotlinxDatetime = "0.8.0"
 kotlinxSerialization = "1.11.0"
-kover = "0.9.9"
+kover = "0.9.10"
 ksp = "2.3.12"
 ktor = "3.6.0"
 mviKotlin = "4.4.0"
+# Android also takes okio through Ktor's OkHttp engine, so raising this raises the APK's okio too.
+okio = "3.18.2"
 room = "2.8.5"
 sqlite = "2.7.1"
 
@@ -114,6 +116,7 @@ compose-components-resources = { module = "org.jetbrains.compose.components:comp
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
 compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeMaterial3" }
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
+compose-runtime-saveable = { module = "org.jetbrains.compose.runtime:runtime-saveable", version.ref = "composeMultiplatform" }
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
 compose-ui-test = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "composeMultiplatform" }
 compose-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "composeMultiplatform" }
@@ -122,8 +125,9 @@ decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decom
 detekt-compose = { module = "io.nlopez.compose.rules:detekt", version.ref = "composeRules" }
 detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 # No version: Decompose and MVIKotlin both pull Essenty in, and all of its artifacts have to
-# stay on one release. Pinning here would move lifecycle alone.
+# stay on one release. Pinning one here would move it alone.
 essenty-lifecycle = { group = "com.arkivanov.essenty", name = "lifecycle" }
+essenty-state-keeper = { group = "com.arkivanov.essenty", name = "state-keeper" }
 kotlin-inject-compiler-ksp = { module = "me.tatarka.inject:kotlin-inject-compiler-ksp", version.ref = "kotlinInject" }
 kotlin-inject-runtime-kmp = { module = "me.tatarka.inject:kotlin-inject-runtime-kmp", version.ref = "kotlinInject" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -139,6 +143,8 @@ ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx
 mvikotlin = { group = "com.arkivanov.mvikotlin", name = "mvikotlin", version.ref = "mviKotlin" }
 mvikotlin-extensions-coroutines = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-extensions-coroutines", version.ref = "mviKotlin" }
 mvikotlin-main = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-main", version.ref = "mviKotlin" }
+okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+okio-fakefilesystem = { module = "com.squareup.okio:okio-fakefilesystem", version.ref = "okio" }
 
 # Android libraries
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }

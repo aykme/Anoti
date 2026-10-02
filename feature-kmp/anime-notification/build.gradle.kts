@@ -47,6 +47,8 @@ kotlin {
             // qualifier annotations their bindings carry, and the coroutine context provider.
             api(project(":core-kmp:di-scope"))
             api(project(":core-kmp:celebrity"))
+            // Both platform DI components take the notification contracts from this module.
+            api(project(":feature-kmp:anime-notification-external"))
 
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.compose.components.resources)
@@ -70,7 +72,6 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.androidx.core)
             implementation(libs.compose.ui)
-            api(project(":feature-kmp:anime-notification-external"))
         }
     }
 }

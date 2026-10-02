@@ -16,11 +16,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.alekseivinogradov.anoti.main.impl.presentation.compose.RootContent
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponentHolder
+import com.alekseivinogradov.anoti.main.impl.presentation.notification.NOTIFICATION_TAP_TARGET_KEY
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionRequests
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionStatus
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
@@ -38,6 +40,9 @@ class MainActivity : ComponentActivity() {
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
     private val notificationPermissionRequests = object : NotificationPermissionRequests {
+        // Only the status read on Android 13 and later lets the system ask, so nothing calls
+        // this below that.
+        @RequiresApi(TIRAMISU)
         override fun prompt() {
             requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
@@ -139,6 +144,6 @@ class MainActivity : ComponentActivity() {
         }
 
     companion object {
-        const val EXTRA_DEEP_LINK_TARGET = "deep_link_target"
+        const val EXTRA_DEEP_LINK_TARGET = NOTIFICATION_TAP_TARGET_KEY
     }
 }

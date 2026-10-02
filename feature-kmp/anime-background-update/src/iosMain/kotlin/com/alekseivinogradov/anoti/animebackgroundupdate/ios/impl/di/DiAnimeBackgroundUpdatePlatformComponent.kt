@@ -15,19 +15,22 @@ import me.tatarka.inject.annotations.Provides
  * Provides the iOS [AnimeBackgroundScheduler] and [UpdateAllAnimeInBackgroundOnceUsecase]
  * bindings; mixed into `core-kmp:di-app`'s `DiAppComponent`. It mirrors `androidMain`'s
  * `DiAnimeBackgroundUpdatePlatformComponent`, minus the WorkManager plumbing iOS has no use for.
- * The scheduler and the usecase run the [AnimeUpdateManager] from the common
- * `DiAnimeBackgroundUpdateComponent`.
+ * Both run the [AnimeUpdateManager] from the common `DiAnimeBackgroundUpdateComponent`. The
+ * scheduler builds it only on its first pass.
  */
 interface DiAnimeBackgroundUpdatePlatformComponent {
     /**
      * Registers the `BGAppRefreshTask` handler as soon as the scheduler is created. The task
      * identifier must also be listed in the iOS app target's Info.plist under
      * `BGTaskSchedulerPermittedIdentifiers` — see [AnimeBackgroundSchedulerImpl]'s KDoc.
+     *
+     * The manager comes as a function, so creating the scheduler during launch builds neither the
+     * database nor the HTTP client.
      */
     @Provides
     @AppScope
     fun provideAnimeBackgroundScheduler(
-        animeUpdateManager: AnimeUpdateManager
+        animeUpdateManager: () -> AnimeUpdateManager
     ): AnimeBackgroundScheduler = AnimeBackgroundSchedulerImpl(
         animeUpdateManager = animeUpdateManager,
         coroutineScope = updatePassScope()

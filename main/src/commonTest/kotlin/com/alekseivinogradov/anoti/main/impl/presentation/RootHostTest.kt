@@ -3,8 +3,8 @@ package com.alekseivinogradov.anoti.main.impl.presentation
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.model.SectionDomain
 import com.alekseivinogradov.anoti.main.impl.di.createDiRootComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
-import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionRequests
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionStatus
+import com.alekseivinogradov.anoti.main.impl.presentation.permission.fake.NotificationPermissionRequestsFake
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.Lifecycle
@@ -346,20 +346,5 @@ class RootHostTest {
 
         val selectedSection: SectionDomain
             get() = host.dependencies.mainStore.state.selectedSection
-    }
-
-    private class NotificationPermissionRequestsFake : NotificationPermissionRequests {
-        var prompts = 0
-            private set
-        var settingsOpenings = 0
-            private set
-
-        override fun prompt() {
-            prompts++
-        }
-
-        override fun openSettings() {
-            settingsOpenings++
-        }
     }
 }

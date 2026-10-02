@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import com.alekseivinogradov.anoti.animenotification.external.android.impl.presentation.provider.AnimeNotificationIntentProvider
 import com.alekseivinogradov.anoti.main.impl.presentation.MainActivity
-import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
+import com.alekseivinogradov.anoti.main.impl.presentation.notification.NEW_EPISODE_TAP_TARGET
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootDeepLink
 import me.tatarka.inject.annotations.Inject
 
@@ -25,7 +25,7 @@ class AnimeNotificationIntentProviderImpl : AnimeNotificationIntentProvider {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             putExtra(
                 MainActivity.EXTRA_DEEP_LINK_TARGET,
-                NavRootDeepLink.encode(NavRootConfig.AnimeFavorites)
+                NavRootDeepLink.encode(NEW_EPISODE_TAP_TARGET)
             )
         }
         return PendingIntent.getActivity(
