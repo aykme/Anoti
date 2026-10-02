@@ -16,7 +16,7 @@ import kotlinx.serialization.Serializable
  * lifecycle (inherited from [componentContext]) is alive — created once when
  * `NavRootConfig.AnimeFavorites` becomes the active root config, disposed when
  * `NavRootComponent.navigateTo()` replaces it. It builds the screen's [controller] and opens the
- * section on its first start; [AnimeFavoritesRoute] only binds a view per composition.
+ * section on its first start; [AnimeFavoritesRoute] only draws the controller's state.
  */
 class NavAnimeFavoritesScreenComponent(
     componentContext: ComponentContext,
@@ -63,7 +63,7 @@ class NavAnimeFavoritesScreenComponent(
         lifecycle.doOnStart(isOneTime = true) { openSection() }
     }
 
-    /** Wires the screen's stores while this component lives, and a view per composition. */
+    /** Wires the screen's stores while this component lives and hands the UI their state. */
     val controller = AnimeFavoritesController(
         lifecycle = lifecycle,
         mainStore = mainStore,

@@ -2,8 +2,8 @@ package com.alekseivinogradov.anoti.main.impl.presentation
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.saveable.SaveableStateRegistry
-import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.lifecycle.ChildLifecycle
 import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
+import com.alekseivinogradov.anoti.main.impl.presentation.lifecycle.ChildLifecycle
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionRequests
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionStatus
 import com.alekseivinogradov.anoti.main.impl.presentation.savedstate.SaveableStateCodec

@@ -1,6 +1,7 @@
 package com.alekseivinogradov.anoti.main.impl.presentation
 
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.model.SectionDomain
+import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.main.impl.di.createDiRootComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionStatus
@@ -159,6 +160,24 @@ class RootHostTest {
 
         //Then
         assertEquals(1, root.host.dependencies.mainStore.state.favoritesBadgeNumber)
+    }
+
+    @Test
+    fun aTapOnTheBarsOtherTabNavigatesTheRoot() {
+        //Given
+        val root = createRoot()
+        root.lifecycle.resume()
+        scheduler.advanceUntilIdle()
+
+        //When
+        root.host.dependencies.barController.accept(
+            BottomNavigationBarStore.Intent.FavoritesSectionClick
+        )
+        scheduler.advanceUntilIdle()
+
+        //Then
+        assertEquals(NavRootConfig.AnimeFavorites, root.activeScreen)
+        assertEquals(SectionDomain.FAVORITES, root.selectedSection)
     }
 
     @Test

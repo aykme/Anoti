@@ -16,9 +16,9 @@ coordinated by a top-level store.
 - Satisfy [DiAnimeListDependencies](src/commonMain/kotlin/com/alekseivinogradov/anoti/animelist/kmp/api/di/DiAnimeListDependencies.kt)
   from the app's root component, then build a `DiAnimeListComponent` with
   `createDiAnimeListComponent(parent)` and wrap it in a `NavAnimeListScreenComponent` together
-  with the Decompose `ComponentContext` the screen's navigation child owns. The stores, the
-  view and the controller have no wiring of their own to do. The component builds the
-  controller once, and `AnimeListRoute` binds a view to it for each composition.
+  with the Decompose `ComponentContext` the screen's navigation child owns. The stores and the
+  controller have no wiring of their own to do. The component builds the controller once, and
+  `AnimeListRoute` reads its state and sends the screen's events to it.
 
 ## How to use it
 

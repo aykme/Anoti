@@ -14,21 +14,20 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsecti
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.ongoingsection.OngoingSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.SearchSectionStore
-import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.AnimeListView
-import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.mapper.model.mapStateToUiModel
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.mvikotlin.core.binder.BinderLifecycleMode
 import com.arkivanov.mvikotlin.extensions.coroutines.bind
-import com.arkivanov.mvikotlin.extensions.coroutines.events
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
+import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
 import com.arkivanov.mvikotlin.extensions.coroutines.states
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 
 /**
  * Wires the main store, its three section stores and [AnimeDatabaseStore] to each other while the
- * screen component is started. It also binds a view to the main store for that view's own
- * lifecycle. The component that owns the stores builds it once and disposes them.
+ * screen component is started. The UI reads [state] and sends its events through [accept]. The
+ * component that owns the stores builds it once and disposes them.
  *
  * @param lifecycle the screen component's lifecycle; the stores are wired while it is started.
  * @param mainStore the anime list screen's top-level store.
@@ -46,18 +45,16 @@ class AnimeListController(
     private val searchSectionStore: SearchSectionStore
 ) {
 
+    /** The main store's state, for as long as the screen component lives. */
+    val state: StateFlow<AnimeListMainStore.State> = mainStore.stateFlow(lifecycle)
+
     init {
         connectAllAuxiliaryStoresToMain(lifecycle)
     }
 
-    /**
-     * Binds [mainView] to the main store while [viewLifecycle] is started.
-     *
-     * @param mainView the view of one composition of the screen.
-     * @param viewLifecycle the lifecycle of that composition.
-     */
-    fun onViewCreated(mainView: AnimeListView, viewLifecycle: Lifecycle) {
-        connectMainStoreToMainView(mainView = mainView, viewLifecycle = viewLifecycle)
+    /** Sends an event of the screen to the main store. */
+    fun accept(intent: AnimeListMainStore.Intent) {
+        mainStore.accept(intent)
     }
 
     private fun connectAllAuxiliaryStoresToMain(lifecycle: Lifecycle) {
@@ -97,16 +94,6 @@ class AnimeListController(
             searchSectionStore.labels.map(
                 ::mapSearchStoreLabelToMainStoreIntent
             ) bindTo mainStore
-        }
-    }
-
-    private fun connectMainStoreToMainView(
-        mainView: AnimeListView,
-        viewLifecycle: Lifecycle
-    ) {
-        bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
-            mainStore.states.map(::mapStateToUiModel) bindTo mainView
-            mainView.events bindTo mainStore
         }
     }
 }

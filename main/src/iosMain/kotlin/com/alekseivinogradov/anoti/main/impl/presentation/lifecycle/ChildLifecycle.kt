@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.lifecycle
+package com.alekseivinogradov.anoti.main.impl.presentation.lifecycle
 
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
@@ -10,12 +10,19 @@ import com.arkivanov.essenty.lifecycle.start
 import com.arkivanov.essenty.lifecycle.stop
 
 /**
- * A lifecycle that follows [parent] until it is destroyed on its own. It serves a part that can
- * end before its parent, such as one composition of a screen.
+ * A lifecycle that follows [parent] and can also be destroyed on its own, before [parent] ends.
  *
- * Main thread only, like the lifecycles it follows.
+ * It exists for one case in [com.alekseivinogradov.anoti.main.impl.presentation.IosRootHolder].
+ * A root restored from a broken saved state fails halfway, after its stores are already built.
+ * The holder then builds a fresh root. Each attempt runs on its own child of the app's lifecycle,
+ * so destroying that child closes the failed attempt's stores while the app keeps running.
+ * Without it, they would stay subscribed to the database until the process ends. Android has no
+ * such case: it never retries a failed restore.
+ *
+ * A lifecycle destroyed before it was ever created is created first. Its destroy callbacks then run
+ * even when the app has not started yet. Main thread only, like the lifecycles it follows.
  */
-class ChildLifecycle(private val parent: Lifecycle) : Lifecycle {
+internal class ChildLifecycle(private val parent: Lifecycle) : Lifecycle {
 
     private val registry = LifecycleRegistry()
 

@@ -8,15 +8,13 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatab
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseExecutorImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseStoreFactory
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.fake.AnimeDatabaseUsecasesFake
-import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsection.AnnouncedSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.ongoingsection.OngoingSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.SearchSectionStore
-import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.AnimeListView
-import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.AnimeListUiModel
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.mapper.model.mapStateToUiModel
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.SectionHatUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.NotificationUi
 import com.alekseivinogradov.anoti.animelist.kmp.impl.data.source.fake.AnimeListSourceFake
@@ -47,15 +45,10 @@ import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.destroy
 import com.arkivanov.essenty.lifecycle.resume
 import com.arkivanov.mvikotlin.core.store.Store
-import com.arkivanov.mvikotlin.core.view.BaseMviView
-import com.arkivanov.mvikotlin.core.view.ViewRenderer
-import com.arkivanov.mvikotlin.extensions.coroutines.states
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -84,20 +77,6 @@ class AnimeListControllerTest {
         Dispatchers.resetMain()
     }
 
-    private class AnimeListViewFake :
-        BaseMviView<AnimeListUiModel, AnimeListMainStore.Intent>(),
-        AnimeListView {
-
-        val renderedModels = mutableListOf<AnimeListUiModel>()
-
-        override val renderer: ViewRenderer<AnimeListUiModel> =
-            object : ViewRenderer<AnimeListUiModel> {
-                override fun render(model: AnimeListUiModel) {
-                    renderedModels += model
-                }
-            }
-    }
-
     /** Serves each section its own first page, so a section's items identify their source. */
     private fun firstPageOnly(
         page: Int,
@@ -110,8 +89,8 @@ class AnimeListControllerTest {
     // One parameter per store the controller wires, so the count follows the controller itself.
     @Suppress("LongParameterList")
     private class Wiring(
-        val viewLifecycle: LifecycleRegistry,
-        val view: AnimeListViewFake,
+        val lifecycle: LifecycleRegistry,
+        val controller: AnimeListController,
         val mainStore: AnimeListMainStore,
         val ongoingSectionStore: OngoingSectionStore,
         val announcedSectionStore: AnnouncedSectionStore,
@@ -174,22 +153,19 @@ class AnimeListControllerTest {
         val searchSectionStore = createSearchStore(source)
 
         val lifecycle = LifecycleRegistry()
-        val viewLifecycle = LifecycleRegistry()
-        val view = AnimeListViewFake()
-        AnimeListController(
+        val controller = AnimeListController(
             lifecycle = lifecycle,
             mainStore = mainStore,
             animeDatabaseStore = animeDatabaseStore,
             ongoingSectionStore = ongoingSectionStore,
             announcedSectionStore = announcedSectionStore,
             searchSectionStore = searchSectionStore
-        ).onViewCreated(mainView = view, viewLifecycle = viewLifecycle)
+        )
         lifecycle.resume()
-        viewLifecycle.resume()
 
         return Wiring(
-            viewLifecycle = viewLifecycle,
-            view = view,
+            lifecycle = lifecycle,
+            controller = controller,
             mainStore = mainStore,
             ongoingSectionStore = ongoingSectionStore,
             announcedSectionStore = announcedSectionStore,
@@ -285,7 +261,7 @@ class AnimeListControllerTest {
         }
 
     @Test
-    fun aDatabaseStoreStateReachesTheViewAsARenderedUiModel() = runTest(testDispatcher) {
+    fun aDatabaseStoreStateReachesTheUiModel() = runTest(testDispatcher) {
         //Given
         val wiring = createWiring()
         wiring.ongoingSectionStore.accept(OngoingSectionStore.Intent.OpenSection)
@@ -296,7 +272,7 @@ class AnimeListControllerTest {
         runCurrent()
 
         //Then
-        val listItems = wiring.view.renderedModels.last().listContent.listItems
+        val listItems = mapStateToUiModel(wiring.controller.state.value).listContent.listItems
         assertEquals(1, listItems.size)
         assertEquals("Frieren", listItems.single().name)
         assertEquals(NotificationUi.ENABLED, listItems.single().notification)
@@ -352,12 +328,12 @@ class AnimeListControllerTest {
     }
 
     @Test
-    fun aViewEventReachesTheMainStore() = runTest(testDispatcher) {
+    fun aUiEventReachesTheMainStore() = runTest(testDispatcher) {
         //Given
         val wiring = createWiring()
 
         //When
-        wiring.view.dispatch(AnimeListMainStore.Intent.ChangeSearchText(searchText = "totoro"))
+        wiring.controller.accept(AnimeListMainStore.Intent.ChangeSearchText(searchText = "totoro"))
         runCurrent()
 
         //Then
@@ -370,7 +346,7 @@ class AnimeListControllerTest {
         val wiring = createWiring()
 
         //When
-        wiring.view.dispatch(AnimeListMainStore.Intent.AnnouncedSectionClick)
+        wiring.controller.accept(AnimeListMainStore.Intent.AnnouncedSectionClick)
         runCurrent()
 
         //Then
@@ -383,7 +359,7 @@ class AnimeListControllerTest {
             wiring.ongoingSectionStore.state.sectionContent.listItems,
             "the announced tab must not open the ongoing section too"
         )
-        assertEquals(SectionHatUi.ANNOUNCED, wiring.view.renderedModels.last().selectedSection)
+        assertEquals(SectionHatUi.ANNOUNCED, mapStateToUiModel(wiring.controller.state.value).selectedSection)
     }
 
     @Test
@@ -395,7 +371,7 @@ class AnimeListControllerTest {
             runCurrent()
 
             //When
-            wiring.view.dispatch(AnimeListMainStore.Intent.NotificationClick(id = 1))
+            wiring.controller.accept(AnimeListMainStore.Intent.NotificationClick(id = 1))
             runCurrent()
 
             //Then
@@ -414,7 +390,7 @@ class AnimeListControllerTest {
         runCurrent()
 
         //When
-        wiring.view.dispatch(AnimeListMainStore.Intent.NotificationClick(id = 1))
+        wiring.controller.accept(AnimeListMainStore.Intent.NotificationClick(id = 1))
         runCurrent()
 
         //Then
@@ -439,38 +415,15 @@ class AnimeListControllerTest {
     }
 
     @Test
-    fun theStoresStayWiredWhenTheViewIsGone() = runTest(testDispatcher) {
+    fun theStateStopsFollowingTheStoreOnceTheScreenIsDestroyed() = runTest(testDispatcher) {
         //Given
         val wiring = createWiring()
+        wiring.lifecycle.destroy()
 
         //When
-        wiring.viewLifecycle.destroy()
-        wiring.ongoingSectionStore.accept(OngoingSectionStore.Intent.OpenSection)
-        wiring.ongoingSectionStore.states.first {
-            it.sectionContent.contentType == ContentTypeDomain.LOADED
-        }
-        // The main store takes the section's content type after a short animation delay.
-        advanceUntilIdle()
+        wiring.mainStore.accept(AnimeListMainStore.Intent.ChangeSearchText(searchText = "totoro"))
 
         //Then
-        assertEquals(
-            ContentTypeDomain.LOADED,
-            wiring.mainStore.state.ongoingContent.contentType,
-            "the section's state stopped reaching the main store with the view"
-        )
-    }
-
-    @Test
-    fun theViewStopsReceivingWhenItsLifecycleEnds() = runTest(testDispatcher) {
-        //Given
-        val wiring = createWiring()
-        wiring.viewLifecycle.destroy()
-        val rendersBefore = wiring.view.renderedModels.size
-
-        //When
-        wiring.mainStore.accept(AnimeListMainStore.Intent.AnnouncedSectionClick)
-
-        //Then
-        assertEquals(rendersBefore, wiring.view.renderedModels.size)
+        assertEquals("", wiring.controller.state.value.search.searchText)
     }
 }

@@ -22,7 +22,7 @@ import kotlinx.serialization.Serializable
  * lifecycle (inherited from [componentContext]) is alive — created once when
  * `NavRootConfig.AnimeList` becomes the active root config, disposed when
  * `NavRootComponent.navigateTo()` replaces it. It builds the screen's [controller] and replays
- * the saved state on its first start; [AnimeListRoute] only binds a view per composition.
+ * the saved state on its first start; [AnimeListRoute] only draws the controller's state.
  */
 class NavAnimeListScreenComponent(
     componentContext: ComponentContext,
@@ -112,7 +112,7 @@ class NavAnimeListScreenComponent(
         }
     }
 
-    /** Wires the screen's stores while this component lives, and a view per composition. */
+    /** Wires the screen's stores while this component lives and hands the UI their state. */
     val controller = AnimeListController(
         lifecycle = lifecycle,
         mainStore = mainStore,

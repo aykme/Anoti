@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.lifecycle
+package com.alekseivinogradov.anoti.main.impl.presentation.lifecycle
 
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry

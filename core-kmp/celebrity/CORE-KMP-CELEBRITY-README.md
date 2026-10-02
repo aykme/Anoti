@@ -1,5 +1,5 @@
 Shared core utilities used across Anoti's KMP feature modules: coroutine contexts, date
-formatting, error system messages, pagination, and Compose UI helpers for MVIKotlin-based screens.
+formatting, error system messages, pagination, and Compose UI helpers.
 
 ## Entities
 
@@ -21,10 +21,6 @@ formatting, error system messages, pagination, and Compose UI helpers for MVIKot
   pages through loads one page at a time.
 - [PageLoadResult](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/domain/paging/PageLoadResult.kt) —
   outcome of a `Paginator` page load.
-- [ComposeMviView](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/presentation/compose/ComposeMviView.kt) —
-  base `MviView` that renders a store's state into a Compose `State` instead of a real View.
-- [ChildLifecycle](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/impl/presentation/lifecycle/ChildLifecycle.kt) —
-  a lifecycle that follows its parent until it is destroyed on its own.
 - [Modifier.repeatingClickable](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/impl/presentation/compose/RepeatingClickable.kt) —
   press-and-hold-to-repeat click behavior for Compose.
 - [LoadingSpinner](src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/impl/presentation/compose/LoadingSpinner.kt) —
@@ -41,9 +37,9 @@ formatting, error system messages, pagination, and Compose UI helpers for MVIKot
   `SystemMessageController` are provided via this module's kotlin-inject bindings
   (`DiCelebrityComponent`), mixed into
   [`core-kmp:di-app`](../di-app/CORE-KMP-DI-APP-README.md)'s `DiAppComponent` on both platforms —
-  inject them, don't construct them yourself. `SystemMessageHost`, `Paginator`, `ComposeMviView`,
-  `ChildLifecycle`, `repeatingClickable`, `LoadingSpinner`, `horizontalSystemBarsPadding` and
-  `systemBarsTopPadding` have no DI wiring; callers subclass/construct/call them directly.
+  inject them, don't construct them yourself. `SystemMessageHost`, `Paginator`,
+  `repeatingClickable`, `LoadingSpinner`, `horizontalSystemBarsPadding` and `systemBarsTopPadding`
+  have no DI wiring; callers construct or call them directly.
 
 ## How to use it
 

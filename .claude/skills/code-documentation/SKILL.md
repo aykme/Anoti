@@ -107,12 +107,12 @@ Don't default to a code block. Decide based on what kind of entry point the modu
   usually the clearest option. Base it on an actual caller in the codebase (grep for where the
   type is used) rather than inventing plausible-looking code. A snippet that doesn't match how
   the type is really called is worse than no snippet, because it reads as authoritative.
-- **A Store alone, or a Store + View + Controller trio** (any Store-shaped module — see
+- **A Store alone, or a Store + Controller pair** (any Store-shaped module — see
   "Store-shaped modules" below) — prefer a **short prose description over a code block**, in
-  both variants, not just the View+Controller one. The wiring pattern is mechanically identical
+  both variants, not just the Controller one. The wiring pattern is mechanically identical
   across every such module: subscribe to `states`/`labels`, call `accept(Intent)`, and — if a
-  View/Controller exists — implement the view, dispatch intents from UI callbacks, render the
-  model, construct the controller, call `onViewCreated`. A handwritten code block just repeats
+  Controller exists — construct it, draw the UI from its `state` and send the UI's events to
+  its `accept`. A handwritten code block just repeats
   that same shape with different names — it reads as filler rather than help. It's also one more
   place that can silently drift from the real consumer if the Store's `Intent`/`Label`/`State`
   shape changes, exactly the "second source of truth" problem this whole skill exists to avoid.
@@ -121,12 +121,10 @@ Don't default to a code block. Decide based on what kind of entry point the modu
   > Subscribe to `XStore.states`/`labels` and call `accept(Intent)` to read and mutate
   > [what the store owns].
 
-  or, with a View/Controller:
+  or, with a Controller:
 
-  > Implement `XView`: render `UiModel` in `render()` and call
-  > `dispatch(Intent)` from the relevant UI callbacks. On the screen hosting it, construct
-  > `XController` with the store(s) and the screen's lifecycle, then call
-  > `controller.onViewCreated(viewImpl, viewLifecycle)`.
+  > Construct `XController` once with the store(s) and the host's lifecycle. Draw the UI from
+  > `controller.state`, mapped to `UiModel`, and pass `controller::accept` as its `dispatch`.
 
   If you're not sure which case you're in, this is itself decided by the entity list — see the
   refined "Store-shaped modules" rule below.
@@ -172,7 +170,7 @@ this shows up in most often, and its refinement for when a Store *isn't* alone.
   how is an implementation detail, not something the README indexes. (If there's genuinely no
   interface at all — just a concrete class or function consumers use directly, like
   `createHttpClient`, or a `*Controller` with no interface that a screen constructs directly —
-  list that instead. See "Store-shaped modules" for when a `Controller`/`View` counts.)
+  list that instead. See "Store-shaped modules" for when a `Controller` counts.)
 - **Test-only entities.** Fakes, test doubles, enums that only exist to drive a fake
   (`SafeApiFake`, `DesiredCallResult`, and similar). People writing tests against this module
   will find them in the test sources; they don't belong in the module's public index.
@@ -221,26 +219,26 @@ graph rather than assuming from the module's general shape.
 
 **Variant A — Store alone.** Everything besides the Store is DI-wired and hidden: usecases,
 the executor, the reducer, the store factory, the repository interface, domain models used
-only in `State`/`Intent` payloads. No `View`/`Controller`-shaped type lives in this module, or
+only in `State`/`Intent` payloads. No `Controller`-shaped type lives in this module, or
 if one does, it's constructed *inside* the module and never reaches the consumer. Trace the DI
 graph, and you'll typically find every internal type feeding into a single
 `provide...Store(): XStore` function, with nothing else exposed to the component. Here, the
 Store genuinely is the only major entity — `core-kmp:anime-database` is the reference example
 (see `references/store-pattern.md`).
 
-**Variant B — Store + View + Controller.** The module *also* defines a `View` interface (an
-`MviView`-shaped contract) and/or a `Controller` class, and the consumer directly implements
-the `View` (`object : ComposeMviView<...>(...), SomeScreenView`) and directly constructs the
-`Controller` (`SomeScreenController(lifecycle, store, ...)` called straight in a route
-composable, not resolved through `@Provides`). In this variant, the Store, the View,
-and the Controller are **all three major entities** — a real consumer reaches for all three,
-not just the Store. This project's `bottom-navigation-bar`, `anime-favorites`, and `anime-list`
-modules are all Variant B.
+**Variant B — Store + Controller.** The module *also* defines a `Controller` class that the
+consumer constructs directly (`SomeScreenController(lifecycle, store, ...)` called straight in
+a component, not resolved through `@Provides`). It wires the stores to each other, exposes the
+main store's `state` and takes the UI's events through `accept`. Compose reads that `state`
+directly; there is no `MviView` in between. In this variant, the Store and the Controller are
+**both major entities** — a real consumer reaches for both, not just the Store. This project's
+`bottom-navigation-bar` module is Variant B. In `anime-favorites` and `anime-list` the screen
+component builds the controller itself, so their READMEs list the component and the route.
 
 To tell which one you're in: grep the platform module(s) that consume this one for the
-`View`'s and `Controller`'s names. If you find a `@Provides fun provide...(): XView`, DI hides
-it, and it doesn't count on its own — but if you instead find a plain `object : ..., XView`
-and/or `XController(...)` being constructed directly, that's the signal for Variant B.
+`Controller`'s name. If you find a `@Provides fun provide...(): XController`, DI hides it, and
+it doesn't count on its own — but if you instead find `XController(...)` being constructed
+directly, that's the signal for Variant B.
 
 For **Variant A**, follow the original shape:
 
@@ -251,11 +249,11 @@ For **Variant A**, follow the original shape:
 
 For **Variant B**, extend it:
 
-- **Entities list**: the Store, the View, and the Controller — one line each. E.g.
-  `- [XController](path) — wires the store to its view and to [whatever else it binds].`
-- **"How to include it"**: say how each of the three is obtained — the Store via DI, and
-  (typically) that the View/Controller have no DI wiring and are constructed/implemented
-  directly by the consumer.
+- **Entities list**: the Store and the Controller — one line each. E.g.
+  `- [XController](path) — wires the store to [whatever else it binds] and hands the UI its
+  state.`
+- **"How to include it"**: say how each of the two is obtained — the Store via DI, and
+  (typically) that the Controller has no DI wiring and is constructed directly by the consumer.
 - **"How to use it"**: prose, not a code block — see "Code example vs. prose" above.
 
 For **both variants**, document `State`/`Intent`/`Label` on the Store interface itself, one
@@ -459,5 +457,5 @@ include them in the current task or handle them separately, same as any other sc
 - `references/store-pattern.md` — worked examples of both Store-shaped variants: Variant A
   (Store alone, `core-kmp:anime-database`) with the Store's own KDoc documenting
   `State`/`Intent`/`Label`/`Action`/`Message` down to the last case, and Variant B (Store +
-  View + Controller, `feature-kmp:bottom-navigation-bar`) showing how the entity list and
+  Controller, `feature-kmp:bottom-navigation-bar`) showing how the entity list and
   "how to use it" section differ.

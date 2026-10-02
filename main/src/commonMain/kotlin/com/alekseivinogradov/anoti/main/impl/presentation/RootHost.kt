@@ -66,18 +66,19 @@ internal class RootHost(
         childFactory = ::createRootChild
     )
 
-    // Built once for the root, so the database feeds the badge with no view bound. Each
-    // composition binds only its own view.
+    // Built once for the root, so the database feeds the badge with no composition shown. The
+    // bar's taps come back as labels that navigate the root.
     private val barController = BottomNavigationBarController(
         lifecycle = componentContext.lifecycle,
         mainStore = mainStore,
-        animeDatabaseStore = animeDatabaseStore
+        animeDatabaseStore = animeDatabaseStore,
+        onLabel = ::navigateFromBar
     )
 
     init {
-        // The bar shows the screen the stack holds, whoever navigated and whether a view is bound
-        // or not. The subscription is called at once with the current stack, so the opening tab
-        // is set before the first composition.
+        // The bar shows the screen the stack holds, whoever navigated and whether a composition is
+        // shown or not. The subscription is called at once with the current stack, so the opening
+        // tab is set before the first composition.
         val stackSubscription = rootComponent.childStack.subscribe { stack ->
             mainStore.accept(
                 BottomNavigationBarStore.Intent.ChangeSelectedSection(
@@ -132,6 +133,18 @@ internal class RootHost(
     private fun explainThen(request: () -> Unit) {
         onRationaleApproved = request
         rationaleVisible.value = true
+    }
+
+    // Tapping the tab that is already open would otherwise still run a navigation transaction. The
+    // stack would come back holding the same child, so nothing downstream can tell the difference.
+    private fun navigateFromBar(label: BottomNavigationBarStore.Label) {
+        val target = when (label) {
+            BottomNavigationBarStore.Label.NavigateToMain -> NavRootConfig.AnimeList
+            BottomNavigationBarStore.Label.NavigateToFavorites -> NavRootConfig.AnimeFavorites
+        }
+        if (rootComponent.childStack.value.active.configuration != target) {
+            rootComponent.navigateTo(target)
+        }
     }
 
     private fun createRootChild(

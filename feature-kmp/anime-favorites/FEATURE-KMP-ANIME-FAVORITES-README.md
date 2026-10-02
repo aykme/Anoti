@@ -16,9 +16,9 @@ and per-item notification toggles.
 - Satisfy [DiAnimeFavoritesDependencies](src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/api/di/DiAnimeFavoritesDependencies.kt)
   from the app's root component, then build a `DiAnimeFavoritesComponent` with
   `createDiAnimeFavoritesComponent(parent)` and wrap it in a `NavAnimeFavoritesScreenComponent`
-  together with the Decompose `ComponentContext` the screen's navigation child owns. The store,
-  the view and the controller have no wiring of their own to do. The component builds the
-  controller once, and `AnimeFavoritesRoute` binds a view to it for each composition.
+  together with the Decompose `ComponentContext` the screen's navigation child owns. The store and
+  the controller have no wiring of their own to do. The component builds the controller once,
+  and `AnimeFavoritesRoute` reads its state and sends the screen's events to it.
 
 ## How to use it
 
