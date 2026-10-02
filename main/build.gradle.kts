@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
-    alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.kotlinCompose) // required alongside composeMultiplatform
     alias(libs.plugins.ksp)
@@ -58,7 +57,6 @@ kotlin {
             implementation(libs.essenty.lifecycle)
             implementation(libs.essenty.state.keeper)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.okio)
 
             // The component KSP generates from `DiRootComponent` is public and carries this
             // library's types in its own supertypes.
@@ -77,12 +75,11 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.mvikotlin.main)
-            implementation(libs.okio.fakefilesystem)
         }
         getByName("androidHostTest").dependencies {
             implementation(libs.robolectric)
             implementation(libs.compose.ui.test.junit4)
-            // The rule of the root session's content test launches its own host activity.
+            // The iOS root content's test launches its own host activity.
             implementation(libs.compose.ui.test.manifest)
         }
     }
