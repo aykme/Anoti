@@ -40,7 +40,6 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AnimeFavoritesControllerTest {
@@ -77,7 +76,7 @@ class AnimeFavoritesControllerTest {
     /** The saved-anime database every [AnimeDatabaseStore] usecase reads from and writes to. */
     /** Everything a test needs to drive one controller and see where its bindings lead. */
     private class Wiring(
-        val lifecycle: LifecycleRegistry,
+        val viewLifecycle: LifecycleRegistry,
         val view: AnimeFavoritesViewFake,
         val mainStore: AnimeFavoritesMainStore,
         val animeDatabaseStore: AnimeDatabaseStore,
@@ -152,16 +151,18 @@ class AnimeFavoritesControllerTest {
         val mainStore = createMainStore(backgroundUpdateUsecase, coroutineContextProvider)
 
         val lifecycle = LifecycleRegistry()
+        val viewLifecycle = LifecycleRegistry()
         val view = AnimeFavoritesViewFake()
         AnimeFavoritesController(
             lifecycle = lifecycle,
             mainStore = mainStore,
             animeDatabaseStore = animeDatabaseStore
-        ).onViewCreated(mainView = view, viewLifecycle = lifecycle)
+        ).onViewCreated(mainView = view, viewLifecycle = viewLifecycle)
         lifecycle.resume()
+        viewLifecycle.resume()
 
         return Wiring(
-            lifecycle = lifecycle,
+            viewLifecycle = viewLifecycle,
             view = view,
             mainStore = mainStore,
             animeDatabaseStore = animeDatabaseStore,
@@ -227,15 +228,35 @@ class AnimeFavoritesControllerTest {
     }
 
     @Test
-    fun destroyingTheLifecycleDisposesBothStores() = runTest(testDispatcher) {
+    fun theStoresStayWiredWhenTheViewIsGone() = runTest(testDispatcher) {
         //Given
         val wiring = createWiring()
 
         //When
-        wiring.lifecycle.destroy()
+        wiring.viewLifecycle.destroy()
+        wiring.database.items.value = listOf(testDbItem(id = 7, name = "Frieren"))
+        runCurrent()
 
         //Then
-        assertTrue(wiring.mainStore.isDisposed, "the favorites store outlived its screen")
-        assertTrue(wiring.animeDatabaseStore.isDisposed, "the database store outlived its screen")
+        assertEquals(
+            listOf(7),
+            wiring.mainStore.state.listItems.map { it.id },
+            "the database stopped reaching the main store with the view"
+        )
+    }
+
+    @Test
+    fun theViewStopsReceivingWhenItsLifecycleEnds() = runTest(testDispatcher) {
+        //Given
+        val wiring = createWiring()
+        wiring.viewLifecycle.destroy()
+        val rendersBefore = wiring.view.renderedModels.size
+
+        //When
+        wiring.database.items.value = listOf(testDbItem(id = 7))
+        runCurrent()
+
+        //Then
+        assertEquals(rendersBefore, wiring.view.renderedModels.size)
     }
 }

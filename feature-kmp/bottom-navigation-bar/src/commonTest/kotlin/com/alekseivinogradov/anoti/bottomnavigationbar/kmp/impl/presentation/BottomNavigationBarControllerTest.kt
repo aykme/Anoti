@@ -30,7 +30,6 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 private const val FIRST_ID = 11
 private const val SECOND_ID = 22
@@ -62,6 +61,8 @@ class BottomNavigationBarControllerTest {
         if (screenLifecycle.state != Lifecycle.State.DESTROYED) {
             screenLifecycle.destroy()
         }
+        mainStore.dispose()
+        databaseStore.dispose()
         Dispatchers.resetMain()
     }
 
@@ -71,7 +72,7 @@ class BottomNavigationBarControllerTest {
             mainStore = mainStore,
             animeDatabaseStore = databaseStore
         ).onViewCreated(mainView = view, viewLifecycle = viewLifecycle)
-        screenLifecycle.create()
+        screenLifecycle.resume()
         viewLifecycle.create()
         viewLifecycle.start()
         viewLifecycle.resume()
@@ -199,10 +200,10 @@ class BottomNavigationBarControllerTest {
     }
 
     @Test
-    fun theBadgeStopsFollowingTheDatabaseWhileTheViewIsStopped() = runTest {
+    fun theBadgeStopsFollowingTheDatabaseWhileTheRootIsStopped() = runTest {
         //Given
         startController()
-        viewLifecycle.stop()
+        screenLifecycle.stop()
         val rendersBefore = view.renderedModels.size
 
         //When
@@ -217,16 +218,40 @@ class BottomNavigationBarControllerTest {
     }
 
     @Test
-    fun destroyingTheScreenDisposesBothStores() = runTest {
+    fun theStoresStayWiredWhenTheViewIsGone() = runTest {
         //Given
         startController()
 
         //When
-        screenLifecycle.destroy()
+        viewLifecycle.destroy()
+        databaseStore.accept(
+            AnimeDatabaseStore.Intent.InsertAnimeDatabaseItem(
+                dbItem(id = FIRST_ID, isNewEpisode = true)
+            )
+        )
 
         //Then
-        assertTrue(mainStore.isDisposed)
-        assertTrue(databaseStore.isDisposed)
+        assertEquals(
+            1,
+            mainStore.state.favoritesBadgeNumber,
+            "the database stopped reaching the bar's store with the view"
+        )
+    }
+
+    @Test
+    fun theViewStopsReceivingWhenItsLifecycleEnds() = runTest {
+        //Given
+        startController()
+        viewLifecycle.destroy()
+        val rendersBefore = view.renderedModels.size
+
+        //When
+        mainStore.accept(
+            BottomNavigationBarStore.Intent.ChangeSelectedSection(SectionDomain.FAVORITES)
+        )
+
+        //Then
+        assertEquals(rendersBefore, view.renderedModels.size)
     }
 }
 

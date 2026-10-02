@@ -17,7 +17,6 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.AnimeListView
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.mapper.model.mapStateToUiModel
 import com.arkivanov.essenty.lifecycle.Lifecycle
-import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.mvikotlin.core.binder.BinderLifecycleMode
 import com.arkivanov.mvikotlin.extensions.coroutines.bind
 import com.arkivanov.mvikotlin.extensions.coroutines.events
@@ -27,10 +26,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 
 /**
- * Wires the main store, its three section stores, and [AnimeDatabaseStore] to the view for the
- * screen's lifecycle.
+ * Wires the main store, its three section stores and [AnimeDatabaseStore] to each other for the
+ * screen component's lifetime, and a view to the main store for the view's own. The component
+ * that owns the stores builds it once and disposes them.
  *
- * @param lifecycle screen lifecycle the store bindings are tied to.
+ * @param lifecycle the screen component's lifecycle; the stores are wired while it is started.
  * @param mainStore the anime list screen's top-level store.
  * @param animeDatabaseStore saved-anime database store; drives notification state.
  * @param ongoingSectionStore the "ongoing" section's own store.
@@ -47,26 +47,21 @@ class AnimeListController(
 ) {
 
     init {
-        lifecycle.doOnDestroy { ongoingSectionStore.dispose() }
-        lifecycle.doOnDestroy { announcedSectionStore.dispose() }
-        lifecycle.doOnDestroy { searchSectionStore.dispose() }
-        lifecycle.doOnDestroy { animeDatabaseStore.dispose() }
-        lifecycle.doOnDestroy { mainStore.dispose() }
+        connectAllAuxiliaryStoresToMain(lifecycle)
     }
 
     /**
-     * Binds [mainView] to the main store for [viewLifecycle]'s duration.
+     * Binds [mainView] to the main store while [viewLifecycle] is started.
      *
-     * @param mainView view instance created for this lifecycle.
-     * @param viewLifecycle the view's own lifecycle.
+     * @param mainView the view of one composition of the screen.
+     * @param viewLifecycle the lifecycle of that composition.
      */
     fun onViewCreated(mainView: AnimeListView, viewLifecycle: Lifecycle) {
-        connectAllAuxiliaryStoresToMain(viewLifecycle)
         connectMainStoreToMainView(mainView = mainView, viewLifecycle = viewLifecycle)
     }
 
-    private fun connectAllAuxiliaryStoresToMain(viewLifecycle: Lifecycle) {
-        bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
+    private fun connectAllAuxiliaryStoresToMain(lifecycle: Lifecycle) {
+        bind(lifecycle, BinderLifecycleMode.START_STOP) {
             animeDatabaseStore.states.map(
                 ::mapDatabaseStoreStateToMainStoreIntent
             ) bindTo mainStore

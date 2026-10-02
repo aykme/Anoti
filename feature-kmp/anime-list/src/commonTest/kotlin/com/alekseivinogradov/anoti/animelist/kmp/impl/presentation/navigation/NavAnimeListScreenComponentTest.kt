@@ -30,6 +30,7 @@ import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.destroy
 import com.arkivanov.essenty.lifecycle.resume
+import com.arkivanov.essenty.lifecycle.stop
 import com.arkivanov.essenty.statekeeper.SerializableContainer
 import com.arkivanov.essenty.statekeeper.StateKeeperDispatcher
 import com.arkivanov.mvikotlin.core.store.StoreFactory
@@ -77,7 +78,7 @@ class NavAnimeListScreenComponentTest {
     private class DiAnimeListDependenciesFake(
         override val animeDatabaseStore: AnimeDatabaseStore,
         override val coroutineContextProvider: CoroutineContextProvider,
-        engineDispatcher: CoroutineDispatcher
+        engine: MockEngine
     ) : DiAnimeListDependencies {
         override val storeFactory: StoreFactory = DefaultStoreFactory()
         override val systemMessageProvider = SystemMessageProvider(
@@ -86,15 +87,16 @@ class NavAnimeListScreenComponentTest {
         )
         override val dateFormatter: DateFormatter = DateFormatterFake()
         override val shikimoriApiService: ShikimoriApiService =
-            ShikimoriApiServiceImpl(createHttpClient(singlePageCatalog(engineDispatcher)))
+            ShikimoriApiServiceImpl(createHttpClient(engine))
         override val safeApi: SafeApi = SafeApiFake()
     }
 
-    /** One component and the state keeper it consumes from and saves through. */
+    /** One component, the state keeper it consumes from and saves through, and its catalog. */
     private class Wiring(
         val lifecycle: LifecycleRegistry,
         val stateKeeper: StateKeeperDispatcher,
-        val component: NavAnimeListScreenComponent
+        val component: NavAnimeListScreenComponent,
+        val engine: MockEngine
     )
 
     private val databaseUsecases = AnimeDatabaseUsecasesFake().usecases
@@ -115,6 +117,7 @@ class NavAnimeListScreenComponentTest {
         val coroutineContextProvider = CoroutineContextProviderFake()
         val lifecycle = LifecycleRegistry().also(lifecycles::add)
         val stateKeeper = StateKeeperDispatcher(savedState)
+        val engine = singlePageCatalog(testDispatcher)
         val component = NavAnimeListScreenComponent(
             componentContext = DefaultComponentContext(
                 lifecycle = lifecycle,
@@ -124,12 +127,17 @@ class NavAnimeListScreenComponentTest {
                 parent = DiAnimeListDependenciesFake(
                     animeDatabaseStore = createDatabaseStore(coroutineContextProvider),
                     coroutineContextProvider = coroutineContextProvider,
-                    engineDispatcher = testDispatcher
+                    engine = engine
                 )
             )
         )
         lifecycle.resume()
-        return Wiring(lifecycle = lifecycle, stateKeeper = stateKeeper, component = component)
+        return Wiring(
+            lifecycle = lifecycle,
+            stateKeeper = stateKeeper,
+            component = component,
+            engine = engine
+        )
     }
 
     private suspend fun awaitOngoingLoaded(component: NavAnimeListScreenComponent) {
@@ -185,7 +193,6 @@ class NavAnimeListScreenComponentTest {
         val wiring = createWiring()
 
         //When
-        wiring.component.applyRestoredStateIfAny()
         awaitOngoingLoaded(wiring.component)
 
         //Then
@@ -208,7 +215,6 @@ class NavAnimeListScreenComponentTest {
     fun theSavedStateReplaysTheSelectedSectionAndItsSearch() = runTest(testDispatcher) {
         //Given
         val beforeProcessDeath = createWiring()
-        beforeProcessDeath.component.applyRestoredStateIfAny()
         beforeProcessDeath.component.mainStore.accept(
             AnimeListMainStore.Intent.SearchSectionClick
         )
@@ -220,7 +226,6 @@ class NavAnimeListScreenComponentTest {
 
         //When
         val afterProcessDeath = createWiring(savedState = savedState)
-        afterProcessDeath.component.applyRestoredStateIfAny()
 
         //Then
         val mainState = afterProcessDeath.component.mainStore.state
@@ -235,6 +240,12 @@ class NavAnimeListScreenComponentTest {
             SEARCH_TEXT,
             afterProcessDeath.component.searchSectionStore.state.searchText
         )
+        assertEquals(
+            SEARCH_TEXT,
+            afterProcessDeath.engine.requestHistory.last { it.url.parameters["search"] != null }
+                .url.parameters["search"],
+            "the restored search did not reach the catalog"
+        )
     }
 
     @Test
@@ -242,13 +253,11 @@ class NavAnimeListScreenComponentTest {
         runTest(testDispatcher) {
             //Given
             val beforeProcessDeath = createWiring()
-            beforeProcessDeath.component.applyRestoredStateIfAny()
             openAndExpandEverySection(beforeProcessDeath.component)
             val savedState = beforeProcessDeath.stateKeeper.save()
 
             //When
             val afterProcessDeath = createWiring(savedState = savedState)
-            afterProcessDeath.component.applyRestoredStateIfAny()
             // The restored section reloads its list and refetches the expanded item's details,
             // so the state to assert on is the one where both have landed, not whichever is
             // current once the wait returns.
@@ -282,6 +291,31 @@ class NavAnimeListScreenComponentTest {
         }
 
     @Test
+    fun theRestoreRunsOnceWhateverTheLifecycleDoesNext() = runTest(testDispatcher) {
+        //Given
+        val beforeProcessDeath = createWiring()
+        beforeProcessDeath.component.mainStore.accept(
+            AnimeListMainStore.Intent.ChangeSearchText(SEARCH_TEXT)
+        )
+        val savedState = beforeProcessDeath.stateKeeper.save()
+        val afterProcessDeath = createWiring(savedState = savedState)
+        afterProcessDeath.component.mainStore.accept(
+            AnimeListMainStore.Intent.ChangeSearchText(CHANGED_SEARCH_TEXT)
+        )
+
+        //When
+        afterProcessDeath.lifecycle.stop()
+        afterProcessDeath.lifecycle.resume()
+
+        //Then
+        assertEquals(
+            CHANGED_SEARCH_TEXT,
+            afterProcessDeath.component.mainStore.state.search.searchText,
+            "a second start replayed the saved search text over the user's"
+        )
+    }
+
+    @Test
     fun destroyingTheLifecycleDisposesEveryStoreTheComponentOwns() = runTest(testDispatcher) {
         //Given
         val wiring = createWiring()
@@ -309,6 +343,8 @@ private const val EXPANDED_ITEM_ID = 1
 private const val NEXT_EPISODE_AT = "2024-01-05T10:00:00+03:00"
 
 private const val SEARCH_TEXT = "totoro"
+
+private const val CHANGED_SEARCH_TEXT = "kiki"
 
 /**
  * Answers every listing with one full page of the same items, and every details call with the

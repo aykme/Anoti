@@ -42,7 +42,7 @@ kotlin {
             implementation(project(":core-kmp:di-scope"))
             // Each of these appears in this module's own public signatures: coroutine contexts
             // and flows, Compose State, Modifier, Color, TextUnit and ColorScheme, a
-            // StringResource, and MVIKotlin's view types.
+            // StringResource, MVIKotlin's view types, and a lifecycle.
             api(libs.kotlinx.coroutines.core)
             api(libs.compose.runtime)
             api(libs.compose.components.resources)
@@ -50,6 +50,7 @@ kotlin {
             api(libs.compose.material3)
             api(libs.compose.ui)
             api(libs.mvikotlin)
+            api(libs.essenty.lifecycle)
 
             implementation(libs.kotlinx.datetime)
             // Only the store factory this module's own DI bindings build.

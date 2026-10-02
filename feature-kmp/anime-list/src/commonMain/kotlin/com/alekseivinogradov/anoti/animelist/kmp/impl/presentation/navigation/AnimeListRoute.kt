@@ -1,19 +1,18 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.AnimeListView
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.AnimeListUiModel
-import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.AnimeListController
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.compose.AnimeListScreen
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.ComposeMviView
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.lifecycle.ChildLifecycle
 
 /**
- * Renders the anime-list screen for as long as [screenComponent] stays the active root child —
- * a new [screenComponent] instance (after navigating away and back) gets its own fresh view and
- * controller, matching the store's own per-activation lifetime.
+ * Renders the anime-list screen of [screenComponent]. Each composition gets its own view, bound
+ * to the component's controller for as long as the composition lasts.
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.
@@ -25,20 +24,15 @@ fun AnimeListRoute(screenComponent: NavAnimeListScreenComponent) {
     val composeView = remember(screenComponent) {
         object : ComposeMviView<AnimeListUiModel, AnimeListMainStore.Intent>(), AnimeListView {}
     }
-    // Binding runs as an effect, not inside "remember": a discarded/retried
-    // composition still executes "remember", which would start a second,
-    // uncanceled MVIKotlin binder alongside the one from the composition that actually commits.
-    LaunchedEffect(screenComponent) {
-        AnimeListController(
-            lifecycle = screenComponent.lifecycle,
-            mainStore = screenComponent.mainStore,
-            animeDatabaseStore = screenComponent.animeDatabaseStore,
-            ongoingSectionStore = screenComponent.ongoingSectionStore,
-            announcedSectionStore = screenComponent.announcedSectionStore,
-            searchSectionStore = screenComponent.searchSectionStore
-        ).onViewCreated(mainView = composeView, viewLifecycle = screenComponent.lifecycle)
-        // Only safe once the section stores above are wired to mainStore — see its KDoc.
-        screenComponent.applyRestoredStateIfAny()
+    // An effect, not "remember": a discarded composition still runs "remember", and its binder
+    // would never be stopped.
+    DisposableEffect(screenComponent) {
+        val viewLifecycle = ChildLifecycle(parent = screenComponent.lifecycle)
+        screenComponent.controller.onViewCreated(
+            mainView = composeView,
+            viewLifecycle = viewLifecycle
+        )
+        onDispose { viewLifecycle.destroy() }
     }
     composeView.model.value?.let { uiModel ->
         AnimeListScreen(

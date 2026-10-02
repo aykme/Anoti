@@ -10,7 +10,8 @@ import com.arkivanov.decompose.value.Value
 /**
  * Owns the app's root navigation stack. Always holds exactly one active [NavRootConfig] —
  * [navigateTo] replaces the whole stack rather than pushing onto it, so the back stack never
- * grows and a screen is always freshly created when navigated to (the previous one is disposed).
+ * grows. Navigating to another screen creates it and disposes the previous one; navigating to the
+ * screen already shown keeps it.
  *
  * This class knows nothing about what a [Child] actually is — that's supplied by the caller via
  * [childFactory], so it stays reusable across platforms without depending on any feature module.
@@ -38,7 +39,9 @@ class NavRootComponent<out Child : Any>(
         childFactory = childFactory
     )
 
-    /** Replaces the entire stack with [target] — the previous screen is destroyed. */
+    /**
+     * Replaces the entire stack with [target]. A screen already showing [target] is kept as it is.
+     */
     fun navigateTo(target: NavRootConfig) {
         navigation.replaceAll(target)
     }

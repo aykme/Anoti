@@ -59,7 +59,7 @@ internal fun RootContent(
                     bottomBarHeight.intValue = size.height
                 }
             ) {
-                BottomNavigationBarRoute(dependencies = dependencies, activeChild = activeChild)
+                BottomNavigationBarRoute(dependencies = dependencies)
             }
         }
         NotificationsRationaleOverlay(notificationsRationale)

@@ -1,32 +1,32 @@
 package com.alekseivinogradov.anoti.main.impl.presentation.compose
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.BottomNavigationBarView
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.mapper.mapStateToUiModel
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.BottomNavigationBarUiModel
-import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarController
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.compose.BottomNavigationBar
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.ComposeMviView
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.lifecycle.ChildLifecycle
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootComponent
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
 
 /**
- * Renders the bottom navigation bar and keeps its selected tab synced to [activeChild]. The
- * view/controller/store binding is created once for the root host's lifetime, matching
- * [BottomNavigationBarStore]'s own lifetime.
+ * Renders the bottom navigation bar. Each composition gets its own view, bound to the root's bar
+ * controller for as long as the composition lasts. The selected tab comes from the store, which
+ * the root keeps on the screen the stack holds.
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.
 @Suppress("FunctionNaming")
 @Composable
-internal fun BottomNavigationBarRoute(dependencies: RootDependencies, activeChild: NavRootChild) {
+internal fun BottomNavigationBarRoute(dependencies: RootDependencies) {
     val rootComponent = dependencies.rootComponent
     val mainStore = dependencies.mainStore
-    val composeView = remember {
+    val composeView = remember(dependencies) {
         object :
             ComposeMviView<BottomNavigationBarUiModel, BottomNavigationBarStore.Intent>(
                 initialModel = mapStateToUiModel(mainStore.state)
@@ -43,26 +43,15 @@ internal fun BottomNavigationBarRoute(dependencies: RootDependencies, activeChil
             }
         }
     }
-    // Binding runs as an effect, not inside "remember": a discarded/retried
-    // composition still executes "remember", which would start a second,
-    // uncanceled MVIKotlin binder alongside the one from the composition that actually commits.
-    LaunchedEffect(Unit) {
-        BottomNavigationBarController(
-            lifecycle = dependencies.lifecycle,
-            mainStore = mainStore,
-            animeDatabaseStore = dependencies.animeDatabaseStore
-        ).onViewCreated(mainView = composeView, viewLifecycle = dependencies.lifecycle)
-    }
-
-    // Keeps the bar in step with later navigations. It cannot carry the first one: the binder
-    // above attaches on a later main-thread message, so this first dispatch has no subscriber
-    // yet and is dropped. The host sets the opening tab on the store itself for that reason.
-    LaunchedEffect(activeChild) {
-        composeView.dispatch(
-            BottomNavigationBarStore.Intent.ChangeSelectedSection(
-                selectedSection = activeChild.section
-            )
+    // An effect, not "remember": a discarded composition still runs "remember", and its binder
+    // would never be stopped.
+    DisposableEffect(dependencies) {
+        val viewLifecycle = ChildLifecycle(parent = dependencies.lifecycle)
+        dependencies.barController.onViewCreated(
+            mainView = composeView,
+            viewLifecycle = viewLifecycle
         )
+        onDispose { viewLifecycle.destroy() }
     }
 
     composeView.model.value?.let { uiModel ->

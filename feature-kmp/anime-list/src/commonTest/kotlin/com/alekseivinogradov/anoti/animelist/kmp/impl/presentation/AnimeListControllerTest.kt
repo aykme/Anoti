@@ -8,6 +8,7 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatab
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseExecutorImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseStoreFactory
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.fake.AnimeDatabaseUsecasesFake
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsection.AnnouncedSectionStore
@@ -48,10 +49,13 @@ import com.arkivanov.essenty.lifecycle.resume
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.core.view.ViewRenderer
+import com.arkivanov.mvikotlin.extensions.coroutines.states
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -106,7 +110,7 @@ class AnimeListControllerTest {
     // One parameter per store the controller wires, so the count follows the controller itself.
     @Suppress("LongParameterList")
     private class Wiring(
-        val lifecycle: LifecycleRegistry,
+        val viewLifecycle: LifecycleRegistry,
         val view: AnimeListViewFake,
         val mainStore: AnimeListMainStore,
         val animeDatabaseStore: AnimeDatabaseStore,
@@ -171,6 +175,7 @@ class AnimeListControllerTest {
         val searchSectionStore = createSearchStore(source)
 
         val lifecycle = LifecycleRegistry()
+        val viewLifecycle = LifecycleRegistry()
         val view = AnimeListViewFake()
         AnimeListController(
             lifecycle = lifecycle,
@@ -179,11 +184,12 @@ class AnimeListControllerTest {
             ongoingSectionStore = ongoingSectionStore,
             announcedSectionStore = announcedSectionStore,
             searchSectionStore = searchSectionStore
-        ).onViewCreated(mainView = view, viewLifecycle = lifecycle)
+        ).onViewCreated(mainView = view, viewLifecycle = viewLifecycle)
         lifecycle.resume()
+        viewLifecycle.resume()
 
         return Wiring(
-            lifecycle = lifecycle,
+            viewLifecycle = viewLifecycle,
             view = view,
             mainStore = mainStore,
             animeDatabaseStore = animeDatabaseStore,
@@ -435,27 +441,38 @@ class AnimeListControllerTest {
     }
 
     @Test
-    fun destroyingTheLifecycleDisposesAllFiveStores() = runTest(testDispatcher) {
+    fun theStoresStayWiredWhenTheViewIsGone() = runTest(testDispatcher) {
         //Given
         val wiring = createWiring()
 
         //When
-        wiring.lifecycle.destroy()
+        wiring.viewLifecycle.destroy()
+        wiring.ongoingSectionStore.accept(OngoingSectionStore.Intent.OpenSection)
+        wiring.ongoingSectionStore.states.first {
+            it.sectionContent.contentType == ContentTypeDomain.LOADED
+        }
+        // The main store takes the section's content type after a short animation delay.
+        advanceUntilIdle()
 
         //Then
-        assertTrue(wiring.mainStore.isDisposed, "the main store outlived its screen")
-        assertTrue(wiring.animeDatabaseStore.isDisposed, "the database store outlived its screen")
-        assertTrue(
-            wiring.ongoingSectionStore.isDisposed,
-            "the ongoing section store outlived its screen"
+        assertEquals(
+            ContentTypeDomain.LOADED,
+            wiring.mainStore.state.ongoingContent.contentType,
+            "the section's state stopped reaching the main store with the view"
         )
-        assertTrue(
-            wiring.announcedSectionStore.isDisposed,
-            "the announced section store outlived its screen"
-        )
-        assertTrue(
-            wiring.searchSectionStore.isDisposed,
-            "the search section store outlived its screen"
-        )
+    }
+
+    @Test
+    fun theViewStopsReceivingWhenItsLifecycleEnds() = runTest(testDispatcher) {
+        //Given
+        val wiring = createWiring()
+        wiring.viewLifecycle.destroy()
+        val rendersBefore = wiring.view.renderedModels.size
+
+        //When
+        wiring.mainStore.accept(AnimeListMainStore.Intent.AnnouncedSectionClick)
+
+        //Then
+        assertEquals(rendersBefore, wiring.view.renderedModels.size)
     }
 }

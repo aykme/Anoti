@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation.NavAnimeFavoritesScreenComponent
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation.NavAnimeListScreenComponent
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
+import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarController
 import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.compose.NotificationsRationaleState
 import com.alekseivinogradov.anoti.main.impl.presentation.compose.RootDependencies
@@ -18,12 +19,12 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 
 /**
- * The work every screen host does around the root UI. It builds the root navigation and sets the
- * bottom bar's opening tab. It closes the root stores with the host and runs the notification
- * permission flow. The platform host shows [dependencies] and [notificationsRationale].
+ * The work every screen host does around the root UI. It builds the root navigation, keeps the
+ * bottom bar on the screen the stack holds, closes the root stores with the root and runs the
+ * notification permission flow. The platform host shows [dependencies] and
+ * [notificationsRationale].
  *
- * One instance is one root. A host that rebuilds its root builds a new instance over a new
- * context.
+ * One instance is one root, living as long as its context's lifecycle.
  *
  * @param diRootComponent the graph this root takes its stores and screens from.
  * @param openingTarget the screen a fresh start opens on, such as the one a notification names.
@@ -52,9 +53,7 @@ internal class RootHost(
     private var onRationaleApproved: () -> Unit = {}
 
     init {
-        // These are closed from where they are created. The binding that would otherwise close
-        // them only starts once the first composition's effects run. The host can be gone by
-        // then. A second dispose is a no-op, so the binding's own call stays harmless.
+        // These are closed from where they are created. Nothing else closes them.
         componentContext.lifecycle.doOnDestroy {
             mainStore.dispose()
             animeDatabaseStore.dispose()
@@ -67,17 +66,26 @@ internal class RootHost(
         childFactory = ::createRootChild
     )
 
+    // Built once for the root, so the database feeds the badge with no view bound. Each
+    // composition binds only its own view.
+    private val barController = BottomNavigationBarController(
+        lifecycle = componentContext.lifecycle,
+        mainStore = mainStore,
+        animeDatabaseStore = animeDatabaseStore
+    )
+
     init {
-        // The only path that gets the bar's first tab right, not a shortcut for one. The view
-        // dispatches the same intent, but its binder attaches on a later main-thread message, so
-        // that first dispatch reaches no subscriber and is dropped. Removing this leaves the bar
-        // highlighting the wrong tab after a launch into favorites. `childStack.value` is
-        // already valid here: it resolves the initial or restored child on construction.
-        mainStore.accept(
-            BottomNavigationBarStore.Intent.ChangeSelectedSection(
-                selectedSection = rootComponent.childStack.value.active.instance.section
+        // The bar shows the screen the stack holds, whoever navigated and whether a view is bound
+        // or not. The subscription is called at once with the current stack, so the opening tab
+        // is set before the first composition.
+        val stackSubscription = rootComponent.childStack.subscribe { stack ->
+            mainStore.accept(
+                BottomNavigationBarStore.Intent.ChangeSelectedSection(
+                    selectedSection = stack.active.instance.section
+                )
             )
-        )
+        }
+        componentContext.lifecycle.doOnDestroy(stackSubscription::cancel)
     }
 
     /** What the root content draws from. */
@@ -85,6 +93,7 @@ internal class RootHost(
         rootComponent = rootComponent,
         mainStore = mainStore,
         animeDatabaseStore = animeDatabaseStore,
+        barController = barController,
         systemMessageController = diRootComponent.parent.systemMessageController,
         lifecycle = componentContext.lifecycle
     )

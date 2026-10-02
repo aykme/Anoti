@@ -8,7 +8,6 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavo
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.AnimeFavoritesView
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.mapper.mapStateToUiModel
 import com.arkivanov.essenty.lifecycle.Lifecycle
-import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.mvikotlin.core.binder.BinderLifecycleMode
 import com.arkivanov.mvikotlin.extensions.coroutines.bind
 import com.arkivanov.mvikotlin.extensions.coroutines.events
@@ -17,10 +16,11 @@ import com.arkivanov.mvikotlin.extensions.coroutines.states
 import kotlinx.coroutines.flow.map
 
 /**
- * Wires [AnimeFavoritesMainStore] to its view and to [AnimeDatabaseStore] for the screen's
- * lifecycle.
+ * Wires [AnimeFavoritesMainStore] to [AnimeDatabaseStore] for the screen component's lifetime,
+ * and a view to the store for the view's own. The component that owns the stores builds it once
+ * and disposes them.
  *
- * @param lifecycle screen lifecycle the store bindings are tied to.
+ * @param lifecycle the screen component's lifecycle; the stores are wired while it is started.
  * @param mainStore the favorites screen's own store.
  * @param animeDatabaseStore saved-anime database store; the source of the favorites list.
  */
@@ -31,23 +31,21 @@ class AnimeFavoritesController(
 ) {
 
     init {
-        lifecycle.doOnDestroy { animeDatabaseStore.dispose() }
-        lifecycle.doOnDestroy { mainStore.dispose() }
+        connectAllAuxiliaryStoresToMain(lifecycle)
     }
 
     /**
-     * Binds [mainView] to the store for [viewLifecycle]'s duration.
+     * Binds [mainView] to the store while [viewLifecycle] is started.
      *
-     * @param mainView view instance created for this lifecycle.
-     * @param viewLifecycle the view's own lifecycle.
+     * @param mainView the view of one composition of the screen.
+     * @param viewLifecycle the lifecycle of that composition.
      */
     fun onViewCreated(mainView: AnimeFavoritesView, viewLifecycle: Lifecycle) {
-        connectAllAuxiliaryStoresToMain(viewLifecycle)
         connectMainStoreToMainView(mainView = mainView, viewLifecycle = viewLifecycle)
     }
 
-    private fun connectAllAuxiliaryStoresToMain(viewLifecycle: Lifecycle) {
-        bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
+    private fun connectAllAuxiliaryStoresToMain(lifecycle: Lifecycle) {
+        bind(lifecycle, BinderLifecycleMode.START_STOP) {
             animeDatabaseStore.states.map(
                 ::mapDatabaseStoreStateToMainStoreIntent
             ) bindTo mainStore

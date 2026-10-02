@@ -8,19 +8,21 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeList
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.ongoingsection.OngoingSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.SearchSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.impl.di.DiAnimeListComponent
+import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.AnimeListController
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
+import com.arkivanov.essenty.lifecycle.doOnStart
 import kotlinx.serialization.Serializable
 
 /**
  * Owns the anime-list screen's `FeatureScope` DI subgraph for as long as this component's
  * lifecycle (inherited from [componentContext]) is alive — created once when
  * `NavRootConfig.AnimeList` becomes the active root config, disposed when
- * `NavRootComponent.navigateTo()` replaces it. [AnimeListRoute] reads its dependencies from an
- * already-built instance of this class instead of creating its own `FeatureScope` graph.
+ * `NavRootComponent.navigateTo()` replaces it. It builds the screen's [controller] and replays
+ * the saved state on its first start; [AnimeListRoute] only binds a view per composition.
  */
 class NavAnimeListScreenComponent(
     componentContext: ComponentContext,
@@ -49,8 +51,8 @@ class NavAnimeListScreenComponent(
     /** The search section's own store. */
     val searchSectionStore: SearchSectionStore = diAnimeListComponent.searchSectionStore
 
-    // Consumed once here (construction time), per StateKeeper's contract; replayed later via
-    // applyRestoredStateIfAny(), once the section stores exist to dispatch to directly.
+    // Consumed once at construction, per StateKeeper's contract, and replayed when the component
+    // first starts.
     private val restoredState: RestoredMainState? =
         stateKeeper.consume(key = RESTORED_STATE_KEY, strategy = RestoredMainState.serializer())
 
@@ -84,8 +86,6 @@ class NavAnimeListScreenComponent(
             )
         }
 
-        // Registered here rather than in AnimeListController so the stores are still disposed
-        // when this component is replaced before AnimeListRoute ever builds its controller.
         lifecycle.doOnDestroy {
             ongoingSectionStore.dispose()
             announcedSectionStore.dispose()
@@ -93,22 +93,30 @@ class NavAnimeListScreenComponent(
             animeDatabaseStore.dispose()
             mainStore.dispose()
         }
+
+        // Subscribed before the controller binds, so the replay always comes before the wiring.
+        // Under an immediate dispatcher the wiring would otherwise open the search section before
+        // its restored text arrives.
+        lifecycle.doOnStart(isOneTime = true) {
+            applyRestoredMainState(
+                restoredState = restoredState,
+                mainStore = mainStore,
+                ongoingSectionStore = ongoingSectionStore,
+                announcedSectionStore = announcedSectionStore,
+                searchSectionStore = searchSectionStore
+            )
+        }
     }
 
-    /**
-     * Opens whichever section should be active: replayed from a snapshot saved before process
-     * death, or the default section on a fresh start. Runs once per instance. See
-     * [applyRestoredMainState] for why this dispatches directly to the section stores.
-     */
-    fun applyRestoredStateIfAny() {
-        applyRestoredMainState(
-            restoredState = restoredState,
-            mainStore = mainStore,
-            ongoingSectionStore = ongoingSectionStore,
-            announcedSectionStore = announcedSectionStore,
-            searchSectionStore = searchSectionStore
-        )
-    }
+    /** Wires the screen's stores while this component lives, and a view per composition. */
+    val controller = AnimeListController(
+        lifecycle = lifecycle,
+        mainStore = mainStore,
+        animeDatabaseStore = animeDatabaseStore,
+        ongoingSectionStore = ongoingSectionStore,
+        announcedSectionStore = announcedSectionStore,
+        searchSectionStore = searchSectionStore
+    )
 
     private companion object {
         private const val RESTORED_STATE_KEY = "AnimeListMainStoreRestoredState"
@@ -142,13 +150,9 @@ internal data class RestoredSectionState(
 
 /**
  * Dispatches straight to the section stores rather than through their own
- * `OpenAnnouncedSection`/`OpenSearchSection` labels. Those labels are only delivered once
- * `AnimeListController`'s binder has started collecting the publishing store's `labels`. That
- * collector attaches via `BuilderBinder.start()`, which launches through
- * `GlobalScope.launch(mainContext)` — a real, asynchronous dispatch. It isn't guaranteed to have
- * happened yet by the time this runs, so a label published before it attaches is silently
- * dropped. Dispatching directly to the target store has no such ordering requirement. `mainStore`'s
- * own selected-section/search-text UI state is still updated through its normal click intents,
+ * `OpenAnnouncedSection`/`OpenSearchSection` labels. It runs before `AnimeListController`'s
+ * wiring starts, so a label sent now would reach no store. `mainStore`'s own
+ * selected-section/search-text UI state is still updated through its normal click intents,
  * synchronously.
  *
  * Opens exactly one section: whichever was restored, or [SectionHatDomain.ONGOINGS] as the

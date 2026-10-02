@@ -6,7 +6,6 @@ import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.Bott
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.BottomNavigationBarView
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.mapper.mapStateToUiModel
 import com.arkivanov.essenty.lifecycle.Lifecycle
-import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.mvikotlin.core.binder.BinderLifecycleMode
 import com.arkivanov.mvikotlin.extensions.coroutines.bind
 import com.arkivanov.mvikotlin.extensions.coroutines.events
@@ -15,10 +14,10 @@ import com.arkivanov.mvikotlin.extensions.coroutines.states
 import kotlinx.coroutines.flow.map
 
 /**
- * Wires [BottomNavigationBarStore] to its view and to [AnimeDatabaseStore] for the bar's
- * lifecycle.
+ * Wires [AnimeDatabaseStore] to [BottomNavigationBarStore] for the root's lifetime, and a view to
+ * the store for the view's own. The root that owns the stores builds it once and disposes them.
  *
- * @param lifecycle screen lifecycle the store bindings are tied to.
+ * @param lifecycle the root's lifecycle; the database feeds the badge while it is started.
  * @param mainStore the bottom navigation bar's own store.
  * @param animeDatabaseStore saved-anime database store; drives the favorites badge number.
  */
@@ -29,23 +28,21 @@ class BottomNavigationBarController(
 ) {
 
     init {
-        lifecycle.doOnDestroy { mainStore.dispose() }
-        lifecycle.doOnDestroy { animeDatabaseStore.dispose() }
+        connectAllAuxiliaryStoresToMain(lifecycle)
     }
 
     /**
-     * Binds [mainView] to the store for [viewLifecycle]'s duration.
+     * Binds [mainView] to the store while [viewLifecycle] lasts.
      *
-     * @param mainView view instance created for this lifecycle.
-     * @param viewLifecycle the view's own lifecycle.
+     * @param mainView the view of one composition of the screen.
+     * @param viewLifecycle the lifecycle of that composition.
      */
     fun onViewCreated(mainView: BottomNavigationBarView, viewLifecycle: Lifecycle) {
-        connectAllAuxiliaryStoresToMain(viewLifecycle)
         connectMainStoreToMainView(mainView = mainView, viewLifecycle = viewLifecycle)
     }
 
-    private fun connectAllAuxiliaryStoresToMain(viewLifecycle: Lifecycle) {
-        bind(viewLifecycle, BinderLifecycleMode.START_STOP) {
+    private fun connectAllAuxiliaryStoresToMain(lifecycle: Lifecycle) {
+        bind(lifecycle, BinderLifecycleMode.START_STOP) {
             animeDatabaseStore.states.map(::mapDatabaseStoreStateToMainStoreIntent) bindTo mainStore
         }
     }

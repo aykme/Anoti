@@ -1,19 +1,19 @@
 package com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.AnimeFavoritesView
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.AnimeFavoritesUiModel
-import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.AnimeFavoritesController
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.compose.AnimeFavoritesScreen
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.ComposeMviView
+import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.lifecycle.ChildLifecycle
 
 /**
- * Renders the anime-favorites screen for as long as [screenComponent] stays the active root
- * child — a new [screenComponent] instance (after navigating away and back) gets its own fresh
- * view and controller, matching the store's own per-activation lifetime.
+ * Renders the anime-favorites screen of [screenComponent]. Each composition gets its own view,
+ * bound to the component's controller for as long as the composition lasts. The first one opens
+ * the section.
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.
@@ -23,18 +23,20 @@ fun AnimeFavoritesRoute(screenComponent: NavAnimeFavoritesScreenComponent) {
     // Needs an explicit AnimeFavoritesView supertype: the controller takes that interface, and
     // ComposeMviView's structural match to it isn't enough for Kotlin's nominal typing.
     val composeView = remember(screenComponent) {
-        object : ComposeMviView<AnimeFavoritesUiModel, AnimeFavoritesMainStore.Intent>(), AnimeFavoritesView {}
+        object :
+            ComposeMviView<AnimeFavoritesUiModel, AnimeFavoritesMainStore.Intent>(),
+            AnimeFavoritesView {}
     }
-    // Binding runs as an effect, not inside "remember": a discarded/retried
-    // composition still executes "remember" calculator, which would start a second,
-    // uncanceled MVIKotlin binder alongside the one from the composition that actually commits.
-    LaunchedEffect(screenComponent) {
-        AnimeFavoritesController(
-            lifecycle = screenComponent.lifecycle,
-            mainStore = screenComponent.mainStore,
-            animeDatabaseStore = screenComponent.animeDatabaseStore
-        ).onViewCreated(mainView = composeView, viewLifecycle = screenComponent.lifecycle)
+    // An effect, not "remember": a discarded composition still runs "remember", and its binder
+    // would never be stopped.
+    DisposableEffect(screenComponent) {
+        val viewLifecycle = ChildLifecycle(parent = screenComponent.lifecycle)
+        screenComponent.controller.onViewCreated(
+            mainView = composeView,
+            viewLifecycle = viewLifecycle
+        )
         screenComponent.openSectionUnlessRestored()
+        onDispose { viewLifecycle.destroy() }
     }
     composeView.model.value?.let { uiModel ->
         AnimeFavoritesScreen(

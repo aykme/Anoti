@@ -11,6 +11,7 @@ import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.create
 import com.arkivanov.essenty.lifecycle.destroy
+import com.arkivanov.essenty.lifecycle.resume
 import com.arkivanov.essenty.statekeeper.SerializableContainer
 import com.arkivanov.essenty.statekeeper.StateKeeperDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -130,6 +131,34 @@ class RootHostTest {
 
         //Then
         assertEquals(SectionDomain.MAIN, root.selectedSection)
+    }
+
+    @Test
+    fun theBarFollowsANavigationWithNoViewBound() {
+        //Given
+        val root = createRoot()
+
+        //When
+        root.host.dependencies.rootComponent.navigateTo(NavRootConfig.AnimeFavorites)
+
+        //Then
+        assertEquals(SectionDomain.FAVORITES, root.selectedSection)
+    }
+
+    @Test
+    fun theBadgeFollowsTheDatabaseWithNoViewBound() {
+        //Given
+        val root = createRoot()
+        root.lifecycle.resume()
+
+        //When
+        dependencies.animeDatabaseStores.first().emit(
+            listOf(savedAnime(id = 1, hasNewEpisode = true))
+        )
+        scheduler.advanceUntilIdle()
+
+        //Then
+        assertEquals(1, root.host.dependencies.mainStore.state.favoritesBadgeNumber)
     }
 
     @Test
