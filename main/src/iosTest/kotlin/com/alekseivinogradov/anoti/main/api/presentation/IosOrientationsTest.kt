@@ -1,14 +1,13 @@
 package com.alekseivinogradov.anoti.main.api.presentation
 
-import kotlinx.cinterop.ExperimentalForeignApi
-import platform.CoreGraphics.CGRectMake
 import platform.UIKit.UIInterfaceOrientationMaskAll
 import platform.UIKit.UIInterfaceOrientationMaskPortrait
 import platform.UIKit.UIWindow
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@OptIn(ExperimentalForeignApi::class)
+// No test builds a real UIWindow: one made outside an app starts UIKit halfway, and the Compose
+// tests in the same process then crash on text input.
 class IosOrientationsTest {
 
     @Test
@@ -26,10 +25,11 @@ class IosOrientationsTest {
     @Test
     fun aPhoneSizedWindowKeepsTheAppUpright() {
         //Given
-        val window = UIWindow(frame = CGRectMake(0.0, 0.0, 402.0, 874.0))
+        val width = 402.0
+        val height = 874.0
 
         //When
-        val mask = iosSupportedInterfaceOrientations(window)
+        val mask = orientationsOfAWindowSized(width = width, height = height)
 
         //Then
         assertEquals(UIInterfaceOrientationMaskPortrait, mask)
@@ -38,10 +38,11 @@ class IosOrientationsTest {
     @Test
     fun aTabletSizedWindowTurnsEveryWay() {
         //Given
-        val window = UIWindow(frame = CGRectMake(0.0, 0.0, 820.0, 1180.0))
+        val width = 820.0
+        val height = 1180.0
 
         //When
-        val mask = iosSupportedInterfaceOrientations(window)
+        val mask = orientationsOfAWindowSized(width = width, height = height)
 
         //Then
         assertEquals(UIInterfaceOrientationMaskAll, mask)

@@ -41,30 +41,6 @@ jobs:
       - uses: ./.github/actions/gradle-on-macos
       - name: Run every Kotlin/Native test on the simulator
         run: ./gradlew iosSimulatorArm64Test --continue
-      - name: Temporary, main's iOS tests one at a time and the crash under lldb
-        if: always()
-        run: |
-          mkdir -p build/native-crashes
-          for t in \
-            IosRootContentTest.theSearchTextSurvivesARebuiltComposition \
-            IosRootContentTest.theSearchTextComesBackInTheNextProcess \
-            IosRootContentTest.aTabTapStillSwitchesScreensAfterTheCompositionIsRebuilt \
-            IosRootContentTest.everythingTheScreensSaveSurvivesTheCodec \
-            IosRootHolderTest SaveableStateCodecTest ChildLifecycleTest IosOrientationsTest \
-            WindowRotationTest; do
-            echo "== $t"
-            ./gradlew :main:iosSimulatorArm64Test --tests "*$t*" -q 2>&1 | tail -6 || true
-          done
-          kexe=$(find main/build/bin/iosSimulatorArm64 -name test.kexe | head -1)
-          udid=$(xcrun simctl list devices available | grep -m1 'iPhone 17 (' | grep -oE '[0-9A-F-]{36}')
-          xcrun simctl boot "$udid" || true
-          lldb --batch -o "process attach --name test.kexe --waitfor" -o continue \
-            -k "thread backtrace all" -k quit > build/native-crashes/lldb.txt 2>&1 &
-          sleep 5
-          xcrun simctl spawn "$udid" "$kexe" \
-            --ktest_filter='*IosRootContentTest.theSearchTextSurvivesARebuiltComposition' || true
-          sleep 20
-          head -c 60000 build/native-crashes/lldb.txt
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -72,7 +48,6 @@ jobs:
           path: |
             **/build/reports/tests/iosSimulatorArm64Test/
             **/build/test-results/iosSimulatorArm64Test/
-            build/native-crashes/
 
   project:
     runs-on: macos-26

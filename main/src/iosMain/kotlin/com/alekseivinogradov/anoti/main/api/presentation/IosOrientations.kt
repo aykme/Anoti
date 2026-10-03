@@ -18,9 +18,13 @@ import platform.UIKit.UIWindow
 fun iosSupportedInterfaceOrientations(window: UIWindow?): UIInterfaceOrientationMask {
     val size = window?.bounds?.useContents { size.width to size.height }
         ?: return UIInterfaceOrientationMaskAll
-    return if (allowsRotation(width = size.first, height = size.second)) {
+    return orientationsOfAWindowSized(width = size.first, height = size.second)
+}
+
+/** The orientations a window of [width] by [height] points may take. */
+internal fun orientationsOfAWindowSized(width: Double, height: Double): UIInterfaceOrientationMask =
+    if (allowsRotation(width = width, height = height)) {
         UIInterfaceOrientationMaskAll
     } else {
         UIInterfaceOrientationMaskPortrait
     }
-}
