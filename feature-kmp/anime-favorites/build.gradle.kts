@@ -43,9 +43,9 @@ kotlin {
             api(libs.mvikotlin.extensions.coroutines)
 
             // Each of these appears in this module's own public signatures: the screen
-            // component's dependencies, its source and store, the controller's lifecycle and
-            // database store, the navigation component's own supertype, and the Compose entry
-            // points with their UI models.
+            // component's dependencies, its source and store, the controller's lifecycle,
+            // database store and state flow, the navigation component's own supertype, and the
+            // Compose entry points with their UI models.
             api(project(":feature-kmp:anime-background-update"))
             api(project(":feature-kmp:anime-base"))
             api(project(":core-kmp:celebrity"))
@@ -57,10 +57,10 @@ kotlin {
             api(libs.decompose)
             api(libs.compose.runtime)
             api(libs.compose.ui)
+            api(libs.kotlinx.coroutines.core)
 
             implementation(project(":core-kmp:di-scope"))
 
-            implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.compose.components.resources)
             implementation(libs.compose.foundation)

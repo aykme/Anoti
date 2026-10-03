@@ -28,6 +28,7 @@ import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
+import com.arkivanov.essenty.lifecycle.create
 import com.arkivanov.essenty.lifecycle.destroy
 import com.arkivanov.essenty.lifecycle.resume
 import com.arkivanov.essenty.lifecycle.stop
@@ -48,6 +49,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -114,7 +116,10 @@ class NavAnimeListScreenComponentTest {
         }
     ).create()
 
-    private fun createWiring(savedState: SerializableContainer? = null): Wiring {
+    private fun createWiring(
+        savedState: SerializableContainer? = null,
+        isStarted: Boolean = true
+    ): Wiring {
         val coroutineContextProvider = CoroutineContextProviderFake()
         val lifecycle = LifecycleRegistry().also(lifecycles::add)
         val stateKeeper = StateKeeperDispatcher(savedState)
@@ -132,7 +137,7 @@ class NavAnimeListScreenComponentTest {
                 )
             )
         )
-        lifecycle.resume()
+        if (isStarted) lifecycle.resume() else lifecycle.create()
         return Wiring(
             lifecycle = lifecycle,
             stateKeeper = stateKeeper,
@@ -209,6 +214,22 @@ class NavAnimeListScreenComponentTest {
         assertEquals(
             ContentTypeDomain.LOADING,
             wiring.component.searchSectionStore.state.sectionContent.contentType
+        )
+    }
+
+    @Test
+    fun aComponentThatIsOnlyCreatedFetchesNothingUntilItStarts() = runTest(testDispatcher) {
+        //Given
+        val wiring = createWiring(isStarted = false)
+
+        //When
+        advanceUntilIdle()
+
+        //Then
+        assertEquals(emptyList(), wiring.engine.requestHistory)
+        assertEquals(
+            ContentTypeDomain.LOADING,
+            wiring.component.ongoingSectionStore.state.sectionContent.contentType
         )
     }
 

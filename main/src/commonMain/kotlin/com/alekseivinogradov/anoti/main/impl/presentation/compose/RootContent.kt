@@ -43,7 +43,7 @@ internal fun RootContent(
         val bottomBarHeight = remember { mutableIntStateOf(0) }
         Column(modifier = Modifier.fillMaxSize()) {
             // Children keeps each screen's rememberSaveable values under that screen's own key, and
-            // drops them once the screen leaves the stack.
+            // drops them once a screen it has shown leaves the stack.
             Children(
                 stack = dependencies.rootComponent.childStack,
                 modifier = Modifier.weight(1f)

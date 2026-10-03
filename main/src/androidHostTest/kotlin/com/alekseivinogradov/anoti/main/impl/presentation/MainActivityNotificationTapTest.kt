@@ -22,9 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-private const val SEARCH_BUTTON_TAG = "search_button"
-private const val SEARCH_TEXT = "frieren"
-
 @RunWith(RobolectricTestRunner::class)
 @Config(application = HostApplicationFake::class)
 class MainActivityNotificationTapTest {

@@ -135,7 +135,7 @@ class RootHostTest {
     }
 
     @Test
-    fun theBarFollowsANavigationWithNoViewBound() {
+    fun theBarFollowsANavigationWithNoCompositionShown() {
         //Given
         val root = createRoot()
 
@@ -147,7 +147,7 @@ class RootHostTest {
     }
 
     @Test
-    fun theBadgeFollowsTheDatabaseWithNoViewBound() {
+    fun theBadgeFollowsTheDatabaseWithNoCompositionShown() {
         //Given
         val root = createRoot()
         root.lifecycle.resume()
@@ -159,7 +159,7 @@ class RootHostTest {
         scheduler.advanceUntilIdle()
 
         //Then
-        assertEquals(1, root.host.dependencies.mainStore.state.favoritesBadgeNumber)
+        assertEquals(1, root.host.dependencies.barController.state.value.favoritesBadgeNumber)
     }
 
     @Test
@@ -205,7 +205,7 @@ class RootHostTest {
         //Then
         assertEquals(NavRootConfig.AnimeFavorites, root.activeScreen)
         assertEquals(SectionDomain.FAVORITES, root.selectedSection)
-        assertFalse(root.host.dependencies.mainStore.isDisposed)
+        assertFalse(dependencies.barStores.single().isDisposed)
     }
 
     @Test
@@ -222,21 +222,6 @@ class RootHostTest {
     }
 
     @Test
-    fun theBarTakesItsDatabaseStoreBeforeTheFirstScreenTakesOne() {
-        //Given
-        val openingTarget: NavRootConfig? = null
-
-        //When
-        val root = createRoot(openingTarget = openingTarget)
-
-        //Then
-        assertSame(
-            dependencies.animeDatabaseStores.first(),
-            root.host.dependencies.animeDatabaseStore
-        )
-    }
-
-    @Test
     fun closesBothRootStoresWhenTheHostIsDestroyed() {
         //Given
         val root = createRoot()
@@ -245,8 +230,8 @@ class RootHostTest {
         root.lifecycle.destroy()
 
         //Then
-        assertTrue(root.host.dependencies.mainStore.isDisposed)
-        assertTrue(root.host.dependencies.animeDatabaseStore.isDisposed)
+        assertTrue(dependencies.barStores.single().isDisposed)
+        assertTrue(dependencies.animeDatabaseStores.first().isDisposed)
     }
 
     @Test
@@ -258,8 +243,8 @@ class RootHostTest {
         root.host.dependencies.rootComponent.navigateTo(NavRootConfig.AnimeFavorites)
 
         //Then
-        assertFalse(root.host.dependencies.mainStore.isDisposed)
-        assertFalse(root.host.dependencies.animeDatabaseStore.isDisposed)
+        assertFalse(dependencies.barStores.single().isDisposed)
+        assertFalse(dependencies.animeDatabaseStores.first().isDisposed)
     }
 
     @Test
@@ -420,6 +405,6 @@ class RootHostTest {
             get() = host.dependencies.rootComponent.childStack.value.active.configuration
 
         val selectedSection: SectionDomain
-            get() = host.dependencies.mainStore.state.selectedSection
+            get() = host.dependencies.barController.state.value.selectedSection
     }
 }

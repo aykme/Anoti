@@ -6,6 +6,7 @@ import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.essenty.lifecycle.resume
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertSame
 
 private class TestChild(val config: NavRootConfig)
 
@@ -83,5 +84,20 @@ class NavRootComponentTest {
 
         //Then
         assertEquals<List<*>>(listOf(NavRootConfig.AnimeList), disposed)
+    }
+
+    @Test
+    fun navigateToTheScreenAlreadyShownKeepsIt() {
+        //Given
+        val disposed = mutableListOf<NavRootConfig>()
+        val root = createRoot(disposed = disposed)
+        val shown = root.childStack.value.active.instance
+
+        //When
+        root.navigateTo(NavRootConfig.AnimeList)
+
+        //Then
+        assertSame(shown, root.childStack.value.active.instance)
+        assertEquals(emptyList(), disposed)
     }
 }

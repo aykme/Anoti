@@ -25,6 +25,7 @@ import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
+import com.arkivanov.essenty.lifecycle.create
 import com.arkivanov.essenty.lifecycle.destroy
 import com.arkivanov.essenty.lifecycle.resume
 import com.arkivanov.essenty.lifecycle.stop
@@ -107,7 +108,8 @@ class NavAnimeFavoritesScreenComponentTest {
 
     private fun createWiring(
         savedState: SerializableContainer? = null,
-        databaseItems: List<AnimeDbDomain> = listOf()
+        databaseItems: List<AnimeDbDomain> = listOf(),
+        isStarted: Boolean = true
     ): Wiring {
         val coroutineContextProvider = CoroutineContextProviderFake()
         val databaseUsecases = AnimeDatabaseUsecasesFake(databaseItems)
@@ -136,7 +138,7 @@ class NavAnimeFavoritesScreenComponentTest {
                 )
             )
         )
-        lifecycle.resume()
+        if (isStarted) lifecycle.resume() else lifecycle.create()
         return Wiring(
             lifecycle = lifecycle,
             stateKeeper = stateKeeper,
@@ -247,6 +249,19 @@ class NavAnimeFavoritesScreenComponentTest {
         //Then
         assertEquals(settled, wiring.component.mainStore.state.contentType)
         assertEquals(1, wiring.databaseUsecases.resetExtraInfoCount)
+    }
+
+    @Test
+    fun aComponentThatIsOnlyCreatedOpensNothingUntilItStarts() = runTest(testDispatcher) {
+        //Given
+        val wiring = createWiring(isStarted = false)
+
+        //When
+        advanceUntilIdle()
+
+        //Then
+        assertEquals(ContentTypeDomain.LOADING(), wiring.component.mainStore.state.contentType)
+        assertEquals(0, wiring.databaseUsecases.resetExtraInfoCount)
     }
 
     @Test

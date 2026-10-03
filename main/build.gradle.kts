@@ -85,7 +85,6 @@ kotlin {
             implementation(libs.compose.ui.test.junit4)
             // The root content's test launches its own host activity.
             implementation(libs.compose.ui.test.manifest)
-            implementation(libs.kotlinx.serialization.json)
         }
         iosTest.dependencies {
             implementation(libs.compose.ui.test)

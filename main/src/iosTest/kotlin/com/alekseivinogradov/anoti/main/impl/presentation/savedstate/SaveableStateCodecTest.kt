@@ -240,7 +240,7 @@ class SaveableStateCodecTest {
         assertEquals(List(shapes.size) { emptyMap() }, restored)
     }
 
-    // Through the text the file holds, where a number JSON cannot spell would fail.
+    // Through the JSON text the scene keeps, where a number JSON cannot spell would fail.
     private fun roundTrip(values: List<Any?>): List<Any?> {
         val text = Json.encodeToString(
             JsonElement.serializer(),

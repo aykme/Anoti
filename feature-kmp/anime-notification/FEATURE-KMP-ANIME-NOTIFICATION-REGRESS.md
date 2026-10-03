@@ -96,6 +96,8 @@ Check these variants:
    - The app opens on the favorites screen. On the iPhone another screen may show for a moment
      first.
    - The notification disappears from the shade on its own.
+   - Go to the home screen and open the app from the launcher. It comes back on favorites, not
+     on a second, fresh list.
 2. Tap one while the app is already open on "Main".
    - The app comes forward and moves to the favorites screen.
 3. Tap one while the app is already open on "Favorites", scrolled down.

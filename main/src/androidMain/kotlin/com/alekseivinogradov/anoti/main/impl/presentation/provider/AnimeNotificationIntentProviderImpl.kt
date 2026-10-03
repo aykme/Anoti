@@ -18,11 +18,16 @@ import me.tatarka.inject.annotations.Inject
  * opened above [MainActivity], such as the notification settings. The running activity then gets
  * the tap in `onNewIntent`. With no task, a new one starts and the activity reads the target at
  * launch.
+ *
+ * The intent matches the launcher's, so a task it starts is the one the launcher brings back later.
+ * Any other intent would make the launcher open a second, fresh screen on top of it.
  */
 @Inject
 class AnimeNotificationIntentProviderImpl : AnimeNotificationIntentProvider {
     override fun getNewEpisodeNotificationIntent(appContext: Context): PendingIntent {
         val intent = Intent(appContext, MainActivity::class.java).apply {
+            action = Intent.ACTION_MAIN
+            addCategory(Intent.CATEGORY_LAUNCHER)
             addFlags(
                 Intent.FLAG_ACTIVITY_NEW_TASK or
                     Intent.FLAG_ACTIVITY_CLEAR_TOP or

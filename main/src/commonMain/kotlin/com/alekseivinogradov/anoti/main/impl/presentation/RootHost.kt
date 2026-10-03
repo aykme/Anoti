@@ -92,11 +92,8 @@ internal class RootHost(
     /** What the root content draws from. */
     val dependencies = RootDependencies(
         rootComponent = rootComponent,
-        mainStore = mainStore,
-        animeDatabaseStore = animeDatabaseStore,
         barController = barController,
-        systemMessageController = diRootComponent.parent.systemMessageController,
-        lifecycle = componentContext.lifecycle
+        systemMessageController = diRootComponent.parent.systemMessageController
     )
 
     /** The notification-permission explanation the root content shows over the screen. */

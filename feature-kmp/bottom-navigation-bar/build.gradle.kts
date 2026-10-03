@@ -39,17 +39,17 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             // Each of these appears in this module's own public signatures: the controller's
-            // lifecycle and database store, the store and view supertypes, the store factory's
+            // lifecycle, database store and state flow, the store supertype, the store factory's
             // own parameter, and the bar composable with its modifier.
             api(project(":core-kmp:anime-database"))
             api(libs.mvikotlin)
             api(libs.essenty.lifecycle)
             api(libs.compose.runtime)
             api(libs.compose.ui)
+            api(libs.kotlinx.coroutines.core)
 
             implementation(project(":core-kmp:celebrity"))
 
-            implementation(libs.kotlinx.coroutines.core)
             implementation(libs.mvikotlin.extensions.coroutines)
 
             implementation(libs.compose.components.resources)

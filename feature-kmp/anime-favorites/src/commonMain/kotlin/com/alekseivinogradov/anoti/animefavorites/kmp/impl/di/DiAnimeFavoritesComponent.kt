@@ -34,9 +34,6 @@ import me.tatarka.inject.annotations.Provides
 abstract class DiAnimeFavoritesComponent(
     @Component val parent: DiAnimeFavoritesDependencies
 ) {
-    /** The app-wide [CoroutineContextProvider], inherited from the parent. */
-    abstract val coroutineContextProvider: CoroutineContextProvider
-
     /** The [DateFormatter], inherited from the parent. */
     abstract val dateFormatter: DateFormatter
 

@@ -110,10 +110,10 @@ Don't default to a code block. Decide based on what kind of entry point the modu
 - **A Store alone, or a Store + Controller pair** (any Store-shaped module — see
   "Store-shaped modules" below) — prefer a **short prose description over a code block**, in
   both variants, not just the Controller one. The wiring pattern is mechanically identical
-  across every such module: subscribe to `states`/`labels`, call `accept(Intent)`, and — if a
-  Controller exists — construct it, draw the UI from its `state` and send the UI's events to
-  its `accept`. A handwritten code block just repeats
-  that same shape with different names — it reads as filler rather than help. It's also one more
+  across every such module. Subscribe to `states`/`labels` and call `accept(Intent)`. If a
+  Controller exists, construct it, draw the UI from its `state` and send the UI's events to
+  its `accept`. A handwritten code block just repeats that same shape with different names, so
+  it reads as filler rather than help. It's also one more
   place that can silently drift from the real consumer if the Store's `Intent`/`Label`/`State`
   shape changes, exactly the "second source of truth" problem this whole skill exists to avoid.
   Say it in one or two sentences instead:
@@ -237,8 +237,8 @@ component builds the controller itself, so their READMEs list the component and 
 
 To tell which one you're in: grep the platform module(s) that consume this one for the
 `Controller`'s name. If you find a `@Provides fun provide...(): XController`, DI hides it, and
-it doesn't count on its own — but if you instead find `XController(...)` being constructed
-directly, that's the signal for Variant B.
+it doesn't count on its own. If you instead find `XController(...)` being constructed directly,
+that's the signal for Variant B.
 
 For **Variant A**, follow the original shape:
 

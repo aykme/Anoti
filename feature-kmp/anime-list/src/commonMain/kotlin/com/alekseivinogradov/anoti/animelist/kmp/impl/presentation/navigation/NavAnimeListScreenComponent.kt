@@ -10,7 +10,6 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.
 import com.alekseivinogradov.anoti.animelist.kmp.impl.di.DiAnimeListComponent
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.AnimeListController
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
@@ -29,27 +28,24 @@ class NavAnimeListScreenComponent(
     diAnimeListComponent: DiAnimeListComponent
 ) : ComponentContext by componentContext {
 
-    /** Coroutine contexts the screen's executors run on. */
-    val coroutineContextProvider: CoroutineContextProvider =
-        diAnimeListComponent.coroutineContextProvider
-
     /** Formats the air dates the screen shows. */
     val dateFormatter: DateFormatter = diAnimeListComponent.dateFormatter
 
     /** The app-wide saved-anime store; drives the items' notification state. */
-    val animeDatabaseStore: AnimeDatabaseStore = diAnimeListComponent.animeDatabaseStore
+    internal val animeDatabaseStore: AnimeDatabaseStore = diAnimeListComponent.animeDatabaseStore
 
     /** The screen's top-level store. */
-    val mainStore: AnimeListMainStore = diAnimeListComponent.mainStore
+    internal val mainStore: AnimeListMainStore = diAnimeListComponent.mainStore
 
     /** The "ongoing" section's own store. */
-    val ongoingSectionStore: OngoingSectionStore = diAnimeListComponent.ongoingSectionStore
+    internal val ongoingSectionStore: OngoingSectionStore = diAnimeListComponent.ongoingSectionStore
 
     /** The "announced" section's own store. */
-    val announcedSectionStore: AnnouncedSectionStore = diAnimeListComponent.announcedSectionStore
+    internal val announcedSectionStore: AnnouncedSectionStore =
+        diAnimeListComponent.announcedSectionStore
 
     /** The search section's own store. */
-    val searchSectionStore: SearchSectionStore = diAnimeListComponent.searchSectionStore
+    internal val searchSectionStore: SearchSectionStore = diAnimeListComponent.searchSectionStore
 
     init {
         // Registered before the saved state is read. A state the screen rejects throws there, and

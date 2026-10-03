@@ -13,9 +13,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 
 /**
- * Wires [AnimeDatabaseStore] to [BottomNavigationBarStore] for the root's lifetime, and hands the
- * store's labels to [onLabel]. The UI reads [state] and sends its taps through [accept]. The root
- * that owns the stores builds it once and disposes them.
+ * Wires [AnimeDatabaseStore] to [BottomNavigationBarStore] while the root is started, and hands
+ * the store's labels to [onLabel]. The UI reads [state] and sends its taps through [accept]. The
+ * root that owns the stores builds it once and disposes them.
  *
  * @param lifecycle the root's lifecycle; the wiring runs while it is started.
  * @param mainStore the bottom navigation bar's own store.

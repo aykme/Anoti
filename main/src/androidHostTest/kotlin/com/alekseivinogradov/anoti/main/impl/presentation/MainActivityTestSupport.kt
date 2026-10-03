@@ -4,13 +4,13 @@ import android.Manifest
 import android.content.Intent
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
+import com.alekseivinogradov.anoti.navigation.kmp.NavRootDeepLink
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
-import kotlinx.serialization.json.Json
 import org.robolectric.Robolectric
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
@@ -19,6 +19,8 @@ import kotlin.test.assertEquals
 
 internal const val ANIME_LIST_TAB_TAG = "anime_list_button"
 internal const val ANIME_FAVORITES_TAB_TAG = "anime_favorites_button"
+internal const val SEARCH_BUTTON_TAG = "search_button"
+internal const val SEARCH_TEXT = "frieren"
 
 /** The fakes the activity under test is wired to, reachable from a test that never built them. */
 internal val fakeDependencies: DiRootDependenciesFake
@@ -34,7 +36,7 @@ internal fun plainLaunchingIntent(): Intent =
 internal fun favoritesDeepLinkIntent(): Intent =
     plainLaunchingIntent().putExtra(
         MainActivity.EXTRA_DEEP_LINK_TARGET,
-        Json.encodeToString(NavRootConfig.serializer(), NavRootConfig.AnimeFavorites)
+        NavRootDeepLink.encode(NavRootConfig.AnimeFavorites)
     )
 
 // The dialog is drawn by another module, which ships one set of strings and keeps its resource

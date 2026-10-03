@@ -89,18 +89,18 @@ class BottomNavigationBarControllerTest {
     )
 
     @Test
-    fun theStateHoldsTheStoresOpeningStateAsSoonAsItIsBuilt() = runTest {
+    fun theStateHoldsWhatTheStoreHoldsAsSoonAsItIsBuilt() = runTest {
         //Given
-        val expected = BottomNavigationBarStore.State(
-            selectedSection = SectionDomain.MAIN,
-            favoritesBadgeNumber = 0
+        mainStore.accept(
+            BottomNavigationBarStore.Intent.ChangeSelectedSection(SectionDomain.FAVORITES)
         )
 
         //When
         val controller = startController()
 
         //Then
-        assertEquals(expected, controller.state.value)
+        assertEquals(mainStore.state, controller.state.value)
+        assertEquals(SectionDomain.FAVORITES, controller.state.value.selectedSection)
     }
 
     @Test

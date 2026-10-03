@@ -4,7 +4,6 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatab
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.di.DiAnimeFavoritesComponent
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.AnimeFavoritesController
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
@@ -23,18 +22,15 @@ class NavAnimeFavoritesScreenComponent(
     diAnimeFavoritesComponent: DiAnimeFavoritesComponent
 ) : ComponentContext by componentContext {
 
-    /** Coroutine contexts the screen's executor runs on. */
-    val coroutineContextProvider: CoroutineContextProvider =
-        diAnimeFavoritesComponent.coroutineContextProvider
-
     /** Formats the air dates the screen shows. */
     val dateFormatter: DateFormatter = diAnimeFavoritesComponent.dateFormatter
 
     /** The app-wide saved-anime store; the source of the favorites list. */
-    val animeDatabaseStore: AnimeDatabaseStore = diAnimeFavoritesComponent.animeDatabaseStore
+    internal val animeDatabaseStore: AnimeDatabaseStore =
+        diAnimeFavoritesComponent.animeDatabaseStore
 
     /** The screen's own store. */
-    val mainStore: AnimeFavoritesMainStore = diAnimeFavoritesComponent.mainStore
+    internal val mainStore: AnimeFavoritesMainStore = diAnimeFavoritesComponent.mainStore
 
     init {
         // Registered before the saved state is read. A state the screen rejects throws there, and

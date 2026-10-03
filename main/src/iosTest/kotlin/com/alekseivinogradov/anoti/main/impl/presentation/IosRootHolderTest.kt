@@ -25,7 +25,6 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
@@ -151,7 +150,10 @@ class IosRootHolderTest {
         //Then
         assertEquals(NavRootConfig.AnimeList, root.activeScreen)
         assertTrue(dependencies.animeDatabaseStores.first().isDisposed, "the attempt kept running")
-        assertFalse(root.dependencies.animeDatabaseStore.isDisposed)
+        assertTrue(
+            dependencies.animeDatabaseStores.drop(1).none { it.isDisposed },
+            "the fresh root was closed"
+        )
     }
 
     @Test
@@ -296,14 +298,14 @@ class IosRootHolderTest {
     fun theRootEndsWithTheApp() {
         //Given
         val holder = createHolder()
-        val root = holder.rootFor(restoredState = null)
+        holder.rootFor(restoredState = null)
 
         //When
         appLifecycles.last().destroy()
 
         //Then
-        assertTrue(root.dependencies.mainStore.isDisposed)
-        assertTrue(root.dependencies.animeDatabaseStore.isDisposed)
+        assertTrue(dependencies.barStores.single().isDisposed)
+        assertTrue(dependencies.animeDatabaseStores.all { it.isDisposed })
     }
 
     private fun createHolder(

@@ -359,7 +359,10 @@ class AnimeListControllerTest {
             wiring.ongoingSectionStore.state.sectionContent.listItems,
             "the announced tab must not open the ongoing section too"
         )
-        assertEquals(SectionHatUi.ANNOUNCED, mapStateToUiModel(wiring.controller.state.value).selectedSection)
+        assertEquals(
+            SectionHatUi.ANNOUNCED,
+            mapStateToUiModel(wiring.controller.state.value).selectedSection
+        )
     }
 
     @Test

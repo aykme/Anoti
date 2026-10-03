@@ -133,20 +133,20 @@ class ChildLifecycleTest {
         assertEquals(Lifecycle.State.DESTROYED, child.state)
         assertTrue(destroyed)
     }
-}
 
-/** A parent that only records who follows it. */
-private class SubscriptionsLifecycleFake : Lifecycle {
+    /** A parent that only records who follows it. */
+    private class SubscriptionsLifecycleFake : Lifecycle {
 
-    val callbacks = mutableListOf<Lifecycle.Callbacks>()
+        val callbacks = mutableListOf<Lifecycle.Callbacks>()
 
-    override val state: Lifecycle.State = Lifecycle.State.RESUMED
+        override val state: Lifecycle.State = Lifecycle.State.RESUMED
 
-    override fun subscribe(callbacks: Lifecycle.Callbacks) {
-        this.callbacks += callbacks
-    }
+        override fun subscribe(callbacks: Lifecycle.Callbacks) {
+            this.callbacks += callbacks
+        }
 
-    override fun unsubscribe(callbacks: Lifecycle.Callbacks) {
-        this.callbacks -= callbacks
+        override fun unsubscribe(callbacks: Lifecycle.Callbacks) {
+            this.callbacks -= callbacks
+        }
     }
 }

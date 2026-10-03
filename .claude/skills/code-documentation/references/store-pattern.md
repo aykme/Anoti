@@ -271,8 +271,8 @@ interface BottomNavigationBarStore : Store<
 ### The resulting README
 
 Two entities this time, and "how to use it" is prose, not a fabricated code block — the real
-wiring already lives in `main`'s `BottomNavigationBarRoute`, and restating it as
-invented-but-plausible-looking Kotlin risks drifting from what that file actually does:
+wiring already lives in `main`'s `RootHost`, and restating it as invented-but-plausible-looking
+Kotlin risks drifting from what that file actually does:
 
 ```markdown
 The app's bottom navigation bar: an MVI store tracking the selected section and the favorites
@@ -305,5 +305,5 @@ Compare this to what an earlier draft of this same README looked like — it inc
 controller-and-host code sample built from scratch to illustrate the pattern. It got cut for two
 reasons once reviewed: it was long enough to feel like the README had grown an essay again, and
 it wasn't real code — a handwritten approximation of what `main`'s actual
-`BottomNavigationBarRoute` does, which is exactly the kind of second source of truth this whole
+`RootHost` does, which is exactly the kind of second source of truth this whole
 skill exists to avoid.
