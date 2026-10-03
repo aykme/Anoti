@@ -12,17 +12,17 @@ var springboard: XCUIApplication {
 }
 
 extension XCUIElement {
-    /// The first element under this one whose test tag is [tag].
+    /// The first element under this one whose test tag is `tag`.
     func tagged(_ tag: String) -> XCUIElement {
         descendants(matching: .any).matching(identifier: tag).firstMatch
     }
 
-    /// Every element under this one whose test tag is [tag].
+    /// Every element under this one whose test tag is `tag`.
     func allTagged(_ tag: String) -> XCUIElementQuery {
         descendants(matching: .any).matching(identifier: tag)
     }
 
-    /// Whether this element, or one under it, carries [text]. A Compose element that merges
+    /// Whether this element, or one under it, carries `text`. A Compose element that merges
     /// its children holds their texts in its own label.
     func shows(_ text: String) -> Bool {
         let child = descendants(matching: .any)
@@ -32,7 +32,7 @@ extension XCUIElement {
 }
 
 extension XCTestCase {
-    /// Waits for [element] and fails the test when it does not come.
+    /// Waits for `element` and fails the test when it does not come.
     @MainActor
     @discardableResult
     func waitFor(

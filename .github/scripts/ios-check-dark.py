@@ -1,14 +1,17 @@
 """Fails when a part of a screenshot that the app keeps dark in every system theme is light.
 
-Modes: `edges` for the top system bar and the area under the bottom navigation, from the first
-frame of a launch on; `card` for the bars of the app's card in the app switcher. The screen
-between them shows posters, which are light, so it is never measured."""
+Modes: `whole` for the first frame of a launch; `edges` for the top system bar and the area under
+the bottom navigation; `card` for the bars of the app's card in the app switcher. A screen with
+posters is light between the bars, so only the bars are measured there. `icons` fails when the
+status bar's clock and icons are not light. With `--expect-light`, a light result passes and a
+dark one fails, for a control shot."""
 import struct
 import sys
 import zlib
 
 EDGE_FRACTION = 0.03  # the top and bottom 3% of the screen
 MAX_MEAN_BRIGHTNESS = 60  # out of 255; the app's bars are black or near it
+MIN_ICON_BRIGHTNESS = 200  # out of 255; the brightest status-bar pixel, when the icons are light
 
 
 def read_png(path):
@@ -75,17 +78,32 @@ def crop(rows, channels, top, bottom, left, right):
     ]
 
 
-def main(mode, path):
+def max_brightness(rows, channels):
+    return max(
+        (line[i] + line[i + 1] + line[i + 2]) / 3
+        for line in rows
+        for i in range(0, len(line), channels)
+    )
+
+
+def main(mode, path, expect_light=False):
     _, _, channels, rows = read_png(path)
-    if mode == "edges":
+    if mode == "icons":
+        # The band of an iPhone 17 screen that holds the status bar's clock and icons.
+        brightest = max_brightness(crop(rows, channels, 0.025, 0.05, 0, 1), channels)
+        limit = MIN_ICON_BRIGHTNESS
+        print(f"{path}: brightest status-bar pixel {brightest:.0f} (at least {limit})")
+        return 0 if brightest >= limit else 1
+    if mode == "whole":
+        parts = {"whole": crop(rows, channels, 0, 1, 0, 1)}
+    elif mode == "edges":
         parts = {
             "top": crop(rows, channels, 0, EDGE_FRACTION, 0, 1),
             "bottom": crop(rows, channels, 1 - EDGE_FRACTION, 1, 0, 1),
         }
     elif mode == "card":
         # Where an iPhone 17 shows the card: its status-bar strip above the content, and its
-        # bottom bar below the bar's labels. The app in front shows posters there, and the home
-        # screen its wallpaper, so a shot taken without the switcher fails too.
+        # bottom bar below the bar's labels.
         parts = {
             "card top": crop(rows, channels, 0.16, 0.19, 0.25, 0.75),
             "card bottom": crop(rows, channels, 0.808, 0.825, 0.25, 0.75),
@@ -95,8 +113,9 @@ def main(mode, path):
     values = {name: mean_brightness(part, channels) for name, part in parts.items()}
     shown = ", ".join(f"{name} {value:.0f}" for name, value in values.items())
     print(f"{path}: {shown} (limit {MAX_MEAN_BRIGHTNESS})")
-    return 0 if all(value <= MAX_MEAN_BRIGHTNESS for value in values.values()) else 1
+    dark = all(value <= MAX_MEAN_BRIGHTNESS for value in values.values())
+    return 0 if dark != expect_light else 1
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1], sys.argv[2]))
+    sys.exit(main(sys.argv[1], sys.argv[2], "--expect-light" in sys.argv[3:]))

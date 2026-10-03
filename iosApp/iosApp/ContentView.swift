@@ -38,6 +38,7 @@ private struct ComposeView: UIViewControllerRepresentable {
 }
 
 // A window that grows past or shrinks below the rotation threshold changes how it may turn.
+@MainActor
 private func refreshSupportedOrientations() {
     UIApplication.shared.connectedScenes
         .compactMap { $0 as? UIWindowScene }

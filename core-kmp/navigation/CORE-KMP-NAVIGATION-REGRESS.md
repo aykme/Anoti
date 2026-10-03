@@ -77,5 +77,5 @@ The steps name Android's tools. On the iPhone:
   were. After a cold start, another screen may show for a moment first.
 
 A CI run in an iPhone 17 Simulator on 2026-10-03 covered a tap from the background and a tap with
-the app closed, both opening favorites, and favorites coming back after the system ended the app.
-The other iPhone steps, and every step on a real iPhone, are still untried.
+the app closed, both opening favorites. It also covered favorites coming back after the system
+ended the app. The other iPhone steps, and every step on a real iPhone, are still untried.

@@ -74,7 +74,8 @@ these rules and load together with them.
 - One exception, for iOS only. Code that exists only because iOS lacks a mechanism Android's
   OS provides lives in `iosMain`, even when it is portable. `IosRootHolder`, `IosRootContent`,
   `SaveableStateCodec` and `ChildLifecycle` in `main` are the case. They keep the screen state
-  Android keeps in its saved instance state, and rebuild the root from it. Such code is written
+  Android keeps in its saved instance state, and rebuild the root from it. `allowsRotation` in
+  `main` is one too: the OS keeps a narrow Android screen upright on its own. Such code is written
   in `commonMain` first and moved once its tests pass. Logic both platforms share stays in
   `commonMain`, whoever calls it.
 - This applies to Compose code too: a composable function only needs to live in `androidMain`/
@@ -166,9 +167,8 @@ these rules and load together with them.
   in `core-kmp:anime-database` shows the shape.
 - An `iosTest` runs on macOS and nowhere else: on this machine `iosSimulatorArm64Test` is skipped
   outright, so a test there is compiled and never executed. Kover cannot measure Kotlin/Native
-  either. Such a test proves nothing here and counts for nothing.
-- `iosTest` does run on GitHub's macOS runner, in `ios.yml`, started on the developer's word. It
-  still never runs on this machine.
+  either. Such a test proves nothing here and counts for nothing. It does run on GitHub's macOS
+  runner, in `ios.yml`, started on the developer's word.
 - So before writing one, check whether the code under it needs an iOS API at all. A class built
   from coroutines, atomics and the module's own types belongs in `commonMain`, where its test
   runs on every build and is measured — even when iOS is its only caller. `BackgroundRefreshPass`

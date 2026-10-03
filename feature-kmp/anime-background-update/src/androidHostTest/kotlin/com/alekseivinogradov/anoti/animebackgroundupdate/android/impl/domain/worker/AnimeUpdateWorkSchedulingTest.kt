@@ -34,6 +34,9 @@ import kotlin.time.Duration.Companion.minutes
 /** Far enough past the enqueue to tell a rescheduled pass from the one just enqueued. */
 private const val SETTLED_MARGIN_MILLIS = 10_000L
 
+/** Long enough for any enqueue. A stuck one fails the test instead of hanging it. */
+private const val ENQUEUE_TIMEOUT_SECONDS = 10L
+
 /**
  * What WorkManager does with the result a failed pass reports. The worker's own answer is half
  * the behavior; the half deciding when the next pass runs lives in the library, so a test of
@@ -171,7 +174,7 @@ class AnimeUpdateWorkSchedulingTest {
                 uniqueWorkName = ANIME_UPDATE_PERIODIC_WORK_NAME,
                 existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
                 request = request
-            ).result.get()
+            ).result.get(ENQUEUE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         )
     }
 
@@ -185,7 +188,7 @@ class AnimeUpdateWorkSchedulingTest {
                 uniqueWorkName = ANIME_UPDATE_ONCE_WORK_NAME,
                 existingWorkPolicy = ExistingWorkPolicy.KEEP,
                 request = request
-            ).result.get()
+            ).result.get(ENQUEUE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         )
     }
 

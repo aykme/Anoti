@@ -86,7 +86,7 @@ the rules both platforms share and loads this file.
   `project.yml` generates.
 - The Xcode build phase runs `iosApp/scripts/compile-kotlin-framework.sh`. It finds a Java on its
   own, since Xcode starts it without the user's shell environment. The iOS build needs no Android
-  SDK: a CI pass built the framework from nothing with none on the machine.
+  SDK.
 
 ## Before committing Swift
 
@@ -97,7 +97,7 @@ Nothing lints Swift here, so this list is walked by hand over every Swift file b
 - Nothing deprecated for iOS 16 on the pinned SDK. The build treats Swift warnings as errors, so
   a warning stops it.
 - No `print`. The Kotlin side logs, with `println`.
-- XCUIApplication and XCUIElement belong to the main actor. A UI-test method or helper that
+- `XCUIApplication` and `XCUIElement` belong to the main actor. A UI-test method or helper that
   touches them is marked `@MainActor`.
 - A UI test's body is split by `//Given`, `//When` and `//Then`, as in Kotlin.
 - Read the CI build log of the round for warnings, since nothing here compiles Swift.
@@ -111,5 +111,12 @@ Nothing lints Swift here, so this list is walked by hand over every Swift file b
   to run it.
 - After a run, its `ios-media` artifact goes to the developer's folder
   `C:\Users\areku\Desktop\iOS test\<date>_<run id>_<short commit>\`. Nothing there is deleted.
-- The UI test reaches the live backend, the same written exception as Android's
-  `AnimeFavoritesUserFlowTest`. Its assertions stay on structure.
+- The UI tests and the restore checks run the real app, which reaches the live backend. That is
+  the same written exception as Android's `AnimeFavoritesUserFlowTest`. Their assertions stay on
+  structure.
+- To start it, run `gh workflow run ios.yml --ref <branch>`. Add `-f setup_check=true` after a
+  change to `compile-kotlin-framework.sh`: that job proves the script finds a Java on a Mac
+  without one in `JAVA_HOME`.
+- After a change to `project.yml`, take the project the run generated with
+  `gh run download <run id> -n xcodeproj -D iosApp/iosApp.xcodeproj`. The artifact holds the
+  folder's contents, so the folder is named in `-D`.

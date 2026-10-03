@@ -9,6 +9,7 @@ runs:
         read_version() { sed -n "s/^$1 = \"\(.*\)\"/\1/p" gradle/libs.versions.toml; }
         echo "XCODE_VERSION=$(read_version xcode)" >> "$GITHUB_ENV"
         echo "XCODEGEN_VERSION=$(read_version xcodeGen)" >> "$GITHUB_ENV"
+        echo "XCODEGEN_SHA256=$(read_version xcodeGenSha256)" >> "$GITHUB_ENV"
 
     - name: Select the catalog's Xcode
       shell: bash

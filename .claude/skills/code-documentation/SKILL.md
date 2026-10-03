@@ -407,7 +407,7 @@ steps itself — only links to every module's regression file. Keeping it in ste
 creating or deleting one of those files, not a follow-up:
 
 - a new regression file — add a link to it in `ANOTI-FULL-REGRESS.md`, under the group it
-  belongs to: the Android app, or the shared modules by their kind;
+  belongs to: the Android app, the iOS app, or the shared modules by their kind;
 - a deleted regression file — remove its link;
 - a renamed or moved file — update the link, since a dead link in the index reads as a module
   that was checked when it was not.

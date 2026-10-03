@@ -1,6 +1,6 @@
 #!/bin/bash
-# The restore and theme checks of the bring-up spec, decision 15, on the booted simulator
-# SIM_UDID. Each case leaves a video, screenshots and the app's log in MEDIA_DIR.
+# The restore and theme checks on the booted simulator SIM_UDID. Each case leaves a video,
+# screenshots and the app's log in MEDIA_DIR.
 #
 # The script starts the app itself, so the app's println reaches a log file. The UI steps only
 # attach to the running app with activate(); a UI step that launched the app would lose its log.
@@ -56,7 +56,11 @@ run_step() {
   TEST_RUNNER_ANOTI_RESTORE_STEPS=1 TEST_RUNNER_ANOTI_READY_FILE="${READY_FILE:-}" \
     xcodebuild test-without-building -xctestrun "$steps_xctestrun" -destination "id=$SIM_UDID" \
     -only-testing:"iosAppUITests/RestoreSteps/$1" \
-    -resultBundlePath "$RESULTS_DIR/$1-$2.xcresult" > "$MEDIA_DIR/$1-$2.xcodebuild.log" 2>&1
+    -resultBundlePath "$RESULTS_DIR/$1-$2.xcresult" > "$MEDIA_DIR/$1-$2.xcodebuild.log" 2>&1 \
+    || return 1
+  # A step that skipped itself exits 0 as well.
+  grep -qF "Test Case '-[iosAppUITests.RestoreSteps $1]' passed" \
+    "$MEDIA_DIR/$1-$2.xcodebuild.log"
 }
 
 expect() {
@@ -68,14 +72,19 @@ expect() {
   fi
 }
 
-# Waits up to $3 seconds for the pattern $2 in the log $1.
+# Waits up to $3 seconds for the pattern $2 in the log $1, from its line $4 on.
 wait_for_line() {
   local waited=0
-  until grep -Eq "$2" "$1" 2> /dev/null; do
+  until tail -n "+$4" "$1" 2> /dev/null | grep -Eq "$2"; do
     [ "$waited" -ge "$3" ] && return 1
     sleep 1
     waited=$((waited + 1))
   done
+}
+
+# The line a log's next entry will take, so a later wait ignores what came before.
+next_line() {
+  echo $(($(wc -l < "$1") + 1))
 }
 
 wait_for_file() {
@@ -116,16 +125,32 @@ wait_for_saved_scene() {
   find "$saved" -type f -newer "$2" -exec ls -l {} +
 }
 
+# The exported attachment of the step $1 that the test named $2.
+attachment() {
+  /usr/bin/python3 - "$1/manifest.json" "$2" <<'PY'
+import json
+import sys
+
+for test in json.load(open(sys.argv[1])):
+    for kept in test["attachments"]:
+        if kept["suggestedHumanReadableName"].startswith(sys.argv[2] + "_"):
+            print(kept["exportedFileName"])
+PY
+}
+
 echo "== 1. The state is kept across a termination"
 start_video case1-kept
 launch_logged case1-before
 sleep 10
-touch "$RUNNER_TEMP/case1-marker"
-run_step testLeaveTheAppOnFavoritesAfterASearch case1
+home="$RUNNER_TEMP/home-1"
+rm -f "$home"
+from=$(next_line "$MEDIA_DIR/case1-before.log")
+# The step creates the file right before it goes home, so a later state file is that save's.
+READY_FILE="$home" run_step testLeaveTheAppOnFavoritesAfterASearch case1
 expect $? "the app was left on favorites after a search"
-wait_for_line "$MEDIA_DIR/case1-before.log" "saved [0-9]+ characters on AnimeFavorites" 30
+wait_for_line "$MEDIA_DIR/case1-before.log" "saved [0-9]+ characters on AnimeFavorites" 30 "$from"
 expect $? "the app saved its state on favorites when it went home"
-wait_for_saved_scene 60 "$RUNNER_TEMP/case1-marker"
+wait_for_saved_scene 60 "$home"
 expect $? "the scene's state reached the disk before the termination"
 xcrun simctl terminate "$SIM_UDID" "$bundle_id" 2> /dev/null
 launch_logged case1-relaunch
@@ -159,12 +184,14 @@ stop_video
 
 echo "== 2b. A notification tap with the app closed and the list kept"
 start_video case2-cold-tap
-touch "$RUNNER_TEMP/case2b-marker"
-run_step testLeaveTheAppOnTheList case2b
+home="$RUNNER_TEMP/home-2b"
+rm -f "$home"
+from=$(next_line "$MEDIA_DIR/case2-warm.log")
+READY_FILE="$home" run_step testLeaveTheAppOnTheList case2b
 expect $? "the app was left on the list"
-wait_for_line "$MEDIA_DIR/case2-warm.log" "saved [0-9]+ characters on AnimeList" 30
+wait_for_line "$MEDIA_DIR/case2-warm.log" "saved [0-9]+ characters on AnimeList" 30 "$from"
 expect $? "the app saved its state on the list"
-wait_for_saved_scene 60 "$RUNNER_TEMP/case2b-marker"
+wait_for_saved_scene 60 "$home"
 expect $? "the list's state reached the disk before the termination"
 xcrun simctl terminate "$SIM_UDID" "$bundle_id" 2> /dev/null
 ready="$RUNNER_TEMP/ready-2b"
@@ -175,7 +202,7 @@ step=$!
 wait_for_file "$ready" 120 || echo "no ready file from the step, pushing anyway"
 push_notification
 wait "$step"
-expect $? "a cold tap opens favorites over a kept list"
+expect $? "a cold tap opens favorites"
 screenshot case2-cold-tap
 stop_video
 
@@ -209,20 +236,24 @@ for theme in light dark; do
   sleep 15
   screenshot "case4-$theme-list"
   run_step testShowTheAppSwitcher "case4-$theme"
-  expect $? "the app switcher opened, $theme theme"
+  expect $? "the app switcher step ran, $theme theme"
   stop_video
   attachments="$MEDIA_DIR/attachments/testShowTheAppSwitcher-case4-$theme"
   xcrun xcresulttool export attachments \
     --path "$RESULTS_DIR/testShowTheAppSwitcher-case4-$theme.xcresult" --output-path "$attachments"
-  # The step's own shot is taken while the switcher is surely open.
-  switcher=$(find "$attachments" -name '*.png' | head -1)
-  for shot in launch-1 launch-2; do
-    python3 "$check_dark" edges "$MEDIA_DIR/case4-$theme-$shot.png"
-    expect $? "the launch is dark, $shot, $theme theme"
-  done
+  # The first frame comes before the list, so it is dark as a whole. The next may show posters.
+  python3 "$check_dark" whole "$MEDIA_DIR/case4-$theme-launch-1.png"
+  expect $? "the launch is dark, launch-1, $theme theme"
+  python3 "$check_dark" edges "$MEDIA_DIR/case4-$theme-launch-2.png"
+  expect $? "the launch is dark, launch-2, $theme theme"
   python3 "$check_dark" edges "$MEDIA_DIR/case4-$theme-list.png"
   expect $? "the top bar and the bottom bar are dark, $theme theme"
-  python3 "$check_dark" card "$switcher"
+  python3 "$check_dark" icons "$MEDIA_DIR/case4-$theme-list.png"
+  expect $? "the status bar's icons are light, $theme theme"
+  home_shot="$attachments/$(attachment "$attachments" "home screen")"
+  python3 "$check_dark" card "$home_shot" --expect-light
+  expect $? "the switcher check tells the home screen apart, $theme theme"
+  python3 "$check_dark" card "$attachments/$(attachment "$attachments" "app switcher")"
   expect $? "the app's card in the switcher is dark, $theme theme"
 done
 xcrun simctl ui "$SIM_UDID" appearance light

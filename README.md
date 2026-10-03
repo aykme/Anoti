@@ -79,6 +79,12 @@ Setting up the iOS project:
 3. Open `iosApp/iosApp.xcodeproj` in Xcode, pick an iPhone simulator and run the `iosApp` scheme.
    The first build takes long: it compiles the whole shared code for iOS.
 
-If the build stops with "Java not found", install a JDK. On a Mac with little memory, lower the
-Gradle heap in `~/.gradle/gradle.properties`, for example `org.gradle.jvmargs=-Xmx3g`, since the
-project asks for more.
+If the build stops with "Java not found", install a JDK. The project asks Gradle for more memory
+than a small Mac has. There, put these lines into `~/.gradle/gradle.properties`, which CI uses on
+its 7 GB machine:
+
+```
+org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8
+kotlin.daemon.jvm.options=-Xmx1g
+org.gradle.workers.max=3
+```

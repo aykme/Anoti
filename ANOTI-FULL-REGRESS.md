@@ -31,16 +31,18 @@ once the app is running. A check on a build that skipped it proves nothing about
 
 ## The build to run on, on iOS
 
-Run a regression on the Release configuration, in a Simulator or on an iPhone. It is the one
-that ships, built with the Kotlin framework's release link.
+Run a regression on the Release configuration, in a Simulator or on an iPhone. It is built with
+the Kotlin framework's release link. In Xcode, pick it under Product, Scheme, Edit Scheme, Run,
+Build Configuration. An iPhone also needs a signing team: put yours into `TEAM_ID` in
+`iosApp/Configuration/Config.xcconfig`, and do not commit it.
 
 ## Platforms
 
 Every file under "Shared modules" describes what the app does, not what one platform does. The
 files under "Android app" and "iOS app" cover what only that platform's shell does. Where a step
-goes through a system screen, it names Android's. A file whose behavior differs on iOS says so in
-a Platforms section of its own. A check only one platform can reach names that platform and says
-why.
+in a shared file goes through a system screen, it names Android's. A file whose behavior differs
+on iOS says so in a Platforms section of its own. A check only one platform can reach names that
+platform and says why.
 
 ## Android app
 

@@ -7,10 +7,10 @@ and the look of the permission dialog are each checked in their own module's fil
 
 Unless a step says otherwise, start from a clean installation with the app never opened before.
 Steps run on both platforms unless they name one. A CI run in an iPhone 17 Simulator on
-2026-10-03 covered the launch, the system bars and the app switcher in both themes, a narrow
-iPhone staying upright, the state kept across a termination, a fresh start after a reinstall,
-and a notification tap from the background and with the app closed. The other iPhone steps, and
-every step on a real iPhone, are still untried.
+2026-10-03 covered the launch, the system bars and the app switcher in both themes. It also
+covered a narrow iPhone staying upright and the state kept across a termination. A fresh start
+after a reinstall was covered, and so was a notification tap from the background and with the
+app closed. The other iPhone steps, and every step on a real iPhone, are still untried.
 
 ## First launch
 

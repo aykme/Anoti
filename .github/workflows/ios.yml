@@ -59,6 +59,7 @@ jobs:
         run: |
           curl -fsSL -o "$RUNNER_TEMP/xcodegen.zip" \
             "https://github.com/yonaskolb/XcodeGen/releases/download/${XCODEGEN_VERSION}/xcodegen.zip"
+          echo "$XCODEGEN_SHA256  $RUNNER_TEMP/xcodegen.zip" | shasum -a 256 -c
           unzip -q "$RUNNER_TEMP/xcodegen.zip" -d "$RUNNER_TEMP/xcodegen"
           binary=$(find "$RUNNER_TEMP/xcodegen" -type f -name xcodegen -perm -u+x | head -1)
           dirname "$binary" >> "$GITHUB_PATH"
@@ -127,7 +128,8 @@ jobs:
 
       - name: The bundle carries the Compose resources
         run: |
-          test -d "$APP_PATH/compose-resources"
+          # An empty folder would pass a plain test for it.
+          [ -n "$(find "$APP_PATH/compose-resources" -type f | head -1)" ]
           ls -R "$APP_PATH/compose-resources" | sed -n '1,40p'
 
       - name: The UI tests

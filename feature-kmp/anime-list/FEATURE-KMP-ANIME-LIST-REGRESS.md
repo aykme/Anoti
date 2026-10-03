@@ -325,6 +325,6 @@ The steps name Android's tools. On the iPhone:
 - A narrow screen keeps the app upright, as on Android. The rotation steps of section 13 run on a
   wide one: an iPad, or a foldable iPhone unfolded.
 
-A CI run in an iPhone 17 Simulator on 2026-10-03 covered the ongoing list loading, opening the
-search and typing into it, and a narrow iPhone staying upright on its side. The other iPhone
+A CI run in an iPhone 17 Simulator on 2026-10-03 covered the ongoing list loading and typing into
+the search. It also covered a narrow iPhone staying upright on its side. The other iPhone
 steps, and every step on a real iPhone, are still untried.

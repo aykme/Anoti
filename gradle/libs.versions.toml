@@ -35,6 +35,10 @@ xcode = "26.4"
 # Generates the Xcode project from iosApp/project.yml.
 #noinspection UnusedVersionCatalogEntry
 xcodeGen = "2.46.0"
+# The SHA-256 of that release's xcodegen.zip. CI refuses a download that differs. Update it with
+# xcodeGen.
+#noinspection UnusedVersionCatalogEntry
+xcodeGenSha256 = "4d9e34b62172d645eed6457cac13fc222569974098ef4ee9c3368bedf0196806"
 
 # KMP library versions
 coil = "3.6.3"

@@ -25,6 +25,9 @@ lets the pass run by pulling the favorites list down. The notifications gather i
 with no grouping notification above them. Turning Background App Refresh off is what airplane
 mode and a force-stop stand for.
 
+The iPhone steps are still untried. They need a real iPhone, since the Simulator never runs a
+background pass.
+
 ## Before you start
 
 1. Install the app and open it. Allow notifications when asked. Without that permission every

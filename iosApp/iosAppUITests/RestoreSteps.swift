@@ -42,6 +42,7 @@ final class RestoreSteps: XCTestCase {
         waitFor(app.tagged("anime_favorites_button"), timeout: 10).tap()
         waitForFavorites()
         keepScreenshot("favorites before going home")
+        signalReady()
         XCUIDevice.shared.press(.home)
 
         //Then
@@ -56,6 +57,7 @@ final class RestoreSteps: XCTestCase {
         //When
         waitFor(app.tagged("anime_list_button")).tap()
         waitForTheList()
+        signalReady()
         XCUIDevice.shared.press(.home)
 
         //Then
@@ -124,6 +126,8 @@ final class RestoreSteps: XCTestCase {
         waitFor(app.tagged("anime_list_button"))
         XCUIDevice.shared.press(.home)
         sleep(1)
+        // The switcher check must fail on this one, or it could not tell the two apart.
+        keepScreenshot("home screen")
 
         //When
         let bottom = springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.998))
@@ -138,8 +142,8 @@ final class RestoreSteps: XCTestCase {
 
         //Then
         // The app may count as in front while the switcher shows it, so its state proves nothing.
-        // The CI script judges this screenshot: the card's dark bars sit where the app itself
-        // shows light posters and the home screen its wallpaper.
+        // The CI script judges this screenshot by the card's dark bars, and the home screen above
+        // by their absence.
         keepScreenshot("app switcher")
     }
 
@@ -170,8 +174,8 @@ final class RestoreSteps: XCTestCase {
         XCTAssertTrue(left.contains(app.state), "the app is still in state \(app.state.rawValue)")
     }
 
-    // Tells the script the step is ready for the notification, so it can push now. The simulator's
-    // processes share the runner's file system.
+    // Tells the script the step reached its moment: ready for the notification, or about to go
+    // home. The simulator's processes share the runner's file system.
     private func signalReady() {
         guard let path = environment["ANOTI_READY_FILE"], !path.isEmpty else { return }
         FileManager.default.createFile(atPath: path, contents: Data())
@@ -198,10 +202,16 @@ final class RestoreSteps: XCTestCase {
         waitFor(app.tagged("ongoing_button"))
     }
 
+    // Either way favorites is open: empty, or holding a favorite a failed UI test left behind.
     @MainActor
     private func waitForFavorites() {
         let emptyText = app.descendants(matching: .any)
             .matching(NSPredicate(format: "label BEGINSWITH %@", "You haven")).firstMatch
-        waitFor(emptyText)
+        let favorite = app.allTagged("anime_favorites_item").firstMatch
+        let deadline = Date().addingTimeInterval(loadTimeout)
+        while !emptyText.exists && !favorite.exists && Date() < deadline {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+        }
+        XCTAssertTrue(emptyText.exists || favorite.exists, "favorites did not open")
     }
 }

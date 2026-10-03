@@ -22,6 +22,7 @@ final class OrientationUITests: XCTestCase {
         sleep(2)
 
         //Then
+        XCTAssertEqual(XCUIDevice.shared.orientation, .landscapeLeft)
         let frame = app.windows.firstMatch.frame
         XCTAssertGreaterThan(frame.height, frame.width)
         keepScreenshot("iPhone turned on its side")
