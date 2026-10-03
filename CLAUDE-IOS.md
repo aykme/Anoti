@@ -111,8 +111,8 @@ Nothing lints Swift here, so this list is walked by hand over every Swift file b
 - A task branch that touches `iosMain`, `iosApp/` or a build file ends by asking the developer
   whether to run it on that branch.
 - After a run, its `ios-media` and `ios-media-ipad` artifacts go to the developer's folder
-  `C:\Users\areku\Desktop\iOS test\<date>_<run id>_<short commit>\`, the iPad one in an `ipad`
-  subfolder. Nothing there is deleted.
+  `iOS test` on the current user's desktop, `*\Desktop\iOS test\<date>_<run id>_<short commit>\`,
+  the iPad one in an `ipad` subfolder. Nothing there is deleted.
 - The UI tests and the restore checks run the real app, which reaches the live backend. The
   developer allowed them, as they allowed Android's `AnimeFavoritesUserFlowTest`. Their
   assertions stay on structure.
