@@ -104,21 +104,22 @@ Nothing lints Swift here, so this list is walked by hand over every Swift file b
 
 ## Running iOS on CI
 
-- `ios.yml` runs on GitHub's macOS runner and is started only on the developer's word, by them
-  or by Claude. It links the framework, runs every Kotlin/Native test, builds the app in Debug
-  and Release, runs the UI tests on an iPhone and on an iPad, and walks the restore and theme
-  checks.
-- A task that touches `iosMain`, `iosApp/` or a build file ends by asking the developer whether
-  to run it.
-- After a run, its `ios-media` artifact goes to the developer's folder
-  `C:\Users\areku\Desktop\iOS test\<date>_<run id>_<short commit>\`. Nothing there is deleted.
+- `ios.yml` runs on GitHub's macOS runner on every push to `develop`. On any other branch it
+  runs only on the developer's word, by them or by Claude. It links the framework, runs every
+  Kotlin/Native test, builds the app in Debug and Release, runs the UI tests on an iPhone and on
+  an iPad, and walks the restore and theme checks.
+- A task branch that touches `iosMain`, `iosApp/` or a build file ends by asking the developer
+  whether to run it on that branch.
+- After a run, its `ios-media` and `ios-media-ipad` artifacts go to the developer's folder
+  `C:\Users\areku\Desktop\iOS test\<date>_<run id>_<short commit>\`, the iPad one in an `ipad`
+  subfolder. Nothing there is deleted.
 - The UI tests and the restore checks run the real app, which reaches the live backend. The
   developer allowed them, as they allowed Android's `AnimeFavoritesUserFlowTest`. Their
   assertions stay on structure.
 - A failed UI test, and a failed restore case, gets up to three tries. Each case starts from a
-  fresh installation of its own, so the cases run alone and in any order. Every failed try stays in
-  the log.
-- To start it, run `gh workflow run ios.yml --ref <branch>`. Add `-f setup_check=true` after a
+  fresh installation of its own, so the cases run alone and in any order. Every failed try stays
+  in the log.
+- Start it by hand as "CI on GitHub" in `CLAUDE.md` says. Add `-f setup_check=true` after a
   change to `compile-kotlin-framework.sh`: that job proves the script finds a Java on a Mac
   without one in `JAVA_HOME`.
 - After a change to `project.yml`, take the project the run generated with

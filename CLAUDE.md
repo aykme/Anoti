@@ -252,6 +252,30 @@ these rules and load together with them.
   main cases, the risky ones, the bottlenecks and the boundaries. Where concurrency is real,
   cover races and ordering as well. A test written only to move the number is worse than no test.
 
+## CI on GitHub
+
+- Two workflows run on GitHub Actions: `android.yml` on Linux and `ios.yml` on macOS. Both run on
+  every push to `develop`. A push to any other branch starts neither.
+- On any other branch they run only on the developer's word. What each one checks is in
+  `CLAUDE-ANDROID.md` and `CLAUDE-IOS.md`, under "Running Android on CI" and "Running iOS on CI".
+- The GitHub CLI is not on the session's `PATH`. Call it by its full path,
+  `"/c/Program Files/GitHub CLI/gh.exe"` in bash. The repository is `aykme/Anoti`, and the git
+  remote is named `master`, not `origin`.
+- To start a workflow by hand, push the branch first, then run
+  `gh workflow run <android.yml|ios.yml> -R aykme/Anoti --ref <branch>`.
+- To find that run, take the newest dispatch on the branch:
+  `gh run list -R aykme/Anoti --workflow <file> --branch <branch> --event workflow_dispatch
+  --limit 1`. For a run a push started, filter by `--commit <sha>` instead. A run shows up a few
+  seconds after it starts.
+- Wait for it with `gh run watch <run id> -R aykme/Anoti --interval 60`, or in the background,
+  since an iOS run takes 40 to 60 minutes. `gh run view <run id> -R aykme/Anoti` shows the jobs,
+  and `--log-failed` the failed steps.
+- A job's whole log comes from `gh api --allow-escape-sequences
+  repos/aykme/Anoti/actions/jobs/<job id>/logs`. It is there only once the job has ended.
+- Artifacts come down with `gh run download <run id> -R aykme/Anoti -n <name> -D <folder>`.
+  After every iOS run, `ios-media` and `ios-media-ipad` go to the developer's folder, as
+  "Running iOS on CI" says.
+
 ## Finishing a task
 
 - This is a final stage — run it at the point the task is being finished, e.g. during a final

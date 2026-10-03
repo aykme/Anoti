@@ -1,7 +1,10 @@
-# Builds and checks the iOS app on GitHub's macOS runner. Started on the developer's word.
+# Builds and checks the iOS app on GitHub's macOS runner, on every push to develop and on any
+# branch by hand.
 name: iOS
 
 on:
+  push:
+    branches: [develop]
   workflow_dispatch:
     inputs:
       setup_check:
@@ -9,7 +12,7 @@ on:
         type: boolean
         default: false
 
-# An explicit bash adds pipefail, so a step piping into tee still fails with the command.
+# An explicit bash adds pipe fail, so a step piping into tee still fails with the command.
 defaults:
   run:
     shell: bash

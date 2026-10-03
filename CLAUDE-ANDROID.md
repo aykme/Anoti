@@ -99,3 +99,10 @@ The finishing checks below apply to every task, not only to one that touched And
 - `androidApp/proguard-rules.pro` keeps `SourceFile` and `LineNumberTable` and renames the source
   file to a constant, so an obfuscated stack trace stays decodable through `mapping.txt` with
   retrace while leaking nothing.
+
+## Running Android on CI
+
+- `android.yml` runs the project's checks on every push to `develop`: the build, every host test,
+  detekt and `koverVerify`. On any other branch it runs only by hand, as "CI on GitHub" in
+  `CLAUDE.md` says.
+- It never reaches the instrumented tests. They stay on the developer's emulators.

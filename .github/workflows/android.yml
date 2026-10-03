@@ -1,12 +1,14 @@
-# The project's checks on every push: the app builds, every host test passes, detekt is clean,
-# coverage holds, and the iOS version file matches the catalog. Instrumented tests stay on the
-# developer's emulators.
+# The project's checks on every push to develop, and on any branch by hand: the app builds, every
+# host test passes, detekt is clean, coverage holds, and the iOS version file matches the catalog.
+# Instrumented tests stay on the developer's emulators.
 name: Android
 
 on:
   push:
+    branches: [develop]
+  workflow_dispatch:
 
-# An explicit bash adds pipefail, so a step piping into tee still fails with the command.
+# An explicit bash adds pipe fail, so a step piping into tee still fails with the command.
 defaults:
   run:
     shell: bash
