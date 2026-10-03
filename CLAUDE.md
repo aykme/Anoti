@@ -167,6 +167,8 @@ these rules and load together with them.
 - An `iosTest` runs on macOS and nowhere else: on this machine `iosSimulatorArm64Test` is skipped
   outright, so a test there is compiled and never executed. Kover cannot measure Kotlin/Native
   either. Such a test proves nothing here and counts for nothing.
+- `iosTest` does run on GitHub's macOS runner, in `ios.yml`, started on the developer's word. It
+  still never runs on this machine.
 - So before writing one, check whether the code under it needs an iOS API at all. A class built
   from coroutines, atomics and the module's own types belongs in `commonMain`, where its test
   runs on every build and is measured — even when iOS is its only caller. `BackgroundRefreshPass`
@@ -177,7 +179,9 @@ these rules and load together with them.
   where they run here: `commonTest`, or `androidHostTest` for a composable. They move with the
   code once they pass.
 - What stays in `iosTest` is what only a real iOS runtime can answer, and it is written knowing
-  it will not run until someone builds on a Mac.
+  it runs only in `ios.yml`, never on this machine.
+- An `iosTest` builds no UIKit window or view. The test process has no app, so UIKit starts only
+  halfway, and the Compose tests in the same process then crash on text input.
 - Where both platforms need the same thing built — wording, an id, a format — build it once in
   `commonMain` and have both call it. Two copies drift, and review is not what should be holding
   them together. `newEpisodeNotificationText` in `feature-kmp:anime-notification` is that shape.
@@ -339,6 +343,8 @@ these rules and load together with them.
 - File name: the module's full Gradle path, uppercase, colons replaced with dashes, suffixed
   `-README.md` (e.g. `:core-kmp:celebrity` → `CORE-KMP-CELEBRITY-README.md`), placed at the
   module's root.
+- `iosApp/` is not a Gradle module and still gets a README and a regression file, named after the
+  folder: `iosApp/IOSAPP-README.md` and `iosApp/IOSAPP-REGRESS.md`.
 
 ## Module regression files
 

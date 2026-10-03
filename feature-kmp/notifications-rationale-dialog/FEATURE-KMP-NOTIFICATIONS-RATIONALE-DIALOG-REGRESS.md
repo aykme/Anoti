@@ -133,4 +133,6 @@ On the iPhone:
   a foldable iPhone unfolded.
 - To kill the app in section 7, start it from Xcode, go to the home screen and stop it in Xcode.
 
-The iPhone steps are unverified until the iPhone app has been built and run.
+A CI run in an iPhone 17 Simulator on 2026-10-03 covered only the system question after a
+reinstall, answered with Allow. The app's own dialog was not reached there. The other iPhone
+steps, and every step on a real iPhone, are still untried.

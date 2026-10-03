@@ -38,3 +38,7 @@ On iOS, `IosScreenHost` lives for the whole process and holds the app's one `Roo
 first time the scene asks for its screen. The scene keeps the root's state as one string in its
 `@SceneStorage`, which the host writes and reads back. A tapped notification opens its screen in
 that root, or in the one still to be built.
+
+A narrow window keeps the app upright on iOS, as a screen below sw600dp does on Android.
+`iosSupportedInterfaceOrientations(window)` answers it from the window's size, and `IosApp` hands
+that answer to the app delegate.

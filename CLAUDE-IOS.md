@@ -61,6 +61,11 @@ the rules both platforms share and loads this file.
   `Info.plist` must allow every orientation on the iPhone too, and the app must decide from the
   window's size at run time.
 - The status bar must show light content over the app's dark screens.
+- The app delegate answers `application(_:supportedInterfaceOrientationsFor:)` with
+  `IosApp.supportedInterfaceOrientations(window:)`, converted from the `UInt64` Kotlin hands over.
+  It is safe before `IosApp.start()`.
+- When the window's size changes, the root view controller is told to check its orientations
+  again, so a window crossing 600 points turns or locks at once.
 
 ## Versions
 
@@ -68,3 +73,43 @@ the rules both platforms share and loads this file.
 - `iosApp/Configuration/Version.xcconfig` is generated from the catalog by
   `./gradlew generateIosVersionXcconfig`. Every build of `androidApp` runs that task too.
 - Never edit the file by hand. Commit a version change together with the regenerated file.
+
+## The Xcode project
+
+- `iosApp/project.yml` is the source of the Xcode project. XcodeGen generates
+  `iosApp/iosApp.xcodeproj` from it, and the generated project is committed, so the app opens
+  in Xcode with nothing else to run.
+- Never edit the project in Xcode or by hand. Change `project.yml`, and commit it together with
+  the project the macOS runner generated from it: `ios.yml` uploads it as the `xcodeproj`
+  artifact.
+- The `drift` job of `ios.yml` fails when the committed project differs from what
+  `project.yml` generates.
+- The Xcode build phase runs `iosApp/scripts/compile-kotlin-framework.sh`. It finds a Java on its
+  own, since Xcode starts it without the user's shell environment. The iOS build needs no Android
+  SDK: a CI pass built the framework from nothing with none on the machine.
+
+## Before committing Swift
+
+Nothing lints Swift here, so this list is walked by hand over every Swift file being committed.
+
+- Four spaces, at most 100 columns, the formatting of the files around it.
+- No force unwrap and no force cast.
+- Nothing deprecated for iOS 16 on the pinned SDK. The build treats Swift warnings as errors, so
+  a warning stops it.
+- No `print`. The Kotlin side logs, with `println`.
+- XCUIApplication and XCUIElement belong to the main actor. A UI-test method or helper that
+  touches them is marked `@MainActor`.
+- A UI test's body is split by `//Given`, `//When` and `//Then`, as in Kotlin.
+- Read the CI build log of the round for warnings, since nothing here compiles Swift.
+
+## Running iOS on CI
+
+- `ios.yml` runs on GitHub's macOS runner and is started only on the developer's word, by them
+  or by Claude. It links the framework, runs every Kotlin/Native test, builds the app in Debug
+  and Release, runs the UI tests, and walks the restore and theme checks.
+- A task that touches `iosMain`, `iosApp/` or a build file ends by asking the developer whether
+  to run it.
+- After a run, its `ios-media` artifact goes to the developer's folder
+  `C:\Users\areku\Desktop\iOS test\<date>_<run id>_<short commit>\`. Nothing there is deleted.
+- The UI test reaches the live backend, the same written exception as Android's
+  `AnimeFavoritesUserFlowTest`. Its assertions stay on structure.

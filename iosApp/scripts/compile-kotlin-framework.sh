@@ -1,6 +1,7 @@
 #!/bin/sh
 # Builds the Kotlin framework for the Xcode build that runs this script. Xcode starts it without
-# the user's shell environment, so it finds a Java and the Android SDK itself first.
+# the user's shell environment, so it finds a Java itself first. The iOS build needs no Android
+# SDK; one in its default folder is still handed over.
 set -e
 
 if [ "YES" = "$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED" ]; then

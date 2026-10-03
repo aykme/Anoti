@@ -32,7 +32,8 @@ replaced with dashes, `-README.md` on the end. `:core-kmp:celebrity` becomes
 `CORE-KMP-CELEBRITY-README.md`; `:feature-kmp:anime-base` becomes
 `FEATURE-KMP-ANIME-BASE-README.md`. Put it at the module's root, next to `build.gradle.kts`.
 Every Gradle module gets one, `androidApp` included — see `CLAUDE.md` for the full rule and the
-root `README.md` exception.
+root `README.md` exception. `iosApp/` is not a Gradle module but gets both files too, named
+after the folder: `iosApp/IOSAPP-README.md` and `iosApp/IOSAPP-REGRESS.md`.
 
 ## Before you write anything: confirm the entity list
 
@@ -438,11 +439,11 @@ When you finish documenting the module(s) the current task actually touched, tak
 look at their sibling modules (same `core-kmp/`/`feature-kmp/` parent, modules worked on
 around the same time). Module work often happens in batches, and it's easy for the last one or
 two in a batch to slip through without a README or a regression file. A quick pass catches
-this cheaply: `ls androidApp/*-README.md main/*-README.md core-kmp/*/*-README.md
-feature-kmp/*/*-README.md` for the READMEs, and the same four patterns ending `-REGRESS.md` for
-the regression files. Diff each list against the actual modules. Don't silently
-create the missing ones, though: surface what's missing and let the user decide whether to
-include them in the current task or handle them separately, same as any other scope decision.
+this cheaply: `ls androidApp/*-README.md iosApp/*-README.md main/*-README.md
+core-kmp/*/*-README.md feature-kmp/*/*-README.md` for the READMEs, and the same five patterns
+ending `-REGRESS.md` for the regression files. Diff each list against the actual modules. Don't
+silently create the missing ones, though: surface what's missing and let the user decide whether
+to include them in the current task or handle them separately, same as any other scope decision.
 
 ## Reference examples
 

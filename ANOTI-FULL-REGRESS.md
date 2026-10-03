@@ -17,7 +17,8 @@ To regress a single module instead, go straight to that module's own file; this 
 the whole app.
 
 A full regression is run for one platform at a time. A run on Android works through the
-Android app and the shared modules.
+Android app and the shared modules. A run on iOS works through the iOS app and the shared
+modules.
 
 ## The build to run on, on Android
 
@@ -28,17 +29,26 @@ carries no signing config of its own, so it cannot go on a device.
 Shrinking removes and renames code. It is the step that can break something which only shows
 once the app is running. A check on a build that skipped it proves nothing about what ships.
 
+## The build to run on, on iOS
+
+Run a regression on the Release configuration, in a Simulator or on an iPhone. It is the one
+that ships, built with the Kotlin framework's release link.
+
 ## Platforms
 
 Every file under "Shared modules" describes what the app does, not what one platform does. The
-file under "Android app" covers what only the Android shell does. Where a step goes through a
-system screen, it names Android's. A file whose behavior differs on iOS says so in a Platforms
-section of its own. A check only one platform can reach names that platform and says why.
-Running any of this on iOS needs an iOS build of the app to install first.
+files under "Android app" and "iOS app" cover what only that platform's shell does. Where a step
+goes through a system screen, it names Android's. A file whose behavior differs on iOS says so in
+a Platforms section of its own. A check only one platform can reach names that platform and says
+why.
 
 ## Android app
 
 - [androidApp](androidApp/ANDROIDAPP-REGRESS.md)
+
+## iOS app
+
+- [iosApp](iosApp/IOSAPP-REGRESS.md)
 
 ## Shared modules
 

@@ -49,4 +49,6 @@ The steps name Android's tools. On the iPhone:
   app does not update in the background until it is fixed. The Simulator refuses every refresh,
   so there the second line always appears.
 
-The iPhone steps are unverified until the iPhone app has been built and run.
+A CI run in an iPhone 17 Simulator on 2026-10-03 covered the launch with the graph built and the
+refresh refused, as above. The other iPhone steps, and every step on a real iPhone, are still
+untried.

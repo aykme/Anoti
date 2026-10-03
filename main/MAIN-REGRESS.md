@@ -6,8 +6,11 @@ leaving the app and coming back. The content of the two sections, the look of th
 and the look of the permission dialog are each checked in their own module's file.
 
 Unless a step says otherwise, start from a clean installation with the app never opened before.
-Steps run on both platforms unless they name one. The iPhone steps are unverified until the
-iPhone app has been built and run.
+Steps run on both platforms unless they name one. A CI run in an iPhone 17 Simulator on
+2026-10-03 covered the launch, the system bars and the app switcher in both themes, a narrow
+iPhone staying upright, the state kept across a termination, a fresh start after a reinstall,
+and a notification tap from the background and with the app closed. The other iPhone steps, and
+every step on a real iPhone, are still untried.
 
 ## First launch
 
