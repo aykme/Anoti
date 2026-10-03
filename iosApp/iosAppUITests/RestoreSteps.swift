@@ -64,6 +64,8 @@ final class RestoreSteps: XCTestCase {
         waitFor(app.tagged("anime_list_button")).tap()
         waitFor(app.allTagged("anime_list_item").firstMatch)
         XCUIDevice.shared.press(.home)
+        // A notification that arrives while the app is still in front shows no banner.
+        assertInTheBackground()
         signalReady()
 
         //When
