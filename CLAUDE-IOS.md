@@ -106,7 +106,8 @@ Nothing lints Swift here, so this list is walked by hand over every Swift file b
 
 - `ios.yml` runs on GitHub's macOS runner and is started only on the developer's word, by them
   or by Claude. It links the framework, runs every Kotlin/Native test, builds the app in Debug
-  and Release, runs the UI tests, and walks the restore and theme checks.
+  and Release, runs the UI tests on an iPhone and on an iPad, and walks the restore and theme
+  checks.
 - A task that touches `iosMain`, `iosApp/` or a build file ends by asking the developer whether
   to run it.
 - After a run, its `ios-media` artifact goes to the developer's folder
