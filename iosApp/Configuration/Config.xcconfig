@@ -1,0 +1,6 @@
+// The app's identity. TEAM_ID stays empty: simulator builds need no signing team.
+#include "Version.xcconfig"
+
+TEAM_ID =
+BUNDLE_ID = com.alekseivinogradov.anoti
+APP_NAME = Anoti
