@@ -24,7 +24,8 @@ class AnimeNotificationIntentProviderImplTest {
         val provider = AnimeNotificationIntentProviderImpl()
 
         //When
-        val pendingIntent = provider.getNewEpisodeNotificationIntent(RuntimeEnvironment.getApplication())
+        val pendingIntent =
+            provider.getNewEpisodeNotificationIntent(RuntimeEnvironment.getApplication())
 
         //Then
         assertTrue(shadowOf(pendingIntent).isActivity)

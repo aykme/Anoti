@@ -304,6 +304,5 @@ its `dispatch`.
 Compare this to what an earlier draft of this same README looked like — it included a full
 controller-and-host code sample built from scratch to illustrate the pattern. It got cut for two
 reasons once reviewed: it was long enough to feel like the README had grown an essay again, and
-it wasn't real code — a handwritten approximation of what `main`'s actual
-`RootHost` does, which is exactly the kind of second source of truth this whole
-skill exists to avoid.
+it wasn't real code — a handwritten approximation of what `main`'s actual `RootHost` does,
+which is exactly the kind of second source of truth this whole skill exists to avoid.

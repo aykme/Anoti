@@ -26,7 +26,7 @@ that step says so.
 
 On Android, changing the font or display size rebuilds the screen, and it keeps its state. The
 iPhone keeps its screen as it is. Changing orientation rebuilds nothing — the screen keeps its
-state, which is itself checked in section 12.
+state, which is itself checked in section 13.
 
 ## 1. The three states of the section area
 

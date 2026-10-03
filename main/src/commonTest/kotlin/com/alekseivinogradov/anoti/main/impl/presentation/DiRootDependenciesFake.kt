@@ -74,6 +74,7 @@ internal class DiRootDependenciesFake : DiRootDependencies {
     /** Every bottom-bar store built, in the order they were built. */
     val barStores: List<Store<*, *, *>>
         get() = builtStores.filter { it.first == "BottomNavigationBarStore" }.map { it.second }
+
     override val coroutineContextProvider: CoroutineContextProvider = CoroutineContextProviderFake(
         ioDispatcher = Dispatchers.Main,
         defaultDispatcher = Dispatchers.Main,

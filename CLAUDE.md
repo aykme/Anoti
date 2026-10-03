@@ -73,9 +73,9 @@ these rules and load together with them.
   only current implementer/caller happens to be platform-specific.
 - One exception, for iOS only. Code that exists only because iOS lacks a mechanism Android's
   OS provides lives in `iosMain`, even when it is portable. `IosRootHolder`, `IosRootContent`,
-  `SaveableStateCodec` and `ChildLifecycle` in `main` are the case: they keep, and rebuild the
-  root from, the screen state Android keeps in its saved instance state. Such code is written in
-  `commonMain` first and moved once its tests pass. Logic both platforms share stays in
+  `SaveableStateCodec` and `ChildLifecycle` in `main` are the case. They keep the screen state
+  Android keeps in its saved instance state, and rebuild the root from it. Such code is written
+  in `commonMain` first and moved once its tests pass. Logic both platforms share stays in
   `commonMain`, whoever calls it.
 - This applies to Compose code too: a composable function only needs to live in `androidMain`/
   `iosMain` if it directly touches a platform-only API (e.g. a `View`/`ComposeView` bridge). A

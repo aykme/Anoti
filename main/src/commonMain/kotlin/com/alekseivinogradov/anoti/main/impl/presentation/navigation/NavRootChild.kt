@@ -5,9 +5,9 @@ import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation.Na
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.model.SectionDomain
 
 /**
- * The concrete screen component for each `NavRootConfig`, plus its bottom-nav [SectionDomain] —
- * the single source of truth for that correspondence, instead of every caller mapping a screen to
- * a section by hand. Lives here (not in `core-kmp:navigation`) because it's the only module with a
+ * The concrete screen component for each `NavRootConfig`, plus its bottom-nav [SectionDomain].
+ * It is the single source of truth for that correspondence, so no caller maps a screen to a
+ * section by hand. Lives here (not in `core-kmp:navigation`) because it's the only module with a
  * legitimate dependency on both feature modules.
  */
 sealed interface NavRootChild {

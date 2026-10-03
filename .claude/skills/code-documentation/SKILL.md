@@ -113,9 +113,9 @@ Don't default to a code block. Decide based on what kind of entry point the modu
   across every such module. Subscribe to `states`/`labels` and call `accept(Intent)`. If a
   Controller exists, construct it, draw the UI from its `state` and send the UI's events to
   its `accept`. A handwritten code block just repeats that same shape with different names, so
-  it reads as filler rather than help. It's also one more
-  place that can silently drift from the real consumer if the Store's `Intent`/`Label`/`State`
-  shape changes, exactly the "second source of truth" problem this whole skill exists to avoid.
+  it reads as filler rather than help. It's also one more place that can silently drift from the
+  real consumer if the Store's `Intent`/`Label`/`State` shape changes. That is exactly the
+  "second source of truth" problem this whole skill exists to avoid.
   Say it in one or two sentences instead:
 
   > Subscribe to `XStore.states`/`labels` and call `accept(Intent)` to read and mutate

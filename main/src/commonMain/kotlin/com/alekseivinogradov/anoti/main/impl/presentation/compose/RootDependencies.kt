@@ -7,9 +7,9 @@ import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChil
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootComponent
 
 /**
- * The app-level navigation, bar controller and system message references [RootContent] and
- * [BottomNavigationBarRoute] need, bundled together since they're always built and passed down as
- * one unit.
+ * What [RootContent] and [BottomNavigationBarRoute] need: the app-level navigation, the bar
+ * controller and the system message controller. They are always built and passed down as one
+ * unit.
  */
 // Every reference here is fixed for the host's whole lifetime. Without the annotation Compose
 // reads the bundle as unstable, which costs both composables that take it their ability to skip.

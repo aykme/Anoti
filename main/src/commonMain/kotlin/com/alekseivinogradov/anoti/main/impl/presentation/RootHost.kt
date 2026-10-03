@@ -40,8 +40,7 @@ internal class RootHost(
     private val notificationPermissionRequests: NotificationPermissionRequests
 ) {
 
-    // Both bindings build a new store on every read, so each is read exactly once. The bar's
-    // database store is taken before the first screen takes its own.
+    // Both bindings build a new store on every read, so each is read exactly once.
     private val mainStore: BottomNavigationBarStore = diRootComponent.bottomNavigationBarStore
     private val animeDatabaseStore = diRootComponent.animeDatabaseStore
 

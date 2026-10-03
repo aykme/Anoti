@@ -28,11 +28,11 @@ internal val fakeDependencies: DiRootDependenciesFake
         "The test must run with HostApplicationFake."
     }.dependencies
 
-/** What the launcher sends, with no deep link on it. */
+/** The activity's own intent with no deep link on it, as a plain launch sends it. */
 internal fun plainLaunchingIntent(): Intent =
     Intent(RuntimeEnvironment.getApplication(), MainActivity::class.java)
 
-/** What the new-episode notification sends: the same intent, asking for the favorites screen. */
+/** The same intent asking for the favorites screen, as a tapped notification does. */
 internal fun favoritesDeepLinkIntent(): Intent =
     plainLaunchingIntent().putExtra(
         MainActivity.EXTRA_DEEP_LINK_TARGET,
