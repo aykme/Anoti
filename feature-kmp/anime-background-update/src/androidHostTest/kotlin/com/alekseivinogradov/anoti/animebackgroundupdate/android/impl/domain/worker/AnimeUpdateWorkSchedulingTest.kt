@@ -6,6 +6,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.Operation
 import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
@@ -26,6 +27,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.minutes
 
@@ -39,6 +41,9 @@ private const val SETTLED_MARGIN_MILLIS = 10_000L
  *
  * Each case waits on WorkManager's own stream of work info rather than on a clock, so the wait
  * ends when the library says the pass is over.
+ *
+ * An enqueue can wait behind the last task of the worker before it. So each one is awaited
+ * before its constraints are lifted.
  */
 // One function per case under test, plus the helpers those cases share.
 @Suppress("TooManyFunctions")
@@ -161,10 +166,12 @@ class AnimeUpdateWorkSchedulingTest {
     ).setConstraints(ANIME_UPDATE_WORK_CONSTRAINTS).build()
 
     private fun enqueuePeriodic(request: PeriodicWorkRequest) {
-        workManager.enqueueUniquePeriodicWork(
-            uniqueWorkName = ANIME_UPDATE_PERIODIC_WORK_NAME,
-            existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
-            request = request
+        assertIs<Operation.State.SUCCESS>(
+            workManager.enqueueUniquePeriodicWork(
+                uniqueWorkName = ANIME_UPDATE_PERIODIC_WORK_NAME,
+                existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
+                request = request
+            ).result.get()
         )
     }
 
@@ -173,10 +180,12 @@ class AnimeUpdateWorkSchedulingTest {
         .build()
 
     private fun enqueueOneOff(request: OneTimeWorkRequest) {
-        workManager.enqueueUniqueWork(
-            uniqueWorkName = ANIME_UPDATE_ONCE_WORK_NAME,
-            existingWorkPolicy = ExistingWorkPolicy.KEEP,
-            request = request
+        assertIs<Operation.State.SUCCESS>(
+            workManager.enqueueUniqueWork(
+                uniqueWorkName = ANIME_UPDATE_ONCE_WORK_NAME,
+                existingWorkPolicy = ExistingWorkPolicy.KEEP,
+                request = request
+            ).result.get()
         )
     }
 
