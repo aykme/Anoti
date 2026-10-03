@@ -39,7 +39,13 @@ if ! grep -q '^sdk.dir=' "$project_dir/local.properties" 2> /dev/null \
   && [ -z "$ANDROID_HOME" ] && [ -d "$default_sdk" ]; then
   export ANDROID_HOME="$default_sdk"
 fi
-echo "compile-kotlin-framework: Android SDK from ${ANDROID_HOME:-local.properties}"
+if [ -n "$ANDROID_HOME" ]; then
+  echo "compile-kotlin-framework: Android SDK from $ANDROID_HOME"
+elif grep -q '^sdk.dir=' "$project_dir/local.properties" 2> /dev/null; then
+  echo "compile-kotlin-framework: Android SDK from local.properties"
+else
+  echo "compile-kotlin-framework: no Android SDK found"
+fi
 
 cd "$project_dir"
 ./gradlew :core-kmp:di-app:embedAndSignAppleFrameworkForXcode

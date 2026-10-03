@@ -233,6 +233,8 @@ jobs:
         run: |
           JAVA_HOME="$JAVA_HOME_17_arm64" ./gradlew --stop || true
           mv ~/Library/Android/sdk ~/Library/Android/sdk-hidden
+          # Built from nothing, so no task is skipped as up to date and the outcome is real.
+          find . -name build -type d -prune -not -path './build' -exec rm -rf {} +
           if env -u ANDROID_HOME -u ANDROID_SDK_ROOT JAVA_HOME="$JAVA_HOME_17_arm64" xcodebuild \
             -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug \
             -destination 'generic/platform=iOS Simulator' -derivedDataPath build/dd4 \
