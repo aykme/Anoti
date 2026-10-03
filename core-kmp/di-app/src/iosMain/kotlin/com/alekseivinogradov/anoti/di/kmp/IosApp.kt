@@ -1,7 +1,10 @@
 package com.alekseivinogradov.anoti.di.kmp
 
 import com.alekseivinogradov.anoti.main.api.presentation.IosScreenHost
+import com.alekseivinogradov.anoti.main.api.presentation.iosSupportedInterfaceOrientations
+import platform.UIKit.UIInterfaceOrientationMask
 import platform.UIKit.UIViewController
+import platform.UIKit.UIWindow
 
 /**
  * The iOS app's entry point, and the only thing its Swift code calls. It builds the app graph and
@@ -41,4 +44,12 @@ object IosApp {
      * phase. `null` means keep the stored one.
      */
     fun saveState(): String? = screenHost.saveState()
+
+    /**
+     * The orientations [window] may take, for `application(_:supportedInterfaceOrientationsFor:)`.
+     * A narrow window keeps the app upright, as Android keeps a screen below sw600dp. Safe to call
+     * before [start].
+     */
+    fun supportedInterfaceOrientations(window: UIWindow?): UIInterfaceOrientationMask =
+        iosSupportedInterfaceOrientations(window)
 }

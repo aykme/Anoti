@@ -14,6 +14,8 @@ import platform.Foundation.NSBundle
 import platform.UIKit.UIViewController
 import platform.UserNotifications.UNUserNotificationCenter
 
+private const val TAG = "IosScreenHost"
+
 /**
  * The iOS screen host, the counterpart of `MainActivity`. It shows the app's screen and supplies
  * what only iOS can: the lifecycle, the notification permission and the screen a tapped
@@ -52,6 +54,8 @@ class IosScreenHost(diRootDependencies: DiRootDependencies) {
      * [restoredState], the string the scene kept; later calls show the same root.
      */
     fun viewController(restoredState: String?): UIViewController {
+        // Tells a scene store that was never written from one read too late.
+        println("$TAG: the scene kept ${restoredState?.length ?: 0} characters")
         val root = holder.rootFor(restoredState)
         return ComposeUIViewController(
             configure = {
