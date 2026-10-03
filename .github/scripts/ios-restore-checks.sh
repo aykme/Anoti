@@ -241,11 +241,12 @@ for theme in light dark; do
   attachments="$MEDIA_DIR/attachments/testShowTheAppSwitcher-case4-$theme"
   xcrun xcresulttool export attachments \
     --path "$RESULTS_DIR/testShowTheAppSwitcher-case4-$theme.xcresult" --output-path "$attachments"
-  # The first frame comes before the list, so it is dark as a whole. The next may show posters.
-  python3 "$check_dark" whole "$MEDIA_DIR/case4-$theme-launch-1.png"
-  expect $? "the launch is dark, launch-1, $theme theme"
-  python3 "$check_dark" edges "$MEDIA_DIR/case4-$theme-launch-2.png"
-  expect $? "the launch is dark, launch-2, $theme theme"
+  # The list may already show its light posters a second after launch, so the edges are what a
+  # white launch frame would light up.
+  for shot in launch-1 launch-2; do
+    python3 "$check_dark" edges "$MEDIA_DIR/case4-$theme-$shot.png"
+    expect $? "the launch is dark, $shot, $theme theme"
+  done
   python3 "$check_dark" edges "$MEDIA_DIR/case4-$theme-list.png"
   expect $? "the top bar and the bottom bar are dark, $theme theme"
   python3 "$check_dark" icons "$MEDIA_DIR/case4-$theme-list.png"

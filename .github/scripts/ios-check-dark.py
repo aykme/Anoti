@@ -1,10 +1,9 @@
 """Fails when a part of a screenshot that the app keeps dark in every system theme is light.
 
-Modes: `whole` for the first frame of a launch; `edges` for the top system bar and the area under
-the bottom navigation; `card` for the bars of the app's card in the app switcher. A screen with
-posters is light between the bars, so only the bars are measured there. `icons` fails when the
-status bar's clock and icons are not light. With `--expect-light`, a light result passes and a
-dark one fails, for a control shot."""
+Modes: `edges` for the top system bar and the area under the bottom navigation; `card` for the
+bars of the app's card in the app switcher. A screen with posters is light between the bars, so
+only the bars are measured. `icons` fails when the status bar's clock and icons are not light.
+With `--expect-light`, a light result passes and a dark one fails, for a control shot."""
 import struct
 import sys
 import zlib
@@ -94,9 +93,7 @@ def main(mode, path, expect_light=False):
         limit = MIN_ICON_BRIGHTNESS
         print(f"{path}: brightest status-bar pixel {brightest:.0f} (at least {limit})")
         return 0 if brightest >= limit else 1
-    if mode == "whole":
-        parts = {"whole": crop(rows, channels, 0, 1, 0, 1)}
-    elif mode == "edges":
+    if mode == "edges":
         parts = {
             "top": crop(rows, channels, 0, EDGE_FRACTION, 0, 1),
             "bottom": crop(rows, channels, 1 - EDGE_FRACTION, 1, 0, 1),
