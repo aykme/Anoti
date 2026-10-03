@@ -27,9 +27,14 @@ final class RestoreSteps: XCTestCase {
     func testLeaveTheAppOnFavoritesAfterASearch() {
         //Given
         bringTheAppForward()
-        waitFor(app.tagged("search_button")).tap()
         // Compose shows the search input to the accessibility tree as a text view.
-        let field = waitFor(app.textViews.firstMatch, timeout: 10)
+        let field = app.textViews.firstMatch
+        waitFor(app.tagged("search_button")).tap()
+        // A tap that lands while the screen still settles is lost.
+        if !field.waitForExistence(timeout: 10) {
+            app.tagged("search_button").tap()
+        }
+        waitFor(field, timeout: 10)
         field.tap()
         field.typeText("Frieren\n")
 
@@ -50,7 +55,7 @@ final class RestoreSteps: XCTestCase {
 
         //When
         waitFor(app.tagged("anime_list_button")).tap()
-        waitFor(app.allTagged("anime_list_item").firstMatch)
+        waitForTheList()
         XCUIDevice.shared.press(.home)
 
         //Then
@@ -62,7 +67,7 @@ final class RestoreSteps: XCTestCase {
         //Given
         bringTheAppForward()
         waitFor(app.tagged("anime_list_button")).tap()
-        waitFor(app.allTagged("anime_list_item").firstMatch)
+        waitForTheList()
         XCUIDevice.shared.press(.home)
         // A notification that arrives while the app is still in front shows no banner.
         assertInTheBackground()
@@ -184,6 +189,13 @@ final class RestoreSteps: XCTestCase {
             top.press(forDuration: 0.1, thenDragTo: down)
         }
         waitFor(notification, timeout: 20).tap()
+    }
+
+    // The list screen is open once its top bar is. Its items come from the live backend, which a
+    // step does not need.
+    @MainActor
+    private func waitForTheList() {
+        waitFor(app.tagged("ongoing_button"))
     }
 
     @MainActor
