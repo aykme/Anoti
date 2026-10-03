@@ -151,7 +151,7 @@ PY
 end_like_the_system() {
   local pid
   xcrun simctl launch "$SIM_UDID" com.apple.Preferences > /dev/null
-  sleep "${BACKGROUND_WAIT:-5}"
+  sleep 5
   pid=$(pgrep -f "/Anoti.app/Anoti$" | head -1)
   if [ -n "$pid" ]; then
     echo "ending the app's process $pid in the background"
@@ -174,6 +174,29 @@ prepare_case() {
   run_step testAnswerTheNotificationQuestion "$1-prepare"
   expect $? "the case starts from a fresh install, $1"
   end_like_the_system
+}
+
+# Lets iOS settle on the app's scene before the first case. After the UI tests, which end the app
+# on screen, iOS may drop the kept state of the next two launches and then give the app a new
+# scene. That scene stays for the simulator's life, reinstalls included. Relaunches the app from
+# the background until a launch gets its state back, at most $1 times.
+settle_the_scene() {
+  local launch
+  MEDIA_DIR="$media_root/settle"
+  RESULTS_DIR="$results_root/settle"
+  mkdir -p "$MEDIA_DIR" "$RESULTS_DIR"
+  prepare_case settle
+  for launch in $(seq 1 "$1"); do
+    launch_logged "settle-$launch"
+    sleep 10
+    if grep -Eq "the scene kept [1-9][0-9]* characters" "$MEDIA_DIR/settle-$launch.log"; then
+      echo "the scene settled on launch $launch"
+      end_like_the_system
+      return 0
+    fi
+    end_like_the_system
+  done
+  echo "the scene did not settle in $1 launches"
 }
 
 # Runs the case $3, with the rest of the arguments, up to three times until a try passes. Each
@@ -328,6 +351,7 @@ case_dark_in_a_theme() {
 }
 
 main() {
+  settle_the_scene 4
   run_case "1. The state is kept across a termination" case1 case_kept_across_a_termination
   run_case "2a. A notification tap from the background, with the app on the list" case2a \
     case_tap_from_the_background

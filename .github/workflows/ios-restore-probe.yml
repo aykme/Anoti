@@ -1,4 +1,4 @@
-# TEMPORARY: repeats restore case 1 on several runners to find its flake.
+# TEMPORARY: repeats "UI tests, then restore case 1" on several runners to find its flake.
 name: iOS restore probe
 
 on:
@@ -14,15 +14,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ui_tests_first: [true, false]
-        background_wait: [5, 30]
+        settle: [0, 1]
+        shard: [1, 2]
     runs-on: macos-26
     timeout-minutes: 150
     env:
       MEDIA_DIR: ${{ github.workspace }}/build/ios-media
       RESULTS_DIR: ${{ github.workspace }}/build/ios-results
-      PROBE_ITERATIONS: 10
-      BACKGROUND_WAIT: ${{ matrix.background_wait }}
+      PROBE_ITERATIONS: 6
+      PROBE_SETTLE: ${{ matrix.settle }}
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/ios-toolchain
@@ -40,20 +40,12 @@ jobs:
           products="$GITHUB_WORKSPACE/build/DerivedData/Build/Products"
           echo "XCTESTRUN=$(ls "$products"/*.xctestrun | head -1)" >> "$GITHUB_ENV"
           echo "APP_PATH=$products/Debug-iphonesimulator/Anoti.app" >> "$GITHUB_ENV"
-      - name: The UI tests first, as on CI
-        if: matrix.ui_tests_first
-        run: |
-          xcodebuild test-without-building -xctestrun "$XCTESTRUN" -destination "id=$SIM_UDID" \
-            -only-testing:iosAppUITests/AnimeFavoritesUserFlowUITests \
-            -only-testing:iosAppUITests/OrientationUITests \
-            -resultBundlePath "$RESULTS_DIR/ui-tests.xcresult" > "$MEDIA_DIR/ui-tests.log" 2>&1 \
-            || echo "the UI tests failed"
       - name: Probe
         run: bash .github/scripts/ios-restore-probe.sh 2>&1 | tee "$MEDIA_DIR/probe.log"
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: probe-ui${{ matrix.ui_tests_first }}-wait${{ matrix.background_wait }}
+          name: probe-settle${{ matrix.settle }}-${{ matrix.shard }}
           path: |
             build/ios-media
             !build/ios-media/**/*.mp4
