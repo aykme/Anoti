@@ -164,11 +164,11 @@ jobs:
       - name: Export the screenshots the tests kept
         if: always()
         run: |
-          for bundle in "$RESULTS_DIR"/*.xcresult; do
-            [ -d "$bundle" ] || continue
-            name=$(basename "$bundle" .xcresult)
+          # A restore case keeps its bundles under its own folder and try, as its media.
+          find "$RESULTS_DIR" -type d -name '*.xcresult' -prune | while read -r bundle; do
+            name=${bundle#"$RESULTS_DIR"/}
             xcrun xcresulttool export attachments --path "$bundle" \
-              --output-path "$MEDIA_DIR/attachments/$name" || true
+              --output-path "$MEDIA_DIR/attachments/${name%.xcresult}" || true
           done
 
       - name: Build the app, Release
