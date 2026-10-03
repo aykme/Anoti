@@ -59,6 +59,10 @@ for method in kill; do
   for wait in 10; do
     for try in 1 2 3 4 5 6; do
       name="$method-$wait-$try"
+      # Out of the way the way the system does it: to the background first, then a kill there.
+      xcrun simctl launch "$SIM_UDID" com.apple.Preferences > /dev/null
+      sleep 5
+      end_app kill 2> /dev/null
       launch_logged "$name-before"
       sleep 10
       READY_FILE="$RUNNER_TEMP/home-$name" run_step testLeaveTheAppOnFavorites "$name"
