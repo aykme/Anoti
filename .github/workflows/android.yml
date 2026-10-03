@@ -24,9 +24,6 @@ jobs:
           java-version: '21'
 
       - uses: gradle/actions/setup-gradle@v6
-        with:
-          # By default only the default branch writes the cache.
-          cache-read-only: false
 
       - name: Fit Gradle to the runner
         run: |

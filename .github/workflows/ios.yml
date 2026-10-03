@@ -2,12 +2,10 @@
 name: iOS
 
 on:
-  push:
-    branches: [ios-app-bring-up]
   workflow_dispatch:
     inputs:
       setup_check:
-        description: Prove the Java and Android SDK lookup of the Xcode build
+        description: Prove the Java lookup of the Xcode build and that it needs no Android SDK
         type: boolean
         default: false
 
@@ -237,7 +235,7 @@ jobs:
           path: build/ios-media-ipad
 
   setup-check:
-    if: inputs.setup_check || contains(github.event.head_commit.message, '[setup-check]')
+    if: inputs.setup_check
     needs: project
     runs-on: macos-26
     timeout-minutes: 150

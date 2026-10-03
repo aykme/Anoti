@@ -9,8 +9,5 @@ runs:
         java-version: '21'
 
     - uses: gradle/actions/setup-gradle@v6
-      with:
-        # By default only the default branch writes the cache.
-        cache-read-only: false
 
     - uses: ./.github/actions/gradle-memory
