@@ -1,0 +1,64 @@
+# A trial run of the CI chain: runner, Xcode, simulator, screenshot, video, artifact.
+name: iOS smoke
+
+on:
+  push:
+    branches: [ios-app-bring-up]
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Read versions from the catalog
+        run: |
+          xcode=$(sed -n 's/^xcode = "\(.*\)"/\1/p' gradle/libs.versions.toml)
+          echo "XCODE_VERSION=$xcode" >> "$GITHUB_ENV"
+          echo "Xcode from the catalog: $xcode"
+
+      - name: Select Xcode
+        run: |
+          app="/Applications/Xcode_${XCODE_VERSION}.app"
+          test -d "$app" || { echo "$app is missing"; ls -d /Applications/Xcode*; exit 1; }
+          sudo xcode-select -s "$app"
+          xcodebuild -version
+
+      - name: Java and Gradle wrapper
+        run: |
+          java -version
+          ./gradlew --version
+
+      - name: Boot an iPhone simulator
+        run: |
+          xcrun simctl list runtimes
+          udid=$(xcrun simctl list devices available -j | /usr/bin/python3 -c '
+          import json, sys
+          data = json.load(sys.stdin)["devices"]
+          runtime = sorted(k for k in data if "iOS-26-4" in k)[-1]
+          print(next(d["udid"] for d in data[runtime] if d["name"] == "iPhone 17"))
+          ')
+          echo "SIM_UDID=$udid" >> "$GITHUB_ENV"
+          xcrun simctl boot "$udid"
+          xcrun simctl bootstatus "$udid" -b
+
+      - name: Screenshot and video
+        run: |
+          mkdir -p media
+          xcrun simctl io "$SIM_UDID" recordVideo --codec=h264 media/smoke.mp4 &
+          recorder=$!
+          sleep 2
+          xcrun simctl launch "$SIM_UDID" com.apple.Preferences
+          sleep 6
+          xcrun simctl io "$SIM_UDID" screenshot media/smoke.png
+          kill -INT "$recorder"
+          wait "$recorder" || true
+          ls -la media
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ios-smoke-media
+          path: media
