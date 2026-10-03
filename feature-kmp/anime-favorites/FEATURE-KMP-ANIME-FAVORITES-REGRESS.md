@@ -310,7 +310,3 @@ The steps name Android's tools. On the iPhone:
   the iPhone, so that pass starts from a cold launch.
 - A narrow screen keeps the app upright, as on Android. The rotation steps of section 11 run on a
   wide one: an iPad, or a foldable iPhone unfolded.
-
-A CI run in an iPhone 17 Simulator on 2026-10-03 covered adding an ongoing from the list,
-removing it, and the empty favorites screen. The other iPhone steps, and every step on a real
-iPhone, are still untried.

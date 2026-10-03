@@ -11,10 +11,6 @@ appear over it at launch.
 Run it through every pass in the matrix in the root `ANOTI-FULL-REGRESS.md`, and take the
 preconditions from there.
 
-Steps run on both platforms unless they name one. A CI run in an iPhone 17 Simulator on
-2026-10-03 covered switching between the two tabs and the bar staying dark in both themes. The
-other iPhone steps, and every step on a real iPhone, are still untried.
-
 ## 1. Where it is and what it holds
 
 The bar sits at the very bottom of the screen and is present on both screens. It never

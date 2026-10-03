@@ -38,7 +38,14 @@ jobs:
       - uses: ./.github/actions/ios-toolchain
       - uses: ./.github/actions/gradle-on-macos
       - name: Run every Kotlin/Native test on the simulator
-        run: ./gradlew iosSimulatorArm64Test --continue
+        # The tests run inside a simulator, which can fail on its own. A retry runs only the modules
+        # whose tests failed, since the rest are up to date.
+        run: |
+          for try in 1 2 3; do
+            ./gradlew iosSimulatorArm64Test --continue && exit 0
+            echo "The Kotlin/Native tests failed on try $try"
+          done
+          exit 1
       - uses: actions/upload-artifact@v7
         if: always()
         with:

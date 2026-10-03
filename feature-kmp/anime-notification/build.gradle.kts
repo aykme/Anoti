@@ -65,6 +65,7 @@ kotlin {
             implementation(libs.robolectric)
         }
         getByName("androidDeviceTest").dependencies {
+            implementation(project(":core-kmp:test-utils"))
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.androidx.rules)

@@ -6,11 +6,7 @@ leaving the app and coming back. The content of the two sections, the look of th
 and the look of the permission dialog are each checked in their own module's file.
 
 Unless a step says otherwise, start from a clean installation with the app never opened before.
-Steps run on both platforms unless they name one. A CI run in an iPhone 17 Simulator on
-2026-10-03 covered the launch, the system bars and the app switcher in both themes. It also
-covered a narrow iPhone staying upright and the state kept across a termination. A fresh start
-after a reinstall was covered, and so was a notification tap from the background and with the
-app closed. The other iPhone steps, and every step on a real iPhone, are still untried.
+Steps run on both platforms unless they name one.
 
 ## First launch
 
@@ -153,8 +149,6 @@ light area in the light theme is a bug, even when the dark theme looks right.
    app ended while on screen counts as a crash or a force quit: stopped from Xcode while open,
    crashed, or swiped away. Then iOS drops the kept state, and the next launch opens on the anime
    list. The run after it drops its state too, so walk the step once more from a fresh launch.
-   Measured in a Simulator on CI on 2026-10-03: after an end in the background 6 of 6 tries came
-   back, after an end on screen 0 of 5.
 3. Open favorites. Go to the home screen. Close the app the way the user does:
    - Android: force-stop the app from the system settings, then open it from the launcher;
    - iPhone: swipe the app away in the app switcher, then open it from the home screen.

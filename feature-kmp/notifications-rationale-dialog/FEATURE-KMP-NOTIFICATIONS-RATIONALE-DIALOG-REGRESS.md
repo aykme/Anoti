@@ -132,7 +132,3 @@ On the iPhone:
 - A narrow screen keeps the app upright, as on Android. Section 6 runs on a wide one: an iPad, or
   a foldable iPhone unfolded.
 - To kill the app in section 7, start it from Xcode, go to the home screen and stop it in Xcode.
-
-A CI run in an iPhone 17 Simulator on 2026-10-03 covered only the system question after a
-reinstall, answered with Allow. The app's own dialog was not reached there. The other iPhone
-steps, and every step on a real iPhone, are still untried.

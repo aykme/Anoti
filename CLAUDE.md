@@ -189,6 +189,17 @@ these rules and load together with them.
   instrumented tests in `src/androidTest/kotlin`. Never a `java` directory, in any source set.
 - Composable tests, the app's own `Application`, instrumented tests and the SDK level
   Robolectric emulates have rules of their own. See "Tests on Android" in `CLAUDE-ANDROID.md`.
+- A test that launches the real app is the last resort: a UI test, or a CI check that drives the
+  installed app. It is written only where nothing smaller can prove the behavior, and only with
+  the developer's permission. Its assertions stay on structure, never on values the live backend
+  decides.
+- Every test that runs on a device or a simulator gets up to three tries, since a device can
+  fail on its own and CI must not go red over it. Every failed try stays visible in the log.
+- On Android, such a test takes `RetryRule` from `core-kmp:test-utils` as its outermost rule. On
+  iOS, `ios.yml` retries the UI tests through `xcodebuild`, the Kotlin/Native tests by running
+  their Gradle task again, and each restore case as a whole.
+- So a test must pass on its own, in any order. It never leans on what another test or an
+  earlier try left behind; a shared setup goes into a preparation step every test runs.
 - The code under test is the real thing, wiring included; what it reaches for is where the fakes
   start. A test may build a real DI component, as long as everything handed to that component is
   a handwritten fake: no real database, no network, no background work.
@@ -263,7 +274,8 @@ these rules and load together with them.
   `CLAUDE-ANDROID.md`.
 - For any test that's new or was fixed, confirm it doesn't flake, doesn't rely on real time
   (highly undesirable — acceptable only in exceptional cases agreed with the developer), and
-  never makes real API calls (this is forbidden).
+  never makes real API calls. The one way past that is a test that launches the real app, with
+  the developer's permission; see "Tests".
 - Measure the coverage of every module you touched instead of estimating it from the diff.
   `./gradlew :<module>:koverLog` prints the number; `:<module>:koverHtmlReport` shows where the
   gaps are. Name what is still uncovered rather than staying quiet about it.

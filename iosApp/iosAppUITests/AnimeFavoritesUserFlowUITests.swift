@@ -1,10 +1,9 @@
 import XCTest
 
 /// Runs the shipped app end to end against the live Shikimori backend: real graph, real
-/// network, real screens. Reaching the network is the point. It is a deliberate exception to the
-/// project's rule against it, as Android's AnimeFavoritesUserFlowTest is, and so are the other UI
-/// tests and the restore steps, which run the same app. The assertions stay on structure, never
-/// on values the backend decides.
+/// network, real screens. Reaching the network is the point. Such a test is the project's last
+/// resort, written with the developer's permission, as Android's AnimeFavoritesUserFlowTest is.
+/// The assertions stay on structure, never on values the backend decides.
 final class AnimeFavoritesUserFlowUITests: XCTestCase {
 
     override func setUp() {

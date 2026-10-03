@@ -112,9 +112,9 @@ Nothing lints Swift here, so this list is walked by hand over every Swift file b
   to run it.
 - After a run, its `ios-media` artifact goes to the developer's folder
   `C:\Users\areku\Desktop\iOS test\<date>_<run id>_<short commit>\`. Nothing there is deleted.
-- The UI tests and the restore checks run the real app, which reaches the live backend. That is
-  the same written exception as Android's `AnimeFavoritesUserFlowTest`. Their assertions stay on
-  structure.
+- The UI tests and the restore checks run the real app, which reaches the live backend. The
+  developer allowed them, as they allowed Android's `AnimeFavoritesUserFlowTest`. Their
+  assertions stay on structure.
 - A failed UI test, and a failed restore case, gets up to three tries. Each case starts from a
   fresh installation of its own, so the cases run alone and in any order. Every failed try stays in
   the log.

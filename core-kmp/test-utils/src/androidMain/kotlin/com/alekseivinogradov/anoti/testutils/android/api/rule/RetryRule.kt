@@ -1,4 +1,4 @@
-package com.alekseivinogradov.anoti
+package com.alekseivinogradov.anoti.testutils.android.api.rule
 
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -6,8 +6,8 @@ import org.junit.runners.model.Statement
 
 /**
  * Runs a test again when it fails, up to [attempts] tries in all, then fails with the last error.
- * It is for tests that reach the live backend, which can fail on its own. Every failed try is
- * printed, so a test that passes only on a retry still shows in the log.
+ * It is for tests that run on a device or reach the live backend, both of which can fail on their
+ * own. Every failed try is printed, so a test that passes only on a retry still shows in the log.
  *
  * Put it outside every other rule, so each try starts the screen and the setup anew.
  */
