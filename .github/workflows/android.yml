@@ -37,13 +37,6 @@ jobs:
           ./gradlew :androidApp:assembleDebug allTests :androidApp:testDebugUnitTest
           detektAll koverVerify
 
-      - name: Temporary, the scheduling test twenty times
-        run: |
-          for i in $(seq 1 20); do
-            ./gradlew :feature-kmp:anime-background-update:testAndroidHostTest \
-              --tests '*AnimeUpdateWorkSchedulingTest*' --rerun -q || exit 1
-          done
-
       - name: The iOS version file matches the catalog
         run: git diff --exit-code -- iosApp/Configuration/Version.xcconfig
 
