@@ -18,6 +18,7 @@ defaults:
 
 jobs:
   framework:
+    if: ${{ !contains(github.event.head_commit.message, '[restore-experiment]') }}
     runs-on: macos-26
     timeout-minutes: 90
     steps:
@@ -33,6 +34,7 @@ jobs:
           :core-kmp:di-app:linkReleaseFrameworkIosArm64
 
   native-tests:
+    if: ${{ !contains(github.event.head_commit.message, '[restore-experiment]') }}
     runs-on: macos-26
     timeout-minutes: 120
     steps:
@@ -97,6 +99,7 @@ jobs:
 
   app:
     needs: project
+    if: ${{ !contains(github.event.head_commit.message, '[restore-experiment]') }}
     runs-on: macos-26
     timeout-minutes: 150
     env:
@@ -180,6 +183,7 @@ jobs:
   # The same app and UI tests on an iPad, whose wide window turns the app.
   ipad:
     needs: project
+    if: ${{ !contains(github.event.head_commit.message, '[restore-experiment]') }}
     runs-on: macos-26
     timeout-minutes: 120
     env:
@@ -235,6 +239,45 @@ jobs:
         with:
           name: ios-media-ipad
           path: build/ios-media-ipad
+
+  # Temporary: which way of ending the app lets iOS bring its scene state back.
+  restore-experiment:
+    if: contains(github.event.head_commit.message, '[restore-experiment]')
+    needs: project
+    runs-on: macos-26
+    timeout-minutes: 90
+    env:
+      MEDIA_DIR: ${{ github.workspace }}/build/ios-media-experiment
+      RESULTS_DIR: ${{ github.workspace }}/build/ios-results-experiment
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ios-toolchain
+      - uses: ./.github/actions/gradle-on-macos
+      - name: Use the generated project
+        run: rm -rf iosApp/iosApp.xcodeproj
+      - uses: actions/download-artifact@v8
+        with:
+          name: xcodeproj
+          path: iosApp/iosApp.xcodeproj
+      - name: Boot the simulator
+        run: |
+          mkdir -p "$MEDIA_DIR" "$RESULTS_DIR"
+          bash .github/scripts/ios-boot-simulator.sh
+      - name: Build the app and its UI tests, Debug
+        run: |
+          xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug \
+            -destination "id=$SIM_UDID" -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO build-for-testing > "$MEDIA_DIR/build-debug.log" 2>&1
+          products="$GITHUB_WORKSPACE/build/DerivedData/Build/Products"
+          echo "XCTESTRUN=$(ls "$products"/*.xctestrun | head -1)" >> "$GITHUB_ENV"
+          echo "APP_PATH=$products/Debug-iphonesimulator/Anoti.app" >> "$GITHUB_ENV"
+      - name: The experiment
+        run: bash .github/scripts/ios-restore-experiment.sh 2>&1 | tee "$MEDIA_DIR/experiment.log"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ios-media-experiment
+          path: build/ios-media-experiment
 
   setup-check:
     if: inputs.setup_check || contains(github.event.head_commit.message, '[setup-check]')
