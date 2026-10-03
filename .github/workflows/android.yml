@@ -6,6 +6,11 @@ name: Android
 on:
   push:
 
+# An explicit bash adds pipefail, so a step piping into tee still fails with the command.
+defaults:
+  run:
+    shell: bash
+
 jobs:
   checks:
     runs-on: ubuntu-24.04
