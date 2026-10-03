@@ -142,8 +142,14 @@ expect $? "the app was left on the list"
 wait_for_line "$MEDIA_DIR/case2-warm.log" "saved [0-9]+ characters on AnimeList" 30
 expect $? "the app saved its state on the list"
 xcrun simctl terminate "$SIM_UDID" "$bundle_id" 2> /dev/null
+ready="$RUNNER_TEMP/ready-2b"
+rm -f "$ready"
+READY_FILE="$ready" run_step testTapTheNotificationWithTheAppClosed case2b &
+step=$!
+# Pushed once the step runs, so its banner is still up when the step looks for it.
+wait_for_file "$ready" 120 || echo "no ready file from the step, pushing anyway"
 push_notification
-run_step testTapTheNotificationWithTheAppClosed case2b
+wait "$step"
 expect $? "a cold tap opens favorites over a kept list"
 screenshot case2-cold-tap
 stop_video
@@ -186,12 +192,12 @@ for theme in light dark; do
   # The step's own shot is taken while the switcher is surely open.
   switcher=$(find "$attachments" -name '*.png' | head -1)
   for shot in launch-1 launch-2; do
-    python3 "$check_dark" whole "$MEDIA_DIR/case4-$theme-$shot.png"
+    python3 "$check_dark" edges "$MEDIA_DIR/case4-$theme-$shot.png"
     expect $? "the launch is dark, $shot, $theme theme"
   done
   python3 "$check_dark" edges "$MEDIA_DIR/case4-$theme-list.png"
   expect $? "the top bar and the bottom bar are dark, $theme theme"
-  python3 "$check_dark" center "$switcher"
+  python3 "$check_dark" card "$switcher"
   expect $? "the app's card in the switcher is dark, $theme theme"
 done
 xcrun simctl ui "$SIM_UDID" appearance light

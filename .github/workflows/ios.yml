@@ -33,7 +33,6 @@ jobs:
           :core-kmp:di-app:linkReleaseFrameworkIosArm64
 
   native-tests:
-    needs: framework
     runs-on: macos-26
     timeout-minutes: 120
     steps:
@@ -42,6 +41,13 @@ jobs:
       - uses: ./.github/actions/gradle-on-macos
       - name: Run every Kotlin/Native test on the simulator
         run: ./gradlew iosSimulatorArm64Test --continue
+      # A test binary that crashes leaves no stack trace in the report, only in these.
+      - name: Keep the crash reports
+        if: failure()
+        run: |
+          mkdir -p build/native-crashes
+          cp ~/Library/Logs/DiagnosticReports/*.ips build/native-crashes/ 2> /dev/null || true
+          ls build/native-crashes
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -49,6 +55,7 @@ jobs:
           path: |
             **/build/reports/tests/iosSimulatorArm64Test/
             **/build/test-results/iosSimulatorArm64Test/
+            build/native-crashes/
 
   project:
     runs-on: macos-26

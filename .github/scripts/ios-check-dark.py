@@ -1,7 +1,8 @@
 """Fails when a part of a screenshot that the app keeps dark in every system theme is light.
 
-Modes: `whole` for the launch, `edges` for the top system bar and the area under the bottom
-navigation, `center` for the app's card in the app switcher."""
+Modes: `edges` for the top system bar and the area under the bottom navigation, from the first
+frame of a launch on; `card` for the bars of the app's card in the app switcher. The screen
+between them shows posters, which are light, so it is never measured."""
 import struct
 import sys
 import zlib
@@ -76,15 +77,18 @@ def crop(rows, channels, top, bottom, left, right):
 
 def main(mode, path):
     _, _, channels, rows = read_png(path)
-    if mode == "whole":
-        parts = {"whole": crop(rows, channels, 0, 1, 0, 1)}
-    elif mode == "edges":
+    if mode == "edges":
         parts = {
             "top": crop(rows, channels, 0, EDGE_FRACTION, 0, 1),
             "bottom": crop(rows, channels, 1 - EDGE_FRACTION, 1, 0, 1),
         }
-    elif mode == "center":
-        parts = {"center": crop(rows, channels, 0.35, 0.65, 0.35, 0.65)}
+    elif mode == "card":
+        # Where an iPhone 17 shows the card: its status-bar strip above the content, and its
+        # bottom bar below the bar's labels.
+        parts = {
+            "card top": crop(rows, channels, 0.16, 0.19, 0.25, 0.75),
+            "card bottom": crop(rows, channels, 0.808, 0.825, 0.25, 0.75),
+        }
     else:
         sys.exit(f"unknown mode {mode}")
     values = {name: mean_brightness(part, channels) for name, part in parts.items()}

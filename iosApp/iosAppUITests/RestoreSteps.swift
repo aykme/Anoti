@@ -28,7 +28,8 @@ final class RestoreSteps: XCTestCase {
         //Given
         bringTheAppForward()
         waitFor(app.tagged("search_button")).tap()
-        let field = waitFor(app.textFields.firstMatch, timeout: 10)
+        // Compose shows the search input to the accessibility tree as a text view.
+        let field = waitFor(app.textViews.firstMatch, timeout: 10)
         field.tap()
         field.typeText("Frieren\n")
 
@@ -78,6 +79,7 @@ final class RestoreSteps: XCTestCase {
     func testTapTheNotificationWithTheAppClosed() {
         //Given
         XCTAssertTrue(app.state == .notRunning || app.state == .unknown)
+        signalReady()
 
         //When
         tapTheNotification(timeout: 30)
@@ -150,7 +152,7 @@ final class RestoreSteps: XCTestCase {
         XCTAssertTrue(left.contains(app.state), "the app is still in state \(app.state.rawValue)")
     }
 
-    // Tells the script the app sits in the background, so it can push now. The simulator's
+    // Tells the script the step is ready for the notification, so it can push now. The simulator's
     // processes share the runner's file system.
     private func signalReady() {
         guard let path = environment["ANOTI_READY_FILE"], !path.isEmpty else { return }

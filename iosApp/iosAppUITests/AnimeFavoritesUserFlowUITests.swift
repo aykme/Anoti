@@ -14,12 +14,12 @@ final class AnimeFavoritesUserFlowUITests: XCTestCase {
     func testAddOngoingToAnimeFavorites() {
         //Given
         let app = launchedApp()
-        let listItem = firstOngoing(in: app)
-        XCTAssertTrue(listItem.tagged("notification_button").label == "Turn on notifications")
+        let bell = firstOngoingBell(in: app)
+        XCTAssertEqual(bell.label, "Turn on notifications")
 
         //When
-        listItem.tagged("notification_button").tap()
-        waitForBell(of: listItem, label: "Turn off notifications")
+        bell.tap()
+        waitFor(bell, toRead: "Turn off notifications")
         app.tagged("anime_favorites_button").tap()
 
         //Then
@@ -44,9 +44,9 @@ final class AnimeFavoritesUserFlowUITests: XCTestCase {
     func testRemoveOngoingFromAnimeFavorites() {
         //Given
         let app = launchedApp()
-        let listItem = firstOngoing(in: app)
-        listItem.tagged("notification_button").tap()
-        waitForBell(of: listItem, label: "Turn off notifications")
+        let bell = firstOngoingBell(in: app)
+        bell.tap()
+        waitFor(bell, toRead: "Turn off notifications")
         app.tagged("anime_favorites_button").tap()
         waitFor(app.allTagged("anime_favorites_item").firstMatch)
 
@@ -66,15 +66,17 @@ final class AnimeFavoritesUserFlowUITests: XCTestCase {
         return app
     }
 
+    // Compose lays an item's parts out beside the element its test tag names, not under it. The
+    // first bell on the screen is the first item's.
     @MainActor
-    private func firstOngoing(in app: XCUIApplication) -> XCUIElement {
+    private func firstOngoingBell(in app: XCUIApplication) -> XCUIElement {
         waitFor(app.tagged("ongoing_button")).tap()
-        return waitFor(app.allTagged("anime_list_item").firstMatch)
+        waitFor(app.allTagged("anime_list_item").firstMatch)
+        return waitFor(app.allTagged("notification_button").firstMatch)
     }
 
     @MainActor
-    private func waitForBell(of item: XCUIElement, label: String) {
-        let bell = item.tagged("notification_button")
+    private func waitFor(_ bell: XCUIElement, toRead label: String) {
         let changed = NSPredicate(format: "label == %@", label)
         let expectation = XCTNSPredicateExpectation(predicate: changed, object: bell)
         XCTAssertEqual(XCTWaiter().wait(for: [expectation], timeout: 10), .completed)
@@ -90,13 +92,10 @@ final class AnimeFavoritesUserFlowUITests: XCTestCase {
         return favorite.shows(text) || anywhere.exists
     }
 
-    // The favorites item merges its children, so its bell may only be reachable from the screen.
+    // The screen holds one favorite, so the one bell on it is that favorite's.
     @MainActor
     private func removeTheOnlyFavorite(in app: XCUIApplication) {
-        let favorite = app.allTagged("anime_favorites_item").firstMatch
-        let bellInside = favorite.tagged("notification_button")
-        let bell = bellInside.exists ? bellInside : app.tagged("notification_button")
-        bell.tap()
+        app.allTagged("notification_button").firstMatch.tap()
         let emptyText = app.descendants(matching: .any)
             .matching(NSPredicate(format: "label BEGINSWITH %@", "You haven")).firstMatch
         waitFor(emptyText, timeout: 10)
