@@ -125,6 +125,14 @@ wait_for_saved_scene() {
   find "$saved" -type f -newer "$2" -exec ls -l {} +
 }
 
+# The scene sessions the app's container keeps state for, one folder each.
+list_scene_sessions() {
+  local container
+  container=$(xcrun simctl get_app_container "$SIM_UDID" "$bundle_id" data)
+  echo "scene sessions $1:"
+  ls -l "$container/Library/Saved Application State/$bundle_id.savedState" 2> /dev/null
+}
+
 # The exported attachment of the step $1 that the test named $2.
 attachment() {
   /usr/bin/python3 - "$1/manifest.json" "$2" <<'PY'
@@ -167,9 +175,13 @@ wait_for_line "$MEDIA_DIR/case1-before.log" "saved [0-9]+ characters on AnimeFav
 expect $? "the app saved its state on favorites when it went home"
 wait_for_saved_scene 60 "$home"
 expect $? "the scene's state reached the disk before the termination"
+# iOS records which scene session to bring back a while after the app's own archive.
+sleep 30
+list_scene_sessions "before the end"
 end_like_the_system
 launch_logged case1-relaunch
 sleep 20
+list_scene_sessions "after the relaunch"
 screenshot case1-relaunch
 stop_video
 grep -q "the root opens on AnimeFavorites" "$MEDIA_DIR/case1-relaunch.log"
