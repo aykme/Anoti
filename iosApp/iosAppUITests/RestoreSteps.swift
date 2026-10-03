@@ -50,21 +50,6 @@ final class RestoreSteps: XCTestCase {
     }
 
     @MainActor
-    func testLeaveTheAppOnFavorites() {
-        //Given
-        bringTheAppForward()
-
-        //When
-        waitFor(app.tagged("anime_favorites_button")).tap()
-        waitForFavorites()
-        signalReady()
-        XCUIDevice.shared.press(.home)
-
-        //Then
-        assertInTheBackground()
-    }
-
-    @MainActor
     func testLeaveTheAppOnTheList() {
         //Given
         bringTheAppForward()

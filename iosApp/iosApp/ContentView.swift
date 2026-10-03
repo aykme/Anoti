@@ -8,7 +8,6 @@ struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
-        let _ = NSLog("EXP body rootState %ld", rootState.count)
         ComposeView(restoredState: rootState)
             .ignoresSafeArea()
             .background(
@@ -20,10 +19,7 @@ struct ContentView: View {
                 }
                 .ignoresSafeArea()
             )
-            .onAppear { NSLog("EXP appear rootState %ld", rootState.count) }
-            .onChange(of: rootState) { value in NSLog("EXP rootState now %ld", value.count) }
             .onChange(of: scenePhase) { phase in
-                NSLog("EXP phase %@", String(describing: phase))
                 guard phase != .active, let saved = IosApp.shared.saveState() else { return }
                 rootState = saved
             }

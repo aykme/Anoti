@@ -125,14 +125,6 @@ wait_for_saved_scene() {
   find "$saved" -type f -newer "$2" -exec ls -l {} +
 }
 
-# The scene sessions the app's container keeps state for, one folder each.
-list_scene_sessions() {
-  local container
-  container=$(xcrun simctl get_app_container "$SIM_UDID" "$bundle_id" data)
-  echo "scene sessions $1:"
-  ls -l "$container/Library/Saved Application State/$bundle_id.savedState" 2> /dev/null
-}
-
 # The exported attachment of the step $1 that the test named $2.
 attachment() {
   /usr/bin/python3 - "$1/manifest.json" "$2" <<'PY'
@@ -146,11 +138,13 @@ for test in json.load(open(sys.argv[1])):
 PY
 }
 
-# Ends the app the way iOS ends a suspended one: a SIGKILL to its process, which the simulator runs
-# on the host. A plain simctl terminate is a polite exit, after which iOS sometimes opens a new
-# scene session instead of restoring the old one.
+# Ends the app the way iOS ends a suspended one: it goes to the background first, then a SIGKILL
+# reaches its process, which the simulator runs on the host. An app ended while on screen counts
+# as a crash or a force quit, and iOS then drops the scene state it kept.
 end_like_the_system() {
   local pid
+  xcrun simctl launch "$SIM_UDID" com.apple.Preferences > /dev/null
+  sleep 5
   pid=$(pgrep -f "/Anoti.app/Anoti$" | head -1)
   if [ -n "$pid" ]; then
     kill -KILL "$pid"
@@ -163,6 +157,12 @@ end_like_the_system() {
 
 echo "== 1. The state is kept across a termination"
 start_video case1-kept
+# An app ended on screen, as the UI tests may have left it, also loses what its next run keeps.
+# One run that ends in the background first clears that.
+end_like_the_system
+launch_logged case1-warmup
+sleep 10
+end_like_the_system
 launch_logged case1-before
 sleep 10
 home="$RUNNER_TEMP/home-1"
@@ -175,13 +175,9 @@ wait_for_line "$MEDIA_DIR/case1-before.log" "saved [0-9]+ characters on AnimeFav
 expect $? "the app saved its state on favorites when it went home"
 wait_for_saved_scene 60 "$home"
 expect $? "the scene's state reached the disk before the termination"
-# iOS records which scene session to bring back a while after the app's own archive.
-sleep 30
-list_scene_sessions "before the end"
 end_like_the_system
 launch_logged case1-relaunch
 sleep 20
-list_scene_sessions "after the relaunch"
 screenshot case1-relaunch
 stop_video
 grep -q "the root opens on AnimeFavorites" "$MEDIA_DIR/case1-relaunch.log"
@@ -191,6 +187,7 @@ expect $? "the scene's storage reached the view controller"
 
 echo "== 2a. A notification tap from the background, with the app on the list"
 start_video case2-warm-tap
+end_like_the_system
 launch_logged case2-warm
 sleep 10
 ready="$RUNNER_TEMP/ready-2a"

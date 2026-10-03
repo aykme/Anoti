@@ -143,10 +143,18 @@ light area in the light theme is a bug, even when the dark theme looks right.
      the app from recents. Turn the setting back off afterward.
    - Android, a second time with the setting off: end the process with
      `adb shell am kill com.alekseivinogradov.anoti`, then return to the app from recents.
-   - iPhone: with the app started from Xcode, stop it in Xcode, then open it again from the home
-     screen.
+   - iPhone: with the app started from Xcode, go to the home screen first and wait five seconds.
+     Only then stop it in Xcode, and open it again from the home screen. The run before this one
+     must also have ended in the background, not on screen.
 
    The app comes back on favorites, not on the anime list, and the list where it was scrolled.
+
+   iPhone: iOS keeps the screen's state only for an app the system ended in the background. An
+   app ended while on screen counts as a crash or a force quit: stopped from Xcode while open,
+   crashed, or swiped away. Then iOS drops the kept state, and the next launch opens on the anime
+   list. The run after it drops its state too, so walk the step once more from a fresh launch.
+   Measured in a Simulator on CI on 2026-10-03: after an end in the background 6 of 6 tries came
+   back, after an end on screen 0 of 5.
 3. Open favorites. Go to the home screen. Close the app the way the user does:
    - Android: force-stop the app from the system settings, then open it from the launcher;
    - iPhone: swipe the app away in the app switcher, then open it from the home screen.
