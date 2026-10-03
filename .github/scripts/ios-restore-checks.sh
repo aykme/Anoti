@@ -151,7 +151,7 @@ PY
 end_like_the_system() {
   local pid
   xcrun simctl launch "$SIM_UDID" com.apple.Preferences > /dev/null
-  sleep 5
+  sleep "${BACKGROUND_WAIT:-5}"
   pid=$(pgrep -f "/Anoti.app/Anoti$" | head -1)
   if [ -n "$pid" ]; then
     echo "ending the app's process $pid in the background"

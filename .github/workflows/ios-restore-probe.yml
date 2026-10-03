@@ -15,13 +15,14 @@ jobs:
       fail-fast: false
       matrix:
         ui_tests_first: [true, false]
-        shard: [1, 2]
+        background_wait: [5, 30]
     runs-on: macos-26
     timeout-minutes: 150
     env:
       MEDIA_DIR: ${{ github.workspace }}/build/ios-media
       RESULTS_DIR: ${{ github.workspace }}/build/ios-results
       PROBE_ITERATIONS: 10
+      BACKGROUND_WAIT: ${{ matrix.background_wait }}
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/ios-toolchain
@@ -52,7 +53,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: probe-ui${{ matrix.ui_tests_first }}-${{ matrix.shard }}
+          name: probe-ui${{ matrix.ui_tests_first }}-wait${{ matrix.background_wait }}
           path: |
             build/ios-media
             !build/ios-media/**/*.mp4
