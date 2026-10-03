@@ -55,9 +55,9 @@ sleep 10
 run_step testAnswerTheNotificationQuestion first
 echo "the notification question: $?"
 
-for method in terminate kill; do
-  for wait in 0 10 30 60; do
-    for try in 1 2; do
+for method in kill; do
+  for wait in 10; do
+    for try in 1 2 3 4 5 6; do
       name="$method-$wait-$try"
       launch_logged "$name-before"
       sleep 10
@@ -72,6 +72,7 @@ for method in terminate kill; do
       kept=$(grep -o "the scene kept [0-9]* characters" "$MEDIA_DIR/$name-after.log" | head -1)
       opens=$(grep -o "the root opens on [A-Za-z]*" "$MEDIA_DIR/$name-after.log" | head -1)
       echo "RESULT $name: step $step | $kept | $opens | sessions before: $before | after: $after"
+      grep -h "EXP" "$MEDIA_DIR/$name-before.err.log" "$MEDIA_DIR/$name-after.err.log" | sed "s/^/  /" | cut -c1-160
     done
   done
 done
