@@ -97,14 +97,36 @@ JSON
   xcrun simctl push "$SIM_UDID" "$bundle_id" "$RUNNER_TEMP/notification.apns"
 }
 
+# The scene's storage reaches the disk a moment after the app leaves the screen, and a
+# termination before that loses it. Waits up to $1 seconds for a file of the scene's saved state
+# newer than the marker $2, then lists what it found.
+wait_for_saved_scene() {
+  local container saved waited=0
+  container=$(xcrun simctl get_app_container "$SIM_UDID" "$bundle_id" data)
+  saved="$container/Library/Saved Application State"
+  until [ -n "$(find "$saved" -type f -newer "$2" 2> /dev/null | head -1)" ]; do
+    if [ "$waited" -ge "$1" ]; then
+      echo "no saved scene state newer than the step after $1 s"
+      find "$container/Library" -type f -newer "$2" 2> /dev/null | head -20
+      return 1
+    fi
+    sleep 1
+    waited=$((waited + 1))
+  done
+  find "$saved" -type f -newer "$2" -exec ls -l {} +
+}
+
 echo "== 1. The state is kept across a termination"
 start_video case1-kept
 launch_logged case1-before
 sleep 10
+touch "$RUNNER_TEMP/case1-marker"
 run_step testLeaveTheAppOnFavoritesAfterASearch case1
 expect $? "the app was left on favorites after a search"
 wait_for_line "$MEDIA_DIR/case1-before.log" "saved [0-9]+ characters on AnimeFavorites" 30
 expect $? "the app saved its state on favorites when it went home"
+wait_for_saved_scene 30 "$RUNNER_TEMP/case1-marker"
+expect $? "the scene's state reached the disk before the termination"
 xcrun simctl terminate "$SIM_UDID" "$bundle_id" 2> /dev/null
 launch_logged case1-relaunch
 sleep 20
@@ -137,10 +159,13 @@ stop_video
 
 echo "== 2b. A notification tap with the app closed and the list kept"
 start_video case2-cold-tap
+touch "$RUNNER_TEMP/case2b-marker"
 run_step testLeaveTheAppOnTheList case2b
 expect $? "the app was left on the list"
 wait_for_line "$MEDIA_DIR/case2-warm.log" "saved [0-9]+ characters on AnimeList" 30
 expect $? "the app saved its state on the list"
+wait_for_saved_scene 30 "$RUNNER_TEMP/case2b-marker"
+expect $? "the list's state reached the disk before the termination"
 xcrun simctl terminate "$SIM_UDID" "$bundle_id" 2> /dev/null
 ready="$RUNNER_TEMP/ready-2b"
 rm -f "$ready"
