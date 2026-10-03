@@ -49,14 +49,18 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.Res as
  */
 class AnimeFavoritesUserFlowTest {
 
-    @get:Rule
+    // The backend can fail on its own, so a failed run gets up to three tries.
+    @get:Rule(order = 0)
+    val retryRule = RetryRule(attempts = 3)
+
+    @get:Rule(order = 1)
     val grantPermissionRule: GrantPermissionRule = if (Build.VERSION.SDK_INT >= TIRAMISU) {
         GrantPermissionRule.grant(android.Manifest.permission.POST_NOTIFICATIONS)
     } else {
         GrantPermissionRule.grant()
     }
 
-    @get:Rule
+    @get:Rule(order = 2)
     val composeRule = createAndroidComposeRule<MainActivity>()
 
     private suspend fun notificationButtonTurnOnDescription() =

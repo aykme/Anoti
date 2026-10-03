@@ -92,7 +92,7 @@ the rules both platforms share and loads this file.
 
 Nothing lints Swift here, so this list is walked by hand over every Swift file being committed.
 
-- Four spaces, at most 100 columns, the formatting of the files around it.
+- Four spaces, at most 100 columns, the formatting of files around it.
 - No force unwrap and no force cast.
 - Nothing deprecated for iOS 16 on the pinned SDK. The build treats Swift warnings as errors, so
   a warning stops it.
@@ -115,6 +115,9 @@ Nothing lints Swift here, so this list is walked by hand over every Swift file b
 - The UI tests and the restore checks run the real app, which reaches the live backend. That is
   the same written exception as Android's `AnimeFavoritesUserFlowTest`. Their assertions stay on
   structure.
+- A failed UI test, and a failed restore case, gets up to three tries. Each case starts from a
+  fresh installation of its own, so the cases run alone and in any order. Every failed try stays in
+  the log.
 - To start it, run `gh workflow run ios.yml --ref <branch>`. Add `-f setup_check=true` after a
   change to `compile-kotlin-framework.sh`: that job proves the script finds a Java on a Mac
   without one in `JAVA_HOME`.

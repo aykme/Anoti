@@ -136,9 +136,11 @@ jobs:
           recorder=$!
           sleep 2
           status=0
+          # The UI tests reach the live backend, so a failed one gets up to three tries.
           xcodebuild test-without-building -xctestrun "$XCTESTRUN" -destination "id=$SIM_UDID" \
             -only-testing:iosAppUITests/AnimeFavoritesUserFlowUITests \
             -only-testing:iosAppUITests/OrientationUITests \
+            -retry-tests-on-failure -test-iterations 3 \
             -resultBundlePath "$RESULTS_DIR/ui-tests.xcresult" \
             2>&1 | tee "$MEDIA_DIR/ui-tests.log" || status=$?
           kill -INT "$recorder" 2> /dev/null || true
@@ -213,9 +215,11 @@ jobs:
           recorder=$!
           sleep 2
           status=0
+          # The UI tests reach the live backend, so a failed one gets up to three tries.
           xcodebuild test-without-building -xctestrun "$XCTESTRUN" -destination "id=$SIM_UDID" \
             -only-testing:iosAppUITests/AnimeFavoritesUserFlowUITests \
             -only-testing:iosAppUITests/OrientationUITests \
+            -retry-tests-on-failure -test-iterations 3 \
             -resultBundlePath "$RESULTS_DIR/ui-tests.xcresult" \
             2>&1 | tee "$MEDIA_DIR/ui-tests.log" || status=$?
           kill -INT "$recorder" 2> /dev/null || true

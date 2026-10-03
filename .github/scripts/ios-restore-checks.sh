@@ -10,6 +10,7 @@ set -uo pipefail
 bundle_id=com.alekseivinogradov.anoti
 check_dark=".github/scripts/ios-check-dark.py"
 failures=0
+case_failures=0
 recorder=""
 
 # A copy of the test run that leaves the app out. Installing the app before each step would end
@@ -53,6 +54,8 @@ launch_logged() {
 
 # Extra environment for the step goes before the call: READY_FILE=... run_step name.
 run_step() {
+  # A retried step writes its result again, and xcodebuild refuses an existing bundle.
+  rm -rf "$RESULTS_DIR/$1-$2.xcresult"
   TEST_RUNNER_ANOTI_RESTORE_STEPS=1 TEST_RUNNER_ANOTI_READY_FILE="${READY_FILE:-}" \
     xcodebuild test-without-building -xctestrun "$steps_xctestrun" -destination "id=$SIM_UDID" \
     -only-testing:"iosAppUITests/RestoreSteps/$1" \
@@ -68,23 +71,18 @@ expect() {
     echo "PASS: $2"
   else
     echo "FAIL: $2"
-    failures=$((failures + 1))
+    case_failures=$((case_failures + 1))
   fi
 }
 
-# Waits up to $3 seconds for the pattern $2 in the log $1, from its line $4 on.
+# Waits up to $3 seconds for the pattern $2 in the log $1.
 wait_for_line() {
   local waited=0
-  until tail -n "+$4" "$1" 2> /dev/null | grep -Eq "$2"; do
+  until grep -Eq "$2" "$1" 2> /dev/null; do
     [ "$waited" -ge "$3" ] && return 1
     sleep 1
     waited=$((waited + 1))
   done
-}
-
-# The line a log's next entry will take, so a later wait ignores what came before.
-next_line() {
-  echo $(($(wc -l < "$1") + 1))
 }
 
 wait_for_file() {
@@ -155,102 +153,133 @@ end_like_the_system() {
   sleep 2
 }
 
-echo "== 1. The state is kept across a termination"
-start_video case1-kept
-# An app ended on screen, as the UI tests may have left it, also loses what its next run keeps.
-# One run that ends in the background first clears that.
-end_like_the_system
-launch_logged case1-warmup
-sleep 10
-end_like_the_system
-launch_logged case1-before
-sleep 10
-home="$RUNNER_TEMP/home-1"
-rm -f "$home"
-from=$(next_line "$MEDIA_DIR/case1-before.log")
-# The step creates the file right before it goes home, so a later state file is that save's.
-READY_FILE="$home" run_step testLeaveTheAppOnFavoritesAfterASearch case1
-expect $? "the app was left on favorites after a search"
-wait_for_line "$MEDIA_DIR/case1-before.log" "saved [0-9]+ characters on AnimeFavorites" 30 "$from"
-expect $? "the app saved its state on favorites when it went home"
-wait_for_saved_scene 60 "$home"
-expect $? "the scene's state reached the disk before the termination"
-end_like_the_system
-launch_logged case1-relaunch
-sleep 20
-screenshot case1-relaunch
-stop_video
-grep -q "the root opens on AnimeFavorites" "$MEDIA_DIR/case1-relaunch.log"
-expect $? "the relaunch opens on favorites"
-grep -Eq "the scene kept [1-9][0-9]* characters" "$MEDIA_DIR/case1-relaunch.log"
-expect $? "the scene's storage reached the view controller"
+# Gives a case a start of its own, so the cases run in any order and alone. A fresh install leaves
+# nothing kept and favorites empty. Its first run answers the notification question, then ends in
+# the background: an app ended on screen would lose what its next run keeps.
+prepare_case() {
+  xcrun simctl uninstall "$SIM_UDID" "$bundle_id"
+  xcrun simctl install "$SIM_UDID" "$APP_PATH"
+  launch_logged "$1-prepare"
+  sleep 10
+  run_step testAnswerTheNotificationQuestion "$1-prepare"
+  expect $? "the case starts from a fresh install, $1"
+  end_like_the_system
+}
 
-echo "== 2a. A notification tap from the background, with the app on the list"
-start_video case2-warm-tap
-end_like_the_system
-launch_logged case2-warm
-sleep 10
-ready="$RUNNER_TEMP/ready-2a"
-rm -f "$ready"
-READY_FILE="$ready" run_step testTapTheNotificationFromTheBackground case2a &
-step=$!
-# The step writes the file once the app sits on the list in the background. Without it, the
-# push goes out after two minutes and the step finds it in the notification list instead.
-wait_for_file "$ready" 120 || echo "no ready file from the step, pushing anyway"
-push_notification
-wait "$step"
-expect $? "a tap from the background opens favorites"
-screenshot case2-warm-tap
-grep -q "a notification opens AnimeFavorites, the root exists: true" \
-  "$MEDIA_DIR/case2-warm.log"
-expect $? "the running root was asked to open favorites"
-stop_video
+# Runs the case $2, with the rest of the arguments, up to three times until a try passes. The
+# backend and the simulator can fail on their own, and every case starts from its own fresh
+# install, so a try never depends on the one before. A failed try stays in the log.
+run_case() {
+  local name=$1 try
+  shift
+  for try in 1 2 3; do
+    echo "== $name, try $try"
+    case_failures=0
+    "$@"
+    [ "$case_failures" -eq 0 ] && return
+    echo "$name failed on try $try"
+  done
+  failures=$((failures + case_failures))
+}
 
-echo "== 2b. A notification tap with the app closed and the list kept"
-start_video case2-cold-tap
-home="$RUNNER_TEMP/home-2b"
-rm -f "$home"
-from=$(next_line "$MEDIA_DIR/case2-warm.log")
-READY_FILE="$home" run_step testLeaveTheAppOnTheList case2b
-expect $? "the app was left on the list"
-wait_for_line "$MEDIA_DIR/case2-warm.log" "saved [0-9]+ characters on AnimeList" 30 "$from"
-expect $? "the app saved its state on the list"
-wait_for_saved_scene 60 "$home"
-expect $? "the list's state reached the disk before the termination"
-end_like_the_system
-ready="$RUNNER_TEMP/ready-2b"
-rm -f "$ready"
-READY_FILE="$ready" run_step testTapTheNotificationWithTheAppClosed case2b &
-step=$!
-# Pushed once the step runs, so its banner is still up when the step looks for it.
-wait_for_file "$ready" 120 || echo "no ready file from the step, pushing anyway"
-push_notification
-wait "$step"
-expect $? "a cold tap opens favorites"
-screenshot case2-cold-tap
-stop_video
+case_kept_across_a_termination() {
+  start_video case1-kept
+  prepare_case case1
+  launch_logged case1-before
+  sleep 10
+  home="$RUNNER_TEMP/home-1"
+  rm -f "$home"
+  # The step creates the file right before it goes home, so a later state file is that save's.
+  READY_FILE="$home" run_step testLeaveTheAppOnFavoritesAfterASearch case1
+  expect $? "the app was left on favorites after a search"
+  wait_for_line "$MEDIA_DIR/case1-before.log" "saved [0-9]+ characters on AnimeFavorites" 30
+  expect $? "the app saved its state on favorites when it went home"
+  wait_for_saved_scene 60 "$home"
+  expect $? "the scene's state reached the disk before the termination"
+  end_like_the_system
+  launch_logged case1-relaunch
+  sleep 20
+  screenshot case1-relaunch
+  stop_video
+  grep -q "the root opens on AnimeFavorites" "$MEDIA_DIR/case1-relaunch.log"
+  expect $? "the relaunch opens on favorites"
+  grep -Eq "the scene kept [1-9][0-9]* characters" "$MEDIA_DIR/case1-relaunch.log"
+  expect $? "the scene's storage reached the view controller"
+}
 
-echo "== 3. A fresh start after a reinstall"
-start_video case3-reinstall
-xcrun simctl uninstall "$SIM_UDID" "$bundle_id"
-xcrun simctl install "$SIM_UDID" "$APP_PATH"
-launch_logged case3-reinstall
-sleep 20
-screenshot case3-reinstall
-grep -q "nothing was kept" "$MEDIA_DIR/case3-reinstall.log"
-expect $? "a reinstall starts with nothing kept"
-grep -q "the root opens on AnimeList" "$MEDIA_DIR/case3-reinstall.log"
-expect $? "a reinstall opens on the list"
-# The reinstall brought the notification question back over the list.
-run_step testAnswerTheNotificationQuestion case3
-expect $? "the notification question was answered"
-stop_video
+case_tap_from_the_background() {
+  start_video case2-warm-tap
+  prepare_case case2a
+  launch_logged case2-warm
+  sleep 10
+  ready="$RUNNER_TEMP/ready-2a"
+  rm -f "$ready"
+  READY_FILE="$ready" run_step testTapTheNotificationFromTheBackground case2a &
+  step=$!
+  # The step writes the file once the app sits on the list in the background. Without it, the
+  # push goes out after two minutes and the step finds it in the notification list instead.
+  wait_for_file "$ready" 120 || echo "no ready file from the step, pushing anyway"
+  push_notification
+  wait "$step"
+  expect $? "a tap from the background opens favorites"
+  screenshot case2-warm-tap
+  grep -q "a notification opens AnimeFavorites, the root exists: true" \
+    "$MEDIA_DIR/case2-warm.log"
+  expect $? "the running root was asked to open favorites"
+  stop_video
+}
 
-echo "== 4. Dark in every system theme: launch, top bar, bottom bar, app switcher"
-for theme in light dark; do
+case_tap_with_the_app_closed() {
+  start_video case2-cold-tap
+  prepare_case case2b
+  launch_logged case2-cold
+  sleep 10
+  home="$RUNNER_TEMP/home-2b"
+  rm -f "$home"
+  READY_FILE="$home" run_step testLeaveTheAppOnTheList case2b
+  expect $? "the app was left on the list"
+  wait_for_line "$MEDIA_DIR/case2-cold.log" "saved [0-9]+ characters on AnimeList" 30
+  expect $? "the app saved its state on the list"
+  wait_for_saved_scene 60 "$home"
+  expect $? "the list's state reached the disk before the termination"
+  end_like_the_system
+  ready="$RUNNER_TEMP/ready-2b"
+  rm -f "$ready"
+  READY_FILE="$ready" run_step testTapTheNotificationWithTheAppClosed case2b &
+  step=$!
+  # Pushed once the step runs, so its banner is still up when the step looks for it.
+  wait_for_file "$ready" 120 || echo "no ready file from the step, pushing anyway"
+  push_notification
+  wait "$step"
+  expect $? "a cold tap opens favorites"
+  screenshot case2-cold-tap
+  stop_video
+}
+
+case_fresh_after_a_reinstall() {
+  start_video case3-reinstall
+  prepare_case case3
+  xcrun simctl uninstall "$SIM_UDID" "$bundle_id"
+  xcrun simctl install "$SIM_UDID" "$APP_PATH"
+  launch_logged case3-reinstall
+  sleep 20
+  screenshot case3-reinstall
+  grep -q "nothing was kept" "$MEDIA_DIR/case3-reinstall.log"
+  expect $? "a reinstall starts with nothing kept"
+  grep -q "the root opens on AnimeList" "$MEDIA_DIR/case3-reinstall.log"
+  expect $? "a reinstall opens on the list"
+  # The reinstall brought the notification question back over the list.
+  run_step testAnswerTheNotificationQuestion case3
+  expect $? "the notification question was answered"
+  stop_video
+}
+
+# The theme is $1.
+case_dark_in_a_theme() {
+  local theme=$1
   xcrun simctl ui "$SIM_UDID" appearance "$theme"
   start_video "case4-$theme"
-  xcrun simctl terminate "$SIM_UDID" "$bundle_id" 2> /dev/null
+  prepare_case "case4-$theme"
   launch_logged "case4-$theme"
   # The launch command returns before the zoom from the icon is over.
   sleep 1
@@ -263,6 +292,7 @@ for theme in light dark; do
   expect $? "the app switcher step ran, $theme theme"
   stop_video
   attachments="$MEDIA_DIR/attachments/testShowTheAppSwitcher-case4-$theme"
+  rm -rf "$attachments"
   xcrun xcresulttool export attachments \
     --path "$RESULTS_DIR/testShowTheAppSwitcher-case4-$theme.xcresult" --output-path "$attachments"
   # The list may already show its light posters a second after launch, so the edges are what a
@@ -280,6 +310,17 @@ for theme in light dark; do
   expect $? "the switcher check tells the home screen apart, $theme theme"
   python3 "$check_dark" card "$attachments/$(attachment "$attachments" "app switcher")"
   expect $? "the app's card in the switcher is dark, $theme theme"
+}
+
+run_case "1. The state is kept across a termination" case_kept_across_a_termination
+run_case "2a. A notification tap from the background, with the app on the list" \
+  case_tap_from_the_background
+run_case "2b. A notification tap with the app closed and the list kept" \
+  case_tap_with_the_app_closed
+run_case "3. A fresh start after a reinstall" case_fresh_after_a_reinstall
+for theme in light dark; do
+  run_case "4. Dark in the $theme system theme: launch, bars, app switcher" \
+    case_dark_in_a_theme "$theme"
 done
 xcrun simctl ui "$SIM_UDID" appearance light
 
