@@ -14,8 +14,7 @@ preconditions from there.
 Font and display size change the notification too, since the system draws it at the current
 size. Check sections 3 and 4 in each pass.
 
-Steps run on both platforms unless they name one. The iPhone steps are unverified until the
-iPhone app has been built and run.
+Steps run on both platforms unless they name one.
 
 ## 1. Getting a notification to appear
 

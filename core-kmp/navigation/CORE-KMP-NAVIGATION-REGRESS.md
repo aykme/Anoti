@@ -75,5 +75,3 @@ The steps name Android's tools. On the iPhone:
   back on the screen it was left on.
 - A tapped notification opens favorites as on Android, and favorites already open stay as they
   were. After a cold start, another screen may show for a moment first.
-
-The iPhone steps are unverified until the iPhone app has been built and run.

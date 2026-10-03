@@ -1,0 +1,21 @@
+name: Gradle memory on macOS
+description: Fits Gradle and the Kotlin daemon to the 3-core, 7 GB macOS runner.
+runs:
+  using: composite
+  steps:
+    - name: Fit Gradle to the runner
+      shell: bash
+      run: |
+        mkdir -p ~/.gradle
+        cat >> ~/.gradle/gradle.properties <<'PROPS'
+        org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8
+        kotlin.daemon.jvm.options=-Xmx1g
+        org.gradle.workers.max=3
+        org.gradle.vfs.watch=false
+        PROPS
+
+    - uses: actions/cache@v6
+      with:
+        path: ~/.konan
+        key: konan-${{ runner.os }}-${{ hashFiles('gradle/libs.versions.toml') }}
+        restore-keys: konan-${{ runner.os }}-

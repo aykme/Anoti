@@ -324,5 +324,3 @@ The steps name Android's tools. On the iPhone:
   the iPhone, so that pass starts from a cold launch.
 - A narrow screen keeps the app upright, as on Android. The rotation steps of section 13 run on a
   wide one: an iPad, or a foldable iPhone unfolded.
-
-The iPhone steps are unverified until the iPhone app has been built and run.

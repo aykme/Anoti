@@ -21,6 +21,8 @@ module, so leaf modules can depend on them without cycling back through this one
   show. It also builds `:main`'s screen host over it. `IosApp.viewController(restoredState)` then
   hands out the app's screen over the string the scene kept, and `IosApp.saveState()` gives the
   string to keep.
+- `IosApp.supportedInterfaceOrientations(window)` answers which way a window may turn: every way
+  once its smaller side reaches 600 points, upright below that. It is safe before `start()`.
 - `createDiRootComponent(appComponent)` builds `:main`'s `DiRootComponent`, the root UI host's
   graph, from the component above on either platform.
 - For the scope annotations, qualifier annotations, and `PlatformContext`, depend on

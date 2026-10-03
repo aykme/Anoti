@@ -132,5 +132,3 @@ On the iPhone:
 - A narrow screen keeps the app upright, as on Android. Section 6 runs on a wide one: an iPad, or
   a foldable iPhone unfolded.
 - To kill the app in section 7, start it from Xcode, go to the home screen and stop it in Xcode.
-
-The iPhone steps are unverified until the iPhone app has been built and run.

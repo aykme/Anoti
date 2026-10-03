@@ -55,8 +55,9 @@ Minimum versions:
    first Gradle sync.
 4. The iOS app is built with Xcode 26.4 or newer, the release the project's Kotlin version is
    documented against. Xcode 26.4 runs on macOS Tahoe 26.2 and newer.
-5. The iOS build runs the project's Gradle build as well, so the Mac also needs a JDK and the
-   Android SDK. Any JDK starts the build, and JDK 21 is downloaded like on any other machine.
+5. The iOS build runs the project's Gradle build as well, so the Mac also needs a JDK. Any JDK
+   starts the build, the one inside Android Studio included, and JDK 21 is downloaded like on any
+   other machine. The Android SDK is not needed for it.
 
 Setting up the Android project:
 
@@ -67,3 +68,23 @@ Setting up the Android project:
    to, the usual install folders of the system, and JDKs installed through Android Studio. Only
    when it finds none does it download JDK 21 during that sync.
 3. Run the `androidApp` configuration.
+
+Setting up the iOS project:
+
+1. Install Xcode 26.4 or newer.
+2. Give the build a Java, in one of two ways:
+   - Install Android Studio into the standard `/Applications` folder. The build finds the Java
+     inside it there, so no separate JDK is needed.
+   - Or install any JDK with its ordinary installer.
+3. Open `iosApp/iosApp.xcodeproj` in Xcode, pick an iPhone simulator and run the `iosApp` scheme.
+   The first build takes long: it compiles the whole shared code for iOS.
+
+If the build stops with "Java not found", install a JDK. The project asks Gradle for more memory
+than a small Mac has. There, put these lines into `~/.gradle/gradle.properties`, which CI uses on
+its 7 GB machine:
+
+```
+org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8
+kotlin.daemon.jvm.options=-Xmx1g
+org.gradle.workers.max=3
+```

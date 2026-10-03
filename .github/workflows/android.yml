@@ -1,0 +1,51 @@
+# The project's checks on every push to develop, and on any branch by hand: the app builds, every
+# host test passes, detekt is clean, coverage holds, and the iOS version file matches the catalog.
+# Instrumented tests stay on the developer's emulators.
+name: Android
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+# An explicit bash adds pipe fail, so a step piping into tee still fails with the command.
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Fit Gradle to the runner
+        run: |
+          cat >> ~/.gradle/gradle.properties <<'PROPS'
+          org.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=2g -Dfile.encoding=UTF-8
+          kotlin.daemon.jvm.options=-Xmx4g
+          org.gradle.workers.max=4
+          org.gradle.vfs.watch=false
+          PROPS
+
+      - name: Build, test, lint and measure coverage
+        run: >
+          ./gradlew :androidApp:assembleDebug allTests :androidApp:testDebugUnitTest
+          detektAll koverVerify
+
+      - name: The iOS version file matches the catalog
+        run: git diff --exit-code -- iosApp/Configuration/Version.xcconfig
+
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: android-reports
+          path: '**/build/reports/'

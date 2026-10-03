@@ -30,6 +30,7 @@ import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.score_image
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.empty_list
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.extra_info_on_description
 import com.alekseivinogradov.anoti.main.impl.presentation.MainActivity
+import com.alekseivinogradov.anoti.testutils.android.api.rule.RetryRule
 import com.alekseivinogradov.anoti.testutils.kmp.api.compose.safeComposeInteraction
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.getString
@@ -42,21 +43,25 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.Res as
 
 /**
  * Runs the shipped app end to end against the live Shikimori backend: real DI graph, real network,
- * real screens. Reaching the network is the point here, and the one deliberate exception to the
- * project's rule against it. Everything under the UI is already covered by fakes elsewhere. What
- * is left to prove is that the whole stack works together. The assertions therefore stay on
- * structure, never on values the backend decides.
+ * real screens. Reaching the network is the point here. Such a test is the project's last resort,
+ * written with the developer's permission. Everything under the UI is already covered by fakes
+ * elsewhere. What is left to prove is that the whole stack works together. The assertions
+ * therefore stay on structure, never on values the backend decides.
  */
 class AnimeFavoritesUserFlowTest {
 
-    @get:Rule
+    // The backend can fail on its own, so a failed run gets up to three tries.
+    @get:Rule(order = 0)
+    val retryRule = RetryRule(attempts = 3)
+
+    @get:Rule(order = 1)
     val grantPermissionRule: GrantPermissionRule = if (Build.VERSION.SDK_INT >= TIRAMISU) {
         GrantPermissionRule.grant(android.Manifest.permission.POST_NOTIFICATIONS)
     } else {
         GrantPermissionRule.grant()
     }
 
-    @get:Rule
+    @get:Rule(order = 2)
     val composeRule = createAndroidComposeRule<MainActivity>()
 
     private suspend fun notificationButtonTurnOnDescription() =

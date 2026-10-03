@@ -16,6 +16,7 @@ import com.alekseivinogradov.anoti.animenotification.external.android.impl.prese
 import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.poster.PosterLoader
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
+import com.alekseivinogradov.anoti.testutils.android.api.rule.RetryRule
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -56,7 +57,11 @@ private const val RATE_LIMIT_COOLDOWN_MILLIS = 2_000L
 @Suppress("TooManyFunctions")
 class AnimeNotificationIdsDeviceTest {
 
-    @get:Rule
+    // A device can fail on its own, so a failed run gets up to three tries.
+    @get:Rule(order = 0)
+    val retryRule = RetryRule(attempts = 3)
+
+    @get:Rule(order = 1)
     val grantPermissionRule: GrantPermissionRule = if (Build.VERSION.SDK_INT >= TIRAMISU) {
         GrantPermissionRule.grant(Manifest.permission.POST_NOTIFICATIONS)
     } else {

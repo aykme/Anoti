@@ -74,7 +74,8 @@ these rules and load together with them.
 - One exception, for iOS only. Code that exists only because iOS lacks a mechanism Android's
   OS provides lives in `iosMain`, even when it is portable. `IosRootHolder`, `IosRootContent`,
   `SaveableStateCodec` and `ChildLifecycle` in `main` are the case. They keep the screen state
-  Android keeps in its saved instance state, and rebuild the root from it. Such code is written
+  Android keeps in its saved instance state, and rebuild the root from it. `allowsRotation` in
+  `main` is one too: the OS keeps a narrow Android screen upright on its own. Such code is written
   in `commonMain` first and moved once its tests pass. Logic both platforms share stays in
   `commonMain`, whoever calls it.
 - This applies to Compose code too: a composable function only needs to live in `androidMain`/
@@ -166,7 +167,8 @@ these rules and load together with them.
   in `core-kmp:anime-database` shows the shape.
 - An `iosTest` runs on macOS and nowhere else: on this machine `iosSimulatorArm64Test` is skipped
   outright, so a test there is compiled and never executed. Kover cannot measure Kotlin/Native
-  either. Such a test proves nothing here and counts for nothing.
+  either. Such a test proves nothing here and counts for nothing. It does run on GitHub's macOS
+  runner, in `ios.yml`, started on the developer's word.
 - So before writing one, check whether the code under it needs an iOS API at all. A class built
   from coroutines, atomics and the module's own types belongs in `commonMain`, where its test
   runs on every build and is measured — even when iOS is its only caller. `BackgroundRefreshPass`
@@ -177,7 +179,9 @@ these rules and load together with them.
   where they run here: `commonTest`, or `androidHostTest` for a composable. They move with the
   code once they pass.
 - What stays in `iosTest` is what only a real iOS runtime can answer, and it is written knowing
-  it will not run until someone builds on a Mac.
+  it runs only in `ios.yml`, never on this machine.
+- An `iosTest` builds no UIKit window or view. The test process has no app, so UIKit starts only
+  halfway, and the Compose tests in the same process then crash on text input.
 - Where both platforms need the same thing built — wording, an id, a format — build it once in
   `commonMain` and have both call it. Two copies drift, and review is not what should be holding
   them together. `newEpisodeNotificationText` in `feature-kmp:anime-notification` is that shape.
@@ -185,6 +189,17 @@ these rules and load together with them.
   instrumented tests in `src/androidTest/kotlin`. Never a `java` directory, in any source set.
 - Composable tests, the app's own `Application`, instrumented tests and the SDK level
   Robolectric emulates have rules of their own. See "Tests on Android" in `CLAUDE-ANDROID.md`.
+- A test that launches the real app is the last resort: a UI test, or a CI check that drives the
+  installed app. It is written only where nothing smaller can prove the behavior, and only with
+  the developer's permission. Its assertions stay on structure, never on values the live backend
+  decides.
+- Every test that runs on a device or a simulator gets up to three tries, since a device can
+  fail on its own and CI must not go red over it. Every failed try stays visible in the log.
+- On Android, such a test takes `RetryRule` from `core-kmp:test-utils` as its outermost rule. On
+  iOS, `ios.yml` retries the UI tests through `xcodebuild`, the Kotlin/Native tests by running
+  their Gradle task again, and each restore case as a whole.
+- So a test must pass on its own, in any order. It never leans on what another test or an
+  earlier try left behind; a shared setup goes into a preparation step every test runs.
 - The code under test is the real thing, wiring included; what it reaches for is where the fakes
   start. A test may build a real DI component, as long as everything handed to that component is
   a handwritten fake: no real database, no network, no background work.
@@ -237,6 +252,30 @@ these rules and load together with them.
   main cases, the risky ones, the bottlenecks and the boundaries. Where concurrency is real,
   cover races and ordering as well. A test written only to move the number is worse than no test.
 
+## CI on GitHub
+
+- Two workflows run on GitHub Actions: `android.yml` on Linux and `ios.yml` on macOS. Both run on
+  every push to `develop`. A push to any other branch starts neither.
+- On any other branch they run only on the developer's word. What each one checks is in
+  `CLAUDE-ANDROID.md` and `CLAUDE-IOS.md`, under "Running Android on CI" and "Running iOS on CI".
+- The GitHub CLI is not on the session's `PATH`. Call it by its full path,
+  `"/c/Program Files/GitHub CLI/gh.exe"` in bash. The repository is `aykme/Anoti`, and the git
+  remote is named `master`, not `origin`.
+- To start a workflow by hand, push the branch first, then run
+  `gh workflow run <android.yml|ios.yml> -R aykme/Anoti --ref <branch>`.
+- To find that run, take the newest dispatch on the branch:
+  `gh run list -R aykme/Anoti --workflow <file> --branch <branch> --event workflow_dispatch
+  --limit 1`. For a run a push started, filter by `--commit <sha>` instead. A run shows up a few
+  seconds after it starts.
+- Wait for it with `gh run watch <run id> -R aykme/Anoti --interval 60`, or in the background,
+  since an iOS run takes 40 to 60 minutes. `gh run view <run id> -R aykme/Anoti` shows the jobs,
+  and `--log-failed` the failed steps.
+- A job's whole log comes from `gh api --allow-escape-sequences
+  repos/aykme/Anoti/actions/jobs/<job id>/logs`. It is there only once the job has ended.
+- Artifacts come down with `gh run download <run id> -R aykme/Anoti -n <name> -D <folder>`.
+  After every iOS run, `ios-media` and `ios-media-ipad` go to the developer's folder, as
+  "Running iOS on CI" says.
+
 ## Finishing a task
 
 - This is a final stage — run it at the point the task is being finished, e.g. during a final
@@ -259,7 +298,8 @@ these rules and load together with them.
   `CLAUDE-ANDROID.md`.
 - For any test that's new or was fixed, confirm it doesn't flake, doesn't rely on real time
   (highly undesirable — acceptable only in exceptional cases agreed with the developer), and
-  never makes real API calls (this is forbidden).
+  never makes real API calls. The one way past that is a test that launches the real app, with
+  the developer's permission; see "Tests".
 - Measure the coverage of every module you touched instead of estimating it from the diff.
   `./gradlew :<module>:koverLog` prints the number; `:<module>:koverHtmlReport` shows where the
   gaps are. Name what is still uncovered rather than staying quiet about it.
@@ -339,6 +379,8 @@ these rules and load together with them.
 - File name: the module's full Gradle path, uppercase, colons replaced with dashes, suffixed
   `-README.md` (e.g. `:core-kmp:celebrity` → `CORE-KMP-CELEBRITY-README.md`), placed at the
   module's root.
+- `iosApp/` is not a Gradle module and still gets a README and a regression file, named after the
+  folder: `iosApp/IOSAPP-README.md` and `iosApp/IOSAPP-REGRESS.md`.
 
 ## Module regression files
 

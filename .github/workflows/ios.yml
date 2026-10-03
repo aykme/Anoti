@@ -1,0 +1,323 @@
+# Builds and checks the iOS app on GitHub's macOS runner, on every push to develop and on any
+# branch by hand.
+name: iOS
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+    inputs:
+      setup_check:
+        description: Prove the Java lookup of the Xcode build and that it needs no Android SDK
+        type: boolean
+        default: false
+
+# An explicit bash adds pipe fail, so a step piping into tee still fails with the command.
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  framework:
+    runs-on: macos-26
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ios-toolchain
+      - uses: ./.github/actions/gradle-on-macos
+      - name: Link the Shared framework
+        run: >
+          ./gradlew
+          :core-kmp:di-app:linkDebugFrameworkIosSimulatorArm64
+          :core-kmp:di-app:linkReleaseFrameworkIosSimulatorArm64
+          :core-kmp:di-app:linkDebugFrameworkIosArm64
+          :core-kmp:di-app:linkReleaseFrameworkIosArm64
+
+  native-tests:
+    runs-on: macos-26
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ios-toolchain
+      - uses: ./.github/actions/gradle-on-macos
+      - name: Run every Kotlin/Native test on the simulator
+        # The tests run inside a simulator, which can fail on its own. A retry runs only the modules
+        # whose tests failed, since the rest are up to date.
+        run: |
+          for try in 1 2 3; do
+            ./gradlew iosSimulatorArm64Test --continue && exit 0
+            echo "The Kotlin/Native tests failed on try $try"
+          done
+          exit 1
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ios-native-test-reports
+          path: |
+            **/build/reports/tests/iosSimulatorArm64Test/
+            **/build/test-results/iosSimulatorArm64Test/
+
+  project:
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ios-toolchain
+      - name: Install the catalog's XcodeGen
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/xcodegen.zip" \
+            "https://github.com/yonaskolb/XcodeGen/releases/download/${XCODEGEN_VERSION}/xcodegen.zip"
+          echo "$XCODEGEN_SHA256  $RUNNER_TEMP/xcodegen.zip" | shasum -a 256 -c
+          unzip -q "$RUNNER_TEMP/xcodegen.zip" -d "$RUNNER_TEMP/xcodegen"
+          binary=$(find "$RUNNER_TEMP/xcodegen" -type f -name xcodegen -perm -u+x | head -1)
+          dirname "$binary" >> "$GITHUB_PATH"
+      - name: Generate the Xcode project
+        working-directory: iosApp
+        run: |
+          xcodegen --version
+          xcodegen generate
+      - uses: actions/upload-artifact@v7
+        with:
+          name: xcodeproj
+          path: iosApp/iosApp.xcodeproj
+
+  drift:
+    needs: project
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: Replace the committed project with the generated one
+        run: rm -rf iosApp/iosApp.xcodeproj
+      - uses: actions/download-artifact@v8
+        with:
+          name: xcodeproj
+          path: iosApp/iosApp.xcodeproj
+      - name: The committed project matches project.yml
+        run: |
+          changes=$(git status --porcelain -- iosApp)
+          if [ -n "$changes" ]; then
+            echo "The committed Xcode project differs from what project.yml generates:"
+            echo "$changes"
+            git diff --stat -- iosApp
+            exit 1
+          fi
+
+  app:
+    needs: project
+    runs-on: macos-26
+    timeout-minutes: 150
+    env:
+      MEDIA_DIR: ${{ github.workspace }}/build/ios-media
+      RESULTS_DIR: ${{ github.workspace }}/build/ios-results
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ios-toolchain
+      - uses: ./.github/actions/gradle-on-macos
+      - name: Use the generated project
+        run: rm -rf iosApp/iosApp.xcodeproj
+      - uses: actions/download-artifact@v8
+        with:
+          name: xcodeproj
+          path: iosApp/iosApp.xcodeproj
+      - name: Boot the simulator
+        run: |
+          mkdir -p "$MEDIA_DIR" "$RESULTS_DIR"
+          bash .github/scripts/ios-boot-simulator.sh
+
+      - name: Build the app and its UI tests, Debug
+        run: |
+          xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug \
+            -destination "id=$SIM_UDID" -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO build-for-testing 2>&1 | tee "$MEDIA_DIR/build-debug.log"
+          products="$GITHUB_WORKSPACE/build/DerivedData/Build/Products"
+          echo "XCTESTRUN=$(ls "$products"/*.xctestrun | head -1)" >> "$GITHUB_ENV"
+          echo "APP_PATH=$products/Debug-iphonesimulator/Anoti.app" >> "$GITHUB_ENV"
+
+      - name: The bundle carries the Compose resources
+        run: |
+          # An empty folder would pass a plain test for it.
+          [ -n "$(find "$APP_PATH/compose-resources" -type f | head -1)" ]
+          ls -R "$APP_PATH/compose-resources" | sed -n '1,40p'
+
+      - name: The UI tests
+        run: |
+          xcrun simctl io "$SIM_UDID" recordVideo --codec=h264 --force "$MEDIA_DIR/ui-tests.mp4" &
+          recorder=$!
+          sleep 2
+          status=0
+          # The UI tests reach the live backend, so a failed one gets up to three tries.
+          xcodebuild test-without-building -xctestrun "$XCTESTRUN" -destination "id=$SIM_UDID" \
+            -only-testing:iosAppUITests/AnimeFavoritesUserFlowUITests \
+            -only-testing:iosAppUITests/OrientationUITests \
+            -retry-tests-on-failure -test-iterations 3 \
+            -resultBundlePath "$RESULTS_DIR/ui-tests.xcresult" \
+            2>&1 | tee "$MEDIA_DIR/ui-tests.log" || status=$?
+          kill -INT "$recorder" 2> /dev/null || true
+          wait "$recorder" || true
+          exit $status
+
+      - name: The restore checks
+        if: always()
+        run: bash .github/scripts/ios-restore-checks.sh 2>&1 | tee "$MEDIA_DIR/restore-checks.log"
+
+      - name: Export the screenshots the tests kept
+        if: always()
+        run: |
+          for bundle in "$RESULTS_DIR"/*.xcresult; do
+            [ -d "$bundle" ] || continue
+            name=$(basename "$bundle" .xcresult)
+            xcrun xcresulttool export attachments --path "$bundle" \
+              --output-path "$MEDIA_DIR/attachments/$name" || true
+          done
+
+      - name: Build the app, Release
+        if: always()
+        run: |
+          xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Release \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/DerivedDataRelease \
+            CODE_SIGNING_ALLOWED=NO build > "$MEDIA_DIR/build-release.log" 2>&1 \
+            || { tail -40 "$MEDIA_DIR/build-release.log"; exit 1; }
+          tail -5 "$MEDIA_DIR/build-release.log"
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ios-media
+          path: build/ios-media
+
+  # The same app and UI tests on an iPad, whose wide window turns the app.
+  ipad:
+    needs: project
+    runs-on: macos-26
+    timeout-minutes: 120
+    env:
+      MEDIA_DIR: ${{ github.workspace }}/build/ios-media-ipad
+      RESULTS_DIR: ${{ github.workspace }}/build/ios-results-ipad
+      SIM_DEVICE: iPad Air
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ios-toolchain
+      - uses: ./.github/actions/gradle-on-macos
+      - name: Use the generated project
+        run: rm -rf iosApp/iosApp.xcodeproj
+      - uses: actions/download-artifact@v8
+        with:
+          name: xcodeproj
+          path: iosApp/iosApp.xcodeproj
+      - name: Boot the simulator
+        run: |
+          mkdir -p "$MEDIA_DIR" "$RESULTS_DIR"
+          bash .github/scripts/ios-boot-simulator.sh
+
+      - name: Build the app and its UI tests, Debug
+        run: |
+          xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug \
+            -destination "id=$SIM_UDID" -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO build-for-testing 2>&1 | tee "$MEDIA_DIR/build-debug.log"
+          products="$GITHUB_WORKSPACE/build/DerivedData/Build/Products"
+          echo "XCTESTRUN=$(ls "$products"/*.xctestrun | head -1)" >> "$GITHUB_ENV"
+
+      - name: The UI tests
+        run: |
+          xcrun simctl io "$SIM_UDID" recordVideo --codec=h264 --force "$MEDIA_DIR/ui-tests.mp4" &
+          recorder=$!
+          sleep 2
+          status=0
+          # The UI tests reach the live backend, so a failed one gets up to three tries.
+          xcodebuild test-without-building -xctestrun "$XCTESTRUN" -destination "id=$SIM_UDID" \
+            -only-testing:iosAppUITests/AnimeFavoritesUserFlowUITests \
+            -only-testing:iosAppUITests/OrientationUITests \
+            -retry-tests-on-failure -test-iterations 3 \
+            -resultBundlePath "$RESULTS_DIR/ui-tests.xcresult" \
+            2>&1 | tee "$MEDIA_DIR/ui-tests.log" || status=$?
+          kill -INT "$recorder" 2> /dev/null || true
+          wait "$recorder" || true
+          exit $status
+
+      - name: Export the screenshots the tests kept
+        if: always()
+        run: |
+          xcrun xcresulttool export attachments --path "$RESULTS_DIR/ui-tests.xcresult" \
+            --output-path "$MEDIA_DIR/attachments/ui-tests" || true
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ios-media-ipad
+          path: build/ios-media-ipad
+
+  setup-check:
+    if: inputs.setup_check
+    needs: project
+    runs-on: macos-26
+    timeout-minutes: 150
+    env:
+      LOG_DIR: ${{ github.workspace }}/build/setup-check
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ios-toolchain
+      # No setup-java here: it would set JAVA_HOME and spoil pass 1.
+      - uses: ./.github/actions/gradle-memory
+      - name: Use the generated project
+        run: rm -rf iosApp/iosApp.xcodeproj
+      - uses: actions/download-artifact@v8
+        with:
+          name: xcodeproj
+          path: iosApp/iosApp.xcodeproj
+      - name: Install Android Studio
+        run: |
+          brew install --cask android-studio
+          "/Applications/Android Studio.app/Contents/jbr/Contents/Home/bin/java" -version
+      - name: Keep Gradle off the runner's own JDKs
+        run: |
+          mkdir -p "$LOG_DIR"
+          echo "org.gradle.java.installations.auto-detect=false" >> ~/.gradle/gradle.properties
+          sudo mv /Library/Java/JavaVirtualMachines /Library/Java/JavaVirtualMachines.hidden || true
+      - name: Pass 1, Java from Android Studio
+        run: |
+          env -u JAVA_HOME xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp \
+            -configuration Debug -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/dd1 CODE_SIGNING_ALLOWED=NO build > "$LOG_DIR/pass1.log" 2>&1 \
+            || { tail -40 "$LOG_DIR/pass1.log"; exit 1; }
+          grep "Java from /Applications/Android Studio.app" "$LOG_DIR/pass1.log"
+      - name: Pass 2, JDK 21 downloaded from JDK 17
+        run: |
+          "$JAVA_HOME_17_arm64/bin/java" -version
+          rm -rf ~/.gradle/jdks build/dd1
+          JAVA_HOME="$JAVA_HOME_17_arm64" ./gradlew --stop || true
+          JAVA_HOME="$JAVA_HOME_17_arm64" xcodebuild -project iosApp/iosApp.xcodeproj \
+            -scheme iosApp -configuration Debug -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/dd2 CODE_SIGNING_ALLOWED=NO build > "$LOG_DIR/pass2.log" 2>&1 \
+            || { tail -40 "$LOG_DIR/pass2.log"; exit 1; }
+          ls ~/.gradle/jdks | tee -a "$LOG_DIR/pass2.log" | grep 21
+      - name: Pass 3, the SDK in its default folder
+        run: |
+          test ! -f local.properties
+          JAVA_HOME="$JAVA_HOME_17_arm64" ./gradlew --stop || true
+          env -u ANDROID_HOME -u ANDROID_SDK_ROOT JAVA_HOME="$JAVA_HOME_17_arm64" xcodebuild \
+            -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath build/dd3 \
+            CODE_SIGNING_ALLOWED=NO build > "$LOG_DIR/pass3.log" 2>&1 \
+            || { tail -40 "$LOG_DIR/pass3.log"; exit 1; }
+          grep "Android SDK from $HOME/Library/Android/sdk" "$LOG_DIR/pass3.log"
+      - name: Pass 4, no SDK anywhere, the outcome recorded
+        run: |
+          JAVA_HOME="$JAVA_HOME_17_arm64" ./gradlew --stop || true
+          mv ~/Library/Android/sdk ~/Library/Android/sdk-hidden
+          # Built from nothing, so no task is skipped as up to date and the outcome is real.
+          find . -name build -type d -prune -not -path './build' -exec rm -rf {} +
+          if env -u ANDROID_HOME -u ANDROID_SDK_ROOT JAVA_HOME="$JAVA_HOME_17_arm64" xcodebuild \
+            -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath build/dd4 \
+            CODE_SIGNING_ALLOWED=NO build > "$LOG_DIR/pass4.log" 2>&1; then
+            echo "pass 4: the build succeeded without an Android SDK" | tee -a "$LOG_DIR/pass4.log"
+          else
+            grep -iE "sdk location|ANDROID_HOME|sdk.dir" "$LOG_DIR/pass4.log" | sed -n '1,5p'
+          fi
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ios-setup-check-logs
+          path: build/setup-check

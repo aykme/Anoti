@@ -6,8 +6,7 @@ leaving the app and coming back. The content of the two sections, the look of th
 and the look of the permission dialog are each checked in their own module's file.
 
 Unless a step says otherwise, start from a clean installation with the app never opened before.
-Steps run on both platforms unless they name one. The iPhone steps are unverified until the
-iPhone app has been built and run.
+Steps run on both platforms unless they name one.
 
 ## First launch
 
@@ -82,20 +81,29 @@ Requires at least one saved anime that has a new episode, so a notification actu
 
 ## System bars and the window
 
+The app is dark whatever theme the device is set to. Walk steps 1–3 and 5–6 twice: first with
+the device set to light theme, then set to dark theme. Every result is the same both times. A
+light area in the light theme is a bug, even when the dark theme looks right.
+
 1. Open the app on any screen.
    The content runs to the very top and bottom edges of the screen. The status bar has no
-   background of its own — the screen's own content shows through behind the clock and icons.
+   background of its own — the screen's own content shows through behind the clock and icons, so
+   the area behind them is dark.
 2. Look at the clock, battery and signal icons in the status bar.
-   They are light against the dark content behind them, on a device set to light theme and on
-   one set to dark theme alike.
-3. Look at the area below the bottom bar: Android's navigation bar, or the iPhone's home
+   They are light against the dark content behind them.
+3. Look at the bottom bar and the area below it: Android's navigation bar, or the iPhone's home
    indicator.
-   It is solid black, matching the bottom bar above it. There is no lighter strip and no
-   translucent overlay between them.
+   The bottom bar is dark, and the area below it is solid black, matching the bar above it.
+   There is no lighter strip and no translucent overlay between them.
 4. Android only, since the iPhone has one way to navigate: switch the device to gesture
    navigation, then to three-button navigation.
    In both cases the bottom bar's two items stay fully visible and tappable, and nothing of the
    app is hidden underneath the system navigation.
+5. Close the app fully, then open it from the home screen and watch until the list appears.
+   The screen is dark from the first moment. No white or light screen flashes before the list.
+6. Open the app, go to the home screen, then open the recent apps: Android's recents button or
+   gesture, or the iPhone's app switcher (swipe up from the bottom edge and hold).
+   The app's card shows its dark screen with a dark background. It is not a light card.
 
 ## Rotation
 
@@ -131,10 +139,16 @@ Requires at least one saved anime that has a new episode, so a notification actu
      the app from recents. Turn the setting back off afterward.
    - Android, a second time with the setting off: end the process with
      `adb shell am kill com.alekseivinogradov.anoti`, then return to the app from recents.
-   - iPhone: with the app started from Xcode, stop it in Xcode, then open it again from the home
-     screen.
+   - iPhone: with the app started from Xcode, go to the home screen first and wait five seconds.
+     Only then stop it in Xcode, and open it again from the home screen. The run before this one
+     must also have ended in the background, not on screen.
 
    The app comes back on favorites, not on the anime list, and the list where it was scrolled.
+
+   iPhone: iOS keeps the screen's state only for an app the system ended in the background. An
+   app ended while on screen counts as a crash or a force quit: stopped from Xcode while open,
+   crashed, or swiped away. Then iOS drops the kept state, and the next launch opens on the anime
+   list. The run after it drops its state too, so walk the step once more from a fresh launch.
 3. Open favorites. Go to the home screen. Close the app the way the user does:
    - Android: force-stop the app from the system settings, then open it from the launcher;
    - iPhone: swipe the app away in the app switcher, then open it from the home screen.
@@ -153,8 +167,9 @@ Android only, since the iPhone has no back button.
 ## The rest of the device
 
 1. Switch the device to dark theme, then to light theme, with the app open.
-   The app looks the same in both. It is dark either way, and nothing turns white or becomes
-   unreadable.
+   The app looks the same in both, the bottom bar's colors, text and icons included. It is dark
+   either way, and nothing turns white or becomes unreadable. The system bars are checked in both
+   themes under "System bars and the window".
 2. In the device's accessibility settings raise the font size to the largest setting and open
    the app.
    The bottom bar's two labels stay on one line each and stay readable. Neither item's label

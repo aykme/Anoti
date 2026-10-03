@@ -17,13 +17,14 @@ The finishing checks below apply to every task, not only to one that touched And
   resources the rendered screens find neither their theme nor their Compose resources. Add
   `compose-ui-test-manifest` only where the rule has to launch its own host activity; a test that
   launches the module's own activity does not need it.
-- No test ever boots the real app. A host test stays on the JVM with Robolectric standing in for
+- A host test never boots the real app. It stays on the JVM with Robolectric standing in for
   the framework, and never uses the app's own `Application` — it supplies a stub of its own. The
   one exception is the `androidApp` module, where that `Application` is the subject. Robolectric
   creates it there and the test drives it directly, with every background service it reaches
   still faked.
 - An instrumented test on a device is the furthest a test may go, and only where a host test
-  genuinely cannot reach. It is never the first tool reached for.
+  genuinely cannot reach. It is never the first tool reached for. One that launches the real app
+  is written only with the developer's permission; see "Tests" in `CLAUDE.md`.
 - The SDK Robolectric emulates is set for the whole project, from `robolectricSdk` in the version
   catalog: the root build writes it into a `robolectric.properties` on each module's host-test
   classpath. Don't put `@Config(sdk = ...)` on a test — it belongs there only when that one class
@@ -98,3 +99,10 @@ The finishing checks below apply to every task, not only to one that touched And
 - `androidApp/proguard-rules.pro` keeps `SourceFile` and `LineNumberTable` and renames the source
   file to a constant, so an obfuscated stack trace stays decodable through `mapping.txt` with
   retrace while leaking nothing.
+
+## Running Android on CI
+
+- `android.yml` runs the project's checks on every push to `develop`: the build, every host test,
+  detekt and `koverVerify`. On any other branch it runs only by hand, as "CI on GitHub" in
+  `CLAUDE.md` says.
+- It never reaches the instrumented tests. They stay on the developer's emulators.

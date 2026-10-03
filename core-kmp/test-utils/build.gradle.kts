@@ -26,5 +26,9 @@ kotlin {
             // safeComposeInteraction takes and returns Compose's own interaction types.
             api(libs.compose.ui.test)
         }
+        androidMain.dependencies {
+            // RetryRule is a JUnit 4 rule, so its users see JUnit's types.
+            api(libs.kotlin.test.junit)
+        }
     }
 }

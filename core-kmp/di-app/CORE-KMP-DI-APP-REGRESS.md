@@ -48,5 +48,3 @@ The steps name Android's tools. On the iPhone:
   Info.plist", and none contains "the next background refresh was refused". Either one means the
   app does not update in the background until it is fixed. The Simulator refuses every refresh,
   so there the second line always appears.
-
-The iPhone steps are unverified until the iPhone app has been built and run.

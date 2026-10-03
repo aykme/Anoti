@@ -1,0 +1,29 @@
+name: iOS toolchain
+description: Reads the iOS versions from the catalog and selects the Xcode it names.
+runs:
+  using: composite
+  steps:
+    - name: Read the iOS versions from the catalog
+      shell: bash
+      run: |
+        read_version() { sed -n "s/^$1 = \"\(.*\)\"/\1/p" gradle/libs.versions.toml; }
+        echo "XCODE_VERSION=$(read_version xcode)" >> "$GITHUB_ENV"
+        echo "XCODEGEN_VERSION=$(read_version xcodeGen)" >> "$GITHUB_ENV"
+        echo "XCODEGEN_SHA256=$(read_version xcodeGenSha256)" >> "$GITHUB_ENV"
+
+    - name: Select the catalog's Xcode
+      shell: bash
+      run: |
+        app="/Applications/Xcode_${XCODE_VERSION}.app"
+        if [ ! -d "$app" ]; then
+          shopt -s nullglob
+          matches=(/Applications/Xcode_"${XCODE_VERSION}".*.app)
+          if [ ${#matches[@]} -eq 0 ]; then
+            echo "No Xcode ${XCODE_VERSION} on this image:"
+            ls -d /Applications/Xcode*
+            exit 1
+          fi
+          app="${matches[0]}"
+        fi
+        sudo xcode-select -s "$app"
+        xcodebuild -version
