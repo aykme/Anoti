@@ -101,13 +101,13 @@ final class RestoreSteps: XCTestCase {
 
         //When
         allow.tap()
+        // A tap that lands while the alert still animates in is lost.
+        if !waitUntilGone(allow, timeout: 5) {
+            allow.tap()
+        }
 
         //Then
-        let gone = XCTNSPredicateExpectation(
-            predicate: NSPredicate(format: "exists == false"),
-            object: allow
-        )
-        XCTAssertEqual(XCTWaiter().wait(for: [gone], timeout: 5), .completed)
+        XCTAssertTrue(waitUntilGone(allow, timeout: 10))
     }
 
     // No API opens the switcher: the gesture is a swipe up from the bottom edge that holds
@@ -132,8 +132,19 @@ final class RestoreSteps: XCTestCase {
         sleep(2)
 
         //Then
+        // The app may count as in front while the switcher shows it, so its state proves nothing.
+        // The CI script judges this screenshot: the card's dark bars sit where the app itself
+        // shows light posters and the home screen its wallpaper.
         keepScreenshot("app switcher")
-        assertInTheBackground()
+    }
+
+    @MainActor
+    private func waitUntilGone(_ element: XCUIElement, timeout: TimeInterval) -> Bool {
+        let gone = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "exists == false"),
+            object: element
+        )
+        return XCTWaiter().wait(for: [gone], timeout: timeout) == .completed
     }
 
     @MainActor

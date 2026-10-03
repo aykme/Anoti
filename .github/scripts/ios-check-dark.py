@@ -84,7 +84,8 @@ def main(mode, path):
         }
     elif mode == "card":
         # Where an iPhone 17 shows the card: its status-bar strip above the content, and its
-        # bottom bar below the bar's labels.
+        # bottom bar below the bar's labels. The app in front shows posters there, and the home
+        # screen its wallpaper, so a shot taken without the switcher fails too.
         parts = {
             "card top": crop(rows, channels, 0.16, 0.19, 0.25, 0.75),
             "card bottom": crop(rows, channels, 0.808, 0.825, 0.25, 0.75),
