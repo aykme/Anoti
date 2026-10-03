@@ -138,6 +138,21 @@ for test in json.load(open(sys.argv[1])):
 PY
 }
 
+# Ends the app the way iOS ends a suspended one: a SIGKILL to its process, which the simulator runs
+# on the host. A plain simctl terminate is a polite exit, after which iOS sometimes opens a new
+# scene session instead of restoring the old one.
+end_like_the_system() {
+  local pid
+  pid=$(pgrep -f "/Anoti.app/Anoti$" | head -1)
+  if [ -n "$pid" ]; then
+    kill -KILL "$pid"
+  else
+    echo "no app process to kill, terminating instead"
+    xcrun simctl terminate "$SIM_UDID" "$bundle_id" 2> /dev/null
+  fi
+  sleep 2
+}
+
 echo "== 1. The state is kept across a termination"
 start_video case1-kept
 launch_logged case1-before
@@ -152,7 +167,7 @@ wait_for_line "$MEDIA_DIR/case1-before.log" "saved [0-9]+ characters on AnimeFav
 expect $? "the app saved its state on favorites when it went home"
 wait_for_saved_scene 60 "$home"
 expect $? "the scene's state reached the disk before the termination"
-xcrun simctl terminate "$SIM_UDID" "$bundle_id" 2> /dev/null
+end_like_the_system
 launch_logged case1-relaunch
 sleep 20
 screenshot case1-relaunch
@@ -193,7 +208,7 @@ wait_for_line "$MEDIA_DIR/case2-warm.log" "saved [0-9]+ characters on AnimeList"
 expect $? "the app saved its state on the list"
 wait_for_saved_scene 60 "$home"
 expect $? "the list's state reached the disk before the termination"
-xcrun simctl terminate "$SIM_UDID" "$bundle_id" 2> /dev/null
+end_like_the_system
 ready="$RUNNER_TEMP/ready-2b"
 rm -f "$ready"
 READY_FILE="$ready" run_step testTapTheNotificationWithTheAppClosed case2b &
