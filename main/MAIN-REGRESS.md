@@ -82,20 +82,29 @@ Requires at least one saved anime that has a new episode, so a notification actu
 
 ## System bars and the window
 
+The app is dark whatever theme the device is set to. Walk steps 1–3 and 5–6 twice: first with
+the device set to light theme, then set to dark theme. Every result is the same both times. A
+light area in the light theme is a bug, even when the dark theme looks right.
+
 1. Open the app on any screen.
    The content runs to the very top and bottom edges of the screen. The status bar has no
-   background of its own — the screen's own content shows through behind the clock and icons.
+   background of its own — the screen's own content shows through behind the clock and icons, so
+   the area behind them is dark.
 2. Look at the clock, battery and signal icons in the status bar.
-   They are light against the dark content behind them, on a device set to light theme and on
-   one set to dark theme alike.
-3. Look at the area below the bottom bar: Android's navigation bar, or the iPhone's home
+   They are light against the dark content behind them.
+3. Look at the bottom bar and the area below it: Android's navigation bar, or the iPhone's home
    indicator.
-   It is solid black, matching the bottom bar above it. There is no lighter strip and no
-   translucent overlay between them.
+   The bottom bar is dark, and the area below it is solid black, matching the bar above it.
+   There is no lighter strip and no translucent overlay between them.
 4. Android only, since the iPhone has one way to navigate: switch the device to gesture
    navigation, then to three-button navigation.
    In both cases the bottom bar's two items stay fully visible and tappable, and nothing of the
    app is hidden underneath the system navigation.
+5. Close the app fully, then open it from the home screen and watch until the list appears.
+   The screen is dark from the first moment. No white or light screen flashes before the list.
+6. Open the app, go to the home screen, then open the recent apps: Android's recents button or
+   gesture, or the iPhone's app switcher (swipe up from the bottom edge and hold).
+   The app's card shows its dark screen with a dark background. It is not a light card.
 
 ## Rotation
 
@@ -153,8 +162,9 @@ Android only, since the iPhone has no back button.
 ## The rest of the device
 
 1. Switch the device to dark theme, then to light theme, with the app open.
-   The app looks the same in both. It is dark either way, and nothing turns white or becomes
-   unreadable.
+   The app looks the same in both, the bottom bar's colors, text and icons included. It is dark
+   either way, and nothing turns white or becomes unreadable. The system bars are checked in both
+   themes under "System bars and the window".
 2. In the device's accessibility settings raise the font size to the largest setting and open
    the app.
    The bottom bar's two labels stay on one line each and stay readable. Neither item's label
