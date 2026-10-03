@@ -1,10 +1,11 @@
 package com.alekseivinogradov.anoti.main.impl.presentation.provider
 
 import android.app.PendingIntent
+import android.content.ComponentName
 import android.content.Intent
 import com.alekseivinogradov.anoti.main.impl.presentation.MainActivity
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
-import kotlinx.serialization.json.Json
+import com.alekseivinogradov.anoti.navigation.kmp.NavRootDeepLink
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
@@ -23,7 +24,8 @@ class AnimeNotificationIntentProviderImplTest {
         val provider = AnimeNotificationIntentProviderImpl()
 
         //When
-        val pendingIntent = provider.getNewEpisodeNotificationIntent(RuntimeEnvironment.getApplication())
+        val pendingIntent =
+            provider.getNewEpisodeNotificationIntent(RuntimeEnvironment.getApplication())
 
         //Then
         assertTrue(shadowOf(pendingIntent).isActivity)
@@ -34,7 +36,7 @@ class AnimeNotificationIntentProviderImplTest {
     }
 
     @Test
-    fun tearsDownTheExistingTaskSoTheEntryPointIsEntered() {
+    fun handsTheTapToTheRunningEntryPointAboveWhateverIsOpen() {
         //Given
         val provider = AnimeNotificationIntentProviderImpl()
 
@@ -45,7 +47,25 @@ class AnimeNotificationIntentProviderImplTest {
 
         //Then
         assertTrue(flags and Intent.FLAG_ACTIVITY_NEW_TASK != 0)
-        assertTrue(flags and Intent.FLAG_ACTIVITY_CLEAR_TASK != 0)
+        assertTrue(flags and Intent.FLAG_ACTIVITY_CLEAR_TOP != 0)
+        assertTrue(flags and Intent.FLAG_ACTIVITY_SINGLE_TOP != 0)
+        assertEquals(0, flags and Intent.FLAG_ACTIVITY_CLEAR_TASK)
+    }
+
+    @Test
+    fun matchesTheLauncherSoATaskItStartsIsTheOneTheLauncherReopens() {
+        //Given
+        val application = RuntimeEnvironment.getApplication()
+        // What a launcher builds for the app's icon.
+        val launcherIntent =
+            Intent.makeMainActivity(ComponentName(application, MainActivity::class.java))
+        val provider = AnimeNotificationIntentProviderImpl()
+
+        //When
+        val tapIntent = shadowOf(provider.getNewEpisodeNotificationIntent(application)).savedIntent
+
+        //Then
+        assertTrue(tapIntent.filterEquals(launcherIntent))
     }
 
     @Test
@@ -62,7 +82,7 @@ class AnimeNotificationIntentProviderImplTest {
         assertNotNull(payload)
         assertEquals(
             NavRootConfig.AnimeFavorites,
-            Json.decodeFromString(NavRootConfig.serializer(), payload)
+            NavRootDeepLink.decode(payload)
         )
     }
 

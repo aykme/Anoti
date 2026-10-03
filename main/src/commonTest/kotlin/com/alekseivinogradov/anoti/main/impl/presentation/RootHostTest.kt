@@ -1,6 +1,7 @@
 package com.alekseivinogradov.anoti.main.impl.presentation
 
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.model.SectionDomain
+import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.main.impl.di.createDiRootComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionStatus
@@ -11,6 +12,7 @@ import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.create
 import com.arkivanov.essenty.lifecycle.destroy
+import com.arkivanov.essenty.lifecycle.resume
 import com.arkivanov.essenty.statekeeper.SerializableContainer
 import com.arkivanov.essenty.statekeeper.StateKeeperDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -133,6 +135,52 @@ class RootHostTest {
     }
 
     @Test
+    fun theBarFollowsANavigationWithNoCompositionShown() {
+        //Given
+        val root = createRoot()
+
+        //When
+        root.host.dependencies.rootComponent.navigateTo(NavRootConfig.AnimeFavorites)
+
+        //Then
+        assertEquals(SectionDomain.FAVORITES, root.selectedSection)
+    }
+
+    @Test
+    fun theBadgeFollowsTheDatabaseWithNoCompositionShown() {
+        //Given
+        val root = createRoot()
+        root.lifecycle.resume()
+
+        //When
+        dependencies.animeDatabaseStores.first().emit(
+            listOf(savedAnime(id = 1, hasNewEpisode = true))
+        )
+        scheduler.advanceUntilIdle()
+
+        //Then
+        assertEquals(1, root.host.dependencies.barController.state.value.favoritesBadgeNumber)
+    }
+
+    @Test
+    fun aTapOnTheBarsOtherTabNavigatesTheRoot() {
+        //Given
+        val root = createRoot()
+        root.lifecycle.resume()
+        scheduler.advanceUntilIdle()
+
+        //When
+        root.host.dependencies.barController.accept(
+            BottomNavigationBarStore.Intent.FavoritesSectionClick
+        )
+        scheduler.advanceUntilIdle()
+
+        //Then
+        assertEquals(NavRootConfig.AnimeFavorites, root.activeScreen)
+        assertEquals(SectionDomain.FAVORITES, root.selectedSection)
+    }
+
+    @Test
     fun navigatingBuildsTheOtherScreen() {
         //Given
         val root = createRoot()
@@ -147,18 +195,30 @@ class RootHostTest {
     }
 
     @Test
-    fun theBarTakesItsDatabaseStoreBeforeTheFirstScreenTakesOne() {
+    fun aTapOpensItsScreenInTheLiveRoot() {
         //Given
-        val openingTarget: NavRootConfig? = null
+        val root = createRoot()
 
         //When
-        val root = createRoot(openingTarget = openingTarget)
+        root.host.openFromNotification(NavRootConfig.AnimeFavorites)
 
         //Then
-        assertSame(
-            dependencies.animeDatabaseStores.first(),
-            root.host.dependencies.animeDatabaseStore
-        )
+        assertEquals(NavRootConfig.AnimeFavorites, root.activeScreen)
+        assertEquals(SectionDomain.FAVORITES, root.selectedSection)
+        assertFalse(dependencies.barStores.single().isDisposed)
+    }
+
+    @Test
+    fun aTapOnTheScreenAlreadyShownKeepsIt() {
+        //Given
+        val root = createRoot(openingTarget = NavRootConfig.AnimeFavorites)
+        val shown = root.host.dependencies.rootComponent.childStack.value.active.instance
+
+        //When
+        root.host.openFromNotification(NavRootConfig.AnimeFavorites)
+
+        //Then
+        assertSame(shown, root.host.dependencies.rootComponent.childStack.value.active.instance)
     }
 
     @Test
@@ -170,8 +230,8 @@ class RootHostTest {
         root.lifecycle.destroy()
 
         //Then
-        assertTrue(root.host.dependencies.mainStore.isDisposed)
-        assertTrue(root.host.dependencies.animeDatabaseStore.isDisposed)
+        assertTrue(dependencies.barStores.single().isDisposed)
+        assertTrue(dependencies.animeDatabaseStores.first().isDisposed)
     }
 
     @Test
@@ -183,8 +243,8 @@ class RootHostTest {
         root.host.dependencies.rootComponent.navigateTo(NavRootConfig.AnimeFavorites)
 
         //Then
-        assertFalse(root.host.dependencies.mainStore.isDisposed)
-        assertFalse(root.host.dependencies.animeDatabaseStore.isDisposed)
+        assertFalse(dependencies.barStores.single().isDisposed)
+        assertFalse(dependencies.animeDatabaseStores.first().isDisposed)
     }
 
     @Test
@@ -345,6 +405,6 @@ class RootHostTest {
             get() = host.dependencies.rootComponent.childStack.value.active.configuration
 
         val selectedSection: SectionDomain
-            get() = host.dependencies.mainStore.state.selectedSection
+            get() = host.dependencies.barController.state.value.selectedSection
     }
 }

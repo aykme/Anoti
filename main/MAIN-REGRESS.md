@@ -20,7 +20,7 @@ iPhone app has been built and run.
    The question does not come back.
 4. Uninstall, install again and open it. When the system asks, choose **Don't allow**.
    The question disappears and the list stays where it was.
-   iPhone: if the question does not come back after the reinstall, erase the Simulator or use a
+   iPhone: if the question does not come back after the reinstallation, erase the Simulator or use a
    device that never had the app.
 5. Close the app and open it again.
    The app explains in its own dialog why it wants notifications, with a refusing button and an
@@ -43,17 +43,30 @@ Requires at least one saved anime that has a new episode, so a notification actu
 1. With the app fully closed, open the notification list and tap the new-episode notification.
    The app opens on the favorites section. The right bottom-bar item is the selected one. On
    the iPhone another screen may show for a moment first.
-2. Leave the app open on the anime list. Go to the home screen. Tap the new-episode notification.
+2. Go to the home screen, then open the app from the launcher or the home screen.
+   The app comes back on favorites, as it was left. It does not open a second, fresh anime
+   list.
+3. Leave the app open on the anime list. Go to the home screen. Tap the new-episode notification.
    The app comes to the front on the favorites section, not on the list.
-3. Leave the app open on favorites, scrolled down. Go to the home screen and tap the
-   notification.
-   The app comes to the front on favorites, rebuilt: the list is back at the top.
-4. Android only, since the iPhone has no back button: from there, press system back until the
+4. Leave the app open on favorites, scrolled down, with one item showing its extra info. Go to
+   the home screen and tap the notification.
+   The app comes to the front on favorites exactly as it was left: the same scroll position, the
+   same item still showing its extra info. Nothing reloads and no screen animates in.
+5. Android only, since the iPhone has no back button: from there, press system back until the
    app closes. Open the app from the launcher.
    The app opens on the anime list, not on favorites.
-5. From there, close the app the way a user does: swipe it away in recents or in the app
+6. From there, close the app the way a user does: swipe it away in recents or in the app
    switcher. Open it again.
    The app opens on the anime list, not on favorites.
+7. Android 10 to 12 only, where the app itself opens its notification settings. Open them from
+   the app's dialog as in step 8 of "First launch", and switch notifications on there. Leave the
+   settings open and tap a new-episode notification once one arrives.
+   The settings close and the app shows favorites. Pressing system back from there closes the
+   app; it does not return to the settings.
+8. Open the anime list and type something into its search. Go to the home screen and end the app
+   the way the system does, as in step 2 of "Leaving and coming back". Tap the notification.
+   The app opens on favorites with the right bottom-bar item selected. Switch to the list and
+   open its search: the field is empty, and no old text comes back.
 
 ## Moving between the two sections
 
@@ -116,6 +129,8 @@ Requires at least one saved anime that has a new episode, so a notification actu
    does:
    - Android: in the device's developer options turn on "Don't keep activities", then return to
      the app from recents. Turn the setting back off afterward.
+   - Android, a second time with the setting off: end the process with
+     `adb shell am kill com.alekseivinogradov.anoti`, then return to the app from recents.
    - iPhone: with the app started from Xcode, stop it in Xcode, then open it again from the home
      screen.
 
@@ -160,4 +175,6 @@ Android only, since the iPhone has no back button.
   closed and opened again.
 - After a reboot. Android opens on the anime list. The iPhone may reopen on the screen it was
   left on.
+- After an app update. The iPhone opens on the anime list, since a state another build saved is
+  dropped.
 - System back. Android closes the app. The iPhone has none.

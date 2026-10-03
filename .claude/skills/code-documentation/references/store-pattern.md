@@ -8,7 +8,7 @@ before you start.
 
 An MVIKotlin `Store` over a local database. The DI graph behind it has a repository, six
 usecases, an executor, a reducer and a store factory — none of that belongs in the README once
-you notice the shape. No `View`/`Controller` lives in this module at all; consumers (e.g.
+you notice the shape. No `Controller` lives in this module at all; consumers (e.g.
 `AnimeListController`, which lives in a *different* module) just get the Store handed to them
 by DI and subscribe to it directly.
 
@@ -190,14 +190,13 @@ means.
 ~15 lines instead of the 230+ you get from walking the DI graph and describing every class you
 find along the way.
 
-## Variant B: Store + View + Controller — `feature-kmp/bottom-navigation-bar`
+## Variant B: Store + Controller — `feature-kmp/bottom-navigation-bar`
 
-Same MVIKotlin shape, but this module *also* defines `BottomNavigationBarView` (an `MviView`
-contract) and `BottomNavigationBarController` (wires the store to the view). The consumer
-(`main`) implements the view directly — an `object : ComposeMviView<...>(...),
-BottomNavigationBarView` inside `BottomNavigationBarRoute` — and constructs the controller in
-that same composable, with no `@Provides` in between for either. That's the signal this is
-Variant B, not Variant A: a real consumer reaches for all three types, not just the Store.
+Same MVIKotlin shape, but this module *also* defines `BottomNavigationBarController`. It wires
+the database store to the bar's store, exposes the store's `state` and takes taps through
+`accept`. The consumer (`main`'s `RootHost`) constructs it directly, with no `@Provides` in
+between, and `BottomNavigationBarRoute` draws the bar from its `state`. That's the signal this
+is Variant B, not Variant A: a real consumer reaches for both types, not just the Store.
 
 ### The Store's own KDoc
 
@@ -271,9 +270,9 @@ interface BottomNavigationBarStore : Store<
 
 ### The resulting README
 
-Three entities this time, and "how to use it" is prose, not a fabricated code block — the real
-wiring already lives in `main`'s `BottomNavigationBarRoute`, and restating it as
-invented-but-plausible-looking Kotlin risks drifting from what that file actually does:
+Two entities this time, and "how to use it" is prose, not a fabricated code block — the real
+wiring already lives in `main`'s `RootHost`, and restating it as invented-but-plausible-looking
+Kotlin risks drifting from what that file actually does:
 
 ```markdown
 The app's bottom navigation bar: an MVI store tracking the selected section and the favorites
@@ -283,32 +282,27 @@ badge count.
 
 - [BottomNavigationBarStore](src/commonMain/kotlin/.../api/domain/store/BottomNavigationBarStore.kt) —
   the store. `State`/`Intent`/`Label` are documented on the type itself.
-- [BottomNavigationBarView](src/commonMain/kotlin/.../api/presentation/BottomNavigationBarView.kt) —
-  the view contract the host implements to render the store's state.
 - [BottomNavigationBarController](src/commonMain/kotlin/.../impl/presentation/BottomNavigationBarController.kt) —
-  wires the store to its view and to `AnimeDatabaseStore`.
+  wires the store to `AnimeDatabaseStore` and hands the UI its state.
 
 ## How to include it
 
 - Gradle: `implementation(project(":feature-kmp:bottom-navigation-bar"))`
 - `BottomNavigationBarStore`'s binding is provided by this module's commonMain
   `DiBottomNavigationBarComponent` and mixed into `main`'s `DiRootComponent` — inject it, don't
-  construct it yourself. `BottomNavigationBarView` has no DI wiring; the consumer implements it
-  directly (see `main`'s `BottomNavigationBarRoute`). `BottomNavigationBarController` has no DI
-  wiring either; construct it directly with the store and lifecycle.
+  construct it yourself. `BottomNavigationBarController` has no DI wiring; construct it
+  directly with the stores, the host's lifecycle and a handler for the store's labels.
 
 ## How to use it
 
-Implement `BottomNavigationBarView`: feed the observed `UiModel` into the bar's composable,
-call `dispatch(Intent)` from its click callbacks, and handle navigation in `handle(Label)`. On
-the screen hosting the bar, construct `BottomNavigationBarController` with the store,
-`AnimeDatabaseStore`, and the screen's lifecycle, then call
-`controller.onViewCreated(viewImpl, viewLifecycle)`.
+Construct `BottomNavigationBarController` once, with the store, `AnimeDatabaseStore`, the host's
+lifecycle and a handler that switches screens on the store's navigation labels. Draw the bar's
+composable from the controller's `state`, mapped to `UiModel`, and pass `controller::accept` as
+its `dispatch`.
 ```
 
 Compare this to what an earlier draft of this same README looked like — it included a full
-view-and-host code sample built from scratch to illustrate the pattern. It got cut for two
+controller-and-host code sample built from scratch to illustrate the pattern. It got cut for two
 reasons once reviewed: it was long enough to feel like the README had grown an essay again, and
-it wasn't real code — a handwritten approximation of what `main`'s actual
-`BottomNavigationBarRoute` does, which is exactly the kind of second source of truth this whole
-skill exists to avoid.
+it wasn't real code — a handwritten approximation of what `main`'s actual `RootHost` does,
+which is exactly the kind of second source of truth this whole skill exists to avoid.

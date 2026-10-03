@@ -101,8 +101,11 @@ With the screen reader on, move focus onto each tab.
 
 1. Open "Favorites", send the app to the background, and reopen it.
    - The bar comes back with "Favorites" still red-orange.
-2. Open "Favorites", kill the app, and launch it again.
+2. Open "Favorites", close the app the way a user does (swipe it away in recents or in the app
+   switcher), and launch it again.
    - The app opens on "Main", with "Main" red-orange.
    - The badge is back to whatever the saved anime actually warrant, not to nothing.
-3. Change the font or display size while "Favorites" is open, which restarts the app.
-   - The app opens on "Main" again. The bar is drawn at the new size.
+3. Android only, since the iPhone keeps its screen: change the font or display size while
+   "Favorites" is open, which rebuilds the screen.
+   - The app comes back on "Favorites", with "Favorites" red-orange. The bar is drawn at the new
+     size.

@@ -5,10 +5,8 @@ badge count.
 
 - [BottomNavigationBarStore](src/commonMain/kotlin/com/alekseivinogradov/anoti/bottomnavigationbar/kmp/api/domain/store/BottomNavigationBarStore.kt) —
   the store. `State`/`Intent`/`Label` are documented on the type itself.
-- [BottomNavigationBarView](src/commonMain/kotlin/com/alekseivinogradov/anoti/bottomnavigationbar/kmp/api/presentation/BottomNavigationBarView.kt) —
-  the view contract the host implements to render the store's state.
 - [BottomNavigationBarController](src/commonMain/kotlin/com/alekseivinogradov/anoti/bottomnavigationbar/kmp/impl/presentation/BottomNavigationBarController.kt) —
-  wires the store to its view and to `AnimeDatabaseStore`.
+  wires the store to `AnimeDatabaseStore` and hands the UI its state.
 - [BottomNavigationBar](src/commonMain/kotlin/com/alekseivinogradov/anoti/bottomnavigationbar/kmp/impl/presentation/compose/BottomNavigationBar.kt) —
   the Compose UI rendering `BottomNavigationBarUiModel`.
 
@@ -18,17 +16,14 @@ badge count.
 - `BottomNavigationBarStore`'s binding is provided by this module's commonMain
   `DiBottomNavigationBarComponent` and mixed into `main`'s `DiRootComponent`, the app's
   `RootScope` component — inject it, don't construct it yourself.
-  `BottomNavigationBarView` has no DI wiring; the consumer implements it directly (see `main`'s
-  `BottomNavigationBarRoute`). `BottomNavigationBarController` has no DI wiring either;
-  construct it directly with the store and lifecycle.
+  `BottomNavigationBarController` has no DI wiring; construct it directly with the stores, the
+  host's lifecycle and a handler for the store's labels.
 
 ## How to use it
 
-Implement `BottomNavigationBarView`: feed the observed `BottomNavigationBarUiModel`
-into the `BottomNavigationBar` composable, whose click callbacks call `dispatch(Intent)`, and
-handle navigation in `handle(Label)`. The implementation must also dispatch
-`ChangeSelectedSection` whenever the host's own navigation state changes outside a tab tap (e.g.
-a deep link, or restored navigation state), once the view's events are bound to the store — the
-store never observes navigation state on its own. On the screen hosting the bar, construct
-`BottomNavigationBarController` with the store, `AnimeDatabaseStore`, and the screen's lifecycle,
-then call `controller.onViewCreated(viewImpl, viewLifecycle)`.
+Construct `BottomNavigationBarController` once, with the store, `AnimeDatabaseStore`, the host's
+lifecycle and a handler that switches screens on the store's navigation labels. Draw the
+`BottomNavigationBar` composable from the controller's `state`, mapped to
+`BottomNavigationBarUiModel`, and pass `controller::accept` as its `dispatch`. The store never
+observes navigation on its own, so its host sends `ChangeSelectedSection` whenever the shown
+screen changes.

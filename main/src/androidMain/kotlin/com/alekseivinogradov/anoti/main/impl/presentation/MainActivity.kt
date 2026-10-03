@@ -32,7 +32,7 @@ import com.arkivanov.decompose.defaultComponentContext
 /**
  * The Android entry point. Hands the root UI's shared work to a [RootHost], shows the root
  * content, and supplies what only Android can: the saved state, the notification permission and
- * the screen a tapped notification names.
+ * the screen a tapped notification names, at launch and while it runs.
  */
 class MainActivity : ComponentActivity() {
 
@@ -69,17 +69,21 @@ class MainActivity : ComponentActivity() {
         // The cast emits its own null check anyway, and that one names the expected type.
         @Suppress("CastNullableToNonNullableType")
         val componentHolder = application as DiRootComponentHolder
-        // getIntent() keeps returning the launching Intent for the whole task, so the deep link
-        // must only be honored on a fresh start. Otherwise, every Activity recreation would
-        // discard the restored navigation state and jump back to the deep link's target.
+        // The launching intent is read on a fresh start only. A rebuilt activity restores the
+        // screen the user was on.
         val rootHost = RootHost(
             diRootComponent = componentHolder.createDiRootComponent(),
-            openingTarget = if (savedInstanceState == null) readDeepLinkTarget() else null,
+            openingTarget = if (savedInstanceState == null) readDeepLinkTarget(intent) else null,
             createComponentContext = { discardSavedState: Boolean ->
                 defaultComponentContext(discardSavedState = discardSavedState)
             },
             notificationPermissionRequests = notificationPermissionRequests
         )
+        // A tap while this activity is alive arrives here and navigates the live root. The
+        // launching intent is left as it is.
+        addOnNewIntentListener { newIntent: Intent ->
+            readDeepLinkTarget(newIntent)?.let(rootHost::openFromNotification)
+        }
 
         setSystemSettings()
         setContent {
@@ -93,11 +97,11 @@ class MainActivity : ComponentActivity() {
 
     /**
      * This Activity is exported, so any app can launch it with an arbitrary extra — a malformed
-     * payload is treated as "no deep link" rather than being allowed to crash [onCreate]. Reading
-     * the extra is inside the guard as well: extras that arrive from another process are
+     * payload is treated as "no deep link" rather than being allowed to crash the activity.
+     * Reading the extra is inside the guard as well: extras that arrive from another process are
      * unpacked on first access, and one naming a class this app doesn't have throws right there.
      */
-    private fun readDeepLinkTarget(): NavRootConfig? = NavRootDeepLink.decode(
+    private fun readDeepLinkTarget(intent: Intent?): NavRootConfig? = NavRootDeepLink.decode(
         payload = runCatching { intent?.getStringExtra(EXTRA_DEEP_LINK_TARGET) }.getOrNull()
     )
 

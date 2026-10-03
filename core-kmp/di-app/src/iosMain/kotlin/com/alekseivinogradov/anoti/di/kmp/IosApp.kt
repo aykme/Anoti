@@ -29,8 +29,16 @@ object IosApp {
     }
 
     /**
-     * A new view controller over the app's screen. Called from `makeUIViewController` only. Fails
-     * when [start] has not run.
+     * A view controller over the app's screen. Called from `makeUIViewController` only, with the
+     * string the scene's `@SceneStorage` holds; empty means nothing was kept. Fails when [start]
+     * has not run.
      */
-    fun viewController(): UIViewController = screenHost.viewController()
+    fun viewController(restoredState: String?): UIViewController =
+        screenHost.viewController(restoredState)
+
+    /**
+     * The string for the scene's `@SceneStorage`, asked for whenever the scene leaves the active
+     * phase. `null` means keep the stored one.
+     */
+    fun saveState(): String? = screenHost.saveState()
 }

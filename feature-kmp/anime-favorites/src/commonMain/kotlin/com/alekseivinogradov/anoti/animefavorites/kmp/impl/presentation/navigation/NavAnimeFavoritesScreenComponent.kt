@@ -3,42 +3,49 @@ package com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigat
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.di.DiAnimeFavoritesComponent
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
+import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.AnimeFavoritesController
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
+import com.arkivanov.essenty.lifecycle.doOnStart
 import kotlinx.serialization.Serializable
 
 /**
  * Owns the anime-favorites screen's `FeatureScope` DI subgraph for as long as this component's
  * lifecycle (inherited from [componentContext]) is alive — created once when
  * `NavRootConfig.AnimeFavorites` becomes the active root config, disposed when
- * `NavRootComponent.navigateTo()` replaces it. [AnimeFavoritesRoute] reads its dependencies from
- * an already-built instance of this class instead of creating its own `FeatureScope` graph.
+ * `NavRootComponent.navigateTo()` replaces it. It builds the screen's [controller] and opens the
+ * section on its first start; [AnimeFavoritesRoute] only draws the controller's state.
  */
 class NavAnimeFavoritesScreenComponent(
     componentContext: ComponentContext,
     diAnimeFavoritesComponent: DiAnimeFavoritesComponent
 ) : ComponentContext by componentContext {
 
-    /** Coroutine contexts the screen's executor runs on. */
-    val coroutineContextProvider: CoroutineContextProvider =
-        diAnimeFavoritesComponent.coroutineContextProvider
-
     /** Formats the air dates the screen shows. */
     val dateFormatter: DateFormatter = diAnimeFavoritesComponent.dateFormatter
 
     /** The app-wide saved-anime store; the source of the favorites list. */
-    val animeDatabaseStore: AnimeDatabaseStore = diAnimeFavoritesComponent.animeDatabaseStore
+    internal val animeDatabaseStore: AnimeDatabaseStore =
+        diAnimeFavoritesComponent.animeDatabaseStore
 
     /** The screen's own store. */
-    val mainStore: AnimeFavoritesMainStore = diAnimeFavoritesComponent.mainStore
+    internal val mainStore: AnimeFavoritesMainStore = diAnimeFavoritesComponent.mainStore
 
-    // stateKeeper only round-trips a value through a real Android Bundle on genuine process
-    // recreation, never on an ordinary top-level navigation switch (this component is fully
-    // destroyed and recreated then, before ever having registered anything). So a non-null
-    // consume() here means process death happened while this screen was the active one.
-    private val wasRestoredFromProcessDeath: Boolean =
+    init {
+        // Registered before the saved state is read. A state the screen rejects throws there, and
+        // the stores must still close with the lifecycle.
+        lifecycle.doOnDestroy {
+            animeDatabaseStore.dispose()
+            mainStore.dispose()
+        }
+    }
+
+    // stateKeeper hands a value back only when the screen is rebuilt from saved state: after
+    // process death, or after a platform rebuild of its host. A top-level navigation switch
+    // creates this component afresh, with nothing registered. So a non-null consume() means the
+    // screen was rebuilt while it was the active one.
+    private val wasRestoredFromSavedState: Boolean =
         stateKeeper.consume(key = RESTORED_MARKER_KEY, strategy = RestoredMarker.serializer()) !=
             null
 
@@ -47,30 +54,31 @@ class NavAnimeFavoritesScreenComponent(
             RestoredMarker
         }
 
-        // Registered here rather than in AnimeFavoritesController so the stores are still
-        // disposed when this component is replaced before AnimeFavoritesRoute ever builds its
-        // controller.
-        lifecycle.doOnDestroy {
-            animeDatabaseStore.dispose()
-            mainStore.dispose()
-        }
+        // Subscribed before the controller binds, so the section opens before the database's
+        // first list reaches the store. Opening waits for a list that arrives after it.
+        lifecycle.doOnStart(isOneTime = true) { openSection() }
     }
 
+    /** Wires the screen's stores while this component lives and hands the UI their state. */
+    val controller = AnimeFavoritesController(
+        lifecycle = lifecycle,
+        mainStore = mainStore,
+        animeDatabaseStore = animeDatabaseStore
+    )
+
     /**
-     * Opens the section, always — this drives [mainStore]'s minimum-visible-duration loading
-     * state, so every arrival gets the same non-flickery loading treatment. Only the extra-info
-     * reset is conditional: skipped when process death happened while the section was already
-     * open, so that display state survives instead of resetting. Every other way of arriving
-     * here (bottom-nav switch, deep link) always resets it.
+     * Opens the section when the component first starts. Opening drives [mainStore]'s
+     * minimum-visible loading state, so every arrival gets the same loading treatment. The
+     * extra-info reset is skipped when the screen comes back from saved state, so that display
+     * state survives. Every other arrival resets it.
      *
      * Resets [animeDatabaseStore] directly rather than through [mainStore]'s
-     * `Label.ResetExtraInfo`: that label only reaches [animeDatabaseStore] once
-     * `AnimeFavoritesController`'s binder has attached, which — called this early, right after
-     * the controller is constructed — isn't guaranteed yet.
+     * `Label.ResetExtraInfo`: that label only reaches [animeDatabaseStore] once the controller's
+     * binder has started, which is posted to a later main-thread turn.
      */
-    fun openSectionUnlessRestored() {
+    private fun openSection() {
         mainStore.accept(AnimeFavoritesMainStore.Intent.OpenSection)
-        if (!wasRestoredFromProcessDeath) {
+        if (!wasRestoredFromSavedState) {
             animeDatabaseStore.accept(AnimeDatabaseStore.Intent.ResetAllItemsExtraInfo)
         }
     }

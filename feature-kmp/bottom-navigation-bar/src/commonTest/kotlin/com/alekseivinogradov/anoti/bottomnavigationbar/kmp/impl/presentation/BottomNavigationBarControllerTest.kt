@@ -6,19 +6,13 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatab
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.fake.AnimeDatabaseStoreFake
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.model.SectionDomain
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
-import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.BottomNavigationBarView
-import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.BottomNavigationBarUiModel
-import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.presentation.model.SectionUi
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.domain.store.BottomNavigationBarStoreFactory
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
-import com.arkivanov.essenty.lifecycle.create
 import com.arkivanov.essenty.lifecycle.destroy
 import com.arkivanov.essenty.lifecycle.resume
-import com.arkivanov.essenty.lifecycle.start
 import com.arkivanov.essenty.lifecycle.stop
-import com.arkivanov.mvikotlin.core.view.BaseMviView
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,7 +24,6 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 private const val FIRST_ID = 11
 private const val SECOND_ID = 22
@@ -40,11 +33,9 @@ class BottomNavigationBarControllerTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
 
-    private val screenLifecycle = LifecycleRegistry()
+    private val lifecycle = LifecycleRegistry()
 
-    private val viewLifecycle = LifecycleRegistry()
-
-    private val view = BottomNavigationBarViewFake()
+    private val labels = mutableListOf<BottomNavigationBarStore.Label>()
 
     private lateinit var mainStore: BottomNavigationBarStore
 
@@ -59,22 +50,23 @@ class BottomNavigationBarControllerTest {
 
     @AfterTest
     fun tearDown() {
-        if (screenLifecycle.state != Lifecycle.State.DESTROYED) {
-            screenLifecycle.destroy()
+        if (lifecycle.state != Lifecycle.State.DESTROYED) {
+            lifecycle.destroy()
         }
+        mainStore.dispose()
+        databaseStore.dispose()
         Dispatchers.resetMain()
     }
 
-    private fun startController() {
-        BottomNavigationBarController(
-            lifecycle = screenLifecycle,
+    private fun startController(): BottomNavigationBarController {
+        val controller = BottomNavigationBarController(
+            lifecycle = lifecycle,
             mainStore = mainStore,
-            animeDatabaseStore = databaseStore
-        ).onViewCreated(mainView = view, viewLifecycle = viewLifecycle)
-        screenLifecycle.create()
-        viewLifecycle.create()
-        viewLifecycle.start()
-        viewLifecycle.resume()
+            animeDatabaseStore = databaseStore,
+            onLabel = labels::add
+        )
+        lifecycle.resume()
+        return controller
     }
 
     private fun dbItem(
@@ -97,21 +89,24 @@ class BottomNavigationBarControllerTest {
     )
 
     @Test
-    fun theViewIsRenderedWithTheOpeningStateAsSoonAsItIsBound() = runTest {
+    fun theStateHoldsWhatTheStoreHoldsAsSoonAsItIsBuilt() = runTest {
         //Given
-        val expected = BottomNavigationBarUiModel(SectionUi.MAIN, 0)
+        mainStore.accept(
+            BottomNavigationBarStore.Intent.ChangeSelectedSection(SectionDomain.FAVORITES)
+        )
 
         //When
-        startController()
+        val controller = startController()
 
         //Then
-        assertEquals(listOf(expected), view.renderedModels)
+        assertEquals(mainStore.state, controller.state.value)
+        assertEquals(SectionDomain.FAVORITES, controller.state.value.selectedSection)
     }
 
     @Test
-    fun anItemWithANewEpisodeReachesTheViewAsABadgeNumber() = runTest {
+    fun anItemWithANewEpisodeReachesTheStateAsABadgeNumber() = runTest {
         //Given
-        startController()
+        val controller = startController()
 
         //When
         databaseStore.accept(
@@ -121,19 +116,19 @@ class BottomNavigationBarControllerTest {
         )
 
         //Then
-        assertEquals(1, view.renderedModels.last().favoritesBadgeNumber)
+        assertEquals(1, controller.state.value.favoritesBadgeNumber)
     }
 
     @Test
     fun clearingTheLastNewEpisodeTakesTheBadgeBackToZero() = runTest {
         //Given
-        startController()
+        val controller = startController()
         databaseStore.accept(
             AnimeDatabaseStore.Intent.InsertAnimeDatabaseItem(
                 dbItem(id = FIRST_ID, isNewEpisode = true)
             )
         )
-        assertEquals(1, view.renderedModels.last().favoritesBadgeNumber)
+        assertEquals(1, controller.state.value.favoritesBadgeNumber)
 
         //When
         databaseStore.accept(
@@ -144,50 +139,28 @@ class BottomNavigationBarControllerTest {
         )
 
         //Then
-        assertEquals(0, view.renderedModels.last().favoritesBadgeNumber)
-    }
-
-    @Test
-    fun aDatabaseChangeThatLeavesTheBadgeNumberAloneDoesNotRenderAgain() = runTest {
-        //Given
-        startController()
-        databaseStore.accept(
-            AnimeDatabaseStore.Intent.InsertAnimeDatabaseItem(
-                dbItem(id = FIRST_ID, isNewEpisode = true)
-            )
-        )
-        val rendersBefore = view.renderedModels.size
-
-        //When
-        databaseStore.accept(
-            AnimeDatabaseStore.Intent.UpdateAnimeDatabaseItem(
-                dbItem(id = FIRST_ID, isNewEpisode = true, name = "Frieren, renamed")
-            )
-        )
-
-        //Then
-        assertEquals(rendersBefore, view.renderedModels.size)
+        assertEquals(0, controller.state.value.favoritesBadgeNumber)
     }
 
     @Test
     fun aTapOnATabReachesTheStoreAndComesBackAsALabel() = runTest {
         //Given
-        startController()
+        val controller = startController()
 
         //When
-        view.dispatch(BottomNavigationBarStore.Intent.FavoritesSectionClick)
+        controller.accept(BottomNavigationBarStore.Intent.FavoritesSectionClick)
 
         //Then
-        assertEquals(
+        assertEquals<List<*>>(
             listOf(BottomNavigationBarStore.Label.NavigateToFavorites),
-            view.handledLabels
+            labels
         )
     }
 
     @Test
-    fun aSectionChangeFromTheHostReachesTheViewAsTheSelectedSection() = runTest {
+    fun aSectionChangeFromTheHostReachesTheStateAsTheSelectedSection() = runTest {
         //Given
-        startController()
+        val controller = startController()
 
         //When
         mainStore.accept(
@@ -195,15 +168,14 @@ class BottomNavigationBarControllerTest {
         )
 
         //Then
-        assertEquals(SectionUi.FAVORITES, view.renderedModels.last().selectedSection)
+        assertEquals(SectionDomain.FAVORITES, controller.state.value.selectedSection)
     }
 
     @Test
-    fun theBadgeStopsFollowingTheDatabaseWhileTheViewIsStopped() = runTest {
+    fun theBadgeStopsFollowingTheDatabaseWhileTheRootIsStopped() = runTest {
         //Given
-        startController()
-        viewLifecycle.stop()
-        val rendersBefore = view.renderedModels.size
+        val controller = startController()
+        lifecycle.stop()
 
         //When
         databaseStore.accept(
@@ -213,37 +185,21 @@ class BottomNavigationBarControllerTest {
         )
 
         //Then
-        assertEquals(rendersBefore, view.renderedModels.size)
+        assertEquals(0, controller.state.value.favoritesBadgeNumber)
     }
 
     @Test
-    fun destroyingTheScreenDisposesBothStores() = runTest {
+    fun theStateStopsFollowingTheStoreOnceTheRootIsDestroyed() = runTest {
         //Given
-        startController()
+        val controller = startController()
+        lifecycle.destroy()
 
         //When
-        screenLifecycle.destroy()
+        mainStore.accept(
+            BottomNavigationBarStore.Intent.ChangeSelectedSection(SectionDomain.FAVORITES)
+        )
 
         //Then
-        assertTrue(mainStore.isDisposed)
-        assertTrue(databaseStore.isDisposed)
-    }
-}
-
-private class BottomNavigationBarViewFake :
-    BaseMviView<BottomNavigationBarUiModel, BottomNavigationBarStore.Intent>(),
-    BottomNavigationBarView {
-
-    val renderedModels = mutableListOf<BottomNavigationBarUiModel>()
-
-    val handledLabels: List<BottomNavigationBarStore.Label>
-        field = mutableListOf<BottomNavigationBarStore.Label>()
-
-    override fun render(model: BottomNavigationBarUiModel) {
-        renderedModels += model
-    }
-
-    override fun handle(label: BottomNavigationBarStore.Label) {
-        handledLabels += label
+        assertEquals(SectionDomain.MAIN, controller.state.value.selectedSection)
     }
 }

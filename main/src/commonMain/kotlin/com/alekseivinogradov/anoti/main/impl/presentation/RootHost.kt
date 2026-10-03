@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation.NavAnimeFavoritesScreenComponent
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation.NavAnimeListScreenComponent
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
+import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarController
 import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.compose.NotificationsRationaleState
 import com.alekseivinogradov.anoti.main.impl.presentation.compose.RootDependencies
@@ -18,12 +19,12 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 
 /**
- * The work every screen host does around the root UI. It builds the root navigation and sets the
- * bottom bar's opening tab. It closes the root stores with the host and runs the notification
- * permission flow. The platform host shows [dependencies] and [notificationsRationale].
+ * The work every screen host does around the root UI. It builds the root navigation, keeps the
+ * bottom bar on the screen the stack holds, closes the root stores with the root and runs the
+ * notification permission flow. The platform host shows [dependencies] and
+ * [notificationsRationale].
  *
- * One instance is one root. A host that rebuilds its root builds a new instance over a new
- * context.
+ * One instance is one root, living as long as its context's lifecycle.
  *
  * @param diRootComponent the graph this root takes its stores and screens from.
  * @param openingTarget the screen a fresh start opens on, such as the one a notification names.
@@ -39,8 +40,7 @@ internal class RootHost(
     private val notificationPermissionRequests: NotificationPermissionRequests
 ) {
 
-    // Both bindings build a new store on every read, so each is read exactly once. The bar's
-    // database store is taken before the first screen takes its own.
+    // Both bindings build a new store on every read, so each is read exactly once.
     private val mainStore: BottomNavigationBarStore = diRootComponent.bottomNavigationBarStore
     private val animeDatabaseStore = diRootComponent.animeDatabaseStore
 
@@ -52,9 +52,7 @@ internal class RootHost(
     private var onRationaleApproved: () -> Unit = {}
 
     init {
-        // These are closed from where they are created. The binding that would otherwise close
-        // them only starts once the first composition's effects run. The host can be gone by
-        // then. A second dispose is a no-op, so the binding's own call stays harmless.
+        // These are closed from where they are created. Nothing else closes them.
         componentContext.lifecycle.doOnDestroy {
             mainStore.dispose()
             animeDatabaseStore.dispose()
@@ -67,26 +65,34 @@ internal class RootHost(
         childFactory = ::createRootChild
     )
 
+    // Built once for the root, so the database feeds the badge with no composition shown. The
+    // bar's taps come back as labels that navigate the root.
+    private val barController = BottomNavigationBarController(
+        lifecycle = componentContext.lifecycle,
+        mainStore = mainStore,
+        animeDatabaseStore = animeDatabaseStore,
+        onLabel = ::navigateFromBar
+    )
+
     init {
-        // The only path that gets the bar's first tab right, not a shortcut for one. The view
-        // dispatches the same intent, but its binder attaches on a later main-thread message, so
-        // that first dispatch reaches no subscriber and is dropped. Removing this leaves the bar
-        // highlighting the wrong tab after a launch into favorites. `childStack.value` is
-        // already valid here: it resolves the initial or restored child on construction.
-        mainStore.accept(
-            BottomNavigationBarStore.Intent.ChangeSelectedSection(
-                selectedSection = rootComponent.childStack.value.active.instance.section
+        // The bar shows the screen the stack holds, whoever navigated and whether a composition is
+        // shown or not. The subscription is called at once with the current stack, so the opening
+        // tab is set before the first composition.
+        val stackSubscription = rootComponent.childStack.subscribe { stack ->
+            mainStore.accept(
+                BottomNavigationBarStore.Intent.ChangeSelectedSection(
+                    selectedSection = stack.active.instance.section
+                )
             )
-        )
+        }
+        componentContext.lifecycle.doOnDestroy(stackSubscription::cancel)
     }
 
     /** What the root content draws from. */
     val dependencies = RootDependencies(
         rootComponent = rootComponent,
-        mainStore = mainStore,
-        animeDatabaseStore = animeDatabaseStore,
-        systemMessageController = diRootComponent.parent.systemMessageController,
-        lifecycle = componentContext.lifecycle
+        barController = barController,
+        systemMessageController = diRootComponent.parent.systemMessageController
     )
 
     /** The notification-permission explanation the root content shows over the screen. */
@@ -112,9 +118,29 @@ internal class RootHost(
         }
     }
 
+    /**
+     * Opens [target], the screen a tapped notification names, in this root. A screen already
+     * showing it stays as it is. Main thread only.
+     */
+    fun openFromNotification(target: NavRootConfig) {
+        rootComponent.navigateTo(target)
+    }
+
     private fun explainThen(request: () -> Unit) {
         onRationaleApproved = request
         rationaleVisible.value = true
+    }
+
+    // Tapping the tab that is already open would otherwise still run a navigation transaction. The
+    // stack would come back holding the same child, so nothing downstream can tell the difference.
+    private fun navigateFromBar(label: BottomNavigationBarStore.Label) {
+        val target = when (label) {
+            BottomNavigationBarStore.Label.NavigateToMain -> NavRootConfig.AnimeList
+            BottomNavigationBarStore.Label.NavigateToFavorites -> NavRootConfig.AnimeFavorites
+        }
+        if (rootComponent.childStack.value.active.configuration != target) {
+            rootComponent.navigateTo(target)
+        }
     }
 
     private fun createRootChild(

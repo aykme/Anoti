@@ -108,6 +108,26 @@ class SaveableStateCodecTest {
     }
 
     @Test
+    fun theScreensStateAScreenStackSavesComesBackUnderEachScreensKey() {
+        //Given
+        // A stack of screens saves one map: each screen's key to what that screen saved.
+        val screens = mapOf<Any, Map<String, List<Any?>>>(
+            "AnimeList" to mapOf("search" to listOf(mutableStateOf("frieren"))),
+            "AnimeFavorites" to mapOf("scroll" to listOf(3, 120))
+        )
+
+        //When
+        val restored = roundTrip(listOf(screens)).single()
+
+        //Then
+        assertIs<Map<*, *>>(restored)
+        val list = assertIs<Map<*, *>>(restored["AnimeList"])
+        val search = assertIs<SnapshotMutableState<*>>(assertIs<List<*>>(list["search"]).single())
+        assertEquals("frieren", search.value)
+        assertEquals(mapOf("scroll" to listOf(3, 120)), restored["AnimeFavorites"])
+    }
+
+    @Test
     fun aLazyListsIndexAndOffsetComeBackAsInts() {
         //Given
         val values = listOf<Any?>(listOf(12, 340))
@@ -128,7 +148,7 @@ class SaveableStateCodecTest {
             referentialEqualityPolicy(),
             neverEqualPolicy<Any?>()
         )
-        val states = policies.map { mutableStateOf<Any?>("text", it) }
+        val states = policies.map { mutableStateOf("text", it) }
 
         //When
         val restored = roundTrip(states)
@@ -217,10 +237,10 @@ class SaveableStateCodecTest {
         val restored = shapes.map(SaveableStateCodec::decode)
 
         //Then
-        assertEquals(List(shapes.size) { emptyMap<String, List<Any?>>() }, restored)
+        assertEquals(List(shapes.size) { emptyMap() }, restored)
     }
 
-    // Through the text the file holds, where a number JSON cannot spell would fail.
+    // Through the JSON text the scene keeps, where a number JSON cannot spell would fail.
     private fun roundTrip(values: List<Any?>): List<Any?> {
         val text = Json.encodeToString(
             JsonElement.serializer(),

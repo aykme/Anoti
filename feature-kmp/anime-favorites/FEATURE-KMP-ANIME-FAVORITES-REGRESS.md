@@ -24,8 +24,9 @@ tapped, a row that wraps in one pass and clips in another, and anything that sto
 to a tap because it moved. Where a step behaves differently by scale or orientation on purpose,
 that step says so.
 
-Changing the font or display size restarts the app. Changing orientation does not — the screen
-keeps its state, which is itself checked in section 11.
+On Android, changing the font or display size rebuilds the screen, and it keeps its state. The
+iPhone keeps its screen as it is. Changing orientation rebuilds nothing — the screen keeps its
+state, which is itself checked in section 11.
 
 ## 1. The three states of the screen
 

@@ -1,50 +1,27 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
-import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.AnimeListView
-import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.AnimeListUiModel
-import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.AnimeListController
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.mapper.model.mapStateToUiModel
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.compose.AnimeListScreen
-import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.ComposeMviView
 
 /**
- * Renders the anime-list screen for as long as [screenComponent] stays the active root child —
- * a new [screenComponent] instance (after navigating away and back) gets its own fresh view and
- * controller, matching the store's own per-activation lifetime.
+ * Renders the anime-list screen of [screenComponent], reading its controller's state for as long
+ * as the composition lasts and sending the screen's events back to it.
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.
 @Suppress("FunctionNaming")
 @Composable
 fun AnimeListRoute(screenComponent: NavAnimeListScreenComponent) {
-    // Needs an explicit AnimeListView supertype: the controller takes that interface, and
-    // ComposeMviView's structural match to it isn't enough for Kotlin's nominal typing.
-    val composeView = remember(screenComponent) {
-        object : ComposeMviView<AnimeListUiModel, AnimeListMainStore.Intent>(), AnimeListView {}
-    }
-    // Binding runs as an effect, not inside "remember": a discarded/retried
-    // composition still executes "remember", which would start a second,
-    // uncanceled MVIKotlin binder alongside the one from the composition that actually commits.
-    LaunchedEffect(screenComponent) {
-        AnimeListController(
-            lifecycle = screenComponent.lifecycle,
-            mainStore = screenComponent.mainStore,
-            animeDatabaseStore = screenComponent.animeDatabaseStore,
-            ongoingSectionStore = screenComponent.ongoingSectionStore,
-            announcedSectionStore = screenComponent.announcedSectionStore,
-            searchSectionStore = screenComponent.searchSectionStore
-        ).onViewCreated(mainView = composeView, viewLifecycle = screenComponent.lifecycle)
-        // Only safe once the section stores above are wired to mainStore — see its KDoc.
-        screenComponent.applyRestoredStateIfAny()
-    }
-    composeView.model.value?.let { uiModel ->
-        AnimeListScreen(
-            uiModel = uiModel,
-            dateFormatter = screenComponent.dateFormatter,
-            dispatch = composeView::dispatch
-        )
-    }
+    val controller = screenComponent.controller
+    val state by controller.state.collectAsState()
+    val uiModel = remember(state) { mapStateToUiModel(state) }
+    AnimeListScreen(
+        uiModel = uiModel,
+        dateFormatter = screenComponent.dateFormatter,
+        dispatch = controller::accept
+    )
 }

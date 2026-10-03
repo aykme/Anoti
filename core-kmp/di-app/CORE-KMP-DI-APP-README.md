@@ -18,8 +18,9 @@ module, so leaf modules can depend on them without cycling back through this one
 - On Android, `DiAppComponent::class.create(appContext)` builds the graph; read its accessors
   instead of constructing the values yourself.
 - On iOS, `IosApp.start()` builds the graph, an internal `DiAppComponent` the framework does not
-  show. It also builds `:main`'s screen host over it. `IosApp.viewController()` then hands out
-  the app's screen.
+  show. It also builds `:main`'s screen host over it. `IosApp.viewController(restoredState)` then
+  hands out the app's screen over the string the scene kept, and `IosApp.saveState()` gives the
+  string to keep.
 - `createDiRootComponent(appComponent)` builds `:main`'s `DiRootComponent`, the root UI host's
   graph, from the component above on either platform.
 - For the scope annotations, qualifier annotations, and `PlatformContext`, depend on

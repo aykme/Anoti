@@ -16,6 +16,10 @@ import com.alekseivinogradov.anoti.main.api.di.DiRootDependencies
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.alekseivinogradov.anoti.network.kmp.impl.data.client.createHttpClient
 import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
+import com.arkivanov.mvikotlin.core.store.Bootstrapper
+import com.arkivanov.mvikotlin.core.store.Executor
+import com.arkivanov.mvikotlin.core.store.Reducer
+import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import io.ktor.client.engine.mock.MockEngine
@@ -44,7 +48,33 @@ internal class DiRootDependenciesFake : DiRootDependencies {
             .map { it.url.encodedPath }
             .filterNot { it.endsWith("/$ANIME_LIST_APPEND_URL") }
 
-    override val storeFactory: StoreFactory = DefaultStoreFactory()
+    /** Every store built through [storeFactory], by the name it was built under. */
+    val builtStores = mutableListOf<Pair<String?, Store<*, *, *>>>()
+
+    override val storeFactory: StoreFactory = object : StoreFactory {
+        private val factory = DefaultStoreFactory()
+
+        override fun <Intent : Any, Action : Any, Message : Any, State : Any, Label : Any> create(
+            name: String?,
+            autoInit: Boolean,
+            initialState: State,
+            bootstrapper: Bootstrapper<Action>?,
+            executorFactory: () -> Executor<Intent, Action, State, Message, Label>,
+            reducer: Reducer<State, Message>
+        ): Store<Intent, State, Label> = factory.create(
+            name = name,
+            autoInit = autoInit,
+            initialState = initialState,
+            bootstrapper = bootstrapper,
+            executorFactory = executorFactory,
+            reducer = reducer
+        ).also { store: Store<Intent, State, Label> -> builtStores += name to store }
+    }
+
+    /** Every bottom-bar store built, in the order they were built. */
+    val barStores: List<Store<*, *, *>>
+        get() = builtStores.filter { it.first == "BottomNavigationBarStore" }.map { it.second }
+
     override val coroutineContextProvider: CoroutineContextProvider = CoroutineContextProviderFake(
         ioDispatcher = Dispatchers.Main,
         defaultDispatcher = Dispatchers.Main,

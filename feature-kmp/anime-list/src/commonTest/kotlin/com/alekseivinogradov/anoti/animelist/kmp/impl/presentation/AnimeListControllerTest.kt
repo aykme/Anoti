@@ -14,8 +14,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsecti
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.ongoingsection.OngoingSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.SearchSectionStore
-import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.AnimeListView
-import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.AnimeListUiModel
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.mapper.model.mapStateToUiModel
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.SectionHatUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.itemcontent.NotificationUi
 import com.alekseivinogradov.anoti.animelist.kmp.impl.data.source.fake.AnimeListSourceFake
@@ -46,8 +45,6 @@ import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.destroy
 import com.arkivanov.essenty.lifecycle.resume
 import com.arkivanov.mvikotlin.core.store.Store
-import com.arkivanov.mvikotlin.core.view.BaseMviView
-import com.arkivanov.mvikotlin.core.view.ViewRenderer
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -80,20 +77,6 @@ class AnimeListControllerTest {
         Dispatchers.resetMain()
     }
 
-    private class AnimeListViewFake :
-        BaseMviView<AnimeListUiModel, AnimeListMainStore.Intent>(),
-        AnimeListView {
-
-        val renderedModels = mutableListOf<AnimeListUiModel>()
-
-        override val renderer: ViewRenderer<AnimeListUiModel> =
-            object : ViewRenderer<AnimeListUiModel> {
-                override fun render(model: AnimeListUiModel) {
-                    renderedModels += model
-                }
-            }
-    }
-
     /** Serves each section its own first page, so a section's items identify their source. */
     private fun firstPageOnly(
         page: Int,
@@ -107,9 +90,8 @@ class AnimeListControllerTest {
     @Suppress("LongParameterList")
     private class Wiring(
         val lifecycle: LifecycleRegistry,
-        val view: AnimeListViewFake,
+        val controller: AnimeListController,
         val mainStore: AnimeListMainStore,
-        val animeDatabaseStore: AnimeDatabaseStore,
         val ongoingSectionStore: OngoingSectionStore,
         val announcedSectionStore: AnnouncedSectionStore,
         val searchSectionStore: SearchSectionStore,
@@ -171,22 +153,20 @@ class AnimeListControllerTest {
         val searchSectionStore = createSearchStore(source)
 
         val lifecycle = LifecycleRegistry()
-        val view = AnimeListViewFake()
-        AnimeListController(
+        val controller = AnimeListController(
             lifecycle = lifecycle,
             mainStore = mainStore,
             animeDatabaseStore = animeDatabaseStore,
             ongoingSectionStore = ongoingSectionStore,
             announcedSectionStore = announcedSectionStore,
             searchSectionStore = searchSectionStore
-        ).onViewCreated(mainView = view, viewLifecycle = lifecycle)
+        )
         lifecycle.resume()
 
         return Wiring(
             lifecycle = lifecycle,
-            view = view,
+            controller = controller,
             mainStore = mainStore,
-            animeDatabaseStore = animeDatabaseStore,
             ongoingSectionStore = ongoingSectionStore,
             announcedSectionStore = announcedSectionStore,
             searchSectionStore = searchSectionStore,
@@ -281,7 +261,7 @@ class AnimeListControllerTest {
         }
 
     @Test
-    fun aDatabaseStoreStateReachesTheViewAsARenderedUiModel() = runTest(testDispatcher) {
+    fun aDatabaseStoreStateReachesTheUiModel() = runTest(testDispatcher) {
         //Given
         val wiring = createWiring()
         wiring.ongoingSectionStore.accept(OngoingSectionStore.Intent.OpenSection)
@@ -292,7 +272,7 @@ class AnimeListControllerTest {
         runCurrent()
 
         //Then
-        val listItems = wiring.view.renderedModels.last().listContent.listItems
+        val listItems = mapStateToUiModel(wiring.controller.state.value).listContent.listItems
         assertEquals(1, listItems.size)
         assertEquals("Frieren", listItems.single().name)
         assertEquals(NotificationUi.ENABLED, listItems.single().notification)
@@ -348,12 +328,12 @@ class AnimeListControllerTest {
     }
 
     @Test
-    fun aViewEventReachesTheMainStore() = runTest(testDispatcher) {
+    fun aUiEventReachesTheMainStore() = runTest(testDispatcher) {
         //Given
         val wiring = createWiring()
 
         //When
-        wiring.view.dispatch(AnimeListMainStore.Intent.ChangeSearchText(searchText = "totoro"))
+        wiring.controller.accept(AnimeListMainStore.Intent.ChangeSearchText(searchText = "totoro"))
         runCurrent()
 
         //Then
@@ -366,7 +346,7 @@ class AnimeListControllerTest {
         val wiring = createWiring()
 
         //When
-        wiring.view.dispatch(AnimeListMainStore.Intent.AnnouncedSectionClick)
+        wiring.controller.accept(AnimeListMainStore.Intent.AnnouncedSectionClick)
         runCurrent()
 
         //Then
@@ -379,7 +359,10 @@ class AnimeListControllerTest {
             wiring.ongoingSectionStore.state.sectionContent.listItems,
             "the announced tab must not open the ongoing section too"
         )
-        assertEquals(SectionHatUi.ANNOUNCED, wiring.view.renderedModels.last().selectedSection)
+        assertEquals(
+            SectionHatUi.ANNOUNCED,
+            mapStateToUiModel(wiring.controller.state.value).selectedSection
+        )
     }
 
     @Test
@@ -391,7 +374,7 @@ class AnimeListControllerTest {
             runCurrent()
 
             //When
-            wiring.view.dispatch(AnimeListMainStore.Intent.NotificationClick(id = 1))
+            wiring.controller.accept(AnimeListMainStore.Intent.NotificationClick(id = 1))
             runCurrent()
 
             //Then
@@ -410,7 +393,7 @@ class AnimeListControllerTest {
         runCurrent()
 
         //When
-        wiring.view.dispatch(AnimeListMainStore.Intent.NotificationClick(id = 1))
+        wiring.controller.accept(AnimeListMainStore.Intent.NotificationClick(id = 1))
         runCurrent()
 
         //Then
@@ -435,27 +418,15 @@ class AnimeListControllerTest {
     }
 
     @Test
-    fun destroyingTheLifecycleDisposesAllFiveStores() = runTest(testDispatcher) {
+    fun theStateStopsFollowingTheStoreOnceTheScreenIsDestroyed() = runTest(testDispatcher) {
         //Given
         val wiring = createWiring()
-
-        //When
         wiring.lifecycle.destroy()
 
+        //When
+        wiring.mainStore.accept(AnimeListMainStore.Intent.ChangeSearchText(searchText = "totoro"))
+
         //Then
-        assertTrue(wiring.mainStore.isDisposed, "the main store outlived its screen")
-        assertTrue(wiring.animeDatabaseStore.isDisposed, "the database store outlived its screen")
-        assertTrue(
-            wiring.ongoingSectionStore.isDisposed,
-            "the ongoing section store outlived its screen"
-        )
-        assertTrue(
-            wiring.announcedSectionStore.isDisposed,
-            "the announced section store outlived its screen"
-        )
-        assertTrue(
-            wiring.searchSectionStore.isDisposed,
-            "the search section store outlived its screen"
-        )
+        assertEquals("", wiring.controller.state.value.search.searchText)
     }
 }

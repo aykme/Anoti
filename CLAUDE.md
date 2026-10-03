@@ -71,6 +71,12 @@ these rules and load together with them.
   actually needs a platform-only type anywhere in its own signature or body — an interface,
   data holder, or plain function with zero platform imports belongs in `commonMain`. Even if its
   only current implementer/caller happens to be platform-specific.
+- One exception, for iOS only. Code that exists only because iOS lacks a mechanism Android's
+  OS provides lives in `iosMain`, even when it is portable. `IosRootHolder`, `IosRootContent`,
+  `SaveableStateCodec` and `ChildLifecycle` in `main` are the case. They keep the screen state
+  Android keeps in its saved instance state, and rebuild the root from it. Such code is written
+  in `commonMain` first and moved once its tests pass. Logic both platforms share stays in
+  `commonMain`, whoever calls it.
 - This applies to Compose code too: a composable function only needs to live in `androidMain`/
   `iosMain` if it directly touches a platform-only API (e.g. a `View`/`ComposeView` bridge). A
   composable built entirely from `compose.runtime`/`compose.foundation`/`compose.material3` and
@@ -167,6 +173,9 @@ these rules and load together with them.
   and `BackgroundRefreshTask` in `feature-kmp:anime-background-update` show the shape: the
   portable half of a background refresh is common and tested, and `AnimeBackgroundSchedulerImpl`
   is left holding the `BGTaskScheduler` calls and nothing else.
+- The iOS-only code of "Platform source sets" is tested in `iosTest`. Its tests are first written
+  where they run here: `commonTest`, or `androidHostTest` for a composable. They move with the
+  code once they pass.
 - What stays in `iosTest` is what only a real iOS runtime can answer, and it is written knowing
   it will not run until someone builds on a Mac.
 - Where both platforms need the same thing built — wording, an id, a format — build it once in
@@ -222,7 +231,8 @@ these rules and load together with them.
 - Android platform code counts too; Kover measures it through `androidHostTest`.
 - Kover cannot measure Kotlin/Native, so nothing in `iosMain` reaches the number. Together with
   `iosTest` not running off macOS, that is the reason logic belongs in `commonMain` — see
-  "Tests" above.
+  "Tests" above. The iOS-only code of "Platform source sets" is the one exception and stays
+  outside the number.
 - The minimum is a floor, never a finish line. Hitting the percentage is not the goal: cover the
   main cases, the risky ones, the bottlenecks and the boundaries. Where concurrency is real,
   cover races and ordering as well. A test written only to move the number is worse than no test.

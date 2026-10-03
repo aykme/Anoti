@@ -1,24 +1,26 @@
 package com.alekseivinogradov.anoti.main.impl.presentation
 
+import android.Manifest
 import android.content.Intent
 import androidx.compose.ui.test.junit4.ComposeTestRule
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.AnimeDbDomain
-import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.ReleaseStatusDb
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
+import com.alekseivinogradov.anoti.navigation.kmp.NavRootDeepLink
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
-import kotlinx.serialization.json.Json
 import org.robolectric.Robolectric
 import org.robolectric.RuntimeEnvironment
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import kotlin.test.assertEquals
 
 internal const val ANIME_LIST_TAB_TAG = "anime_list_button"
 internal const val ANIME_FAVORITES_TAB_TAG = "anime_favorites_button"
+internal const val SEARCH_BUTTON_TAG = "search_button"
+internal const val SEARCH_TEXT = "frieren"
 
 /** The fakes the activity under test is wired to, reachable from a test that never built them. */
 internal val fakeDependencies: DiRootDependenciesFake
@@ -26,32 +28,27 @@ internal val fakeDependencies: DiRootDependenciesFake
         "The test must run with HostApplicationFake."
     }.dependencies
 
-/** What the launcher sends, with no deep link on it. */
+/** The activity's own intent with no deep link on it, as a plain launch sends it. */
 internal fun plainLaunchingIntent(): Intent =
     Intent(RuntimeEnvironment.getApplication(), MainActivity::class.java)
 
-/** What the new-episode notification sends: the same intent, asking for the favorites screen. */
+/** The same intent asking for the favorites screen, as a tapped notification does. */
 internal fun favoritesDeepLinkIntent(): Intent =
     plainLaunchingIntent().putExtra(
         MainActivity.EXTRA_DEEP_LINK_TARGET,
-        Json.encodeToString(NavRootConfig.serializer(), NavRootConfig.AnimeFavorites)
+        NavRootDeepLink.encode(NavRootConfig.AnimeFavorites)
     )
 
-/** A saved anime with only the fields the bar's badge counts on. */
-internal fun savedAnime(id: Int, hasNewEpisode: Boolean) = AnimeDbDomain(
-    id = id,
-    imageUrl = null,
-    name = "Anime $id",
-    episodesAired = null,
-    episodesTotal = null,
-    nextEpisodeAt = null,
-    airedOn = null,
-    releasedOn = null,
-    score = null,
-    releaseStatus = ReleaseStatusDb.ONGOING,
-    episodesViewed = 0,
-    isNewEpisode = hasNewEpisode
-)
+// The dialog is drawn by another module, which ships one set of strings and keeps its resource
+// accessors to itself, so its buttons can only be reached here by the words on them.
+internal const val ACCEPT_LABEL = "Kawaii nya ≽^•⩊•^≼"
+internal const val REFUSE_LABEL = "Angry nya ฅ^•ﻌ•^ฅ"
+
+/** Makes the system report that the notification permission owes the user an explanation. */
+internal fun expectAnExplanation() {
+    shadowOf(RuntimeEnvironment.getApplication().packageManager)
+        .setShouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS, true)
+}
 
 /**
  * One virtual clock for the composition and for the stores alike, so nothing in a test waits on

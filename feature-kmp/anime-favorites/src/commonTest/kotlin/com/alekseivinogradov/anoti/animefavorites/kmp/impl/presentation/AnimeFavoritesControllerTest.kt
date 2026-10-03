@@ -10,8 +10,7 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeData
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.fake.AnimeDatabaseUsecasesFake
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
-import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.AnimeFavoritesView
-import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.AnimeFavoritesUiModel
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.mapper.mapStateToUiModel
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.data.source.fake.AnimeFavoritesSourceFake
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store.AnimeFavoritesExecutorFactory
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store.AnimeFavoritesExecutorImpl
@@ -26,8 +25,6 @@ import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.destroy
 import com.arkivanov.essenty.lifecycle.resume
 import com.arkivanov.mvikotlin.core.store.Store
-import com.arkivanov.mvikotlin.core.view.BaseMviView
-import com.arkivanov.mvikotlin.core.view.ViewRenderer
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -40,7 +37,6 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AnimeFavoritesControllerTest {
@@ -60,27 +56,12 @@ class AnimeFavoritesControllerTest {
         Dispatchers.resetMain()
     }
 
-    private class AnimeFavoritesViewFake :
-        BaseMviView<AnimeFavoritesUiModel, AnimeFavoritesMainStore.Intent>(),
-        AnimeFavoritesView {
-
-        val renderedModels = mutableListOf<AnimeFavoritesUiModel>()
-
-        override val renderer: ViewRenderer<AnimeFavoritesUiModel> =
-            object : ViewRenderer<AnimeFavoritesUiModel> {
-                override fun render(model: AnimeFavoritesUiModel) {
-                    renderedModels += model
-                }
-            }
-    }
-
     /** The saved-anime database every [AnimeDatabaseStore] usecase reads from and writes to. */
     /** Everything a test needs to drive one controller and see where its bindings lead. */
     private class Wiring(
         val lifecycle: LifecycleRegistry,
-        val view: AnimeFavoritesViewFake,
+        val controller: AnimeFavoritesController,
         val mainStore: AnimeFavoritesMainStore,
-        val animeDatabaseStore: AnimeDatabaseStore,
         val database: AnimeDatabaseUsecasesFake,
         val backgroundUpdateUsecase: UpdateAllAnimeInBackgroundOnceUsecaseFake
     )
@@ -152,26 +133,24 @@ class AnimeFavoritesControllerTest {
         val mainStore = createMainStore(backgroundUpdateUsecase, coroutineContextProvider)
 
         val lifecycle = LifecycleRegistry()
-        val view = AnimeFavoritesViewFake()
-        AnimeFavoritesController(
+        val controller = AnimeFavoritesController(
             lifecycle = lifecycle,
             mainStore = mainStore,
             animeDatabaseStore = animeDatabaseStore
-        ).onViewCreated(mainView = view, viewLifecycle = lifecycle)
+        )
         lifecycle.resume()
 
         return Wiring(
             lifecycle = lifecycle,
-            view = view,
+            controller = controller,
             mainStore = mainStore,
-            animeDatabaseStore = animeDatabaseStore,
             database = database,
             backgroundUpdateUsecase = backgroundUpdateUsecase
         )
     }
 
     @Test
-    fun aDatabaseStoreStateReachesTheViewAsARenderedUiModel() = runTest(testDispatcher) {
+    fun aDatabaseStoreStateReachesTheUiModel() = runTest(testDispatcher) {
         //Given
         val wiring = createWiring()
 
@@ -180,19 +159,19 @@ class AnimeFavoritesControllerTest {
         runCurrent()
 
         //Then
-        val listItems = wiring.view.renderedModels.last().listItems
+        val listItems = mapStateToUiModel(wiring.controller.state.value).listItems
         assertEquals(1, listItems.size)
         assertEquals(7, listItems.single().id)
         assertEquals("Frieren", listItems.single().name)
     }
 
     @Test
-    fun aViewEventReachesTheMainStore() = runTest(testDispatcher) {
+    fun aUiEventReachesTheMainStore() = runTest(testDispatcher) {
         //Given
         val wiring = createWiring(databaseItems = listOf(testDbItem(id = 7)))
 
         //When
-        wiring.view.dispatch(AnimeFavoritesMainStore.Intent.ItemsSubmittedToList)
+        wiring.controller.accept(AnimeFavoritesMainStore.Intent.ItemsSubmittedToList)
         runCurrent()
 
         //Then
@@ -205,7 +184,7 @@ class AnimeFavoritesControllerTest {
         val wiring = createWiring(databaseItems = listOf(testDbItem(id = 7)))
 
         //When
-        wiring.view.dispatch(AnimeFavoritesMainStore.Intent.NotificationClick(id = 7))
+        wiring.controller.accept(AnimeFavoritesMainStore.Intent.NotificationClick(id = 7))
         runCurrent()
 
         //Then
@@ -218,7 +197,7 @@ class AnimeFavoritesControllerTest {
         val wiring = createWiring(databaseItems = listOf(testDbItem(id = 7)))
 
         //When
-        wiring.view.dispatch(AnimeFavoritesMainStore.Intent.UpdateSection)
+        wiring.controller.accept(AnimeFavoritesMainStore.Intent.UpdateSection)
         runCurrent()
 
         //Then
@@ -227,15 +206,15 @@ class AnimeFavoritesControllerTest {
     }
 
     @Test
-    fun destroyingTheLifecycleDisposesBothStores() = runTest(testDispatcher) {
+    fun theStateStopsFollowingTheStoreOnceTheScreenIsDestroyed() = runTest(testDispatcher) {
         //Given
         val wiring = createWiring()
-
-        //When
         wiring.lifecycle.destroy()
 
+        //When
+        wiring.mainStore.accept(AnimeFavoritesMainStore.Intent.ItemsSubmittedToList)
+
         //Then
-        assertTrue(wiring.mainStore.isDisposed, "the favorites store outlived its screen")
-        assertTrue(wiring.animeDatabaseStore.isDisposed, "the database store outlived its screen")
+        assertEquals(ContentTypeDomain.LOADING(), wiring.controller.state.value.contentType)
     }
 }
