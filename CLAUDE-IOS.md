@@ -106,7 +106,7 @@ none of `Info.plist`, `project.yml`, the `.xcconfig` files and the asset catalog
    finding that would need a substantial change to the logic goes to the developer.
 3. On `2`, fix the setup problem the message names.
 4. On `3`, this machine cannot run SwiftLint. Tell the developer at once what is missing and how
-   to install it. On Windows that is `winget install Swift.Toolchain`. On macOS it is Xcode, and
+   to install it. On Windows that is `winget install Swift.Toolchain`. On macOS, it is Xcode, and
    on Linux the swift.org toolchain. Offer three ways on:
    - install it now;
    - push the branch and start a lint-only run, as "Running iOS on CI" says, then fix, commit
@@ -122,7 +122,7 @@ so a deprecated API stops it. `SWIFT_STRICT_CONCURRENCY` is `complete`, so a cal
 
 What is left to a person:
 
-- The formatting of the files around it, where no rule speaks.
+- The formatting of files around it, where no rule speaks.
 - A UI test's body is split by `//Given`, `//When` and `//Then`, as in Kotlin.
 - Imports nothing uses. The analyzer finds them on CI only.
 - Read the CI build log of the round for warnings, since nothing here compiles Swift.
