@@ -118,7 +118,9 @@ Nothing lints Swift here, so this list is walked by hand over every Swift file b
   assertions stay on structure.
 - A failed UI test, and a failed restore case, gets up to three tries. Each case starts from a
   fresh installation of its own, so the cases run alone and in any order. Every failed try stays
-  in the log.
+  in the log, and a restore case keeps each try's media in a folder of its own.
+- The restore checks restart the simulator before their first case. After a UI test has
+  launched the app, iOS hands no kept scene state back to the app until the simulator restarts.
 - Start it by hand as "CI on GitHub" in `CLAUDE.md` says. Add `-f setup_check=true` after a
   change to `compile-kotlin-framework.sh`: that job proves the script finds a Java on a Mac
   without one in `JAVA_HOME`.

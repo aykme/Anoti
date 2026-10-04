@@ -1,13 +1,20 @@
 #!/bin/bash
-# The restore and theme checks on the booted simulator SIM_UDID. Each case leaves a video,
-# screenshots and the app's log in MEDIA_DIR.
+# The restore and theme checks on the booted simulator SIM_UDID. Each try of a case leaves a
+# video, screenshots and the app's log in a folder of its own, MEDIA_DIR/<case>/try-<n>.
+#
+# It runs only on CI, in the app job of ios.yml. That job boots the simulator and builds the app
+# for testing, and the runner sets RUNNER_TEMP. Started by hand, the script stops on the first of
+# them it misses.
 #
 # The script starts the app itself, so the app's println reaches a log file. The UI steps only
 # attach to the running app with activate(); a UI step that launched the app would lose its log.
 set -uo pipefail
-: "${SIM_UDID:?}" "${MEDIA_DIR:?}" "${APP_PATH:?}" "${XCTESTRUN:?}" "${RESULTS_DIR:?}"
+: "${SIM_UDID:?}" "${MEDIA_DIR:?}" "${APP_PATH:?}" "${XCTESTRUN:?}" "${RESULTS_DIR:?}" \
+  "${RUNNER_TEMP:?}"
 
 bundle_id=com.alekseivinogradov.anoti
+media_root=$MEDIA_DIR
+results_root=$RESULTS_DIR
 check_dark=".github/scripts/ios-check-dark.py"
 failures=0
 case_failures=0
@@ -54,8 +61,6 @@ launch_logged() {
 
 # Extra environment for the step goes before the call: READY_FILE=... run_step name.
 run_step() {
-  # A retried step writes its result again, and xcodebuild refuses an existing bundle.
-  rm -rf "$RESULTS_DIR/$1-$2.xcresult"
   TEST_RUNNER_ANOTI_RESTORE_STEPS=1 TEST_RUNNER_ANOTI_READY_FILE="${READY_FILE:-}" \
     xcodebuild test-without-building -xctestrun "$steps_xctestrun" -destination "id=$SIM_UDID" \
     -only-testing:"iosAppUITests/RestoreSteps/$1" \
@@ -123,6 +128,15 @@ wait_for_saved_scene() {
   find "$saved" -type f -newer "$2" -exec ls -l {} +
 }
 
+# Every file of the scenes iOS keeps for the app. A scene restored on launch keeps its folder; a
+# new one adds a folder of its own.
+list_saved_scenes() {
+  local container
+  container=$(xcrun simctl get_app_container "$SIM_UDID" "$bundle_id" data)
+  echo "the saved scenes $1:"
+  find "$container/Library/Saved Application State" -type f -exec ls -lT {} + 2> /dev/null
+}
+
 # The exported attachment of the step $1 that the test named $2.
 attachment() {
   /usr/bin/python3 - "$1/manifest.json" "$2" <<'PY'
@@ -145,6 +159,7 @@ end_like_the_system() {
   sleep 5
   pid=$(pgrep -f "/Anoti.app/Anoti$" | head -1)
   if [ -n "$pid" ]; then
+    echo "ending the app's process $pid in the background"
     kill -KILL "$pid"
   else
     echo "no app process to kill, terminating instead"
@@ -166,14 +181,18 @@ prepare_case() {
   end_like_the_system
 }
 
-# Runs the case $2, with the rest of the arguments, up to three times until a try passes. The
+# Runs the case $3, with the rest of the arguments, up to three times until a try passes. Each
+# try keeps its media in the folder $2 under MEDIA_DIR. The
 # backend and the simulator can fail on their own, and every case starts from its own fresh
 # install, so a try never depends on the one before. A failed try stays in the log.
 run_case() {
-  local name=$1 try
-  shift
+  local name=$1 folder=$2 try
+  shift 2
   for try in 1 2 3; do
     echo "== $name, try $try"
+    MEDIA_DIR="$media_root/$folder/try-$try"
+    RESULTS_DIR="$results_root/$folder/try-$try"
+    mkdir -p "$MEDIA_DIR" "$RESULTS_DIR"
     case_failures=0
     "$@"
     [ "$case_failures" -eq 0 ] && return
@@ -200,6 +219,7 @@ case_kept_across_a_termination() {
   launch_logged case1-relaunch
   sleep 20
   screenshot case1-relaunch
+  list_saved_scenes "after the relaunch"
   stop_video
   grep -q "the root opens on AnimeFavorites" "$MEDIA_DIR/case1-relaunch.log"
   expect $? "the relaunch opens on favorites"
@@ -312,17 +332,35 @@ case_dark_in_a_theme() {
   expect $? "the app's card in the switcher is dark, $theme theme"
 }
 
-run_case "1. The state is kept across a termination" case_kept_across_a_termination
-run_case "2a. A notification tap from the background, with the app on the list" \
-  case_tap_from_the_background
-run_case "2b. A notification tap with the app closed and the list kept" \
-  case_tap_with_the_app_closed
-run_case "3. A fresh start after a reinstall" case_fresh_after_a_reinstall
-for theme in light dark; do
-  run_case "4. Dark in the $theme system theme: launch, bars, app switcher" \
-    case_dark_in_a_theme "$theme"
-done
-xcrun simctl ui "$SIM_UDID" appearance light
+# After a UI test has launched the app, iOS hands no kept scene state back to the app's later
+# launches, however they end. A restart of the simulator clears that; nothing is erased. A
+# simulator that has just booted is still busy and slow to answer, so it gets time to settle.
+restart_the_simulator() {
+  xcrun simctl shutdown "$SIM_UDID"
+  xcrun simctl boot "$SIM_UDID"
+  xcrun simctl bootstatus "$SIM_UDID" -b > /dev/null
+  sleep 30
+}
 
-echo "Restore checks failed: $failures"
-exit "$failures"
+main() {
+  restart_the_simulator
+  run_case "1. The state is kept across a termination" case1 case_kept_across_a_termination
+  run_case "2a. A notification tap from the background, with the app on the list" case2a \
+    case_tap_from_the_background
+  run_case "2b. A notification tap with the app closed and the list kept" case2b \
+    case_tap_with_the_app_closed
+  run_case "3. A fresh start after a reinstall" case3 case_fresh_after_a_reinstall
+  for theme in light dark; do
+    run_case "4. Dark in the $theme system theme: launch, bars, app switcher" "case4-$theme" \
+      case_dark_in_a_theme "$theme"
+  done
+  xcrun simctl ui "$SIM_UDID" appearance light
+
+  echo "Restore checks failed: $failures"
+  exit "$failures"
+}
+
+# Sourced, the script only defines its cases.
+if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+  main
+fi

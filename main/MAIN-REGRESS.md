@@ -149,6 +149,8 @@ light area in the light theme is a bug, even when the dark theme looks right.
    app ended while on screen counts as a crash or a force quit: stopped from Xcode while open,
    crashed, or swiped away. Then iOS drops the kept state, and the next launch opens on the anime
    list. The run after it drops its state too, so walk the step once more from a fresh launch.
+   On a Simulator that has run the app's UI tests, iOS keeps no state at all until the Simulator
+   restarts, so restart it before this step.
 3. Open favorites. Go to the home screen. Close the app the way the user does:
    - Android: force-stop the app from the system settings, then open it from the launcher;
    - iPhone: swipe the app away in the app switcher, then open it from the home screen.
