@@ -5,10 +5,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -23,6 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.semantics.CollectionInfo
+import androidx.compose.ui.semantics.collectionInfo
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.ColorImage
@@ -80,13 +83,13 @@ fun AnimeListScreen(
     // otherwise reset every section's scroll position at once. This box stays mounted across
     // every contentType branch below, so each section keeps its own position for as long as the
     // screen is open.
-    val ongoingsListState = rememberLazyListState()
-    val announcedListState = rememberLazyListState()
-    val searchListState = rememberLazyListState()
-    val listState = when (uiModel.selectedSection) {
-        SectionHatUi.ONGOINGS -> ongoingsListState
-        SectionHatUi.ANNOUNCED -> announcedListState
-        SectionHatUi.SEARCH -> searchListState
+    val ongoingsGridState = rememberLazyGridState()
+    val announcedGridState = rememberLazyGridState()
+    val searchGridState = rememberLazyGridState()
+    val gridState = when (uiModel.selectedSection) {
+        SectionHatUi.ONGOINGS -> ongoingsGridState
+        SectionHatUi.ANNOUNCED -> announcedGridState
+        SectionHatUi.SEARCH -> searchGridState
     }
 
     Box(modifier.fillMaxSize().horizontalSystemBarsPadding()) {
@@ -95,7 +98,7 @@ fun AnimeListScreen(
             ContentTypeUi.ERROR -> ErrorState(dispatch = dispatch)
             ContentTypeUi.LOADED -> ListState(
                 uiModel = uiModel,
-                listState = listState,
+                gridState = gridState,
                 dateFormatter = dateFormatter,
                 dispatch = dispatch
             )
@@ -147,17 +150,32 @@ private fun ErrorState(dispatch: (AnimeListMainStore.Intent) -> Unit) {
 @Composable
 private fun ListState(
     uiModel: AnimeListUiModel,
-    listState: LazyListState,
+    gridState: LazyGridState,
     dateFormatter: DateFormatter,
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
-    LoadNextPageEffect(listState = listState, dispatch = dispatch)
-    ResetListPositionEffect(uiModel = uiModel, listState = listState, dispatch = dispatch)
+    LoadNextPageEffect(gridState = gridState, dispatch = dispatch)
+    ResetListPositionEffect(uiModel = uiModel, gridState = gridState, dispatch = dispatch)
+
+    // The rest of layoutInfo changes on every scrolled row; the column count only with the width.
+    val columnCount by remember(gridState) {
+        derivedStateOf { gridState.layoutInfo.maxSpan.coerceAtLeast(1) }
+    }
+    val itemCount = uiModel.listContent.listItems.size
 
     PullToRefreshBox(onRefresh = { dispatch(AnimeListMainStore.Intent.UpdateSection) }) {
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.fillMaxSize(),
+        LazyVerticalGrid(
+            columns = AnimeListGridCells,
+            state = gridState,
+            modifier = Modifier
+                .fillMaxSize()
+                // A lazy grid announces a collection of unknown size; this gives the real one.
+                .semantics {
+                    collectionInfo = CollectionInfo(
+                        rowCount = (itemCount + columnCount - 1) / columnCount,
+                        columnCount = columnCount
+                    )
+                },
             contentPadding = PaddingValues(
                 top = systemBarsTopPadding(),
                 bottom = LIST_LAST_ITEM_BOTTOM_PADDING_DP.dp
@@ -168,7 +186,7 @@ private fun ListState(
             // by section keeps those two appearances from ever being treated as one item moving
             // within the same list.
             //
-            // No animateItem() here: switching sections replaces this LazyColumn's entire item
+            // No animateItem() here: switching sections replaces this grid's entire item
             // set at once, and animateItem() animates that as every old item exiting while every
             // new item enters — which visibly renders both sections' items on top of each other
             // until the animation finishes.
@@ -194,19 +212,20 @@ private fun ListState(
 @Suppress("FunctionNaming")
 @Composable
 private fun LoadNextPageEffect(
-    listState: LazyListState,
+    gridState: LazyGridState,
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
     // The effect outlives any single value of dispatch, so it would otherwise keep calling
     // whichever one it captured first.
     val currentDispatch by rememberUpdatedState(dispatch)
 
-    // Keyed on listState: each section has its own LazyListState instance. Without that key this
+    // Keyed on gridState: each section has its own LazyGridState instance. Without that key this
     // would stay bound to whichever section was current on the first composition, and scrolling
     // in a section switched to afterward would go unnoticed.
-    val shouldLoadNextPage = remember(listState) {
+    // The distance counts items, so at two columns it reaches half as many rows ahead.
+    val shouldLoadNextPage = remember(gridState) {
         derivedStateOf {
-            val layoutInfo = listState.layoutInfo
+            val layoutInfo = gridState.layoutInfo
             val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()?.index
                 ?: return@derivedStateOf false
             val totalCount = layoutInfo.totalItemsCount
@@ -220,8 +239,8 @@ private fun LoadNextPageEffect(
     // of list to scroll. The second is what lets a failed page be retried — it leaves the item
     // count and the threshold flag where they were, so the first moment never comes again. A
     // request arriving while one is in flight is dropped by the section's own store.
-    LaunchedEffect(listState) {
-        snapshotFlow { shouldLoadNextPage.value to listState.canScrollForward }
+    LaunchedEffect(gridState) {
+        snapshotFlow { shouldLoadNextPage.value to gridState.canScrollForward }
             .filter { (isPastThreshold: Boolean, _: Boolean) -> isPastThreshold }
             .collect { currentDispatch(AnimeListMainStore.Intent.LoadNextPage) }
     }
@@ -231,7 +250,7 @@ private fun LoadNextPageEffect(
 @Composable
 private fun ResetListPositionEffect(
     uiModel: AnimeListUiModel,
-    listState: LazyListState,
+    gridState: LazyGridState,
     dispatch: (AnimeListMainStore.Intent) -> Unit
 ) {
     // The effect restarts on the flag alone, so it would otherwise keep calling whichever
@@ -241,7 +260,7 @@ private fun ResetListPositionEffect(
     // Keyed on the flag itself, not the list, so this dispatch fires exactly once per reset.
     LaunchedEffect(uiModel.listContent.isNeedToResetListPositon) {
         if (uiModel.listContent.isNeedToResetListPositon) {
-            listState.scrollToItem(0)
+            gridState.scrollToItem(0)
             currentDispatch(
                 AnimeListMainStore.Intent.ChangeResetListPositionFlag(
                     isNeedToResetListPosition = false
