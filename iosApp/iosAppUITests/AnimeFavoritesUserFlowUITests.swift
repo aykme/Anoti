@@ -67,9 +67,11 @@ final class AnimeFavoritesUserFlowUITests: XCTestCase {
     }
 
     // Compose lays an item's parts out beside the element its test tag names, not under it. The
-    // first bell on the screen is the first item's.
+    // first bell on the screen is the first item's. The app may open on favorites, kept from an
+    // earlier run.
     @MainActor
     private func firstOngoingBell(in app: XCUIApplication) -> XCUIElement {
+        waitFor(app.tagged("anime_list_button")).tap()
         waitFor(app.tagged("ongoing_button")).tap()
         waitFor(app.allTagged("anime_list_item").firstMatch)
         return waitFor(app.allTagged("notification_button").firstMatch)

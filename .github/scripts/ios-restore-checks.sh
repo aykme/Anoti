@@ -327,7 +327,16 @@ case_dark_in_a_theme() {
   expect $? "the app's card in the switcher is dark, $theme theme"
 }
 
+# After a UI test has launched the app, iOS hands no kept scene state back to the app's later
+# launches, however they end. A restart of the simulator clears that; nothing is erased.
+restart_the_simulator() {
+  xcrun simctl shutdown "$SIM_UDID"
+  xcrun simctl boot "$SIM_UDID"
+  xcrun simctl bootstatus "$SIM_UDID" -b > /dev/null
+}
+
 main() {
+  restart_the_simulator
   run_case "1. The state is kept across a termination" case1 case_kept_across_a_termination
   run_case "2a. A notification tap from the background, with the app on the list" case2a \
     case_tap_from_the_background

@@ -1,4 +1,4 @@
-# TEMPORARY: repeats "UI tests, reset, restore case 1" on several runners to find its flake.
+# TEMPORARY: repeats "UI tests, then the whole restore checks" on several runners.
 name: iOS restore probe
 
 on:
@@ -14,18 +14,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        reset: [erase, reboot, runner]
-        shard: [1]
-        include:
-          - reset: erase
-            shard: 2
+        shard: [1, 2, 3]
     runs-on: macos-26
     timeout-minutes: 150
     env:
       MEDIA_DIR: ${{ github.workspace }}/build/ios-media
       RESULTS_DIR: ${{ github.workspace }}/build/ios-results
-      PROBE_ITERATIONS: 6
-      PROBE_RESET: ${{ matrix.reset }}
+      PROBE_ITERATIONS: 2
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/ios-toolchain
@@ -48,7 +43,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: probe-${{ matrix.reset }}-${{ matrix.shard }}
+          name: probe-${{ matrix.shard }}
           path: |
             build/ios-media
             !build/ios-media/**/*.mp4
