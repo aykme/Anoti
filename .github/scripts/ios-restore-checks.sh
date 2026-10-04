@@ -2,10 +2,15 @@
 # The restore and theme checks on the booted simulator SIM_UDID. Each try of a case leaves a
 # video, screenshots and the app's log in a folder of its own, MEDIA_DIR/<case>/try-<n>.
 #
+# It runs only on CI, in the app job of ios.yml. That job boots the simulator and builds the app
+# for testing, and the runner sets RUNNER_TEMP. Started by hand, the script stops on the first of
+# them it misses.
+#
 # The script starts the app itself, so the app's println reaches a log file. The UI steps only
 # attach to the running app with activate(); a UI step that launched the app would lose its log.
 set -uo pipefail
-: "${SIM_UDID:?}" "${MEDIA_DIR:?}" "${APP_PATH:?}" "${XCTESTRUN:?}" "${RESULTS_DIR:?}"
+: "${SIM_UDID:?}" "${MEDIA_DIR:?}" "${APP_PATH:?}" "${XCTESTRUN:?}" "${RESULTS_DIR:?}" \
+  "${RUNNER_TEMP:?}"
 
 bundle_id=com.alekseivinogradov.anoti
 media_root=$MEDIA_DIR

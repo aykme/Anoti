@@ -1,7 +1,14 @@
 import XCTest
 
-/// Steps the restore script on CI runs one at a time, between its own simulator commands. They
-/// are not tests of their own and skip themselves in a plain test run.
+/// Steps of the restore checks, not tests of their own. Each one is a single UI action.
+/// `.github/scripts/ios-restore-checks.sh` runs them one at a time, between its own simulator
+/// commands. The script installs and launches the app, ends it, sends a notification and judges
+/// the result. A step alone proves nothing, so a plain test run, in Xcode or `xcodebuild test`,
+/// skips them all. The script sets `ANOTI_RESTORE_STEPS` to let them run.
+///
+/// They run only on CI, in the `app` job of `ios.yml`. Every push to `develop` starts it; on
+/// another branch, `gh workflow run ios.yml --ref <branch>` does. The job builds the app, runs the
+/// UI tests, then the script. The script needs the runner's environment and fails on a Mac by hand.
 ///
 /// The script starts the app, so its log is captured. A step attaches to that app with
 /// activate() and never launches it. Starting the test runner sends the app to the background,
@@ -19,7 +26,7 @@ final class RestoreSteps: XCTestCase {
         continueAfterFailure = false
         try XCTSkipUnless(
             environment["ANOTI_RESTORE_STEPS"] == "1",
-            "run only by the restore script"
+            "a step of the CI restore checks, run by .github/scripts/ios-restore-checks.sh"
         )
     }
 
