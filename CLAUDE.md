@@ -341,8 +341,7 @@ these rules and load together with them.
     - For Kotlin files: run detekt on the files being committed. Fix whatever it flags, then
       run detekt again on those same files to confirm the fixes actually resolved the issues.
     - For Swift files and SwiftLint's own setup: run SwiftLint as "Before committing Swift" in
-      `CLAUDE-IOS.md` says. Its unused-import check runs on CI only, so imports are still tidied
-      by hand.
+      `CLAUDE-IOS.md` says.
     - If a finding is easy to fix without changing logic (formatting, naming, straightforward
       extraction, and the like), fix it yourself. If resolving a finding would require a
       substantial change to the logic, don't guess — ask the developer which approach to take.

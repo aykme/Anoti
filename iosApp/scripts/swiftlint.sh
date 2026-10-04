@@ -104,8 +104,9 @@ if [ ! -x "$exe" ]; then
   mkdir -p build/swiftlint
   download=$(mktemp -d build/swiftlint/download.XXXXXX)
   url="https://github.com/realm/SwiftLint/releases/download/$version/$archive"
-  if ! curl -fsSL --retry 3 --retry-connrefused --connect-timeout 30 --max-time 300 \
-    -o "$download/$archive" "$url"; then
+  # A stalled transfer is cut off; a slow but moving one is left to finish.
+  if ! curl -fsSL --retry 3 --retry-connrefused --connect-timeout 30 \
+    --speed-limit 1024 --speed-time 60 -o "$download/$archive" "$url"; then
     rm -rf "$download"
     setup_error "could not download $url"
   fi
@@ -127,6 +128,7 @@ if [ ! -x "$exe" ]; then
     rm -rf "$dir"
     mv "$download" "$dir" || setup_error "could not move SwiftLint into $dir"
   fi
+  [ -x "$exe" ] || setup_error "could not install SwiftLint into $dir"
 fi
 
 # The Windows build misreads a CRLF file, and fix corrupts it. MSYS strips a CR inside $(...)
@@ -144,8 +146,8 @@ reporter=()
 
 errors=$(mktemp)
 trap 'rm -f "$errors"' EXIT
-# The ${a[@]+...} form keeps an empty array legal under set -u in macOS's bash 3.2. The cache
-# is off: it would hide a file SwiftLint could not read on every run after the first.
+# The ${a[@]+...} form keeps an empty array legal under set -u in macOS's bash 3.2. Lint and fix
+# run without the cache, which would hide a file SwiftLint could not read. Analyze has no cache.
 case $mode in
   lint)
     "$exe" lint --quiet --no-cache --config "$config" ${reporter[@]+"${reporter[@]}"} \
@@ -156,7 +158,7 @@ case $mode in
       2> "$errors"
     ;;
   analyze)
-    "$exe" analyze --no-cache --config "$config" ${reporter[@]+"${reporter[@]}"} \
+    "$exe" analyze --config "$config" ${reporter[@]+"${reporter[@]}"} \
       --compiler-log-path "${paths[0]}" 2> "$errors"
     ;;
 esac
@@ -166,8 +168,9 @@ cat "$errors" >&2
 [ $host != windows ] || [ $code -ne 132 ] \
   || cannot_run "SourceKit did not load. Put the Swift runtime next to the toolchain on PATH"
 # A clean run warns about nothing, so a warning is a configuration typo or a file SourceKit
-# could not index. A file that is not UTF-8 is linted as empty, with only this line to show it.
+# could not index.
 grep -q "^warning: " "$errors" && setup_error "SwiftLint warned; the warnings are above"
+# A file that is not UTF-8 is linted as empty, and this message is the only sign of it.
 grep -q "^Could not read contents of" "$errors" \
   && setup_error "SwiftLint could not read a file; save it as UTF-8"
 case $code in 0 | 2) ;; *) setup_error "SwiftLint failed with exit code $code" ;; esac
@@ -180,8 +183,4 @@ if [ "$mode" = analyze ]; then
     || setup_error "SwiftLint analyzed ${analyzed:-no} of the $sources Swift files"
 fi
 
-case $code in
-  0) exit 0 ;;
-  2) exit 1 ;;
-  *) setup_error "SwiftLint failed with exit code $code" ;;
-esac
+[ $code -eq 0 ] || exit 1
