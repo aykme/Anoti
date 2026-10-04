@@ -2,7 +2,7 @@
 # branch by hand. The Swift sources are linted on Linux beside it. A run started with lint_only
 # runs that lint and nothing else.
 # The iPad runs only when a run started by hand asks for it. A run started with release builds
-# the app in Release, checks its stripping, and runs no test.
+# the app in Release, checks its stripping, and runs no test. It overrides lint_only.
 name: iOS
 
 on:

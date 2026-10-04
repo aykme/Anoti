@@ -96,9 +96,10 @@ the rules both platforms share and loads this file.
   key. iOS sets no signing team, and a simulator needs none.
 - Nothing is obfuscated. Kotlin/Native has no option for it, and class names stay readable.
 - The dSYM turns a stripped address back into a name and a line, as `mapping.txt` does on
-  Android. A shipped crash needs the archive's own dSYM, since every build has its own UUID.
-- Stripping removes symbol-table entries only. ObjC class names, `Info.plist` class names and
-  Kotlin type names survive it.
+  Android. A dSYM fits only a binary linked from the same code, so a shipped crash needs the
+  archive's own dSYM.
+- Stripping removes symbol-table entries only. ObjC class names and Kotlin type names survive
+  it.
 - No automated test runs on Release; only the manual regression walks it. So Release must not
   behave differently from Debug in the code: no `#if DEBUG`, `assert` or `isDebugBinary` decides
   what the app does.
@@ -142,8 +143,8 @@ What is left to a person:
 - The formatting of files around it, where no rule speaks.
 - A UI test's body is split by `//Given`, `//When` and `//Then`, as in Kotlin.
 - Imports nothing uses. The analyzer finds them on CI only.
-- Read the CI build logs of the round for warnings, a Release run's included. Nothing here
-  compiles Swift.
+- Read the CI build logs of the round for warnings. A Release run keeps its log in the
+  `ios-release` artifact as `build-release.log`. Nothing here compiles Swift.
 
 ## Running iOS on CI
 
@@ -157,11 +158,12 @@ What is left to a person:
   carries no media. A change to the analyzer rules needs a run without `lint_only` or `release`,
   since both skip `app`.
 - Started with `-f ipad=true`, it also runs the UI tests on an iPad. That happens only when the
-  developer asks for it, so the wide-window path is tested only then.
+  developer asks for it. The 600-point rule itself is unit-tested on every run, but the app
+  turning on a real wide window is tested only then.
 - Started with `-f release=true`, it builds the app in Release and runs no automated test. The
   release check ends it: the executable is stripped, and its dSYM matches and decodes Kotlin. Such
-  a run is due after a change to the Release settings, the check or its job. `release` is never
-  combined with `ipad` or `setup_check`.
+  a run is due after a change to the Release settings, the check or its job. `release` overrides
+  `lint_only`, `ipad` and `setup_check`.
 - A task branch that touches `iosMain`, `iosApp/`, `config/swiftlint/` or a build file ends by
   asking the developer whether to run it on that branch.
 - After a run with tests, its `ios-media` artifact goes to the developer's folder `iOS test` on

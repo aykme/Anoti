@@ -101,8 +101,9 @@ The finishing checks below apply to every task, not only to one that touched And
   `ClassNotFoundException` or `NoSuchMethodException`, and that no screen fell back to an empty
   or error state the unminified build doesn't show.
 - A local minified build matches what CI builds only with the NDK named next to `agp` in the
-  version catalog. Without that exact version, AGP leaves the native libraries unstripped, and
-  the build log says "Unable to strip". The dex and `mapping.txt` still match.
+  version catalog, and with every file checked out with the LF endings `.gitattributes` sets.
+  Without that NDK, AGP leaves the native libraries unstripped, and the build log says "Unable
+  to strip". A file checked out with CRLF lands in the APK as it is.
 - `androidApp/proguard-rules.pro` keeps `SourceFile` and `LineNumberTable` and renames the source
   file to a constant, so an obfuscated stack trace stays decodable through `mapping.txt` with
   retrace while leaking nothing.

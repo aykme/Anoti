@@ -1,6 +1,6 @@
 import XCTest
 
-/// Runs the shipped app end to end against the live Shikimori backend: real graph, real
+/// Runs the real app end to end against the live Shikimori backend: real graph, real
 /// network, real screens. Reaching the network is the point. Such a test is the project's last
 /// resort, written with the developer's permission, as Android's test of the same name is.
 /// The assertions stay on structure, never on values the backend decides.
