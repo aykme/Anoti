@@ -268,12 +268,12 @@ these rules and load together with them.
   --limit 1`. For a run a push started, filter by `--commit <sha>` instead. A run shows up a few
   seconds after it starts.
 - Wait for it with `gh run watch <run id> -R aykme/Anoti --interval 60`, or in the background,
-  since an iOS run takes 40 to 60 minutes. `gh run view <run id> -R aykme/Anoti` shows the jobs,
+  since a full iOS run takes 40 to 60 minutes. `gh run view <run id> -R aykme/Anoti` shows the jobs,
   and `--log-failed` the failed steps.
 - A job's whole log comes from `gh api --allow-escape-sequences
   repos/aykme/Anoti/actions/jobs/<job id>/logs`. It is there only once the job has ended.
 - Artifacts come down with `gh run download <run id> -R aykme/Anoti -n <name> -D <folder>`.
-  After every iOS run, `ios-media` and `ios-media-ipad` go to the developer's folder, as
+  After every full iOS run, `ios-media` and `ios-media-ipad` go to the developer's folder, as
   "Running iOS on CI" says.
 
 ## Finishing a task
@@ -340,6 +340,8 @@ these rules and load together with them.
 - Go through every changed file before committing:
     - For Kotlin files: run detekt on the files being committed. Fix whatever it flags, then
       run detekt again on those same files to confirm the fixes actually resolved the issues.
+    - For Swift files: run SwiftLint as "Before committing Swift" in `CLAUDE-IOS.md` says. Its
+      unused-import check runs on CI only, so imports are still tidied by hand.
     - If a finding is easy to fix without changing logic (formatting, naming, straightforward
       extraction, and the like), fix it yourself. If resolving a finding would require a
       substantial change to the logic, don't guess — ask the developer which approach to take.

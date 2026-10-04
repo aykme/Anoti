@@ -90,15 +90,39 @@ the rules both platforms share and loads this file.
 
 ## Before committing Swift
 
-Nothing lints Swift here, so this list is walked by hand over every Swift file being committed.
+SwiftLint checks every Swift file being committed, on the machine itself. It runs every lint rule
+of `config/swiftlint/swiftlint.yml`. Its analyzer rules need a Mac, so they run in `ios.yml` only.
 
-- Four spaces, at most 100 columns, the formatting of files around it.
-- No force unwrap and no force cast.
-- Nothing deprecated for iOS 16 on the pinned SDK. The build treats Swift warnings as errors, so
-  a warning stops it.
-- No `print`. The Kotlin side logs, with `println`.
-- `XCUIApplication` and `XCUIElement` belong to the main actor. A UI-test method or helper that
-  touches them is marked `@MainActor`.
+A commit makes a lint run due when it holds a `*.swift` file. A change to how SwiftLint runs does
+too: `config/swiftlint/swiftlint.yml`, `iosApp/scripts/swiftlint.sh`, or a `swiftLint*` entry of
+the catalog. Nothing else does. SwiftLint reads no Kotlin, `iosMain` included. It reads none of
+`Info.plist`, `project.yml`, the `.xcconfig` files and the asset catalogs either.
+
+1. Run `bash iosApp/scripts/swiftlint.sh` with the committed Swift files as arguments, from
+   `git diff --cached --name-only --diff-filter=d -- '*.swift'`. After a change to how SwiftLint
+   runs, pass no argument, so every file is linted.
+2. On exit code `1`, fix the findings and run it again until it exits `0`.
+   `swiftlint.sh fix` corrects what it can, and its edits are read before they are committed. A
+   finding that would need a substantial change to the logic goes to the developer.
+3. On `2`, fix the setup problem the message names.
+4. On `3`, this machine cannot run SwiftLint. Tell the developer at once what is missing and how
+   to install it. On Windows that is `winget install Swift.Toolchain`. On macOS it is Xcode, and
+   on Linux the swift.org toolchain. Offer three ways on:
+   - install it now;
+   - push the branch and start a lint-only run, as "Running iOS on CI" says, then fix, commit
+     and run again until it passes;
+   - commit without the lint, leaving the check to the push to `develop`.
+
+   A push needs the developer's word every time. When the developer has said earlier not to
+   stop, restate this rule and ask explicitly before any push.
+
+The compiler covers what SwiftLint cannot see. The build treats Swift warnings as errors, so a
+deprecated API stops it. `SWIFT_STRICT_CONCURRENCY` is `complete`, so a call into
+`XCUIApplication` or `XCUIElement` off the main actor stops it too.
+
+What is left to a person:
+
+- The formatting of the files around it, where no rule speaks.
 - A UI test's body is split by `//Given`, `//When` and `//Then`, as in Kotlin.
 - Read the CI build log of the round for warnings, since nothing here compiles Swift.
 
@@ -108,9 +132,13 @@ Nothing lints Swift here, so this list is walked by hand over every Swift file b
   runs only on the developer's word, by them or by Claude. It links the framework, runs every
   Kotlin/Native test, builds the app in Debug and Release, runs the UI tests on an iPhone and on
   an iPad, and walks the restore and theme checks.
-- A task branch that touches `iosMain`, `iosApp/` or a build file ends by asking the developer
-  whether to run it on that branch.
-- After a run, its `ios-media` and `ios-media-ipad` artifacts go to the developer's folder
+- Its `swiftlint` job lints the Swift sources on Linux, in a minute or two. Its `app` job runs
+  SwiftLint's analyzer rules over the Debug build log.
+- Started with `-f lint_only=true`, it runs the `swiftlint` job and nothing else. Such a run
+  carries no media. A change to the analyzer rules needs a full run, since `lint_only` skips `app`.
+- A task branch that touches `iosMain`, `iosApp/`, `config/swiftlint/` or a build file ends by
+  asking the developer whether to run it on that branch.
+- After a full run, its `ios-media` and `ios-media-ipad` artifacts go to the developer's folder
   `iOS test` on the current user's desktop, `*\Desktop\iOS test\<date>_<run id>_<short commit>\`,
   the iPad one in an `ipad` subfolder. Nothing there is deleted.
 - The UI tests and the restore checks run the real app, which reaches the live backend. The
