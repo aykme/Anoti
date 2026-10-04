@@ -57,6 +57,9 @@ final class RestoreSteps: XCTestCase {
         //When
         waitFor(app.tagged("anime_list_button")).tap()
         waitForTheList()
+        // The launch before kept the list on ongoing. A state equal to the kept one is not written
+        // again, and the script waits for a write.
+        app.tagged("announced_button").tap()
         signalReady()
         XCUIDevice.shared.press(.home)
 
