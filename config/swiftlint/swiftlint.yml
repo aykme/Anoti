@@ -1,0 +1,133 @@
+# SwiftLint's rules for the iOS app: every default rule plus the opt-in ones that catch bugs,
+# leaks, concurrency mistakes, slow code and formatting drift. Paths resolve from this folder.
+
+included:
+  - ../../iosApp
+
+strict: true
+
+disabled_rules:
+  # Test bodies are sectioned with //Given, //When and //Then, which this rule reads as a
+  # missing space.
+  - comment_spacing
+
+opt_in_rules:
+  # Bugs and leaks
+  - discarded_notification_center_observer
+  - fallthrough
+  - identical_operands
+  - local_doc_comment
+  - lower_acl_than_parent
+  - overridden_super_call
+  - override_in_extension
+  - private_swiftui_state
+  - prohibited_super_call
+  - raw_value_for_camel_cased_codable_enum
+  - unowned_variable_capture
+  - variable_shadowing
+  - weak_delegate
+  - yoda_condition
+  # Concurrency
+  - async_without_await
+  - incompatible_concurrency_annotation
+  - unhandled_throwing_task
+  # Performance
+  - array_init
+  - contains_over_filter_count
+  - contains_over_filter_is_empty
+  - contains_over_first_not_nil
+  - contains_over_range_nil_comparison
+  - empty_collection_literal
+  - empty_count
+  - empty_string
+  - final_test_case
+  - first_where
+  - flatmap_over_map_reduce
+  - last_where
+  - reduce_into
+  - sorted_first_last
+  # Idiomatic code
+  - convenience_type
+  - discouraged_assert
+  - discouraged_object_literal
+  - discouraged_optional_boolean
+  - enum_case_associated_values_count
+  - explicit_init
+  - fatal_error_message
+  - force_unwrapping
+  - implicitly_unwrapped_optional
+  - joined_default_parameter
+  - legacy_multiple
+  - legacy_objc_type
+  - legacy_uigraphics_function
+  - no_empty_block
+  - no_magic_numbers
+  - prefer_condition_list
+  - prefer_self_type_over_type_of_self
+  - prefer_zero_over_explicit_init
+  - redundant_nil_coalescing
+  - redundant_type_annotation
+  - return_value_from_void_function
+  - self_binding
+  - shorthand_optional_binding
+  - static_operator
+  - toggle_bool
+  - unavailable_function
+  - unneeded_escaping
+  - unneeded_throws_rethrows
+  - untyped_error_in_catch
+  - xct_specific_matcher
+  # Tests
+  - empty_xctest_method
+  - test_case_accessibility
+  # Formatting
+  - closure_end_indentation
+  - closure_spacing
+  - collection_alignment
+  - comma_inheritance
+  - indentation_width
+  - let_var_whitespace
+  - literal_expression_end_indentation
+  - modifier_order
+  - multiline_arguments
+  - multiline_arguments_brackets
+  - multiline_function_chains
+  - multiline_literal_brackets
+  - multiline_parameters
+  - multiline_parameters_brackets
+  - number_separator
+  - operator_usage_whitespace
+  - optional_enum_case_matching
+  - period_spacing
+  - sorted_imports
+  - superfluous_else
+  - switch_case_on_newline
+  - trailing_closure
+  - unneeded_parentheses_in_closure_argument
+  - vertical_parameter_alignment_on_call
+  - vertical_whitespace_closing_braces
+  - vertical_whitespace_opening_braces
+
+# Run by `swiftlint analyze` over a build log, so only on macOS.
+analyzer_rules:
+  - capture_variable
+  - typesafe_array_init
+  - unused_declaration
+  - unused_import
+
+line_length: 100
+
+custom_rules:
+  # indentation_width accepts a tab as one level.
+  no_tab_indentation:
+    name: No tab indentation
+    regex: '^[ ]*\t'
+    message: Indent with four spaces.
+    severity: error
+  # A member call such as printer.print(...) and a func print declaration pass.
+  no_print:
+    name: No print
+    regex: '(?:\bSwift\.|(?<![.\w]))(?<!func )(print|debugPrint|dump|NSLog)\s*\('
+    match_kinds: identifier
+    message: The Kotlin side logs, with println.
+    severity: error

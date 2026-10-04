@@ -3,7 +3,6 @@ import UIKit
 
 /// Starts the shared app before launch ends and answers which way its windows may turn.
 final class AppDelegate: NSObject, UIApplicationDelegate {
-
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil

@@ -14,7 +14,6 @@ import XCTest
 /// activate() and never launches it. Starting the test runner sends the app to the background,
 /// and activate() brings it back.
 final class RestoreSteps: XCTestCase {
-
     private let environment = ProcessInfo.processInfo.environment
 
     @MainActor
@@ -179,7 +178,7 @@ final class RestoreSteps: XCTestCase {
     private func assertInTheBackground() {
         let left: [XCUIApplication.State] = [.runningBackground, .runningBackgroundSuspended]
         let deadline = Date().addingTimeInterval(30)
-        while !left.contains(app.state) && Date() < deadline {
+        while !left.contains(app.state), Date() < deadline {
             RunLoop.current.run(until: Date().addingTimeInterval(0.5))
         }
         XCTAssertTrue(left.contains(app.state), "the app is still in state \(app.state.rawValue)")
@@ -220,7 +219,7 @@ final class RestoreSteps: XCTestCase {
             .matching(NSPredicate(format: "label BEGINSWITH %@", "You haven")).firstMatch
         let favorite = app.allTagged("anime_favorites_item").firstMatch
         let deadline = Date().addingTimeInterval(loadTimeout)
-        while !emptyText.exists && !favorite.exists && Date() < deadline {
+        while !emptyText.exists, !favorite.exists, Date() < deadline {
             RunLoop.current.run(until: Date().addingTimeInterval(0.5))
         }
         XCTAssertTrue(emptyText.exists || favorite.exists, "favorites did not open")
