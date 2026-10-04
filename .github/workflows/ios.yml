@@ -1,8 +1,9 @@
 # Builds and checks the iOS app on GitHub's macOS runner, on every push to develop and on any
-# branch by hand. The Swift sources are linted on Linux beside it. A run started with lint_only
-# runs that lint and nothing else.
-# The iPad runs only when a run started by hand asks for it. A run started with release builds
-# the app in Release, checks its stripping, and runs no test. It overrides lint_only.
+# branch by hand. The Swift sources are linted on Linux beside it.
+# A push builds the app and runs the Kotlin/Native tests and SwiftLint; it installs no app. A run
+# by hand picks the rest through its inputs, which the plan job turns into flags. A run started
+# with lint_only runs SwiftLint and nothing else. A run started with release builds the app in
+# Release, checks its stripping, and runs no test; it overrides every other input.
 name: iOS
 
 on:
@@ -18,10 +19,46 @@ on:
         description: Run only the Swift lint, without the builds and the tests
         type: boolean
         default: false
-      ipad:
-        description: Also run the UI tests on an iPad
+      # The Kotlin/Native tests: every commonTest and iosTest, in the native-tests job.
+      unit_tests:
+        description: Run the Kotlin/Native tests
+        type: boolean
+        default: true
+      # AnimeFavoritesUserFlowTest, on the devices and in the orientations named below.
+      ui_flow:
+        description: Run AnimeFavoritesUserFlowTest
         type: boolean
         default: false
+      # The other tests that run the app on a simulator: OrientationUITests, and the restore and
+      # theme checks, which need the iPhone.
+      ios_tests:
+        description: Run OrientationUITests and the restore checks
+        type: boolean
+        default: false
+      # SwiftLint's own job, and its analyzer over the Debug build log.
+      swiftlint:
+        description: Run SwiftLint and its analyzer
+        type: boolean
+        default: true
+      # Where the app's tests run. No iOS simulator folds, so there is no fold.
+      device:
+        description: Where the app's tests run
+        type: choice
+        options:
+          - phone
+          - tablet
+          - all
+        default: phone
+      # The orientations AnimeFavoritesUserFlowTest walks. The iPhone never turns, so it runs the
+      # flow only when portrait is among them.
+      orientation:
+        description: The orientations AnimeFavoritesUserFlowTest walks
+        type: choice
+        options:
+          - portrait
+          - landscape
+          - all
+        default: portrait
       release:
         description: Build only the Release app and check its stripping, with no test
         type: boolean
@@ -33,8 +70,36 @@ defaults:
     shell: bash
 
 jobs:
+  # Turns the event and the inputs into the flags every other job reads, so a push and a run by
+  # hand with every default do the same.
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      unit_tests: ${{ steps.flags.outputs.unit_tests }}
+      swiftlint: ${{ steps.flags.outputs.swiftlint }}
+      phone_flow: ${{ steps.flags.outputs.phone_flow }}
+      phone_ios_tests: ${{ steps.flags.outputs.phone_ios_tests }}
+      tablet_flow: ${{ steps.flags.outputs.tablet_flow }}
+      tablet_ios_tests: ${{ steps.flags.outputs.tablet_ios_tests }}
+      orientations: ${{ steps.flags.outputs.orientations }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Turn the inputs into flags
+        id: flags
+        env:
+          EVENT: ${{ github.event_name }}
+          UNIT_TESTS: ${{ inputs.unit_tests }}
+          UI_FLOW: ${{ inputs.ui_flow }}
+          IOS_TESTS: ${{ inputs.ios_tests }}
+          SWIFTLINT: ${{ inputs.swiftlint }}
+          DEVICE: ${{ inputs.device }}
+          ORIENTATION: ${{ inputs.orientation }}
+        run: bash .github/scripts/ios-ci-plan.sh
+
   swiftlint:
-    if: ${{ !inputs.release }}
+    needs: plan
+    if: ${{ !inputs.release && (inputs.lint_only || needs.plan.outputs.swiftlint == 'true') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -59,7 +124,8 @@ jobs:
           :core-kmp:di-app:linkReleaseFrameworkIosArm64
 
   native-tests:
-    if: ${{ !inputs.lint_only && !inputs.release }}
+    needs: plan
+    if: ${{ !inputs.lint_only && !inputs.release && needs.plan.outputs.unit_tests == 'true' }}
     runs-on: macos-26
     timeout-minutes: 120
     steps:
@@ -133,12 +199,14 @@ jobs:
 
   app:
     if: ${{ !inputs.release }}
-    needs: project
+    needs: [project, plan]
     runs-on: macos-26
     timeout-minutes: 150
     env:
       MEDIA_DIR: ${{ github.workspace }}/build/ios-media
       RESULTS_DIR: ${{ github.workspace }}/build/ios-results
+      PHONE_FLOW: ${{ needs.plan.outputs.phone_flow }}
+      PHONE_IOS_TESTS: ${{ needs.plan.outputs.phone_ios_tests }}
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/ios-toolchain
@@ -149,16 +217,19 @@ jobs:
         with:
           name: xcodeproj
           path: iosApp/iosApp.xcodeproj
-      - name: Boot the simulator
-        run: |
-          mkdir -p "$MEDIA_DIR" "$RESULTS_DIR"
-          bash .github/scripts/ios-boot-simulator.sh
+      - name: Prepare the media folders
+        run: mkdir -p "$MEDIA_DIR" "$RESULTS_DIR"
 
+      - name: Boot the simulator
+        if: ${{ env.PHONE_FLOW == 'true' || env.PHONE_IOS_TESTS == 'true' }}
+        run: bash .github/scripts/ios-boot-simulator.sh
+
+      # Built for any simulator, so a run with no iPhone test boots none.
       - name: Build the app and its UI tests, Debug
         id: build_debug
         run: |
           xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug \
-            -destination "id=$SIM_UDID" -derivedDataPath build/DerivedData \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath build/DerivedData \
             CODE_SIGNING_ALLOWED=NO build-for-testing 2>&1 | tee "$MEDIA_DIR/build-debug.log"
           products="$GITHUB_WORKSPACE/build/DerivedData/Build/Products"
           echo "XCTESTRUN=$(ls "$products"/*.xctestrun | head -1)" >> "$GITHUB_ENV"
@@ -171,15 +242,22 @@ jobs:
           ls -R "$APP_PATH/compose-resources" | sed -n '1,40p'
 
       - name: The UI tests
+        if: ${{ env.PHONE_FLOW == 'true' || env.PHONE_IOS_TESTS == 'true' }}
         run: |
+          only=()
+          if [ "$PHONE_FLOW" = true ]; then
+            only+=(-only-testing:iosAppUITests/AnimeFavoritesUserFlowTest)
+          fi
+          if [ "$PHONE_IOS_TESTS" = true ]; then
+            only+=(-only-testing:iosAppUITests/OrientationUITests)
+          fi
           xcrun simctl io "$SIM_UDID" recordVideo --codec=h264 --force "$MEDIA_DIR/ui-tests.mp4" &
           recorder=$!
           sleep 2
           status=0
           # The UI tests reach the live backend, so a failed one gets up to three tries.
           xcodebuild test-without-building -xctestrun "$XCTESTRUN" -destination "id=$SIM_UDID" \
-            -only-testing:iosAppUITests/AnimeFavoritesUserFlowTest \
-            -only-testing:iosAppUITests/OrientationUITests \
+            "${only[@]}" \
             -retry-tests-on-failure -test-iterations 3 \
             -resultBundlePath "$RESULTS_DIR/ui-tests.xcresult" \
             2>&1 | tee "$MEDIA_DIR/ui-tests.log" || status=$?
@@ -188,7 +266,7 @@ jobs:
           exit $status
 
       - name: The restore checks
-        if: always()
+        if: ${{ always() && env.PHONE_IOS_TESTS == 'true' }}
         run: bash .github/scripts/ios-restore-checks.sh 2>&1 | tee "$MEDIA_DIR/restore-checks.log"
 
       - name: Export the screenshots the tests kept
@@ -203,7 +281,9 @@ jobs:
 
       # The analyzer reads the Debug build's log, so it needs only that build to have succeeded.
       - name: Analyze the Swift sources
-        if: ${{ !cancelled() && steps.build_debug.outcome == 'success' }}
+        if: >-
+          ${{ !cancelled() && steps.build_debug.outcome == 'success'
+          && needs.plan.outputs.swiftlint == 'true' }}
         run: bash iosApp/scripts/swiftlint.sh analyze "$MEDIA_DIR/build-debug.log"
 
       - uses: actions/upload-artifact@v7
@@ -212,17 +292,23 @@ jobs:
           name: ios-media
           path: build/ios-media
 
-  # The same app and UI tests on an iPad, whose wide window turns the app. Only when a run asks
+  # The app's tests on an iPad, whose wide window turns the app. Only when a run's device asks
   # for it.
   ipad:
-    if: ${{ inputs.ipad && !inputs.release }}
-    needs: project
+    if: >-
+      ${{ !inputs.release && !inputs.lint_only
+      && (needs.plan.outputs.tablet_flow == 'true'
+      || needs.plan.outputs.tablet_ios_tests == 'true') }}
+    needs: [project, plan]
     runs-on: macos-26
     timeout-minutes: 120
     env:
       MEDIA_DIR: ${{ github.workspace }}/build/ios-media-ipad
       RESULTS_DIR: ${{ github.workspace }}/build/ios-results-ipad
       SIM_DEVICE: iPad Air
+      TABLET_FLOW: ${{ needs.plan.outputs.tablet_flow }}
+      TABLET_IOS_TESTS: ${{ needs.plan.outputs.tablet_ios_tests }}
+      ORIENTATIONS: ${{ needs.plan.outputs.orientations }}
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/ios-toolchain
@@ -246,28 +332,54 @@ jobs:
           products="$GITHUB_WORKSPACE/build/DerivedData/Build/Products"
           echo "XCTESTRUN=$(ls "$products"/*.xctestrun | head -1)" >> "$GITHUB_ENV"
 
-      - name: The UI tests
+      - name: OrientationUITests
+        if: ${{ env.TABLET_IOS_TESTS == 'true' }}
         run: |
-          xcrun simctl io "$SIM_UDID" recordVideo --codec=h264 --force "$MEDIA_DIR/ui-tests.mp4" &
+          xcrun simctl io "$SIM_UDID" recordVideo --codec=h264 --force \
+            "$MEDIA_DIR/orientation-tests.mp4" &
           recorder=$!
           sleep 2
           status=0
           # The UI tests reach the live backend, so a failed one gets up to three tries.
           xcodebuild test-without-building -xctestrun "$XCTESTRUN" -destination "id=$SIM_UDID" \
-            -only-testing:iosAppUITests/AnimeFavoritesUserFlowTest \
             -only-testing:iosAppUITests/OrientationUITests \
             -retry-tests-on-failure -test-iterations 3 \
-            -resultBundlePath "$RESULTS_DIR/ui-tests.xcresult" \
-            2>&1 | tee "$MEDIA_DIR/ui-tests.log" || status=$?
+            -resultBundlePath "$RESULTS_DIR/orientation-tests.xcresult" \
+            2>&1 | tee "$MEDIA_DIR/orientation-tests.log" || status=$?
           kill -INT "$recorder" 2> /dev/null || true
           wait "$recorder" || true
+          exit $status
+
+      # One pass per orientation, each with its own video, log and result bundle.
+      - name: AnimeFavoritesUserFlowTest
+        if: ${{ !cancelled() && env.TABLET_FLOW == 'true' }}
+        run: |
+          status=0
+          for orientation in $ORIENTATIONS; do
+            xcrun simctl io "$SIM_UDID" recordVideo --codec=h264 --force \
+              "$MEDIA_DIR/ui-flow-$orientation.mp4" &
+            recorder=$!
+            sleep 2
+            # The UI tests reach the live backend, so a failed one gets up to three tries.
+            TEST_RUNNER_ANOTI_ORIENTATION=$orientation xcodebuild test-without-building \
+              -xctestrun "$XCTESTRUN" -destination "id=$SIM_UDID" \
+              -only-testing:iosAppUITests/AnimeFavoritesUserFlowTest \
+              -retry-tests-on-failure -test-iterations 3 \
+              -resultBundlePath "$RESULTS_DIR/ui-flow-$orientation.xcresult" \
+              2>&1 | tee "$MEDIA_DIR/ui-flow-$orientation.log" || status=$?
+            kill -INT "$recorder" 2> /dev/null || true
+            wait "$recorder" || true
+          done
           exit $status
 
       - name: Export the screenshots the tests kept
         if: always()
         run: |
-          xcrun xcresulttool export attachments --path "$RESULTS_DIR/ui-tests.xcresult" \
-            --output-path "$MEDIA_DIR/attachments/ui-tests" || true
+          find "$RESULTS_DIR" -type d -name '*.xcresult' -prune | while read -r bundle; do
+            name=${bundle#"$RESULTS_DIR"/}
+            xcrun xcresulttool export attachments --path "$bundle" \
+              --output-path "$MEDIA_DIR/attachments/${name%.xcresult}" || true
+          done
 
       - uses: actions/upload-artifact@v7
         if: always()
