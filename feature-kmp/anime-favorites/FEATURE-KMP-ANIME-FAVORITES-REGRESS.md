@@ -34,7 +34,8 @@ The area below the status bar is always in exactly one of three states.
 
 - **Loading** — one large spinner, centered, inset well away from the edges.
 - **Empty** — a picture of a character at the top left, and to its right a panel of text
-  starting "You haven't subscribed to notifications about new anime series yet."
+  starting "You haven't subscribed to notifications about new anime series yet." The picture
+  is as wide and as tall as an item's poster would be on the same screen.
 - **List** — the scrollable list of subscribed anime.
 
 There is no error state. Losing the network never takes this screen out of List or Empty,
@@ -281,11 +282,21 @@ for, and the checks that only make sense once.
 6. At maximum size, the empty panel.
    - The character picture and the text panel are both fully visible, and the text is not cut
      off at the bottom.
+   - The picture grows with the text panel, as a poster grows with its item, and stays as wide
+     as before.
 7. At maximum size, the "New episode" caption.
    - It stays on one line, shortening with "…" if it must, and does not cover the score bar.
 8. Turn on the system dark theme and repeat pass 1 of section 0 in outline.
    - The right-hand panel's text and the caption over the poster stay readable.
    - No white-on-white or black-on-black anywhere.
+9. The empty panel on a wide screen: a tablet in either orientation, a foldable unfolded, an
+   iPad.
+   - The picture is as wide as a poster: a little over a third of the row, not a small square.
+   - It fills its frame with no bars at the sides. The frame is wide and low, so the picture is
+     cut above and below. The character's eyes and glasses stay in view, with the ears as far as
+     they fit.
+   - Subscribe to one anime and come back. The item's poster takes exactly the size the picture
+     had.
 
 ## 12. Many items
 
