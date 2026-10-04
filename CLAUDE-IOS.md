@@ -96,8 +96,8 @@ the rules both platforms share and loads this file.
   key. iOS sets no signing team, and a simulator needs none.
 - Nothing is obfuscated. Kotlin/Native has no option for it, and class names stay readable.
 - The dSYM turns a stripped address back into a name and a line, as `mapping.txt` does on
-  Android. A dSYM fits only a binary linked from the same code, so a shipped crash needs the
-  archive's own dSYM.
+  Android. A dSYM fits only the binary of its own build, matched by UUID, so a shipped crash
+  needs the archive's own dSYM.
 - Stripping removes symbol-table entries only. ObjC class names and Kotlin type names survive
   it.
 - No automated test runs on Release; only the manual regression walks it. So Release must not
