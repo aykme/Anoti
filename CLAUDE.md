@@ -266,14 +266,14 @@ these rules and load together with them.
 - To start a workflow by hand, push the branch first, then run
   `gh workflow run <android.yml|ios.yml> -R aykme/Anoti --ref <branch>`.
 - `-f minified=true` on `android.yml` and `-f release=true` on `ios.yml` build only the shipped
-  app and run no test. `-f ipad=true` adds the iPad to an iOS run. See `CLAUDE-ANDROID.md` and
-  `CLAUDE-IOS.md`.
+  app and run no test. The other inputs of `ios.yml` choose which of its tests run and where. See
+  `CLAUDE-ANDROID.md` and `CLAUDE-IOS.md`.
 - To find that run, take the newest dispatch on the branch:
   `gh run list -R aykme/Anoti --workflow <file> --branch <branch> --event workflow_dispatch
   --limit 1`. For a run a push started, filter by `--commit <sha>`, the full SHA, instead. A run
   shows up a few seconds after it starts.
 - Wait for it with `gh run watch <run id> -R aykme/Anoti --interval 60`, or in the background,
-  since an iOS run with tests takes 30 to 50 minutes, and a Release run about 15.
+  since an iOS run that starts the app takes 30 to 50 minutes, and a Release run about 15.
   `gh run view <run id> -R aykme/Anoti` shows the jobs, and `--log-failed` the failed steps.
 - A job's whole log comes from `gh api --allow-escape-sequences
   repos/aykme/Anoti/actions/jobs/<job id>/logs`. It is there only once the job has ended.

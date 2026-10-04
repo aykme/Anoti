@@ -149,26 +149,40 @@ What is left to a person:
 ## Running iOS on CI
 
 - `ios.yml` runs on GitHub's macOS runner on every push to `develop`. On any other branch it
-  runs only on the developer's word, by them or by Claude. It links the framework, runs every
-  Kotlin/Native test, builds the app in Debug, runs the UI tests on an iPhone, and walks the
-  restore and theme checks.
+  runs only on the developer's word, by them or by Claude. A push links the framework, runs every
+  Kotlin/Native test, builds the app in Debug and runs SwiftLint with its analyzer. It installs
+  no app.
+- A run by hand picks the rest through its inputs. The `plan` job turns them into the flags the
+  other jobs read, and gives a push their defaults. `.github/scripts/ios-ci-plan.sh` does it;
+  after a change to it, run `bash .github/scripts/test/ios-ci-plan-test.sh`.
+  - `unit_tests`, on by default: the Kotlin/Native tests.
+  - `ui_flow`, off: `AnimeFavoritesUserFlowTest`.
+  - `ios_tests`, off: `OrientationUITests`, and the restore and theme checks.
+  - `swiftlint`, on: SwiftLint and its analyzer.
+  - `device`, `phone`: where the app's tests run, `phone`, `tablet` or `all`. The restore
+    checks need the iPhone.
+  - `orientation`, `portrait`: the orientations `AnimeFavoritesUserFlowTest` walks. The iPhone
+    never turns, so it runs the flow only in portrait. A run that leaves the flow no device fails.
 - Its `swiftlint` job lints the Swift sources on Linux, in a minute or two. Its `app` job runs
-  SwiftLint's analyzer rules over the Debug build log.
-- Started with `-f lint_only=true`, it runs the `swiftlint` job and nothing else. Such a run
-  carries no media. A change to the analyzer rules needs a run without `lint_only` or `release`,
-  since both skip `app`.
-- Started with `-f ipad=true`, it also runs the UI tests on an iPad. That happens only when the
-  developer asks for it. The 600-point rule itself is unit-tested on every run, but the app
-  turning on a real wide window is tested only then.
+  SwiftLint's analyzer rules over the Debug build log. Both follow `swiftlint`.
+- Started with `-f lint_only=true`, it runs the `swiftlint` job and nothing else, whatever
+  `swiftlint` says. Such a run carries no media. A change to the analyzer rules needs a run with
+  `swiftlint` on and without `lint_only` or `release`, since both skip `app`.
+- With `device` set to `tablet` or `all`, the app's tests also run on an iPad, the flow once per
+  orientation. That happens only when the developer asks for it. The 600-point rule itself is
+  unit-tested on every run, but the app turning on a real wide window is tested only then.
 - Started with `-f release=true`, it builds the app in Release and runs no automated test. The
   release check ends it: the executable is stripped, and its dSYM matches and decodes Kotlin. Such
   a run is due after a change to the Release settings, the check or its job. `release` overrides
-  `lint_only`, `ipad` and `setup_check`.
+  every other input.
 - A task branch that touches `iosMain`, `iosApp/`, `config/swiftlint/` or a build file ends by
-  asking the developer whether to run it on that branch.
-- After a run with tests, its `ios-media` artifact goes to the developer's folder `iOS test` on
-  the current user's desktop, `*\Desktop\iOS test\<date>_<run id>_<short commit>\`. When the iPad
-  ran, `ios-media-ipad` goes into an `ipad` subfolder there. Nothing there is deleted.
+  asking the developer whether to run it on that branch, with `ios_tests=true`. A task that
+  changes UI the iOS app shows, shared Compose UI included, offers `ui_flow=true` too, on the
+  devices and in the orientations it reaches.
+- After a run that started the app, its `ios-media` artifact goes to the developer's folder
+  `iOS test` on the current user's desktop, `*\Desktop\iOS test\<date>_<run id>_<short commit>\`.
+  When the iPad ran, through `device`, `ios-media-ipad` goes into an `ipad` subfolder there.
+  Nothing there is deleted.
 - After a Release run, its `ios-release` artifact goes to
   `*\Desktop\iOS test\<date>_<run id>_<short commit>_release\`. Its `ios-dsym` stays on GitHub for
   seven days.
