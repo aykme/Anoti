@@ -39,7 +39,11 @@ upright=$([ "$ORIENTATION" = landscape ] && echo false || echo true)
 phone_flow=$(all_true "$UI_FLOW" "$phone" "$upright")
 tablet_flow=$(all_true "$UI_FLOW" "$tablet")
 
-if [ "$UI_FLOW" = true ] && [ "$phone_flow" = false ] && [ "$tablet_flow" = false ]; then
+# lint_only and release run no app test, so a flow they leave nowhere to run is no mistake.
+skips_app_tests=$([ "${LINT_ONLY:-}" = true ] || [ "${RELEASE:-}" = true ] && echo true || echo false)
+
+if [ "$UI_FLOW" = true ] && [ "$phone_flow" = false ] && [ "$tablet_flow" = false ] \
+  && [ "$skips_app_tests" = false ]; then
   echo "AnimeFavoritesUserFlowTest was asked for, but the iPhone does not turn to $ORIENTATION" >&2
   exit 1
 fi

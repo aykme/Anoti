@@ -168,9 +168,10 @@ What is left to a person:
 - Started with `-f lint_only=true`, it runs the `swiftlint` job and nothing else, whatever
   `swiftlint` says. Such a run carries no media. A change to the analyzer rules needs a run with
   `swiftlint` on and without `lint_only` or `release`, since both skip `app`.
-- With `device` set to `tablet` or `all`, the app's tests also run on an iPad, the flow once per
-  orientation. That happens only when the developer asks for it. The 600-point rule itself is
-  unit-tested on every run, but the app turning on a real wide window is tested only then.
+- With `device` set to `tablet`, the app's tests run on an iPad instead of the iPhone, and with
+  `all` on both. The iPad walks the flow once per orientation. That happens only when the
+  developer asks for it. The 600-point rule itself is unit-tested whenever `unit_tests` is on, but
+  the app turning on a real wide window is tested only on the iPad.
 - Started with `-f release=true`, it builds the app in Release and runs no automated test. The
   release check ends it: the executable is stripped, and its dSYM matches and decodes Kotlin. Such
   a run is due after a change to the Release settings, the check or its job. `release` overrides

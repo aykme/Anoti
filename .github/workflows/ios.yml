@@ -95,6 +95,8 @@ jobs:
           SWIFTLINT: ${{ inputs.swiftlint }}
           DEVICE: ${{ inputs.device }}
           ORIENTATION: ${{ inputs.orientation }}
+          LINT_ONLY: ${{ inputs.lint_only }}
+          RELEASE: ${{ inputs.release }}
         run: bash .github/scripts/ios-ci-plan.sh
 
   swiftlint:
@@ -325,6 +327,7 @@ jobs:
           bash .github/scripts/ios-boot-simulator.sh
 
       - name: Build the app and its UI tests, Debug
+        id: build_debug
         run: |
           xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug \
             -destination "id=$SIM_UDID" -derivedDataPath build/DerivedData \
@@ -352,7 +355,9 @@ jobs:
 
       # One pass per orientation, each with its own video, log and result bundle.
       - name: AnimeFavoritesUserFlowTest
-        if: ${{ !cancelled() && env.TABLET_FLOW == 'true' }}
+        if: >-
+          ${{ !cancelled() && steps.build_debug.outcome == 'success'
+          && env.TABLET_FLOW == 'true' }}
         run: |
           status=0
           for orientation in $ORIENTATIONS; do

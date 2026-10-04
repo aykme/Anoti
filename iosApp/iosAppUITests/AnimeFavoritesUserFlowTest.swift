@@ -96,11 +96,23 @@ final class AnimeFavoritesUserFlowTest: XCTestCase {
         app.launch()
         allowNotificationsIfAsked()
         if environment["ANOTI_ORIENTATION"] == "landscape" {
-            XCUIDevice.shared.orientation = .landscapeLeft
-            // The window takes a moment to turn.
-            sleep(2)
+            turnToLandscape(app)
         }
         return app
+    }
+
+    // Only a wide window turns. A narrow one stays upright, as the app decides.
+    @MainActor
+    private func turnToLandscape(_ app: XCUIApplication) {
+        let window = app.windows.firstMatch
+        let turns = min(window.frame.width, window.frame.height) >= rotatingWindowMinSide
+        XCUIDevice.shared.orientation = .landscapeLeft
+        guard turns else { return }
+        let deadline = Date().addingTimeInterval(rotationTimeout)
+        while window.frame.width <= window.frame.height, Date() < deadline {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+        }
+        XCTAssertGreaterThan(window.frame.width, window.frame.height, "the window did not turn")
     }
 
     // A try starts from empty favorites, whatever an earlier try or run left behind. Each tap
@@ -162,5 +174,12 @@ final class AnimeFavoritesUserFlowTest: XCTestCase {
     }
 }
 
-/// The list's own threshold, `TWO_COLUMN_MIN_WIDTH_DP` in `feature-kmp:anime-list`.
+/// The list's threshold, `TWO_COLUMN_MIN_WIDTH_DP` in `feature-kmp:anime-list`. The list spans the
+/// whole window on the devices CI runs.
 private let twoColumnMinWidth: CGFloat = 600
+
+/// The app's own rule: a window whose smaller side reaches 600 points may turn.
+private let rotatingWindowMinSide: CGFloat = 600
+
+/// How long a window may take to turn.
+private let rotationTimeout: TimeInterval = 10
