@@ -309,7 +309,7 @@ jobs:
       - name: The release check
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         env:
-          RELEASE_CHECK_ENFORCE: "0"
+          RELEASE_CHECK_ENFORCE: "1"
         run: bash .github/scripts/ios-release-check.sh
 
       # The app's own dSYM; the wildcard keeps the bundle's folder in the artifact.
