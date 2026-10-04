@@ -67,11 +67,17 @@ else
   echo "dwarfdump --show-sources failed: $(head -1 "$keep/sources.err")" >> "$report"
 fi
 
-# It samples many functions, since a small one may be inlined away.
+# It samples many functions, since a small one may be inlined away. Each sample is the address
+# halfway into a function: its first instruction often maps to line 0.
 : > "$keep/addresses.txt"
-if nm -U "$dwarf" > "$work/dsym-symbols.txt" 2> "$keep/dsym-symbols.err"; then
-  awk '$3 ~ /^_?kfun:com\.alekseivinogradov\./ && n < 50 { print "0x" $1; n++ }' \
-    "$work/dsym-symbols.txt" > "$keep/addresses.txt"
+if nm -U -n "$dwarf" > "$work/dsym-symbols.txt" 2> "$keep/dsym-symbols.err"; then
+  awk 'n >= 50 { exit }
+    start != "" && $1 != start { print start, $1; start = ""; n++ }
+    start == "" && $3 ~ /^_?kfun:com\.alekseivinogradov\./ { start = $1 }' \
+    "$work/dsym-symbols.txt" > "$work/functions.txt"
+  while read -r start end; do
+    printf '0x%x\n' $(((16#$start + 16#$end) / 2))
+  done < "$work/functions.txt" > "$keep/addresses.txt"
 else
   echo "nm failed on the dSYM: $(head -1 "$keep/dsym-symbols.err")" >> "$report"
 fi
@@ -79,7 +85,7 @@ decoded=0
 if [ -s "$keep/addresses.txt" ]; then
   if xcrun atos -o "$dwarf" -arch arm64 -f "$keep/addresses.txt" > "$keep/atos.txt" \
     2> "$keep/atos.err"; then
-    grep -E '\.kt:[0-9]+' "$keep/atos.txt" > "$keep/decoded.txt"
+    grep -E '\.kt:[1-9][0-9]*' "$keep/atos.txt" > "$keep/decoded.txt"
     decoded=$(wc -l < "$keep/decoded.txt" | tr -d ' ')
     sed -n '1,3p' "$keep/decoded.txt" >> "$report"
   else

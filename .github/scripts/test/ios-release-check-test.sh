@@ -38,16 +38,22 @@ EOF
 cat > "$stubs/nm" <<'EOF'
 #!/bin/bash
 defined=0
-case "$1" in
-  -U|--defined-only) defined=1; shift ;;
-  -*) echo "error: unknown argument '$1'" >&2; exit 1 ;;
-esac
+while [ $# -gt 1 ]; do
+  case "$1" in
+    -U|--defined-only) defined=1; shift ;;
+    -n|--numeric-sort) shift ;;
+    *) echo "error: unknown argument '$1'" >&2; exit 1 ;;
+  esac
+done
 [ -f "$1" ] || { echo "error: $1: No such file or directory" >&2; exit 1; }
+# The dSYM's functions, sorted by address: 16 bytes each, F1 with an alias at the same address.
 if [ "$defined" = 1 ]; then
+  echo "0000000000000800 t _objc_something"
   for i in $(seq 1 "${STUB_DSYM_KFUN:-60}"); do
     printf '%016x t _kfun:com.alekseivinogradov.anoti.F%d#f(){}\n' $((4096 + i * 16)) "$i"
+    [ "$i" = 1 ] && printf '%016x t _kfun:com.alekseivinogradov.anoti.F1alias\n' $((4096 + 16))
   done
-  echo "0000000000002000 t _objc_something"
+  echo "00000000ffffffff t _end"
   exit 0
 fi
 if [ "${STUB_NM_FAIL_APP:-0}" = 1 ]; then
@@ -87,10 +93,14 @@ while [ $# -gt 0 ]; do
 done
 [ -f "$object" ] || { echo "atos: cannot load $object" >&2; exit 1; }
 [ "${STUB_ATOS_FAIL:-0}" = 1 ] && { echo "atos: cannot parse" >&2; exit 1; }
+# A function's first instruction maps to line 0, as on the real dSYM; an address inside it maps
+# to a line.
 count=0
 for a in $(cat "$list"); do
   count=$((count + 1))
-  if [ "${STUB_ATOS_OK:-1}" = 1 ]; then echo "kfun:F#f(){} (in Anoti) (F.kt:12)"
+  line=12
+  [ $((a % 16)) = 0 ] || [ "${STUB_ATOS_LINE0:-0}" = 1 ] && line=0
+  if [ "${STUB_ATOS_OK:-1}" = 1 ]; then echo "kfun:F#f(){} (in Anoti) (F.kt:$line)"
   else echo "$a (in Anoti)"; fi
 done
 echo "$count" > "$STUB_ATOS_COUNT_FILE"
@@ -174,6 +184,10 @@ has no-executable "FAIL: nm could not read the executable"
 
 check atos-no-lines 1 -- RELEASE_CHECK_ENFORCE=1 STUB_ATOS_OK=0 $GOOD
 has atos-no-lines "FAIL: the dSYM decoded no Kotlin address"
+
+check atos-line-zero 1 -- RELEASE_CHECK_ENFORCE=1 STUB_ATOS_LINE0=1 $GOOD
+has atos-line-zero "FAIL: the dSYM decoded no Kotlin address"
+has atos-line-zero "Kotlin addresses decoded: 0 of 50"
 
 check atos-fails 1 -- RELEASE_CHECK_ENFORCE=1 STUB_ATOS_FAIL=1 $GOOD
 has atos-fails "atos failed: atos: cannot parse"
