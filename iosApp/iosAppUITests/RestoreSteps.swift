@@ -166,11 +166,12 @@ final class RestoreSteps: XCTestCase {
         XCTAssertTrue(app.wait(for: .runningForeground, timeout: 30))
     }
 
-    // iOS suspends a backgrounded app within seconds; both states mean it left the screen.
+    // iOS suspends a backgrounded app within seconds; both states mean it left the screen. A
+    // simulator that has just booted can take many seconds to answer the home button.
     @MainActor
     private func assertInTheBackground() {
         let left: [XCUIApplication.State] = [.runningBackground, .runningBackgroundSuspended]
-        let deadline = Date().addingTimeInterval(10)
+        let deadline = Date().addingTimeInterval(30)
         while !left.contains(app.state) && Date() < deadline {
             RunLoop.current.run(until: Date().addingTimeInterval(0.5))
         }

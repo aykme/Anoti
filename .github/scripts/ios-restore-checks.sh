@@ -328,11 +328,13 @@ case_dark_in_a_theme() {
 }
 
 # After a UI test has launched the app, iOS hands no kept scene state back to the app's later
-# launches, however they end. A restart of the simulator clears that; nothing is erased.
+# launches, however they end. A restart of the simulator clears that; nothing is erased. A
+# simulator that has just booted is still busy and slow to answer, so it gets time to settle.
 restart_the_simulator() {
   xcrun simctl shutdown "$SIM_UDID"
   xcrun simctl boot "$SIM_UDID"
   xcrun simctl bootstatus "$SIM_UDID" -b > /dev/null
+  sleep 30
 }
 
 main() {
