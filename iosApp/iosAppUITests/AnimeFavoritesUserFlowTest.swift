@@ -4,15 +4,45 @@ import XCTest
 /// network, real screens. Reaching the network is the point. Such a test is the project's last
 /// resort, written with the developer's permission, as Android's test of the same name is.
 /// The assertions stay on structure, never on values the backend decides.
+///
+/// `ANOTI_ORIENTATION` set to `landscape` turns the device once the app is up. CI passes it as
+/// `TEST_RUNNER_ANOTI_ORIENTATION`.
 final class AnimeFavoritesUserFlowTest: XCTestCase {
+    private let environment = ProcessInfo.processInfo.environment
+
     override func setUp() {
         continueAfterFailure = false
+    }
+
+    @MainActor
+    func testTheListLaysOutOneOrTwoColumnsByItsWidth() {
+        //Given
+        let app = launchedApp()
+        defer { XCUIDevice.shared.orientation = .portrait }
+
+        //When
+        firstOngoingBell(in: app)
+        let items = app.allTagged("anime_list_item")
+        let first = waitFor(items.element(boundBy: 0))
+        let second = waitFor(items.element(boundBy: 1))
+        // The posters take a moment to arrive, and the screenshot is for a person to look at.
+        sleep(2)
+        keepScreenshot("main list")
+
+        //Then
+        if app.windows.firstMatch.frame.width >= twoColumnMinWidth {
+            XCTAssertEqual(first.frame.minY, second.frame.minY, accuracy: 1)
+        } else {
+            XCTAssertGreaterThan(second.frame.minY, first.frame.minY)
+        }
     }
 
     @MainActor
     func testAddOngoingToAnimeFavorites() {
         //Given
         let app = launchedApp()
+        defer { XCUIDevice.shared.orientation = .portrait }
+        emptyFavorites(in: app)
         let bell = firstOngoingBell(in: app)
         XCTAssertEqual(bell.label, "Turn on notifications")
 
@@ -35,7 +65,7 @@ final class AnimeFavoritesUserFlowTest: XCTestCase {
         )
         keepScreenshot("favorites with the added ongoing")
 
-        // Leaves favorites empty, as the next test and the restore checks expect.
+        // Leaves nothing behind for whatever runs next.
         removeTheOnlyFavorite(in: app)
     }
 
@@ -43,6 +73,8 @@ final class AnimeFavoritesUserFlowTest: XCTestCase {
     func testRemoveOngoingFromAnimeFavorites() {
         //Given
         let app = launchedApp()
+        defer { XCUIDevice.shared.orientation = .portrait }
+        emptyFavorites(in: app)
         let bell = firstOngoingBell(in: app)
         bell.tap()
         waitFor(bell, toRead: "Turn off notifications")
@@ -59,16 +91,39 @@ final class AnimeFavoritesUserFlowTest: XCTestCase {
 
     @MainActor
     private func launchedApp() -> XCUIApplication {
+        XCUIDevice.shared.orientation = .portrait
         let app = XCUIApplication()
         app.launch()
         allowNotificationsIfAsked()
+        if environment["ANOTI_ORIENTATION"] == "landscape" {
+            XCUIDevice.shared.orientation = .landscapeLeft
+            // The window takes a moment to turn.
+            sleep(2)
+        }
         return app
+    }
+
+    // A try starts from empty favorites, whatever an earlier try or run left behind. Each tap
+    // removes the first favorite, and the only bells on the screen are the favorites' own.
+    @MainActor
+    private func emptyFavorites(in app: XCUIApplication) {
+        waitFor(app.tagged("anime_favorites_button")).tap()
+        let emptyText = favoritesEmptyText(in: app)
+        let bell = app.allTagged("notification_button").firstMatch
+        let deadline = Date().addingTimeInterval(loadTimeout)
+        while !emptyText.waitForExistence(timeout: 2) {
+            XCTAssertLessThan(Date(), deadline, "favorites never emptied")
+            if bell.exists {
+                bell.tap()
+            }
+        }
     }
 
     // Compose lays an item's parts out beside the element its test tag names, not under it. The
     // first bell on the screen is the first item's. The app may open on favorites, kept from an
     // earlier run.
     @MainActor
+    @discardableResult
     private func firstOngoingBell(in app: XCUIApplication) -> XCUIElement {
         waitFor(app.tagged("anime_list_button")).tap()
         waitFor(app.tagged("ongoing_button")).tap()
@@ -97,8 +152,15 @@ final class AnimeFavoritesUserFlowTest: XCTestCase {
     @MainActor
     private func removeTheOnlyFavorite(in app: XCUIApplication) {
         app.allTagged("notification_button").firstMatch.tap()
-        let emptyText = app.descendants(matching: .any)
+        waitFor(favoritesEmptyText(in: app), timeout: 10)
+    }
+
+    @MainActor
+    private func favoritesEmptyText(in app: XCUIApplication) -> XCUIElement {
+        app.descendants(matching: .any)
             .matching(NSPredicate(format: "label BEGINSWITH %@", "You haven")).firstMatch
-        waitFor(emptyText, timeout: 10)
     }
 }
+
+/// The list's own threshold, `TWO_COLUMN_MIN_WIDTH_DP` in `feature-kmp:anime-list`.
+private let twoColumnMinWidth: CGFloat = 600

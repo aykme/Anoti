@@ -1,8 +1,8 @@
 import XCTest
 
-/// The app turns only on a wide window, one whose smaller side is at least 600 points. CI runs
-/// these on an iPhone, whose window is narrow. On an iPad, whose window is wide, they run only
-/// when a run asks for the iPad.
+/// The app turns only on a wide window, one whose smaller side is at least 600 points. On an
+/// iPhone, whose window is narrow, it stays upright. CI runs these when a run sets `ios_tests`, on
+/// the devices its `device` input names.
 final class OrientationUITests: XCTestCase {
     override func setUp() {
         continueAfterFailure = false
