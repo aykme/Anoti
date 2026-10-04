@@ -2,8 +2,11 @@ package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.compose
 
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TWO_COLUMN_MIN_WIDTH_DP
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class AnimeListGridCellsTest {
 
@@ -83,9 +86,11 @@ class AnimeListGridCellsTest {
     @Test
     fun aListExactlyAtTheThresholdAtAnInexactDensityHasTwoColumns() {
         //Given
-        // At 336 dpi a width of exactly 600 dp reads back as 599.99994 dp; pixels do not.
+        // Android computes the density as dpi * (1f / 160). At 336 dpi, 1260 px then reads back as a
+        // hair under 600 dp. Pixels do not.
         val density = Density(INEXACT_DENSITY)
         val widthPx = 1260
+        assertTrue(with(density) { widthPx.toDp() } < TWO_COLUMN_MIN_WIDTH_DP.dp)
 
         //When
         val cells = with(AnimeListGridCells) { density.calculateCrossAxisCellSizes(widthPx, 0) }
@@ -100,5 +105,5 @@ private const val THRESHOLD_PX = 600
 // 420 dpi, a common phone density.
 private const val PHONE_DENSITY = 2.625f
 
-// 336 dpi, one of the densities at which 600 dp does not survive a round trip through pixels.
-private const val INEXACT_DENSITY = 336f / 160f
+// 336 dpi as Android computes it, one at which 600 dp does not survive a round trip through pixels.
+private const val INEXACT_DENSITY = 336 * (1f / 160)

@@ -10,8 +10,8 @@ const val ITEM_MIN_HEIGHT_DP = 146
 // to it.
 const val POSTER_WIDTH_FRACTION = 0.38f
 
-// Where a wide, low frame cuts the empty-state picture: above its center, so the character's eyes
-// stay in view along with as much of the ears as fits.
+// Where a wide, low frame cuts the empty-state picture: above its center. The character's eyes
+// stay in view, with as much of the ears as fits.
 const val EMPTY_PICTURE_VERTICAL_BIAS = -0.3f
 
 // Height of the poster's score bar (score icon + score text + info-type toggle button) when

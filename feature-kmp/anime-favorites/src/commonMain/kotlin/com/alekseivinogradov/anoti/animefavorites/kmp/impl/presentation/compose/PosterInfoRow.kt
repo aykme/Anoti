@@ -15,7 +15,7 @@ import kotlin.math.roundToInt
 /**
  * A poster beside an info panel, sized the way every favorites row is. The poster takes
  * [POSTER_WIDTH_FRACTION] of the width. Both take the info's natural height, never less than
- * [ITEM_MIN_HEIGHT_DP].
+ * [ITEM_MIN_HEIGHT_DP] and never more than the parent allows.
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.

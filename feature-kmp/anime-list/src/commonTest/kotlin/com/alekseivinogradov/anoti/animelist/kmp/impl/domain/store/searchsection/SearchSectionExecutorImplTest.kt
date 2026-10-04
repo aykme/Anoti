@@ -396,6 +396,33 @@ class SearchSectionExecutorImplTest {
     }
 
     @Test
+    fun aRestoredPageRepeatingALoadedItemKeepsItOnce() = runTest(testDispatcher) {
+        //Given
+        val firstItem = testListItem(id = 1)
+        val secondItem = testListItem(id = 2)
+        val store = createStore(
+            pages = mapOf(
+                1 to CallResult.Success(listOf(firstItem)),
+                2 to CallResult.Success(listOf(firstItem, secondItem))
+            )
+        )
+        store.accept(
+            SearchSectionStore.Intent.RestoreSection(
+                itemCount = 2,
+                enabledExtraEpisodesInfoIds = emptySet(),
+                nextEpisodesInfo = emptyMap()
+            )
+        )
+
+        //When
+        store.accept(SearchSectionStore.Intent.OpenSection)
+        advanceUntilIdle()
+
+        //Then
+        assertEquals(listOf(firstItem, secondItem), store.state.sectionContent.listItems)
+    }
+
+    @Test
     fun aRestoreStoppedByAPagingErrorKeepsItsTargetForTheNextAttempt() = runTest(testDispatcher) {
         //Given
         var connectionErrorCount = 0

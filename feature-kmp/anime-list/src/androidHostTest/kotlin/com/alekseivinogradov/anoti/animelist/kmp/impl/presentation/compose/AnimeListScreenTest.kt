@@ -5,12 +5,10 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -112,11 +110,6 @@ class AnimeListScreenTest {
         composeRule.waitForIdle()
     }
 
-    private fun itemNode(index: Int): SemanticsNodeInteraction =
-        composeRule.onAllNodesWithTag(LIST_ITEM_TAG, useUnmergedTree = true)[index]
-
-    private fun itemTop(index: Int): Dp = itemNode(index).getUnclippedBoundsInRoot().top
-
     private fun titleTop(title: String): Dp =
         composeRule.onNodeWithText(title, useUnmergedTree = true).getUnclippedBoundsInRoot().top
 
@@ -135,26 +128,36 @@ class AnimeListScreenTest {
         showListAt(width, itemCount = 4)
 
         //Then
-        assertTrue(itemTop(1) > itemTop(0), "on a phone the second item must sit below the first")
+        assertTrue(
+            titleTop("Anime 1") > titleTop("Anime 0"),
+            "on a phone the second item must sit below the first"
+        )
     }
 
     @Test
-    fun anUnfoldedOrTabletWideListPutsTwoItemsInARow() {
+    fun anUnfoldedWideListPutsTwoItemsInARow() {
         //Given
         val width = UNFOLDED_WIDTH_DP.dp
 
         //When
         showListAt(width, itemCount = 4)
-        val unfoldedTops = (0..2).map(::itemTop)
-        screenWidthState.value = TABLET_LANDSCAPE_WIDTH_DP.dp
-        composeRule.waitForIdle()
-        val tabletTops = (0..2).map(::itemTop)
 
         //Then
-        listOf("unfolded" to unfoldedTops, "tablet" to tabletTops).forEach { (label, tops) ->
-            assertEquals(tops[0], tops[1], "on the $label width the first two items share a row")
-            assertTrue(tops[2] > tops[0], "on the $label width the third item starts a new row")
-        }
+        assertEquals(titleTop("Anime 0"), titleTop("Anime 1"), "the first two items share a row")
+        assertTrue(titleTop("Anime 2") > titleTop("Anime 0"), "the third item starts a new row")
+    }
+
+    @Test
+    fun aTabletWideListStillPutsOnlyTwoItemsInARow() {
+        //Given
+        val width = TABLET_LANDSCAPE_WIDTH_DP.dp
+
+        //When
+        showListAt(width, itemCount = 4)
+
+        //Then
+        assertEquals(titleTop("Anime 0"), titleTop("Anime 1"), "the first two items share a row")
+        assertTrue(titleTop("Anime 2") > titleTop("Anime 0"), "the third item starts a new row")
     }
 
     @Test
@@ -379,8 +382,6 @@ private const val SCROLLED_AWAY_INDEX = 20
 // A few rows back up the list — still well past the paging threshold, so the list is asked
 // again rather than freshly crossing it.
 private const val SHORT_SCROLL_BACK = 4
-
-private const val LIST_ITEM_TAG = "anime_list_item"
 
 // A Pixel 4 XL, an unfolded Fold and a Pixel Tablet in landscape.
 private const val PHONE_WIDTH_DP = 411

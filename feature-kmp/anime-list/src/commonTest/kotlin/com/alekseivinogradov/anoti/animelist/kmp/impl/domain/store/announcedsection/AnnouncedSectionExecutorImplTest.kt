@@ -309,6 +309,32 @@ class AnnouncedSectionExecutorImplTest {
     }
 
     @Test
+    fun aRestoredPageRepeatingALoadedItemKeepsItOnce() = runTest(testDispatcher) {
+        //Given
+        val firstItem = testListItem(id = 1)
+        val secondItem = testListItem(id = 2)
+        val store = createStore(
+            pages = mapOf(
+                1 to CallResult.Success(listOf(firstItem)),
+                2 to CallResult.Success(listOf(firstItem, secondItem))
+            )
+        )
+        store.accept(
+            AnnouncedSectionStore.Intent.RestoreSection(
+                itemCount = 2,
+                enabledExtraEpisodesInfoIds = emptySet()
+            )
+        )
+
+        //When
+        store.accept(AnnouncedSectionStore.Intent.OpenSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+        //Then
+        assertEquals(listOf(firstItem, secondItem), store.state.sectionContent.listItems)
+    }
+
+    @Test
     fun aRestoredItemCountAboveTheCapStopsPagingAtTheCap() = runTest(testDispatcher) {
         //Given
         val pageSize = 30
