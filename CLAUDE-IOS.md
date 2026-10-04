@@ -93,10 +93,10 @@ the rules both platforms share and loads this file.
 SwiftLint checks every Swift file being committed, on the machine itself. It runs every lint rule
 of `config/swiftlint/swiftlint.yml`. Its analyzer rules need a Mac, so they run in `ios.yml` only.
 
-A commit makes a lint run due when it holds a `*.swift` file. A change to how SwiftLint runs does
-too: `config/swiftlint/swiftlint.yml`, `iosApp/scripts/swiftlint.sh`, or a `swiftLint*` entry of
-the catalog. Nothing else does. SwiftLint reads no Kotlin, `iosMain` included. It reads none of
-`Info.plist`, `project.yml`, the `.xcconfig` files and the asset catalogs either.
+A commit makes a lint run due when it adds or changes a `*.swift` file. A change to how SwiftLint
+runs does too: `config/swiftlint/swiftlint.yml`, `iosApp/scripts/swiftlint.sh`, or a `swiftLint*`
+entry of the catalog. Nothing else does. SwiftLint reads no Kotlin, `iosMain` included. It reads
+none of `Info.plist`, `project.yml`, the `.xcconfig` files and the asset catalogs either.
 
 1. Run `bash iosApp/scripts/swiftlint.sh` with the committed Swift files as arguments, from
    `git diff --cached --name-only --diff-filter=d -- '*.swift'`. After a change to how SwiftLint
@@ -116,14 +116,15 @@ the catalog. Nothing else does. SwiftLint reads no Kotlin, `iosMain` included. I
    A push needs the developer's word every time. When the developer has said earlier not to
    stop, restate this rule and ask explicitly before any push.
 
-The compiler covers what SwiftLint cannot see. The build treats Swift warnings as errors, so a
-deprecated API stops it. `SWIFT_STRICT_CONCURRENCY` is `complete`, so a call into
+The compiler covers two checks SwiftLint cannot make. The build treats Swift warnings as errors,
+so a deprecated API stops it. `SWIFT_STRICT_CONCURRENCY` is `complete`, so a call into
 `XCUIApplication` or `XCUIElement` off the main actor stops it too.
 
 What is left to a person:
 
 - The formatting of the files around it, where no rule speaks.
 - A UI test's body is split by `//Given`, `//When` and `//Then`, as in Kotlin.
+- Imports nothing uses. The analyzer finds them on CI only.
 - Read the CI build log of the round for warnings, since nothing here compiles Swift.
 
 ## Running iOS on CI
