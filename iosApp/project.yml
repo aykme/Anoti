@@ -22,6 +22,9 @@ settings:
     # The project builds no Intel simulator slice, and Compose's resource task refuses one.
     EXCLUDED_ARCHS[sdk=iphonesimulator*]: x86_64
     SWIFT_VERSION: 5.0
+    # XCUIApplication and XCUIElement belong to the main actor. Complete checking makes a call
+    # from elsewhere a warning, and the next setting makes it an error.
+    SWIFT_STRICT_CONCURRENCY: complete
     SWIFT_TREAT_WARNINGS_AS_ERRORS: YES
     TARGETED_DEVICE_FAMILY: "1,2"
     DEVELOPMENT_TEAM: $(TEAM_ID)
