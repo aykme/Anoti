@@ -3,17 +3,9 @@ package com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.compose
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
@@ -45,6 +38,7 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.LIST_L
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.loading_in_progress
 import com.alekseivinogradov.anoti.animebase.kmp.impl.presentation.compose.PullToRefreshBox
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
+import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.EMPTY_PICTURE_VERTICAL_BIAS
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.AnimeFavoritesUiModel
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.ContentTypeUi
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.InfoTypeUi
@@ -126,38 +120,25 @@ private fun LoadingState() {
 @Composable
 private fun EmptyState() {
     val topInset = systemBarsTopPadding()
-    // Box is required: without it, Row's tight incoming constraints would stretch it to full
-    // height despite height(IntrinsicSize.Min).
-    Box(Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
-                .padding(
-                    start = 8.dp,
-                    // Replaces the default top padding once a real system-bar inset is known,
-                    // instead of stacking on top of it.
-                    top = if (topInset > 0.dp) topInset else 8.dp,
-                    end = 8.dp,
-                    bottom = 8.dp
-                )
-        ) {
+    PosterInfoRow(
+        poster = {
             Image(
                 painter = painterResource(CelebrityRes.drawable.main_character_image),
                 contentDescription = stringResource(Res.string.empty_list_image_description),
                 contentScale = ContentScale.Crop,
+                alignment = BiasAlignment(
+                    horizontalBias = 0f,
+                    verticalBias = EMPTY_PICTURE_VERTICAL_BIAS
+                ),
                 modifier = Modifier
-                    .width(130.dp)
-                    .heightIn(min = 130.dp)
-                    .fillMaxHeight()
+                    .fillMaxSize()
                     .clip(RoundedCornerShape(percent = IMAGE_CORNER_PERCENT))
             )
-            Spacer(Modifier.width(8.dp))
+        },
+        info = {
             Box(
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
+                    .fillMaxSize()
                     .background(Grey700, RoundedCornerShape(10.dp))
             ) {
                 Text(
@@ -171,8 +152,16 @@ private fun EmptyState() {
                         .padding(8.dp)
                 )
             }
-        }
-    }
+        },
+        modifier = Modifier.padding(
+            start = 8.dp,
+            // Replaces the default top padding once a real system-bar inset is known,
+            // instead of stacking on top of it.
+            top = if (topInset > 0.dp) topInset else 8.dp,
+            end = 8.dp,
+            bottom = 8.dp
+        )
+    )
 }
 
 @Suppress("FunctionNaming")
