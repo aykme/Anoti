@@ -127,7 +127,7 @@ custom_rules:
   # A member call such as printer.print(...) and a func print declaration pass.
   no_print:
     name: No print
-    regex: '(?:\bSwift\.|(?<![.\w]))(?<!func )(print|debugPrint|dump|NSLog)\s*\('
+    regex: '(?:\b(?:Swift|Foundation)\.|(?<![.\w]))(?<!func )(print|debugPrint|dump|NSLog)\s*\('
     match_kinds: identifier
     message: The Kotlin side logs, with println.
     severity: error

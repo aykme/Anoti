@@ -8,6 +8,8 @@
 # Exit codes: 0 clean, 1 findings, 2 setup error, 3 this machine cannot run SwiftLint. A fix
 # run exits 0 even when findings remain, so a lint run follows it.
 set -uo pipefail
+# A CDPATH match makes cd print the folder, which would break the captures below.
+unset CDPATH
 
 setup_error() { echo "swiftlint.sh: $1" >&2; exit 2; }
 cannot_run() { echo "swiftlint.sh: this machine cannot run SwiftLint: $1" >&2; exit 3; }
@@ -102,7 +104,8 @@ if [ ! -x "$exe" ]; then
   mkdir -p build/swiftlint
   download=$(mktemp -d build/swiftlint/download.XXXXXX)
   url="https://github.com/realm/SwiftLint/releases/download/$version/$archive"
-  if ! curl -fsSL -o "$download/$archive" "$url"; then
+  if ! curl -fsSL --retry 3 --retry-connrefused --connect-timeout 30 --max-time 300 \
+    -o "$download/$archive" "$url"; then
     rm -rf "$download"
     setup_error "could not download $url"
   fi
@@ -118,7 +121,12 @@ if [ ! -x "$exe" ]; then
   rm -f "$download/$archive"
   chmod +x "$download/$binary"
   # Another run may have unpacked the same version meanwhile; both copies are the same binary.
-  if [ -d "$dir" ]; then rm -rf "$download"; else mv "$download" "$dir"; fi
+  if [ -x "$exe" ]; then
+    rm -rf "$download"
+  else
+    rm -rf "$dir"
+    mv "$download" "$dir" || setup_error "could not move SwiftLint into $dir"
+  fi
 fi
 
 # The Windows build misreads a CRLF file, and fix corrupts it. MSYS strips a CR inside $(...)
@@ -136,15 +144,19 @@ reporter=()
 
 errors=$(mktemp)
 trap 'rm -f "$errors"' EXIT
-# The ${a[@]+...} form keeps an empty array legal under set -u in macOS's bash 3.2.
+# The ${a[@]+...} form keeps an empty array legal under set -u in macOS's bash 3.2. The cache
+# is off: it would hide a file SwiftLint could not read on every run after the first.
 case $mode in
   lint)
-    "$exe" lint --quiet --config "$config" ${reporter[@]+"${reporter[@]}"} \
+    "$exe" lint --quiet --no-cache --config "$config" ${reporter[@]+"${reporter[@]}"} \
       ${paths[@]+"${paths[@]}"} 2> "$errors"
     ;;
-  fix) "$exe" lint --fix --quiet --config "$config" ${paths[@]+"${paths[@]}"} 2> "$errors" ;;
+  fix)
+    "$exe" lint --fix --quiet --no-cache --config "$config" ${paths[@]+"${paths[@]}"} \
+      2> "$errors"
+    ;;
   analyze)
-    "$exe" analyze --config "$config" ${reporter[@]+"${reporter[@]}"} \
+    "$exe" analyze --no-cache --config "$config" ${reporter[@]+"${reporter[@]}"} \
       --compiler-log-path "${paths[0]}" 2> "$errors"
     ;;
 esac
@@ -153,8 +165,12 @@ cat "$errors" >&2
 
 [ $host != windows ] || [ $code -ne 132 ] \
   || cannot_run "SourceKit did not load. Put the Swift runtime next to the toolchain on PATH"
-# A clean run warns about nothing, so a warning is a configuration typo or an unreadable file.
+# A clean run warns about nothing, so a warning is a configuration typo or a file SourceKit
+# could not index. A file that is not UTF-8 is linted as empty, with only this line to show it.
 grep -q "^warning: " "$errors" && setup_error "SwiftLint warned; the warnings are above"
+grep -q "^Could not read contents of" "$errors" \
+  && setup_error "SwiftLint could not read a file; save it as UTF-8"
+case $code in 0 | 2) ;; *) setup_error "SwiftLint failed with exit code $code" ;; esac
 if [ "$mode" = analyze ]; then
   # realm/SwiftLint#6877: an unreadable log gives a partial analysis and a green run.
   grep -q "cursor info failed" "$errors" && setup_error "SourceKit refused the compiler arguments"
