@@ -88,6 +88,24 @@ the rules both platforms share and loads this file.
   own, since Xcode starts it without the user's shell environment. The iOS build needs no Android
   SDK.
 
+## The Release build
+
+- Release is built the way an archive is. `project.yml` sets `DEPLOYMENT_POSTPROCESSING` for
+  it, so every Release build is stripped. Each one also keeps a dSYM.
+- No `Minified` configuration exists. Android needs `minified` only to give `release` the debug
+  key. iOS sets no signing team, and a simulator needs none.
+- Nothing is obfuscated. Kotlin/Native has no option for it, and class names stay readable.
+- The dSYM turns a stripped address back into a name and a line, as `mapping.txt` does on
+  Android. A dSYM fits only the binary of its own build, matched by UUID, so a shipped crash
+  needs the archive's own dSYM.
+- Stripping removes symbol-table entries only. ObjC class names and Kotlin type names survive
+  it.
+- No automated test runs on Release; only the manual regression walks it. So Release must not
+  behave differently from Debug in the code: no `#if DEBUG`, `assert` or `isDebugBinary` decides
+  what the app does.
+- `.github/scripts/ios-release-check.sh` checks a Release build's stripping and dSYM on CI. After
+  a change to it, run `bash .github/scripts/test/ios-release-check-test.sh`, then a Release run.
+
 ## Before committing Swift
 
 SwiftLint checks every Swift file being committed, on the machine itself. It runs every lint rule
@@ -125,23 +143,35 @@ What is left to a person:
 - The formatting of files around it, where no rule speaks.
 - A UI test's body is split by `//Given`, `//When` and `//Then`, as in Kotlin.
 - Imports nothing uses. The analyzer finds them on CI only.
-- Read the CI build log of the round for warnings, since nothing here compiles Swift.
+- Read the CI build logs of the round for warnings. A Release run keeps its log in the
+  `ios-release` artifact as `build-release.log`. Nothing here compiles Swift.
 
 ## Running iOS on CI
 
 - `ios.yml` runs on GitHub's macOS runner on every push to `develop`. On any other branch it
   runs only on the developer's word, by them or by Claude. It links the framework, runs every
-  Kotlin/Native test, builds the app in Debug and Release, runs the UI tests on an iPhone and on
-  an iPad, and walks the restore and theme checks.
+  Kotlin/Native test, builds the app in Debug, runs the UI tests on an iPhone, and walks the
+  restore and theme checks.
 - Its `swiftlint` job lints the Swift sources on Linux, in a minute or two. Its `app` job runs
   SwiftLint's analyzer rules over the Debug build log.
 - Started with `-f lint_only=true`, it runs the `swiftlint` job and nothing else. Such a run
-  carries no media. A change to the analyzer rules needs a full run, since `lint_only` skips `app`.
+  carries no media. A change to the analyzer rules needs a run without `lint_only` or `release`,
+  since both skip `app`.
+- Started with `-f ipad=true`, it also runs the UI tests on an iPad. That happens only when the
+  developer asks for it. The 600-point rule itself is unit-tested on every run, but the app
+  turning on a real wide window is tested only then.
+- Started with `-f release=true`, it builds the app in Release and runs no automated test. The
+  release check ends it: the executable is stripped, and its dSYM matches and decodes Kotlin. Such
+  a run is due after a change to the Release settings, the check or its job. `release` overrides
+  `lint_only`, `ipad` and `setup_check`.
 - A task branch that touches `iosMain`, `iosApp/`, `config/swiftlint/` or a build file ends by
   asking the developer whether to run it on that branch.
-- After a full run, its `ios-media` and `ios-media-ipad` artifacts go to the developer's folder
-  `iOS test` on the current user's desktop, `*\Desktop\iOS test\<date>_<run id>_<short commit>\`,
-  the iPad one in an `ipad` subfolder. Nothing there is deleted.
+- After a run with tests, its `ios-media` artifact goes to the developer's folder `iOS test` on
+  the current user's desktop, `*\Desktop\iOS test\<date>_<run id>_<short commit>\`. When the iPad
+  ran, `ios-media-ipad` goes into an `ipad` subfolder there. Nothing there is deleted.
+- After a Release run, its `ios-release` artifact goes to
+  `*\Desktop\iOS test\<date>_<run id>_<short commit>_release\`. Its `ios-dsym` stays on GitHub for
+  seven days.
 - The UI tests and the restore checks run the real app, which reaches the live backend. The
   developer allowed them, as they allowed Android's `AnimeFavoritesUserFlowTest`. Their
   assertions stay on structure.

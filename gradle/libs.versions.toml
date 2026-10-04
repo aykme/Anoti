@@ -101,6 +101,12 @@ workRuntimeKtx = "2.12.0"
 # Panda 2 supports AGP up to 9.1, whose latest patch is 9.1.1.
 # The root README.md names that Studio as the minimum. Update it when this changes.
 # Studio-to-AGP table: https://developer.android.com/build/releases/about-agp
+# AGP 9.1.1 strips the app's native libraries with NDK 28.2.13676358, its default NDK. Without
+# that exact version in the SDK, they ship unstripped; another NDK version is not used. On an
+# AGP update, install the NDK it defaults to and update this note. Each AGP version's default
+# NDK is in its release notes, the NDK row of the compatibility table:
+# https://developer.android.com/build/releases/gradle-plugin#compatibility
+# https://developer.android.com/build/releases/past-releases
 #noinspection AndroidGradlePluginVersion,NewerVersionAvailable
 agp = "9.1.1"
 

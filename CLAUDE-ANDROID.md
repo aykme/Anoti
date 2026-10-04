@@ -33,6 +33,10 @@ The finishing checks below apply to every task, not only to one that touched And
   too, since an annotation cannot read one. Left to itself Robolectric targets
   `compileSdk` and dies inside `ApplicationSharedMemory.create`, which it cannot emulate; the
   message it prints blames the JRE rather than the SDK level.
+- No automated test runs against the minified build; the manual walk in "R8 and the minified
+  build" covers it. A test APK there would use the app's shrunk copies of the shared libraries,
+  and R8 removes what only the test needs. Making it pass would take keep rules that change what
+  ships.
 
 ## Instrumented tests and the emulator
 
@@ -96,6 +100,10 @@ The finishing checks below apply to every task, not only to one that touched And
   and walk the flows the change touches. Confirm they really ran, that the log holds no
   `ClassNotFoundException` or `NoSuchMethodException`, and that no screen fell back to an empty
   or error state the unminified build doesn't show.
+- A local minified build matches what CI builds only with the NDK named next to `agp` in the
+  version catalog, and with every file checked out with the LF endings `.gitattributes` sets.
+  Without that NDK, AGP leaves the native libraries unstripped, and the build log says "Unable
+  to strip". A file checked out with CRLF lands in the APK as it is.
 - `androidApp/proguard-rules.pro` keeps `SourceFile` and `LineNumberTable` and renames the source
   file to a constant, so an obfuscated stack trace stays decodable through `mapping.txt` with
   retrace while leaking nothing.
@@ -106,3 +114,5 @@ The finishing checks below apply to every task, not only to one that touched And
   detekt and `koverVerify`. On any other branch it runs only by hand, as "CI on GitHub" in
   `CLAUDE.md` says.
 - It never reaches the instrumented tests. They stay on the developer's emulators.
+- Started with `-f minified=true`, it builds the minified app and nothing else. Its APK and
+  `mapping.txt` stay on GitHub for seven days.

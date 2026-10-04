@@ -165,6 +165,8 @@ these rules and load together with them.
   to be split. Platform code is covered too: an Android implementation gets its tests in
   `androidHostTest`, an iOS one in `iosTest` — the pair of `AnimeDatabaseContinuityTest` classes
   in `core-kmp:anime-database` shows the shape.
+- Every automated test runs on a debug build. A minified or Release build is built on CI only
+  when a run asks for it, and no automated test runs on it; the manual regression walks it.
 - An `iosTest` runs on macOS and nowhere else: on this machine `iosSimulatorArm64Test` is skipped
   outright, so a test there is compiled and never executed. Kover cannot measure Kotlin/Native
   either. Such a test proves nothing here and counts for nothing. It does run on GitHub's macOS
@@ -263,18 +265,20 @@ these rules and load together with them.
   remote is named `master`, not `origin`.
 - To start a workflow by hand, push the branch first, then run
   `gh workflow run <android.yml|ios.yml> -R aykme/Anoti --ref <branch>`.
+- `-f minified=true` on `android.yml` and `-f release=true` on `ios.yml` build only the shipped
+  app and run no test. `-f ipad=true` adds the iPad to an iOS run. See `CLAUDE-ANDROID.md` and
+  `CLAUDE-IOS.md`.
 - To find that run, take the newest dispatch on the branch:
   `gh run list -R aykme/Anoti --workflow <file> --branch <branch> --event workflow_dispatch
-  --limit 1`. For a run a push started, filter by `--commit <sha>` instead. A run shows up a few
-  seconds after it starts.
+  --limit 1`. For a run a push started, filter by `--commit <sha>`, the full SHA, instead. A run
+  shows up a few seconds after it starts.
 - Wait for it with `gh run watch <run id> -R aykme/Anoti --interval 60`, or in the background,
-  since a full iOS run takes 40 to 60 minutes. `gh run view <run id> -R aykme/Anoti` shows the jobs,
-  and `--log-failed` the failed steps.
+  since an iOS run with tests takes 30 to 50 minutes, and a Release run about 15.
+  `gh run view <run id> -R aykme/Anoti` shows the jobs, and `--log-failed` the failed steps.
 - A job's whole log comes from `gh api --allow-escape-sequences
   repos/aykme/Anoti/actions/jobs/<job id>/logs`. It is there only once the job has ended.
 - Artifacts come down with `gh run download <run id> -R aykme/Anoti -n <name> -D <folder>`.
-  After every full iOS run, `ios-media` and `ios-media-ipad` go to the developer's folder, as
-  "Running iOS on CI" says.
+  The artifacts an iOS run leaves go to the developer's folder, as "Running iOS on CI" says.
 
 ## Finishing a task
 

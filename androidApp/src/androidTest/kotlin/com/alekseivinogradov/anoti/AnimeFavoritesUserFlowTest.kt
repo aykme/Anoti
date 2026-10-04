@@ -42,7 +42,7 @@ import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as base
 import com.alekseivinogradov.anoti.animefavorites.kmp.generated.resources.Res as favorites_Res
 
 /**
- * Runs the shipped app end to end against the live Shikimori backend: real DI graph, real network,
+ * Runs the real app end to end against the live Shikimori backend: real DI graph, real network,
  * real screens. Reaching the network is the point here. Such a test is the project's last resort,
  * written with the developer's permission. Everything under the UI is already covered by fakes
  * elsewhere. What is left to prove is that the whole stack works together. The assertions

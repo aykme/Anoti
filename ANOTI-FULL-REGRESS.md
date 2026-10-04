@@ -20,21 +20,27 @@ A full regression is run for one platform at a time. A run on Android works thro
 Android app and the shared modules. A run on iOS works through the iOS app and the shared
 modules.
 
+## Which build to run on
+
+Run a regression on the build users get, never on a debug one: `minified` on Android, Release
+on iOS. Their behavior can differ from debug. Android's is shrunk and obfuscated by R8; iOS's is
+optimized and stripped, the way an archived build is. No automated test runs on them, so this
+regression is the check that sees what users see.
+
 ## The build to run on, on Android
 
-Run a regression on a build that has been shrunk and obfuscated, the way the released one is.
-`./gradlew :androidApp:assembleMinified` produces one that also installs. The release build
-carries no signing config of its own, so it cannot go on a device.
+`./gradlew :androidApp:assembleMinified` produces a `minified` build that also installs. The
+release build carries no signing config of its own, so it cannot go on a device.
 
 Shrinking removes and renames code. It is the step that can break something which only shows
 once the app is running. A check on a build that skipped it proves nothing about what ships.
 
 ## The build to run on, on iOS
 
-Run a regression on the Release configuration, in a Simulator or on an iPhone. It is built with
-the Kotlin framework's release link. In Xcode, pick it under Product, Scheme, Edit Scheme, Run,
-Build Configuration. An iPhone also needs a signing team: put yours into `TEAM_ID` in
-`iosApp/Configuration/Config.xcconfig`, and do not commit it.
+Release runs in a Simulator or on an iPhone. It is built with the Kotlin framework's release
+link. In Xcode, pick it under Product, Scheme, Edit Scheme, Run, Build Configuration. An iPhone
+also needs a signing team: put yours into `TEAM_ID` in `iosApp/Configuration/Config.xcconfig`,
+and do not commit it.
 
 ## Platforms
 
