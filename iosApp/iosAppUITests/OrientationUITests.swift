@@ -1,3 +1,4 @@
+import Combine
 import XCTest
 
 /// The app turns only on a wide window, one whose smaller side is at least 600 points. CI runs
