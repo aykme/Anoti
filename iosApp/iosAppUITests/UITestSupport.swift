@@ -36,7 +36,6 @@ extension XCUIElement {
 
 extension XCTestCase {
     /// Waits for `element` and fails the test when it does not come.
-    @MainActor
     @discardableResult
     func waitFor(
         _ element: XCUIElement,
