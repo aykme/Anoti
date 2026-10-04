@@ -1,5 +1,6 @@
 # Builds and checks the iOS app on GitHub's macOS runner, on every push to develop and on any
-# branch by hand.
+# branch by hand. The Swift sources are linted on Linux beside it. A run started with lint_only
+# runs that lint and nothing else.
 name: iOS
 
 on:
@@ -11,6 +12,10 @@ on:
         description: Prove the Java lookup of the Xcode build and that it needs no Android SDK
         type: boolean
         default: false
+      lint_only:
+        description: Run only the Swift lint, without the builds and the tests
+        type: boolean
+        default: false
 
 # An explicit bash adds pipe fail, so a step piping into tee still fails with the command.
 defaults:
@@ -18,7 +23,16 @@ defaults:
     shell: bash
 
 jobs:
+  swiftlint:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: Lint the Swift sources
+        run: bash iosApp/scripts/swiftlint.sh
+
   framework:
+    if: ${{ !inputs.lint_only }}
     runs-on: macos-26
     timeout-minutes: 90
     steps:
@@ -34,6 +48,7 @@ jobs:
           :core-kmp:di-app:linkReleaseFrameworkIosArm64
 
   native-tests:
+    if: ${{ !inputs.lint_only }}
     runs-on: macos-26
     timeout-minutes: 120
     steps:
@@ -58,6 +73,7 @@ jobs:
             **/build/test-results/iosSimulatorArm64Test/
 
   project:
+    if: ${{ !inputs.lint_only }}
     runs-on: macos-26
     timeout-minutes: 20
     steps:
@@ -126,6 +142,7 @@ jobs:
           bash .github/scripts/ios-boot-simulator.sh
 
       - name: Build the app and its UI tests, Debug
+        id: build_debug
         run: |
           xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug \
             -destination "id=$SIM_UDID" -derivedDataPath build/DerivedData \
@@ -180,6 +197,11 @@ jobs:
             CODE_SIGNING_ALLOWED=NO build > "$MEDIA_DIR/build-release.log" 2>&1 \
             || { tail -40 "$MEDIA_DIR/build-release.log"; exit 1; }
           tail -5 "$MEDIA_DIR/build-release.log"
+
+      # The analyzer reads the Debug build's log, so it needs only that build to have succeeded.
+      - name: Analyze the Swift sources
+        if: ${{ !cancelled() && steps.build_debug.outcome == 'success' }}
+        run: bash iosApp/scripts/swiftlint.sh analyze "$MEDIA_DIR/build-debug.log"
 
       - uses: actions/upload-artifact@v7
         if: always()

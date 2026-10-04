@@ -9,9 +9,9 @@
 /* Begin PBXBuildFile section */
 		09FED4B446BD58DF150C455A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C6D2DD7FE2E0BF5DB2A96B4B /* PrivacyInfo.xcprivacy */; };
 		22EA1CB33A17DCC6FC82406D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F543015C899423D4B01CEB2E /* Assets.xcassets */; };
-		307C2654CD5972A25FB7FD87 /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 668CECA83ACC03A83C85A623 /* iOSApp.swift */; };
 		56B0305B5D3847FC6B326502 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8509E5A49E4A5CAAEB3ADB /* ContentView.swift */; };
 		7692B34DC22D0AF18CF00F3F /* AnimeFavoritesUserFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA8996D3EEDF81BDB9F18943 /* AnimeFavoritesUserFlowUITests.swift */; };
+		85395B31615E29C89A4EB4CD /* AnotiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78B9CBEC7EAABE25BBE51776 /* AnotiApp.swift */; };
 		96F9997B98FADD29744270C8 /* OrientationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7648DB82F4C8D2B7B1C955E5 /* OrientationUITests.swift */; };
 		C1C264EAAA0F2CEC500369CA /* RestoreSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599693EADB2228F37A7B4AF3 /* RestoreSteps.swift */; };
 		FDE52B8D57A097A60A4CF366 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B6C1F485E0CF8BB70C9DDD2 /* AppDelegate.swift */; };
@@ -31,9 +31,9 @@
 /* Begin PBXFileReference section */
 		323906AFB18147ABEDEBDB38 /* iosAppUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = iosAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		599693EADB2228F37A7B4AF3 /* RestoreSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreSteps.swift; sourceTree = "<group>"; };
-		668CECA83ACC03A83C85A623 /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
 		719926556306ACCE69D2BB13 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		7648DB82F4C8D2B7B1C955E5 /* OrientationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrientationUITests.swift; sourceTree = "<group>"; };
+		78B9CBEC7EAABE25BBE51776 /* AnotiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnotiApp.swift; sourceTree = "<group>"; };
 		86038AE1032E284E79B32AD6 /* iosApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = iosApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B6C1F485E0CF8BB70C9DDD2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C117AD187833E2513BD2F553 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -48,11 +48,11 @@
 		1DB4B685CAEE8BEFEBBAEF94 /* iosApp */ = {
 			isa = PBXGroup;
 			children = (
+				78B9CBEC7EAABE25BBE51776 /* AnotiApp.swift */,
 				8B6C1F485E0CF8BB70C9DDD2 /* AppDelegate.swift */,
 				F543015C899423D4B01CEB2E /* Assets.xcassets */,
 				CE8509E5A49E4A5CAAEB3ADB /* ContentView.swift */,
 				C117AD187833E2513BD2F553 /* Info.plist */,
-				668CECA83ACC03A83C85A623 /* iOSApp.swift */,
 				C6D2DD7FE2E0BF5DB2A96B4B /* PrivacyInfo.xcprivacy */,
 			);
 			path = iosApp;
@@ -226,9 +226,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				85395B31615E29C89A4EB4CD /* AnotiApp.swift in Sources */,
 				FDE52B8D57A097A60A4CF366 /* AppDelegate.swift in Sources */,
 				56B0305B5D3847FC6B326502 /* ContentView.swift in Sources */,
-				307C2654CD5972A25FB7FD87 /* iOSApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -299,6 +299,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -385,6 +386,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

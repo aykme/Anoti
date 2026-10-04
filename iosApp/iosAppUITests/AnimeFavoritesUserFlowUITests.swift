@@ -5,7 +5,6 @@ import XCTest
 /// resort, written with the developer's permission, as Android's AnimeFavoritesUserFlowTest is.
 /// The assertions stay on structure, never on values the backend decides.
 final class AnimeFavoritesUserFlowUITests: XCTestCase {
-
     override func setUp() {
         continueAfterFailure = false
     }

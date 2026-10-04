@@ -5,6 +5,9 @@ let appBundleId = "com.alekseivinogradov.anoti"
 /// How long a screen may take to load from the live backend.
 let loadTimeout: TimeInterval = 60
 
+/// How long the system may take to ask for permission to notify.
+let notificationQuestionTimeout: TimeInterval = 10
+
 /// The home screen, which shows the system's alerts and notifications.
 @MainActor
 var springboard: XCUIApplication {
@@ -63,7 +66,7 @@ extension XCTestCase {
     @MainActor
     func allowNotificationsIfAsked() {
         let allow = springboard.alerts.buttons["Allow"]
-        if allow.waitForExistence(timeout: 10) {
+        if allow.waitForExistence(timeout: notificationQuestionTimeout) {
             allow.tap()
         }
     }

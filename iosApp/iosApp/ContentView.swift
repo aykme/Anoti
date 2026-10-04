@@ -34,7 +34,9 @@ private struct ComposeView: UIViewControllerRepresentable {
         IosApp.shared.viewController(restoredState: restoredState)
     }
 
-    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
+        // The root is built once, in makeUIViewController, and keeps itself current.
+    }
 }
 
 // A window that grows past or shrinks below the rotation threshold changes how it may turn.
