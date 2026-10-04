@@ -27,23 +27,24 @@ Anoti allows you to always be aware of the release of new episodes!
 
 Technology stack:
 
-1. MVI based on [MVI Kotlin](https://github.com/arkivanov/MVIKotlin).
-2. Multi-modularity. Both the business logic and the UI are located in the KMP modules, the UI
-   built with [Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform).
-3. Kotlin Coroutines and Flow.
-4. The local database is implemented via
-   [Room](https://developer.android.com/kotlin/multiplatform/room), which now natively supports
-   Kotlin Multiplatform.
-5. API services are implemented via [Ktor](https://github.com/ktorio/ktor), fully in the KMP
-   modules.
-6. Custom pagination implemented in pure KMP, without third-party libraries, designed to fit
-   MVI and UDF architectures.
-7. DI is implemented through [kotlin-inject](https://github.com/evant/kotlin-inject), fully in the
-   KMP modules, working on both Android and iOS.
-8. Unit testing of KMP modules is done with
-   [kotlin-test](https://github.com/JetBrains/kotlin/tree/master/libraries/kotlin.test). For test
-   doubles I mostly use a "mock" approach, with a "fake" approach used less often. Line coverage
-   over the whole project is held at no less than 95%, measured with
+1. A fully [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform.html) app with an
+   Android and an iOS project. The business logic, the UI, the data layer and DI are shared by
+   both platforms. Platform code is kept to what only the OS can do, such as notifications and
+   background updates.
+2. The UI is built with [Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform)
+   and shared by Android and iOS.
+3. Multi-module architecture. MVI is based on [MVIKotlin](https://github.com/arkivanov/MVIKotlin),
+   navigation on [Decompose](https://github.com/arkivanov/Decompose).
+4. Kotlin Coroutines and Flow.
+5. Networking is implemented via [Ktor](https://github.com/ktorio/ktor).
+6. The local database is implemented via
+   [Room](https://developer.android.com/kotlin/multiplatform/room) for Kotlin Multiplatform.
+7. Custom pagination, written without third-party libraries and designed to fit MVI and UDF.
+8. DI is implemented through [kotlin-inject](https://github.com/evant/kotlin-inject).
+9. Unit testing is done with
+   [kotlin-test](https://github.com/JetBrains/kotlin/tree/master/libraries/kotlin.test). Test
+   doubles are handwritten fakes, plus Ktor's `MockEngine` for the network. Line coverage over
+   the whole project is held at no less than 95%, measured with
    [Kover](https://github.com/Kotlin/kotlinx-kover) and enforced by a build that fails below it.
 
 Minimum versions:
@@ -78,13 +79,3 @@ Setting up the iOS project:
    - Or install any JDK with its ordinary installer.
 3. Open `iosApp/iosApp.xcodeproj` in Xcode, pick an iPhone simulator and run the `iosApp` scheme.
    The first build takes long: it compiles the whole shared code for iOS.
-
-If the build stops with "Java not found", install a JDK. The project asks Gradle for more memory
-than a small Mac has. There, put these lines into `~/.gradle/gradle.properties`, which CI uses on
-its 7 GB machine:
-
-```
-org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8
-kotlin.daemon.jvm.options=-Xmx1g
-org.gradle.workers.max=3
-```
