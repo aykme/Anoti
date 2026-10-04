@@ -1,6 +1,8 @@
 # Builds and checks the iOS app on GitHub's macOS runner, on every push to develop and on any
 # branch by hand. The Swift sources are linted on Linux beside it. A run started with lint_only
 # runs that lint and nothing else.
+# The iPad runs only when a run started by hand asks for it. A run started with release builds
+# the app in Release, checks its stripping, and runs no test.
 name: iOS
 
 on:
@@ -16,6 +18,14 @@ on:
         description: Run only the Swift lint, without the builds and the tests
         type: boolean
         default: false
+      ipad:
+        description: Also run the UI tests on an iPad
+        type: boolean
+        default: false
+      release:
+        description: Build only the Release app and check its stripping, with no test
+        type: boolean
+        default: false
 
 # An explicit bash adds pipe fail, so a step piping into tee still fails with the command.
 defaults:
@@ -24,6 +34,7 @@ defaults:
 
 jobs:
   swiftlint:
+    if: ${{ !inputs.release }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -32,7 +43,7 @@ jobs:
         run: bash iosApp/scripts/swiftlint.sh
 
   framework:
-    if: ${{ !inputs.lint_only }}
+    if: ${{ !inputs.lint_only && !inputs.release }}
     runs-on: macos-26
     timeout-minutes: 90
     steps:
@@ -48,7 +59,7 @@ jobs:
           :core-kmp:di-app:linkReleaseFrameworkIosArm64
 
   native-tests:
-    if: ${{ !inputs.lint_only }}
+    if: ${{ !inputs.lint_only && !inputs.release }}
     runs-on: macos-26
     timeout-minutes: 120
     steps:
@@ -73,7 +84,7 @@ jobs:
             **/build/test-results/iosSimulatorArm64Test/
 
   project:
-    if: ${{ !inputs.lint_only }}
+    if: ${{ !inputs.lint_only || inputs.release }}
     runs-on: macos-26
     timeout-minutes: 20
     steps:
@@ -98,6 +109,7 @@ jobs:
           path: iosApp/iosApp.xcodeproj
 
   drift:
+    if: ${{ !inputs.release }}
     needs: project
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -120,6 +132,7 @@ jobs:
           fi
 
   app:
+    if: ${{ !inputs.release }}
     needs: project
     runs-on: macos-26
     timeout-minutes: 150
@@ -165,7 +178,7 @@ jobs:
           status=0
           # The UI tests reach the live backend, so a failed one gets up to three tries.
           xcodebuild test-without-building -xctestrun "$XCTESTRUN" -destination "id=$SIM_UDID" \
-            -only-testing:iosAppUITests/AnimeFavoritesUserFlowUITests \
+            -only-testing:iosAppUITests/AnimeFavoritesUserFlowTest \
             -only-testing:iosAppUITests/OrientationUITests \
             -retry-tests-on-failure -test-iterations 3 \
             -resultBundlePath "$RESULTS_DIR/ui-tests.xcresult" \
@@ -188,16 +201,6 @@ jobs:
               --output-path "$MEDIA_DIR/attachments/${name%.xcresult}" || true
           done
 
-      - name: Build the app, Release
-        if: always()
-        run: |
-          xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Release \
-            -destination 'generic/platform=iOS Simulator' \
-            -derivedDataPath build/DerivedDataRelease \
-            CODE_SIGNING_ALLOWED=NO build > "$MEDIA_DIR/build-release.log" 2>&1 \
-            || { tail -40 "$MEDIA_DIR/build-release.log"; exit 1; }
-          tail -5 "$MEDIA_DIR/build-release.log"
-
       # The analyzer reads the Debug build's log, so it needs only that build to have succeeded.
       - name: Analyze the Swift sources
         if: ${{ !cancelled() && steps.build_debug.outcome == 'success' }}
@@ -209,8 +212,10 @@ jobs:
           name: ios-media
           path: build/ios-media
 
-  # The same app and UI tests on an iPad, whose wide window turns the app.
+  # The same app and UI tests on an iPad, whose wide window turns the app. Only when a run asks
+  # for it.
   ipad:
+    if: ${{ inputs.ipad && !inputs.release }}
     needs: project
     runs-on: macos-26
     timeout-minutes: 120
@@ -249,7 +254,7 @@ jobs:
           status=0
           # The UI tests reach the live backend, so a failed one gets up to three tries.
           xcodebuild test-without-building -xctestrun "$XCTESTRUN" -destination "id=$SIM_UDID" \
-            -only-testing:iosAppUITests/AnimeFavoritesUserFlowUITests \
+            -only-testing:iosAppUITests/AnimeFavoritesUserFlowTest \
             -only-testing:iosAppUITests/OrientationUITests \
             -retry-tests-on-failure -test-iterations 3 \
             -resultBundlePath "$RESULTS_DIR/ui-tests.xcresult" \
@@ -270,8 +275,60 @@ jobs:
           name: ios-media-ipad
           path: build/ios-media-ipad
 
+  # The app built in Release, stripped as an archive is, and checked. By hand only; no test runs.
+  release-build:
+    if: ${{ inputs.release }}
+    needs: project
+    runs-on: macos-26
+    timeout-minutes: 90
+    env:
+      MEDIA_DIR: ${{ github.workspace }}/build/ios-release
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ios-toolchain
+      - uses: ./.github/actions/gradle-on-macos
+      - name: Use the generated project
+        run: rm -rf iosApp/iosApp.xcodeproj
+      - uses: actions/download-artifact@v8
+        with:
+          name: xcodeproj
+          path: iosApp/iosApp.xcodeproj
+
+      - name: Build the app, Release
+        id: build
+        run: |
+          mkdir -p "$MEDIA_DIR"
+          xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Release \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO build > "$MEDIA_DIR/build-release.log" 2>&1 \
+            || { tail -40 "$MEDIA_DIR/build-release.log"; exit 1; }
+          tail -5 "$MEDIA_DIR/build-release.log"
+          products="$GITHUB_WORKSPACE/build/DerivedData/Build/Products"
+          echo "APP_PATH=$products/Release-iphonesimulator/Anoti.app" >> "$GITHUB_ENV"
+
+      - name: The release check
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        env:
+          RELEASE_CHECK_ENFORCE: "0"
+        run: bash .github/scripts/ios-release-check.sh
+
+      # The app's own dSYM; the wildcard keeps the bundle's folder in the artifact.
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        with:
+          name: ios-dsym
+          path: build/DerivedData/Build/Products/Release-iphonesimulator/Anoti*.dSYM
+          if-no-files-found: error
+          retention-days: 7
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ios-release
+          path: build/ios-release
+
   setup-check:
-    if: inputs.setup_check
+    if: ${{ inputs.setup_check && !inputs.release }}
     needs: project
     runs-on: macos-26
     timeout-minutes: 150
