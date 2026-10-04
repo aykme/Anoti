@@ -8,6 +8,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDom
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.ongoingsection.OngoingSectionExecutor
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.ongoingsection.OngoingSectionStore
+import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.plusPage
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.OngoingUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
@@ -83,7 +84,7 @@ class OngoingSectionExecutorImpl(
             var items = listOf<ListItemDomain>()
             var pageResult: PageLoadResult<ListItemDomain>? = paginator.loadFirstPage()
             while (pageResult is PageLoadResult.Success) {
-                items = items + pageResult.items
+                items = items.plusPage(pageResult.items)
                 if (items.size >= cappedTarget || pageResult.items.isEmpty()) break
                 pageResult = paginator.loadNextPage()
             }
@@ -160,7 +161,7 @@ class OngoingSectionExecutorImpl(
             when (val result = paginator.loadNextPage()) {
                 is PageLoadResult.Success -> dispatch(
                     OngoingSectionStore.Message.UpdateListItems(
-                        state().sectionContent.listItems + result.items
+                        state().sectionContent.listItems.plusPage(result.items)
                     )
                 )
 

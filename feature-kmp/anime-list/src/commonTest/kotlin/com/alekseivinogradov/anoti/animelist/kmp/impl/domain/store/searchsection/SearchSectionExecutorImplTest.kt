@@ -142,6 +142,29 @@ class SearchSectionExecutorImplTest {
     }
 
     @Test
+    fun aNextPageRepeatingALoadedItemKeepsItOnce() = runTest(testDispatcher) {
+        //Given
+        // The ranking can shift between two requests and repeat an item on the next page.
+        val firstItem = testListItem(id = 1)
+        val secondItem = testListItem(id = 2)
+        val store = createStore(
+            pages = mapOf(
+                1 to CallResult.Success(listOf(firstItem)),
+                2 to CallResult.Success(listOf(firstItem, secondItem))
+            )
+        )
+        store.accept(SearchSectionStore.Intent.UpdateSection)
+        store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
+
+        //When
+        store.accept(SearchSectionStore.Intent.LoadNextPage)
+        store.states.first { it.sectionContent.listItems.size >= 2 }
+
+        //Then
+        assertEquals(listOf(firstItem, secondItem), store.state.sectionContent.listItems)
+    }
+
+    @Test
     fun loadNextPageAtEndOfListDoesNothing() = runTest(testDispatcher) {
         //Given
         val requestedPages = mutableListOf<Int>()
