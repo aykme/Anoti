@@ -165,9 +165,9 @@ What is left to a person:
     never turns, so it runs the flow only in portrait. A run that leaves the flow no device fails.
 - Its `swiftlint` job lints the Swift sources on Linux, in a minute or two. Its `app` job runs
   SwiftLint's analyzer rules over the Debug build log. Both follow `swiftlint`.
-- Started with `-f lint_only=true`, it runs the `swiftlint` job and nothing else, whatever
-  `swiftlint` says. Such a run carries no media. A change to the analyzer rules needs a run with
-  `swiftlint` on and without `lint_only` or `release`, since both skip `app`.
+- Started with `-f lint_only=true`, it runs the `swiftlint` job and nothing else besides `plan`,
+  whatever `swiftlint` says. Such a run carries no media. A change to the analyzer rules needs a
+  run with `swiftlint` on and without `lint_only` or `release`, since both skip `app`.
 - With `device` set to `tablet`, the app's tests run on an iPad instead of the iPhone, and with
   `all` on both. The iPad walks the flow once per orientation. That happens only when the
   developer asks for it. The 600-point rule itself is unit-tested whenever `unit_tests` is on, but
@@ -177,9 +177,9 @@ What is left to a person:
   a run is due after a change to the Release settings, the check or its job. `release` overrides
   every other input.
 - A task branch that touches `iosMain`, `iosApp/`, `config/swiftlint/` or a build file ends by
-  asking the developer whether to run it on that branch, with `ios_tests=true`. A task that
-  changes UI the iOS app shows, shared Compose UI included, offers `ui_flow=true` too, on the
-  devices and in the orientations it reaches.
+  asking the developer whether to run it on that branch, with `ios_tests=true`.
+- A task that changes UI the iOS app shows, shared Compose UI in `commonMain` included, ends by
+  offering a run with `ui_flow=true`, on the devices and in the orientations it reaches.
 - After a run that started the app, its `ios-media` artifact goes to the developer's folder
   `iOS test` on the current user's desktop, `*\Desktop\iOS test\<date>_<run id>_<short commit>\`.
   When the iPad ran, through `device`, `ios-media-ipad` goes into an `ipad` subfolder there.
