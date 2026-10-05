@@ -6,6 +6,9 @@ import androidx.compose.ui.unit.dp
 const val POSTER_HEIGHT_DP = 350
 const val POSTER_CORNER_PERCENT = 3
 
+// The width from which the anime list lays out in two columns instead of one.
+const val TWO_COLUMN_MIN_WIDTH_DP = 600
+
 // Standard square control size shared by the top bar's filter spacer, search button, search
 // field height, and cancel button.
 const val TOP_BAR_CONTROL_SIZE_DP = 56

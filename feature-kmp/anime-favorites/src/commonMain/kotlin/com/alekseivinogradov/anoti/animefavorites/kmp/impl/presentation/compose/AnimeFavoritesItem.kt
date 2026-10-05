@@ -47,10 +47,8 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -74,7 +72,6 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.NOTIFI
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.POSTER_OVERLAY_ALPHA
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.REPEAT_LISTENER_INITIAL_INTERVAL_MILLISECONDS
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.REPEAT_LISTENER_REPEAT_INTERVAL_MILLISECONDS
-import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.SPACING_UNIT_DP
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.announced
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.episodes
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.inaccurate
@@ -86,12 +83,10 @@ import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.released
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.score_image_description
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.EPISODES_MAX_LINES
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.EXTRA_INFO_MAX_LINES
-import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.ITEM_MIN_HEIGHT_DP
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.ITEM_PREVIEW_HEIGHT_DP
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.ITEM_PREVIEW_WIDTH_DP
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.NEW_EPISODE_SHADOW_OFFSET
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.NEW_EPISODE_SHADOW_RADIUS
-import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.POSTER_WIDTH_FRACTION
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.SCORE_BAR_HEIGHT_DP
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.compose.TITLE_MAX_LINES
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.model.itemcontent.InfoTypeUi
@@ -135,7 +130,6 @@ import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.Anoti
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.LoadingSpinner
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.repeatingClickable
 import org.jetbrains.compose.resources.stringResource
-import kotlin.math.roundToInt
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.Res as BaseRes
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as CelebrityRes
 import org.jetbrains.compose.resources.Font as CmpFont
@@ -157,71 +151,32 @@ fun AnimeFavoritesItem(
 ) {
     val strokeColor = if (item.isNewEpisode) Silver else Grey700
 
-    val posterContent: @Composable () -> Unit = {
-        PosterColumn(
-            imageUrl = item.imageUrl,
-            score = item.score,
-            infoType = item.infoType,
-            isNewEpisode = item.isNewEpisode,
-            onInfoTypeClick = onInfoTypeClick
-        )
-    }
-    val infoContent: @Composable () -> Unit = {
-        MainInfoPanel(
-            item = item,
-            dateFormatter = dateFormatter,
-            strokeColor = strokeColor,
-            onNotificationClick = onNotificationClick,
-            onEpisodesViewedMinusClick = onEpisodesViewedMinusClick,
-            onEpisodesViewedPlusClick = onEpisodesViewedPlusClick
-        )
-    }
-    // The InfoMeasure slot below composes this same content a second time, solely to learn its
-    // natural height before the real Info slot is measured. Never being placed keeps that copy
-    // out of the tree a screen reader walks, but not out of the item's own merged node, which
-    // would otherwise carry every line twice — that is what clearAndSetSemantics stops. A test
-    // reading the unmerged tree still sees the copy and has to filter on isPlaced.
-    val infoMeasureContent: @Composable () -> Unit = {
-        Box(Modifier.clearAndSetSemantics {}) {
-            infoContent()
-        }
-    }
-
-    // Row(Modifier.height(IntrinsicSize.Min)) can't be used here: it queries every child's
-    // intrinsic height, and PosterColumn contains a SubcomposeAsyncImage (SubcomposeLayout),
-    // which throws on intrinsic measurement. SubcomposeLayout lets us learn the info panel's
-    // real (non-intrinsic) height first, then measure the poster to match it.
-    SubcomposeLayout(
+    PosterInfoRow(
+        poster = {
+            PosterColumn(
+                imageUrl = item.imageUrl,
+                score = item.score,
+                infoType = item.infoType,
+                isNewEpisode = item.isNewEpisode,
+                onInfoTypeClick = onInfoTypeClick
+            )
+        },
+        info = {
+            MainInfoPanel(
+                item = item,
+                dateFormatter = dateFormatter,
+                strokeColor = strokeColor,
+                onNotificationClick = onNotificationClick,
+                onEpisodesViewedMinusClick = onEpisodesViewedMinusClick,
+                onEpisodesViewedPlusClick = onEpisodesViewedPlusClick
+            )
+        },
         modifier = modifier
             .testTag("anime_favorites_item")
             .fillMaxWidth()
             .combinedClickable(onClick = onItemClick, onLongClick = onInfoTypeClick)
             .padding(8.dp)
-    ) { constraints ->
-        val minHeightPx = ITEM_MIN_HEIGHT_DP.dp.roundToPx()
-        val posterWidthPx = (constraints.maxWidth * POSTER_WIDTH_FRACTION).roundToInt()
-        val spacerPx = SPACING_UNIT_DP.roundToPx()
-        val infoWidthPx = (constraints.maxWidth - posterWidthPx - spacerPx).coerceAtLeast(0)
-        val infoWidthConstraints = Constraints(minWidth = infoWidthPx, maxWidth = infoWidthPx)
-
-        val infoNaturalHeight = subcompose(AnimeFavoritesItemSlot.InfoMeasure, infoMeasureContent)
-            .maxOf { it.measure(infoWidthConstraints).height }
-        val rowHeight = maxOf(minHeightPx, infoNaturalHeight)
-
-        val posterPlaceables = subcompose(AnimeFavoritesItemSlot.Poster, posterContent)
-            .map { it.measure(Constraints.fixed(posterWidthPx, rowHeight)) }
-        val infoPlaceables = subcompose(AnimeFavoritesItemSlot.Info, infoContent)
-            .map {
-                it.measure(
-                    infoWidthConstraints.copy(minHeight = rowHeight, maxHeight = rowHeight)
-                )
-            }
-
-        layout(constraints.maxWidth, rowHeight) {
-            posterPlaceables.forEach { it.placeRelative(0, 0) }
-            infoPlaceables.forEach { it.placeRelative(posterWidthPx + spacerPx, 0) }
-        }
-    }
+    )
 }
 
 @Suppress("FunctionNaming")
@@ -234,8 +189,8 @@ private fun PosterColumn(
     onInfoTypeClick: () -> Unit
 ) {
     Box(
-        // Width comes from the parent SubcomposeLayout's Constraints.fixed(posterWidthPx, ...)
-        // measurement, not a modifier here — it's the fraction-of-row width, not a fixed dp.
+        // Width comes from PosterInfoRow, which measures this at a fixed size: a fraction of the
+        // row, not a fixed dp.
         modifier = Modifier
             .fillMaxHeight()
             .clip(RoundedCornerShape(percent = IMAGE_CORNER_PERCENT))
@@ -689,8 +644,6 @@ private fun releaseStatusColor(status: ReleaseStatusUi): Color =
         ReleaseStatusUi.RELEASED -> Cinnabar500
         ReleaseStatusUi.UNKNOWN -> White
     }
-
-private enum class AnimeFavoritesItemSlot { Poster, Info, InfoMeasure }
 
 private object AnimeFavoritesItemPreviewDateFormatter : DateFormatter {
     override fun getFormattedDate(inputText: String, fallbackText: String): String = inputText

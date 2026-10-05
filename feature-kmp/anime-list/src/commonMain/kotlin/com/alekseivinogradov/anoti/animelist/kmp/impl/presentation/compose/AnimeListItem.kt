@@ -148,9 +148,8 @@ fun AnimeListItem(
                 .fillMaxWidth()
                 .height(POSTER_HEIGHT_DP.dp)
                 .clip(RoundedCornerShape(percent = POSTER_CORNER_PERCENT)),
-            // Same padding as the full-screen loading spinner (AnimeListScreen's LoadingState)
-            // so this renders at roughly the same visible size — the poster is close to
-            // screen-width, so the same inset yields a comparable spinner size.
+            // The 64 dp inset LoadingState uses. The poster's fixed height keeps the spinner from
+            // growing in a wide column.
             loading = {
                 LoadingSpinner(
                     contentDescription = stringResource(BaseRes.string.poster_image_description),

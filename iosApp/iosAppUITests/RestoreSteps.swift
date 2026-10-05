@@ -6,9 +6,10 @@ import XCTest
 /// the result. A step alone proves nothing, so a plain test run, in Xcode or `xcodebuild test`,
 /// skips them all. The script sets `ANOTI_RESTORE_STEPS` to let them run.
 ///
-/// They run only on CI, in the `app` job of `ios.yml`. Every push to `develop` starts it; on
-/// another branch, `gh workflow run ios.yml --ref <branch>` does. The job builds the app, runs the
-/// UI tests, then the script. The script needs the runner's environment and fails on a Mac by hand.
+/// They run only on CI, in the `app` job of `ios.yml`, when a run sets `ios_tests` and its
+/// `device` includes the iPhone. A push to `develop` leaves them out. The job builds the app, runs
+/// the UI tests, then the script. The script needs the runner's environment and fails on a Mac by
+/// hand.
 ///
 /// The script starts the app, so its log is captured. A step attaches to that app with
 /// activate() and never launches it. Starting the test runner sends the app to the background,
@@ -212,7 +213,7 @@ final class RestoreSteps: XCTestCase {
         waitFor(app.tagged("ongoing_button"))
     }
 
-    // Either way favorites is open: empty, or holding a favorite a failed UI test left behind.
+    // Favorites is open once it shows either its empty text or a favorite.
     @MainActor
     private func waitForFavorites() {
         let emptyText = app.descendants(matching: .any)

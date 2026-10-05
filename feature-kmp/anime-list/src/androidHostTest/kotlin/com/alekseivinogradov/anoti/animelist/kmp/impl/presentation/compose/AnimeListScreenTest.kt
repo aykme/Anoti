@@ -1,13 +1,20 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.compose
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.alekseivinogradov.anoti.animebase.kmp.generated.resources.loading_in_progress
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.AnimeListUiModel
@@ -49,6 +56,10 @@ class AnimeListScreenTest {
 
     private val dispatched = mutableListOf<AnimeListMainStore.Intent>()
 
+    // Null lets the screen take the emulated window. A size is required rather than capped,
+    // since the theme's surface hands its own size down as a minimum.
+    private val screenWidthState = mutableStateOf<Dp?>(null)
+
     private fun listItem(id: AnimeId) = ListItemUi(
         id = id,
         name = "Anime $id",
@@ -76,11 +87,16 @@ class AnimeListScreenTest {
     private fun setScreen() {
         composeRule.setContent {
             AnotiTheme {
-                AnimeListScreen(
-                    uiModel = uiModelState.value,
-                    dateFormatter = DateFormatterFake(),
-                    dispatch = { dispatched += it }
-                )
+                val sizeModifier = screenWidthState.value
+                    ?.let { Modifier.requiredSize(it, TALL_SCREEN_HEIGHT_DP.dp) }
+                    ?: Modifier
+                Box(sizeModifier) {
+                    AnimeListScreen(
+                        uiModel = uiModelState.value,
+                        dateFormatter = DateFormatterFake(),
+                        dispatch = { dispatched += it }
+                    )
+                }
             }
         }
         composeRule.waitForIdle()
@@ -92,6 +108,102 @@ class AnimeListScreenTest {
     private fun scrollListToIndex(index: Int) {
         composeRule.onNode(hasScrollToIndexAction()).performScrollToIndex(index)
         composeRule.waitForIdle()
+    }
+
+    private fun titleTop(title: String): Dp =
+        composeRule.onNodeWithText(title, useUnmergedTree = true).getUnclippedBoundsInRoot().top
+
+    private fun showListAt(width: Dp, itemCount: Int) {
+        screenWidthState.value = width
+        uiModelState.value = loadedModel(itemCount = itemCount)
+        setScreen()
+    }
+
+    @Test
+    fun aPhoneWideListStacksItsItems() {
+        //Given
+        val width = PHONE_WIDTH_DP.dp
+
+        //When
+        showListAt(width, itemCount = 4)
+
+        //Then
+        assertTrue(
+            titleTop("Anime 1") > titleTop("Anime 0"),
+            "on a phone the second item must sit below the first"
+        )
+    }
+
+    @Test
+    fun anUnfoldedWideListPutsTwoItemsInARow() {
+        //Given
+        val width = UNFOLDED_WIDTH_DP.dp
+
+        //When
+        showListAt(width, itemCount = 4)
+
+        //Then
+        assertEquals(titleTop("Anime 0"), titleTop("Anime 1"), "the first two items share a row")
+        assertTrue(titleTop("Anime 2") > titleTop("Anime 0"), "the third item starts a new row")
+    }
+
+    @Test
+    fun aTabletWideListStillPutsOnlyTwoItemsInARow() {
+        //Given
+        val width = TABLET_LANDSCAPE_WIDTH_DP.dp
+
+        //When
+        showListAt(width, itemCount = 4)
+
+        //Then
+        assertEquals(titleTop("Anime 0"), titleTop("Anime 1"), "the first two items share a row")
+        assertTrue(titleTop("Anime 2") > titleTop("Anime 0"), "the third item starts a new row")
+    }
+
+    @Test
+    fun reachingTheEndOfAWideGridAsksForTheNextPage() {
+        //Given
+        showListAt(TABLET_LANDSCAPE_WIDTH_DP.dp, itemCount = LONG_LIST_ITEM_COUNT)
+        val countBeforeScrolling = loadNextPageCount()
+
+        //When
+        scrollListToIndex(LONG_LIST_ITEM_COUNT - 1)
+
+        //Then
+        assertEquals(0, countBeforeScrolling, "a grid opened at the top has no next page to load")
+        assertTrue(loadNextPageCount() >= 1, "reaching the end must ask for the next page")
+    }
+
+    @Test
+    fun theGridReportsItsRealRowsAndColumns() {
+        //Given
+        showListAt(UNFOLDED_WIDTH_DP.dp, itemCount = ODD_ITEM_COUNT)
+
+        //When
+        val info = composeRule.onNode(hasScrollToIndexAction())
+            .fetchSemanticsNode().config[SemanticsProperties.CollectionInfo]
+
+        //Then
+        assertEquals(ODD_ITEM_ROW_COUNT, info.rowCount, "the last row holds a single item")
+        assertEquals(2, info.columnCount)
+    }
+
+    @Test
+    fun aWidthChangeKeepsTheFirstVisibleItem() {
+        //Given
+        showListAt(PHONE_WIDTH_DP.dp, itemCount = LONG_LIST_ITEM_COUNT)
+        scrollListToIndex(SCROLLED_AWAY_INDEX)
+        val topBefore = titleTop("Anime $SCROLLED_AWAY_INDEX")
+
+        //When
+        screenWidthState.value = UNFOLDED_WIDTH_DP.dp
+        composeRule.waitForIdle()
+
+        //Then
+        // A screen wider than the emulated window hangs past its edges, so position is what
+        // tells the first visible item, not visibility.
+        assertEquals(topBefore, titleTop("Anime $SCROLLED_AWAY_INDEX"))
+        composeRule.onNodeWithText("Anime 0").assertDoesNotExist()
     }
 
     @Test
@@ -270,3 +382,17 @@ private const val SCROLLED_AWAY_INDEX = 20
 // A few rows back up the list — still well past the paging threshold, so the list is asked
 // again rather than freshly crossing it.
 private const val SHORT_SCROLL_BACK = 4
+
+// A Pixel 4 XL, an unfolded Fold and a Pixel Tablet in landscape.
+private const val PHONE_WIDTH_DP = 411
+private const val UNFOLDED_WIDTH_DP = 852
+private const val TABLET_LANDSCAPE_WIDTH_DP = 1280
+
+// Tall enough for several rows of 366 dp items, so a row's neighbors are laid out at all.
+private const val TALL_SCREEN_HEIGHT_DP = 1600
+
+// Leaves the last row of a two-column grid with a single item.
+private const val ODD_ITEM_COUNT = 5
+
+// The rows ODD_ITEM_COUNT items fill at two columns.
+private const val ODD_ITEM_ROW_COUNT = 3

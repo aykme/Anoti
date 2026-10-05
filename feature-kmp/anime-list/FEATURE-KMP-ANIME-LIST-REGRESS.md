@@ -205,7 +205,10 @@ between two modes and changes nothing else on the item.
      quiet after the first failure.
 8. Turn the network back on and scroll to the bottom again.
    - Paging resumes without having to leave and re-enter the section.
-9. Repeat 1–8 in "Soon" and in search.
+9. Scroll through ten pages or more of "On air" without stopping.
+   - The app stays open, and no anime appears twice. The server sometimes repeats an anime on
+     the next page when its ranking shifts between two requests.
+10. Repeat 1–9 in "Soon" and in search.
 
 ## 10. Search
 
@@ -288,8 +291,8 @@ for, and the checks that only make sense once.
    - The state is kept. Nothing reloads, the scroll position holds, open extra info stays open,
      bells keep their state, and text typed into the search field is still there.
 2. Rotating in landscape, with items shown.
-   - Each item is wider and shorter. Title, episodes line, score, status and bell are all still
-     present and none overlaps another.
+   - The screen is wide enough to show two items in a row, so it does. Title, episodes line,
+     score, status and bell are all still present in each, and none overlaps another.
 3. At maximum font and display size, an item's bottom row.
    - The bell keeps its full size. The status word is the one that shortens with "…" when the
      row runs out of room — never the bell, never the score.
@@ -309,6 +312,19 @@ for, and the checks that only make sense once.
 9. Turn on the system dark theme and repeat pass 1 of section 0 in outline.
    - Text over the poster's dark strip stays readable, and so do the top bar's labels.
    - No white-on-white or black-on-black anywhere.
+10. One or two columns, by the screen's width. Walk "On air", "Soon" and search on each screen.
+    - A phone, or a foldable folded: one item per row, as wide as the screen.
+    - A screen at least 600 dp wide: two items per row, of equal width. That is a tablet in
+      either orientation, a foldable unfolded in either orientation, and an iPad.
+    - The gap between the two columns equals the gap between two rows.
+    - The top bar stays one bar across the full width, over both columns. Its labels and the
+      search button stay tappable.
+    - With an odd number of items, the last row holds one item on the left, at a single column's
+      width.
+11. Fold and unfold a foldable with the list scrolled down, then rotate it unfolded.
+    - Folding and unfolding switch the rows between one and two columns. Rotating unfolded keeps
+      two.
+    - The item at the top of the screen before the change is still at the top after it.
 
 ## 14. Platforms
 
