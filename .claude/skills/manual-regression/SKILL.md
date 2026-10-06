@@ -50,8 +50,11 @@ Copy this checklist into the working notes and tick it off.
    on emulators or simulators only, never the developer's own device. Walk locally whenever this
    machine can run the platform's emulators or simulators: it is simpler, faster and lets every
    step be watched. An automated walk on a CI runner is the fallback for a platform the machine
-   cannot run, such as iOS without a Mac. The media folder is named by the developer; if it is
-   missing or renamed, ask instead of adapting.
+   cannot run, such as iOS without a Mac. It makes sense only when the project's CI is already set
+   up for it: it builds the app, runs it on a simulator, and keeps screenshots and videos as
+   artifacts. If it is not, setting it up is a task of its own, agreed with the developer before
+   the regression. The media folder is named by the developer; if it is missing or renamed, ask
+   instead of adapting.
 2. **Questions.** Ask everything disputed at once, each with a recommended option and its
    trade-off. The usual list is in `references/questions.md`. Learn the constraints before
    offering options, and explain any term in plain words. Agree here how heavy the gates are: one

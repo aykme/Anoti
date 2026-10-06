@@ -4,6 +4,11 @@ Only for walking an iOS app when no Mac is at hand. With a Mac, walk on local si
 simpler, faster, and every step can be watched. On CI the walk runs as UI tests and scripts on a
 macOS runner, and is judged afterward from its screenshots, videos and logs.
 
+The project's CI must already be set up for it. A workflow has to build the app, boot a
+simulator, run UI tests on it, and upload screenshots and videos as artifacts. Check that before
+the brief. Without it, a CI walk is not possible: setting the CI up is a separate task, agreed
+with the developer first.
+
 ## Contents
 
 - Shape of an automated walk
