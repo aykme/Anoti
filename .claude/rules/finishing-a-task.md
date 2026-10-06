@@ -6,8 +6,8 @@ paths:
 # Finishing a task
 
 Run this once, when the task is being finished (e.g. its final review or last step), not after
-each subtask. Every step applies to every task, the Android and iOS ones included, whatever
-platform the task touched.
+each subtask. The Android checks below apply to every task, not only to one that touched Android
+code.
 
 ## Correctness
 
@@ -33,8 +33,9 @@ platform the task touched.
   [tests-on-device.md](tests-on-device.md).
 - Measure the coverage of every module you touched instead of estimating it from the diff, and
   name what is still uncovered. The commands are in [test-coverage.md](test-coverage.md).
-- Then run `./gradlew koverVerify` and get it green, before the code review below. A red one is
-  not reported as a finding; it is fixed.
+- Then run `./gradlew koverVerify` and get it green, before the code review below. Nothing else in
+  the build runs it, and it is the gate the whole project is held to. A red one is not reported as
+  a finding; it is fixed.
 
 ## Builds and platforms
 

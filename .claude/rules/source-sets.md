@@ -34,7 +34,7 @@ paths:
   together. `newEpisodeNotificationText` in `feature-kmp:anime-notification` is that shape.
 - Re-verify this placement whenever a task removes or restructures platform-specific code (e.g. a
   `Fragment`→Compose migration). Code that was platform-only because of something now deleted (a
-  `Fragment`, a `View`) often has no remaining reason to stay there. Move it to `commonMain` in
-  that same task.
+  `Fragment`, a `View`) often has no remaining reason to stay there. Then it should move to
+  `commonMain` as part of that same task, not be left behind.
 - Source directories are `kotlin`, never `java`, in any source set (`src/main/kotlin`,
   `src/test/kotlin`, `src/androidTest/kotlin`).

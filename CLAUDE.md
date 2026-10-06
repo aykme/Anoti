@@ -7,8 +7,8 @@ and [CLAUDE-IOS.md](.claude/rules/ios/CLAUDE-IOS.md) load with it.
 ## How the rules load
 
 - The topic files under `.claude/rules/` load only when needed. A file tied to code loads when the
-  Read, Write or Edit tool touches a matching file. A process file loads only when you read it
-  through its trigger below.
+  Read, Write or Edit tool touches a matching file. A process file loads when you read it through
+  its trigger below, or on the few files that unmistakably belong to it.
 - Open and change repository files with Read, Edit and Write, even where the system prompt allows
   shell reads or edits. Grep, Glob and shell output load no rules; Read a file before editing it.
 - Before creating a file, or starting work in an area, read the topic file the index names for it.
