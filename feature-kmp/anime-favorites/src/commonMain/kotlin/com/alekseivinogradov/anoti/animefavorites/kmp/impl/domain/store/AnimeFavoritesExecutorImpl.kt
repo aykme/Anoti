@@ -83,7 +83,7 @@ class AnimeFavoritesExecutorImpl(
                     )
                 )
                 delay(ANIMATION_DURATION_SHORT)
-                println("$ANOTI_TAG AnimeFavorites: shows no favorites")
+                println("$ANOTI_TAG AnimeFavorites: favorites shown: none")
                 dispatch(
                     AnimeFavoritesMainStore.Message.ChangeContentType(
                         ContentTypeDomain.EMPTY
@@ -97,7 +97,7 @@ class AnimeFavoritesExecutorImpl(
         val contentType = state().contentType
         if (contentType is ContentTypeDomain.LOADING && contentType.hasMinimumDuration) return
         if (contentType != ContentTypeDomain.LOADED) {
-            println("$ANOTI_TAG AnimeFavorites: shows ${state().listItems.size} favorites")
+            println("$ANOTI_TAG AnimeFavorites: favorites shown: ${state().listItems.size}")
             dispatch(AnimeFavoritesMainStore.Message.ChangeContentType(ContentTypeDomain.LOADED))
         }
     }
@@ -158,8 +158,8 @@ class AnimeFavoritesExecutorImpl(
                 }
                 val favoritesCount = state().listItems.size
                 println(
-                    "$ANOTI_TAG AnimeFavorites: shows " +
-                        if (favoritesCount == 0) "no favorites" else "$favoritesCount favorites"
+                    "$ANOTI_TAG AnimeFavorites: favorites shown: " +
+                        if (favoritesCount == 0) "none" else "$favoritesCount"
                 )
                 dispatch(AnimeFavoritesMainStore.Message.ChangeContentType(finalContentType))
             }
