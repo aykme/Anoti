@@ -7,7 +7,9 @@ import com.alekseivinogradov.anoti.main.impl.presentation.permission.fake.Notifi
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
+import com.arkivanov.essenty.lifecycle.create
 import com.arkivanov.essenty.lifecycle.destroy
+import com.arkivanov.essenty.lifecycle.pause
 import com.arkivanov.essenty.lifecycle.resume
 import com.arkivanov.essenty.statekeeper.SerializableContainer
 import com.arkivanov.essenty.statekeeper.StateKeeperDispatcher
@@ -292,6 +294,44 @@ class IosRootHolderTest {
         //Then
         assertEquals(1, permissionReads)
         assertEquals(1, requests.prompts)
+    }
+
+    @Test
+    fun checksThePermissionOnlyOnceTheAppIsInFront() {
+        //Given
+        val holder = createHolder(isAppStarted = false)
+        val appLifecycle = appLifecycles.last()
+        appLifecycle.create()
+        holder.rootFor(restoredState = null)
+        scheduler.advanceUntilIdle()
+        val readsInBackground = permissionReads
+
+        //When
+        appLifecycle.resume()
+        appLifecycle.pause()
+        appLifecycle.resume()
+        scheduler.advanceUntilIdle()
+
+        //Then
+        assertEquals(0, readsInBackground)
+        assertEquals(1, permissionReads)
+        assertEquals(1, requests.prompts)
+    }
+
+    @Test
+    fun checksThePermissionOnARestoredRoot() {
+        //Given
+        val saved = savedOn(NavRootConfig.AnimeFavorites)
+        scheduler.advanceUntilIdle()
+        val readsBefore = permissionReads
+        val holder = createHolder()
+
+        //When
+        holder.rootFor(restoredState = saved)
+        scheduler.advanceUntilIdle()
+
+        //Then
+        assertEquals(readsBefore + 1, permissionReads)
     }
 
     @Test

@@ -24,9 +24,12 @@ internal suspend fun readIosNotificationPermissionStatus(): NotificationPermissi
             }
     }
 
-// iOS asks once, so a refusal leaves only the settings. A status added in a later iOS asks for
-// nothing, so the app never shows a dialog it cannot explain.
-private fun notificationPermissionStatusOf(
+/**
+ * The [NotificationPermissionStatus] for what iOS reports in [authorizationStatus]. iOS asks once,
+ * so a refusal leaves only the settings. A status added in a later iOS asks for nothing, so the
+ * app never shows a dialog it cannot explain.
+ */
+internal fun notificationPermissionStatusOf(
     authorizationStatus: UNAuthorizationStatus?
 ): NotificationPermissionStatus = when (authorizationStatus) {
     UNAuthorizationStatusNotDetermined -> NotificationPermissionStatus(
