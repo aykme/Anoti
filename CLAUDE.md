@@ -14,7 +14,8 @@ and [CLAUDE-IOS.md](.claude/rules/ios/CLAUDE-IOS.md) load with it.
 - Before creating a file, or starting work in an area, read the topic file the index names for it.
   A rule arrives only after the first Write.
 - Path rules match only inside the session's own project root. When working on files of another
-  checkout, such as a sibling worktree, read the topic files through the index.
+  checkout, such as a sibling worktree, read that checkout's topic files by its path, through its
+  own index.
 - "Read X" in any rule file is a hard step, due every time its condition holds. If Read answers
   "unchanged", the earlier read is still in context. After a context compaction, read it again.
 
@@ -81,8 +82,11 @@ Shared rules, in `.claude/rules/`:
   committing Compose UI.
 - [module-docs.md](.claude/rules/module-docs.md) — read when a module is created, changed or
   deleted, before documenting it, and before a regression walk.
-- Before creating a module, read `module-docs.md`, `source-sets.md`, `compose-design-tokens.md`,
-  `tests.md`, `android/tests.md` and `ios/framework.md`.
+- Before creating a module, read [module-docs.md](.claude/rules/module-docs.md),
+  [source-sets.md](.claude/rules/source-sets.md), [tests.md](.claude/rules/tests.md),
+  [compose-design-tokens.md](.claude/rules/compose-design-tokens.md),
+  [android/tests.md](.claude/rules/android/tests.md) and
+  [ios/framework.md](.claude/rules/ios/framework.md).
 
 Platform rules: [CLAUDE-ANDROID.md](.claude/rules/android/CLAUDE-ANDROID.md) and
 [CLAUDE-IOS.md](.claude/rules/ios/CLAUDE-IOS.md).

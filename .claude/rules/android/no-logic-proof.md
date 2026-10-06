@@ -5,9 +5,9 @@ paths:
 
 # Proving a task that changes no logic
 
-- Build the minified variant before the change and after it, with the NDK and LF checkout that
-  [r8-minified.md](r8-minified.md) requires. Compare `mapping.txt` and the entries of the two APKs;
-  `unzip -v` lists every entry with its checksum.
+- Build the minified variant ([r8-minified.md](r8-minified.md)) before the change and after it.
+  Compare `mapping.txt` and the entries of the two APKs; `unzip -v` lists every entry with its
+  checksum.
 - `mapping.txt` must match, apart from the renamed names and shifted source line numbers.
 - Every APK entry must keep its checksum, apart from the ones the change is known to touch.
 - An edit that only shifts line numbers still rewrites `classes.dex` and the profile files under

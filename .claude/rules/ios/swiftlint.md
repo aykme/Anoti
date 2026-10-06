@@ -47,4 +47,4 @@ What is left to a person:
 - A UI test's body is split by `//Given`, `//When` and `//Then`, as in Kotlin.
 - Imports nothing uses. The analyzer finds them on CI only.
 - Read the CI build logs of the round for warnings. A Release run keeps its log in the
-  `ios-release` artifact as `build-release.log`. Nothing here compiles Swift.
+  `ios-release` artifact as `build-release.log`. Off macOS nothing compiles Swift.

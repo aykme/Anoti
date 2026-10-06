@@ -6,10 +6,10 @@ paths:
   - "**/build.gradle.kts"
 ---
 
-# Building for iOS on this machine
+# Building for iOS off macOS
 
-- Kotlin/Native compiles the iOS targets on this Windows machine. Nothing is linked here and
-  nothing runs here.
+- Off macOS, as on the developer's Windows machine, Kotlin/Native compiles the iOS targets.
+  Nothing is linked there and nothing runs there.
 - Every link task reports `SKIPPED`, and the build still ends with `BUILD SUCCESSFUL`. Read the
   task's own line, never the last one.
 - Run the local iOS check on every task that touches `commonMain`, `iosMain` or a build file. It is

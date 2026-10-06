@@ -3,6 +3,7 @@ paths:
   - "**/.claude/rules/test-coverage.md"
   - "/build.gradle.kts"
   - "**/.claude/worktrees/*/build.gradle.kts"
+  - "**/.worktrees/*/build.gradle.kts"
   - "**/src/*Test/**"
   - "**/src/test/**"
   - "**/fake/**"

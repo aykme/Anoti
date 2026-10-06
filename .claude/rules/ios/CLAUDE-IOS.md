@@ -1,7 +1,7 @@
 # CLAUDE-IOS.md
 
-The index of the iOS rules. It is part of [CLAUDE.md](../../../CLAUDE.md), which holds the rules
-both platforms share, and loads with it.
+The index of the iOS rules. It is part of [CLAUDE.md](../../../CLAUDE.md), which indexes the
+rules both platforms share, and loads with it.
 
 ## Index
 

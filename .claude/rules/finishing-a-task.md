@@ -7,7 +7,7 @@ paths:
 
 Run this once, when the task is being finished (e.g. its final review or last step), not after
 each subtask. The Android checks below apply to every task, not only to one that touched Android
-code.
+code. The reviewer-prompt rule under "Review" applies to every review, mid-task ones included.
 
 ## Correctness
 
@@ -18,8 +18,8 @@ code.
 
 ## Tests
 
-- The tests cover every case that can realistically occur, concurrency included where needed.
-  No duplicate tests, no excessive coverage that adds nothing.
+- Make sure the tests cover every case that can realistically occur, concurrency included where
+  needed. No duplicate tests, no excessive coverage that adds nothing.
 - Run every test in each affected module, not only the ones this task wrote, and confirm all are
   green. Then take the test rules one by one against what the module now holds, and fix whatever
   doesn't conform: [tests.md](tests.md), [tests-on-device.md](tests-on-device.md),
@@ -27,12 +27,12 @@ code.
 - The Android instrumented tests are part of that run, on an emulator. Read
   [android/instrumented-tests.md](android/instrumented-tests.md) for the tasks and the clean
   install.
-- Every new or fixed test must not flake, must not rely on real time, and never makes real API
-  calls. Real time is acceptable only in exceptional cases agreed with the developer. The one way
-  past the API rule is a test that launches the real app, with the developer's permission; see
-  [tests-on-device.md](tests-on-device.md).
+- For every new or fixed test, confirm it doesn't flake, doesn't rely on real time, and never makes
+  real API calls. Real time is acceptable only in exceptional cases agreed with the developer. The
+  one way past the API rule is a test that launches the real app, with the developer's permission;
+  see [tests-on-device.md](tests-on-device.md).
 - Measure the coverage of every module you touched instead of estimating it from the diff, and
-  name what is still uncovered. The commands are in [test-coverage.md](test-coverage.md).
+  name what is still uncovered. Read [test-coverage.md](test-coverage.md) for the commands.
 - Then run `./gradlew koverVerify` and get it green, before the code review below. Nothing else in
   the build runs it, and it is the gate the whole project is held to. A red one is not reported as
   a finding; it is fixed.
@@ -41,9 +41,9 @@ code.
 
 - If the task touched `commonMain`, `iosMain` or a build file, run the local iOS check in
   [ios/build-check.md](ios/build-check.md).
-- If the change touches anything reached by name — reflection, `Class.forName`,
-  kotlinx.serialization, Room entities and DAOs, WorkManager workers, or a class the manifest names
-  — check it still works once R8 has had it: [android/r8-minified.md](android/r8-minified.md).
+- Some code is reached by name: reflection, `Class.forName`, kotlinx.serialization, Room entities
+  and DAOs, WorkManager workers, or a class the manifest names. If the change touches it, read
+  [android/r8-minified.md](android/r8-minified.md) and check it still works once R8 has had it.
 - A task that changes no logic skips every on-device check: the instrumented tests, the minified
   walk and the manual regression. A rename, a file move, and an edit to comments or documentation
   are such tasks.
@@ -71,9 +71,11 @@ code.
 ## Wrapping up
 
 - Document what the task changed before calling it done: the module README, the KDoc on the
-  entities it points at, and the module's regression file. See [module-docs.md](module-docs.md).
+  entities it points at, and the module's regression file. Call the `code-documentation` skill for
+  it, and read [module-docs.md](module-docs.md).
 - Delete every artifact produced while verifying: screenshots, logcat dumps, UI hierarchy dumps,
   temporary scripts, anything created only to check the result. This covers the session scratchpad
-  and the device/emulator alike, whether the check passed or failed.
+  and the device/emulator alike, whether the check passed or failed. The iOS CI media under
+  `~/Desktop/iOS test/` is the exception and is never deleted; see [ios/ci.md](ios/ci.md).
 - Report back on every check from this list that was actually performed, so the developer sees
   what was verified without re-checking it.

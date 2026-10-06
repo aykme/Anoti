@@ -4,6 +4,7 @@ paths:
   - "**/.github/workflows/ios.yml"
   - "**/.github/scripts/ios-*"
   - "**/.github/scripts/test/**"
+  - "**/.github/actions/**"
 ---
 
 # Running iOS on CI
@@ -11,13 +12,13 @@ paths:
 When it runs, and how to start and follow a run, is in [../ci-github.md](../ci-github.md). When a
 task must offer a run is in [../finishing-a-task.md](../finishing-a-task.md).
 
-- `ios.yml` runs on GitHub's macOS runner. On any other branch than `develop` it runs only on the
-  developer's word, started by them or by Claude. A push links the framework, runs every
-  Kotlin/Native test, builds the app in Debug and runs SwiftLint with its analyzer. It installs no
-  app.
+- `ios.yml` runs on GitHub's macOS runner on every push to `develop`. On any other branch it runs
+  only on the developer's word, started by them or by Claude. A push to `develop` links the
+  framework, runs every Kotlin/Native test, builds the app in Debug and runs SwiftLint with its
+  analyzer. It installs no app.
 - A run by hand picks the rest through its inputs. The `plan` job turns them into the flags the
-  other jobs read, and gives a push their defaults. `.github/scripts/ios-ci-plan.sh` does it; after
-  a change to it, run `bash .github/scripts/test/ios-ci-plan-test.sh`.
+  other jobs read, and gives a push to `develop` their defaults. `.github/scripts/ios-ci-plan.sh`
+  does it; after a change to it, run `bash .github/scripts/test/ios-ci-plan-test.sh`.
   - `unit_tests`, on by default: the Kotlin/Native tests.
   - `ui_flow`, off: `AnimeFavoritesUserFlowTest`.
   - `ios_tests`, off: `OrientationUITests`, and the restore and theme checks.

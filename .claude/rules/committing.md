@@ -12,10 +12,10 @@ The commit message rules (no co-author trailer, one line) are in [CLAUDE.md](../
 - Go through every changed file before committing:
     - Kotlin files: run detekt on the files being committed. Fix whatever it flags, then run detekt
       again on those same files to confirm the fixes resolved the issues.
-    - SwiftLint is due when the commit adds or changes a `*.swift` file, `config/swiftlint/
-      swiftlint.yml`, `iosApp/scripts/swiftlint.sh`, or a `swiftLint*` entry of the catalog.
-      Nothing else makes it due. Then read [ios/swiftlint.md](ios/swiftlint.md) and run it as it
-      says.
+    - SwiftLint is due when the commit adds or changes a `*.swift` file,
+      `config/swiftlint/swiftlint.yml`, `iosApp/scripts/swiftlint.sh`, or a `swiftLint*` entry of
+      the catalog. Nothing else makes it due. Then read [ios/swiftlint.md](ios/swiftlint.md) and run
+      it as it says.
     - A finding easy to fix without changing logic (formatting, naming, straightforward extraction,
       and the like): fix it yourself. If resolving it would need a substantial change to the logic,
       don't guess; ask the developer which approach to take.

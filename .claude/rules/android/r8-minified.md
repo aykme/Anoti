@@ -7,6 +7,9 @@ paths:
   - "**/*Worker.kt"
   - "**/*Dao.kt"
   - "**/*Entity.kt"
+  - "**/*Database.kt"
+  - "**/*Response.kt"
+  - "**/Nav*.kt"
 ---
 
 # R8 and the minified build

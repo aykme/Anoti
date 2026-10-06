@@ -10,10 +10,12 @@ paths:
 # Tests
 
 Read before writing or changing a test or a test double. Also read, each time it applies:
-[test-coverage.md](test-coverage.md) before writing tests; [android/tests.md](android/tests.md)
-for `androidHostTest` and composables; [ios/tests.md](ios/tests.md) for `iosTest` and iOS code;
-[tests-on-device.md](tests-on-device.md) before a test that runs on a device or simulator or
-launches the real app.
+
+- [test-coverage.md](test-coverage.md) before writing tests;
+- [android/tests.md](android/tests.md) for `androidHostTest` and composables;
+- [ios/tests.md](ios/tests.md) for `iosTest` and iOS code;
+- [tests-on-device.md](tests-on-device.md) before a test that runs on a device or simulator, or
+  launches the real app.
 
 ## Structure
 

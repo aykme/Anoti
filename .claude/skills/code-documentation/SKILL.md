@@ -32,8 +32,8 @@ replaced with dashes, `-README.md` on the end. `:core-kmp:celebrity` becomes
 `CORE-KMP-CELEBRITY-README.md`; `:feature-kmp:anime-base` becomes
 `FEATURE-KMP-ANIME-BASE-README.md`. Put it at the module's root, next to `build.gradle.kts`.
 Every Gradle module gets one, `androidApp` included — see `.claude/rules/module-docs.md` for the
-full rule and the root `README.md` exception. `iosApp/` is not a Gradle module but gets both files too, named
-after the folder: `iosApp/IOSAPP-README.md` and `iosApp/IOSAPP-REGRESS.md`.
+full rule and the root `README.md` exception. `iosApp/` is not a Gradle module but gets both files
+too, named after the folder: `iosApp/IOSAPP-README.md` and `iosApp/IOSAPP-REGRESS.md`.
 
 ## Before you write anything: confirm the entity list
 

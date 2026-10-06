@@ -15,7 +15,7 @@ paths:
   the developer's permission. Its assertions stay on structure, never on values the live backend
   decides.
 - Already allowed by the developer: Android's `AnimeFavoritesUserFlowTest`, and on iOS the UI tests
-  and the restore checks. They reach the live backend; their assertions stay on structure.
+  and the restore checks. They reach the live backend.
 - Every test that runs on a device or a simulator gets up to three tries, since a device can fail
   on its own and CI must not go red over it. Every failed try stays visible in the log.
 - On Android, such a test takes `RetryRule` from `core-kmp:test-utils` as its outermost rule.
