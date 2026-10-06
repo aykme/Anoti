@@ -8,8 +8,8 @@ appear over it at launch.
 
 ## 0. How to run this file
 
-Run it through every pass in the matrix in the root `ANOTI-FULL-REGRESS.md`, and take the
-preconditions from there.
+Run it once per pass listed under "Passes" in the root `ANOTI-FULL-REGRESS.md`, from the
+starting point given there.
 
 ## 1. Where it is and what it holds
 
@@ -18,13 +18,14 @@ scrolls away and is never covered by the content above it.
 
 Left to right it holds two tabs of equal width:
 
-- "Main" — a house icon above the word "Main".
+- "Main" — a ticket icon with a plane on it, above the word "Main".
 - "Favorites" — a heart icon above the word "Favorites".
 
 Both labels are always shown, never only on the open tab.
 
-The bar itself is black, and stays black down to the bottom edge of the screen, below the
-system navigation area. There is no gap, and no lighter strip, between the bar and that edge.
+The bar itself is black, and the area below it is black too, down to the bottom edge of the
+screen. There is no gap and no lighter background between the bar and that edge. Only the
+system's own navigation controls are drawn over that area.
 
 ## 2. Which tab looks open
 
@@ -89,7 +90,7 @@ With the screen reader on, move focus onto each tab.
 ## 7. Scale and orientation
 
 - At maximum font size and display size both labels stay fully readable and are not cut off
-  at either end. The bar grows no taller than it needs to.
+  at either end. The bar keeps its fixed height.
 - Both tabs still respond to a tap at that size, across their whole width and height, not only
   on the text.
 - On a screen narrower than 600dp the app stays in portrait whichever way the device is held.

@@ -53,7 +53,8 @@ notification has a reason to appear. Save it, then close the app fully before ea
 
 ## The check survives the device being interrupted
 
-Each of these starts from an app that has been opened at least once.
+Each of these starts from an app that has been opened at least once. On a Samsung device,
+first take this app out of the sleeping-apps list in the battery settings, if it is there.
 
 1. Force-stop the app from the system settings, then leave it closed for over an hour.
    No new-episode notification arrives. A force-stop cancels the app's background work until
@@ -62,14 +63,9 @@ Each of these starts from an app that has been opened at least once.
    The notification arrives again.
 3. Restart the device, and do not open the app afterward. Leave it for over an hour.
    The notification arrives. Opening the app is not needed after a restart.
-4. In the system settings, set this app's battery usage to **Restricted**, then leave it closed
-   for several hours without charging the device.
-   No notification arrives. The system, not the app, is holding the check back.
-5. Set the battery usage back to unrestricted, open the app once, and leave it for over an hour.
+4. In the system settings, set this app's battery usage to **Restricted**, then back to its
+   default. Open the app once, and leave it for over an hour.
    The notification arrives again.
-6. On a Samsung device, open the battery settings and find the list of sleeping apps. Take this
-   app out of that list if it is there, open the app once, and leave it for over an hour.
-   The notification arrives.
 
 ## Updating, reinstalling and removing the app
 

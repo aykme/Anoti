@@ -9,20 +9,8 @@ Unless a step says otherwise, start from a fresh installation with the device on
 
 ## 0. How to run this file
 
-Every section below is run **four times**, once per combination:
-
-| Pass | System font size and display size | Orientation |
-|------|-----------------------------------|-------------|
-| 1    | default                           | portrait    |
-| 2    | default                           | landscape   |
-| 3    | both at maximum                   | portrait    |
-| 4    | both at maximum                   | landscape   |
-
-Pass 1 is the one that must be perfect. Passes 2–4 are looking for the same failures every
-time: text cut off or overlapping, a control pushed off-screen or shrunk until it cannot be
-tapped, a row that wraps in one pass and clips in another, and anything that stops responding
-to a tap because it moved. Where a step behaves differently by scale or orientation on purpose,
-that step says so.
+Every section below is run once per pass listed under "Passes" in the root
+`ANOTI-FULL-REGRESS.md`.
 
 On Android, changing the font or display size rebuilds the screen, and it keeps its state. The
 iPhone keeps its screen as it is. Changing orientation rebuilds nothing — the screen keeps its
@@ -35,7 +23,7 @@ of this file refers to them by name.
 
 - **Loading** — one large spinner, centered, inset well away from the edges. No items, no
   picture.
-- **Error** — one large broken-plug picture, grayed, centered. No items, no spinner.
+- **Error** — one large crossed-out cloud picture, grayed, centered. No items, no spinner.
 - **List** — the scrollable list of items.
 
 The top bar is drawn over all three. It never disappears.
@@ -49,7 +37,7 @@ Each section keeps its own state. Check these on "On air" first, then repeat 1�
    - The spinner appears first, on its own, and is replaced by items.
    - The spinner is never shown together with items.
 2. Cold start, offline: Loading → Error.
-   - The spinner appears first, then the broken-plug picture replaces it.
+   - The spinner appears first, then the crossed-out cloud picture replaces it.
 3. Error → List: with the picture shown, turn the network on and pull the picture down.
    - Loading appears, then items.
 4. List → Loading → List: with items shown, pull the list down.
@@ -83,13 +71,12 @@ immediately and does not wait for the poster.
    - Where a picture has not arrived, a spinner spins inside the poster area, inset from its
      edges. The dark strip with the title and the bottom row is already drawn over it.
    - The spinner is replaced by the picture when it arrives.
-2. Turn the network off, clear the app's storage, open it, and let items load from nothing.
+2. Load "On air" online, then turn the network off and scroll down to items whose posters have
+   not been shown yet.
    - The poster area shows a spinner first, then a grayed broken-image icon.
    - The title, episodes line, score, status and bell are all still readable over it.
 3. Turn the network on and pull to refresh.
    - The broken-image icons are replaced by real pictures.
-4. Find an anime the server has no picture for at all.
-   - Its poster area ends at the broken-image icon. The item is otherwise complete.
 
 ## 5. What an item shows, by data
 
@@ -100,48 +87,41 @@ immediately and does not wait for the poster.
    - The line reads "Episodes: <aired> / ?".
 3. A "Released" anime.
    - The aired number equals the total, not a smaller number.
-4. Score missing.
-   - The place where the score goes is blank. The star icon, the status and the bell keep
-     their positions and do not slide over.
-5. Release status unknown.
-   - No status word is shown, and the two thin dividers around it are gone too. The star,
-     score and bell spread out evenly across the row instead.
-6. A very long title.
+4. A very long title.
    - At most four lines, ending in "…". It never pushes the episodes line or the bottom row
      off the item.
-7. A very long status word at a large font size — see section 13.
+5. A very long status word at a large font size — see section 13.
 
 ## 6. The episode-info button
 
-This is the round button at the right end of the "Episodes:" line. It switches that one line
-between two modes and changes nothing else on the item.
+This is the button at the right end of the "Episodes:" line. It switches that one line between
+two modes and changes nothing else on the item.
 
 1. On an "Ongoing" item, tap it.
    - The line becomes "Next episode:" with the date on the line below.
    - The button's icon changes from outlined to filled.
-   - The title, score, status and bell do not move or change.
+   - The title, score, status and bell keep their content. The title moves up a little to make
+     room for the second line.
 2. Tap it again.
    - The line returns to "Episodes: <aired> / <total>" and the icon returns to outline.
 3. Repeat on an item in "Soon".
    - The line reads "Beginning of the show:" with the date, then " (Inaccurate)".
 4. Repeat on a "Released" item — the search section has many.
    - The line reads "Show is finished:" with the date.
-5. Repeat on an item whose status is unknown.
-   - The line shows the date alone, with no label before it.
-6. Open the extra info on an item the server has no date for.
+5. Open the extra info on an item the server has no date for.
    - The label is shown with "No data" where the date would be.
-7. On an "Ongoing" item that has never had its date fetched, tap the button and watch.
+6. On an "Ongoing" item that has never had its date fetched, tap the button and watch.
    - The line switches immediately, and the date fills in a moment later when it arrives.
    - Turning the mode off and on again does not fetch it a second time: the date is there at
      once.
-8. Turn the network off and open the extra info on an "Ongoing" item whose date is not yet
+7. Turn the network off and open the extra info on an "Ongoing" item whose date is not yet
    known.
    - The line switches and shows "No data". An error banner appears at the bottom of the
      screen.
-9. Open the extra info on three items at once.
+8. Open the extra info on three items at once.
    - All three stay open independently. Closing one leaves the others open.
-10. With extra info open on an item, scroll it far off-screen and back.
-    - It is still open, and no other item has opened by itself.
+9. With extra info open on an item, scroll it far off-screen and back.
+   - It is still open, and no other item has opened by itself.
 
 ## 7. The bell
 
@@ -154,8 +134,8 @@ between two modes and changes nothing else on the item.
 4. Tap the filled bell.
    - It empties at once, and the anime is gone from "Favorites".
 5. Tap a bell five times quickly.
-   - The final state matches an odd or even number of taps, and "Favorites" holds either one
-     copy or none — never two.
+   - The bell and "Favorites" agree once it settles. "Favorites" holds either one copy or none,
+     never two.
 6. Turn a bell on, then pull to refresh.
    - After the refresh the bell is still filled.
 7. Turn a bell on in "On air", then find the same anime through search.
@@ -203,7 +183,7 @@ between two modes and changes nothing else on the item.
 7. Still offline, scroll up a few items and back down to the bottom.
    - It tries again and the banner comes back. This is the retry path — the list must not go
      quiet after the first failure.
-8. Turn the network back on and scroll to the bottom again.
+8. Turn the network back on, then scroll up a few items and back down to the bottom.
    - Paging resumes without having to leave and re-enter the section.
 9. Scroll through ten pages or more of "On air" without stopping.
    - The app stays open, and no anime appears twice. The server sometimes repeats an anime on
@@ -214,10 +194,10 @@ between two modes and changes nothing else on the item.
 
 1. Tap the magnifier.
    - The two section buttons are replaced by a text field with the hint "Enter the name of
-     anime" and a cross button at its right. The keyboard opens.
+     anime" and a cross button at its right.
    - The section area shows whatever the search section holds: Loading on the first ever
      visit, otherwise its previous results.
-2. Type `naruto` and stop.
+2. Tap the field, type `naruto` and stop.
    - Nothing happens for a moment, then Loading, then results.
    - The list must not reload while you are still typing.
 3. Type three more letters quickly.
@@ -241,7 +221,7 @@ between two modes and changes nothing else on the item.
     - The field reopens with the previous text still in it, and the results below are unchanged.
 11. With the field open, tap "On air"… — there is no way to; the section buttons are hidden
     while the field is open. Close the field first.
-12. Press system back with the keyboard up.
+12. Android only, since the iPhone has no system back: press system back with the keyboard up.
     - The keyboard closes. The field stays open with its text.
 
 ## 11. Pull to refresh
@@ -284,8 +264,8 @@ between two modes and changes nothing else on the item.
 
 ## 13. What changes with scale and orientation
 
-The four passes from section 0 cover the whole file. These are the specific differences to look
-for, and the checks that only make sense once.
+The four passes cover the whole file. These are the specific differences to look for, and the
+checks that only make sense once.
 
 1. Rotating mid-session, from every state: List, Loading, Error, and with the search field open.
    - The state is kept. Nothing reloads, the scroll position holds, open extra info stays open,
@@ -297,31 +277,32 @@ for, and the checks that only make sense once.
    - The bell keeps its full size. The status word is the one that shortens with "…" when the
      row runs out of room — never the bell, never the score.
    - The star icon, the score and the bell stay on one line.
-4. At maximum size, an item with an unknown release status.
-   - No status word and no dividers; the star, score and bell spread evenly and still fit.
-5. At maximum size, a long title.
+4. At maximum size, a long title.
    - Still at most four lines with "…", and the episodes line and bottom row are still visible.
-6. At maximum size, with the extra info open.
+   - The top bar is drawn over the list. With the list at its top, the first item's title can
+     start under the top bar at this size. That is expected.
+5. At maximum size, with the extra info open.
    - The date line takes at most three lines and is not cut mid-word.
-7. At maximum size, the top bar.
+6. At maximum size, the top bar.
    - Both section labels stay on one line each and remain tappable across their full height.
+     On a narrow screen a label may shorten with "…".
    - With the search field open, the hint or the typed text does not run under the cross
      button.
-8. At maximum size, the empty-search result and the Error picture.
+7. At maximum size, the empty-search result and the Error picture.
    - Both still fill the area sensibly and are not cut off.
-9. Turn on the system dark theme and repeat pass 1 of section 0 in outline.
+8. Turn on the system dark theme and repeat pass 1 in outline.
    - Text over the poster's dark strip stays readable, and so do the top bar's labels.
    - No white-on-white or black-on-black anywhere.
-10. One or two columns, by the screen's width. Walk "On air", "Soon" and search on each screen.
-    - A phone, or a foldable folded: one item per row, as wide as the screen.
-    - A screen at least 600 dp wide: two items per row, of equal width. That is a tablet in
-      either orientation, a foldable unfolded in either orientation, and an iPad.
-    - The gap between the two columns equals the gap between two rows.
-    - The top bar stays one bar across the full width, over both columns. Its labels and the
-      search button stay tappable.
-    - With an odd number of items, the last row holds one item on the left, at a single column's
-      width.
-11. Fold and unfold a foldable with the list scrolled down, then rotate it unfolded.
+9. One or two columns, by the screen's width. Walk "On air", "Soon" and search on each screen.
+   - A phone, or a foldable folded: one item per row, as wide as the screen.
+   - A screen at least 600 dp wide: two items per row, of equal width. That is a tablet in
+     either orientation, a foldable unfolded in either orientation, and an iPad.
+   - The gap between the two columns equals the gap between two rows.
+   - The top bar stays one bar across the full width, over both columns. Its labels and the
+     search button stay tappable.
+   - With an odd number of items, the last row holds one item on the left, at a single column's
+     width.
+10. Fold and unfold a foldable with the list scrolled down, then rotate it unfolded.
     - Folding and unfolding switch the rows between one and two columns. Rotating unfolded keeps
       two.
     - The item at the top of the screen before the change is still at the top after it.
@@ -330,10 +311,9 @@ for, and the checks that only make sense once.
 
 The steps name Android's tools. On the iPhone:
 
-- Section 12 ends the app with `adb shell am kill`. On the iPhone, start the app from Xcode, go
-  to the home screen and stop it in Xcode, then open it from the home screen. Everything section
-  12 expects comes back the same way, the text in the search field and the scroll position
-  included.
+- Section 12 ends the app with `adb shell am kill`. On the iPhone, end it as step 2 of "Leaving
+  and coming back" in `main`'s file says, with its iPhone notes. Everything section 12 expects
+  comes back the same way, the text in the search field and the scroll position included.
 - Swiping the app away in the app switcher is the user closing it. The app then starts fresh.
 - A new text size reaches the iPhone app only when it is opened again. After changing it, close
   the app in the app switcher and open it before walking the pass. Changing Display Zoom restarts

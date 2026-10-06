@@ -7,7 +7,9 @@ import com.alekseivinogradov.anoti.main.impl.presentation.permission.fake.Notifi
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
+import com.arkivanov.essenty.lifecycle.create
 import com.arkivanov.essenty.lifecycle.destroy
+import com.arkivanov.essenty.lifecycle.pause
 import com.arkivanov.essenty.lifecycle.resume
 import com.arkivanov.essenty.statekeeper.SerializableContainer
 import com.arkivanov.essenty.statekeeper.StateKeeperDispatcher
@@ -287,6 +289,47 @@ class IosRootHolderTest {
         //When
         holder.rootFor(restoredState = null)
         holder.rootFor(restoredState = null)
+        scheduler.advanceUntilIdle()
+
+        //Then
+        assertEquals(1, permissionReads)
+        assertEquals(1, requests.prompts)
+    }
+
+    @Test
+    fun checksThePermissionOnlyOnceTheAppIsInFront() {
+        //Given
+        val holder = createHolder(isAppStarted = false)
+        val appLifecycle = appLifecycles.last()
+        appLifecycle.create()
+        holder.rootFor(restoredState = null)
+        scheduler.advanceUntilIdle()
+        val readsInBackground = permissionReads
+
+        //When
+        appLifecycle.resume()
+        appLifecycle.pause()
+        appLifecycle.resume()
+        scheduler.advanceUntilIdle()
+
+        //Then
+        assertEquals(0, readsInBackground)
+        assertEquals(1, permissionReads)
+        assertEquals(1, requests.prompts)
+    }
+
+    @Test
+    fun checksThePermissionOnceWhenARejectedStateGivesAFreshRoot() {
+        //Given
+        val broken = stringOf(
+            StateKeeperDispatcher().apply {
+                register(key = CHILD_STACK_KEY, strategy = String.serializer()) { "not a stack" }
+            }.save()
+        )
+        val holder = createHolder()
+
+        //When
+        holder.rootFor(restoredState = broken)
         scheduler.advanceUntilIdle()
 
         //Then

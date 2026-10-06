@@ -11,6 +11,7 @@ import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.doOnDestroy
+import com.arkivanov.essenty.lifecycle.doOnResume
 import com.arkivanov.essenty.statekeeper.SerializableContainer
 import com.arkivanov.essenty.statekeeper.StateKeeperDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -208,8 +209,12 @@ internal class IosRootHolder(
     private fun checkNotificationPermission(root: Root) {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
         root.lifecycle.doOnDestroy { scope.cancel() }
-        scope.launch {
-            root.host.onNotificationPermissionStatus(readNotificationPermissionStatus())
+        // The system's question waits until the app is in front, so it is never asked with
+        // nothing on screen.
+        root.lifecycle.doOnResume(isOneTime = true) {
+            scope.launch {
+                root.host.onNotificationPermissionStatus(readNotificationPermissionStatus())
+            }
         }
     }
 

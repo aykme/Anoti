@@ -12,8 +12,8 @@ Steps run on both platforms unless they name one.
 
 1. Install the app and open it from the home screen.
    The anime list opens. The bottom bar shows two items, and the left one is the selected one.
-2. The system asks whether the app may send notifications, on top of the list.
-   Choose **Allow**.
+2. Android 13 and later, and iPhone: the system asks whether the app may send notifications, on
+   top of the list. Android 10 to 12 never ask; step 9 covers them. Choose **Allow**.
    The question disappears and the list stays where it was.
 3. Close the app and open it again.
    The question does not come back.
@@ -29,11 +29,15 @@ Steps run on both platforms unless they name one.
 7. Close the app and open it again, then press the accepting button on the dialog.
    Android 13 and later: the system's own notification question appears on top.
    iPhone: the Settings app opens on this app's notification settings, since iOS asks only once.
-8. Android only, since only Android 10 to 12 lack the question: repeat step 4 on a device running
-   Android 10, 11 or 12.
-   The system never asks its own question. Instead, on the second launch the app's dialog
-   appears, and its accepting button opens this app's page in the system settings, on the
-   screen where notifications are switched on and off.
+   A Simulator may open the Settings start page instead, so check this on a device.
+8. Android 13 and later only: when the system's question appears, refuse it again. Close the
+   app and open it again.
+   Neither the system's question nor the app's dialog appears. Android stops asking after a
+   second refusal.
+9. Android 10 to 12 only, since they never ask: install fresh, open the app once and close it.
+   Turn this app's notifications off in the system settings, then open the app again.
+   The system asks nothing. The app's dialog appears, and its accepting button opens this app's
+   notification settings, on the screen where notifications are switched on and off.
 
 ## Opening from a new-episode notification
 
@@ -58,7 +62,7 @@ Requires at least one saved anime that has a new episode, so a notification actu
    switcher. Open it again.
    The app opens on the anime list, not on favorites.
 7. Android 10 to 12 only, where the app itself opens its notification settings. Open them from
-   the app's dialog as in step 8 of "First launch", and switch notifications on there. Leave the
+   the app's dialog as in step 9 of "First launch", and switch notifications on there. Leave the
    settings open and tap a new-episode notification once one arrives.
    The settings close and the app shows favorites. Pressing system back from there closes the
    app; it does not return to the settings.
@@ -91,10 +95,10 @@ light area in the light theme is a bug, even when the dark theme looks right.
    the area behind them is dark.
 2. Look at the clock, battery and signal icons in the status bar.
    They are light against the dark content behind them.
-3. Look at the bottom bar and the area below it: Android's navigation bar, or the iPhone's home
-   indicator.
-   The bottom bar is dark, and the area below it is solid black, matching the bar above it.
-   There is no lighter strip and no translucent overlay between them.
+3. Look at the bottom bar and the area below it, down to the bottom edge of the screen.
+   The bottom bar is dark, and the area below it is black, matching the bar above it. There is
+   no lighter background and no translucent overlay between them. Only the system's own
+   navigation controls are drawn over that area.
 4. Android only, since the iPhone has one way to navigate: switch the device to gesture
    navigation, then to three-button navigation.
    In both cases the bottom bar's two items stay fully visible and tappable, and nothing of the
@@ -118,7 +122,7 @@ light area in the light theme is a bug, even when the dark theme looks right.
 
 ## The keyboard
 
-1. Go to the anime list and open its search input, so the keyboard appears.
+1. Go to the anime list, open its search and tap the search field, so the keyboard appears.
    The search input stays where it is. The screen does not slide up as a whole.
 2. While the keyboard is up, do something that makes the app show a message strip, such as
    turning the network off and letting a request fail.
@@ -182,8 +186,12 @@ Android only, since the iPhone has no back button.
 
 ## Platforms
 
-- Asking for the permission again. Android 13 and later ask again after one refusal. The iPhone
-  asks once, and a refusal leads to the app's dialog and to Settings.
+- Asking for the permission again. Android 13 and later ask a second time after one refusal:
+  the app's dialog appears on the next launch, and its accepting button brings back the system's
+  question. After a second refusal they stop asking, and the dialog no longer appears. Android
+  10 to 12 never ask: the dialog appears while notifications are off, and its accepting button
+  opens the notification settings. The iPhone asks once. After a refusal, every launch from a
+  closed app shows the app's dialog, and its accepting button opens Settings.
 - A cold notification tap. Android opens favorites directly. The iPhone may show another screen
   for a moment first.
 - Dark mode. Android rebuilds the screen and restores its state. On the iPhone the screen stays

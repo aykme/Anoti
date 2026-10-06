@@ -16,7 +16,8 @@ internal data class NewEpisodeNotificationText(val title: String, val body: Stri
 
 /**
  * The wording for [animeName]'s newly aired [airedEpisode]. Anything the update pass could not
- * read falls back to the shared "no data" text, so a notification never arrives blank.
+ * read falls back to the shared "no data" text, so a notification never arrives blank. A blank
+ * name counts as unread, since the mappers turn a missing name into an empty one.
  */
 internal suspend fun newEpisodeNotificationText(
     animeName: String?,
@@ -24,7 +25,7 @@ internal suspend fun newEpisodeNotificationText(
 ): NewEpisodeNotificationText {
     val noData = getString(celebrityRes.string.no_data)
     return NewEpisodeNotificationText(
-        title = animeName ?: noData,
+        title = animeName?.takeIf(String::isNotBlank) ?: noData,
         body = "${getString(Res.string.episode_aired)}: ${airedEpisode ?: noData}"
     )
 }

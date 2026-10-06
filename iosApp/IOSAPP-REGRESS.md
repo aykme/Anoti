@@ -12,7 +12,7 @@ installation with the app never opened before.
 ## The icon and the name
 
 1. Install the app and look at the home screen.
-   The app's icon shows the Anoti artwork, filling the rounded square with no white border, and
-   the name under it reads "Anoti".
+   The app's icon shows the Anoti artwork with no white border, and the name under it reads
+   "Anoti".
 2. Open the app switcher with the app open.
-   The same icon and name sit above the app's card.
+   The same icon and name show with the app's card.

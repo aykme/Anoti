@@ -193,6 +193,42 @@ class AnimeNotificationManagerImplTest {
     }
 
     @Test
+    fun anEmptyAnimeNameFallsBackToTheNoDataTitle() = runTest {
+        //Given
+        val manager = createManager()
+        val noData = getString(celebrityRes.string.no_data)
+
+        //When
+        manager.makeNewEpisodeNotification(
+            animeName = "",
+            airedEpisode = AIRED_EPISODE,
+            imageUrl = IMAGE_URL
+        )
+
+        //Then
+        val notification = assertNotNull(notificationWithId(FIRST_SINGLE_ID))
+        assertEquals(noData, titleOf(notification))
+    }
+
+    @Test
+    fun aBlankAnimeNameFallsBackToTheNoDataTitle() = runTest {
+        //Given
+        val manager = createManager()
+        val noData = getString(celebrityRes.string.no_data)
+
+        //When
+        manager.makeNewEpisodeNotification(
+            animeName = " ",
+            airedEpisode = AIRED_EPISODE,
+            imageUrl = IMAGE_URL
+        )
+
+        //Then
+        val notification = assertNotNull(notificationWithId(FIRST_SINGLE_ID))
+        assertEquals(noData, titleOf(notification))
+    }
+
+    @Test
     fun theLoadedPosterBecomesTheNotificationsLargeIcon() = runTest {
         //Given
         val manager = createManager(loadsPoster = true)

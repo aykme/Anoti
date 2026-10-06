@@ -1,16 +1,16 @@
 # Notifications rationale dialog — manual regression
 
-The dialog the app puts up asking for permission to post notifications, after the system has
-already turned that request down once. Only the dialog is checked here: what it shows, and what
-each way of answering it does.
+The dialog the app puts up asking for permission to post notifications, while notifications
+are not permitted. Only the dialog is checked here: what it shows, and what each way of
+answering it does.
 
 What decides to show it, and what the app does once it is answered, are checked in `main`'s
 file. The screen behind it is checked in its own file.
 
 ## 0. How to run this file
 
-Run it through every pass in the matrix in the root `ANOTI-FULL-REGRESS.md`, and take the
-preconditions from there.
+Run it once per pass listed under "Passes" in the root `ANOTI-FULL-REGRESS.md`, from the
+starting point given there.
 
 ## 1. Reaching the dialog
 
@@ -32,8 +32,10 @@ On Android 12 and older:
 3. Launch the app again.
    - The dialog described below appears.
 
-Grant the permission at any point and the dialog stops appearing. To get it back, deny the
-permission again, or turn notifications off in system settings.
+Grant the permission at any point and the dialog stops appearing. To get it back on Android 13
+and newer and on the iPhone, reinstall the app and decline the system's question again, as in
+step 4 of "First launch" in `main`'s file. On Android 12 and older, turn notifications off in
+system settings again.
 
 ## 2. What the dialog shows
 
@@ -62,8 +64,8 @@ Check each of these:
 
 - The screen the app opened on is still visible around the panel, and dimmed.
 - The bottom navigation bar is visible and dimmed too.
-- Nothing behind the panel reacts to a tap while the dialog is open: no button presses, no
-  scrolling, no tab change. Tapping outside is covered in section 4.
+- The screen behind cannot be used while the dialog is open. A tap outside the panel only
+  closes the dialog, as section 4 checks. It presses, scrolls and switches nothing behind it.
 
 ## 4. The four ways to answer it
 
@@ -78,7 +80,7 @@ Each one starts with the dialog open. Bring it back before running the next.
    - Same result as 1. The app does not close, and the screen behind does not navigate away.
 4. Tap "Kawaii nya ≽^•⩊•^≼".
    - The dialog closes and the app acts on the approval right away.
-   - Exactly what follows depends on the Android version and is checked in `main`'s file. What
+   - Exactly what follows depends on the platform and is checked in `main`'s file. What
      is checked here is only that the dialog closed and that something followed it — the
      approval was not silently dropped.
 
@@ -90,8 +92,7 @@ nothing was granted.
 - At maximum font size and display size the message wraps onto more lines and the panel grows
   taller. No word is cut off, and the panel stays fully on screen with a margin all round.
 - Both buttons stay fully readable at that size, and both still respond to a tap.
-- If the panel cannot grow tall enough to hold the message, its body scrolls and both buttons
-  stay in view.
+- However long the message gets, both buttons stay in view.
 
 ## 6. Rotating while it is open
 
@@ -127,7 +128,8 @@ On the iPhone:
   the dialog appears from the second launch on. iOS asks only once, so every later launch
   without the permission shows the dialog.
 - Accepting the dialog opens the Settings app on this app's notification settings, and never the
-  system's prompt again. `main`'s file checks where it leads.
+  system's prompt again. `main`'s file checks where it leads. A Simulator may open the Settings
+  start page instead, so check this on a device.
 - There is no system back button, so answer 3 of section 4 does not apply.
 - A narrow screen keeps the app upright, as on Android. Section 6 runs on a wide one: an iPad, or
   a foldable iPhone unfolded.

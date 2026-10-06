@@ -22,9 +22,9 @@ notification arrives.
 1. With the app closed, tap the new-episode notification.
    The app opens on **Favorites**, not on the main screen, and **Favorites** is the selected item
    in the bottom bar.
-2. Press the system back button.
+2. Android only, since the iPhone has no back button: press the system back button.
    The app closes. There is no main screen stacked behind **Favorites** to go back to.
-3. Open the app again from the launcher.
+3. Android only, following step 2: open the app again from the launcher.
    The main screen is showing.
 4. With the app already open on the main screen, tap a new-episode notification.
    The app moves to **Favorites**, and the bottom bar follows — the selected item and the screen
@@ -70,8 +70,8 @@ notification arrives.
 The steps name Android's tools. On the iPhone:
 
 - "The system back button" has no counterpart: the iPhone has no back button.
-- "Don't keep activities" has none either. To end the app the way the system does, start it from
-  Xcode and go to the home screen. Stop it in Xcode, then open it from the home screen. It comes
-  back on the screen it was left on.
+- "Don't keep activities" has none either. End the app the way the system does, as step 2 of
+  "Leaving and coming back" in `main`'s file says, with its iPhone notes. It comes back on the
+  screen it was left on.
 - A tapped notification opens favorites as on Android, and favorites already open stay as they
   were. After a cold start, another screen may show for a moment first.

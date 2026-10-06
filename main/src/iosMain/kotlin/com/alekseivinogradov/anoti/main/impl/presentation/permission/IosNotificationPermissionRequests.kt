@@ -24,11 +24,15 @@ internal class IosNotificationPermissionRequests : NotificationPermissionRequest
 
     override fun openSettings() {
         val settings = NSURL.URLWithString(UIApplicationOpenNotificationSettingsURLString)
-            ?: return
+        if (settings == null) {
+            println("$TAG: the notification settings address does not parse")
+            return
+        }
         UIApplication.sharedApplication.openURL(
             url = settings,
-            options = emptyMap<Any?, Any?>(),
-            completionHandler = null
-        )
+            options = emptyMap<Any?, Any?>()
+        ) { opened: Boolean ->
+            println("$TAG: notification settings opened: $opened")
+        }
     }
 }

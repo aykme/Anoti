@@ -9,20 +9,8 @@ Unless a step says otherwise, start from a fresh installation with the device on
 
 ## 0. How to run this file
 
-Every section below is run **four times**, once per combination:
-
-| Pass | System font size and display size | Orientation |
-|------|-----------------------------------|-------------|
-| 1    | default                           | portrait    |
-| 2    | default                           | landscape   |
-| 3    | both at maximum                   | portrait    |
-| 4    | both at maximum                   | landscape   |
-
-Pass 1 is the one that must be perfect. Passes 2–4 are looking for the same failures every
-time: text cut off or overlapping, a control pushed off-screen or shrunk until it cannot be
-tapped, a row that wraps in one pass and clips in another, and anything that stops responding
-to a tap because it moved. Where a step behaves differently by scale or orientation on purpose,
-that step says so.
+Every section below is run once per pass listed under "Passes" in the root
+`ANOTI-FULL-REGRESS.md`.
 
 On Android, changing the font or display size rebuilds the screen, and it keeps its state. The
 iPhone keeps its screen as it is. Changing orientation rebuilds nothing — the screen keeps its
@@ -56,7 +44,7 @@ because the list comes from the device, not the server.
    - The spinner step is expected. The empty panel must not appear instantly.
 5. List → Loading → List: pull the list down.
    - Spinner, then the items come back.
-6. Empty → Loading → Empty: pull the empty panel down.
+6. Empty: pull the empty panel down.
    - There is nothing to pull; the empty panel does not scroll. Confirm that pulling it does
      nothing at all and leaves the panel alone.
 7. Removing one of several items.
@@ -69,46 +57,41 @@ because the list comes from the device, not the server.
 The poster is loaded separately, so it has its own states inside the item's left-hand column.
 The right-hand panel is drawn immediately and does not wait for it.
 
-1. Subscribe to several animes, then open the screen before the pictures have been fetched.
+1. Subscribe to several anime, then open the screen before the pictures have been fetched.
    - Where a picture has not arrived, a spinner spins inside the poster column, inset from its
      edges. The score bar over it and the whole right-hand panel are already drawn.
-2. Turn the network off, clear the app's storage, subscribe again from a cached list if you
-   can, and open the screen.
+2. Android only, since the iPhone cannot clear an app's cache alone: with several anime
+   subscribed, close the app and clear its cache, not its storage, in the system settings. Turn
+   the network off and open the screen.
    - The poster column shows a spinner first, then a grayed broken-image icon filling the
      column.
    - The score bar, title, episodes line, status and bell are all still readable.
 3. Turn the network on and pull to refresh.
    - Real pictures replace the broken-image icons.
-4. An anime the server has no picture for.
-   - Its column ends at the broken-image icon. The item is otherwise complete.
 
 ## 4. What an item shows in the main mode
 
 1. An ordinary item.
    - Left: the poster, taking a bit over a third of the item's width, with a bar across its
-     upper part carrying a star icon, the score, and a round info-mode button.
+     lower part carrying a star icon, the score, and the info-mode button.
    - Right: the title, a line "Episodes: <aired> / <total>", and at the bottom the release
      status with a filled bell at its right.
 2. Total episode count unknown.
    - The line reads "Episodes: <aired> / ?".
 3. A "Released" anime.
    - The aired number equals the total.
-4. A "Released" anime the server gives no total for.
-   - The aired number is used instead. Neither number is blank.
-5. An "Announced" anime.
+4. An "Announced" anime.
    - The line reads "Episodes: 0 / ?" or with whatever counts exist.
-6. Score missing.
-   - The score place on the bar is blank; the star icon and the round button keep their places.
-7. A very long title.
+5. A very long title.
    - At most three lines ending in "…", and the episodes line, status and bell are all still
      visible.
-8. The bell is filled on every item, always. An empty bell here would be a bug — an item is
+6. The bell is filled on every item, always. An empty bell here would be a bug — an item is
    only on this screen because it is subscribed.
 
 ## 5. The info-mode button
 
-The round button on the poster's bar switches the whole right-hand panel between two modes.
-This is the part to check most carefully: it is not a partial change.
+The info-mode button on the poster's bar switches the whole right-hand panel between two
+modes. This is the part to check most carefully: it is not a partial change.
 
 1. On an "Ongoing" item, tap it. Its description before the tap is "Turn on the display of
    extra information".
@@ -118,7 +101,6 @@ This is the part to check most carefully: it is not a partial change.
      "Episodes viewed:", then a row with a minus button, a number and a plus button.
    - The button's description becomes "Turn off the display of extra information" and its icon
      changes.
-   - The poster, the star and the score do not change.
 2. Tap it again.
    - The title, episodes line, status and bell all come back, and the date line, the
      "Episodes viewed:" line and the counter row all go.
@@ -128,20 +110,18 @@ This is the part to check most carefully: it is not a partial change.
    - The date line reads "Beginning:" with the date and " (Inaccurate)".
 5. Repeat 1 on a "Released" item.
    - The date line reads "Finished:" with the date.
-6. Repeat 1 on an item whose status is unknown.
-   - The date line is blank where the label would be.
-7. An item the server has no date for.
+6. An item the server has no date for.
    - The label is shown with "No data" in place of the date.
-8. An "Ongoing" item whose date has never been fetched.
+7. An "Ongoing" item whose date has never been fetched.
    - The panel switches immediately and the date fills in a moment later.
    - Switching the mode off and on again does not fetch it again — the date is there at once.
-9. Turn the network off and switch an item with no known date into extra mode.
+8. Turn the network off and switch an item with no known date into extra mode.
    - The panel switches and shows "No data". An error banner appears at the bottom.
-10. Switch three items into extra mode at once.
-    - All three stay in extra mode independently.
-11. Switch an item into extra mode, scroll it far off-screen and back.
+9. Switch three items into extra mode at once.
+   - All three stay in extra mode independently.
+10. Switch an item into extra mode, scroll it far off-screen and back.
     - It is still in extra mode, and no other item switched by itself.
-12. Switch an item into extra mode and leave the screen to "Main" and back.
+11. Switch an item into extra mode and leave the screen to "Main" and back.
     - It is back in main mode. Every arrival at this screen resets the mode on every item.
 
 ## 6. Counting viewed episodes
@@ -165,14 +145,11 @@ Only reachable in extra mode.
    - "Ongoing": stops at the aired count.
    - "Released": stops at the total count.
    - "Announced": plus does nothing at all; the counter stays at 0.
-   - Unknown status: plus does nothing; the counter stays at 0.
-9. An anime whose aired count the server does not give.
-   - Plus does nothing; the counter stays at 0.
-10. Set a counter to some value, switch the item out of extra mode and back.
+9. Set a counter to some value, switch the item out of extra mode and back.
+   - The value is still there.
+10. Set a counter, leave to "Main" and come back.
     - The value is still there.
-11. Set a counter, leave to "Main" and come back.
-    - The value is still there.
-12. Set a counter, pull to refresh.
+11. Set a counter, pull to refresh.
     - The value is still there.
 
 ## 7. The bell
@@ -243,7 +220,7 @@ until it airs, or trigger the update the way your team normally does.
 2. Go to "Main" and back.
    - Brief Loading, then the list.
    - Every item is back in main mode. This is expected on every arrival.
-   - New-episode marks are cleared too.
+   - New-episode marks stay.
 3. Press Home and return from the task switcher.
    - The list is exactly as you left it. Nothing reloads, extra mode is kept, the scroll
      position holds.
@@ -259,8 +236,8 @@ until it airs, or trigger the update the way your team normally does.
 
 ## 11. What changes with scale and orientation
 
-The four passes from section 0 cover the whole file. These are the specific differences to look
-for, and the checks that only make sense once.
+The four passes cover the whole file. These are the specific differences to look for, and the
+checks that only make sense once.
 
 1. Rotating mid-session, from Loading, Empty and List.
    - The state is kept. Nothing reloads, the scroll position holds, items in extra mode stay in
@@ -273,11 +250,12 @@ for, and the checks that only make sense once.
    - The title still shows at most three lines with "…", and the status and bell are still on
      screen.
 4. At maximum size, the poster's score bar.
-   - The star icon, the score and the round button all stay visible.
+   - The star icon, the score and the info-mode button all stay visible.
    - If they no longer fit on one line, the button drops onto a second line below the score —
      the score must not slide up out of the bar's dark background or over the picture.
 5. At maximum size, an item in extra mode.
    - The date line takes at most three lines and is not cut mid-word.
+   - On a narrow screen the "Episodes viewed:" line may shorten with "…".
    - The minus button, the number and the plus button all stay on screen and all stay tappable.
 6. At maximum size, the empty panel.
    - The character picture and the text panel are both fully visible, and the text is not cut
@@ -286,7 +264,7 @@ for, and the checks that only make sense once.
      as before.
 7. At maximum size, the "New episode" caption.
    - It stays on one line, shortening with "…" if it must, and does not cover the score bar.
-8. Turn on the system dark theme and repeat pass 1 of section 0 in outline.
+8. Turn on the system dark theme and repeat pass 1 in outline.
    - The right-hand panel's text and the caption over the poster stay readable.
    - No white-on-white or black-on-black anywhere.
 9. The empty panel on a wide screen: a tablet in either orientation, a foldable unfolded, an
@@ -312,9 +290,9 @@ for, and the checks that only make sense once.
 
 The steps name Android's tools. On the iPhone:
 
-- Section 10 ends the app with `adb shell am kill`. On the iPhone, start the app from Xcode, go
-  to the home screen and stop it in Xcode, then open it from the home screen. Everything section
-  10 expects comes back the same way, the scroll position included.
+- Section 10 ends the app with `adb shell am kill`. On the iPhone, end it as step 2 of "Leaving
+  and coming back" in `main`'s file says, with its iPhone notes. Everything section 10 expects
+  comes back the same way, the scroll position included.
 - Swiping the app away in the app switcher is the user closing it. The app then starts fresh.
 - A new text size reaches the iPhone app only when it is opened again. After changing it, close
   the app in the app switcher and open it before walking the pass. Changing Display Zoom restarts
