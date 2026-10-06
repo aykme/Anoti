@@ -209,8 +209,8 @@ internal class IosRootHolder(
     private fun checkNotificationPermission(root: Root) {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
         root.lifecycle.doOnDestroy { scope.cancel() }
-        // A background launch can build the root too. The system's question waits until the app
-        // is in front, so it is never asked with nothing on screen.
+        // The system's question waits until the app is in front, so it is never asked with
+        // nothing on screen.
         root.lifecycle.doOnResume(isOneTime = true) {
             scope.launch {
                 root.host.onNotificationPermissionStatus(readNotificationPermissionStatus())

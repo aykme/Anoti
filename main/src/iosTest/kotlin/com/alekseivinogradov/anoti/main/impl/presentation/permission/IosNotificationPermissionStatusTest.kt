@@ -53,6 +53,18 @@ class IosNotificationPermissionStatusTest {
     }
 
     @Test
+    fun aStatusAddedInALaterIosAsksForNothing() {
+        //Given
+        val authorizationStatus = UNKNOWN_STATUS
+
+        //When
+        val status = notificationPermissionStatusOf(authorizationStatus)
+
+        //Then
+        assertEquals(ALLOWED, status)
+    }
+
+    @Test
     fun anUnreadStatusAsksForNothing() {
         //Given
         val authorizationStatus = null
@@ -65,6 +77,8 @@ class IosNotificationPermissionStatusTest {
     }
 
     private companion object {
+        const val UNKNOWN_STATUS = 99L
+
         val ASKABLE = NotificationPermissionStatus(
             isAllowed = false,
             canPrompt = true,

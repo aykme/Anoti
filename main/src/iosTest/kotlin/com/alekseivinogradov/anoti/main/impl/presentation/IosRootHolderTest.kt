@@ -319,19 +319,22 @@ class IosRootHolderTest {
     }
 
     @Test
-    fun checksThePermissionOnARestoredRoot() {
+    fun checksThePermissionOnceWhenARejectedStateGivesAFreshRoot() {
         //Given
-        val saved = savedOn(NavRootConfig.AnimeFavorites)
-        scheduler.advanceUntilIdle()
-        val readsBefore = permissionReads
+        val broken = stringOf(
+            StateKeeperDispatcher().apply {
+                register(key = CHILD_STACK_KEY, strategy = String.serializer()) { "not a stack" }
+            }.save()
+        )
         val holder = createHolder()
 
         //When
-        holder.rootFor(restoredState = saved)
+        holder.rootFor(restoredState = broken)
         scheduler.advanceUntilIdle()
 
         //Then
-        assertEquals(readsBefore + 1, permissionReads)
+        assertEquals(1, permissionReads)
+        assertEquals(1, requests.prompts)
     }
 
     @Test
