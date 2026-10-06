@@ -38,7 +38,8 @@ it moved. Where a step behaves differently by scale or orientation on purpose, t
 
 A phone keeps the app upright, and so does a foldable folded. On those, passes 2 and 4 repeat
 passes 1 and 3. The landscape passes need a wide screen: a tablet, an iPad, or a foldable
-unfolded. Such a screen stays wide at maximum display size too, and the app still fills it.
+unfolded. At maximum display size such a screen still lets the app turn, and the app still
+fills it.
 
 Unless a step says otherwise, start from a fresh installation with the device online.
 

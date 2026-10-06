@@ -4,9 +4,9 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 
 /**
- * The notification permission flow of one app process, shared by every root built in it. It lets
- * a root rebuilt over its saved state skip the permission check this process already made, and
- * keep the explanation that was on screen.
+ * The notification permission flow of one app process, shared by every root built in it. A root
+ * rebuilt over its saved state skips the check this process made. It keeps the explanation that
+ * was on screen.
  */
 class NotificationPermissionSession {
 

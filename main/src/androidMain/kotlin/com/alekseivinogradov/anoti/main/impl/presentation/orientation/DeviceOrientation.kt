@@ -8,7 +8,7 @@ import androidx.window.layout.WindowMetricsCalculator
 /**
  * The orientation [activity] asks for: any on a wide screen, portrait on a narrow one. The screen
  * is the whole display the activity is on, measured at the density the device ships with. The
- * user's display size setting therefore never makes a tablet narrow.
+ * user's display size setting therefore never locks a tablet upright.
  */
 internal fun requestedOrientationOf(activity: Activity): Int {
     val bounds = WindowMetricsCalculator.getOrCreate()

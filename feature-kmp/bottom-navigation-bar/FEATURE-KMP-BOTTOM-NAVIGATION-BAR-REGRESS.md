@@ -108,7 +108,7 @@ With the screen reader on, move focus onto each tab.
    switcher), and launch it again.
    - The app opens on "Main", with "Main" red-orange.
    - The badge is back to whatever the saved anime actually warrant, not to nothing.
-3. Android only, since the iPhone keeps its screen: change the font or display size while
-   "Favorites" is open, which rebuilds the screen.
+3. Android only, since the iPhone keeps its screen: change the font size while "Favorites" is
+   open, which rebuilds the screen.
    - The app comes back on "Favorites", with "Favorites" red-orange. The bar is drawn at the new
      size.

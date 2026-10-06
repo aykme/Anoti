@@ -403,6 +403,25 @@ class RootHostTest {
     }
 
     @Test
+    fun aRootRebuiltInTheSameProcessDropsTheExplanationOnceNotificationsAreAllowed() {
+        //Given
+        val first = createRoot()
+        first.host.onNotificationPermissionStatus(
+            status = status(canPrompt = true, isExplanationOwed = true),
+            isRebuilt = false
+        )
+        first.lifecycle.destroy()
+        val rebuilt = createRoot()
+
+        //When
+        rebuilt.host.onNotificationPermissionStatus(status = ALLOWED, isRebuilt = true)
+
+        //Then
+        assertFalse(rebuilt.host.notificationsRationale.visible.value)
+        assertEquals(0, requests.prompts)
+    }
+
+    @Test
     fun aRootRebuiltInTheSameProcessKeepsARefusedExplanationClosed() {
         //Given
         val first = createRoot()
@@ -467,6 +486,28 @@ class RootHostTest {
 
         //Then
         assertTrue(next.host.notificationsRationale.visible.value)
+    }
+
+    @Test
+    fun aFreshStartThatAsksTheSystemDropsAnEarlierExplanation() {
+        //Given
+        val first = createRoot()
+        first.host.onNotificationPermissionStatus(
+            status = status(canPrompt = true, isExplanationOwed = true),
+            isRebuilt = false
+        )
+        first.lifecycle.destroy()
+        val next = createRoot()
+
+        //When
+        next.host.onNotificationPermissionStatus(
+            status = status(canPrompt = true, isExplanationOwed = false),
+            isRebuilt = false
+        )
+
+        //Then
+        assertFalse(next.host.notificationsRationale.visible.value)
+        assertEquals(1, requests.prompts)
     }
 
     @Test

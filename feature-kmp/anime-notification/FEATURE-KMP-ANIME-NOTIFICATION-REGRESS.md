@@ -77,7 +77,7 @@ Android: open system settings for the app, then its notification categories.
 
 ## 5. Tapping one
 
-When several notifications have arrived, the system may show them as one group. Expand it
+With several notifications in the shade, they form one group, as section 4 checks. Expand it
 and tap one notification in it.
 
 1. Tap a notification while the app is closed.

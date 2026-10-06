@@ -61,6 +61,22 @@ class MainActivityOrientationTest {
     }
 
     @Test
+    @Config(qualifiers = TABLET_AT_LARGEST_DISPLAY_SIZE)
+    fun letsATabletTurnAtTheLargestDisplaySize() {
+        //Given
+        val intent = plainLaunchingIntent()
+
+        //When
+        val controller = composeRule.launchMainActivity(intent)
+
+        //Then
+        assertEquals(
+            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED,
+            controller.get().requestedOrientation
+        )
+    }
+
+    @Test
     @Config(qualifiers = PHONE)
     fun decidesAgainWhenTheActivityMovesToAWideDisplay() {
         //Given
@@ -81,5 +97,8 @@ class MainActivityOrientationTest {
     private companion object {
         const val PHONE = "w411dp-h891dp-mdpi"
         const val TABLET = "w1280dp-h800dp-mdpi"
+
+        // The same tablet drawn twice as large: narrower than 600 dp, wide in its own pixels.
+        const val TABLET_AT_LARGEST_DISPLAY_SIZE = "w640dp-h400dp-xhdpi"
     }
 }

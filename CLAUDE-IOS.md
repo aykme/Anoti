@@ -57,7 +57,7 @@ the rules both platforms share and loads this file.
   refresh request. It must also set `CADisableMinimumFrameDurationOnPhone` to `true`, or Compose
   stops the app at launch.
 - The app turns only on a wide window, whatever the device, as on Android. A window whose smaller
-  side is under 600 points keeps it upright, as Android keeps a screen below sw600dp. So
+  side is under 600 points keeps it upright, as Android keeps a narrow screen upright. So
   `Info.plist` must allow every orientation on the iPhone too, and the app must decide from the
   window's size at run time.
 - The status bar must show light content over the app's dark screens.

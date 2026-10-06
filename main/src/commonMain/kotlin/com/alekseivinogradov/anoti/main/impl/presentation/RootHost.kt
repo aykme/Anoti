@@ -103,13 +103,16 @@ internal class RootHost(
 
     /**
      * Acts on what the platform reported about the notification permission. A root [isRebuilt]
-     * over its saved state acts on nothing when this process has checked already. Main thread
-     * only.
+     * over its saved state asks nothing when this process has checked already. It only drops an
+     * explanation the permission no longer needs. Main thread only.
      */
     fun onNotificationPermissionStatus(status: NotificationPermissionStatus, isRebuilt: Boolean) {
-        if (isRebuilt && notificationPermissionSession.isChecked) return
-        notificationPermissionSession.isChecked = true
         val pendingExplanation = notificationPermissionSession.pendingExplanation
+        if (isRebuilt && notificationPermissionSession.isChecked) {
+            if (status.isAllowed) pendingExplanation.value = null
+            return
+        }
+        notificationPermissionSession.isChecked = true
         when (val action = notificationPermissionAction(status)) {
             NotificationPermissionAction.NONE -> pendingExplanation.value = null
             NotificationPermissionAction.PROMPT -> {

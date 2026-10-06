@@ -12,9 +12,9 @@ Unless a step says otherwise, start from a fresh installation with the device on
 Every section below is run once per pass listed under "Passes" in the root
 `ANOTI-FULL-REGRESS.md`.
 
-On Android, changing the font or display size rebuilds the screen, and it keeps its state. The
-iPhone keeps its screen as it is. Changing orientation rebuilds nothing — the screen keeps its
-state, which is itself checked in section 11.
+On Android, changing the font size rebuilds the screen, and it keeps its state. The iPhone keeps
+its screen as it is. Changing the display size or the orientation rebuilds nothing — the screen
+keeps its state, which is itself checked in section 11.
 
 ## 1. The three states of the screen
 

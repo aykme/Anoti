@@ -8,7 +8,7 @@ navigation, and the screen hosts of both platforms.
 - [DiRootComponent](src/commonMain/kotlin/com/alekseivinogradov/anoti/main/impl/di/DiRootComponent.kt) —
   the root UI host's dependency graph, one per host.
 - [DiRootComponentHolder](src/commonMain/kotlin/com/alekseivinogradov/anoti/main/impl/presentation/di/DiRootComponentHolder.kt) —
-  lets a host create its `DiRootComponent`.
+  lets a host create its `DiRootComponent` and share the process's permission session.
 - [RootHost](src/commonMain/kotlin/com/alekseivinogradov/anoti/main/impl/presentation/RootHost.kt) —
   a screen host's shared work around the root UI.
 - [MainActivity (Android)](src/androidMain/kotlin/com/alekseivinogradov/anoti/main/impl/presentation/MainActivity.kt) —
@@ -43,4 +43,4 @@ that root, or in the one still to be built.
 A screen whose smaller side is under 600 keeps the app upright on both platforms. iOS measures
 the window in points: `iosSupportedInterfaceOrientations(window)` answers from its size, and
 `IosApp` hands that answer to the app delegate. Android measures the whole display in dp at the
-density the device ships with, so the display size setting never makes a tablet narrow.
+density the device ships with, so the display size setting never locks a tablet upright.

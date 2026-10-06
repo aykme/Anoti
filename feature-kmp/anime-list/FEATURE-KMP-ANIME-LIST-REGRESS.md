@@ -12,9 +12,9 @@ Unless a step says otherwise, start from a fresh installation with the device on
 Every section below is run once per pass listed under "Passes" in the root
 `ANOTI-FULL-REGRESS.md`.
 
-On Android, changing the font or display size rebuilds the screen, and it keeps its state. The
-iPhone keeps its screen as it is. Changing orientation rebuilds nothing — the screen keeps its
-state, which is itself checked in section 13.
+On Android, changing the font size rebuilds the screen, and it keeps its state. The iPhone keeps
+its screen as it is. Changing the display size or the orientation rebuilds nothing — the screen
+keeps its state, which is itself checked in section 13.
 
 ## 1. The three states of the section area
 
@@ -297,9 +297,10 @@ checks that only make sense once.
 9. One or two columns, by the screen's width. Walk "On air", "Soon" and search on each screen.
    - A phone, or a foldable folded: one item per row, as wide as the screen.
    - A screen at least 600 dp wide: two items per row, of equal width. That is a tablet in
-     either orientation, a foldable unfolded in either orientation, and an iPad. The width counts
-     at the display size set: at the largest, a tablet held upright can drop below 600 dp and
-     show one item per row.
+     either orientation, a foldable unfolded in either orientation, and an iPad.
+   - The columns follow the app's width at the display size set, in dp on Android and in points
+     on iOS. At maximum display size a tablet held upright can drop under 600 and show one item
+     per row. That is expected.
    - The gap between the two columns equals the gap between two rows.
    - The top bar stays one bar across the full width, over both columns. Its labels and the
      search button stay tappable.
