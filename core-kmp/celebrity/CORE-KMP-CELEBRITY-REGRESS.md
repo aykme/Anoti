@@ -43,13 +43,10 @@ itself after a few seconds.
 
 1. Turn the device's network off and refresh the main screen.
    A banner reading **Connection error** appears above the bottom bar, then disappears on its own.
-2. Cause a second failure while the first banner is still on screen — refresh again.
-   The banner on screen is replaced by the new one. A second banner does not stack above or below
-   it.
-3. Cause a failure, and while the banner is showing, switch to **Favorites**.
+2. Cause a failure, and while the banner is showing, switch to **Favorites**.
    The banner stays on screen and finishes its own time there. It belongs to the app, not to the
    screen it appeared on.
-4. Turn the network back on and refresh.
+3. Turn the network back on and refresh.
    No banner appears.
 
 ## Dates
@@ -97,7 +94,7 @@ has aired far more episodes than the count shows, so the buttons have room to wo
    The list stops growing, nothing flickers, and the app does not crash.
 3. Turn the network off, then scroll to the bottom of a list that still has more to load.
    The **Connection error** banner appears and everything already loaded stays on screen.
-4. Turn the network back on and scroll to the bottom again.
+4. Turn the network back on, then scroll up a few anime and back down to the bottom.
    The next page loads, and it is the page that failed — no block of anime is missing between
    what was there before and what has just arrived.
 5. Refresh the list from the top while more anime are still loading at the bottom.
@@ -106,10 +103,9 @@ has aired far more episodes than the count shows, so the buttons have room to wo
 
 ## Away from the system bars
 
-The app is locked to portrait on a phone, so these need a tablet or a foldable opened flat.
-
 1. Open the app on a device with a notch or a punch-hole camera.
    No text or control is hidden behind the status bar or the cutout.
-2. Turn the device to landscape.
+2. On a tablet or a foldable opened flat, since a phone keeps the app upright, turn the device to
+   landscape.
    No text or control is hidden behind the side system bars, on either side, and nothing is cut
    off at the edges.

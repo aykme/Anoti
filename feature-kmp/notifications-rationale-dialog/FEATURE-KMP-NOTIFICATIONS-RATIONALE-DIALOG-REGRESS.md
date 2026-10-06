@@ -9,8 +9,8 @@ file. The screen behind it is checked in its own file.
 
 ## 0. How to run this file
 
-Run it through every pass in the matrix in the root `ANOTI-FULL-REGRESS.md`, and take the
-preconditions from there.
+Run it once per pass listed under "Passes" in the root `ANOTI-FULL-REGRESS.md`, from the
+starting point given there.
 
 ## 1. Reaching the dialog
 
@@ -32,8 +32,8 @@ On Android 12 and older:
 3. Launch the app again.
    - The dialog described below appears.
 
-Grant the permission at any point and the dialog stops appearing. To get it back, deny the
-permission again, or turn notifications off in system settings.
+Grant the permission at any point and the dialog stops appearing. To get it back, reinstall the
+app and decline the system's question again, as in step 4 of "First launch" in `main`'s file.
 
 ## 2. What the dialog shows
 
@@ -62,8 +62,8 @@ Check each of these:
 
 - The screen the app opened on is still visible around the panel, and dimmed.
 - The bottom navigation bar is visible and dimmed too.
-- Nothing behind the panel reacts to a tap while the dialog is open: no button presses, no
-  scrolling, no tab change. Tapping outside is covered in section 4.
+- The screen behind cannot be used while the dialog is open. A tap outside the panel only
+  closes the dialog, as section 4 checks. It presses, scrolls and switches nothing behind it.
 
 ## 4. The four ways to answer it
 
@@ -78,7 +78,7 @@ Each one starts with the dialog open. Bring it back before running the next.
    - Same result as 1. The app does not close, and the screen behind does not navigate away.
 4. Tap "Kawaii nya ≽^•⩊•^≼".
    - The dialog closes and the app acts on the approval right away.
-   - Exactly what follows depends on the Android version and is checked in `main`'s file. What
+   - Exactly what follows depends on the platform and is checked in `main`'s file. What
      is checked here is only that the dialog closed and that something followed it — the
      approval was not silently dropped.
 
@@ -127,7 +127,8 @@ On the iPhone:
   the dialog appears from the second launch on. iOS asks only once, so every later launch
   without the permission shows the dialog.
 - Accepting the dialog opens the Settings app on this app's notification settings, and never the
-  system's prompt again. `main`'s file checks where it leads.
+  system's prompt again. `main`'s file checks where it leads. A Simulator may open the Settings
+  start page instead, so check this on a device.
 - There is no system back button, so answer 3 of section 4 does not apply.
 - A narrow screen keeps the app upright, as on Android. Section 6 runs on a wide one: an iPad, or
   a foldable iPhone unfolded.

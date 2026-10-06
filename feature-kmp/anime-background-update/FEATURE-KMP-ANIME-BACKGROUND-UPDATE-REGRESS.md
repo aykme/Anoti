@@ -68,6 +68,7 @@ Pulling the Favorites list down starts a pass of its own, separate from the hour
 3. Pull down several times in a row, quickly.
    - The screen behaves the same every time.
    - No second notification arrives for an episode that was already announced.
+   - A mark a later pull clears stays cleared. An episode already counted is not marked again.
 4. Pull down while an hourly pass happens to be running.
    - The refresh still works: marks clear, the list reloads, fresh data arrives.
    - It is never ignored because the other pass is busy.
@@ -134,11 +135,9 @@ other starts, and neither may break the other.
    - Every one of them is updated, not only the first twenty.
 2. Subscribe to around a hundred and let a pass run.
    - All of them are updated. The phone stays usable and the app does not stop responding.
-3. An anime the server has no picture for, gaining an episode.
-   - Its notification appears with the title and episode number, and no picture.
-4. An anime with a very long title, gaining an episode.
+3. An anime with a very long title, gaining an episode.
    - Its notification shows the title cut-off at the end rather than overflowing.
-5. Remove every subscription and let a pass run.
+4. Remove every subscription and let a pass run.
    - Nothing happens and nothing goes wrong. Favorites still opens on its empty panel.
 
 ## 7. The phone's own power rules

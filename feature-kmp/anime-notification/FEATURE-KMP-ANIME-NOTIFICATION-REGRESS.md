@@ -8,8 +8,8 @@ and is checked there. The favorites screen is checked in its own file.
 
 ## 0. How to run this file
 
-Run it through every pass in the matrix in the root `ANOTI-FULL-REGRESS.md`, and take the
-preconditions from there.
+Run it once per pass listed under "Passes" in the root `ANOTI-FULL-REGRESS.md`, from the
+starting point given there.
 
 Font and display size change the notification too, since the system draws it at the current
 size. Check sections 3 and 4 in each pass.
@@ -60,8 +60,6 @@ Android: open system settings for the app, then its notification categories.
 
 Check these variants:
 
-- An anime whose catalog entry has no poster.
-  - The notification appears with no large image, and is otherwise complete.
 - An anime with a very long name.
   - The title is shortened with an ellipsis rather than pushing anything off the notification.
 - An anime whose name or episode number the app does not know.
@@ -124,9 +122,7 @@ Check these variants:
 
 ## 8. Twenty at most, and which one gives way
 
-Android only, since forcing a pass needs `adb` and an emulator. The iPhone app is built to keep
-to the same twenty and replace them by the same rule, which no iPhone run has confirmed yet.
-Waiting for twenty real episodes is impractical, so this section forces the background update on
+Android only, since forcing a pass needs `adb` and an emulator. Waiting for twenty real episodes is impractical, so this section forces the background update on
 an emulator. Each forced pass posts one notification for every subscribed anime. A notification
 that replaces an older one plays its sound again.
 

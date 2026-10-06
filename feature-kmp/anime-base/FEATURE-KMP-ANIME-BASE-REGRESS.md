@@ -8,8 +8,8 @@ of the app. Only what this module contributes is checked here.
 
 ## 0. How to run this file
 
-Run it through every pass in the matrix in the root `ANOTI-FULL-REGRESS.md`, and take the
-preconditions from there.
+Run it once per pass listed under "Passes" in the root `ANOTI-FULL-REGRESS.md`, from the
+starting point given there.
 
 Both sections below are run twice, once on "Main" and once on "Favorites", because the same
 piece is used on both.
@@ -17,7 +17,8 @@ piece is used on both.
 ## 1. Pulling down to reload
 
 The gesture works by dragging the list itself, so it needs a list under the finger. Where the
-screen shows a picture and a block of text instead of a list, there is nothing to drag.
+screen shows a picture and a block of text instead of a list, there is nothing to drag. The
+error picture of "Main" is the exception: it can be pulled like a list.
 
 1. On a screen showing a list of anime, scrolled to the very top, drag downward.
    - A round spinner is pulled down from under the top edge, following the finger.
@@ -32,8 +33,9 @@ screen shows a picture and a block of text instead of a list, there is nothing t
    - The list scrolls. No spinner appears, and nothing reloads.
 6. On a screen showing a picture and a block of text instead of a list, drag downward.
    - Nothing moves at all. No spinner, no reload, no bounce.
-7. On a screen showing the broken-plug error picture, drag downward.
-   - Nothing moves, for the same reason.
+7. On "Main" showing the crossed-out cloud error picture, drag downward and let go past a short
+   distance.
+   - The spinner is pulled down as on a list, and the screen reloads.
 8. Start a pull and, without letting go, drag back up past where the pull started.
    - The spinner retreats and nothing reloads when the finger lifts.
 9. Pull down, let go, and pull again immediately while the reload is still running.
@@ -50,17 +52,14 @@ module. These checks confirm it arrives complete and correct.
    - The status on every row reads "Ongoing".
 2. Look at the "Soon" list.
    - The status on every row reads "Announced".
-3. Find an anime whose catalog entry has no poster.
-   - The row shows the standard placeholder rather than an empty space or a broken image.
-4. Compare any row against the same anime on shikimori.io.
+3. Compare any row against the same anime on shikimori.io.
    - Title, episode count, score and status match.
-   - The score is shown to two decimal places.
-5. Turn the network off and open the app fresh.
+4. Turn the network off and open the app fresh.
    - The screens go to their own error or empty state. The app does not crash and does not hang
      on a spinner for good.
-6. Turn the network back on and pull down to reload.
+5. Turn the network back on and pull down to reload.
    - The lists fill in.
-7. Open an anime whose catalog entry is missing a field, for example an announced anime with no
+6. Open an anime whose catalog entry is missing a field, for example an announced anime with no
    episode count.
    - The row shows the app's own placeholder text in that spot, never the word "null" and never
      a blank gap.

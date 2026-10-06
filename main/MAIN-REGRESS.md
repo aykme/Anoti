@@ -29,6 +29,7 @@ Steps run on both platforms unless they name one.
 7. Close the app and open it again, then press the accepting button on the dialog.
    Android 13 and later: the system's own notification question appears on top.
    iPhone: the Settings app opens on this app's notification settings, since iOS asks only once.
+   A Simulator may open the Settings start page instead, so check this on a device.
 8. Android only, since only Android 10 to 12 lack the question: repeat step 4 on a device running
    Android 10, 11 or 12.
    The system never asks its own question. Instead, on the second launch the app's dialog
@@ -91,10 +92,10 @@ light area in the light theme is a bug, even when the dark theme looks right.
    the area behind them is dark.
 2. Look at the clock, battery and signal icons in the status bar.
    They are light against the dark content behind them.
-3. Look at the bottom bar and the area below it: Android's navigation bar, or the iPhone's home
-   indicator.
-   The bottom bar is dark, and the area below it is solid black, matching the bar above it.
-   There is no lighter strip and no translucent overlay between them.
+3. Look at the bottom bar and the area below it, down to the bottom edge of the screen.
+   The bottom bar is dark, and the area below it is black, matching the bar above it. There is
+   no lighter background and no translucent overlay between them. Only the system's own
+   navigation controls are drawn over that area.
 4. Android only, since the iPhone has one way to navigate: switch the device to gesture
    navigation, then to three-button navigation.
    In both cases the bottom bar's two items stay fully visible and tappable, and nothing of the
@@ -182,8 +183,11 @@ Android only, since the iPhone has no back button.
 
 ## Platforms
 
-- Asking for the permission again. Android 13 and later ask again after one refusal. The iPhone
-  asks once, and a refusal leads to the app's dialog and to Settings.
+- Asking for the permission again. Android 13 and later ask a second time after one refusal:
+  the app's dialog appears on the next launch, and its accepting button brings back the system's
+  question. After a second refusal they stop asking, and the dialog no longer appears. The
+  iPhone asks once. After a refusal, every launch from a closed app shows the app's dialog, and
+  its accepting button opens Settings.
 - A cold notification tap. Android opens favorites directly. The iPhone may show another screen
   for a moment first.
 - Dark mode. Android rebuilds the screen and restores its state. On the iPhone the screen stays

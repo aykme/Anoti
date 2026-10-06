@@ -32,8 +32,8 @@ Unless a step says otherwise, start with the app opened at least once.
 
 1. With the main screen loaded, turn the network off and scroll to the bottom to load more.
    The screen reports a failure and the anime already on screen stay.
-2. Turn the network back on within a few seconds, without touching the app, and scroll to the
-   bottom again.
+2. Turn the network back on within a few seconds, without touching the app. Then scroll up a
+   few anime and back down to the bottom.
    The next page loads. The earlier failure left nothing broken.
 
 ## A connection that is very slow
