@@ -5,6 +5,7 @@ import androidx.compose.runtime.saveable.SaveableStateRegistry
 import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.lifecycle.ChildLifecycle
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionRequests
+import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionSession
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionStatus
 import com.alekseivinogradov.anoti.main.impl.presentation.savedstate.SaveableStateCodec
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
@@ -58,6 +59,8 @@ internal class IosRootHolder(
 
     private var root: Root? = null
 
+    private val notificationPermissionSession = NotificationPermissionSession()
+
     // The screen a tap asked for before the root was built.
     private var pendingTarget: NavRootConfig? = null
 
@@ -84,7 +87,7 @@ internal class IosRootHolder(
             restored.host.openFromNotification(target)
         }
         root = built
-        checkNotificationPermission(built)
+        checkNotificationPermission(root = built, isRebuilt = restored != null)
         println("$TAG: the root opens on ${built.host.activeScreen}")
         return built.host
     }
@@ -197,7 +200,8 @@ internal class IosRootHolder(
                 createComponentContext = { _: Boolean ->
                     DefaultComponentContext(lifecycle = lifecycle, stateKeeper = stateKeeper)
                 },
-                notificationPermissionRequests = notificationPermissionRequests
+                notificationPermissionRequests = notificationPermissionRequests,
+                notificationPermissionSession = notificationPermissionSession
             )
             Root(host = host, stateKeeper = stateKeeper, lifecycle = lifecycle)
         }.onFailure {
@@ -206,14 +210,17 @@ internal class IosRootHolder(
         }.getOrThrow()
     }
 
-    private fun checkNotificationPermission(root: Root) {
+    private fun checkNotificationPermission(root: Root, isRebuilt: Boolean) {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
         root.lifecycle.doOnDestroy { scope.cancel() }
         // The system's question waits until the app is in front, so it is never asked with
         // nothing on screen.
         root.lifecycle.doOnResume(isOneTime = true) {
             scope.launch {
-                root.host.onNotificationPermissionStatus(readNotificationPermissionStatus())
+                root.host.onNotificationPermissionStatus(
+                    status = readNotificationPermissionStatus(),
+                    isRebuilt = isRebuilt
+                )
             }
         }
     }

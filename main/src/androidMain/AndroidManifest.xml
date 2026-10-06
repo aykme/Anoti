@@ -3,15 +3,16 @@
 
     <application>
         <!--
-          The screens are Compose-only and carry no orientation- or size-qualified resources, so
-          a rotation or a window resize has nothing to swap. Handling these here keeps the
+          The screens are Compose-only and draw no orientation-, size- or density-qualified
+          resources, so a rotation, a window resize or a move to a screen of another density has
+          nothing to swap. A foldable makes that move when it folds. Handling these here keeps the
           activity alive instead of rebuilding the DI graph and every store.
           adjustResize makes API 29 report the keyboard's insets. Without them, the system message
           host can't be placed above the keyboard.
         -->
         <activity
             android:name="com.alekseivinogradov.anoti.main.impl.presentation.MainActivity"
-            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
+            android:configChanges="density|orientation|screenSize|screenLayout|smallestScreenSize"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>

@@ -77,7 +77,8 @@ class MainActivity : ComponentActivity() {
             createComponentContext = { discardSavedState: Boolean ->
                 defaultComponentContext(discardSavedState = discardSavedState)
             },
-            notificationPermissionRequests = notificationPermissionRequests
+            notificationPermissionRequests = notificationPermissionRequests,
+            notificationPermissionSession = componentHolder.notificationPermissionSession
         )
         // A tap while this activity is alive arrives here and navigates the live root. The
         // launching intent is left as it is.
@@ -92,7 +93,10 @@ class MainActivity : ComponentActivity() {
                 notificationsRationale = rootHost.notificationsRationale
             )
         }
-        rootHost.onNotificationPermissionStatus(readNotificationPermissionStatus())
+        rootHost.onNotificationPermissionStatus(
+            status = readNotificationPermissionStatus(),
+            isRebuilt = savedInstanceState != null
+        )
     }
 
     /**

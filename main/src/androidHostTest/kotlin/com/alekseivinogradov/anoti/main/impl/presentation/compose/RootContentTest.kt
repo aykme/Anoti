@@ -10,6 +10,7 @@ import com.alekseivinogradov.anoti.main.impl.presentation.ANIME_FAVORITES_TAB_TA
 import com.alekseivinogradov.anoti.main.impl.presentation.DiRootDependenciesFake
 import com.alekseivinogradov.anoti.main.impl.presentation.RootHost
 import com.alekseivinogradov.anoti.main.impl.presentation.TestMainDispatcher
+import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionSession
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.fake.NotificationPermissionRequestsFake
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
@@ -58,7 +59,8 @@ class RootContentTest {
             diRootComponent = createDiRootComponent(parent = dependencies),
             openingTarget = null,
             createComponentContext = { _: Boolean -> DefaultComponentContext(lifecycle) },
-            notificationPermissionRequests = NotificationPermissionRequestsFake()
+            notificationPermissionRequests = NotificationPermissionRequestsFake(),
+            notificationPermissionSession = NotificationPermissionSession()
         )
         lifecycle.resume()
         val composed = mutableStateOf(true)

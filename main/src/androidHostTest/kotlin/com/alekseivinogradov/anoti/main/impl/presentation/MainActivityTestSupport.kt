@@ -22,11 +22,15 @@ internal const val ANIME_FAVORITES_TAB_TAG = "anime_favorites_button"
 internal const val SEARCH_BUTTON_TAG = "search_button"
 internal const val SEARCH_TEXT = "frieren"
 
-/** The fakes the activity under test is wired to, reachable from a test that never built them. */
-internal val fakeDependencies: DiRootDependenciesFake
+/** The application the activity under test runs in. */
+internal val hostApplication: HostApplicationFake
     get() = checkNotNull(RuntimeEnvironment.getApplication() as? HostApplicationFake) {
         "The test must run with HostApplicationFake."
-    }.dependencies
+    }
+
+/** The fakes the activity under test is wired to, reachable from a test that never built them. */
+internal val fakeDependencies: DiRootDependenciesFake
+    get() = hostApplication.dependencies
 
 /** The activity's own intent with no deep link on it, as a plain launch sends it. */
 internal fun plainLaunchingIntent(): Intent =
