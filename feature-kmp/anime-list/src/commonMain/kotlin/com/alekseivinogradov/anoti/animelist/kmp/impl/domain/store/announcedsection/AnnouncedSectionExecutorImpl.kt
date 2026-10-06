@@ -121,7 +121,9 @@ class AnnouncedSectionExecutorImpl(
             println("$ANOTI_TAG AnnouncedSection: first page requested")
             when (val result = paginator.loadFirstPage()) {
                 is PageLoadResult.Success -> {
-                    println("$ANOTI_TAG AnnouncedSection: first page has ${result.items.size} titles")
+                    println(
+                        "$ANOTI_TAG AnnouncedSection: first page has ${result.items.size} titles"
+                    )
                     dispatch(AnnouncedSectionStore.Message.UpdateListItems(result.items))
                     dispatch(
                         AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADED)
@@ -155,7 +157,9 @@ class AnnouncedSectionExecutorImpl(
         loadNextPageJob = scope.launch {
             when (val result = paginator.loadNextPage()) {
                 is PageLoadResult.Success -> {
-                    println("$ANOTI_TAG AnnouncedSection: next page has ${result.items.size} titles")
+                    println(
+                        "$ANOTI_TAG AnnouncedSection: next page has ${result.items.size} titles"
+                    )
                     dispatch(
                         AnnouncedSectionStore.Message.UpdateListItems(
                             state().sectionContent.listItems.plusPage(result.items)

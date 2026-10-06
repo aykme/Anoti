@@ -131,7 +131,11 @@ internal class IosRootHolder(
                 "$ANOTI_TAG $TAG: saved ${saved.length} characters on ${built.host.activeScreen}"
             )
         }.getOrElse { throwable: Throwable ->
-            println("$ANOTI_TAG $TAG: the state was not saved, the kept one is cleared: $throwable")
+            // The message can quote the saved state, which holds the search text.
+            println(
+                "$ANOTI_TAG $TAG: the state was not saved, the kept one is cleared: " +
+                    "${throwable::class.simpleName}"
+            )
             ""
         }
     }
@@ -201,7 +205,11 @@ internal class IosRootHolder(
             saveableSnapshot = SaveableStateCodec.decode(state[SAVEABLE_KEY] ?: JsonNull)
         }
     }.onFailure { throwable: Throwable ->
-        println("$ANOTI_TAG $TAG: the kept state broke the root, starting fresh: $throwable")
+        // The message can quote the kept state, which holds the search text.
+        println(
+            "$ANOTI_TAG $TAG: the kept state broke the root, starting fresh: " +
+                "${throwable::class.simpleName}"
+        )
     }.getOrNull()
 
     private fun build(openingTarget: NavRootConfig?, container: SerializableContainer?): Root {

@@ -144,8 +144,11 @@ class AnimeFavoritesExecutorImpl(
             // slow database read must not resolve against the stale list.listItems from before
             // this cycle started. The timeout is the backstop: an answer that never comes would
             // otherwise leave the screen loading for good.
-            val arrived = withTimeoutOrNull(LIST_ARRIVAL_TIMEOUT_SECONDS) { listItemsArrived.await() }
-            if (arrived == null) println("$ANOTI_TAG AnimeFavorites: the list did not arrive in time")
+            val arrived =
+                withTimeoutOrNull(LIST_ARRIVAL_TIMEOUT_SECONDS) { listItemsArrived.await() }
+            if (arrived == null) {
+                println("$ANOTI_TAG AnimeFavorites: the list did not arrive in time")
+            }
             val contentType = state().contentType
             if (contentType is ContentTypeDomain.LOADING && contentType.hasMinimumDuration) {
                 val finalContentType = if (state().listItems.isEmpty()) {

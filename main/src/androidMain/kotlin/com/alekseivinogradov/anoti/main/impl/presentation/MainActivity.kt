@@ -77,7 +77,10 @@ class MainActivity : ComponentActivity() {
         // screen the user was on.
         val openingTarget = if (savedInstanceState == null) readDeepLinkTarget(intent) else null
         if (savedInstanceState == null) {
-            println("$ANOTI_TAG MainActivity: created fresh, notification target ${openingTarget ?: "none"}")
+            println(
+                "$ANOTI_TAG MainActivity: created fresh, notification target " +
+                    (openingTarget ?: "none")
+            )
         } else {
             println("$ANOTI_TAG MainActivity: created over saved state")
         }

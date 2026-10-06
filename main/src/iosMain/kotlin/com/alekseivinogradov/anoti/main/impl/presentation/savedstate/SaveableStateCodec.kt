@@ -64,7 +64,10 @@ internal object SaveableStateCodec {
         JsonObject(
             values.mapNotNull { (key: String, saved: List<Any?>) ->
                 runCatching { key to JsonArray(saved.map(::encodeValue)) }
-                    .onFailure { println("$ANOTI_TAG $TAG: $key was not saved: $it") }
+                    // The message can quote the value, such as the search text.
+                    .onFailure {
+                        println("$ANOTI_TAG $TAG: $key was not saved: ${it::class.simpleName}")
+                    }
                     .getOrNull()
             }.toMap()
         )
@@ -77,7 +80,9 @@ internal object SaveableStateCodec {
         }
         return keys.mapNotNull { (key: String, saved: JsonElement) ->
             runCatching { key to saved.jsonArray.mapTo(mutableListOf(), ::decodeValue) }
-                .onFailure { println("$ANOTI_TAG $TAG: $key was not restored: $it") }
+                .onFailure {
+                    println("$ANOTI_TAG $TAG: $key was not restored: ${it::class.simpleName}")
+                }
                 .getOrNull()
         }.toMap()
     }
