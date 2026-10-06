@@ -46,6 +46,16 @@ Technology stack:
    doubles are handwritten fakes, plus Ktor's `MockEngine` for the network. Line coverage over
    the whole project is held at no less than 95%, measured with
    [Kover](https://github.com/Kotlin/kotlinx-kover) and enforced by a build that fails below it.
+10. Static analysis is done with [detekt](https://detekt.dev) for Kotlin and
+    [SwiftLint](https://github.com/realm/SwiftLint) for Swift. detekt checks every module and
+    source set, the shared KMP code and the Android app alike. It runs with its ktlint-based
+    formatting rules and with the [Compose rules](https://github.com/mrmans0n/compose-rules).
+    SwiftLint checks the iOS app, its analyzer rules included. Both run on CI.
+11. The shipped app is shrunk. On Android, the `release` and `minified` build types run
+    [R8](https://developer.android.com/build/shrink-code). It shrinks, optimizes and obfuscates
+    the code and removes unused resources. `minified` is `release` signed with the debug key, so
+    it installs on a device. On iOS, the Release build strips symbols and dead code from the
+    executable and keeps a dSYM to decode crash reports. Kotlin/Native offers no obfuscation.
 
 Minimum versions:
 
