@@ -89,8 +89,8 @@ Copy this checklist into the working notes and tick it off.
 *Default:* after the answers, do not stop. Take disputed decisions alone: weigh the
 alternatives, pick, and list them under "Decisions taken" in the report. Stop only for work
 outside the agreed scope, destructive actions on the developer's resources, a push or merge the
-project has not allowed, and a missing media folder. A message from the developer during the walk (a status question, a
-device they want back) is answered and the walk goes on.
+project has not allowed, and a missing media folder. A message from the developer during the
+walk (a status question, a device they want back) is answered and the walk goes on.
 
 At each phase change, and whenever asked, say where the walk is, what is left, and an estimate.
 Calibrate it: a walk once planned at 25–35 hours took about 5.
