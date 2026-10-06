@@ -50,8 +50,8 @@ and [CLAUDE-IOS.md](.claude/rules/ios/CLAUDE-IOS.md) load with it.
 - A push needs the developer's word every time. When the developer has said earlier not to stop,
   restate this rule and ask explicitly before any push.
 - The git remote is named `master`, not `origin`. The repository is `aykme/Anoti`.
-- The GitHub CLI is not on the session's `PATH`. Call it by its full path,
-  `"/c/Program Files/GitHub CLI/gh.exe"` in bash.
+- Where the GitHub CLI is not on the session's `PATH`, as on the developer's Windows machine,
+  call it by its full path: `"/c/Program Files/GitHub CLI/gh.exe"` in bash.
 - The root `README.md` is the GitHub-facing project description. It follows none of the module
   README rules and is not touched unless explicitly asked.
 

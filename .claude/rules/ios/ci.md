@@ -41,11 +41,11 @@ task must offer a run is in [../finishing-a-task.md](../finishing-a-task.md).
   run is due after a change to the Release settings, the check or its job. `release` overrides
   every other input.
 - After a run that started the app, its `ios-media` artifact goes to the developer's folder
-  `iOS test` on the current user's desktop, `*\Desktop\iOS test\<date>_<run id>_<short commit>\`.
+  `iOS test` on the current user's desktop: `~/Desktop/iOS test/<date>_<run id>_<short commit>/`.
   When the iPad ran, through `device`, `ios-media-ipad` goes into an `ipad` subfolder there.
   Nothing there is deleted.
 - After a Release run, its `ios-release` artifact goes to
-  `*\Desktop\iOS test\<date>_<run id>_<short commit>_release\`. Its `ios-dsym` stays on GitHub for
+  `~/Desktop/iOS test/<date>_<run id>_<short commit>_release/`. Its `ios-dsym` stays on GitHub for
   seven days.
 - A failed UI test, and a failed restore case, gets up to three tries; see
   [../tests-on-device.md](../tests-on-device.md). Each case starts from a fresh installation of its

@@ -1,6 +1,6 @@
 ---
 paths:
-  - "**/presentation/**/*.kt"
+  - "**/src/*Main/**/presentation/**/*.kt"
   - "**/*{Dimens,Fonts,Colors,Const,Consts}.kt"
 ---
 
