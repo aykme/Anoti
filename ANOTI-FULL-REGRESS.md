@@ -68,7 +68,7 @@ and do not commit it.
 ## Reading what the app does
 
 The app logs its key events, and every line starts with `[Anoti]`. The lines name the screen
-being built and the notification permission decision. They give each load with how many titles it
+being built and the notification permission decision. They give each load and how many titles it
 brought, each background pass with its result, and each notification handed to the system.
 Nothing is logged per scroll or keystroke, and never the search text. Use them to tell states
 apart and to time a screenshot. They are not a step of their own: a check still looks at the

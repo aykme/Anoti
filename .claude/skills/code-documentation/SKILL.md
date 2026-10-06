@@ -410,8 +410,9 @@ Leave these out of a regression file:
 - what the system draws rather than the app: its bars and indicators, its notification layout;
 - data the backend never sends, which a unit test covers instead;
 - behavior the developer has accepted as designed;
-- exact margins, ellipsis or a badge's size at the largest font and display size. There a step
-  checks only that everything stays readable and reachable.
+- exact margins, or how far a badge grows, at the largest font and display size. There a step
+  checks that everything stays readable and reachable. A designed line limit, or which element
+  shortens first, may still be stated.
 
 A placeholder or flash the app shows on purpose while data loads stays in, stated as expected in
 the step itself.

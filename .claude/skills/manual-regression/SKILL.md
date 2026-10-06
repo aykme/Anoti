@@ -14,9 +14,9 @@ wording of a script, nor between one OS and another.
 The project's own instructions override this skill. Where the project has rules or a
 documentation skill that own its regression files, those win. This skill's
 `references/regression-files.md` is then only a fallback and the filter for the cleanup after a
-walk. Rules below that are the developer's preferences are defaults that phase 1 confirms: the
-build users get, emulators only, fixing nothing during the walk, not stopping, the size of the
-review gates, the report's form, and deleting the walk code.
+walk. Some rules below are the developer's preferences. They are defaults that phase 1
+confirms: the build users get, emulators only, fixing nothing during the walk, not stopping, the
+size of the review gates, the report's form, and deleting the walk code.
 
 ## Prerequisites
 
@@ -81,8 +81,9 @@ Copy this checklist into the working notes and tick it off.
 
 ## Autonomy
 
-After the answers, do not stop. Take disputed decisions alone: weigh the alternatives, pick, and
-list them under "Decisions taken" in the report. Stop only for work outside the agreed scope,
+*Default:* after the answers, do not stop. Take disputed decisions alone: weigh the
+alternatives, pick, and list them under "Decisions taken" in the report. Stop only for work
+outside the agreed scope,
 destructive actions on the developer's resources, a push or merge the project has not allowed,
 and a missing media folder. A message from the developer during the walk (a status question, a
 device they want back) is answered and the walk goes on.

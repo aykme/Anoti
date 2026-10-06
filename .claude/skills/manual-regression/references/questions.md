@@ -1,7 +1,7 @@
 # Phase 1 questions
 
 Ask all of them at once, before the spec. Each comes with a recommended answer and its
-trade-off; skip the ones the brief already settled. After the answers, the walk does not stop.
+trade-off; skip the ones the brief already settled.
 
 | Question | Usual recommendation |
 |---|---|
@@ -17,6 +17,7 @@ trade-off; skip the ones the brief already settled. After the answers, the walk 
 | App bugs and script errors found: report or fix? | Report only. Fix after triage, on a separate branch. |
 | Temporary walk code (scripts, test hooks): kept or deleted? | Deleted with its branch once the report is done. |
 | May the walk branch be pushed for CI? | Ask. Push only with a yes. |
+| Does the walk run without stopping after the answers? | Yes. Disputed decisions are taken alone and listed in the report. |
 
 Before offering options, learn what is available. Don't propose paid services or new hardware
 when the constraint is not yet known.

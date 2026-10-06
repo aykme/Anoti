@@ -77,7 +77,7 @@ internal class AnimeNotificationManagerImpl(
                 )
                 println(
                     "$ANOTI_TAG AnimeNotification: notification $singleId handed to the system, " +
-                        "notifications on: $notificationsOn"
+                        "app notifications on: $notificationsOn"
                 )
             }
             // Outside the ring, so a failed summary cannot undo the record of a posted single.

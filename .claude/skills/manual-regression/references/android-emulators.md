@@ -22,7 +22,7 @@
   databases) on a Google APIs image.
 - Bring a permission dialog back without reinstalling, which keeps every other state:
   `pm revoke <pkg> <perm>`, then `pm clear-permission-flags <pkg> <perm> user-set user-fixed`. No
-  root is needed.
+  root is needed. The revoke kills the app's process; start the app again from the launcher.
 - An AVD with a hardware keyboard hides the soft keyboard; check the AVD before keyboard steps.
 - Airplane mode may leave Wi-Fi on. Check the network really dropped.
 - A Play image may block the first `adb install` with a Play Protect dialog.

@@ -31,8 +31,9 @@ filter for the cleanup after a walk.
 - Data the backend never sends. Cover it with a unit test instead.
 - Checks of behavior the developer has accepted as designed.
 - Blocked steps the developer has waived.
-- Exact margins, ellipsis or a badge's size at the largest font and display size. There a step
-  checks only that everything stays readable and reachable.
+- Exact margins, or how far a badge grows, at the largest font and display size. There a step
+  checks that everything stays readable and reachable. A designed line limit, or which element
+  shortens first, may still be stated.
 
 ## What goes in
 

@@ -50,6 +50,6 @@ runner. It is judged afterward from its screenshots, videos and logs.
 ## Failures
 
 - Sort every failed job: the app, the check code, or the CI environment.
-- A job cancelled for lack of runners is environment; run it again.
+- A job canceled for lack of runners is environment; run it again.
 - A tool fault that could have tainted every part (a proxy certificate race, a network rule that
   did not apply) invalidates the whole run.

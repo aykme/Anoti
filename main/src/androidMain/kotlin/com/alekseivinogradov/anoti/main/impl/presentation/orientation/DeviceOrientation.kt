@@ -20,7 +20,7 @@ internal fun requestedOrientationOf(activity: Activity): Int {
         heightPx = bounds.height(),
         stableDensityDpi = DisplayMetrics.DENSITY_DEVICE_STABLE
     )
-    // Truncated, so a side logged as 600 really reaches the threshold.
+    // Truncated, so a side just under the threshold never logs as reaching it.
     val widthDp = dpOf(bounds.width(), DisplayMetrics.DENSITY_DEVICE_STABLE).toInt()
     val heightDp = dpOf(bounds.height(), DisplayMetrics.DENSITY_DEVICE_STABLE).toInt()
     val decision =

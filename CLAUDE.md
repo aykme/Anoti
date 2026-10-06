@@ -119,7 +119,7 @@ these rules and load together with them.
 - Never user input or anything that may carry it: the search text, the saved screen state, or an
   exception message quoting either. Such a failure is logged by its kind or its class name.
 - Some lines are found by their wording: the iOS restore checks in
-  `.github/scripts/ios-restore-checks.sh`, and a few module regression files. Keep that wording,
+  `.github/scripts/ios-restore-checks.sh`, and module regression files. Keep that wording,
   and use none of those phrases in any other line.
 
 ## Compose design tokens (Dimens/Fonts/Colors/Const)
