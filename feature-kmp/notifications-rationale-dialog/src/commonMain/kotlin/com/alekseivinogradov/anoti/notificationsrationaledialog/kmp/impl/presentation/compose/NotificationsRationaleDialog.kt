@@ -27,13 +27,13 @@ import org.jetbrains.compose.resources.stringResource
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as celebrityRes
 
 /**
- * Asks the user to grant (or open settings for) the notifications permission, after the OS has
- * denied an earlier direct request. The host is responsible for deciding when to show it and for
- * acting on the outcome — this composable only renders the prompt.
+ * Asks the user to grant (or open settings for) the notifications permission while it is not
+ * granted. The host decides when to show it and acts on the outcome. This composable only
+ * renders the prompt.
  *
  * @param onDismiss called when the user declines or dismisses the dialog.
- * @param onApprove called when the user accepts; the host is expected to then request the
- * permission again or open the app's notification settings, depending on OS version.
+ * @param onApprove called when the user accepts. The host then asks the system again or opens
+ * the app's notification settings, depending on the platform.
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.

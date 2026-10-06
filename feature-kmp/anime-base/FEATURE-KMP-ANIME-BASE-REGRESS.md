@@ -59,7 +59,5 @@ module. These checks confirm it arrives complete and correct.
      on a spinner for good.
 5. Turn the network back on and pull down to reload.
    - The lists fill in.
-6. Open an anime whose catalog entry is missing a field, for example an announced anime with no
-   episode count.
-   - The row shows the app's own placeholder text in that spot, never the word "null" and never
-     a blank gap.
+6. Find an announced anime whose total episode count is not known yet.
+   - Its line reads "Episodes: 0 / ?", never the word "null" and never a blank gap.

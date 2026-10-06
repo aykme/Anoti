@@ -55,10 +55,9 @@ itself after a few seconds.
    is known.
    The date reads as a day, a three-letter month and a four-digit year — for example
    `5 Jan 2026`. A single-digit day has no leading zero.
-2. Find a saved anime whose next episode date is not known — an announced one, or one that has
-   finished airing — and open its extra information.
-   The field reads exactly **No data**. It is never blank, and never a raw string with dashes and
-   a `T` in it.
+2. Find a saved anime the catalog gives no date for, and open its extra information.
+   After its label the field reads exactly **No data**. It is never blank, and never a raw string
+   with dashes and a `T` in it.
 
 ## Press and hold
 

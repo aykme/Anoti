@@ -70,7 +70,7 @@ notification arrives.
 The steps name Android's tools. On the iPhone:
 
 - "The system back button" has no counterpart: the iPhone has no back button.
-- "Don't keep activities" has none either. End the app the way the system does as step 2 of
+- "Don't keep activities" has none either. End the app the way the system does, as step 2 of
   "Leaving and coming back" in `main`'s file says, with its iPhone notes. It comes back on the
   screen it was left on.
 - A tapped notification opens favorites as on Android, and favorites already open stay as they

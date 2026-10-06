@@ -90,7 +90,7 @@ With the screen reader on, move focus onto each tab.
 ## 7. Scale and orientation
 
 - At maximum font size and display size both labels stay fully readable and are not cut off
-  at either end. The bar grows no taller than it needs to.
+  at either end. The bar keeps its fixed height.
 - Both tabs still respond to a tap at that size, across their whole width and height, not only
   on the text.
 - On a screen narrower than 600dp the app stays in portrait whichever way the device is held.

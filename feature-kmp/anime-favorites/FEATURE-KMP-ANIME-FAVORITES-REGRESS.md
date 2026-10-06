@@ -44,7 +44,7 @@ because the list comes from the device, not the server.
    - The spinner step is expected. The empty panel must not appear instantly.
 5. List → Loading → List: pull the list down.
    - Spinner, then the items come back.
-6. Empty → Loading → Empty: pull the empty panel down.
+6. Empty: pull the empty panel down.
    - There is nothing to pull; the empty panel does not scroll. Confirm that pulling it does
      nothing at all and leaves the panel alone.
 7. Removing one of several items.
@@ -57,11 +57,12 @@ because the list comes from the device, not the server.
 The poster is loaded separately, so it has its own states inside the item's left-hand column.
 The right-hand panel is drawn immediately and does not wait for it.
 
-1. Subscribe to several animes, then open the screen before the pictures have been fetched.
+1. Subscribe to several anime, then open the screen before the pictures have been fetched.
    - Where a picture has not arrived, a spinner spins inside the poster column, inset from its
      edges. The score bar over it and the whole right-hand panel are already drawn.
-2. Turn the network off, clear the app's storage, subscribe again from a cached list if you
-   can, and open the screen.
+2. Android only, since the iPhone cannot clear an app's cache alone: with several anime
+   subscribed, close the app and clear its cache, not its storage, in the system settings. Turn
+   the network off and open the screen.
    - The poster column shows a spinner first, then a grayed broken-image icon filling the
      column.
    - The score bar, title, episodes line, status and bell are all still readable.
@@ -90,8 +91,7 @@ The right-hand panel is drawn immediately and does not wait for it.
 ## 5. The info-mode button
 
 The info-mode button on the poster's bar switches the whole right-hand panel between two
-modes.
-This is the part to check most carefully: it is not a partial change.
+modes. This is the part to check most carefully: it is not a partial change.
 
 1. On an "Ongoing" item, tap it. Its description before the tap is "Turn on the display of
    extra information".
@@ -220,7 +220,7 @@ until it airs, or trigger the update the way your team normally does.
 2. Go to "Main" and back.
    - Brief Loading, then the list.
    - Every item is back in main mode. This is expected on every arrival.
-   - New-episode marks are cleared too.
+   - New-episode marks stay.
 3. Press Home and return from the task switcher.
    - The list is exactly as you left it. Nothing reloads, extra mode is kept, the scroll
      position holds.
@@ -236,8 +236,8 @@ until it airs, or trigger the update the way your team normally does.
 
 ## 11. What changes with scale and orientation
 
-The four passes cover the whole file. These are the specific differences to look
-for, and the checks that only make sense once.
+The four passes cover the whole file. These are the specific differences to look for, and the
+checks that only make sense once.
 
 1. Rotating mid-session, from Loading, Empty and List.
    - The state is kept. Nothing reloads, the scroll position holds, items in extra mode stay in

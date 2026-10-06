@@ -1,7 +1,7 @@
 # Notifications rationale dialog — manual regression
 
-The dialog the app puts up asking for permission to post notifications, after the system has
-already turned that request down once. Only the dialog is checked here: what it shows, and what
+The dialog the app puts up asking for permission to post notifications, while notifications
+are not permitted. Only the dialog is checked here: what it shows, and what
 each way of answering it does.
 
 What decides to show it, and what the app does once it is answered, are checked in `main`'s
@@ -32,8 +32,10 @@ On Android 12 and older:
 3. Launch the app again.
    - The dialog described below appears.
 
-Grant the permission at any point and the dialog stops appearing. To get it back, reinstall the
-app and decline the system's question again, as in step 4 of "First launch" in `main`'s file.
+Grant the permission at any point and the dialog stops appearing. To get it back on Android 13
+and newer, reinstall the app and decline the system's question again, as in step 4 of "First
+launch" in `main`'s file. On Android 12 and older, turn notifications off in system settings
+again.
 
 ## 2. What the dialog shows
 
@@ -90,8 +92,7 @@ nothing was granted.
 - At maximum font size and display size the message wraps onto more lines and the panel grows
   taller. No word is cut off, and the panel stays fully on screen with a margin all round.
 - Both buttons stay fully readable at that size, and both still respond to a tap.
-- If the panel cannot grow tall enough to hold the message, its body scrolls and both buttons
-  stay in view.
+- However long the message gets, both buttons stay in view.
 
 ## 6. Rotating while it is open
 

@@ -8,11 +8,9 @@ and is checked there. The favorites screen is checked in its own file.
 
 ## 0. How to run this file
 
-Run it once per pass listed under "Passes" in the root `ANOTI-FULL-REGRESS.md`, from the
-starting point given there.
-
-Font and display size change the notification too, since the system draws it at the current
-size. Check sections 3 and 4 in each pass.
+Run it once, from the starting point given under "Passes" in the root `ANOTI-FULL-REGRESS.md`.
+The system draws the notification, so font size, display size and orientation change nothing
+the app decides.
 
 Steps run on both platforms unless they name one.
 
@@ -50,18 +48,13 @@ Android: open system settings for the app, then its notification categories.
 
 - It arrives with the device's default notification sound, and vibrates where the device
   vibrates for notifications.
-- Android: the small icon in the status bar is the app's own icon. iPhone: the app's icon is
-  shown at the left of the notification.
+- Android: the small icon in the status bar is the app's notification icon.
 - The title is the anime's name, the same name the favorites screen shows for it.
 - The line below reads "Episode aired: " followed by the episode number.
-- The anime's poster is shown as the large image at the right.
-- Android only, since iOS draws every notification in the system's own style: the notification
-  is tinted with the app's own color rather than the system default gray.
+- The anime's poster is shown in the notification.
 
-Check these variants:
+Check this variant:
 
-- An anime with a very long name.
-  - The title is shortened with an ellipsis rather than pushing anything off the notification.
 - An anime whose name or episode number the app does not know.
   - That spot reads "No data" instead. The notification still appears.
 
@@ -69,8 +62,8 @@ Check these variants:
 
 1. Get new episodes for two or more subscribed anime.
    - Each one appears as its own notification. While fewer than twenty are in the shade, not
-     counting the group summary, a later one never replaces an earlier one. Section 8 covers
-     what happens at twenty.
+     counting the group summary, a later one never replaces an earlier one. Section 8
+     checks what happens at twenty, on Android only.
    - They are collected under one group rather than scattered through the shade.
    - Android: the group's summary line reads "New Episodes". iPhone: they show as one stack,
      with no summary line.
@@ -110,8 +103,6 @@ Check these variants:
 
 ## 7. With the device in the way
 
-- Get a notification while the screen is locked.
-  - It appears on the lock screen, with the same title and line.
 - Android: get one while the device is in battery saver.
   - It still appears, possibly later than it otherwise would.
 - iPhone: turn Low Power Mode on and wait for an episode to air.
@@ -122,9 +113,10 @@ Check these variants:
 
 ## 8. Twenty at most, and which one gives way
 
-Android only, since forcing a pass needs `adb` and an emulator. Waiting for twenty real episodes is impractical, so this section forces the background update on
-an emulator. Each forced pass posts one notification for every subscribed anime. A notification
-that replaces an older one plays its sound again.
+Android only, since forcing a pass needs `adb` and an emulator. Waiting for twenty real
+episodes is impractical, so this section forces the background update on an emulator. Each
+forced pass posts one notification for every subscribed anime. A notification that replaces an
+older one plays its sound again.
 
 Everything here is checked in the notification shade. Expand the app's group to see each
 notification. Each one shows how long ago it arrived. The clock moves a day forward before every

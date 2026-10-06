@@ -71,7 +71,8 @@ immediately and does not wait for the poster.
    - Where a picture has not arrived, a spinner spins inside the poster area, inset from its
      edges. The dark strip with the title and the bottom row is already drawn over it.
    - The spinner is replaced by the picture when it arrives.
-2. Turn the network off, clear the app's storage, open it, and let items load from nothing.
+2. Load "On air" online, then turn the network off and scroll down to items whose posters have
+   not been shown yet.
    - The poster area shows a spinner first, then a grayed broken-image icon.
    - The title, episodes line, score, status and bell are all still readable over it.
 3. Turn the network on and pull to refresh.
@@ -133,8 +134,8 @@ two modes and changes nothing else on the item.
 4. Tap the filled bell.
    - It empties at once, and the anime is gone from "Favorites".
 5. Tap a bell five times quickly.
-   - The final state matches an odd or even number of taps, and "Favorites" holds either one
-     copy or none — never two.
+   - The bell and "Favorites" agree once it settles. "Favorites" holds either one copy or none,
+     never two.
 6. Turn a bell on, then pull to refresh.
    - After the refresh the bell is still filled.
 7. Turn a bell on in "On air", then find the same anime through search.
@@ -196,7 +197,7 @@ two modes and changes nothing else on the item.
      anime" and a cross button at its right.
    - The section area shows whatever the search section holds: Loading on the first ever
      visit, otherwise its previous results.
-2. Type `naruto` and stop.
+2. Tap the field, type `naruto` and stop.
    - Nothing happens for a moment, then Loading, then results.
    - The list must not reload while you are still typing.
 3. Type three more letters quickly.
@@ -263,8 +264,8 @@ two modes and changes nothing else on the item.
 
 ## 13. What changes with scale and orientation
 
-The four passes cover the whole file. These are the specific differences to look
-for, and the checks that only make sense once.
+The four passes cover the whole file. These are the specific differences to look for, and the
+checks that only make sense once.
 
 1. Rotating mid-session, from every state: List, Loading, Error, and with the search field open.
    - The state is kept. Nothing reloads, the scroll position holds, open extra info stays open,
