@@ -377,6 +377,11 @@ jobs:
           done
           exit $status
 
+      # TEMP: the iPad max-scale probe, removed before this branch is merged.
+      - name: TEMP iPad max-scale probe
+        if: ${{ !cancelled() && steps.build_debug.outcome == 'success' }}
+        run: bash .github/scripts/temp-ipad-max-scale-probe.sh
+
       - name: Export the screenshots the tests kept
         if: always()
         run: |
