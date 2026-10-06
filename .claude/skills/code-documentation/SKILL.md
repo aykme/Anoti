@@ -400,6 +400,19 @@ Each of these gets its own step:
 - every way the device can differ: no network, rotation, dark mode, large font, back from
   background, process death.
 
+### What stays out
+
+These cost a regression time and turned out not to be the app's to answer for:
+
+- checks the OS, vendor, device or system settings decide, such as where a notification shows or
+  how often background work really runs;
+- what the system draws rather than the app: its bars and indicators, its notification layout;
+- data the backend never sends, which a unit test covers instead;
+- behavior the developer has accepted as designed.
+
+A placeholder or flash the app shows on purpose while data loads stays in, stated as expected in
+the step itself.
+
 ### Keeping the app-wide index current
 
 The root `ANOTI-FULL-REGRESS.md` is the index a full-app regression is run from. It holds no

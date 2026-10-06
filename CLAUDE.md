@@ -416,6 +416,8 @@ these rules and load together with them.
   the step names that platform and says why.
 - It is written and updated through the `code-documentation` skill, in the same pass as the
   module's README. The skill holds the rules for what goes in it and how far its scope reaches.
+- A regression, of one module or of the whole app, is walked with the `manual-regression` skill.
+  It also covers the regression's report and the triage of what it found.
 - A regression **of one module** is run from that module's own `-REGRESS.md`, at the module's
   root.
 - A regression **of the whole app** is run from `ANOTI-FULL-REGRESS.md` in the project root. It
