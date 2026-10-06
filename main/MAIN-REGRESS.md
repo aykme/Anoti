@@ -128,7 +128,8 @@ light area in the light theme is a bug, even when the dark theme looks right.
 
 ## Folding and unfolding
 
-On a foldable only.
+On a foldable only. Set it to keep apps open on the outer screen when it folds, so folding does
+not lock it.
 
 1. Open the anime list, fold the device, then unfold it.
    The same section stays open and the bottom bar keeps its selected item. Folded, the app stays
