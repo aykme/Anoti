@@ -56,19 +56,19 @@
 
 ## Severity
 
-| Level | Criteria |
-|---|---|
-| High | Data lost, a crash, a feature unusable, on a common device or path |
-| Medium | A feature works wrongly or repeats itself on a common path, with a workaround |
-| Low–medium | Wrong on an unusual screen or setting, the user still gets through |
-| Low | Cosmetic loss, or a one-time effect on an uncommon path |
+| Level      | Criteria                                                                      |
+|------------|-------------------------------------------------------------------------------|
+| High       | Data lost, a crash, a feature unusable, on a common device or path            |
+| Medium     | A feature works wrongly or repeats itself on a common path, with a workaround |
+| Low–medium | Wrong on an unusual screen or setting, the user still gets through            |
+| Low        | Cosmetic loss, or a one-time effect on an uncommon path                       |
 
 ## Tone
 
 - "After folding the phone, the notification explanation appears again, though it was closed."
   Not: "The root host re-runs the permission check on recreation."
 - "On a tablet at the largest display size the explanation is cut off and cannot be scrolled."
-  Not: "Text overflow in the dialog at a smallest width of 533 dp."
+  Not: "Text overflow in the dialog when the smallest width is 533 dp."
 
 ## Making the page
 

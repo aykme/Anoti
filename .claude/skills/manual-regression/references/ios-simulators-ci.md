@@ -1,7 +1,8 @@
 # iOS simulators on a CI runner
 
-For walking an iOS app with no Mac at hand. The walk runs as UI tests and scripts on a macOS CI
-runner. It is judged afterward from its screenshots, videos and logs.
+Only for walking an iOS app when no Mac is at hand. With a Mac, walk on local simulators: it is
+simpler, faster, and every step can be watched. On CI the walk runs as UI tests and scripts on a
+macOS runner, and is judged afterward from its screenshots, videos and logs.
 
 ## Contents
 
@@ -17,7 +18,7 @@ runner. It is judged afterward from its screenshots, videos and logs.
 - Split the walk into parts that run in parallel jobs, each with its own media folder. Give each
   part a judge afterward (`reviews.md`).
 - Keep the walk code on its own branch, and review it and its helpers before the first run. Delete
-  the branch when the report is done, unless phase 1 decided otherwise.
+  the branch when the report is done, unless phase 2 decided otherwise.
 - Record rather than assert: a step that fails an assertion stops recording what came after.
 
 ## Simulator facts

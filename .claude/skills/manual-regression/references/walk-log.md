@@ -25,16 +25,16 @@ device was borrowed.
 
 ## Statuses
 
-| Status | Meaning |
-|---|---|
-| PASS | Done as written, the precondition present, the result as expected |
-| PASS~ | Done by an approximation the spec allowed; say which |
-| FAIL | The app is wrong; the pre-FAIL checklist was run |
-| DOC | The app is right; the step is wrong |
-| BLOCKED | Could not be done here; say why and how it could be |
-| NOT VERIFIED | No tool can reach it on this setup |
-| N/A | Does not apply to this device or pass |
-| PAUSED | Started, interrupted, must be resumed |
+| Status       | Meaning                                                           |
+|--------------|-------------------------------------------------------------------|
+| PASS         | Done as written, the precondition present, the result as expected |
+| PASS~        | Done by an approximation the spec allowed; say which              |
+| FAIL         | The app is wrong; the pre-FAIL checklist was run                  |
+| DOC          | The app is right; the step is wrong                               |
+| BLOCKED      | Could not be done here; say why and how it could be               |
+| NOT VERIFIED | No tool can reach it on this setup                                |
+| N/A          | Does not apply to this device or pass                             |
+| PAUSED       | Started, interrupted, must be resumed                             |
 
 ## Pre-FAIL checklist
 
