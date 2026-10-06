@@ -22,7 +22,7 @@ paths:
 - `koverVerify` is outside `check` and `build`, so an ordinary build never pays for it.
   [finishing-a-task.md](finishing-a-task.md) says when it runs.
 - It is checked over the whole project on purpose. A module's own report counts only that module's
-  test runs, so coverage from a neighboring module's tests is missing from it and it reads low.
+  test runs, so coverage from a neighboring module's tests is missing from it, and it reads low.
 - While writing tests, look at the affected module alone: `./gradlew :<module>:koverLog` for the
   number, `:<module>:koverHtmlReport` for where the gaps are. Read those to find gaps, not to decide
   whether the bar is met.

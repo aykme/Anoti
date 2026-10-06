@@ -26,7 +26,7 @@ code. The reviewer-prompt rule under "Review" applies to every review, mid-task 
   [android/tests.md](android/tests.md), [ios/tests.md](ios/tests.md).
 - The Android instrumented tests are part of that run, on an emulator. Read
   [android/instrumented-tests.md](android/instrumented-tests.md) for the tasks and the clean
-  install.
+  installation.
 - For every new or fixed test, confirm it doesn't flake, doesn't rely on real time, and never makes
   real API calls. Real time is acceptable only in exceptional cases agreed with the developer. The
   one way past the API rule is a test that launches the real app, with the developer's permission;
