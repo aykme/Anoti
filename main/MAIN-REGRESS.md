@@ -13,7 +13,7 @@ Steps run on both platforms unless they name one.
 1. Install the app and open it from the home screen.
    The anime list opens. The bottom bar shows two items, and the left one is the selected one.
 2. Android 13 and later, and iPhone: the system asks whether the app may send notifications, on
-   top of the list. Android 10 to 12 never ask; step 8 covers them. Choose **Allow**.
+   top of the list. Android 10 to 12 never ask; step 9 covers them. Choose **Allow**.
    The question disappears and the list stays where it was.
 3. Close the app and open it again.
    The question does not come back.

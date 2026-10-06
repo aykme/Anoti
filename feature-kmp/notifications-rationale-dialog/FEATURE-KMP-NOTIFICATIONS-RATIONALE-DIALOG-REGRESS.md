@@ -1,8 +1,8 @@
 # Notifications rationale dialog — manual regression
 
 The dialog the app puts up asking for permission to post notifications, while notifications
-are not permitted. Only the dialog is checked here: what it shows, and what
-each way of answering it does.
+are not permitted. Only the dialog is checked here: what it shows, and what each way of
+answering it does.
 
 What decides to show it, and what the app does once it is answered, are checked in `main`'s
 file. The screen behind it is checked in its own file.
@@ -33,9 +33,9 @@ On Android 12 and older:
    - The dialog described below appears.
 
 Grant the permission at any point and the dialog stops appearing. To get it back on Android 13
-and newer, reinstall the app and decline the system's question again, as in step 4 of "First
-launch" in `main`'s file. On Android 12 and older, turn notifications off in system settings
-again.
+and newer and on the iPhone, reinstall the app and decline the system's question again, as in
+step 4 of "First launch" in `main`'s file. On Android 12 and older, turn notifications off in
+system settings again.
 
 ## 2. What the dialog shows
 
