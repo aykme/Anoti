@@ -13,6 +13,8 @@ and [CLAUDE-IOS.md](.claude/rules/ios/CLAUDE-IOS.md) load with it.
   shell reads or edits. Grep, Glob and shell output load no rules; Read a file before editing it.
 - Before creating a file, or starting work in an area, read the topic file the index names for it.
   A rule arrives only after the first Write.
+- Path rules match only inside the session's own project root. When working on files of another
+  checkout, such as a sibling worktree, read the topic files through the index.
 - "Read X" in any rule file is a hard step, due every time its condition holds. If Read answers
   "unchanged", the earlier read is still in context. After a context compaction, read it again.
 
@@ -60,7 +62,8 @@ and [CLAUDE-IOS.md](.claude/rules/ios/CLAUDE-IOS.md) load with it.
 Shared rules, in `.claude/rules/`:
 
 - [committing.md](.claude/rules/committing.md) — read before every commit.
-- [finishing-a-task.md](.claude/rules/finishing-a-task.md) — read when finishing a task.
+- [finishing-a-task.md](.claude/rules/finishing-a-task.md) — read when finishing a task, and
+  before reviewing or re-checking a change.
 - [ci-github.md](.claude/rules/ci-github.md) — read before a push, a `gh` command or a CI run.
 - [tests.md](.claude/rules/tests.md) — read before writing or changing a test or a test double.
 - [tests-on-device.md](.claude/rules/tests-on-device.md) — read before a test that runs on a device
