@@ -4,6 +4,7 @@ import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.model.Sect
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.main.impl.di.createDiRootComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
+import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionSession
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionStatus
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.fake.NotificationPermissionRequestsFake
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
@@ -40,6 +41,9 @@ class RootHostTest {
     private lateinit var dependencies: DiRootDependenciesFake
 
     private val requests = NotificationPermissionRequestsFake()
+
+    // One process for the whole test, unless a case builds a root in a new one.
+    private val session = NotificationPermissionSession()
 
     private val lifecycles = mutableListOf<LifecycleRegistry>()
 
@@ -254,7 +258,8 @@ class RootHostTest {
 
         //When
         root.host.onNotificationPermissionStatus(
-            status(canPrompt = true, isExplanationOwed = false)
+            status = status(canPrompt = true, isExplanationOwed = false),
+            isRebuilt = false
         )
 
         //Then
@@ -270,7 +275,8 @@ class RootHostTest {
 
         //When
         root.host.onNotificationPermissionStatus(
-            status(canPrompt = true, isExplanationOwed = true)
+            status = status(canPrompt = true, isExplanationOwed = true),
+            isRebuilt = false
         )
 
         //Then
@@ -284,7 +290,8 @@ class RootHostTest {
         //Given
         val root = createRoot()
         root.host.onNotificationPermissionStatus(
-            status(canPrompt = true, isExplanationOwed = true)
+            status = status(canPrompt = true, isExplanationOwed = true),
+            isRebuilt = false
         )
 
         //When
@@ -301,7 +308,8 @@ class RootHostTest {
         //Given
         val root = createRoot()
         root.host.onNotificationPermissionStatus(
-            status(canPrompt = false, isExplanationOwed = false)
+            status = status(canPrompt = false, isExplanationOwed = false),
+            isRebuilt = false
         )
         val shownBeforeApproval = root.host.notificationsRationale.visible.value
 
@@ -320,7 +328,8 @@ class RootHostTest {
         //Given
         val root = createRoot()
         root.host.onNotificationPermissionStatus(
-            status(canPrompt = true, isExplanationOwed = true)
+            status = status(canPrompt = true, isExplanationOwed = true),
+            isRebuilt = false
         )
 
         //When
@@ -338,18 +347,186 @@ class RootHostTest {
         val root = createRoot()
 
         //When
-        root.host.onNotificationPermissionStatus(
-            NotificationPermissionStatus(
-                isAllowed = true,
-                canPrompt = true,
-                isExplanationOwed = false
-            )
-        )
+        root.host.onNotificationPermissionStatus(status = ALLOWED, isRebuilt = false)
 
         //Then
         assertFalse(root.host.notificationsRationale.visible.value)
         assertEquals(0, requests.prompts)
         assertEquals(0, requests.settingsOpenings)
+    }
+
+    @Test
+    fun aRootRebuiltInTheSameProcessAsksNothingAgain() {
+        //Given
+        val first = createRoot()
+        first.host.onNotificationPermissionStatus(
+            status = status(canPrompt = true, isExplanationOwed = false),
+            isRebuilt = false
+        )
+        first.lifecycle.destroy()
+        val rebuilt = createRoot()
+
+        //When
+        rebuilt.host.onNotificationPermissionStatus(
+            status = status(canPrompt = true, isExplanationOwed = false),
+            isRebuilt = true
+        )
+
+        //Then
+        assertEquals(1, requests.prompts)
+        assertFalse(rebuilt.host.notificationsRationale.visible.value)
+    }
+
+    @Test
+    fun aRootRebuiltInTheSameProcessKeepsTheExplanationOnScreen() {
+        //Given
+        val first = createRoot()
+        first.host.onNotificationPermissionStatus(
+            status = status(canPrompt = false, isExplanationOwed = false),
+            isRebuilt = false
+        )
+        first.lifecycle.destroy()
+        val rebuilt = createRoot()
+        rebuilt.host.onNotificationPermissionStatus(
+            status = status(canPrompt = false, isExplanationOwed = false),
+            isRebuilt = true
+        )
+        val shownAfterRebuild = rebuilt.host.notificationsRationale.visible.value
+
+        //When
+        rebuilt.host.notificationsRationale.onApprove()
+
+        //Then
+        assertTrue(shownAfterRebuild)
+        assertEquals(1, requests.settingsOpenings)
+        assertEquals(0, requests.prompts)
+    }
+
+    @Test
+    fun aRootRebuiltInTheSameProcessDropsTheExplanationOnceNotificationsAreAllowed() {
+        //Given
+        val first = createRoot()
+        first.host.onNotificationPermissionStatus(
+            status = status(canPrompt = true, isExplanationOwed = true),
+            isRebuilt = false
+        )
+        first.lifecycle.destroy()
+        val rebuilt = createRoot()
+
+        //When
+        rebuilt.host.onNotificationPermissionStatus(status = ALLOWED, isRebuilt = true)
+
+        //Then
+        assertFalse(rebuilt.host.notificationsRationale.visible.value)
+        assertEquals(0, requests.prompts)
+    }
+
+    @Test
+    fun aRootRebuiltInTheSameProcessKeepsARefusedExplanationClosed() {
+        //Given
+        val first = createRoot()
+        first.host.onNotificationPermissionStatus(
+            status = status(canPrompt = true, isExplanationOwed = true),
+            isRebuilt = false
+        )
+        first.host.notificationsRationale.onDismiss()
+        first.lifecycle.destroy()
+        val rebuilt = createRoot()
+
+        //When
+        rebuilt.host.onNotificationPermissionStatus(
+            status = status(canPrompt = true, isExplanationOwed = true),
+            isRebuilt = true
+        )
+
+        //Then
+        assertFalse(rebuilt.host.notificationsRationale.visible.value)
+        assertEquals(0, requests.prompts)
+    }
+
+    @Test
+    fun aRootRebuiltInANewProcessExplainsItselfAgain() {
+        //Given
+        val first = createRoot()
+        first.host.onNotificationPermissionStatus(
+            status = status(canPrompt = true, isExplanationOwed = true),
+            isRebuilt = false
+        )
+        first.host.notificationsRationale.onDismiss()
+        first.lifecycle.destroy()
+        val rebuilt = createRoot(session = NotificationPermissionSession())
+
+        //When
+        rebuilt.host.onNotificationPermissionStatus(
+            status = status(canPrompt = true, isExplanationOwed = true),
+            isRebuilt = true
+        )
+
+        //Then
+        assertTrue(rebuilt.host.notificationsRationale.visible.value)
+    }
+
+    @Test
+    fun aFreshStartInTheSameProcessExplainsItselfAgain() {
+        //Given
+        val first = createRoot()
+        first.host.onNotificationPermissionStatus(
+            status = status(canPrompt = true, isExplanationOwed = true),
+            isRebuilt = false
+        )
+        first.host.notificationsRationale.onDismiss()
+        first.lifecycle.destroy()
+        val next = createRoot()
+
+        //When
+        next.host.onNotificationPermissionStatus(
+            status = status(canPrompt = true, isExplanationOwed = true),
+            isRebuilt = false
+        )
+
+        //Then
+        assertTrue(next.host.notificationsRationale.visible.value)
+    }
+
+    @Test
+    fun aFreshStartThatAsksTheSystemDropsAnEarlierExplanation() {
+        //Given
+        val first = createRoot()
+        first.host.onNotificationPermissionStatus(
+            status = status(canPrompt = true, isExplanationOwed = true),
+            isRebuilt = false
+        )
+        first.lifecycle.destroy()
+        val next = createRoot()
+
+        //When
+        next.host.onNotificationPermissionStatus(
+            status = status(canPrompt = true, isExplanationOwed = false),
+            isRebuilt = false
+        )
+
+        //Then
+        assertFalse(next.host.notificationsRationale.visible.value)
+        assertEquals(1, requests.prompts)
+    }
+
+    @Test
+    fun aFreshStartDropsAnExplanationOnceNotificationsAreAllowed() {
+        //Given
+        val first = createRoot()
+        first.host.onNotificationPermissionStatus(
+            status = status(canPrompt = true, isExplanationOwed = true),
+            isRebuilt = false
+        )
+        first.lifecycle.destroy()
+        val next = createRoot()
+
+        //When
+        next.host.onNotificationPermissionStatus(status = ALLOWED, isRebuilt = false)
+
+        //Then
+        assertFalse(next.host.notificationsRationale.visible.value)
+        assertEquals(0, requests.prompts)
     }
 
     private fun status(canPrompt: Boolean, isExplanationOwed: Boolean) =
@@ -369,7 +546,8 @@ class RootHostTest {
 
     private fun createRoot(
         openingTarget: NavRootConfig? = null,
-        savedState: SerializableContainer? = null
+        savedState: SerializableContainer? = null,
+        session: NotificationPermissionSession = this.session
     ): Root {
         val lifecycle = LifecycleRegistry().also(lifecycles::add)
         val discardRequests = mutableListOf<Boolean>()
@@ -383,7 +561,8 @@ class RootHostTest {
                 stateKeeper = keeper
                 DefaultComponentContext(lifecycle = lifecycle, stateKeeper = keeper)
             },
-            notificationPermissionRequests = requests
+            notificationPermissionRequests = requests,
+            notificationPermissionSession = session
         )
         // A platform host builds its root while its own lifecycle is being created.
         lifecycle.create()
@@ -392,6 +571,14 @@ class RootHostTest {
             lifecycle = lifecycle,
             stateKeeper = checkNotNull(stateKeeper),
             discardRequests = discardRequests
+        )
+    }
+
+    private companion object {
+        val ALLOWED = NotificationPermissionStatus(
+            isAllowed = true,
+            canPrompt = true,
+            isExplanationOwed = false
         )
     }
 

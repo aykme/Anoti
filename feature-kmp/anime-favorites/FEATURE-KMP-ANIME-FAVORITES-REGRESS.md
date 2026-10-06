@@ -12,9 +12,10 @@ Unless a step says otherwise, start from a fresh installation with the device on
 Every section below is run once per pass listed under "Passes" in the root
 `ANOTI-FULL-REGRESS.md`.
 
-On Android, changing the font or display size rebuilds the screen, and it keeps its state. The
-iPhone keeps its screen as it is. Changing orientation rebuilds nothing — the screen keeps its
-state, which is itself checked in section 11.
+On Android, changing the font size rebuilds the screen, and it keeps its state. Changing the
+display size or the orientation rebuilds nothing — the screen keeps its state, which is itself
+checked in section 11. The iPhone keeps its screen through a rotation and a text size change. A
+Display Zoom change restarts it, as section 13 says.
 
 ## 1. The three states of the screen
 
@@ -63,8 +64,8 @@ The right-hand panel is drawn immediately and does not wait for it.
 2. Android only, since the iPhone cannot clear an app's cache alone: with several anime
    subscribed, close the app and clear its cache, not its storage, in the system settings. Turn
    the network off and open the screen.
-   - The poster column shows a spinner first, then a grayed broken-image icon filling the
-     column.
+   - The poster column shows a spinner first, then a grayed broken-image icon, centered in the
+     column with a margin around it.
    - The score bar, title, episodes line, status and bell are all still readable.
 3. Turn the network on and pull to refresh.
    - Real pictures replace the broken-image icons.
@@ -275,6 +276,11 @@ checks that only make sense once.
      they fit.
    - Subscribe to one anime and come back. The item's poster takes exactly the size the picture
      had.
+10. Fold and unfold a foldable, once with an item in extra mode and once on the empty panel.
+    - The item stays in extra mode, and its viewed counter keeps its value. It is laid out again
+      for the new width.
+    - The empty panel takes the narrow screen's shape folded and the wide screen's unfolded, as
+      step 9 describes.
 
 ## 12. Many items
 

@@ -8,6 +8,7 @@ import com.alekseivinogradov.anoti.di.kmp.create
 import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
 import com.alekseivinogradov.anoti.main.impl.di.create
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponentHolder
+import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionSession
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -22,6 +23,8 @@ class AnotiApp : Application(), DiRootComponentHolder, Configuration.Provider {
 
     override val workManagerConfiguration: Configuration
         get() = diAppComponent.workManagerConfiguration
+
+    override val notificationPermissionSession = NotificationPermissionSession()
 
     override fun createDiRootComponent(): DiRootComponent =
         DiRootComponent::class.create(diAppComponent)

@@ -47,7 +47,7 @@ object IosApp {
 
     /**
      * The orientations [window] may take, for `application(_:supportedInterfaceOrientationsFor:)`.
-     * A narrow window keeps the app upright, as Android keeps a screen below sw600dp. Safe to call
+     * A narrow window keeps the app upright, as Android keeps a narrow screen upright. Safe to call
      * before [start].
      */
     fun supportedInterfaceOrientations(window: UIWindow?): UIInterfaceOrientationMask =

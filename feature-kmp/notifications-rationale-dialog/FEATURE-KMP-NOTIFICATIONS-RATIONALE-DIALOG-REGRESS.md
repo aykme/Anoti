@@ -90,19 +90,27 @@ nothing was granted.
 ## 5. Long text and large type
 
 - At maximum font size and display size the message wraps onto more lines and the panel grows
-  taller. No word is cut off, and the panel stays fully on screen with a margin all round.
+  taller. No word is cut off, and the panel stays fully on screen. On a narrow screen it may
+  reach the screen's side edges.
 - Both buttons stay fully readable at that size, and both still respond to a tap.
-- However long the message gets, both buttons stay in view.
+- However long the message gets, both buttons stay in view. Where the panel has no room for the
+  whole message, the message scrolls inside it.
 
-## 6. Rotating while it is open
+## 6. The screen changing while it is open
 
-Run this on a screen at least 600dp wide; a narrower one keeps the app in portrait.
+Each of these changes the screen while the app runs:
 
-1. Open the dialog and rotate the device.
+- rotating a wide screen: a tablet, or a foldable unfolded, since a narrower one keeps the app
+  upright;
+- folding or unfolding a foldable;
+- switching the device between dark and light theme;
+- changing the system font size.
+
+1. Open the dialog and make each change.
    - The dialog stays open, with the same contents. It does not close, and does not appear
      twice.
-2. Answer it with "Angry nya ฅ^•ﻌ•^ฅ", then rotate back.
-   - Rotating on its own does not bring the dialog back.
+2. Answer it with "Angry nya ฅ^•ﻌ•^ฅ", then make each change again.
+   - None of them brings the dialog back.
 
 ## 7. Leaving and coming back
 
@@ -131,6 +139,8 @@ On the iPhone:
   system's prompt again. `main`'s file checks where it leads. A Simulator may open the Settings
   start page instead, so check this on a device.
 - There is no system back button, so answer 3 of section 4 does not apply.
-- A narrow screen keeps the app upright, as on Android. Section 6 runs on a wide one: an iPad, or
+- A narrow screen keeps the app upright, as on Android. Section 6 rotates a wide one: an iPad, or
   a foldable iPhone unfolded.
+- A new text size reaches the iPhone app only when it is opened again, so section 6 skips that
+  change there.
 - To kill the app in section 7, start it from Xcode, go to the home screen and stop it in Xcode.

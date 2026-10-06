@@ -3,8 +3,8 @@ package com.alekseivinogradov.anoti.main.impl.presentation
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Build.VERSION_CODES.TIRAMISU
@@ -23,6 +23,7 @@ import androidx.core.content.ContextCompat
 import com.alekseivinogradov.anoti.main.impl.presentation.compose.RootContent
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponentHolder
 import com.alekseivinogradov.anoti.main.impl.presentation.notification.NOTIFICATION_TAP_TARGET_KEY
+import com.alekseivinogradov.anoti.main.impl.presentation.orientation.requestedOrientationOf
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionRequests
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionStatus
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootConfig
@@ -77,7 +78,8 @@ class MainActivity : ComponentActivity() {
             createComponentContext = { discardSavedState: Boolean ->
                 defaultComponentContext(discardSavedState = discardSavedState)
             },
-            notificationPermissionRequests = notificationPermissionRequests
+            notificationPermissionRequests = notificationPermissionRequests,
+            notificationPermissionSession = componentHolder.notificationPermissionSession
         )
         // A tap while this activity is alive arrives here and navigates the live root. The
         // launching intent is left as it is.
@@ -92,7 +94,10 @@ class MainActivity : ComponentActivity() {
                 notificationsRationale = rootHost.notificationsRationale
             )
         }
-        rootHost.onNotificationPermissionStatus(readNotificationPermissionStatus())
+        rootHost.onNotificationPermissionStatus(
+            status = readNotificationPermissionStatus(),
+            isRebuilt = savedInstanceState != null
+        )
     }
 
     /**
@@ -115,9 +120,13 @@ class MainActivity : ComponentActivity() {
             statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
         )
-        // The screens are laid out for portrait. The system only honors this below sw 600dp;
-        // larger screens rotate freely.
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        requestedOrientation = requestedOrientationOf(this)
+    }
+
+    // A foldable moves the activity to its other display when it folds, without rebuilding it.
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        requestedOrientation = requestedOrientationOf(this)
     }
 
     // Below Android 13 notifications need no runtime permission, so the system has no question

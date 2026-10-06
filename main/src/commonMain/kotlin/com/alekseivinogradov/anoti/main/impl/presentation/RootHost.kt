@@ -1,6 +1,6 @@
 package com.alekseivinogradov.anoti.main.impl.presentation
 
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.derivedStateOf
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigation.NavAnimeFavoritesScreenComponent
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation.NavAnimeListScreenComponent
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
@@ -11,6 +11,7 @@ import com.alekseivinogradov.anoti.main.impl.presentation.compose.RootDependenci
 import com.alekseivinogradov.anoti.main.impl.presentation.navigation.NavRootChild
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionAction
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionRequests
+import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionSession
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionStatus
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.notificationPermissionAction
 import com.alekseivinogradov.anoti.navigation.kmp.NavRootComponent
@@ -32,12 +33,14 @@ import com.arkivanov.essenty.lifecycle.doOnDestroy
  * @param createComponentContext makes the root's context, discarding saved state when asked.
  * Called exactly once.
  * @param notificationPermissionRequests the platform's ways of getting the permission granted.
+ * @param notificationPermissionSession the permission flow of this process, shared by its roots.
  */
 internal class RootHost(
     private val diRootComponent: DiRootComponent,
     openingTarget: NavRootConfig?,
     createComponentContext: (discardSavedState: Boolean) -> ComponentContext,
-    private val notificationPermissionRequests: NotificationPermissionRequests
+    private val notificationPermissionRequests: NotificationPermissionRequests,
+    private val notificationPermissionSession: NotificationPermissionSession
 ) {
 
     // Both bindings build a new store on every read, so each is read exactly once.
@@ -46,10 +49,6 @@ internal class RootHost(
 
     private val componentContext: ComponentContext =
         createComponentContext(openingTarget != null)
-
-    private val rationaleVisible = mutableStateOf(false)
-
-    private var onRationaleApproved: () -> Unit = {}
 
     init {
         // These are closed from where they are created. Nothing else closes them.
@@ -97,24 +96,33 @@ internal class RootHost(
 
     /** The notification-permission explanation the root content shows over the screen. */
     val notificationsRationale = NotificationsRationaleState(
-        visible = rationaleVisible,
-        onDismiss = { rationaleVisible.value = false },
-        onApprove = {
-            rationaleVisible.value = false
-            onRationaleApproved()
-        }
+        visible = derivedStateOf { notificationPermissionSession.pendingExplanation.value != null },
+        onDismiss = { notificationPermissionSession.pendingExplanation.value = null },
+        onApprove = ::approveExplanation
     )
 
-    /** Acts on what the platform reported about the notification permission. Main thread only. */
-    fun onNotificationPermissionStatus(status: NotificationPermissionStatus) {
-        when (notificationPermissionAction(status)) {
-            NotificationPermissionAction.NONE -> Unit
-            NotificationPermissionAction.PROMPT -> notificationPermissionRequests.prompt()
-            NotificationPermissionAction.EXPLAIN_THEN_PROMPT ->
-                explainThen(notificationPermissionRequests::prompt)
+    /**
+     * Acts on what the platform reported about the notification permission. A root [isRebuilt]
+     * over its saved state asks nothing when this process has checked already. It only drops an
+     * explanation the permission no longer needs. Main thread only.
+     */
+    fun onNotificationPermissionStatus(status: NotificationPermissionStatus, isRebuilt: Boolean) {
+        val pendingExplanation = notificationPermissionSession.pendingExplanation
+        if (isRebuilt && notificationPermissionSession.isChecked) {
+            if (status.isAllowed) pendingExplanation.value = null
+            return
+        }
+        notificationPermissionSession.isChecked = true
+        when (val action = notificationPermissionAction(status)) {
+            NotificationPermissionAction.NONE -> pendingExplanation.value = null
+            NotificationPermissionAction.PROMPT -> {
+                pendingExplanation.value = null
+                notificationPermissionRequests.prompt()
+            }
 
+            NotificationPermissionAction.EXPLAIN_THEN_PROMPT,
             NotificationPermissionAction.EXPLAIN_THEN_OPEN_SETTINGS ->
-                explainThen(notificationPermissionRequests::openSettings)
+                pendingExplanation.value = action
         }
     }
 
@@ -126,9 +134,16 @@ internal class RootHost(
         rootComponent.navigateTo(target)
     }
 
-    private fun explainThen(request: () -> Unit) {
-        onRationaleApproved = request
-        rationaleVisible.value = true
+    private fun approveExplanation() {
+        val action = notificationPermissionSession.pendingExplanation.value
+        notificationPermissionSession.pendingExplanation.value = null
+        when (action) {
+            NotificationPermissionAction.EXPLAIN_THEN_PROMPT -> notificationPermissionRequests.prompt()
+            NotificationPermissionAction.EXPLAIN_THEN_OPEN_SETTINGS ->
+                notificationPermissionRequests.openSettings()
+
+            NotificationPermissionAction.NONE, NotificationPermissionAction.PROMPT, null -> Unit
+        }
     }
 
     // Tapping the tab that is already open would otherwise still run a navigation transaction. The

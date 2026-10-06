@@ -1,6 +1,8 @@
 package com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.impl.presentation.compose
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -15,6 +17,7 @@ import org.jetbrains.compose.resources.getString
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -103,5 +106,21 @@ class NotificationsRationaleDialogTest {
 
         //Then
         composeRule.onNodeWithText(title).assertIsDisplayed()
+    }
+
+    @Test
+    @Config(qualifiers = "w600dp-h240dp-land")
+    fun aWindowTooLowForTheMessageScrollsItAndKeepsBothAnswers() {
+        //Given
+        val answers = listOf(negativeButton, positiveButton)
+
+        //When
+        setDialog()
+
+        //Then
+        composeRule.onNode(hasText(message) and hasScrollAction()).assertExists()
+        answers.forEach { text: String ->
+            composeRule.onNodeWithText(text).assertIsDisplayed()
+        }
     }
 }

@@ -4,11 +4,13 @@ import android.Manifest
 import android.os.Bundle
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionSession
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -42,9 +44,10 @@ class MainActivityRecreationTest {
     }
 
     @Test
-    fun asksForNotificationPermissionAgainWhenItIsRebuilt() {
+    fun asksForNotificationPermissionOnlyOnceWhenItIsRebuiltInTheSameProcess() {
         //Given
         val controller = composeRule.launchMainActivity(plainLaunchingIntent())
+        val askedAtLaunch = shadowOf(controller.get()).lastRequestedPermission
 
         //When
         controller.recreate()
@@ -53,8 +56,60 @@ class MainActivityRecreationTest {
         //Then
         assertEquals(
             Manifest.permission.POST_NOTIFICATIONS,
-            shadowOf(controller.get()).lastRequestedPermission?.requestedPermissions?.single()
+            askedAtLaunch?.requestedPermissions?.single()
         )
+        assertEquals(null, shadowOf(controller.get()).lastRequestedPermission)
+    }
+
+    @Test
+    fun keepsTheExplanationOnScreenWhenItIsRebuiltInTheSameProcess() {
+        //Given
+        expectAnExplanation()
+        val controller = composeRule.launchMainActivity(plainLaunchingIntent())
+
+        //When
+        controller.recreate()
+        composeRule.waitForIdle()
+
+        //Then
+        composeRule.onNode(isDialog()).assertIsDisplayed()
+    }
+
+    @Test
+    fun keepsARefusedExplanationClosedWhenItIsRebuiltInTheSameProcess() {
+        //Given
+        expectAnExplanation()
+        val controller = composeRule.launchMainActivity(plainLaunchingIntent())
+        composeRule.onNodeWithText(REFUSE_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        //When
+        controller.recreate()
+        composeRule.waitForIdle()
+
+        //Then
+        composeRule.onNode(isDialog()).assertDoesNotExist()
+    }
+
+    @Test
+    fun explainsItselfAgainWhenItIsRebuiltInANewProcess() {
+        //Given
+        expectAnExplanation()
+        val first = composeRule.launchMainActivity(plainLaunchingIntent())
+        composeRule.onNodeWithText(REFUSE_LABEL).performClick()
+        composeRule.waitForIdle()
+        val saved = Bundle()
+        first.saveInstanceState(saved).pause().stop().destroy()
+        hostApplication.notificationPermissionSession = NotificationPermissionSession()
+
+        //When
+        Robolectric.buildActivity(MainActivity::class.java, plainLaunchingIntent())
+            .create(saved).start().restoreInstanceState(saved).postCreate(saved)
+            .resume().visible()
+        composeRule.waitForIdle()
+
+        //Then
+        composeRule.onNode(isDialog()).assertIsDisplayed()
     }
 
     @Test

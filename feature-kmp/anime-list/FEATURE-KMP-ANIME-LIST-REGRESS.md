@@ -12,9 +12,10 @@ Unless a step says otherwise, start from a fresh installation with the device on
 Every section below is run once per pass listed under "Passes" in the root
 `ANOTI-FULL-REGRESS.md`.
 
-On Android, changing the font or display size rebuilds the screen, and it keeps its state. The
-iPhone keeps its screen as it is. Changing orientation rebuilds nothing — the screen keeps its
-state, which is itself checked in section 13.
+On Android, changing the font size rebuilds the screen, and it keeps its state. Changing the
+display size or the orientation rebuilds nothing — the screen keeps its state, which is itself
+checked in section 13. The iPhone keeps its screen through a rotation and a text size change. A
+Display Zoom change restarts it, as section 14 says.
 
 ## 1. The three states of the section area
 
@@ -112,6 +113,7 @@ two modes and changes nothing else on the item.
    - The label is shown with "No data" where the date would be.
 6. On an "Ongoing" item that has never had its date fetched, tap the button and watch.
    - The line switches immediately, and the date fills in a moment later when it arrives.
+     Until then the line may show "No data" for a moment. That is expected.
    - Turning the mode off and on again does not fetch it a second time: the date is there at
      once.
 7. Turn the network off and open the extra info on an "Ongoing" item whose date is not yet
@@ -297,15 +299,21 @@ checks that only make sense once.
    - A phone, or a foldable folded: one item per row, as wide as the screen.
    - A screen at least 600 dp wide: two items per row, of equal width. That is a tablet in
      either orientation, a foldable unfolded in either orientation, and an iPad.
+   - The columns follow the app's width at the display size set, in dp on Android and in points
+     on iOS. At maximum display size a tablet held upright, or a foldable unfolded, can drop
+     under 600 and show one item per row. That is expected.
    - The gap between the two columns equals the gap between two rows.
    - The top bar stays one bar across the full width, over both columns. Its labels and the
      search button stay tappable.
    - With an odd number of items, the last row holds one item on the left, at a single column's
      width.
-10. Fold and unfold a foldable with the list scrolled down, then rotate it unfolded.
+10. At the default display size, fold and unfold a foldable with the list scrolled down, then
+    rotate it unfolded.
     - Folding and unfolding switch the rows between one and two columns. Rotating unfolded keeps
       two.
     - The item at the top of the screen before the change is still at the top after it.
+11. Open the search, type something, and leave the keyboard up. Fold the device, then unfold it.
+    - The typed text is still in the field, and the results still match it.
 
 ## 14. Platforms
 

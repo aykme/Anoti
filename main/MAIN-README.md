@@ -8,7 +8,7 @@ navigation, and the screen hosts of both platforms.
 - [DiRootComponent](src/commonMain/kotlin/com/alekseivinogradov/anoti/main/impl/di/DiRootComponent.kt) —
   the root UI host's dependency graph, one per host.
 - [DiRootComponentHolder](src/commonMain/kotlin/com/alekseivinogradov/anoti/main/impl/presentation/di/DiRootComponentHolder.kt) —
-  lets a host create its `DiRootComponent`.
+  lets a host create its `DiRootComponent` and share the process's permission session.
 - [RootHost](src/commonMain/kotlin/com/alekseivinogradov/anoti/main/impl/presentation/RootHost.kt) —
   a screen host's shared work around the root UI.
 - [MainActivity (Android)](src/androidMain/kotlin/com/alekseivinogradov/anoti/main/impl/presentation/MainActivity.kt) —
@@ -28,9 +28,10 @@ navigation, and the screen hosts of both platforms.
 ## How to use it
 
 The app's `Application` implements `DiRootComponentHolder` and returns a new `DiRootComponent`
-from every call. `MainActivity` asks it for one each time it is created and hands it to a new
-`RootHost`. With it go the screen a tapped notification names, a way to build its component
-context, and its notification-permission requests. The host builds the root navigation, and the
+from every call. It also holds the process's one `NotificationPermissionSession`. `MainActivity`
+asks it for both each time it is created and hands them to a new `RootHost`. With them go the
+screen a tapped notification names, a way to build its component context, and its
+notification-permission requests. The host builds the root navigation, and the
 activity shows the host's content. A notification tapped while the activity runs opens its screen
 in the same root.
 
@@ -39,6 +40,7 @@ first time the scene asks for its screen. The scene keeps the root's state as on
 `@SceneStorage`, which the host writes and reads back. A tapped notification opens its screen in
 that root, or in the one still to be built.
 
-A narrow window keeps the app upright on iOS, as a screen below sw600dp does on Android.
-`iosSupportedInterfaceOrientations(window)` answers it from the window's size, and `IosApp` hands
-that answer to the app delegate.
+A screen whose smaller side is under 600 keeps the app upright on both platforms. iOS measures
+the window in points: `iosSupportedInterfaceOrientations(window)` answers from its size, and
+`IosApp` hands that answer to the app delegate. Android measures the whole display in dp at the
+density the device ships with, so the display size setting never locks a tablet upright.

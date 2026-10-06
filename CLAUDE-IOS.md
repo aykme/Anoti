@@ -56,10 +56,10 @@ the rules both platforms share and loads this file.
   registers, and `UIBackgroundModes` must hold `fetch`. Without that mode iOS refuses every
   refresh request. It must also set `CADisableMinimumFrameDurationOnPhone` to `true`, or Compose
   stops the app at launch.
-- The app turns only on a wide window, whatever the device, as on Android. A window whose smaller
-  side is under 600 points keeps it upright, as Android keeps a screen below sw600dp. So
-  `Info.plist` must allow every orientation on the iPhone too, and the app must decide from the
-  window's size at run time.
+- The app turns only on a wide window, whatever the device. A window whose smaller side is under
+  600 points keeps it upright. Android makes the same choice from the whole display at its stock
+  density. So `Info.plist` must allow every orientation on the iPhone too, and the app must
+  decide from the window's size at run time.
 - The status bar must show light content over the app's dark screens.
 - The app delegate answers `application(_:supportedInterfaceOrientationsFor:)` with
   `IosApp.supportedInterfaceOrientations(window:)`, converted from the `UInt64` Kotlin hands over.

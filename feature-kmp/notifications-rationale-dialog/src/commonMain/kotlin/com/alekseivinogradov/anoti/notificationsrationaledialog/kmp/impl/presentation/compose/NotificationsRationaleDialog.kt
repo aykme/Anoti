@@ -2,6 +2,8 @@ package com.alekseivinogradov.anoti.notificationsrationaledialog.kmp.impl.presen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -52,9 +54,11 @@ fun NotificationsRationaleDialog(onDismiss: () -> Unit, onApprove: () -> Unit) {
         },
         title = { Text(text = stringResource(Res.string.dialog_alert_title), color = White) },
         text = {
+            // A window too low for the whole message scrolls it and keeps the buttons in view.
             Text(
                 text = stringResource(Res.string.dialog_alert_notifications_rationale_message),
-                color = SilverTransparent
+                color = SilverTransparent,
+                modifier = Modifier.verticalScroll(rememberScrollState())
             )
         },
         dismissButton = {

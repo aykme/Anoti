@@ -1,8 +1,11 @@
 [versions]
 # KMP app versions — all used via libs.versions.<name>.get() in build.gradle.kts,
 # Studio's unused-entry inspection just doesn't recognize that accessor pattern
+# versionCode is versionName without the dot: 1.1 is 11.
 #noinspection UnusedVersionCatalogEntry
-versionCode = "10"
+versionCode = "11"
+# versionName grows in steps of 0.1, for iOS. iOS reads each dot-separated part as a whole
+# number and has no hundredths, so 1.09 is not a valid step.
 #noinspection UnusedVersionCatalogEntry
 versionName = "1.1"
 
@@ -85,6 +88,7 @@ robolectric = "4.17"
 #noinspection UnusedVersionCatalogEntry
 robolectricSdk = "35"
 rules = "1.7.0"
+window = "1.5.1"
 workRuntimeKtx = "2.12.0"
 
 # Non maxed suppressed Android library versions
@@ -172,6 +176,7 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 androidx-core = { group = "androidx.core", name = "core", version.ref = "core" }
 androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
 androidx-rules = { group = "androidx.test", name = "rules", version.ref = "rules" }
+androidx-window = { module = "androidx.window:window", version.ref = "window" }
 androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "workRuntimeKtx" }
 androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "workRuntimeKtx" }
 compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "composeUiTest" }
