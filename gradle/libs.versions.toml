@@ -1,8 +1,11 @@
 [versions]
 # KMP app versions — all used via libs.versions.<name>.get() in build.gradle.kts,
-# Studio's unused-entry inspection just doesn't recognize that accessor pattern
+# Studio's unused-entry inspection just doesn't recognize that accessor pattern.
+# versionName grows in steps of 0.1, for iOS. iOS reads each dot-separated part as a whole
+# number and has no hundredths, so 1.09 is not a valid step. versionCode is versionName
+# without the dot: 1.1 is 11.
 #noinspection UnusedVersionCatalogEntry
-versionCode = "10"
+versionCode = "11"
 #noinspection UnusedVersionCatalogEntry
 versionName = "1.1"
 
