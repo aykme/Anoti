@@ -19,7 +19,12 @@
 - Check the screen reader right after boot. Turn it off and restart the app before walking; turn it
   on only for its own steps.
 - Images with Google Play have no `adb root`. Plan every check that needs root (editing app
-  databases, clearing permission flags) on a Google APIs image.
+  databases) on a Google APIs image.
+- Bring a permission dialog back without reinstalling, which keeps every other state:
+  `pm revoke <pkg> <perm>`, then `pm clear-permission-flags <pkg> <perm> user-set user-fixed`. No
+  root is needed.
+- An AVD with a hardware keyboard hides the soft keyboard; check the AVD before keyboard steps.
+- Airplane mode may leave Wi-Fi on. Check the network really dropped.
 - A Play image may block the first `adb install` with a Play Protect dialog.
 - When a device comes back from the developer, check which build is installed before trusting its
   state (`dumpsys package <pkg>`: version, debuggable flag).
@@ -33,7 +38,7 @@
 - Measure the smallest width (`am get-config`) at maximum display size before judging rotation or
   column steps: a tablet can drop below the large-screen threshold.
 - Read the current orientation before a swipe. A fast swipe from the bottom of a tablet opens
-  recents and looks like a crash. A tablet's natural orientation is landscape.
+  recents and looks like a crash. A tablet's natural orientation is often landscape.
 - Lock rotation with `wm user-rotation lock <n>`; `settings put system user_rotation` may be
   ignored.
 - Foldables: `adb emu fold` / `unfold`; density is per display (`wm density -d <id>`), screenshots
@@ -52,7 +57,9 @@
 
 - Force a periodic job through its scheduler's own state: with the app stopped and root, move the
   job's last enqueue time back in the scheduler's database. Shifting the device clock makes the
-  scheduler skip passes silently for the length of the shift.
+  scheduler skip passes silently for the length of the shift. Shift the clock only where ages
+  matter, as the last step on that device, then restore it and reinstall.
+- A force-stop cancels the app's scheduled jobs and its notifications.
 - A forced pass with no result line in the log is a tool problem; repeat it.
 - Edit an app database only while the app is dead. A root edit can leave journal files with the
   wrong security label, which the app then cannot open; delete them.
@@ -61,7 +68,7 @@
 - Never clear all notifications mid-check (`service call notification 1` does that). A collapsed
   notification group has no tap action: expand it and tap one notification.
 - A backup check through the local transport leaves data that restores itself on every later
-  install. Wipe it and switch the transport back afterwards.
+  install. Wipe it and switch the transport back afterward.
 
 ## Evidence
 
@@ -74,5 +81,6 @@
 
 ## Cleanup
 
-Uninstall what the walk installed, reset every setting it changed, wipe test backups, delete the
-walk's temporary files on the device, and shut each emulator down as soon as its part is done.
+Uninstall what the walk installed and reset every setting it changed. Wipe test backups and
+delete the walk's temporary files on the device. Shut each emulator down as soon as its part is
+done.

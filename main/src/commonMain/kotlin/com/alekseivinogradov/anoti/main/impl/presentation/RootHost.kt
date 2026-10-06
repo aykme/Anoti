@@ -147,7 +147,7 @@ internal class RootHost(
      * showing it stays as it is. Main thread only.
      */
     fun openFromNotification(target: NavRootConfig) {
-        println("$ANOTI_TAG RootHost: a tapped notification navigates to $target")
+        println("$ANOTI_TAG RootHost: a tapped notification asks for $target")
         rootComponent.navigateTo(target)
     }
 

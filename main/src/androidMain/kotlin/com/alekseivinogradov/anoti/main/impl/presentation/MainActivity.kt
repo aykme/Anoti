@@ -75,14 +75,16 @@ class MainActivity : ComponentActivity() {
         val componentHolder = application as DiRootComponentHolder
         // The launching intent is read on a fresh start only. A rebuilt activity restores the
         // screen the user was on.
-        val openingTarget = if (savedInstanceState == null) readDeepLinkTarget(intent) else null
-        if (savedInstanceState == null) {
-            println(
-                "$ANOTI_TAG MainActivity: created fresh, notification target " +
-                    (openingTarget ?: "none")
-            )
+        val openingTarget = if (savedInstanceState == null) {
+            readDeepLinkTarget(intent).also { target: NavRootConfig? ->
+                println(
+                    "$ANOTI_TAG MainActivity: created fresh, notification target " +
+                        (target ?: "none")
+                )
+            }
         } else {
             println("$ANOTI_TAG MainActivity: created over saved state")
+            null
         }
         val rootHost = RootHost(
             diRootComponent = componentHolder.createDiRootComponent(),

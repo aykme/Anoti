@@ -396,19 +396,22 @@ Each of these gets its own step:
 - every screen state — loading, empty, error, loaded — and every transition between them;
 - every control, and every press it accepts: tap, long press, press-and-hold, repeat;
 - every gesture: scroll, swipe, pull-to-refresh, drag, system back;
-- every way the data itself can differ: missing image, long title, zero count, huge count;
+- every way the data the backend really sends can differ: missing image, long title, zero
+  count, huge count;
 - every way the device can differ: no network, rotation, dark mode, large font, back from
   background, process death.
 
 ### What stays out
 
-These cost a regression time and turned out not to be the app's to answer for:
+Leave these out of a regression file:
 
 - checks the OS, vendor, device or system settings decide, such as where a notification shows or
   how often background work really runs;
 - what the system draws rather than the app: its bars and indicators, its notification layout;
 - data the backend never sends, which a unit test covers instead;
-- behavior the developer has accepted as designed.
+- behavior the developer has accepted as designed;
+- exact margins, ellipsis or a badge's size at the largest font and display size. There a step
+  checks only that everything stays readable and reachable.
 
 A placeholder or flash the app shows on purpose while data loads stays in, stated as expected in
 the step itself.

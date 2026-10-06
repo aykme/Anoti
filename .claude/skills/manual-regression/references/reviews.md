@@ -34,10 +34,12 @@ Try hard to REFUTE each finding:
 - a misread screenshot;
 - a precondition that was not present.
 Output per finding: CONFIRMED / CONFIRMED-WITH-CORRECTION / REFUTED, two to four lines of evidence,
-the severity, and a one-line fix.
+the severity on the report's scale (`report.md`), and a one-line fix.
 ```
 
-Give the high-stakes candidates to one skeptic and the rest to the other.
+Give the high-stakes candidates to one skeptic and the rest to the other. The same brief serves
+the spec and plan gates: there the findings are a reviewer's, and the inputs are the spec or
+plan and the code.
 
 ## Judge, for an automated walk
 

@@ -65,6 +65,8 @@ internal class AnimeNotificationManagerImpl(
                 poster = posterLoader.loadImage(imageUrl)?.toBitmap()
             )
             val summaryNotification = buildSummaryNotification()
+            // Without the permission the system drops the post without a word.
+            val notificationsOn = notificationManager.areNotificationsEnabled()
 
             singleIds.withNextId { singleId: Int ->
                 notificationManager.notify(
@@ -73,7 +75,10 @@ internal class AnimeNotificationManagerImpl(
                     /* notification = */
                     singleNotification
                 )
-                println("$ANOTI_TAG AnimeNotification: notification $singleId handed to the system")
+                println(
+                    "$ANOTI_TAG AnimeNotification: notification $singleId handed to the system, " +
+                        "notifications on: $notificationsOn"
+                )
             }
             // Outside the ring, so a failed summary cannot undo the record of a posted single.
             notificationManager.notify(

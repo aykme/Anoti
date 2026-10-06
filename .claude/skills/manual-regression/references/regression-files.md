@@ -31,6 +31,8 @@ filter for the cleanup after a walk.
 - Data the backend never sends. Cover it with a unit test instead.
 - Checks of behavior the developer has accepted as designed.
 - Blocked steps the developer has waived.
+- Exact margins, ellipsis or a badge's size at the largest font and display size. There a step
+  checks only that everything stays readable and reachable.
 
 ## What goes in
 

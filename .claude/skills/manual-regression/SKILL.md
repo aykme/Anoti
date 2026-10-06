@@ -1,6 +1,6 @@
 ---
 name: manual-regression
-description: Use when asked to run a manual or full regression of an app, to walk its regression test scripts on emulators, simulators or a CI runner, to write the regression report, or to triage and fix what a regression found. Also when planning such a walk or reviewing its findings.
+description: Use when asked to run a manual regression or a full regression of an app, to walk its regression test scripts on emulators, simulators or a CI runner, to write the regression report, or to triage and fix what a regression found. Also when planning such a walk or reviewing its findings.
 ---
 
 # Manual regression
@@ -14,8 +14,9 @@ wording of a script, nor between one OS and another.
 The project's own instructions override this skill. Where the project has rules or a
 documentation skill that own its regression files, those win. This skill's
 `references/regression-files.md` is then only a fallback and the filter for the cleanup after a
-walk. Everything below marked *default* is a starting point that phase 1 confirms with the
-developer.
+walk. Rules below that are the developer's preferences are defaults that phase 1 confirms: the
+build users get, emulators only, fixing nothing during the walk, not stopping, the size of the
+review gates, the report's form, and deleting the walk code.
 
 ## Prerequisites
 
@@ -68,7 +69,8 @@ Copy this checklist into the working notes and tick it off.
    to one of them. They try to refute. Then re-read the walk log for paused or skipped steps and
    walk them before reporting.
 7. **Report.** As `references/report.md` says, plus a short chat summary. Then clean the devices
-   (every state the walk created) and the scratch files the developer does not need.
+   (every state the walk created) and the scratch files nothing later needs. The working files
+   stay until triage closes.
 8. **Triage.** Each finding with a proposal; the developer answers yes, no or otherwise. Reproduce
    on demand and find the exact cause before proposing code.
 9. **Scripts.** Clean the regression files by the project's rules, then have a reviewer and
@@ -93,20 +95,19 @@ Calibrate it: a walk once planned at 25–35 hours took about 5.
 | Verdict | Test |
 |---|---|
 | App bug | Wrong for the user on the build users get, reproduced, not explained by anything below |
-| Script wrong | The app does what was designed; the step says otherwise. Fix the step |
+| Script wrong | The app does what was designed; the step says otherwise. Fixed in phase 9 |
 | Noise | One of the categories below |
-| Tool artifact | The walk's own action caused it, or the evidence was misread |
+| Tool artifact | The walk's own action caused it (a tap that only stopped a fling), or the evidence was misread |
 | Environment | The emulator, simulator or CI runner, not the app |
 
 ### Noise: do not report
 
-- Behavior the OS, vendor, device, system settings, emulator or simulator decide.
+- Behavior the OS, vendor, device or system settings decide.
 - UI the system draws: its bars and indicators, its notification layout, its dialogs.
 - Cosmetics at extreme scale that lose nothing: ellipsis, overlap, tight margins, a badge growing
   with the font.
 - Intended placeholders and brief flashes while data loads.
 - Platform-guideline advice that would not change the shared flow.
-- The first tap after a fling, which only stops the fling.
 
 The line for layout is simple. Can the user still read and reach everything, and do orientation
 and screen fill hold? If not, it is a finding. A real bug with low impact is reported with its

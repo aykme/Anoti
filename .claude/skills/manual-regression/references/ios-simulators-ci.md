@@ -1,7 +1,7 @@
 # iOS simulators on a CI runner
 
-For walking an iOS app with no Mac at hand: the walk runs as UI tests and scripts on a macOS CI
-runner, and is judged afterwards from its screenshots, videos and logs.
+For walking an iOS app with no Mac at hand. The walk runs as UI tests and scripts on a macOS CI
+runner. It is judged afterward from its screenshots, videos and logs.
 
 ## Contents
 
@@ -15,23 +15,28 @@ runner, and is judged afterwards from its screenshots, videos and logs.
 - Probe first: one short run that tries the tools (permission answers, keyboard, network cut,
   maximum text size, notifications, scene restore) and nothing else.
 - Split the walk into parts that run in parallel jobs, each with its own media folder. Give each
-  part a judge afterwards (`reviews.md`).
-- Keep the walk code on its own branch, review it and its helpers before the first run, and delete
-  the branch when the report is done.
+  part a judge afterward (`reviews.md`).
+- Keep the walk code on its own branch, and review it and its helpers before the first run. Delete
+  the branch when the report is done, unless phase 1 decided otherwise.
 - Record rather than assert: a step that fails an assertion stops recording what came after.
 
 ## Simulator facts
 
 - `xcrun simctl ui <udid> content_size <size>` sets the text size; `appearance` sets dark mode.
-  Display Zoom has no command and is set through the Settings app.
+- Display Zoom cannot be set on a simulator: no command exists, and the simulator's Settings has
+  no Display & Brightness section. Maximum-scale passes run at the largest text size and count as
+  approximated.
 - A UI test that launches the app loses the app's standard output. To read the app's logs, start it
   with `simctl launch --console` or `--stdout=<file>` and attach the test to it by bundle id.
 - After a UI test has launched the app, iOS returns no kept scene state to later launches until the
   simulator restarts. Restart it before restore checks, and let the script, not the test, launch
   the app in them.
-- An iPad app that supports multitasking may turn whatever orientations it asks for. Judge
-  orientation by what the screen shows, not by what the app requests.
+- Judge orientation by what the screen shows, not by what the app requests.
 - The home indicator and other system chrome may not appear in simulator screenshots.
+- `activate()` on an app that is not running launches it, and that launch silently drops the kept
+  scene state.
+- Record the environment state (network, appearance, text size, permissions) at the start of each
+  segment, so a later surprise can be traced.
 
 ## Evidence and artifacts
 

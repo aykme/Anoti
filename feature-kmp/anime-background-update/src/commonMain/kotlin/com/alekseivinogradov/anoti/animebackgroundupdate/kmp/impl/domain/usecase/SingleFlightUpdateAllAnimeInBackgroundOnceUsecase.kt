@@ -22,8 +22,6 @@ import kotlin.concurrent.atomics.ExperimentalAtomicApi
  * @param animeUpdateManager runs the pass.
  * @param coroutineScope scope the pass runs in.
  */
-private const val SKIPPED_LOG = "$ANOTI_TAG BackgroundRefresh: skipped, a pass is in flight"
-
 @OptIn(ExperimentalAtomicApi::class)
 internal class SingleFlightUpdateAllAnimeInBackgroundOnceUsecase(
     private val animeUpdateManager: AnimeUpdateManager,
@@ -59,3 +57,5 @@ internal class SingleFlightUpdateAllAnimeInBackgroundOnceUsecase(
         }
     }
 }
+
+private const val SKIPPED_LOG = "$ANOTI_TAG SingleFlightUpdate: skipped, a pass is in flight"

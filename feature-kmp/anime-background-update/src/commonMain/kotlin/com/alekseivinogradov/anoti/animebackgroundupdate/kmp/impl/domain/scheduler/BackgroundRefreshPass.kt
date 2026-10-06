@@ -38,7 +38,7 @@ internal class BackgroundRefreshPass(
         task.setExpirationHandler {
             // Told before the pass is canceled, not after: canceling is cooperative, and a
             // pass in the middle of write can take longer to unwind than the platform waits.
-            println("$ANOTI_TAG BackgroundRefreshPass: expired")
+            println("$ANOTI_TAG BackgroundRefreshPass: expires")
             completion.complete(success = false)
             job.cancel()
         }

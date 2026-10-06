@@ -153,7 +153,7 @@ internal class AnimeNotificationManagerImpl(
             error = error.ptr
         ).also { attachment: UNNotificationAttachment? ->
             if (attachment == null) {
-                println("$ANOTI_TAG $TAG: poster was rejected as an attachment: ${error.value}")
+                println("$ANOTI_TAG $TAG: the poster was rejected as an attachment: ${error.value}")
             }
         }
     }
