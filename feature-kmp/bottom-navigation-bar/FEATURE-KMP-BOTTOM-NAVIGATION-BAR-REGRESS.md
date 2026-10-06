@@ -56,8 +56,9 @@ Check this on arrival: the app opens on "Main", so "Main" is the red-orange one.
 
 ## 5. The badge on "Favorites"
 
-The badge is a small filled circle at the top right of the heart icon, red-orange with dark
-digits. It counts the subscribed anime that have a new episode the user has not looked at.
+The badge is a filled mark at the top right of the heart icon, red-orange with dark digits. It
+grows with the system font size. It counts the subscribed anime that have a new episode the user
+has not looked at.
 
 1. With nothing subscribed, look at the heart icon.
    - There is no badge at all. Not a badge showing "0" — no badge.
@@ -93,10 +94,11 @@ With the screen reader on, move focus onto each tab.
   at either end. The bar keeps its fixed height.
 - Both tabs still respond to a tap at that size, across their whole width and height, not only
   on the text.
-- On a screen narrower than 600dp the app stays in portrait whichever way the device is held.
-  That is expected, and the landscape passes read the same as the portrait ones there.
-- On a screen at least 600dp wide the bar spans the full width in landscape, still at the
-  bottom, with the two tabs still equal width.
+- A phone, or a foldable folded, keeps the app in portrait whichever way it is held. That is
+  expected, and the landscape passes read the same as the portrait ones there.
+- A tablet, an iPad or a foldable unfolded lets the app turn, at any font and display size. In
+  landscape the bar spans the full width, still at the bottom, with the two tabs still equal
+  width.
 
 ## 8. Leaving and coming back
 

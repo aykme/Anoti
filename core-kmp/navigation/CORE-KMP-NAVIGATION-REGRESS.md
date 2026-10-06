@@ -17,7 +17,8 @@ Unless a step says otherwise, start with the app online and opened at least once
 ## Starting from a notification
 
 Requires a saved anime whose next episode is released while the test runs, so a new-episode
-notification arrives.
+notification arrives. When several notifications have arrived, the system may show them as one
+group. Expand it and tap one notification in it.
 
 1. With the app closed, tap the new-episode notification.
    The app opens on **Favorites**, not on the main screen, and **Favorites** is the selected item

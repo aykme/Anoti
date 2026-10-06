@@ -36,8 +36,9 @@ cut off or overlapping, a control pushed off-screen or shrunk until it cannot be
 that wraps in one pass and clips in another, and anything that stops responding to a tap because
 it moved. Where a step behaves differently by scale or orientation on purpose, that step says so.
 
-A phone keeps the app upright, so on a phone passes 2 and 4 repeat passes 1 and 3. The landscape
-passes need a wide screen: a tablet, or a foldable unfolded.
+A phone keeps the app upright, and so does a foldable folded. On those, passes 2 and 4 repeat
+passes 1 and 3. The landscape passes need a wide screen: a tablet, an iPad, or a foldable
+unfolded. Such a screen stays wide at maximum display size too, and the app still fills it.
 
 Unless a step says otherwise, start from a fresh installation with the device online.
 

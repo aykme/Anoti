@@ -112,6 +112,7 @@ two modes and changes nothing else on the item.
    - The label is shown with "No data" where the date would be.
 6. On an "Ongoing" item that has never had its date fetched, tap the button and watch.
    - The line switches immediately, and the date fills in a moment later when it arrives.
+     Until then the line may show "No data" for a moment. That is expected.
    - Turning the mode off and on again does not fetch it a second time: the date is there at
      once.
 7. Turn the network off and open the extra info on an "Ongoing" item whose date is not yet
@@ -296,7 +297,9 @@ checks that only make sense once.
 9. One or two columns, by the screen's width. Walk "On air", "Soon" and search on each screen.
    - A phone, or a foldable folded: one item per row, as wide as the screen.
    - A screen at least 600 dp wide: two items per row, of equal width. That is a tablet in
-     either orientation, a foldable unfolded in either orientation, and an iPad.
+     either orientation, a foldable unfolded in either orientation, and an iPad. The width counts
+     at the display size set: at the largest, a tablet held upright can drop below 600 dp and
+     show one item per row.
    - The gap between the two columns equals the gap between two rows.
    - The top bar stays one bar across the full width, over both columns. Its labels and the
      search button stay tappable.
@@ -306,6 +309,8 @@ checks that only make sense once.
     - Folding and unfolding switch the rows between one and two columns. Rotating unfolded keeps
       two.
     - The item at the top of the screen before the change is still at the top after it.
+11. Open the search, type something, and leave the keyboard up. Fold the device, then unfold it.
+    - The typed text is still in the field, and the results still match it.
 
 ## 14. Platforms
 

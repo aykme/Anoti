@@ -53,11 +53,6 @@ Android: open system settings for the app, then its notification categories.
 - The line below reads "Episode aired: " followed by the episode number.
 - The anime's poster is shown in the notification.
 
-Check this variant:
-
-- An anime whose name or episode number the app does not know.
-  - That spot reads "No data" instead. The notification still appears.
-
 ## 4. Several notifications at once
 
 1. Get new episodes for two or more subscribed anime.
@@ -81,6 +76,9 @@ Check this variant:
      choose.
 
 ## 5. Tapping one
+
+When several notifications have arrived, the system may show them as one group. Expand it
+and tap one notification in it.
 
 1. Tap a notification while the app is closed.
    - The app opens on the favorites screen. On the iPhone another screen may show for a moment

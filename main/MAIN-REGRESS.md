@@ -42,6 +42,8 @@ Steps run on both platforms unless they name one.
 ## Opening from a new-episode notification
 
 Requires at least one saved anime that has a new episode, so a notification actually arrives.
+When several notifications have arrived, the system may show them as one group. Expand it
+and tap one notification in it.
 
 1. With the app fully closed, open the notification list and tap the new-episode notification.
    The app opens on the favorites section. The right bottom-bar item is the selected one. On
@@ -89,12 +91,12 @@ The app is dark whatever theme the device is set to. Walk steps 1–3 and 5–6 
 the device set to light theme, then set to dark theme. Every result is the same both times. A
 light area in the light theme is a bug, even when the dark theme looks right.
 
-1. Open the app on any screen.
+1. Open the app on any screen, scrolled to the top.
    The content runs to the very top and bottom edges of the screen. The status bar has no
-   background of its own — the screen's own content shows through behind the clock and icons, so
-   the area behind them is dark.
+   background of its own — the screen's own content shows through behind the clock and icons.
+   With the screen at its top, the area behind them is dark.
 2. Look at the clock, battery and signal icons in the status bar.
-   They are light against the dark content behind them.
+   They are light against the dark area behind them.
 3. Look at the bottom bar and the area below it, down to the bottom edge of the screen.
    The bottom bar is dark, and the area below it is black, matching the bar above it. There is
    no lighter background and no translucent overlay between them. Only the system's own
@@ -119,6 +121,23 @@ light area in the light theme is a bug, even when the dark theme looks right.
    its two items, and the section that was open stays open.
 3. Turn it back.
    The app returns to the upright layout and the same section is still open.
+4. On a tablet or an iPad, set the font size and the display size to their largest, then repeat
+   step 2.
+   The app still turns with the device and fills the whole screen. No black bars appear at its
+   sides.
+
+## Folding and unfolding
+
+On a foldable only.
+
+1. Open the anime list, fold the device, then unfold it.
+   The same section stays open and the bottom bar keeps its selected item. Folded, the app stays
+   upright when the device turns. Unfolded, it turns with the device.
+2. Do the same on favorites.
+   Favorites stays open, with the right bottom-bar item selected.
+3. Android only, since the iPhone sets one display size for the whole device: give the outer and
+   the inner screen different display sizes, then repeat steps 1 and 2.
+   The results are the same. Nothing reloads, and the screen does not flash empty.
 
 ## The keyboard
 
