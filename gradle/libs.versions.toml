@@ -88,6 +88,7 @@ robolectric = "4.17"
 #noinspection UnusedVersionCatalogEntry
 robolectricSdk = "35"
 rules = "1.7.0"
+window = "1.5.1"
 workRuntimeKtx = "2.12.0"
 
 # Non maxed suppressed Android library versions
@@ -175,6 +176,7 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 androidx-core = { group = "androidx.core", name = "core", version.ref = "core" }
 androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
 androidx-rules = { group = "androidx.test", name = "rules", version.ref = "rules" }
+androidx-window = { module = "androidx.window:window", version.ref = "window" }
 androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "workRuntimeKtx" }
 androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "workRuntimeKtx" }
 compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "composeUiTest" }
