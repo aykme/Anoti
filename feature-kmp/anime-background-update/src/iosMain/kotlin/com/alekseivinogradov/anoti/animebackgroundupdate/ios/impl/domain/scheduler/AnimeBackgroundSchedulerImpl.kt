@@ -4,6 +4,7 @@ import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.manager.
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.scheduler.AnimeBackgroundScheduler
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.scheduler.BackgroundRefreshPass
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.scheduler.BackgroundRefreshTask
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCObjectVar
@@ -23,7 +24,7 @@ import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 private const val ANIME_UPDATE_TASK_IDENTIFIER = "com.alekseivinogradov.anoti.animeupdate.refresh"
-private const val TAG = "AnimeBackgroundSchedulerImpl"
+private const val TAG = "AnimeBackgroundScheduler"
 
 // The platform kills the app on a second registration of one identifier, and a registered
 // handler outlives whatever registered it, so the guard belongs to the process rather than to
@@ -68,9 +69,11 @@ class AnimeBackgroundSchedulerImpl(
             usingQueue = null
         ) { task -> task?.let(::runUpdateFor) }
 
-        if (!registered) {
+        if (registered) {
+            println("$ANOTI_TAG $TAG: task handler registered")
+        } else {
             taskHandlerRegistered.store(false)
-            println("$TAG: $ANIME_UPDATE_TASK_IDENTIFIER is missing from the Info.plist")
+            println("$ANOTI_TAG $TAG: $ANIME_UPDATE_TASK_IDENTIFIER is missing from the Info.plist")
         }
     }
 
@@ -83,7 +86,9 @@ class AnimeBackgroundSchedulerImpl(
             val alreadyWaiting = pending.orEmpty().any { request: Any? ->
                 (request as? BGTaskRequest)?.identifier == ANIME_UPDATE_TASK_IDENTIFIER
             }
-            if (!alreadyWaiting) {
+            if (alreadyWaiting) {
+                println("$ANOTI_TAG $TAG: a refresh is already pending")
+            } else {
                 submitUpdateRequest()
             }
         }
@@ -97,11 +102,13 @@ class AnimeBackgroundSchedulerImpl(
             val error = alloc<ObjCObjectVar<NSError?>>()
             val submitted = BGTaskScheduler.sharedScheduler.submitTaskRequest(request, error.ptr)
 
-            if (!submitted) {
+            if (submitted) {
+                println("$ANOTI_TAG $TAG: the next refresh is submitted")
+            } else {
                 // Refused when background refresh is off for the app, when the identifier is
                 // missing from the Info.plist, or when too many requests are already pending.
                 // Either way there is no next pass until something submits one.
-                println("$TAG: the next background refresh was refused: ${error.value}")
+                println("$ANOTI_TAG $TAG: the next background refresh was refused: ${error.value}")
             }
         }
     }

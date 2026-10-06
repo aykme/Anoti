@@ -2,6 +2,7 @@ package com.alekseivinogradov.anoti.main.api.presentation
 
 import androidx.compose.ui.uikit.OnFocusBehavior
 import androidx.compose.ui.window.ComposeUIViewController
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import com.alekseivinogradov.anoti.main.api.di.DiRootDependencies
 import com.alekseivinogradov.anoti.main.impl.di.createDiRootComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.IosRootHolder
@@ -55,7 +56,7 @@ class IosScreenHost(diRootDependencies: DiRootDependencies) {
      */
     fun viewController(restoredState: String?): UIViewController {
         // Tells a scene store that was never written from one read too late.
-        println("$TAG: the scene kept ${restoredState?.length ?: 0} characters")
+        println("$ANOTI_TAG $TAG: the scene kept ${restoredState?.length ?: 0} characters")
         val root = holder.rootFor(restoredState)
         return ComposeUIViewController(
             configure = {

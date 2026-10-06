@@ -19,6 +19,7 @@ import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.manag
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.manager.ShownNotification
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.manager.newEpisodeNotificationText
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.poster.PosterLoader
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SilverTransparent
 import kotlinx.coroutines.withContext
@@ -72,6 +73,7 @@ internal class AnimeNotificationManagerImpl(
                     /* notification = */
                     singleNotification
                 )
+                println("$ANOTI_TAG AnimeNotification: notification $singleId handed to the system")
             }
             // Outside the ring, so a failed summary cannot undo the record of a posted single.
             notificationManager.notify(

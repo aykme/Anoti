@@ -9,6 +9,7 @@ import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.manag
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.manager.ringNotificationIdentifier
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.manager.shownNotificationOf
 import com.alekseivinogradov.anoti.animenotification.kmp.impl.presentation.poster.PosterLoader
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -36,7 +37,7 @@ import platform.UserNotifications.UNUserNotificationCenter
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-private const val TAG = "ANIME_NOTIFICATION_MANAGER"
+private const val TAG = "AnimeNotification"
 
 /**
  * Posts new-episode notifications through `UNUserNotificationCenter`, the iOS side of what the
@@ -89,7 +90,7 @@ internal class AnimeNotificationManagerImpl(
                 val error = post(identifier = identifier, content = content)
                 isPosterTaken = poster != null && error == null
                 if (poster != null && error?.isRefusedAttachment() == true) {
-                    println("$TAG: the poster was refused, posting without it: $error")
+                    println("$ANOTI_TAG $TAG: the poster was refused, posting without it: $error")
                     content.setAttachments(emptyList<UNNotificationAttachment>())
                     post(identifier = identifier, content = content)
                 }
@@ -111,7 +112,11 @@ internal class AnimeNotificationManagerImpl(
                 trigger = null
             )
             notificationCenter.addNotificationRequest(request) { error: NSError? ->
-                error?.let { println("$TAG: notification was not scheduled: $it") }
+                if (error == null) {
+                    println("$ANOTI_TAG $TAG: notification $identifier handed to the system")
+                } else {
+                    println("$ANOTI_TAG $TAG: notification was not scheduled: $error")
+                }
                 continuation.resume(error)
             }
         }
@@ -148,7 +153,7 @@ internal class AnimeNotificationManagerImpl(
             error = error.ptr
         ).also { attachment: UNNotificationAttachment? ->
             if (attachment == null) {
-                println("$TAG: poster was rejected as an attachment: ${error.value}")
+                println("$ANOTI_TAG $TAG: poster was rejected as an attachment: ${error.value}")
             }
         }
     }

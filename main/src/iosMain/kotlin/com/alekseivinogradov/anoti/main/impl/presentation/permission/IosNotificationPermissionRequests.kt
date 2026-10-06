@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anoti.main.impl.presentation.permission
 
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import platform.Foundation.NSError
 import platform.Foundation.NSURL
 import platform.UIKit.UIApplication
@@ -18,21 +19,21 @@ internal class IosNotificationPermissionRequests : NotificationPermissionRequest
         UNUserNotificationCenter.currentNotificationCenter().requestAuthorizationWithOptions(
             options = UNAuthorizationOptionAlert or UNAuthorizationOptionSound
         ) { granted: Boolean, error: NSError? ->
-            println("$TAG: notifications granted: $granted, error: $error")
+            println("$ANOTI_TAG $TAG: notifications granted: $granted, error: $error")
         }
     }
 
     override fun openSettings() {
         val settings = NSURL.URLWithString(UIApplicationOpenNotificationSettingsURLString)
         if (settings == null) {
-            println("$TAG: the notification settings address does not parse")
+            println("$ANOTI_TAG $TAG: the notification settings address does not parse")
             return
         }
         UIApplication.sharedApplication.openURL(
             url = settings,
             options = emptyMap<Any?, Any?>()
         ) { opened: Boolean ->
-            println("$TAG: notification settings opened: $opened")
+            println("$ANOTI_TAG $TAG: notification settings opened: $opened")
         }
     }
 }

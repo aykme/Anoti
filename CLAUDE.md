@@ -104,12 +104,29 @@ these rules and load together with them.
   (e.g. a `contentType` still at its untouched default) instead of introducing a dedicated
   tracking property for that one case.
 
+## Logging
+
+- The app logs with `println` and nothing else: no `Log`, no `NSLog`, no logging library or
+  wrapper of its own. Swift never logs; SwiftLint bans `print`.
+- Every line reads `println("$ANOTI_TAG <Place>: <what happens>")`. `<Place>` is a fixed string
+  naming the class or area, never `this::class.simpleName`: R8 renames classes in the build a
+  regression walks.
+- A line marks a state change worth following in a regression: a screen built, a permission
+  decision, a load and its count, a background pass and its result, a notification handed over.
+- Never on a hot path: not per list item, recomposition, state emission, keystroke, scroll or
+  orientation query.
+- Never user input or anything that may carry it: the search text, the saved screen state, an
+  exception message quoting either. A failed load is logged by its kind.
+- The iOS restore checks of `ios.yml` find some `IosRootHolder` and `IosScreenHost` lines by
+  their wording. Keep that wording, and never repeat it in a new line.
+
 ## Compose design tokens (Dimens/Fonts/Colors/Const)
 
 - Shared Compose UI constants live in typed files by kind: `Dimens.kt` (sizes, spacing,
   corner/alpha percentages — `Dp`/`Int`), `Fonts.kt` (text sizes — `TextUnit`), `Colors.kt`
   (the color palette). `Const.kt` is separate and holds only business-logic constants (paging,
-  timing, domain limits) — never UI values.
+  timing, domain limits) — never UI values. The one exception is the log tag `ANOTI_TAG`, kept
+  in `CelebrityConsts.kt` of `core-kmp:celebrity`.
 - Placement: a constant used by more than one module lives in the closest common dependency
   every consumer already has (e.g. `core-kmp:celebrity` for values needed project-wide,
   `feature-kmp:anime-base` for values shared only among the anime feature screens that already

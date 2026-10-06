@@ -5,6 +5,7 @@ import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.manager.
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.scheduler.AnimeBackgroundScheduler
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.SingleFlightUpdateAllAnimeInBackgroundOnceUsecase
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import com.alekseivinogradov.anoti.di.kmp.scope.AppScope
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -60,6 +61,6 @@ private const val TAG = "DiAnimeBackgroundUpdatePlatformComponent"
  */
 private fun updatePassScope(): CoroutineScope = CoroutineScope(
     SupervisorJob() + CoroutineExceptionHandler { _, throwable: Throwable ->
-        println("$TAG: an update pass ended in $throwable")
+        println("$ANOTI_TAG $TAG: an update pass ended in $throwable")
     }
 )

@@ -2,6 +2,7 @@ package com.alekseivinogradov.anoti.main.impl.presentation
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.saveable.SaveableStateRegistry
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.lifecycle.ChildLifecycle
 import com.alekseivinogradov.anoti.main.impl.presentation.permission.NotificationPermissionRequests
@@ -76,7 +77,7 @@ internal class IosRootHolder(
      */
     fun rootFor(restoredState: String?): RootHost {
         root?.let { built: Root ->
-            println("$TAG: the root exists, its state is not read again")
+            println("$ANOTI_TAG $TAG: the root exists, its state is not read again")
             return built.host
         }
         val target = pendingTarget
@@ -88,7 +89,7 @@ internal class IosRootHolder(
         }
         root = built
         checkNotificationPermission(root = built, isRebuilt = restored != null)
-        println("$TAG: the root opens on ${built.host.activeScreen}")
+        println("$ANOTI_TAG $TAG: the root opens on ${built.host.activeScreen}")
         return built.host
     }
 
@@ -100,7 +101,7 @@ internal class IosRootHolder(
         } else {
             pendingTarget = target
         }
-        println("$TAG: a notification opens $target, the root exists: ${built != null}")
+        println("$ANOTI_TAG $TAG: a notification opens $target, the root exists: ${built != null}")
     }
 
     /**
@@ -110,7 +111,7 @@ internal class IosRootHolder(
      */
     fun saveState(): String? {
         val built = root ?: run {
-            println("$TAG: nothing saved, there is no root")
+            println("$ANOTI_TAG $TAG: nothing saved, there is no root")
             return null
         }
         return runCatching {
@@ -126,9 +127,11 @@ internal class IosRootHolder(
                 )
             ).toString()
         }.onSuccess { saved: String ->
-            println("$TAG: saved ${saved.length} characters on ${built.host.activeScreen}")
+            println(
+                "$ANOTI_TAG $TAG: saved ${saved.length} characters on ${built.host.activeScreen}"
+            )
         }.getOrElse { throwable: Throwable ->
-            println("$TAG: the state was not saved, the kept one is cleared: $throwable")
+            println("$ANOTI_TAG $TAG: the state was not saved, the kept one is cleared: $throwable")
             ""
         }
     }
@@ -160,15 +163,27 @@ internal class IosRootHolder(
     private fun readState(restoredState: String?): JsonObject? {
         val state = restoredState?.takeUnless { it.isEmpty() }?.let { kept: String ->
             runCatching { Json.parseToJsonElement(kept).jsonObject }
-                .onFailure { println("$TAG: the kept state does not parse: $it") }
+                .onFailure { throwable: Throwable ->
+                    // The message quotes the saved state, which holds the search text.
+                    println(
+                        "$ANOTI_TAG $TAG: the kept state does not parse: " +
+                            "${throwable::class.simpleName}"
+                    )
+                }
                 .getOrNull()
         }
         val version = (state?.get(APP_VERSION_KEY) as? JsonPrimitive)?.contentOrNull
         return when {
-            restoredState.isNullOrEmpty() -> null.also { println("$TAG: nothing was kept") }
+            restoredState.isNullOrEmpty() -> null.also {
+                println("$ANOTI_TAG $TAG: nothing was kept")
+            }
+
             state == null -> null
             version != appVersion -> null.also {
-                println("$TAG: the kept state is from $version, not $appVersion, and is dropped")
+                println(
+                    "$ANOTI_TAG $TAG: the kept state is from $version, not $appVersion, " +
+                        "and is dropped"
+                )
             }
 
             else -> state
@@ -186,7 +201,7 @@ internal class IosRootHolder(
             saveableSnapshot = SaveableStateCodec.decode(state[SAVEABLE_KEY] ?: JsonNull)
         }
     }.onFailure { throwable: Throwable ->
-        println("$TAG: the kept state broke the root, starting fresh: $throwable")
+        println("$ANOTI_TAG $TAG: the kept state broke the root, starting fresh: $throwable")
     }.getOrNull()
 
     private fun build(openingTarget: NavRootConfig?, container: SerializableContainer?): Root {

@@ -65,6 +65,19 @@ link. In Xcode, pick it under Product, Scheme, Edit Scheme, Run, Build Configura
 also needs a signing team: put yours into `TEAM_ID` in `iosApp/Configuration/Config.xcconfig`,
 and do not commit it.
 
+## Reading what the app does
+
+The app logs its key events, and every line starts with `[Anoti]`. The lines name the screen
+being built, the notification permission decision, each load and how many titles it brought, each
+background pass and its result, and each notification handed to the system. Nothing is logged per
+scroll or keystroke, and never the search text. Use them to tell states apart and to time a
+screenshot. They are not a step of their own: a check still looks at the screen.
+
+- Android: `adb logcat -s System.out | grep -F "[Anoti]"`.
+- iOS Simulator: start the app with
+  `xcrun simctl launch --console <device> com.alekseivinogradov.anoti`. An app a UI test
+  launched writes its lines nowhere you can read.
+
 ## Platforms
 
 Every file under "Shared modules" describes what the app does, not what one platform does. The

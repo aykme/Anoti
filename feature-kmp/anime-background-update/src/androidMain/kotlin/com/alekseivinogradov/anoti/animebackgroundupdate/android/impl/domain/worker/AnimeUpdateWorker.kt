@@ -9,6 +9,7 @@ import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.manager.AnimeUpdateManager
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.model.WorkResult
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import kotlinx.coroutines.withTimeoutOrNull
 import me.tatarka.inject.annotations.Inject
 import kotlin.time.Duration.Companion.minutes
@@ -25,7 +26,12 @@ class AnimeUpdateWorker(
 ) : CoroutineWorker(appContext, params) {
 
     override suspend fun doWork(): Result {
+        println("$ANOTI_TAG AnimeUpdateWorker: runs")
         val result = withTimeoutOrNull(UPDATE_PASS_BUDGET) { animeUpdateManager.update() }
+        println(
+            "$ANOTI_TAG AnimeUpdateWorker: " +
+                if (result == null) "ran out of time" else "ends with $result"
+        )
 
         return when (result) {
             WorkResult.Success -> Result.success()

@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anoti.main.impl.presentation.permission
 
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.UserNotifications.UNAuthorizationStatus
 import platform.UserNotifications.UNAuthorizationStatusDenied
@@ -19,7 +20,7 @@ internal suspend fun readIosNotificationPermissionStatus(): NotificationPermissi
         UNUserNotificationCenter.currentNotificationCenter()
             .getNotificationSettingsWithCompletionHandler { settings: UNNotificationSettings? ->
                 val authorizationStatus = settings?.authorizationStatus
-                println("$TAG: authorization status $authorizationStatus")
+                println("$ANOTI_TAG $TAG: authorization status $authorizationStatus")
                 continuation.resume(notificationPermissionStatusOf(authorizationStatus))
             }
     }

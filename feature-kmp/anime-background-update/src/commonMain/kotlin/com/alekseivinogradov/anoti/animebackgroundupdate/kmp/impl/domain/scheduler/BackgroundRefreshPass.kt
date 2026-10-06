@@ -2,6 +2,7 @@ package com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.schedu
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.manager.AnimeUpdateManager
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.model.WorkResult
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
@@ -22,9 +23,13 @@ internal class BackgroundRefreshPass(
 
     /** Starts the pass for [task]. */
     fun runIn(task: BackgroundRefreshTask) {
-        val completion = OneShotCompletion { success: Boolean -> task.complete(success) }
+        val completion = OneShotCompletion { success: Boolean ->
+            println("$ANOTI_TAG BackgroundRefreshPass: completes, success $success")
+            task.complete(success)
+        }
 
         val job = coroutineScope.launch(start = CoroutineStart.LAZY) {
+            println("$ANOTI_TAG BackgroundRefreshPass: starts")
             completion.complete(animeUpdateManager.update() == WorkResult.Success)
         }
         // Installed before the completion handler below, which is what drops it again: on a
@@ -33,6 +38,7 @@ internal class BackgroundRefreshPass(
         task.setExpirationHandler {
             // Told before the pass is canceled, not after: canceling is cooperative, and a
             // pass in the middle of write can take longer to unwind than the platform waits.
+            println("$ANOTI_TAG BackgroundRefreshPass: expired")
             completion.complete(success = false)
             job.cancel()
         }

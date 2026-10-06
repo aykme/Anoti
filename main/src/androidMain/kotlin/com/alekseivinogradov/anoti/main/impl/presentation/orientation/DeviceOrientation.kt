@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.util.DisplayMetrics
 import androidx.window.layout.WindowMetricsCalculator
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
+import kotlin.math.roundToInt
 
 /**
  * The orientation [activity] asks for: any on a wide screen, portrait on a narrow one. The screen
@@ -14,11 +16,21 @@ internal fun requestedOrientationOf(activity: Activity): Int {
     val bounds = WindowMetricsCalculator.getOrCreate()
         .computeMaximumWindowMetrics(activity)
         .bounds
-    return requestedOrientationFor(
+    val orientation = requestedOrientationFor(
         widthPx = bounds.width(),
         heightPx = bounds.height(),
         stableDensityDpi = DisplayMetrics.DENSITY_DEVICE_STABLE
     )
+    val pxPerDp = DisplayMetrics.DENSITY_DEVICE_STABLE.toDouble() / DisplayMetrics.DENSITY_DEFAULT
+    val widthDp = (bounds.width() / pxPerDp).roundToInt()
+    val heightDp = (bounds.height() / pxPerDp).roundToInt()
+    val decision =
+        if (orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) "stays upright" else "turns"
+    println(
+        "$ANOTI_TAG DeviceOrientation: display ${widthDp}x$heightDp dp at stock density, " +
+            "the app $decision"
+    )
+    return orientation
 }
 
 /**

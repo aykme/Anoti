@@ -5,6 +5,7 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.impl.presentation.navigati
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation.NavAnimeListScreenComponent
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.api.domain.store.BottomNavigationBarStore
 import com.alekseivinogradov.anoti.bottomnavigationbar.kmp.impl.presentation.BottomNavigationBarController
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
 import com.alekseivinogradov.anoti.main.impl.presentation.compose.NotificationsRationaleState
 import com.alekseivinogradov.anoti.main.impl.presentation.compose.RootDependencies
@@ -97,7 +98,10 @@ internal class RootHost(
     /** The notification-permission explanation the root content shows over the screen. */
     val notificationsRationale = NotificationsRationaleState(
         visible = derivedStateOf { notificationPermissionSession.pendingExplanation.value != null },
-        onDismiss = { notificationPermissionSession.pendingExplanation.value = null },
+        onDismiss = {
+            println("$ANOTI_TAG RootHost: explanation dismissed")
+            notificationPermissionSession.pendingExplanation.value = null
+        },
         onApprove = ::approveExplanation
     )
 
@@ -109,11 +113,23 @@ internal class RootHost(
     fun onNotificationPermissionStatus(status: NotificationPermissionStatus, isRebuilt: Boolean) {
         val pendingExplanation = notificationPermissionSession.pendingExplanation
         if (isRebuilt && notificationPermissionSession.isChecked) {
+            val explanation = when {
+                pendingExplanation.value == null -> "none"
+                status.isAllowed -> "dropped"
+                else -> "kept"
+            }
+            println(
+                "$ANOTI_TAG RootHost: rebuilt in this process, permission checked already, " +
+                    "explanation $explanation"
+            )
             if (status.isAllowed) pendingExplanation.value = null
             return
         }
         notificationPermissionSession.isChecked = true
-        when (val action = notificationPermissionAction(status)) {
+        val action = notificationPermissionAction(status)
+        val origin = if (isRebuilt) "rebuilt in a new process" else "built fresh"
+        println("$ANOTI_TAG RootHost: $origin, permission $status, action $action")
+        when (action) {
             NotificationPermissionAction.NONE -> pendingExplanation.value = null
             NotificationPermissionAction.PROMPT -> {
                 pendingExplanation.value = null
@@ -131,12 +147,14 @@ internal class RootHost(
      * showing it stays as it is. Main thread only.
      */
     fun openFromNotification(target: NavRootConfig) {
+        println("$ANOTI_TAG RootHost: a tapped notification navigates to $target")
         rootComponent.navigateTo(target)
     }
 
     private fun approveExplanation() {
         val action = notificationPermissionSession.pendingExplanation.value
         notificationPermissionSession.pendingExplanation.value = null
+        println("$ANOTI_TAG RootHost: explanation approved, $action")
         when (action) {
             NotificationPermissionAction.EXPLAIN_THEN_PROMPT -> notificationPermissionRequests.prompt()
             NotificationPermissionAction.EXPLAIN_THEN_OPEN_SETTINGS ->
@@ -154,6 +172,7 @@ internal class RootHost(
             BottomNavigationBarStore.Label.NavigateToFavorites -> NavRootConfig.AnimeFavorites
         }
         if (rootComponent.childStack.value.active.configuration != target) {
+            println("$ANOTI_TAG RootHost: the bar switches to $target")
             rootComponent.navigateTo(target)
         }
     }
@@ -161,8 +180,9 @@ internal class RootHost(
     private fun createRootChild(
         config: NavRootConfig,
         componentContext: ComponentContext
-    ): NavRootChild =
-        when (config) {
+    ): NavRootChild {
+        println("$ANOTI_TAG RootHost: creates the $config screen")
+        return when (config) {
             NavRootConfig.AnimeList -> NavRootChild.List(
                 NavAnimeListScreenComponent(
                     componentContext = componentContext,
@@ -177,4 +197,5 @@ internal class RootHost(
                 )
             )
         }
+    }
 }
