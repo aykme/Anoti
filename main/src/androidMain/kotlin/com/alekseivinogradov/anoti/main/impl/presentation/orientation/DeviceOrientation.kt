@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.util.DisplayMetrics
 import androidx.window.layout.WindowMetricsCalculator
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 
 /**
  * The orientation [activity] asks for: any on a wide screen, portrait on a narrow one. The screen
@@ -14,11 +15,21 @@ internal fun requestedOrientationOf(activity: Activity): Int {
     val bounds = WindowMetricsCalculator.getOrCreate()
         .computeMaximumWindowMetrics(activity)
         .bounds
-    return requestedOrientationFor(
+    val orientation = requestedOrientationFor(
         widthPx = bounds.width(),
         heightPx = bounds.height(),
         stableDensityDpi = DisplayMetrics.DENSITY_DEVICE_STABLE
     )
+    // Truncated, so a side just under the threshold never logs as reaching it.
+    val widthDp = dpOf(bounds.width(), DisplayMetrics.DENSITY_DEVICE_STABLE).toInt()
+    val heightDp = dpOf(bounds.height(), DisplayMetrics.DENSITY_DEVICE_STABLE).toInt()
+    val decision =
+        if (orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) "stays upright" else "turns"
+    println(
+        "$ANOTI_TAG DeviceOrientation: display ${widthDp}x$heightDp dp at stock density, " +
+            "the app $decision"
+    )
+    return orientation
 }
 
 /**
@@ -26,10 +37,14 @@ internal fun requestedOrientationOf(activity: Activity): Int {
  * the device ships with.
  */
 internal fun requestedOrientationFor(widthPx: Int, heightPx: Int, stableDensityDpi: Int): Int {
-    val pxPerDp = stableDensityDpi.toDouble() / DisplayMetrics.DENSITY_DEFAULT
-    return if (allowsRotation(width = widthPx / pxPerDp, height = heightPx / pxPerDp)) {
+    val width = dpOf(widthPx, stableDensityDpi)
+    val height = dpOf(heightPx, stableDensityDpi)
+    return if (allowsRotation(width = width, height = height)) {
         ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
     } else {
         ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }
 }
+
+private fun dpOf(px: Int, densityDpi: Int): Double =
+    px / (densityDpi.toDouble() / DisplayMetrics.DENSITY_DEFAULT)

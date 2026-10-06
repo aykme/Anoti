@@ -104,12 +104,31 @@ these rules and load together with them.
   (e.g. a `contentType` still at its untouched default) instead of introducing a dedicated
   tracking property for that one case.
 
+## Logging
+
+- The app logs with `println` and nothing else: no `Log`, no `NSLog`, no logging library or
+  wrapper of its own. Swift never logs; SwiftLint bans `print`.
+- Every line reads `println("$ANOTI_TAG <Place>: <what happens>")`. `<Place>` is a fixed string,
+  written inline or as a file-level `TAG` constant. It is never `this::class.simpleName`: R8
+  renames classes in the build a regression walks.
+- A line marks a state change worth following in a regression. That is a screen built, a
+  permission decision, a load and its count, a background pass and its result, or a notification
+  handed over.
+- Never on a hot path: not per list item, recomposition, state emission, keystroke or scroll, and
+  not in the orientation callback UIKit calls at its own rate.
+- Never user input or anything that may carry it: the search text, the saved screen state, or an
+  exception message quoting either. Such a failure is logged by its kind or its class name.
+- Some lines are found by their wording: the iOS restore checks in
+  `.github/scripts/ios-restore-checks.sh`, and module regression files. Keep that wording,
+  and use none of those phrases in any other line.
+
 ## Compose design tokens (Dimens/Fonts/Colors/Const)
 
 - Shared Compose UI constants live in typed files by kind: `Dimens.kt` (sizes, spacing,
   corner/alpha percentages — `Dp`/`Int`), `Fonts.kt` (text sizes — `TextUnit`), `Colors.kt`
   (the color palette). `Const.kt` is separate and holds only business-logic constants (paging,
-  timing, domain limits) — never UI values.
+  timing, domain limits) — never UI values. The one exception is the log tag `ANOTI_TAG`, kept
+  in `CelebrityConsts.kt` of `core-kmp:celebrity`.
 - Placement: a constant used by more than one module lives in the closest common dependency
   every consumer already has (e.g. `core-kmp:celebrity` for values needed project-wide,
   `feature-kmp:anime-base` for values shared only among the anime feature screens that already
@@ -399,6 +418,8 @@ these rules and load together with them.
   the step names that platform and says why.
 - It is written and updated through the `code-documentation` skill, in the same pass as the
   module's README. The skill holds the rules for what goes in it and how far its scope reaches.
+- A regression, of one module or of the whole app, is walked with the `manual-regression` skill.
+  It also covers the regression's report and the triage of what it found.
 - A regression **of one module** is run from that module's own `-REGRESS.md`, at the module's
   root.
 - A regression **of the whole app** is run from `ANOTI-FULL-REGRESS.md` in the project root. It

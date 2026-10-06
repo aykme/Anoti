@@ -4,6 +4,7 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.AnimeDbDom
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseExecutor
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.wrapper.AnimeDatabaseUsecases
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import kotlinx.coroutines.CoroutineScope
@@ -87,6 +88,7 @@ class AnimeDatabaseExecutorImpl(
         val id = intent.animeDatabaseItem.id
         if (id in insertsInFlight) return
         if (databaseContainsItem(id)) return
+        println("$ANOTI_TAG AnimeDatabase: subscribe requested for title $id")
         launchWrite(id, insertsInFlight) {
             usecases.insertAnimeDatabaseItemUsecase.execute(intent.animeDatabaseItem)
         }
@@ -97,6 +99,7 @@ class AnimeDatabaseExecutorImpl(
     ) {
         if (intent.id in deletesInFlight) return
         if (!databaseContainsItem(intent.id)) return
+        println("$ANOTI_TAG AnimeDatabase: unsubscribe requested for title ${intent.id}")
         launchWrite(intent.id, deletesInFlight) {
             usecases.deleteAnimeDatabaseItemUsecase.execute(intent.id)
         }

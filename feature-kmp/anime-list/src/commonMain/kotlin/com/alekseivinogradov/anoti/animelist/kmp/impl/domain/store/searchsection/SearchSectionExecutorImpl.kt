@@ -11,6 +11,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.SearchSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.plusPage
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.SearchUsecases
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.paging.PageLoadResult
@@ -112,12 +113,14 @@ class SearchSectionExecutorImpl(
             }
             when (pageResult) {
                 is PageLoadResult.Error -> {
+                    println("$ANOTI_TAG SearchSection: restoring failed: Error")
                     systemMessageProvider.makeConnectionErrorSystemMessage()
                     dispatch(SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR))
                     return@launch
                 }
 
                 is PageLoadResult.UnexpectedError -> {
+                    println("$ANOTI_TAG SearchSection: restoring failed: UnexpectedError")
                     systemMessageProvider.makeUnknownErrorSystemMessage()
                     dispatch(SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR))
                     return@launch
@@ -125,6 +128,7 @@ class SearchSectionExecutorImpl(
 
                 else -> Unit
             }
+            println("$ANOTI_TAG SearchSection: restores ${items.size} titles")
             dispatch(SearchSectionStore.Message.UpdateListItems(items))
             dispatch(SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADED))
             dispatch(SearchSectionStore.Message.ClearRestoreTargetItemCount)
@@ -165,8 +169,10 @@ class SearchSectionExecutorImpl(
             if (resetListPosition) {
                 publish(SearchSectionStore.Label.ResetListPositionAfterUpdate)
             }
+            println("$ANOTI_TAG SearchSection: first page requested")
             when (val result = paginator.loadFirstPage()) {
                 is PageLoadResult.Success -> {
+                    println("$ANOTI_TAG SearchSection: first page has ${result.items.size} titles")
                     dispatch(SearchSectionStore.Message.UpdateListItems(result.items))
                     dispatch(
                         SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADED)
@@ -174,6 +180,7 @@ class SearchSectionExecutorImpl(
                 }
 
                 is PageLoadResult.Error -> {
+                    println("$ANOTI_TAG SearchSection: first page failed: Error")
                     systemMessageProvider.makeConnectionErrorSystemMessage()
                     dispatch(
                         SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR)
@@ -181,6 +188,7 @@ class SearchSectionExecutorImpl(
                 }
 
                 is PageLoadResult.UnexpectedError -> {
+                    println("$ANOTI_TAG SearchSection: first page failed: UnexpectedError")
                     systemMessageProvider.makeUnknownErrorSystemMessage()
                     dispatch(
                         SearchSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR)
@@ -197,16 +205,25 @@ class SearchSectionExecutorImpl(
 
         loadNextPageJob = scope.launch {
             when (val result = paginator.loadNextPage()) {
-                is PageLoadResult.Success -> dispatch(
-                    SearchSectionStore.Message.UpdateListItems(
-                        state().sectionContent.listItems.plusPage(result.items)
+                is PageLoadResult.Success -> {
+                    println("$ANOTI_TAG SearchSection: next page has ${result.items.size} titles")
+                    dispatch(
+                        SearchSectionStore.Message.UpdateListItems(
+                            state().sectionContent.listItems.plusPage(result.items)
+                        )
                     )
-                )
+                }
 
-                is PageLoadResult.Error -> systemMessageProvider.makeConnectionErrorSystemMessage()
+                is PageLoadResult.Error -> {
+                    println("$ANOTI_TAG SearchSection: next page failed: Error")
+                    systemMessageProvider.makeConnectionErrorSystemMessage()
+                }
+
                 is PageLoadResult.UnexpectedError -> {
+                    println("$ANOTI_TAG SearchSection: next page failed: UnexpectedError")
                     systemMessageProvider.makeUnknownErrorSystemMessage()
                 }
+
                 null -> Unit
             }
         }

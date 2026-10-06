@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anoti.di.kmp
 
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import com.alekseivinogradov.anoti.main.api.presentation.IosScreenHost
 import com.alekseivinogradov.anoti.main.api.presentation.iosSupportedInterfaceOrientations
 import platform.UIKit.UIInterfaceOrientationMask
@@ -24,6 +25,7 @@ object IosApp {
      */
     fun start() {
         if (::screenHost.isInitialized) return
+        println("$ANOTI_TAG IosApp: a new process starts")
 
         val diAppComponent = createDiAppComponent(appContext = IosAppContext)
         // Building the scheduler registers its background-task handler.

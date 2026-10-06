@@ -16,6 +16,7 @@ import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.runtime.structuralEqualityPolicy
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
@@ -63,7 +64,10 @@ internal object SaveableStateCodec {
         JsonObject(
             values.mapNotNull { (key: String, saved: List<Any?>) ->
                 runCatching { key to JsonArray(saved.map(::encodeValue)) }
-                    .onFailure { println("$TAG: $key was not saved: $it") }
+                    // The message can quote the value, such as the search text.
+                    .onFailure {
+                        println("$ANOTI_TAG $TAG: $key was not saved: ${it::class.simpleName}")
+                    }
                     .getOrNull()
             }.toMap()
         )
@@ -71,12 +75,14 @@ internal object SaveableStateCodec {
     /** Reads back what [encode] wrote. A key that does not read back is left out. */
     fun decode(element: JsonElement): Map<String, List<Any?>> {
         val keys = element as? JsonObject ?: run {
-            println("$TAG: nothing was restored from $element")
+            println("$ANOTI_TAG $TAG: nothing was restored, the saved state is not an object")
             return emptyMap()
         }
         return keys.mapNotNull { (key: String, saved: JsonElement) ->
             runCatching { key to saved.jsonArray.mapTo(mutableListOf(), ::decodeValue) }
-                .onFailure { println("$TAG: $key was not restored: $it") }
+                .onFailure {
+                    println("$ANOTI_TAG $TAG: $key was not restored: ${it::class.simpleName}")
+                }
                 .getOrNull()
         }.toMap()
     }

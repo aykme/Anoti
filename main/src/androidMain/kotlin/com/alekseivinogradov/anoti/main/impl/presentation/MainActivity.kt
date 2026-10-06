@@ -20,6 +20,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import com.alekseivinogradov.anoti.main.impl.presentation.compose.RootContent
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootComponentHolder
 import com.alekseivinogradov.anoti.main.impl.presentation.notification.NOTIFICATION_TAP_TARGET_KEY
@@ -38,7 +39,9 @@ import com.arkivanov.decompose.defaultComponentContext
 class MainActivity : ComponentActivity() {
 
     private val requestPermissionLauncher: ActivityResultLauncher<String> =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted: Boolean ->
+            println("$ANOTI_TAG MainActivity: notification permission granted: $granted")
+        }
 
     private val notificationPermissionRequests = object : NotificationPermissionRequests {
         // Only the status read on Android 13 and later lets the system ask, so nothing calls
@@ -72,9 +75,20 @@ class MainActivity : ComponentActivity() {
         val componentHolder = application as DiRootComponentHolder
         // The launching intent is read on a fresh start only. A rebuilt activity restores the
         // screen the user was on.
+        val openingTarget = if (savedInstanceState == null) {
+            readDeepLinkTarget(intent).also { target: NavRootConfig? ->
+                println(
+                    "$ANOTI_TAG MainActivity: created fresh, notification target " +
+                        (target ?: "none")
+                )
+            }
+        } else {
+            println("$ANOTI_TAG MainActivity: created over saved state")
+            null
+        }
         val rootHost = RootHost(
             diRootComponent = componentHolder.createDiRootComponent(),
-            openingTarget = if (savedInstanceState == null) readDeepLinkTarget(intent) else null,
+            openingTarget = openingTarget,
             createComponentContext = { discardSavedState: Boolean ->
                 defaultComponentContext(discardSavedState = discardSavedState)
             },
@@ -126,6 +140,7 @@ class MainActivity : ComponentActivity() {
     // A foldable moves the activity to its other display when it folds, without rebuilding it.
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
+        println("$ANOTI_TAG MainActivity: configuration changed, no rebuild")
         requestedOrientation = requestedOrientationOf(this)
     }
 

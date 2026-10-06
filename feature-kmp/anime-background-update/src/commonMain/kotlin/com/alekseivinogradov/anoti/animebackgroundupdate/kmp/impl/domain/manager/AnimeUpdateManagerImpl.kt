@@ -12,6 +12,7 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.model.ReleaseSta
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
 import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
@@ -37,7 +38,7 @@ class AnimeUpdateManagerImpl(
                 // failure (logged below) is this method's whole purpose.
                 @Suppress("TooGenericExceptionCaught") e: Exception
             ) {
-                println("AnimeUpdateManagerImpl $e")
+                println("$ANOTI_TAG AnimeUpdate: the pass failed: $e")
                 WorkResult.Error
             }
         }
@@ -56,9 +57,12 @@ class AnimeUpdateManagerImpl(
      */
     private suspend fun applyFreshData(databaseItems: List<AnimeDbDomain>): WorkResult =
         withContext(coroutineContextProvider.ioDispatcher) {
-            var everyPageArrived = true
+            println("$ANOTI_TAG AnimeUpdate: the pass starts, ${databaseItems.size} saved titles")
+            val pages = databaseItems.chunked(ITEMS_PER_PAGE)
+            var failedPages = 0
+            var changedTitles = 0
 
-            databaseItems.chunked(ITEMS_PER_PAGE).forEach { page: List<AnimeDbDomain> ->
+            pages.forEach { page: List<AnimeDbDomain> ->
                 val fetched = fetchAnimeListByIdsUsecase.execute(
                     page.joinToString(separator = ",") { item: AnimeDbDomain ->
                         item.id.toString()
@@ -66,29 +70,35 @@ class AnimeUpdateManagerImpl(
                 )
 
                 when (fetched) {
-                    is CallResult.Success -> applyPage(
+                    is CallResult.Success -> changedTitles += applyPage(
                         currentDatabaseItems = page,
                         remoteItems = fetched.value
                     )
 
-                    is CallResult.Failure -> everyPageArrived = false
+                    is CallResult.Failure -> failedPages++
                 }
             }
 
-            if (everyPageArrived) WorkResult.Success else WorkResult.Error
+            println(
+                "$ANOTI_TAG AnimeUpdate: the pass ends, $failedPages of ${pages.size} pages " +
+                    "failed, $changedTitles titles changed"
+            )
+            if (failedPages == 0) WorkResult.Success else WorkResult.Error
         }
 
+    /** Saves the rows of one page whose fresh data differs, and returns how many there were. */
     private suspend fun applyPage(
         currentDatabaseItems: List<AnimeDbDomain>,
         remoteItems: List<ListItemDomain>
-    ) {
+    ): Int {
         val currentDatabaseItemsWithIds: Map<AnimeId, AnimeDbDomain> = currentDatabaseItems
             .associateBy(AnimeDbDomain::id)
 
-        getUpdatedDatabaseItems(
+        val updatedDatabaseItems = getUpdatedDatabaseItems(
             currentDatabaseItems = currentDatabaseItems,
             remoteItems = remoteItems
-        ).forEach { updatedDatabaseItem: AnimeDbDomain ->
+        )
+        updatedDatabaseItems.forEach { updatedDatabaseItem: AnimeDbDomain ->
             // Notify first: once the row carries the new episode count, the next pass sees no
             // change and would never notify about it.
             currentDatabaseItemsWithIds[updatedDatabaseItem.id]
@@ -100,6 +110,7 @@ class AnimeUpdateManagerImpl(
                 }
             updateAnimeDatabaseItemUsecase.execute(updatedDatabaseItem)
         }
+        return updatedDatabaseItems.size
     }
 
     /** The rows whose fresh data differs from what is saved. An unchanged row is left out. */
@@ -158,6 +169,10 @@ class AnimeUpdateManagerImpl(
             )
         ) {
             val airedEpisode = getAiredEpisode(updatedDatabaseItem)
+            println(
+                "$ANOTI_TAG AnimeUpdate: a notification is requested for title " +
+                    "${updatedDatabaseItem.id}"
+            )
             notificationManager.makeNewEpisodeNotification(
                 animeName = updatedDatabaseItem.name,
                 airedEpisode = airedEpisode,

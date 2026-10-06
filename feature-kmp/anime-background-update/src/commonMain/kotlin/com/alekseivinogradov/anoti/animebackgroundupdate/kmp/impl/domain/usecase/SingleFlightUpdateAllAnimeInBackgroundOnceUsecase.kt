@@ -2,6 +2,7 @@ package com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecas
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.manager.AnimeUpdateManager
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
@@ -30,7 +31,10 @@ internal class SingleFlightUpdateAllAnimeInBackgroundOnceUsecase(
     private val runningJob = AtomicReference<Job?>(null)
 
     override fun execute() {
-        if (runningJob.load()?.isCompleted == false) return
+        if (runningJob.load()?.isCompleted == false) {
+            println(SKIPPED_LOG)
+            return
+        }
 
         val newJob = coroutineScope.launch(start = CoroutineStart.LAZY) {
             animeUpdateManager.update()
@@ -43,6 +47,7 @@ internal class SingleFlightUpdateAllAnimeInBackgroundOnceUsecase(
             val currentJob = runningJob.load()
             if (currentJob?.isCompleted == false) {
                 newJob.cancel()
+                println(SKIPPED_LOG)
                 return
             }
             if (runningJob.compareAndSet(currentJob, newJob)) {
@@ -52,3 +57,5 @@ internal class SingleFlightUpdateAllAnimeInBackgroundOnceUsecase(
         }
     }
 }
+
+private const val SKIPPED_LOG = "$ANOTI_TAG SingleFlightUpdate: skipped, a pass is in flight"

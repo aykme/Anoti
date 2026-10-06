@@ -8,6 +8,7 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ListItemD
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesExecutor
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.wrapper.FavoritesUsecases
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
@@ -82,6 +83,7 @@ class AnimeFavoritesExecutorImpl(
                     )
                 )
                 delay(ANIMATION_DURATION_SHORT)
+                println("$ANOTI_TAG AnimeFavorites: favorites shown: none")
                 dispatch(
                     AnimeFavoritesMainStore.Message.ChangeContentType(
                         ContentTypeDomain.EMPTY
@@ -95,6 +97,7 @@ class AnimeFavoritesExecutorImpl(
         val contentType = state().contentType
         if (contentType is ContentTypeDomain.LOADING && contentType.hasMinimumDuration) return
         if (contentType != ContentTypeDomain.LOADED) {
+            println("$ANOTI_TAG AnimeFavorites: favorites shown: ${state().listItems.size}")
             dispatch(AnimeFavoritesMainStore.Message.ChangeContentType(ContentTypeDomain.LOADED))
         }
     }
@@ -141,7 +144,11 @@ class AnimeFavoritesExecutorImpl(
             // slow database read must not resolve against the stale list.listItems from before
             // this cycle started. The timeout is the backstop: an answer that never comes would
             // otherwise leave the screen loading for good.
-            withTimeoutOrNull(LIST_ARRIVAL_TIMEOUT_SECONDS) { listItemsArrived.await() }
+            val arrived =
+                withTimeoutOrNull(LIST_ARRIVAL_TIMEOUT_SECONDS) { listItemsArrived.await() }
+            if (arrived == null) {
+                println("$ANOTI_TAG AnimeFavorites: the list did not arrive in time")
+            }
             val contentType = state().contentType
             if (contentType is ContentTypeDomain.LOADING && contentType.hasMinimumDuration) {
                 val finalContentType = if (state().listItems.isEmpty()) {
@@ -149,12 +156,18 @@ class AnimeFavoritesExecutorImpl(
                 } else {
                     ContentTypeDomain.LOADED
                 }
+                val favoritesCount = state().listItems.size
+                println(
+                    "$ANOTI_TAG AnimeFavorites: favorites shown: " +
+                        if (favoritesCount == 0) "none" else "$favoritesCount"
+                )
                 dispatch(AnimeFavoritesMainStore.Message.ChangeContentType(finalContentType))
             }
         }
     }
 
     private fun updateAllItemsInBackground() {
+        println("$ANOTI_TAG AnimeFavorites: a refresh of every favorite is requested")
         usecases.updateAllAnimeInBackgroundOnceUsecase.execute()
     }
 

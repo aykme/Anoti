@@ -11,6 +11,7 @@ import coil3.request.CachePolicy
 import coil3.request.ErrorResult
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import kotlinx.coroutines.withTimeoutOrNull
 import okio.FileSystem
 import okio.IOException
@@ -62,7 +63,7 @@ internal class PosterLoader(
     private fun copyFromDiskCache(url: String, diskCacheKey: String?): Path? {
         val diskCache = imageLoader.diskCache
         if (diskCacheKey == null || diskCache == null) {
-            println("$TAG Poster was not cached on disk: $url")
+            println("$ANOTI_TAG $TAG: the poster was not cached on disk: $url")
             return null
         }
         return try {
@@ -77,7 +78,7 @@ internal class PosterLoader(
                 posterFile
             }
         } catch (e: IOException) {
-            println("$TAG Poster could not be copied: $e")
+            println("$ANOTI_TAG $TAG: the poster could not be copied: $e")
             null
         }
     }
@@ -92,7 +93,9 @@ internal class PosterLoader(
         return when (result) {
             is SuccessResult -> result
             // Coil reports a failed load by returning ErrorResult rather than throwing.
-            is ErrorResult -> null.also { println("$TAG ${result.throwable}") }
+            is ErrorResult -> null.also {
+                println("$ANOTI_TAG $TAG: the poster did not load: ${result.throwable}")
+            }
             null -> null
         }
     }
@@ -111,14 +114,14 @@ internal suspend fun <T : Any> loadWithTimeout(
     return try {
         // The loader has no timeout of its own, and a bounded background job must not stall on it.
         withTimeoutOrNull(timeoutMillis.milliseconds) { load(imageUrl) }
-            ?: null.also { println("$TAG Poster load timed out: $imageUrl") }
+            ?: null.also { println("$ANOTI_TAG $TAG: the poster load timed out: $imageUrl") }
     } catch (e: CancellationException) {
         throw e
     } catch (
         // Best-effort poster load; falling back to no image on any other failure is the point.
         @Suppress("TooGenericExceptionCaught") e: Exception
     ) {
-        println("$TAG $e")
+        println("$ANOTI_TAG $TAG: the poster failed: $e")
         null
     }
 }
@@ -130,6 +133,6 @@ internal suspend fun <T : Any> loadWithTimeout(
 internal fun posterFileName(imageUrl: String, copyNumber: Int): String =
     "$POSTER_FILE_PREFIX${copyNumber}_" + imageUrl.substringBefore('?').substringAfterLast('/')
 
-private const val TAG = "ANIME_NOTIFICATION_POSTER"
+private const val TAG = "PosterLoader"
 private const val POSTER_TIMEOUT_MILLIS = 10_000L
 private const val POSTER_FILE_PREFIX = "anime_notification_poster_"

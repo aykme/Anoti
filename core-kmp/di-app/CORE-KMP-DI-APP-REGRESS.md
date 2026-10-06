@@ -47,4 +47,5 @@ The steps name Android's tools. On the iPhone:
   from Xcode and read its log in Xcode's console. No line ends in "is missing from the
   Info.plist", and none contains "the next background refresh was refused". Either one means the
   app does not update in the background until it is fixed. The Simulator refuses every refresh,
-  so there the second line always appears.
+  so there the second line always appears. On the iPhone one line ends in "task handler
+  registered", and one in "the next refresh is submitted" or "a refresh is already pending".

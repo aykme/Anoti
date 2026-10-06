@@ -8,6 +8,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsecti
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsection.AnnouncedSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.plusPage
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.AnnouncedUsecases
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.paging.PageLoadResult
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.paging.Paginator
@@ -82,12 +83,14 @@ class AnnouncedSectionExecutorImpl(
             }
             when (pageResult) {
                 is PageLoadResult.Error -> {
+                    println("$ANOTI_TAG AnnouncedSection: restoring failed: Error")
                     systemMessageProvider.makeConnectionErrorSystemMessage()
                     dispatch(AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR))
                     return@launch
                 }
 
                 is PageLoadResult.UnexpectedError -> {
+                    println("$ANOTI_TAG AnnouncedSection: restoring failed: UnexpectedError")
                     systemMessageProvider.makeUnknownErrorSystemMessage()
                     dispatch(AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR))
                     return@launch
@@ -95,6 +98,7 @@ class AnnouncedSectionExecutorImpl(
 
                 else -> Unit
             }
+            println("$ANOTI_TAG AnnouncedSection: restores ${items.size} titles")
             dispatch(AnnouncedSectionStore.Message.UpdateListItems(items))
             dispatch(AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADED))
             dispatch(AnnouncedSectionStore.Message.ClearRestoreTargetItemCount)
@@ -114,8 +118,12 @@ class AnnouncedSectionExecutorImpl(
                     enabledExtraEpisodesInfoIds = setOf()
                 )
             )
+            println("$ANOTI_TAG AnnouncedSection: first page requested")
             when (val result = paginator.loadFirstPage()) {
                 is PageLoadResult.Success -> {
+                    println(
+                        "$ANOTI_TAG AnnouncedSection: first page has ${result.items.size} titles"
+                    )
                     dispatch(AnnouncedSectionStore.Message.UpdateListItems(result.items))
                     dispatch(
                         AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.LOADED)
@@ -123,6 +131,7 @@ class AnnouncedSectionExecutorImpl(
                 }
 
                 is PageLoadResult.Error -> {
+                    println("$ANOTI_TAG AnnouncedSection: first page failed: Error")
                     systemMessageProvider.makeConnectionErrorSystemMessage()
                     dispatch(
                         AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR)
@@ -130,6 +139,7 @@ class AnnouncedSectionExecutorImpl(
                 }
 
                 is PageLoadResult.UnexpectedError -> {
+                    println("$ANOTI_TAG AnnouncedSection: first page failed: UnexpectedError")
                     systemMessageProvider.makeUnknownErrorSystemMessage()
                     dispatch(
                         AnnouncedSectionStore.Message.ChangeContentType(ContentTypeDomain.ERROR)
@@ -146,16 +156,27 @@ class AnnouncedSectionExecutorImpl(
 
         loadNextPageJob = scope.launch {
             when (val result = paginator.loadNextPage()) {
-                is PageLoadResult.Success -> dispatch(
-                    AnnouncedSectionStore.Message.UpdateListItems(
-                        state().sectionContent.listItems.plusPage(result.items)
+                is PageLoadResult.Success -> {
+                    println(
+                        "$ANOTI_TAG AnnouncedSection: next page has ${result.items.size} titles"
                     )
-                )
+                    dispatch(
+                        AnnouncedSectionStore.Message.UpdateListItems(
+                            state().sectionContent.listItems.plusPage(result.items)
+                        )
+                    )
+                }
 
-                is PageLoadResult.Error -> systemMessageProvider.makeConnectionErrorSystemMessage()
+                is PageLoadResult.Error -> {
+                    println("$ANOTI_TAG AnnouncedSection: next page failed: Error")
+                    systemMessageProvider.makeConnectionErrorSystemMessage()
+                }
+
                 is PageLoadResult.UnexpectedError -> {
+                    println("$ANOTI_TAG AnnouncedSection: next page failed: UnexpectedError")
                     systemMessageProvider.makeUnknownErrorSystemMessage()
                 }
+
                 null -> Unit
             }
         }

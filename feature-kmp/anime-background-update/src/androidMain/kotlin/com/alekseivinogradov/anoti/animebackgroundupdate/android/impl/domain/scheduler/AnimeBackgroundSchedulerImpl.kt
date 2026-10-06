@@ -5,6 +5,7 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.domain.worker.ANIME_UPDATE_PERIODIC_WORK_NAME
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.scheduler.AnimeBackgroundScheduler
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 
 /**
  * WorkManager-backed [AnimeBackgroundScheduler].
@@ -30,5 +31,6 @@ class AnimeBackgroundSchedulerImpl(
             existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
             request = animeUpdatePeriodicWork
         )
+        println("$ANOTI_TAG AnimeBackgroundScheduler: periodic update scheduled")
     }
 }

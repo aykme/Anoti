@@ -3,6 +3,7 @@ package com.alekseivinogradov.anoti.impl.presentation
 import android.app.Application
 import android.app.NotificationManager
 import androidx.work.Configuration
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import com.alekseivinogradov.anoti.di.kmp.DiAppComponent
 import com.alekseivinogradov.anoti.di.kmp.create
 import com.alekseivinogradov.anoti.main.impl.di.DiRootComponent
@@ -32,6 +33,7 @@ class AnotiApp : Application(), DiRootComponentHolder, Configuration.Provider {
     override fun onCreate() {
         diAppComponent = DiAppComponent::class.create(this.applicationContext)
         super.onCreate()
+        println("$ANOTI_TAG AnotiApp: a new process starts")
 
         CoroutineScope(diAppComponent.coroutineContextProvider.appMainCoroutineContext).launch {
             startUp()
