@@ -37,6 +37,10 @@ and [CLAUDE-IOS.md](.claude/rules/ios/CLAUDE-IOS.md) load with it.
   written here.
 - The `code-documentation` skill covers module READMEs and KDoc/code-comment conventions. Use it
   before writing a README or documenting code.
+- The [creating-a-module](.claude/skills/creating-a-module/SKILL.md) skill creates every new
+  Gradle module: a screen or bottom-bar tab, a root-level element or dialog, a UI-only component,
+  a shared base, a platform service, an external module or a core library. Use it whenever new
+  code has no fitting home in an existing module.
 
 ## Technical design
 
@@ -53,10 +57,10 @@ and [CLAUDE-IOS.md](.claude/rules/ios/CLAUDE-IOS.md) load with it.
   spans several areas (a store, its UI, DI, tests) reads the design file of each.
 - Read the design files yourself before writing. A subagent's summary does not replace them, and
   a subagent sent to write or review code gets the design files of its task in its prompt.
-- A project hook refuses a Write or Edit in a design area until you have read its design file
-  with Read since the last compaction. On a refusal, read the file it names, then retry the change.
 - Before creating a module, read [new-module.md](.claude/design/new-module.md) and every file its
   section "Before the first file" names, then [module-docs.md](.claude/rules/module-docs.md).
+  Create it through the [creating-a-module](.claude/skills/creating-a-module/SKILL.md) skill,
+  which walks these steps and checks the finished module against its kind.
 
 ## Branching
 

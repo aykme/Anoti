@@ -16,7 +16,6 @@ looking for where a piece of agent knowledge lives.
 | Instructions | [CLAUDE.md](../../CLAUDE.md), [CLAUDE-ANDROID.md](../rules/android/CLAUDE-ANDROID.md), [CLAUDE-IOS.md](../rules/ios/CLAUDE-IOS.md) | every session, at start |
 | Rules | `.claude/rules/**/*.md` | by path, or when read through an index line |
 | Design | `.claude/design/*.md` | read on purpose, through [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md) or a rule that points here |
-| Design gate | [settings.json](../settings.json), [design_gate.py](../hooks/design_gate.py) | before every Write, Edit and notebook edit |
 | Skills | `.claude/skills/<name>/SKILL.md` | when invoked, or when Claude finds the description relevant |
 | Planning docs | `docs/superpowers/specs/`, `docs/superpowers/plans/` | read on purpose; ignored by git |
 | Memory | outside the repository, per project | its `MEMORY.md` index, every session |
@@ -72,25 +71,22 @@ Globs are gitignore-style:
   [logging.md](../rules/logging.md), [android/r8-minified.md](../rules/android/r8-minified.md).
 - New-file work is covered by `CLAUDE.md` "Technical design" and the task table of
   [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md), since a path rule arrives too late for it.
-- The design gate enforces the reading order that text alone left to chance: the first quick
-  write in a new or secondary area. A project `PreToolUse` hook refuses a Write or Edit in an area
-  until the same agent has read that area's design file with the Read tool since its last
-  compaction. The refusal names the file and section. Its `AREAS` table holds the path-decidable
-  triggers of the thin rules and the area-pointer rule's table. A partial Read counts; Markdown,
-  `.claude/` and `docs/` are not gated. The file's own checkout decides, so every worktree of the
-  repository is gated, wherever it sits; a repository without `.claude/design` is not. A broken
-  gate or a missing Python lets the write through, and shell edits never pass it.
-- [design_gate_test.py](../hooks/design_gate_test.py) runs the gate on synthetic transcripts and
-  real paths, and checks that a rule loaded on each gated path names the file the gate demands.
-  Run it with `python -I .claude/hooks/design_gate_test.py` after any change to the gate or to a
-  rule's trigger.
+- The reading order rests on `CLAUDE.md` and the rules alone. A hook that refused a write until
+  the area's design file was read was tried and dropped: it had to parse Claude Code's
+  undocumented transcript format, and parallel calls, rewinds and workflow agents slipped past
+  it, for little gain over the rules.
 
 ## Skills
 
 - A project skill is `.claude/skills/<name>/SKILL.md` with `name` and `description` frontmatter.
   Longer material sits in its `references/` folder and is read when the skill points there.
 - Here: [code-documentation](../skills/code-documentation/SKILL.md) for READMEs, KDoc and
-  regression files, and [manual-regression](../skills/manual-regression/SKILL.md) for walks.
+  regression files, [manual-regression](../skills/manual-regression/SKILL.md) for walks, and
+  [creating-a-module](../skills/creating-a-module/SKILL.md) for a new module, with a script that
+  checks it against its kind.
+- A skill that checks code against the design names the design sections it follows. Its checks
+  change with them: a change to `new-module.md`, `entities.md` or `module-anatomy.md` "Packages"
+  updates `creating-a-module`'s kind table and script in the same commit.
 - User-level skills and plugins also appear in a session. They belong to the machine, not to
   the repository. `CLAUDE.md` "Skills" says how skills are picked.
 - Plugins written for another codebase are turned off for this project in
@@ -120,8 +116,6 @@ Globs are gitignore-style:
 4. Add an index line to `CLAUDE.md`, or to a platform index for a platform rule: the file and the
    situation that makes it due. A thin rule's line says which design file it sends to.
 5. Run the link check, and the loading check when `paths:` changed.
-6. When a thin rule's trigger or the area-pointer rule's table changes, change `AREAS` in
-   [design_gate.py](../hooks/design_gate.py) in the same commit, then run its test.
 
 ## Adding a design file
 

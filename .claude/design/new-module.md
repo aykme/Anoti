@@ -6,6 +6,9 @@ file and its wiring. What a module holds inside is in [module-anatomy.md](module
 Read when: creating a Gradle module or choosing its kind; changing a module's build file or
 `settings.gradle.kts`.
 
+The [creating-a-module](../skills/creating-a-module/SKILL.md) skill orders these steps and its
+script checks the finished module against its kind.
+
 ## Before the first file
 
 A new module's path rules arrive only after its first file is written. Read these before the

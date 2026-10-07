@@ -14,8 +14,8 @@ replaces the design: each step names the section that says how.
 Read with the Read tool, in this order: `.claude/design/new-module.md`, every file its section
 "Before the first file" names, then `.claude/rules/module-docs.md`. A screen feature also reads
 `.claude/design/recipes.md` "New screen feature"; a root-level element or overlay, "Root-level
-element or overlay"; a platform service, "Platform-specific implementation". The design gate
-refuses writes in an area until its design file is read.
+element or overlay"; a platform service, "Platform-specific implementation". Read each area's
+design file before the first write in that area, not after.
 
 ## Steps
 
