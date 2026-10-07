@@ -36,8 +36,6 @@ AREAS = [
     (["/build.gradle.kts"], "build-and-tooling.md", None),
     (["/gradle/libs.versions.toml"], "tech-stack.md", None),
 ]
-# A worktree nested in the checkout is matched as its own repository.
-NESTED_WORKTREE = re.compile(r"^(?:\.claude/worktrees|\.worktrees)/[^/]+/")
 # Agent setup, planning docs, build output and Markdown are not code areas.
 SKIPPED = re.compile(r"^(?:\.claude|docs)/|(?:^|/)build/|\.md$")
 
@@ -105,28 +103,44 @@ def design_reads(transcript, design_dirs):
     return names
 
 
+def checkout_root(path):
+    """The nearest directory above `path` holding `.git`: the main checkout or any worktree."""
+    directory = os.path.dirname(os.path.abspath(path))
+    while not os.path.exists(os.path.join(directory, ".git")):
+        parent = os.path.dirname(directory)
+        if parent == directory:
+            return None
+        directory = parent
+    return directory
+
+
+def design_dir(root):
+    return os.path.normcase(os.path.abspath(os.path.join(root, ".claude", "design")))
+
+
 def main():
     event = json.loads(sys.stdin.buffer.read().decode("utf-8"))
     tool_input = event.get("tool_input") or {}
     target = tool_input.get("file_path") or tool_input.get("notebook_path")
-    root = os.environ.get("CLAUDE_PROJECT_DIR") or event.get("cwd")
     transcript = event.get("transcript_path")
     if transcript and event.get("agent_id"):
         # A subagent counts only its own reads, kept beside the session's transcript.
         transcript = os.path.join(os.path.splitext(transcript)[0], "subagents",
                                   f"agent-{event['agent_id']}.jsonl")
-    if not target or not root or not transcript or not os.path.isfile(transcript):
+    if not target or not transcript or not os.path.isfile(transcript):
         return
-    rel = os.path.relpath(os.path.abspath(target), os.path.abspath(root)).replace("\\", "/")
-    # The design of the checkout, and of a worktree nested in it, which may hold its own copy.
-    design_dirs = {os.path.normcase(os.path.abspath(os.path.join(root, ".claude", "design")))}
-    nested = NESTED_WORKTREE.match(rel)
-    if nested:
-        design_dirs.add(os.path.normcase(os.path.abspath(
-            os.path.join(root, nested.group(0), ".claude", "design"))))
-        rel = rel[nested.end():]
-    if rel.startswith("../") or SKIPPED.search(rel):
+    # The file's own checkout decides, so a worktree anywhere is gated like the project itself.
+    root = checkout_root(target)
+    if not root or not os.path.isdir(design_dir(root)):
         return
+    rel = os.path.relpath(os.path.abspath(target), root).replace("\\", "/")
+    if SKIPPED.search(rel):
+        return
+    # A read of the session's own copy of the design counts as well.
+    design_dirs = {design_dir(root)}
+    session_root = os.environ.get("CLAUDE_PROJECT_DIR") or event.get("cwd")
+    if session_root:
+        design_dirs.add(design_dir(session_root))
     due = []
     for globs, name, section in AREAS:
         if any(matches(g, rel) for g in globs) and (name, section) not in due:

@@ -124,26 +124,61 @@ cases = [
     ("other repository", [read_line("dependency-injection.md", "C:/other/repo")], DI, "deny"),
     ("other design file", [read_line("mvi.md")], DI, "deny"),
     ("upper-case name", [read_line("DEPENDENCY-INJECTION.md")], DI, "allow"),
-    ("nested worktree, its own design", [read_line(
-        "dependency-injection.md", os.path.join(ROOT, ".claude", "worktrees", "w"))],
-     ".claude/worktrees/w/" + DI, "allow"),
-    ("nested worktree, the checkout's design", [read_di], ".claude/worktrees/w/" + DI, "allow"),
-    ("nested worktree, no read", [], ".worktrees/x/" + DI, "deny"),
-    ("non-ASCII path", [], "feature-kmp/anime-list/src/commonMain/kotlin/a/di/Тест Файл.kt", "deny"),
+    ("non-ASCII path", [], "feature-kmp/anime-list/src/commonMain/kotlin/a/di/Тест Файл.kt",
+     "deny"),
 ]
 for label, lines, rel, expected in cases:
     out, _ = run(at(rel), transcript(label.replace(" ", "-"), lines, "{broken line\n"))
     check(label, decision(out) == expected, out)
-out, _ = run(at(".worktrees/x/build.gradle.kts"), empty)
-check("nested root build file", "build-and-tooling.md" in out and "new-module.md" not in out, out)
+
+
+def checkout(path, git_is_file, with_design=True):
+    """A stand-in checkout: `.git` as a directory (main) or a file (worktree)."""
+    os.makedirs(path, exist_ok=True)
+    git = os.path.join(path, ".git")
+    if git_is_file:
+        open(git, "w").close()
+    else:
+        os.makedirs(git, exist_ok=True)
+    if with_design:
+        os.makedirs(os.path.join(path, ".claude", "design"), exist_ok=True)
+    return path
+
+
+# Worktrees: the file's own checkout is gated, wherever it sits; another repository is not.
+main = checkout(os.path.join(TMP, "main"), git_is_file=False)
+nested = checkout(os.path.join(main, ".claude", "worktrees", "w"), git_is_file=True)
+sibling = checkout(os.path.join(TMP, "sibling"), git_is_file=True)
+foreign = checkout(os.path.join(TMP, "foreign"), git_is_file=False, with_design=False)
+worktree_cases = [
+    ("nested worktree, no read", nested, main, [], "deny"),
+    ("nested worktree, its own design", nested, main,
+     [read_line("dependency-injection.md", nested)], "allow"),
+    ("nested worktree, the session's design", nested, main,
+     [read_line("dependency-injection.md", main)], "allow"),
+    ("sibling worktree, no read", sibling, main, [], "deny"),
+    ("sibling worktree, its own design", sibling, main,
+     [read_line("dependency-injection.md", sibling)], "allow"),
+    ("worktree of the main checkout from a sibling session", nested, sibling, [], "deny"),
+    ("repository without a design", foreign, main, [], "allow"),
+]
+for label, tree, session_root, lines, expected in worktree_cases:
+    out, _ = run(os.path.join(tree, *DI.split("/")),
+                 transcript(label.replace(" ", "-").replace(",", ""), lines), root=session_root)
+    check(label, decision(out) == expected, out)
+out, _ = run(os.path.join(nested, "build.gradle.kts"), empty, root=main)
+check("nested worktree's root build file",
+      "build-and-tooling.md" in out and "new-module.md" not in out, out)
+out, _ = run(os.path.join(nested, ".claude", "design", "kmp.md"), empty, root=main)
+check("nested worktree's design file", decision(out) == "allow", out)
 out, _ = run(at(DI), empty, tool="Write")
 check("Write is gated", decision(out) == "deny", out)
 out, _ = run(at("feature-kmp/anime-list/src/commonMain/kotlin/a/di/N.ipynb"), empty,
              tool="NotebookEdit")
 check("NotebookEdit is gated", decision(out) == "deny", out)
-out, _ = run(at(DI).lower(), empty)
-check("lower-case drive and path still resolve inside the checkout",
-      decision(out) in ("deny", "allow"), out)
+if os.name == "nt":
+    out, _ = run(at(DI).lower(), empty)
+    check("a lower-cased Windows path is still gated", decision(out) == "deny", out)
 out, _ = run(at(DI).replace("\\", "/"), empty)
 check("forward slashes", decision(out) == "deny", out)
 
