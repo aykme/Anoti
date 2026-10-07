@@ -151,7 +151,7 @@ links the file that states each point.
 | Route | The controller's state, the UI mapper, the screen composable | Mapping logic, which the UI mapper holds | [ui-compose.md](ui-compose.md) "Screens and routes" |
 | Screen composable | The UI model, `dispatch`, tokens, shared composables | Decisions about data, which stay in the store | [ui-compose.md](ui-compose.md) "Screens and routes" |
 | Controller | Stores through `stateFlow`, `accept` and `bind`, store-to-store mappers, an `onLabel` callback | Disposing stores; the owner that created them does | [mvi.md](mvi.md) "Controllers" |
-| Executor | A usecases wrapper, the system message provider, the coroutine context provider, a paginator | Switching dispatchers; holding application state outside `State` | [mvi.md](mvi.md) "Executors and state", [concurrency-and-lifecycle.md](concurrency-and-lifecycle.md) "Main thread" |
+| Executor | A usecases wrapper, the system message provider, the coroutine context provider, a paginator | Switching dispatchers; holding application state outside `State`; calling a platform service, which a usecase fronts | [mvi.md](mvi.md) "Executors and state", [concurrency-and-lifecycle.md](concurrency-and-lifecycle.md) "Main thread" |
 | Reducer | Nothing | Everything but returning a `copy` | [mvi.md](mvi.md) "Reducer" |
 | Usecase | A source, a repository, or the platform API it fronts | Turning a failure into a message, which the executor does | [data-layer.md](data-layer.md) "Sources and usecases" |
 | Source implementation | A service, the safe-call wrapper, response-to-domain mappers | Throwing; every failure is a `CallResult` | [data-layer.md](data-layer.md) "Sources and usecases" |

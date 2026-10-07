@@ -33,8 +33,9 @@ describes it:
 1. A destination of the root stack? A screen feature.
 2. Beside the stack for the root's whole life, with a store of its own? A root-level element.
 3. Only composables and tokens, its state held by whoever shows it? A UI-only component.
-4. A service, models or composables several features need? A shared base module.
-5. One common contract with an implementation per platform? A platform service.
+4. One common contract with an implementation per platform? A platform service, even when
+   several features need it.
+5. A service, models or composables several features need? A shared base module.
 6. Something a feature needs that only the entry module can give? An external module.
 7. Used by every layer (DI scopes, navigation, network, UI kit, persistence, tests)? A core module.
 
@@ -92,6 +93,9 @@ kotlin {
 
 Mirrors: [navigation build file](../../core-kmp/navigation/build.gradle.kts),
 [network build file](../../core-kmp/network/build.gradle.kts)
+
+The `di-scope` and kotlin-inject lines come only with DI bindings, as in network; navigation has
+none and leaves both out.
 
 (b) Screen feature with Compose, resources, KSP and host tests; what it adds to (a):
 

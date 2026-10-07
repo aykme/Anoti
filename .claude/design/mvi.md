@@ -199,5 +199,7 @@ Mirrors: [AnimeFavoritesController](../../feature-kmp/anime-favorites/src/common
   Example: [AnimeFavoritesUiModel](../../feature-kmp/anime-favorites/src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/api/presentation/model/AnimeFavoritesUiModel.kt)
 - The UI mapper turns `*Domain` enums into `*Ui` enums with an exhaustive `when`, and builds the
   display strings. Mappers at the data boundary are owned by [data-layer.md](data-layer.md).
+- A mapper converts and decides nothing. Which items show and in what order, a filter or a sort,
+  is the store's state.
 - As found: mapper file names and sub-packages vary between modules; follow the names above.
   Example: [MainStoreLabelToDatabaseStoreIntent](../../feature-kmp/anime-favorites/src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/api/domain/mapper/MainStoreLabelToDatabaseStoreIntent.kt)

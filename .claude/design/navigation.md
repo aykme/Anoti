@@ -16,6 +16,8 @@ element; changing how the root stack, the bar or a notification tap navigates.
 - The root configs form one `@Serializable` sealed interface. Each destination is a `data object`
   with its own `@SerialName`. Saved state and notification payloads carry that name, so it stays
   stable once shipped.
+- A config, its `@SerialName` and its screen component share one name, the feature's: `AnimeList`
+  and `NavAnimeListScreenComponent`.
 - The root component wraps `childStack` with `handleBackButton = true`. Its only navigation call
   replaces the whole stack, so the stack always holds exactly one child. Navigating to the screen
   already shown keeps it; any other target creates the new child and destroys the old one.

@@ -85,7 +85,7 @@ it; carrying build, CI or agent files over to another repository.
 | [.gitignore](../../.gitignore), [androidApp/.gitignore](../../androidApp/.gitignore), [main/.gitignore](../../main/.gitignore) | the root file's `androidApp/release` paths if the host is renamed; the module files hold only `/build` |
 | `gradlew`, `gradlew.bat`, [gradle/wrapper](../../gradle/wrapper/gradle-wrapper.properties) | nothing; keep the comments |
 | [gradle/gradle-daemon-jvm.properties](../../gradle/gradle-daemon-jvm.properties) | nothing; keep the comments |
-| [gradle/libs.versions.toml](../../gradle/libs.versions.toml) | reset `versionName` and `versionCode`; drop libraries nothing uses; keep the sections and reason comments |
+| [gradle/libs.versions.toml](../../gradle/libs.versions.toml) | reset `versionName` to `1.0` and `versionCode` to `10`, by its rule comment; drop the libraries only dropped features used, keeping the core modules' ones; keep the sections and reason comments |
 | [config/detekt](../../config/detekt/detekt.yml), [config/swiftlint](../../config/swiftlint/swiftlint.yml) | nothing |
 | [androidApp/proguard-rules.pro](../../androidApp/proguard-rules.pro) | nothing |
 | [.github/workflows](../../.github/workflows/android.yml), [actions](../../.github/actions/ios-toolchain/action.yml) | the `develop` branch in `on.push`; app name in `.app` and dSYM paths; the flow test's name in inputs and steps; `TEST_RUNNER_<APP>_*` variables |
