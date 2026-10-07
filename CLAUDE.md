@@ -53,6 +53,8 @@ and [CLAUDE-IOS.md](.claude/rules/ios/CLAUDE-IOS.md) load with it.
   spans several areas (a store, its UI, DI, tests) reads the design file of each.
 - Read the design files yourself before writing. A subagent's summary does not replace them, and
   a subagent sent to write or review code gets the design files of its task in its prompt.
+- A project hook refuses a Write or Edit in a design area until you have read its design file
+  with Read since the last compaction. On a refusal, read the file it names, then retry the change.
 - Before creating a module, read [new-module.md](.claude/design/new-module.md) and every file its
   section "Before the first file" names, then [module-docs.md](.claude/rules/module-docs.md).
 

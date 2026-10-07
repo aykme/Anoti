@@ -16,6 +16,7 @@ looking for where a piece of agent knowledge lives.
 | Instructions | [CLAUDE.md](../../CLAUDE.md), [CLAUDE-ANDROID.md](../rules/android/CLAUDE-ANDROID.md), [CLAUDE-IOS.md](../rules/ios/CLAUDE-IOS.md) | every session, at start |
 | Rules | `.claude/rules/**/*.md` | by path, or when read through an index line |
 | Design | `.claude/design/*.md` | read on purpose, through [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md) or a rule that points here |
+| Design gate | [settings.json](../settings.json), [design_gate.py](../hooks/design_gate.py) | before every Write, Edit and notebook edit |
 | Skills | `.claude/skills/<name>/SKILL.md` | when invoked, or when Claude finds the description relevant |
 | Planning docs | `docs/superpowers/specs/`, `docs/superpowers/plans/` | read on purpose; ignored by git |
 | Memory | outside the repository, per project | its `MEMORY.md` index, every session |
@@ -70,6 +71,12 @@ Globs are gitignore-style:
   [logging.md](../rules/logging.md), [android/r8-minified.md](../rules/android/r8-minified.md).
 - New-file work is covered by `CLAUDE.md` "Technical design" and the task table of
   [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md), since a path rule arrives too late for it.
+- The design gate enforces the reading order that text alone left to chance: the first quick
+  write in a new or secondary area. A project `PreToolUse` hook refuses a Write or Edit in an area
+  until the same agent has read that area's design file with the Read tool since its last
+  compaction. The refusal names the file and section. Its `AREAS` table mirrors the thin rules'
+  triggers and the area-pointer rule's table. A broken gate or a missing Python lets the write
+  through, and shell edits never pass it.
 
 ## Skills
 
@@ -103,6 +110,8 @@ Globs are gitignore-style:
 4. Add an index line to `CLAUDE.md`, or to a platform index for a platform rule: the file and the
    situation that makes it due. A thin rule's line says which design file it sends to.
 5. Run the link check, and the loading check when `paths:` changed.
+6. When a thin rule's trigger or the area-pointer rule's table changes, change `AREAS` in
+   [design_gate.py](../hooks/design_gate.py) in the same commit.
 
 ## Adding a design file
 
