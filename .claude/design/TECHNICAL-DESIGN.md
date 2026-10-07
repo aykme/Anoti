@@ -48,6 +48,7 @@ gets its row's files named in its prompt.
 | Add background work or a notification | [recipes.md](recipes.md) "Background work", "Notification", [platform-mirroring.md](platform-mirroring.md), [concurrency-and-lifecycle.md](concurrency-and-lifecycle.md) |
 | Show an error to the user | [error-handling.md](error-handling.md), [data-layer.md](data-layer.md) |
 | Change Swift code or the iOS entry | [ios-host.md](ios-host.md), [platform-mirroring.md](platform-mirroring.md) |
+| Change the Android `Application` or a screen host | [platform-mirroring.md](platform-mirroring.md) "Startup", [state-restoration.md](state-restoration.md) "Android" |
 | Read outside input, add a permission | [security-and-privacy.md](security-and-privacy.md) |
 | Write a test or a test double | [testing.md](testing.md), [testing-platforms.md](testing-platforms.md) |
 | Document a change | [documentation.md](documentation.md) |

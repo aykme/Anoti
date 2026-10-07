@@ -80,8 +80,8 @@ Settled exceptions:
 - `Paginator` and `SystemMessageController` are classes passed into `api` types, and are in `api`.
 - Feature mappers are in `api`.
 - Dependencies contracts (`Di<Feature>Dependencies`, `DiRootDependencies`) are in `api`.
-- In the entry module, the component holder, the root child and the root dependencies reference
-  `impl` types, and stay in `impl`.
+- In the entry module, the component holder, the root child and the root dependencies bundle
+  (`RootDependencies`) reference `impl` types, and stay in `impl`.
   Example: [NavRootChild](../../main/src/commonMain/kotlin/com/alekseivinogradov/anoti/main/impl/presentation/navigation/NavRootChild.kt).
 
 `impl` packages are still public across modules. Which modules read another module's `impl`, and
@@ -94,14 +94,16 @@ As found, a few modules leave the scheme; copy the scheme, not them:
 
 - The entry module uses `<root-package>.main.<visibility>...` with no platform segment in any source
   set, and its namespace has no `.kmp`.
-- The composition root and the DI-scope leaf share the package `<root-package>.di.kmp`, with no
-  visibility or layer. Their namespaces are `<root-package>.di.kmp` and
-  `<root-package>.discope.kmp`.
+- The composition root and the DI-scope leaf share the base package `<root-package>.di.kmp`, with
+  no visibility or layer; the leaf adds `scope` and `qualifier` under it. Their namespaces are
+  `<root-package>.di.kmp` and `<root-package>.discope.kmp`.
 - The navigation core module keeps its files directly in `<root-package>.navigation.kmp`.
 - The Android host's namespace is `<root-package>`, and its code is in
   `<root-package>.impl.presentation`. Its instrumented flow test sits in `<root-package>` itself.
 - The Android platform DI packages differ: `android.impl.di` in some modules,
-  `android.impl.presentation.di` in others. The iOS ones are all `ios.impl.di`.
+  `android.impl.presentation.di` in others, `main.impl.presentation.di` in the entry module. The
+  iOS ones are all `ios.impl.di`.
+  Example: [Android DiAnimeNotificationPlatformComponent](../../feature-kmp/anime-notification/src/androidMain/kotlin/com/alekseivinogradov/anoti/animenotification/android/impl/presentation/di/DiAnimeNotificationPlatformComponent.kt).
 - The Android notification intent contract sits in an `impl` package of the external module.
   Example: [AnimeNotificationIntentProvider](../../feature-kmp/anime-notification-external/src/androidMain/kotlin/com/alekseivinogradov/anoti/animenotification/external/android/impl/presentation/provider/AnimeNotificationIntentProvider.kt).
 

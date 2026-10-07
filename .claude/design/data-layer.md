@@ -47,18 +47,22 @@ database or its schema, a model mapper at the data boundary, or a paged list.
   `SafeApi`.
 - Each source method wraps the service call and the response-to-domain mapping in one
   `safeApi.call { }`. A mapping failure then becomes an `OtherError`. Items without an id are
-  filtered out before mapping.
+  dropped. As found: the list source filters them before mapping, the background source drops
+  them in its mapper, and the favorites single fetch maps a missing id to `-1`.
   Example: [AnimeListSourceImpl](../../feature-kmp/anime-list/src/commonMain/kotlin/com/alekseivinogradov/anoti/animelist/kmp/impl/data/source/AnimeListSourceImpl.kt)
 - A usecase used only inside its module is a concrete class in `impl/domain/usecase` with one
   `execute` function. It takes a source and fixes the parameters the caller need not choose.
   Example: [FetchOngoingAnimeListUsecase](../../feature-kmp/anime-list/src/commonMain/kotlin/com/alekseivinogradov/anoti/animelist/kmp/impl/domain/usecase/FetchOngoingAnimeListUsecase.kt)
 - A usecase another module calls is an interface in `api/domain/usecase`, implemented by
-  `<Name>UsecaseImpl` in `impl/domain/usecase`.
+  `<Name>UsecaseImpl` in `impl/domain/usecase`. As found: iOS binds the background update
+  usecase to a single-flight wrapper; see
+  [platform-mirroring.md "Mirror table"](platform-mirroring.md#mirror-table).
   Example: [InsertAnimeDatabaseItemUsecase](../../core-kmp/anime-database/src/commonMain/kotlin/com/alekseivinogradov/anoti/animedatabase/kmp/api/domain/usecase/InsertAnimeDatabaseItemUsecase.kt)
 - An executor gets its usecases as one `data class <Name>Usecases` in a `usecase/wrapper`
   sub-package.
   Example: [FavoritesUsecases](../../feature-kmp/anime-favorites/src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/impl/domain/usecase/wrapper/FavoritesUsecases.kt)
-- Sources and usecases are unscoped bindings of the component that uses them. A usecase whose
+- Sources and usecases are unscoped bindings of their owning module's component: the feature
+  graph for module-local ones, the owner's module component for exported ones. A usecase whose
   instance holds state every caller must share is `@AppScope`. The exceptions found are listed
   in [dependency-injection.md "Scopes"](dependency-injection.md#scopes).
   Example: [DiAnimeBackgroundUpdatePlatformComponent](../../feature-kmp/anime-background-update/src/iosMain/kotlin/com/alekseivinogradov/anoti/animebackgroundupdate/ios/impl/di/DiAnimeBackgroundUpdatePlatformComponent.kt)

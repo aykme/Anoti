@@ -47,7 +47,8 @@ and [MainActivity](../../main/src/androidMain/kotlin/com/alekseivinogradov/anoti
    and sets the root content.
 7. Last, it reads the notification permission status and hands it to the root host.
 
-iOS, as found in [IosApp](../../core-kmp/di-app/src/iosMain/kotlin/com/alekseivinogradov/anoti/di/kmp/IosApp.kt)
+iOS, as found in
+[IosApp](../../core-kmp/di-app/src/iosMain/kotlin/com/alekseivinogradov/anoti/di/kmp/IosApp.kt)
 and [IosScreenHost](../../main/src/iosMain/kotlin/com/alekseivinogradov/anoti/main/api/presentation/IosScreenHost.kt):
 
 1. SwiftUI creates the app delegate. Its `didFinishLaunching` calls the entry object's `start()`.

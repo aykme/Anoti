@@ -35,7 +35,8 @@ it; carrying build, CI or agent files over to another repository.
 
 **By copy.** The new repository gets its own copy and keeps it current itself.
 
-- Copy `.claude/design`, `.claude/rules`, `.claude/skills` and `CLAUDE.md`.
+- Copy `.claude/design`, `.claude/rules`, `.claude/skills`, `.claude/hooks`,
+  `.claude/settings.json` and `CLAUDE.md`.
 - Replace every `Example:` link with the new project's own file once it exists, or drop it. Until
   then the link check fails on it, as [agent-setup.md](agent-setup.md#link-check) describes.
 - Rewrite the "In this project" column of the placeholder table in
@@ -44,7 +45,8 @@ it; carrying build, CI or agent files over to another repository.
 
 | File | Facts to rewrite |
 |---|---|
-| `CLAUDE.md` | remote name `master`, repository `aykme/Anoti`, the `gh` path on the developer's Windows machine, the `develop` branch, the root `README.md` rule |
+| `CLAUDE.md` | remote name `master`, repository `aykme/Anoti`, the `gh` path on the developer's Windows machine, the `develop` branch, the root `README.md` rule, the foreign user-level plugins under "Skills" |
+| `.claude/hooks/design_gate.py` | the module paths in `AREAS`, such as `/core-kmp/di-app/build.gradle.kts` and `**/core-kmp/test-utils/**` |
 | `ci-github.md` | `aykme/Anoti` in every `gh` command; `develop` as the branch that runs both workflows |
 | `ios/xcode-project.md` | `aykme/Anoti` in `gh run download` |
 | `logging.md` | `ANOTI_TAG`; the restore-check script that quotes log wording |

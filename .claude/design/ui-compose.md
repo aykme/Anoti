@@ -53,7 +53,8 @@ Mirrors: [AnimeFavoritesScreen](../../feature-kmp/anime-favorites/src/commonMain
 
 - A route connects a screen component to its screen. It collects the controller's state with
   `collectAsState()`, maps it in `remember(state) { mapStateToUiModel(state) }`, and passes
-  `controller::accept` as `dispatch`. Example:
+  `controller::accept` as `dispatch`. The screen's other inputs, such as a formatter, come from
+  the screen component. Example:
   [AnimeFavoritesRoute](../../feature-kmp/anime-favorites/src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/impl/presentation/navigation/AnimeFavoritesRoute.kt).
 
 ```kotlin
@@ -65,7 +66,11 @@ fun <Feature>Route(screenComponent: Nav<Feature>ScreenComponent) {
     val controller = screenComponent.controller
     val state by controller.state.collectAsState()
     val uiModel = remember(state) { mapStateToUiModel(state) }
-    <Feature>Screen(uiModel = uiModel, dispatch = controller::accept)
+    <Feature>Screen(
+        uiModel = uiModel,
+        dateFormatter = screenComponent.dateFormatter,
+        dispatch = controller::accept
+    )
 }
 ```
 
@@ -111,6 +116,12 @@ Mirrors: [AnimeFavoritesRoute](../../feature-kmp/anime-favorites/src/commonMain/
   An import or search then says unambiguously which one it means.
 - Comments on these constants describe what the value represents, not which features or screens
   consume it. That list changes independently of the value and shouldn't be hardcoded.
+
+As found: the shared base module's `Dimens` file also holds two millisecond intervals, two
+`Duration`s and `Float` values, and the UI kit's loading spinner keeps two bare `private const val`s
+at the bottom of its file. Example:
+[AnimeBaseDimens.kt](../../feature-kmp/anime-base/src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/presentation/compose/AnimeBaseDimens.kt),
+[LoadingSpinner.kt](../../core-kmp/celebrity/src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/impl/presentation/compose/LoadingSpinner.kt).
 
 As found: the business-constant files are named `<Module>Consts.kt`, not `Const.kt`. Example:
 [AnimeListConsts.kt](../../feature-kmp/anime-list/src/commonMain/kotlin/com/alekseivinogradov/anoti/animelist/kmp/api/domain/AnimeListConsts.kt).

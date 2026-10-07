@@ -11,6 +11,7 @@ paths:
   - "**/settings.gradle.kts"
   - "**/build.gradle.kts"
   - "**/gradle/libs.versions.toml"
+  - "**/PrivacyInfo.xcprivacy"
 ---
 
 # Technical design by area
@@ -31,3 +32,4 @@ paths:
 | a module's `build.gradle.kts`, `settings.gradle.kts` | [new-module.md](../design/new-module.md) |
 | the root `build.gradle.kts` | [build-and-tooling.md](../design/build-and-tooling.md) |
 | `gradle/libs.versions.toml` | [tech-stack.md](../design/tech-stack.md); an app or platform version: also [versioning-and-release.md](../design/versioning-and-release.md) |
+| `PrivacyInfo.xcprivacy` | [security-and-privacy.md](../design/security-and-privacy.md), section "iOS privacy manifest" |

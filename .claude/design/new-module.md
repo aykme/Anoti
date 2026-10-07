@@ -205,7 +205,7 @@ Mirrors:
   SQLite natives for host tests.
   Mirrors: [anime-database build file](../../core-kmp/anime-database/build.gradle.kts).
 - `api(...)` with a comment naming the signatures that need it: [principles.md](principles.md).
-  As found: five `api(...)` lines carry no comment.
+  As found: six `api(...)` lines carry no comment.
   Example: [network build file](../../core-kmp/network/build.gradle.kts).
 - New libraries: [tech-stack.md "Adding a library"](tech-stack.md#adding-a-library).
 

@@ -94,7 +94,7 @@ class Nav<Feature>ScreenComponent(
     val controller = <Feature>Controller(lifecycle = lifecycle, mainStore = mainStore)
 
     private companion object {
-        private const val RESTORED_STATE_KEY = "<Feature>RestoredState"
+        private const val RESTORED_STATE_KEY = "<Feature>MainStoreRestoredState"
     }
 }
 ```

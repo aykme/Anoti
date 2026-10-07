@@ -73,7 +73,8 @@ source set a test belongs in.
   named after it. A double `private` to one test class stays nested there and only follows the
   naming. It gets a file in a `fake` package the moment a second test needs it.
 - A library type has no package of ours. Its double takes the package of the code that uses the
-  type, with `fake` as the last segment, in the using module.
+  type, with `fake` as the last segment, in the using module. When a second module needs it, it
+  moves to the production source set of the closest module both depend on.
 - As found: the entry module's root dependencies fake and host application fake sit outside a
   `fake` package. Example:
   [DiRootDependenciesFake](../../main/src/commonTest/kotlin/com/alekseivinogradov/anoti/main/impl/presentation/DiRootDependenciesFake.kt).

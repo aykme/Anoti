@@ -107,7 +107,8 @@ Shared rules, in `.claude/rules/`:
   UI or a UI constant; it sends you to the design's Compose UI file.
 - [technical-design.md](.claude/rules/technical-design.md) — read before creating or editing a
   file in a `di/`, `navigation/`, `data/`, `usecase/`, `savedstate/` or `composeResources/`
-  package, a manifest, a `*Worker.kt` or a build file; it names the design file of each.
+  package, a manifest, a `*Worker.kt`, a build file, the version catalog or the iOS privacy
+  manifest; it names the design file of each.
 - [compose-compiler-reports.md](.claude/rules/compose-compiler-reports.md) — read before
   committing Compose UI.
 - [module-docs.md](.claude/rules/module-docs.md) — read when a module is created, changed or

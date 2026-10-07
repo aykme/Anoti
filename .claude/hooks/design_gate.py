@@ -1,41 +1,45 @@
 """PreToolUse gate: refuses a Write or Edit in a design area until the session has read the area's
 design file with the Read tool since its last compaction.
 
-The areas mirror the triggers of the thin rules and of .claude/rules/technical-design.md; when one of
-those changes, change AREAS below in the same commit. Any failure here lets the write through.
+The areas are the path-decidable triggers of the thin rules and of
+.claude/rules/technical-design.md; when one of those changes, change AREAS in the same commit.
+A partial Read counts. Any failure here lets the write through.
 """
 import json
 import os
 import re
 import sys
 
-# (globs, design file, section or None, condition). Globs are repo-relative, gitignore-style.
-# Condition: None (every write), "new" (only a file that does not exist yet), "nofake" (skips doubles).
+# (globs, design file, section or None). Globs are repo-relative, gitignore-style, case-sensitive.
 AREAS = [
-    (["**/src/*Main/**/store/**/*.kt"], "mvi.md", "Executors and state", "nofake"),
-    (["**/src/*Main/**/presentation/compose/**/*.kt",
-      "**/src/*Main/**/*{Dimens,Fonts,Colors,Const,Consts}.kt"], "ui-compose.md", "Design tokens", None),
+    (["**/src/*Main/**/store/**/*.kt"], "mvi.md", "Executors and state"),
+    (["**/src/*Main/**/presentation/compose/**/*.kt", "**/src/*Main/**/*Route.kt",
+      "**/src/*Main/**/*{Dimens,Fonts,Colors,Const,Consts}.kt"], "ui-compose.md", "Design tokens"),
     (["**/src/*Test/**", "**/src/test/**", "**/fake/**", "**/core-kmp/test-utils/**",
-      "**/iosApp/iosAppUITests/**"], "testing.md", None, None),
+      "**/iosApp/iosAppUITests/**"], "testing.md", None),
     (["**/src/androidHostTest/**", "**/src/androidDeviceTest/**", "**/androidApp/src/test/**",
-      "**/androidApp/src/androidTest/**", "**/src/iosTest/**"], "testing-platforms.md", None, None),
-    (["**/iosApp/iosApp/**/*.swift", "**/iosApp/iosApp/Info.plist"], "ios-host.md", None, None),
-    (["**/iosApp/iosApp/PrivacyInfo.xcprivacy"], "security-and-privacy.md", None, None),
-    (["/core-kmp/di-app/build.gradle.kts"], "kmp.md", "The iOS framework", None),
-    (["**/src/androidMain/**/*.kt", "**/src/iosMain/**/*.kt"], "kmp.md", "Where code lives", "new"),
-    (["**/di/**"], "dependency-injection.md", None, None),
-    (["**/navigation/**"], "navigation.md", None, None),
-    (["**/data/**", "**/usecase/**"], "data-layer.md", None, None),
-    (["**/savedstate/**"], "state-restoration.md", None, None),
-    (["**/composeResources/**"], "ui-compose.md", "Resources and localization", None),
-    (["**/AndroidManifest.xml"], "module-anatomy.md", "Manifests and resources", None),
-    (["**/*Worker.kt"], "platform-mirroring.md", None, None),
-    (["/settings.gradle.kts", "*/**/build.gradle.kts"], "new-module.md", None, None),
-    (["/build.gradle.kts"], "build-and-tooling.md", None, None),
-    (["/gradle/libs.versions.toml"], "tech-stack.md", None, None),
+      "**/androidApp/src/androidTest/**"], "testing-platforms.md", "Android"),
+    (["**/src/iosTest/**", "**/src/iosMain/**/*.kt"], "testing-platforms.md", "iOS"),
+    (["**/iosApp/iosApp/**/*.swift", "**/iosApp/iosApp/Info.plist",
+      "**/core-kmp/di-app/src/iosMain/**"], "ios-host.md", None),
+    (["**/iosApp/iosApp/PrivacyInfo.xcprivacy"], "security-and-privacy.md", "iOS privacy manifest"),
+    (["/core-kmp/di-app/**"], "kmp.md", "The iOS framework"),
+    (["**/src/androidMain/**/*.kt", "**/src/iosMain/**/*.kt"], "kmp.md", "Where code lives"),
+    (["**/di/**"], "dependency-injection.md", None),
+    (["**/navigation/**"], "navigation.md", None),
+    (["**/data/**", "**/usecase/**"], "data-layer.md", None),
+    (["**/savedstate/**"], "state-restoration.md", None),
+    (["**/composeResources/**"], "ui-compose.md", "Resources and localization"),
+    (["**/AndroidManifest.xml"], "module-anatomy.md", "Manifests and resources"),
+    (["**/*Worker.kt"], "platform-mirroring.md", None),
+    (["/settings.gradle.kts", "*/**/build.gradle.kts"], "new-module.md", None),
+    (["/build.gradle.kts"], "build-and-tooling.md", None),
+    (["/gradle/libs.versions.toml"], "tech-stack.md", None),
 ]
-# Paths no area applies to, even when a glob above matches them.
-SKIPPED = re.compile(r"^(?:\.claude|docs)/|(?:^|/)build/")
+# A worktree nested in the checkout is matched as its own repository.
+NESTED_WORKTREE = re.compile(r"^(?:\.claude/worktrees|\.worktrees)/[^/]+/")
+# Agent setup, planning docs, build output and Markdown are not code areas.
+SKIPPED = re.compile(r"^(?:\.claude|docs)/|(?:^|/)build/|\.md$")
 
 
 def translate(pattern):
@@ -58,22 +62,33 @@ def translate(pattern):
 
 
 def matches(pattern, path):
-    """`path` is repo-relative with forward slashes. A glob matches the path or any of its parents."""
+    """`path` is repo-relative with forward slashes. A glob matches the path or any parent."""
     body = pattern.lstrip("/")
     prefix = "" if pattern.startswith("/") or "/" in body else "(?:.*/)?"
-    regex = re.compile(prefix + translate(body) + "$", re.I)
+    regex = re.compile(prefix + translate(body) + "$")
     parts = path.split("/")
     return any(regex.match("/".join(parts[:k])) for k in range(len(parts), 0, -1))
 
 
-def design_reads(transcript):
+def is_compaction(line):
+    if '"compact_boundary"' not in line:
+        return False
+    try:
+        entry = json.loads(line)
+    except ValueError:
+        return False
+    return entry.get("type") == "system" and entry.get("subtype") == "compact_boundary"
+
+
+def design_reads(transcript, design_dir):
     """Lower-cased names of the design files one agent read with the Read tool since its last
     compaction."""
     names = set()
     with open(transcript, encoding="utf-8", errors="replace") as handle:
         for line in handle:
-            if "compact_boundary" in line:
+            if is_compaction(line):
                 names.clear()
+                continue
             if '"Read"' not in line or "design" not in line:
                 continue
             try:
@@ -81,15 +96,17 @@ def design_reads(transcript):
             except ValueError:
                 continue
             for block in (entry.get("message") or {}).get("content") or []:
-                if isinstance(block, dict) and block.get("type") == "tool_use" and block.get("name") == "Read":
-                    file_path = str((block.get("input") or {}).get("file_path") or "").replace("\\", "/")
-                    if "/.claude/design/" in file_path:
-                        names.add(file_path.rsplit("/", 1)[-1].lower())
+                if not isinstance(block, dict) or block.get("type") != "tool_use" \
+                        or block.get("name") != "Read":
+                    continue
+                path = str((block.get("input") or {}).get("file_path") or "")
+                if os.path.normcase(os.path.dirname(os.path.abspath(path))) == design_dir:
+                    names.add(os.path.basename(path).lower())
     return names
 
 
 def main():
-    event = json.load(sys.stdin)
+    event = json.loads(sys.stdin.buffer.read().decode("utf-8"))
     tool_input = event.get("tool_input") or {}
     target = tool_input.get("file_path") or tool_input.get("notebook_path")
     root = os.environ.get("CLAUDE_PROJECT_DIR") or event.get("cwd")
@@ -101,19 +118,20 @@ def main():
     if not target or not root or not transcript or not os.path.isfile(transcript):
         return
     rel = os.path.relpath(os.path.abspath(target), os.path.abspath(root)).replace("\\", "/")
+    nested = NESTED_WORKTREE.match(rel)
+    if nested:
+        root = os.path.join(root, nested.group(0))
+        rel = rel[nested.end():]
     if rel.startswith("../") or SKIPPED.search(rel):
         return
     due = []
-    for globs, name, section, condition in AREAS:
-        if condition == "new" and os.path.exists(target):
-            continue
-        if condition == "nofake" and "/fake/" in rel.lower():
-            continue
+    for globs, name, section in AREAS:
         if any(matches(g, rel) for g in globs) and (name, section) not in due:
             due.append((name, section))
     if not due:
         return
-    read = design_reads(transcript)
+    design_dir = os.path.normcase(os.path.abspath(os.path.join(root, ".claude", "design")))
+    read = design_reads(transcript, design_dir)
     missing = [(n, s) for n, s in due if n not in read]
     if not missing:
         return

@@ -16,7 +16,8 @@ or a qualifier; adding a module that contributes bindings; building a graph in a
   the Gradle lines are in [new-module.md](new-module.md).
   Example: [anime-list build file](../../feature-kmp/anime-list/build.gradle.kts).
 - Scope and qualifier annotations and `PlatformContext` live in the DI-scope leaf module, so any
-  module uses them without depending on the composition root. Example: [Scope.kt](../../core-kmp/di-scope/src/commonMain/kotlin/com/alekseivinogradov/anoti/di/kmp/scope/Scope.kt).
+  module uses them without depending on the composition root.
+  Example: [Scope.kt](../../core-kmp/di-scope/src/commonMain/kotlin/com/alekseivinogradov/anoti/di/kmp/scope/Scope.kt).
 
 ## Scopes
 
@@ -54,7 +55,8 @@ or a qualifier; adding a module that contributes bindings; building a graph in a
   Example: [DiRootComponent](../../main/src/commonMain/kotlin/com/alekseivinogradov/anoti/main/impl/di/DiRootComponent.kt).
 - A feature's dependencies contract, `Di<Feature>Dependencies`, lists as `val`s only what its
   feature graph reads from the parent. It lives in the feature's `api/di`. The feature graph,
-  `Di<Feature>Component`, lives in `impl/di` and exposes the screen's stores as abstract `val`s.
+  `Di<Feature>Component`, lives in `impl/di` and exposes as abstract `val`s the screen's stores
+  and any value its screen needs, such as a date formatter.
   The root host's child factory builds one per screen component; see
   [navigation.md](navigation.md), section "Root stack".
   Example: [DiAnimeFavoritesDependencies](../../feature-kmp/anime-favorites/src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/api/di/DiAnimeFavoritesDependencies.kt).
@@ -73,9 +75,8 @@ or a qualifier; adding a module that contributes bindings; building a graph in a
   mixed into the app graph. Android and iOS use different components here; see
   [platform-mirroring.md](platform-mirroring.md), section "Accepted asymmetries".
   Example: [DiRootPlatformComponent](../../main/src/androidMain/kotlin/com/alekseivinogradov/anoti/main/impl/presentation/di/DiRootPlatformComponent.kt).
-- As found: the Android platform component packages differ between modules (`android.impl.di`,
-  `android.impl.presentation.di`, `main.impl.presentation.di`). The iOS ones are all `ios.impl.di`.
-  Example: [Android DiAnimeNotificationPlatformComponent](../../feature-kmp/anime-notification/src/androidMain/kotlin/com/alekseivinogradov/anoti/animenotification/android/impl/presentation/di/DiAnimeNotificationPlatformComponent.kt).
+- The packages of the Android platform components are not uniform; see
+  [module-anatomy.md](module-anatomy.md), section "Packages".
 
 ## Bindings
 
@@ -174,6 +175,7 @@ abstract class Di<Feature>Component(
     @Component val parent: Di<Feature>Dependencies
 ) {
     abstract val mainStore: <Feature>MainStore
+    abstract val dateFormatter: DateFormatter
     @Provides
     fun provide<Feature>ExecutorFactory(
         coroutineContextProvider: CoroutineContextProvider

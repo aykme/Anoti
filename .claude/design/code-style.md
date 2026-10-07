@@ -56,7 +56,8 @@ Markdown in the repository.
   [navigation.md "Root stack"](navigation.md#root-stack).
 - A closed set without payloads is an `enum class`, as UI flags such as content types are.
 - A `when` over a sealed type or an enum lists every case and has no `else`. detekt's
-  `ElseCaseInsteadOfExhaustiveWhen` is on for this. `else` stays for open subjects, such as a
+  `ElseCaseInsteadOfExhaustiveWhen` is on for this, but it needs type resolution, which runs only
+  on the Android target; review holds `commonMain`. `else` stays for open subjects, such as a
   string or a `Throwable`, and for a `when` without a subject.
 - As found: three section executors end a `when` over a sealed result with `else -> Unit`.
   Example:
@@ -74,8 +75,8 @@ Markdown in the repository.
   [mvi.md "Mappers and UI models"](mvi.md#mappers-and-ui-models); boundary mappers are
   extensions `to<Target>()`, in [data-layer.md](data-layer.md).
 - Constants are SCREAMING_SNAKE_CASE and end in their unit where they have one: `_DP`, `_SP`,
-  `_PERCENT`, `_MILLIS`, `_SECONDS`, `_MINUTES`. As found: `_MILLISECONDS` in one token file and
-  `_MS` in one composable file. Example:
+  `_PERCENT`, `_MILLIS`, `_SECONDS`, `_MINUTES`. As found: `_MILLISECONDS` in two constants files
+  and `_MS` in one composable file. Example:
   [AnimeBaseDimens.kt](../../feature-kmp/anime-base/src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/presentation/compose/AnimeBaseDimens.kt).
   Palette colors are PascalCase (`Cinnabar500`).
 - A Boolean reads as a statement: `is*`, `has*`, `can*`.

@@ -63,7 +63,8 @@ Globs are gitignore-style:
   section, due whenever the task does what the bullet names. Bullets that stay rules sit beside
   it. Example: [mvi-stores.md](../rules/mvi-stores.md).
 - The area-pointer rule [technical-design.md](../rules/technical-design.md) loads on DI,
-  navigation, data, usecase, saved-state, resource, manifest, worker and build paths. Its table
+  navigation, data, usecase, saved-state, resource, manifest, worker, build, catalog and iOS
+  privacy-manifest paths. Its table
   names the design file of each area.
 - A rule stays full when its guard is needed on almost every edit (comments, logging, the
   `commonMain` default), when it guards the very file it names (R8, the iOS Release settings), or
@@ -74,9 +75,11 @@ Globs are gitignore-style:
 - The design gate enforces the reading order that text alone left to chance: the first quick
   write in a new or secondary area. A project `PreToolUse` hook refuses a Write or Edit in an area
   until the same agent has read that area's design file with the Read tool since its last
-  compaction. The refusal names the file and section. Its `AREAS` table mirrors the thin rules'
-  triggers and the area-pointer rule's table. A broken gate or a missing Python lets the write
-  through, and shell edits never pass it.
+  compaction. The refusal names the file and section. Its `AREAS` table holds the path-decidable
+  triggers of the thin rules and the area-pointer rule's table. A partial Read counts; Markdown,
+  `.claude/` and `docs/` are not gated; a worktree nested in the checkout is matched as its own
+  repository. A broken gate or a missing Python lets the write through, and shell edits never
+  pass it.
 
 ## Skills
 

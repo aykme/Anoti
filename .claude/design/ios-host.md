@@ -43,7 +43,7 @@ Read when: changing Swift app code, `Info.plist`, or the `iosMain` code Swift ca
 - Call `IosApp.saveState()` whenever the scene phase leaves `.active`. Store a returned string in
   the same `@SceneStorage`. On `nil`, leave the stored value as it is.
 - A Swift-only event Kotlin must know of, a log line included, becomes one more `IosApp` function
-  Swift calls with plain values. Swift itself never logs; see [logging.md](../rules/logging.md).
+  Swift calls with plain values.
 
 What the string holds, and when a kept one is dropped, is in
 [state-restoration.md](state-restoration.md), section "iOS".
