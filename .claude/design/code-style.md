@@ -56,8 +56,9 @@ Markdown in the repository.
   [navigation.md "Root stack"](navigation.md#root-stack).
 - A closed set without payloads is an `enum class`, as UI flags such as content types are.
 - A `when` over a sealed type or an enum lists every case and has no `else`. detekt's
-  `ElseCaseInsteadOfExhaustiveWhen` is on for this, but it needs type resolution, which runs only
-  on the Android target; review holds `commonMain`. `else` stays for open subjects, such as a
+  `ElseCaseInsteadOfExhaustiveWhen` is on for this, but it reports only where detekt resolves
+  types (see [build-and-tooling.md](build-and-tooling.md#root-build)); in `commonMain` code
+  review enforces it. `else` stays for open subjects, such as a
   string or a `Throwable`, and for a `when` without a subject.
 - As found: three section executors end a `when` over a sealed result with `else -> Unit`.
   Example:

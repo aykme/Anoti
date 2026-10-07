@@ -91,6 +91,8 @@ class Nav<Feature>ScreenComponent(
         }
     }
 
+    val dateFormatter: DateFormatter = di<Feature>Component.dateFormatter
+
     val controller = <Feature>Controller(lifecycle = lifecycle, mainStore = mainStore)
 
     private companion object {

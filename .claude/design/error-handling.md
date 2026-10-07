@@ -46,8 +46,8 @@ scope or context, or catching an exception.
   shows the unknown error message.
 - `CoroutineContextProviderBareImpl` only logs, for code that must not show UI. As found, only a
   test uses it.
-- Every context member but `workManagerCoroutineContext` carries this handler; that one carries an
-  empty handler, and the dispatcher members carry none. Which job each context carries, and the
+- The `*CoroutineContext` members carry this handler, except `workManagerCoroutineContext`,
+  which carries an empty one; dispatchers carry none. Which job each context carries, and the
   contexts built outside the provider, are in
   [concurrency-and-lifecycle.md "Coroutine contexts"](concurrency-and-lifecycle.md#coroutine-contexts).
 - Which dispatcher and which scope owner to use is owned by

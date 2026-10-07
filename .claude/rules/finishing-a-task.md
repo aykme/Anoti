@@ -72,8 +72,7 @@ code. The reviewer-prompt rule under "Review" applies to every review, mid-task 
   thin rules and [technical-design.md](technical-design.md) name for the diff's paths, and the
   files of the task's row in the task table of
   [.claude/design/TECHNICAL-DESIGN.md](../design/TECHNICAL-DESIGN.md). Flag code that departs from
-  them, and an approach the change altered that the design
-  still describes the old way.
+  them, and an approach the change altered that the design still describes the old way.
 
 ## Wrapping up
 

@@ -63,8 +63,7 @@ Globs are gitignore-style:
   it. Example: [mvi-stores.md](../rules/mvi-stores.md).
 - The area-pointer rule [technical-design.md](../rules/technical-design.md) loads on DI,
   navigation, data, usecase, saved-state, resource, manifest, worker, build, catalog and iOS
-  privacy-manifest paths. Its table
-  names the design file of each area.
+  privacy-manifest paths. Its table names the design file of each area.
 - A rule stays full when its guard is needed on almost every edit (comments, logging, the
   `commonMain` default), when it guards the very file it names (R8, the iOS Release settings), or
   when it is one situation's whole policy (device tests). Examples:
@@ -84,14 +83,15 @@ Globs are gitignore-style:
   regression files, [manual-regression](../skills/manual-regression/SKILL.md) for walks, and
   [creating-a-module](../skills/creating-a-module/SKILL.md) for a new module, with a script that
   checks it against its kind.
-- A skill that checks code against the design names the design sections it follows. Its checks
-  change with them: a change to `new-module.md`, `entities.md` or `module-anatomy.md` "Packages"
-  updates `creating-a-module`'s kind table and script in the same commit.
+- A skill that checks code against the design changes with it: a change to any design section
+  `creating-a-module` or its script cites updates the skill and the script in the same commit.
+  The script lists those sections at its top.
 - User-level skills and plugins also appear in a session. They belong to the machine, not to
   the repository. `CLAUDE.md` "Skills" says how skills are picked.
 - Plugins written for another codebase are turned off for this project in
-  `.claude/settings.local.json`, under `enabledPlugins`. That file is per machine and ignored by
-  git, so `CLAUDE.md` "Skills" still rules them out wherever it is missing.
+  `.claude/settings.local.json`, under `enabledPlugins`. That file is per machine and untracked
+  (a global git ignore keeps it out), so `CLAUDE.md` "Skills" still rules them out wherever it is
+  missing.
 
 ## Planning docs and memory
 

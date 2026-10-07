@@ -47,8 +47,8 @@ database or its schema, a model mapper at the data boundary, or a paged list.
   `SafeApi`.
 - Each source method wraps the service call and the response-to-domain mapping in one
   `safeApi.call { }`. A mapping failure then becomes an `OtherError`. Items without an id are
-  dropped. As found: the list source filters them before mapping, the background source drops
-  them in its mapper, and the favorites single fetch maps a missing id to `-1`.
+  dropped. As found: the list source filters them from its pages before mapping, the background
+  source drops them in its mapper, and both single-item fetches map a missing id to `-1`.
   Example: [AnimeListSourceImpl](../../feature-kmp/anime-list/src/commonMain/kotlin/com/alekseivinogradov/anoti/animelist/kmp/impl/data/source/AnimeListSourceImpl.kt)
 - A usecase used only inside its module is a concrete class in `impl/domain/usecase` with one
   `execute` function. It takes a source and fixes the parameters the caller need not choose.
@@ -61,8 +61,9 @@ database or its schema, a model mapper at the data boundary, or a paged list.
 - An executor gets its usecases as one `data class <Name>Usecases` in a `usecase/wrapper`
   sub-package.
   Example: [FavoritesUsecases](../../feature-kmp/anime-favorites/src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/impl/domain/usecase/wrapper/FavoritesUsecases.kt)
-- Sources and usecases are unscoped bindings of their owning module's component: the feature
-  graph for module-local ones, the owner's module component for exported ones. A usecase whose
+- Sources and usecases are unscoped bindings of their owning module: its feature graph in a
+  screen feature, its module component otherwise, or its platform components where each platform
+  implements it. A usecase whose
   instance holds state every caller must share is `@AppScope`. The exceptions found are listed
   in [dependency-injection.md "Scopes"](dependency-injection.md#scopes).
   Example: [DiAnimeBackgroundUpdatePlatformComponent](../../feature-kmp/anime-background-update/src/iosMain/kotlin/com/alekseivinogradov/anoti/animebackgroundupdate/ios/impl/di/DiAnimeBackgroundUpdatePlatformComponent.kt)

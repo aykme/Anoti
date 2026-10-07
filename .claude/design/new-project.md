@@ -45,7 +45,7 @@ it; carrying build, CI or agent files over to another repository.
 | File | Facts to rewrite |
 |---|---|
 | `CLAUDE.md` | remote name `master`, repository `aykme/Anoti`, the `gh` path on the developer's Windows machine, the `develop` branch, the root `README.md` rule, the foreign user-level plugins under "Skills" |
-| `.claude/skills/creating-a-module/scripts/check_module.py` | `ANOTI-FULL-REGRESS.md`, and the navigation module the root package is read from |
+| `.claude/skills/creating-a-module/` | `ANOTI-FULL-REGRESS.md` in `SKILL.md` and the script; in the script, the groups `core-kmp` and `feature-kmp`, the navigation module the root configs are read from, and the entry module `main` |
 | `ci-github.md` | `aykme/Anoti` in every `gh` command; `develop` as the branch that runs both workflows |
 | `ios/xcode-project.md` | `aykme/Anoti` in `gh run download` |
 | `logging.md` | `ANOTI_TAG`; the restore-check script that quotes log wording |
@@ -74,6 +74,7 @@ it; carrying build, CI or agent files over to another repository.
 - A Swift toolchain for SwiftLint on a machine without Xcode; see
   [ios/swiftlint.md](../rules/ios/swiftlint.md).
 - The GitHub CLI for CI runs.
+- Python 3 for the `creating-a-module` check (`python`, or `python3` where only that exists).
 
 ## Carry-over files
 

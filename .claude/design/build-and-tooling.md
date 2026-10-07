@@ -119,7 +119,7 @@ Files and line endings:
 | `./gradlew allTests :androidApp:testDebugUnitTest` | Runs every host test; no device test |
 | `./gradlew detektAll` | Runs detekt over every module and source set |
 | `./gradlew koverVerify` | Checks the whole-project coverage bar |
-| `./gradlew :<group>:<name>:koverLog` | Prints one module's coverage while writing tests, e.g. `:feature-kmp:anime-list:koverLog` |
+| `./gradlew :<module>:koverLog` | Prints one module's coverage while writing tests, e.g. `:feature-kmp:anime-list:koverLog` |
 | `./gradlew :androidApp:assembleMinified` | Builds the minified app |
 | `./gradlew generateIosVersionXcconfig` | Regenerates the iOS version file |
 

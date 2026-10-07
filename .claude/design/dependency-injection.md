@@ -166,6 +166,7 @@ Mirrors: [Android DiAnimeDatabasePlatformComponent](../../core-kmp/anime-databas
 interface Di<Feature>Dependencies {
     val storeFactory: StoreFactory
     val coroutineContextProvider: CoroutineContextProvider
+    val dateFormatter: DateFormatter
 }
 
 // Its feature graph, package <root-package>.<module-id>.kmp.impl.di
