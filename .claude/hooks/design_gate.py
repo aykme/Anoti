@@ -80,9 +80,9 @@ def is_compaction(line):
     return entry.get("type") == "system" and entry.get("subtype") == "compact_boundary"
 
 
-def design_reads(transcript, design_dir):
-    """Lower-cased names of the design files one agent read with the Read tool since its last
-    compaction."""
+def design_reads(transcript, design_dirs):
+    """Lower-cased names of the design files one agent read with the Read tool, in one of
+    `design_dirs`, since its last compaction."""
     names = set()
     with open(transcript, encoding="utf-8", errors="replace") as handle:
         for line in handle:
@@ -100,7 +100,7 @@ def design_reads(transcript, design_dir):
                         or block.get("name") != "Read":
                     continue
                 path = str((block.get("input") or {}).get("file_path") or "")
-                if os.path.normcase(os.path.dirname(os.path.abspath(path))) == design_dir:
+                if os.path.normcase(os.path.dirname(os.path.abspath(path))) in design_dirs:
                     names.add(os.path.basename(path).lower())
     return names
 
@@ -118,9 +118,12 @@ def main():
     if not target or not root or not transcript or not os.path.isfile(transcript):
         return
     rel = os.path.relpath(os.path.abspath(target), os.path.abspath(root)).replace("\\", "/")
+    # The design of the checkout, and of a worktree nested in it, which may hold its own copy.
+    design_dirs = {os.path.normcase(os.path.abspath(os.path.join(root, ".claude", "design")))}
     nested = NESTED_WORKTREE.match(rel)
     if nested:
-        root = os.path.join(root, nested.group(0))
+        design_dirs.add(os.path.normcase(os.path.abspath(
+            os.path.join(root, nested.group(0), ".claude", "design"))))
         rel = rel[nested.end():]
     if rel.startswith("../") or SKIPPED.search(rel):
         return
@@ -130,8 +133,7 @@ def main():
             due.append((name, section))
     if not due:
         return
-    design_dir = os.path.normcase(os.path.abspath(os.path.join(root, ".claude", "design")))
-    read = design_reads(transcript, design_dir)
+    read = design_reads(transcript, design_dirs)
     missing = [(n, s) for n, s in due if n not in read]
     if not missing:
         return
@@ -143,7 +145,8 @@ def main():
                                              "permissionDecisionReason": reason}}))
 
 
-try:
-    main()
-except Exception:  # noqa: BLE001 - a broken gate must never block work.
-    pass
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception:  # noqa: BLE001 - a broken gate must never block work.
+        pass
