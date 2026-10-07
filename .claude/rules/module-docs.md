@@ -10,6 +10,9 @@ paths:
 
 The root `README.md` follows none of this; see [CLAUDE.md](../../CLAUDE.md).
 
+When creating a module, read [.claude/design/new-module.md](../design/new-module.md) first. It
+holds how a module is built; this file holds its documentation.
+
 ## READMEs
 
 - Whenever a module is created or changed, create (if missing) or update its README to reflect

@@ -43,4 +43,5 @@ paths:
   like `Colors.kt` and `Fonts.kt`.
 - Android platform code counts too; Kover measures it through `androidHostTest`.
 - Kover cannot measure Kotlin/Native, so nothing in `iosMain` reaches the number. See
-  [ios/tests.md](ios/tests.md) for what that means for placing logic.
+  [.claude/design/testing-platforms.md](../design/testing-platforms.md), section "iOS", for what
+  that means for placing logic.

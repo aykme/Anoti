@@ -22,6 +22,6 @@ paths:
 - On iOS, `ios.yml` retries the UI tests through `xcodebuild`, the Kotlin/Native tests by running
   their Gradle task again, and each restore case as a whole. Each UI test and restore case starts
   from a fresh installation of its own.
-- So, as [tests.md](tests.md) says, a test passes on its own, in any order. It never leans on what
-  another test or an earlier try left behind; a shared setup goes into a preparation step every
-  test runs.
+- So, as [.claude/design/testing.md](../design/testing.md) says in "Structure", a test passes on
+  its own, in any order. It never leans on what another test or an earlier try left behind; a
+  shared setup goes into a preparation step every test runs.

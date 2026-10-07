@@ -15,26 +15,16 @@ paths:
   platform-only type anywhere in its own signature or body. An interface, data holder, or plain
   function with zero platform imports belongs in `commonMain`, even if its only current
   implementer/caller is platform-specific.
-- One exception, for iOS only. Code that exists only because iOS lacks a mechanism Android's OS
-  provides lives in `iosMain`, even when it is portable. `IosRootHolder`, `IosRootContent`,
-  `SaveableStateCodec` and `ChildLifecycle` in `main` are the case. They keep the screen state
-  Android keeps in its saved instance state, and rebuild the root from it. Such code is written in
-  `commonMain` first and moved once its tests pass (see [ios/tests.md](ios/tests.md)). Logic both
-  platforms share stays in `commonMain`, whoever calls it.
-- This applies to Compose code too. A composable only needs `androidMain`/`iosMain` if it directly
-  touches a platform-only API (e.g. a `View`/`ComposeView` bridge). A composable built entirely
-  from `compose.runtime`/`compose.foundation`/`compose.material3` and other `commonMain` types
-  belongs in `commonMain`, regardless of which platform currently calls it.
-- When portable logic needs a platform-specific value or condition (e.g. an Android-only
-  OS-version check), compute it in the platform layer and pass the *result* in as a plain
-  parameter (a `Boolean`, a `Modifier`, a `Dp`). Don't let the platform concept itself (its name,
-  its reasoning) leak into the `commonMain` signature.
-- Where both platforms need the same thing built (wording, an id, a format), build it once in
-  `commonMain` and have both call it. Two copies drift, and review is not what should hold them
-  together. `newEpisodeNotificationText` in `feature-kmp:anime-notification` is that shape.
+- Before creating a Kotlin file, adding code to a platform source set, adding a composable,
+  passing a platform-specific value into common code, building the same thing for both platforms,
+  or moving code between source sets, read [.claude/design/kmp.md](../design/kmp.md), section
+  "Where code lives". It holds the iOS-only exception, Compose code, platform values passed in as
+  results, and building a shared thing once.
+- Before creating a source directory, read
+  [.claude/design/module-anatomy.md](../design/module-anatomy.md), section "Source sets".
+- Code kept in `iosMain` under that iOS-only exception is written in `commonMain` first and moved
+  once its tests pass (see [ios/tests.md](ios/tests.md)).
 - Re-verify this placement whenever a task removes or restructures platform-specific code (e.g. a
   `Fragment`→Compose migration). Code that was platform-only because of something now deleted (a
   `Fragment`, a `View`) often has no remaining reason to stay there. Then it should move to
   `commonMain` as part of that same task, not be left behind.
-- Source directories are `kotlin`, never `java`, in any source set (`src/main/kotlin`,
-  `src/test/kotlin`, `src/androidTest/kotlin`).

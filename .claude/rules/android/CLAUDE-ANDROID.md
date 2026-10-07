@@ -10,7 +10,7 @@ rules both platforms share, and loads with it.
 ## Index
 
 - [tests.md](tests.md) — read before writing an `androidHostTest`, a composable test or an
-  instrumented test.
+  instrumented test; it sends you to the design's testing-platforms file.
 - [instrumented-tests.md](instrumented-tests.md) — read before running every test of a task, or
   adding instrumented tests to a module.
 - [r8-minified.md](r8-minified.md) — read before building the minified variant, and when a change
