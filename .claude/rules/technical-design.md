@@ -15,8 +15,9 @@ paths:
 
 # Technical design by area
 
-- Before writing or editing in one of the areas below, read its design file. The whole design
-  starts at [.claude/design/TECHNICAL-DESIGN.md](../design/TECHNICAL-DESIGN.md).
+- Before writing or editing in one of the areas below, a test or a fake in it included, read its
+  design file, even when the task's main area is another one. The whole design starts at
+  [.claude/design/TECHNICAL-DESIGN.md](../design/TECHNICAL-DESIGN.md).
 
 | Area | Design file |
 |---|---|
