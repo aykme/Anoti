@@ -30,6 +30,11 @@ and [CLAUDE-IOS.md](.claude/rules/ios/CLAUDE-IOS.md) load with it.
 
 - Before starting any task, check the available skills (this project's `.claude/skills/` and any
   user-level ones). Propose one that applies rather than doing ad-hoc work a skill already covers.
+- A user-level skill written for another codebase does not apply here, whatever its description
+  matches: the `multimodule-architecture`, `navigation`, `network-layer`, `testing`,
+  `feature-flags`, `checks`, `qa-engineer`, `dependency-diagrams` and `network-baseline-capture`
+  plugins describe other projects. This project's technical design and rules decide how code is
+  written here.
 - The `code-documentation` skill covers module READMEs and KDoc/code-comment conventions. Use it
   before writing a README or documenting code.
 
@@ -43,7 +48,11 @@ and [CLAUDE-IOS.md](.claude/rules/ios/CLAUDE-IOS.md) load with it.
   a new project too. Then read the files its task table names, in order. Both are hard steps.
 - A rule that sends you to a design file counts the same: once it loads and the task does what its
   bullet names, read that design file before writing.
-- A subagent sent to write or review code gets the design files of its task in its prompt.
+- Such rules arrive while you work, often right after a read or a write in a new area. When one
+  arrives, read its design file before your next write in that area, even mid-task. A task that
+  spans several areas (a store, its UI, DI, tests) reads the design file of each.
+- Read the design files yourself before writing. A subagent's summary does not replace them, and
+  a subagent sent to write or review code gets the design files of its task in its prompt.
 - Before creating a module, read [new-module.md](.claude/design/new-module.md) and every file its
   section "Before the first file" names, then [module-docs.md](.claude/rules/module-docs.md).
 

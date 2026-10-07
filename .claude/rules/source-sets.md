@@ -15,7 +15,7 @@ paths:
   platform-only type anywhere in its own signature or body. An interface, data holder, or plain
   function with zero platform imports belongs in `commonMain`, even if its only current
   implementer/caller is platform-specific.
-- Before creating a Kotlin file, adding code to a platform source set, adding a composable,
+- Before creating a file in a platform source set or adding code to one, adding a composable,
   passing a platform-specific value into common code, building the same thing for both platforms,
   or moving code between source sets, read [.claude/design/kmp.md](../design/kmp.md), section
   "Where code lives". It holds the iOS-only exception, Compose code, platform values passed in as
