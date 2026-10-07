@@ -77,9 +77,13 @@ Globs are gitignore-style:
   until the same agent has read that area's design file with the Read tool since its last
   compaction. The refusal names the file and section. Its `AREAS` table holds the path-decidable
   triggers of the thin rules and the area-pointer rule's table. A partial Read counts; Markdown,
-  `.claude/` and `docs/` are not gated; a worktree nested in the checkout is matched as its own
-  repository. A broken gate or a missing Python lets the write through, and shell edits never
-  pass it.
+  `.claude/` and `docs/` are not gated. The file's own checkout decides, so every worktree of the
+  repository is gated, wherever it sits; a repository without `.claude/design` is not. A broken
+  gate or a missing Python lets the write through, and shell edits never pass it.
+- [design_gate_test.py](../hooks/design_gate_test.py) runs the gate on synthetic transcripts and
+  real paths, and checks that a rule loaded on each gated path names the file the gate demands.
+  Run it with `python -I .claude/hooks/design_gate_test.py` after any change to the gate or to a
+  rule's trigger.
 
 ## Skills
 
@@ -89,6 +93,9 @@ Globs are gitignore-style:
   regression files, and [manual-regression](../skills/manual-regression/SKILL.md) for walks.
 - User-level skills and plugins also appear in a session. They belong to the machine, not to
   the repository. `CLAUDE.md` "Skills" says how skills are picked.
+- Plugins written for another codebase are turned off for this project in
+  `.claude/settings.local.json`, under `enabledPlugins`. That file is per machine and ignored by
+  git, so `CLAUDE.md` "Skills" still rules them out wherever it is missing.
 
 ## Planning docs and memory
 
@@ -114,7 +121,7 @@ Globs are gitignore-style:
    situation that makes it due. A thin rule's line says which design file it sends to.
 5. Run the link check, and the loading check when `paths:` changed.
 6. When a thin rule's trigger or the area-pointer rule's table changes, change `AREAS` in
-   [design_gate.py](../hooks/design_gate.py) in the same commit.
+   [design_gate.py](../hooks/design_gate.py) in the same commit, then run its test.
 
 ## Adding a design file
 
