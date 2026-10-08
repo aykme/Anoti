@@ -56,7 +56,7 @@ reads as `null`. Applied in [error-handling.md](error-handling.md) and
 ## Persisted data has one owner
 
 Each piece of persisted data belongs to one module, and everything else reads it through that
-module. Stores that show it converge on the same source, so a write from one reaches all of them.
+module. Stores that show it converge on the same source, so what one writes reaches all of them.
 No copy needs syncing. Applied in [data-layer.md "Persistence"](data-layer.md#persistence) and
 [decisions.md "Unscoped store bindings"](decisions.md#unscoped-store-bindings).
 

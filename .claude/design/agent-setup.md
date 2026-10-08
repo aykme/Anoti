@@ -11,14 +11,14 @@ looking for where a piece of agent knowledge lives.
 
 ## Layers
 
-| Layer | Where | Loads |
-|---|---|---|
-| Instructions | [CLAUDE.md](../../CLAUDE.md), [CLAUDE-ANDROID.md](../rules/android/CLAUDE-ANDROID.md), [CLAUDE-IOS.md](../rules/ios/CLAUDE-IOS.md) | every session, at start |
-| Rules | `.claude/rules/**/*.md` | by path, or when read through an index line |
-| Design | `.claude/design/*.md` | read on purpose, through [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md) or a rule that points here |
-| Skills | `.claude/skills/<name>/SKILL.md` | when invoked, or when Claude finds the description relevant |
-| Planning docs | `docs/superpowers/specs/`, `docs/superpowers/plans/` | read on purpose; ignored by git |
-| Memory | outside the repository, per project | its `MEMORY.md` index, every session |
+| Layer         | Where                                                                                                                              | Loads                                                                                          |
+|---------------|------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
+| Instructions  | [CLAUDE.md](../../CLAUDE.md), [CLAUDE-ANDROID.md](../rules/android/CLAUDE-ANDROID.md), [CLAUDE-IOS.md](../rules/ios/CLAUDE-IOS.md) | every session, at start                                                                        |
+| Rules         | `.claude/rules/**/*.md`                                                                                                            | by path, or when read through an index line                                                    |
+| Design        | `.claude/design/*.md`                                                                                                              | read on purpose, through [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md) or a rule that points here |
+| Skills        | `.claude/skills/<name>/SKILL.md`                                                                                                   | when invoked, or when Claude finds the description relevant                                    |
+| Planning docs | `docs/superpowers/specs/`, `docs/superpowers/plans/`                                                                               | read on purpose; ignored by git                                                                |
+| Memory        | outside the repository, per project                                                                                                | its `MEMORY.md` index, every session                                                           |
 
 - `CLAUDE.md` holds the rules every task needs and the index of the rest. The two platform indexes
   live under `.claude/rules/` without `paths:`, so they load at start with it.
@@ -34,12 +34,14 @@ docs:
 - A rule without `paths:` loads at session start.
 - A rule with `paths:` loads when the Read, Write or Edit tool touches a matching file. It loads
   once per session, and again on the next match after a compaction.
-- On a Write of a new file, the rule arrives after the write. So the first file of a new area is
-  written before its rule is seen, unless an index line or the task table sent the agent first.
+- On a Write of a new file, the rule arrives once the file is written. So the first file of a new
+  area is written before its rule is seen, unless an index line or the task table sent the agent
+  first.
 - Shell reads, Grep and Glob load nothing.
 - Files outside the session's project root match nothing, a sibling worktree included.
-- A process file whose `paths:` lists only itself never auto-loads. Reading it shows it once. It
-  is reached by its trigger line in an index. Example: [committing.md](../rules/committing.md).
+- A process file whose `paths:` lists only itself never loads on its own. Reading it shows it
+  once. It is reached by its trigger line in an index. Example:
+  [committing.md](../rules/committing.md).
 - Subagents, worktree-isolated ones too, load rules the same way.
 - Only `paths` is read from the frontmatter. It takes a YAML list or a comma-separated string. A
   frontmatter that does not parse is ignored, and the rule then loads at every session start.
@@ -70,8 +72,8 @@ Globs are gitignore-style:
   [logging.md](../rules/logging.md), [android/r8-minified.md](../rules/android/r8-minified.md).
 - New-file work is covered by `CLAUDE.md` "Technical design" and the task table of
   [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md), since a path rule arrives too late for it.
-- The reading order rests on `CLAUDE.md` and the rules alone. A hook that refused a write until
-  the area's design file was read was tried and dropped: it had to parse Claude Code's
+- The reading order rests on `CLAUDE.md` and the rules alone. A hook that blocked writing a file
+  until the area's design file was read was tried and dropped: it had to parse Claude Code's
   undocumented transcript format, and parallel calls, rewinds and workflow agents slipped past
   it, for little gain over the rules.
 
@@ -158,7 +160,7 @@ Run it over `CLAUDE.md`, every `.md` under `.claude/rules/` and every file in `.
 - Compute the expected loads with a gitignore-style matcher over every rule's `paths:`, and
   compare them with the logged `file_path` and `load_reason`.
 - Add one session that reads every design file (no rule may load) and one that writes a new file
-  (the rule arrives after the write).
+  (the rule arrives once the file is written).
 
 ## Reachability walk
 
@@ -195,7 +197,7 @@ area. It can be repeated without scripts:
 - **Grader.** A separate agent gets the rubrics, the checker output and the diffs, not the
   transcripts, and judges only whether each change matches its rubric.
 - **Failures.** Classify each: rule never loaded, hop skipped, trigger not recognized, task row
-  wrong, partial read, subagent wrote, foreign skill, shell bypass, no attempt. Fix the artifact
-  the class names, then re-run the scenarios sharing it on fresh paraphrases.
+  wrong, partial read, subagent wrote, foreign skill, bypass through the shell, no attempt. Fix
+  the artifact the class names, then re-run the scenarios sharing it on fresh paraphrases.
 - **Cleanup.** Remove the slot worktrees and their folders under `~/.claude/projects/`, then check
   the real memory's hash again.

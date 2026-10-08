@@ -116,5 +116,8 @@ Markdown in the repository.
 - Prose wraps at 100 columns. A line holding only a long link may run past it.
 - Spelling is American: color, behavior, afterward.
 - Headings are ATX (`#`); bullets use `-`.
+- Tables in `.claude/` are aligned the way the IDE formats them: each cell is padded to its
+  column's width, and the separator row spans it in dashes. Table rows may run past 100 columns.
+  An edit that widens a cell re-aligns the whole column, or the IDE flags the table.
 - The root `README.md` is the GitHub page and follows none of this; see
   [CLAUDE.md](../../CLAUDE.md).

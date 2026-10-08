@@ -9,19 +9,19 @@ saves or how it replays it; changing how a screen host or the iOS root holder ke
 
 ## Scenarios
 
-| Scenario | Platform | What happens | What comes back |
-|---|---|---|---|
-| Density, orientation, screen size, screen layout or smallest width changes | Android | Declared in `configChanges`; the activity stays and `onConfigurationChanged` runs | Everything; nothing is rebuilt |
-| Any other configuration change (locale, `uiMode`, `fontScale`, keyboard, `layoutDirection`, and the rest) | Android | The activity is recreated in the same process: a new root graph and root host over the saved state | The active screen, its saved parts and its `rememberSaveable` values |
-| The system ends the process in the background | Android | A new process creates the activity over the saved state | As above |
-| The user force-stops the app | Android | A fresh start | Nothing |
-| The scene leaves `.active` | iOS | Swift stores the root holder's string in `@SceneStorage` | Nothing yet |
-| The system ends the app in the background | iOS | The next launch builds the root over the kept string | As on Android, when the app version matches |
-| A crash, a force quit or a swipe away | iOS | iOS drops the kept string | Nothing |
-| A switch to another screen | Both | The stack replaces the screen; its screen component is destroyed and its stores disposed | Nothing of the old screen; it opens fresh next time |
-| A notification tap while the root lives | Both | The live root navigates; see [navigation.md](navigation.md) "Deep links" | The current screen, when it is the target |
-| A notification tap that starts the app with nothing kept | Both | The root opens on the target over no saved state | Nothing |
-| A notification tap into a root rebuilt from saved state | Both | The saved state is restored, then the root navigates | The restored root, on the target |
+| Scenario                                                                                                  | Platform | What happens                                                                                       | What comes back                                                      |
+|-----------------------------------------------------------------------------------------------------------|----------|----------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
+| Density, orientation, screen size, screen layout or smallest width changes                                | Android  | Declared in `configChanges`; the activity stays and `onConfigurationChanged` runs                  | Everything; nothing is rebuilt                                       |
+| Any other configuration change (locale, `uiMode`, `fontScale`, keyboard, `layoutDirection`, and the rest) | Android  | The activity is recreated in the same process: a new root graph and root host over the saved state | The active screen, its saved parts and its `rememberSaveable` values |
+| The system ends the process in the background                                                             | Android  | A new process creates the activity over the saved state                                            | As above                                                             |
+| The user force-stops the app                                                                              | Android  | A fresh start                                                                                      | Nothing                                                              |
+| The scene leaves `.active`                                                                                | iOS      | Swift stores the root holder's string in `@SceneStorage`                                           | Nothing yet                                                          |
+| The system ends the app in the background                                                                 | iOS      | The next launch builds the root over the kept string                                               | As on Android, when the app version matches                          |
+| A crash, a force quit or a swipe away                                                                     | iOS      | iOS drops the kept string                                                                          | Nothing                                                              |
+| A switch to another screen                                                                                | Both     | The stack replaces the screen; its screen component is destroyed and its stores disposed           | Nothing of the old screen; it opens fresh next time                  |
+| A notification tap while the root lives                                                                   | Both     | The live root navigates; see [navigation.md](navigation.md) "Deep links"                           | The current screen, when it is the target                            |
+| A notification tap that starts the app with nothing kept                                                  | Both     | The root opens on the target over no saved state                                                   | Nothing                                                              |
+| A notification tap into a root rebuilt from saved state                                                   | Both     | The saved state is restored, then the root navigates                                               | The restored root, on the target                                     |
 
 - The handled changes are listed in the entry module's
   [AndroidManifest.xml](../../main/src/androidMain/AndroidManifest.xml). The screens draw no

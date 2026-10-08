@@ -15,7 +15,7 @@ Every KMP module builds the same three targets:
 
 - `android`: the Android app. It compiles to the JVM at the catalog's `jvmTarget`.
 - `iosArm64`: iOS devices.
-- `iosSimulatorArm64`: the simulator on Apple silicon.
+- `iosSimulatorArm64`: the simulator on Apple Silicon.
 
 There is no Intel simulator target. The Xcode project excludes `x86_64` for the simulator SDK,
 and Compose's resource task refuses that slice.
@@ -31,7 +31,7 @@ It is configured inside `kotlin { android { } }`, not in a top-level `android { 
 - `namespace`, `compileSdk` and `minSdk` from the catalog, and `compilerOptions { jvmTarget }`.
 - `withHostTestBuilder {}` turns on `androidHostTest`; `withDeviceTestBuilder {}` turns on
   `androidDeviceTest`.
-- `androidResources` where the module has Compose resources; see
+- `androidResources { enable = true }` in a module with Compose resources; see
   [module-anatomy.md "Manifests and resources"](module-anatomy.md#manifests-and-resources).
 
 The plugin builds one variant, with no build types. Build types exist only in the Android host.
@@ -86,8 +86,8 @@ per platform. Each platform's platform component binds its implementation; see
 Example: [AnimeNotificationManager](../../feature-kmp/anime-notification/src/commonMain/kotlin/com/alekseivinogradov/anoti/animenotification/kmp/api/domain/manager/AnimeNotificationManager.kt).
 
 A module that declares an `expect` class or object passes `-Xexpect-actual-classes` to the
-compiler. Where that goes is in [new-module.md](new-module.md), section "Skeletons". File names of
-`actual` declarations are in [module-anatomy.md](module-anatomy.md), section "Naming".
+compiler. The flag's place is shown in [new-module.md](new-module.md), section "Skeletons". File
+names of `actual` declarations are in [module-anatomy.md](module-anatomy.md), section "Naming".
 
 ## The iOS framework
 

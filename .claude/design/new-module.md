@@ -44,12 +44,12 @@ describes it:
 
 ## Names
 
-| Name | Form | Owner |
-|---|---|---|
-| Gradle path | `:core-kmp:<name>` for a core module, `:feature-kmp:<name>` for every other kind; an external module's name ends `-external` | [project-structure.md "Top-level tree"](project-structure.md#top-level-tree) |
-| `<module-id>`, packages, namespace | `<name>` without hyphens; `<root-package>.<module-id>.<platform>.<visibility>…`; namespace `<root-package>.<module-id>.kmp` | [module-anatomy.md "Packages"](module-anatomy.md#packages) |
-| `Res` package | `<root-package>.<module-id>.kmp.generated.resources` | [module-anatomy.md "Manifests and resources"](module-anatomy.md#manifests-and-resources) |
-| README, regression file | From the Gradle path | [module-docs.md](../rules/module-docs.md) |
+| Name                               | Form                                                                                                                         | Owner                                                                                    |
+|------------------------------------|------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| Gradle path                        | `:core-kmp:<name>` for a core module, `:feature-kmp:<name>` for every other kind; an external module's name ends `-external` | [project-structure.md "Top-level tree"](project-structure.md#top-level-tree)             |
+| `<module-id>`, packages, namespace | `<name>` without hyphens; `<root-package>.<module-id>.<platform>.<visibility>…`; namespace `<root-package>.<module-id>.kmp`  | [module-anatomy.md "Packages"](module-anatomy.md#packages)                               |
+| `Res` package                      | `<root-package>.<module-id>.kmp.generated.resources`                                                                         | [module-anatomy.md "Manifests and resources"](module-anatomy.md#manifests-and-resources) |
+| README, regression file            | From the Gradle path                                                                                                         | [module-docs.md](../rules/module-docs.md)                                                |
 
 ## Settings
 

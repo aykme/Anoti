@@ -16,48 +16,48 @@ how a new project is started in the same image. Feature code appears only as `Ex
 
 ## Placeholders
 
-| Placeholder | Meaning | In this project |
-|---|---|---|
-| `<root-package>` | root package of every module | `com.alekseivinogradov.anoti` |
-| `<App>`, `<APP>`, `<app>` | app name: type names, constants, lower case | `Anoti`, `ANOTI`, `anoti` |
-| `<APP>_TAG` | the log tag | `ANOTI_TAG` |
-| `<module-id>` | Gradle module name without hyphens | `animelist` for `anime-list` |
-| `<Module>`, `<Feature>`, `<Name>` | a module, a feature, an entity in type names | `AnimeList` |
-| framework | the one iOS framework | `Shared` |
+| Placeholder                       | Meaning                                      | In this project               |
+|-----------------------------------|----------------------------------------------|-------------------------------|
+| `<root-package>`                  | root package of every module                 | `com.alekseivinogradov.anoti` |
+| `<App>`, `<APP>`, `<app>`         | app name: type names, constants, lower case  | `Anoti`, `ANOTI`, `anoti`     |
+| `<APP>_TAG`                       | the log tag                                  | `ANOTI_TAG`                   |
+| `<module-id>`                     | Gradle module name without hyphens           | `animelist` for `anime-list`  |
+| `<Module>`, `<Feature>`, `<Name>` | a module, a feature, an entity in type names | `AnimeList`                   |
+| framework                         | the one iOS framework                        | `Shared`                      |
 
 ## Tasks
 
 Read the files of your row, in order, before the first write. A subagent sent to write or review
 gets its row's files named in its prompt.
 
-| Task | Read |
-|---|---|
-| Create a module | [new-module.md](new-module.md), [project-structure.md](project-structure.md), [module-anatomy.md](module-anatomy.md) |
-| Add a screen | [recipes.md](recipes.md) "New screen feature", [navigation.md](navigation.md), [mvi.md](mvi.md) |
-| Add a root-level element, overlay or dialog | [recipes.md](recipes.md) "Root-level element or overlay", [navigation.md](navigation.md) "Root-level elements", [ui-compose.md](ui-compose.md) |
-| Add or change a store, executor, reducer or controller | [recipes.md](recipes.md) "New store in a screen", [mvi.md](mvi.md), [concurrency-and-lifecycle.md](concurrency-and-lifecycle.md) |
-| Add a network call | [recipes.md](recipes.md) "Network endpoint", [data-layer.md](data-layer.md) "Network", [error-handling.md](error-handling.md) |
-| Add a paged list | [recipes.md](recipes.md) "Paged list", [data-layer.md](data-layer.md) "Paging", [mvi.md](mvi.md) |
-| Change the database | [recipes.md](recipes.md) "Database change", [data-layer.md](data-layer.md) "Persistence", [testing-platforms.md](testing-platforms.md) |
-| Add or change a DI binding | [recipes.md](recipes.md) "App-wide or root-scoped binding", [dependency-injection.md](dependency-injection.md), [entities.md](entities.md) |
-| Add platform-specific code | [recipes.md](recipes.md) "Platform-specific implementation", [kmp.md](kmp.md) "Where code lives", [platform-mirroring.md](platform-mirroring.md) |
-| Add a class of any kind, or name one | [entities.md](entities.md), [module-anatomy.md](module-anatomy.md) "Naming", [code-style.md](code-style.md) |
-| Write Compose UI, a string, an icon or a constant | [ui-compose.md](ui-compose.md), [accessibility-and-adaptive-layout.md](accessibility-and-adaptive-layout.md), [recipes.md](recipes.md) "Shared constant, token or string" |
-| Keep a screen's state across recreation | [state-restoration.md](state-restoration.md), [navigation.md](navigation.md) "Screen components" |
-| Open a screen from a notification | [recipes.md](recipes.md) "Open a screen from a notification", [navigation.md](navigation.md) "Deep links", [platform-mirroring.md](platform-mirroring.md) |
-| Add background work or a notification | [recipes.md](recipes.md) "Background work", "Notification", [platform-mirroring.md](platform-mirroring.md), [concurrency-and-lifecycle.md](concurrency-and-lifecycle.md) |
-| Show an error to the user | [error-handling.md](error-handling.md), [data-layer.md](data-layer.md) |
-| Change Swift code or the iOS entry | [ios-host.md](ios-host.md), [platform-mirroring.md](platform-mirroring.md) |
-| Change the Android `Application` or a screen host | [platform-mirroring.md](platform-mirroring.md) "Startup", [state-restoration.md](state-restoration.md) "Android" |
-| Read outside input, add a permission | [security-and-privacy.md](security-and-privacy.md) |
-| Write a test or a test double | [testing.md](testing.md), [testing-platforms.md](testing-platforms.md) |
-| Document a change | [documentation.md](documentation.md) |
-| Add or bump a library | [recipes.md](recipes.md) "New library", [tech-stack.md](tech-stack.md), [decisions.md](decisions.md) |
-| Bump a version, pick a build type | [versioning-and-release.md](versioning-and-release.md), [build-and-tooling.md](build-and-tooling.md) |
-| Plan a task, commit, push or run CI | [development-workflow.md](development-workflow.md) |
-| Start a new project | [new-project.md](new-project.md), [agent-setup.md](agent-setup.md), [project-structure.md](project-structure.md) |
-| Extend the rules or this design | [agent-setup.md](agent-setup.md) |
-| No pattern fits, or two conflict | [principles.md](principles.md), [decisions.md](decisions.md), [glossary.md](glossary.md) |
+| Task                                                   | Read                                                                                                                                                                      |
+|--------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Create a module                                        | [new-module.md](new-module.md), [project-structure.md](project-structure.md), [module-anatomy.md](module-anatomy.md)                                                      |
+| Add a screen                                           | [recipes.md](recipes.md) "New screen feature", [navigation.md](navigation.md), [mvi.md](mvi.md)                                                                           |
+| Add a root-level element, overlay or dialog            | [recipes.md](recipes.md) "Root-level element or overlay", [navigation.md](navigation.md) "Root-level elements", [ui-compose.md](ui-compose.md)                            |
+| Add or change a store, executor, reducer or controller | [recipes.md](recipes.md) "New store in a screen", [mvi.md](mvi.md), [concurrency-and-lifecycle.md](concurrency-and-lifecycle.md)                                          |
+| Add a network call                                     | [recipes.md](recipes.md) "Network endpoint", [data-layer.md](data-layer.md) "Network", [error-handling.md](error-handling.md)                                             |
+| Add a paged list                                       | [recipes.md](recipes.md) "Paged list", [data-layer.md](data-layer.md) "Paging", [mvi.md](mvi.md)                                                                          |
+| Change the database                                    | [recipes.md](recipes.md) "Database change", [data-layer.md](data-layer.md) "Persistence", [testing-platforms.md](testing-platforms.md)                                    |
+| Add or change a DI binding                             | [recipes.md](recipes.md) "App-wide or root-scoped binding", [dependency-injection.md](dependency-injection.md), [entities.md](entities.md)                                |
+| Add platform-specific code                             | [recipes.md](recipes.md) "Platform-specific implementation", [kmp.md](kmp.md) "Where code lives", [platform-mirroring.md](platform-mirroring.md)                          |
+| Add a class of any kind, or name one                   | [entities.md](entities.md), [module-anatomy.md](module-anatomy.md) "Naming", [code-style.md](code-style.md)                                                               |
+| Write Compose UI, a string, an icon or a constant      | [ui-compose.md](ui-compose.md), [accessibility-and-adaptive-layout.md](accessibility-and-adaptive-layout.md), [recipes.md](recipes.md) "Shared constant, token or string" |
+| Keep a screen's state across recreation                | [state-restoration.md](state-restoration.md), [navigation.md](navigation.md) "Screen components"                                                                          |
+| Open a screen from a notification                      | [recipes.md](recipes.md) "Open a screen from a notification", [navigation.md](navigation.md) "Deep links", [platform-mirroring.md](platform-mirroring.md)                 |
+| Add background work or a notification                  | [recipes.md](recipes.md) "Background work", "Notification", [platform-mirroring.md](platform-mirroring.md), [concurrency-and-lifecycle.md](concurrency-and-lifecycle.md)  |
+| Show an error to the user                              | [error-handling.md](error-handling.md), [data-layer.md](data-layer.md)                                                                                                    |
+| Change Swift code or the iOS entry                     | [ios-host.md](ios-host.md), [platform-mirroring.md](platform-mirroring.md)                                                                                                |
+| Change the Android `Application` or a screen host      | [platform-mirroring.md](platform-mirroring.md) "Startup", [state-restoration.md](state-restoration.md) "Android"                                                          |
+| Read outside input, add a permission                   | [security-and-privacy.md](security-and-privacy.md)                                                                                                                        |
+| Write a test or a test double                          | [testing.md](testing.md), [testing-platforms.md](testing-platforms.md)                                                                                                    |
+| Document a change                                      | [documentation.md](documentation.md)                                                                                                                                      |
+| Add or bump a library                                  | [recipes.md](recipes.md) "New library", [tech-stack.md](tech-stack.md), [decisions.md](decisions.md)                                                                      |
+| Bump a version, pick a build type                      | [versioning-and-release.md](versioning-and-release.md), [build-and-tooling.md](build-and-tooling.md)                                                                      |
+| Plan a task, commit, push or run CI                    | [development-workflow.md](development-workflow.md)                                                                                                                        |
+| Start a new project                                    | [new-project.md](new-project.md), [agent-setup.md](agent-setup.md), [project-structure.md](project-structure.md)                                                          |
+| Extend the rules or this design                        | [agent-setup.md](agent-setup.md)                                                                                                                                          |
+| No pattern fits, or two conflict                       | [principles.md](principles.md), [decisions.md](decisions.md), [glossary.md](glossary.md)                                                                                  |
 
 ## Index
 

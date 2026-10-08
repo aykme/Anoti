@@ -21,11 +21,11 @@ or a qualifier; adding a module that contributes bindings; building a graph in a
 
 ## Scopes
 
-| Scope | Marks | One instance per |
-|---|---|---|
-| `@AppScope` | the app graph and its shared bindings | process |
-| `@RootScope` | the root graph, the parent of every feature graph | root host |
-| `@FeatureScope` | a feature graph | screen component |
+| Scope           | Marks                                             | One instance per |
+|-----------------|---------------------------------------------------|------------------|
+| `@AppScope`     | the app graph and its shared bindings             | process          |
+| `@RootScope`    | the root graph, the parent of every feature graph | root host        |
+| `@FeatureScope` | a feature graph                                   | screen component |
 
 - A binding is `@AppScope` when every reader must share its instance: the HTTP client, `SafeApi`,
   the database, `StoreFactory`, `CoroutineContextProvider`, the system message controller. Where
@@ -91,7 +91,7 @@ or a qualifier; adding a module that contributes bindings; building a graph in a
 - A qualifier tells same-typed bindings apart: `@AppContext` for the app's `PlatformContext`, a
   feature qualifier for a feature's own platform objects. Both live in the DI-scope leaf module.
   Example: [Qualifier.kt](../../core-kmp/di-scope/src/commonMain/kotlin/com/alekseivinogradov/anoti/di/kmp/qualifier/Qualifier.kt).
-- Both app graph twins take the platform context
+- Both twins of the app graph take the platform context
   ([kmp.md "Expect and actual"](kmp.md#expect-and-actual)) as
   `@get:Provides @AppContext val appContext`, so both are built alike.
   Example: [PlatformContext.kt](../../core-kmp/di-scope/src/commonMain/kotlin/com/alekseivinogradov/anoti/di/kmp/PlatformContext.kt).

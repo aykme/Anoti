@@ -14,13 +14,13 @@ stores to a lifecycle; adding a start or destroy hook; deciding who disposes a s
   [CoroutineContextProvider](../../core-kmp/celebrity/src/commonMain/kotlin/com/alekseivinogradov/anoti/celebrity/kmp/api/domain/coroutinecontext/CoroutineContextProvider.kt).
 - Its contexts differ in the job they carry, and so in who owns the work:
 
-| Member | Carries | Use it for |
-|---|---|---|
-| `newMainCoroutineContext()` | Main, the app's handler, a fresh `SupervisorJob` per call | A scope that owns and cancels its own work, such as an executor's |
-| `appMainCoroutineContext` | Main, the app's handler, one `SupervisorJob` shared by the app | Work that must finish after whatever started it is gone |
-| `mainCoroutineContext` | Main and the app's handler, no job | The base the two above build on |
-| `workManagerCoroutineContext` | IO and an empty handler, no job | Background work, so the worker's own cancellation reaches it |
-| `ioDispatcher`, `defaultDispatcher`, `mainDispatcher`, `unconfinedDispatcher` | A dispatcher only | `withContext` around blocking or CPU-bound calls |
+| Member                                                                        | Carries                                                        | Use it for                                                        |
+|-------------------------------------------------------------------------------|----------------------------------------------------------------|-------------------------------------------------------------------|
+| `newMainCoroutineContext()`                                                   | Main, the app's handler, a fresh `SupervisorJob` per call      | A scope that owns and cancels its own work, such as an executor's |
+| `appMainCoroutineContext`                                                     | Main, the app's handler, one `SupervisorJob` shared by the app | Work that must finish after whatever started it is gone           |
+| `mainCoroutineContext`                                                        | Main and the app's handler, no job                             | The base the two above build on                                   |
+| `workManagerCoroutineContext`                                                 | IO and an empty handler, no job                                | Background work, so the worker's own cancellation reaches it      |
+| `ioDispatcher`, `defaultDispatcher`, `mainDispatcher`, `unconfinedDispatcher` | A dispatcher only                                              | `withContext` around blocking or CPU-bound calls                  |
 
 - The provider's base class builds these; its production implementations differ only in the
   handler, and the fake also takes the IO, default and background contexts. Example:
@@ -32,17 +32,17 @@ stores to a lifecycle; adding a start or destroy hook; deciding who disposes a s
   - As found: the iOS update-pass scope builds its own `SupervisorJob` and a handler that logs.
     An unhandled throw would otherwise end the process on that platform. Example:
     [DiAnimeBackgroundUpdatePlatformComponent](../../feature-kmp/anime-background-update/src/iosMain/kotlin/com/alekseivinogradov/anoti/animebackgroundupdate/ios/impl/di/DiAnimeBackgroundUpdatePlatformComponent.kt).
-  - As found: the iOS root holder's permission check builds a main scope cancelled with the root.
+  - As found: the iOS root holder's permission check builds a main scope canceled with the root.
     Example:
     [IosRootHolder](../../main/src/iosMain/kotlin/com/alekseivinogradov/anoti/main/impl/presentation/IosRootHolder.kt).
 
 ## Scope owners
 
 - An executor passes `newMainCoroutineContext()` to `CoroutineExecutor` as its `mainContext`.
-  Its `scope` is cancelled when the store is disposed. Executors are owned by [mvi.md](mvi.md)
+  Its `scope` is canceled when the store is disposed. Executors are owned by [mvi.md](mvi.md)
   "Executors and state".
-- A write that must outlive the screen runs on a scope over `appMainCoroutineContext`. Reads stay
-  on the executor's `scope`, since nothing is left to render them. Example:
+- Writing data that must outlive the screen runs on a scope over `appMainCoroutineContext`.
+  Reads stay on the executor's `scope`, since nothing is left to render them. Example:
   [AnimeDatabaseExecutorImpl](../../core-kmp/anime-database/src/commonMain/kotlin/com/alekseivinogradov/anoti/animedatabase/kmp/impl/domain/store/AnimeDatabaseExecutorImpl.kt).
 - The Android `Application` launches its start-up on `appMainCoroutineContext` and moves the
   blocking part to `ioDispatcher`. Example:
@@ -80,7 +80,7 @@ stores to a lifecycle; adding a start or destroy hook; deciding who disposes a s
 - A catch-all around suspending work rethrows `CancellationException` first; see
   [error-handling.md "Catching"](error-handling.md#catching).
 - Cleanup that must run even when the scope is already gone hangs off the job with
-  `invokeOnCompletion`, not a `finally` inside it. A coroutine whose scope is cancelled before it
+  `invokeOnCompletion`, not a `finally` inside it. A coroutine whose scope is canceled before it
   starts never runs its body. Example:
   [AnimeDatabaseExecutorImpl](../../core-kmp/anime-database/src/commonMain/kotlin/com/alekseivinogradov/anoti/animedatabase/kmp/impl/domain/store/AnimeDatabaseExecutorImpl.kt).
 - A `Job` handle on an executor guards against starting the same work twice; see [mvi.md](mvi.md)
@@ -88,7 +88,7 @@ stores to a lifecycle; adding a start or destroy hook; deciding who disposes a s
 
 ## Lifecycles
 
-- Lifecycles are Essenty's. Each owner gets one from its platform:
+- Lifecycles come from Essenty. Each owner gets one from its platform:
   - Android: the root follows the activity, through `defaultComponentContext()`.
   - iOS: the root follows the app's lifecycle through a child lifecycle that can also be destroyed
     on its own. Example:

@@ -35,13 +35,13 @@ A version bump changes both entries together and nothing else by hand.
 
 ## Build types and configurations
 
-| Platform | Build | What it is for | Owner |
-|---|---|---|---|
-| Android | `debug` | Development and every automated test | [tests.md](../rules/tests.md) |
-| Android | `minified` | What ships, installable: release plus the debug key | [android/r8-minified.md](../rules/android/r8-minified.md) |
-| Android | `release` | Shrunk and obfuscated; carries no signing config | [android/r8-minified.md](../rules/android/r8-minified.md) |
-| iOS | Debug | Development, simulator tests and UI tests | [ios/ci.md](../rules/ios/ci.md) |
-| iOS | Release | Stripped as an archive is, with a dSYM | [ios/release-build.md](../rules/ios/release-build.md) |
+| Platform | Build      | What it is for                                      | Owner                                                     |
+|----------|------------|-----------------------------------------------------|-----------------------------------------------------------|
+| Android  | `debug`    | Development and every automated test                | [tests.md](../rules/tests.md)                             |
+| Android  | `minified` | What ships, installable: release plus the debug key | [android/r8-minified.md](../rules/android/r8-minified.md) |
+| Android  | `release`  | Shrunk and obfuscated; carries no signing config    | [android/r8-minified.md](../rules/android/r8-minified.md) |
+| iOS      | Debug      | Development, simulator tests and UI tests           | [ios/ci.md](../rules/ios/ci.md)                           |
+| iOS      | Release    | Stripped as an archive is, with a dSYM              | [ios/release-build.md](../rules/ios/release-build.md)     |
 
 - The two rules in the Owner column hold the settings that must not change and the checks each
   build gets. Read them before touching a build type or a configuration.

@@ -43,15 +43,15 @@ each area's design file before the first write in that area, not after.
     `python -I .claude/skills/creating-a-module/scripts/check_module.py :<group>:<name> <kind>`
     Then finish with new-module.md "Checklist".
 
-| Kind (script argument) | It holds |
-|---|---|
-| `screen-feature` | Dependencies contract, feature graph, main store (contract, executor, reducer, factory), controller, UI model and its mapper, screen, screen component, route, a root config named after the feature |
-| `root-level-element` | Store, controller, module component, composable; no screen component; its route lives in the entry module |
-| `ui-only-component` | Composables and tokens; no store, KSP or serialization |
-| `platform-service` | A common contract in `api`, an implementation of the same name on each platform, a platform component on each |
-| `shared-base` | What several features share; nothing a kind above owns |
-| `external` | Contracts only, common or Android-only; the entry module implements them |
-| `core` | A library every layer may use |
+| Kind (script argument) | It holds                                                                                                                                                                                             |
+|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `screen-feature`       | Dependencies contract, feature graph, main store (contract, executor, reducer, factory), controller, UI model and its mapper, screen, screen component, route, a root config named after the feature |
+| `root-level-element`   | Store, controller, module component, composable; no screen component; its route lives in the entry module                                                                                            |
+| `ui-only-component`    | Composables and tokens; no store, KSP or serialization                                                                                                                                               |
+| `platform-service`     | A common contract in `api`, an implementation of the same name on each platform, a platform component on each                                                                                        |
+| `shared-base`          | What several features share; nothing a kind above owns                                                                                                                                               |
+| `external`             | Contracts only, common or Android-only; the entry module implements them                                                                                                                             |
+| `core`                 | A library every layer may use                                                                                                                                                                        |
 
 ## Common mistakes
 

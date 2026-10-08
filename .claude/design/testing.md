@@ -9,15 +9,15 @@ source set a test belongs in.
 
 ## Test map
 
-| Kind | Source set | Proves | Rule |
-|---|---|---|---|
-| Common test | `commonTest` | Shared logic: stores, executors, sources, usecases, screen components with real DI | [tests.md](../rules/tests.md), [test-coverage.md](../rules/test-coverage.md) |
-| Host test | `androidHostTest`; `src/test/kotlin` in a non-KMP module | Android implementations and composables, on the JVM under Robolectric | [android/tests.md](../rules/android/tests.md) |
-| Device test | `androidDeviceTest`; `src/androidTest/kotlin` in a non-KMP module | What a host test cannot reach, on an emulator | [android/instrumented-tests.md](../rules/android/instrumented-tests.md), [tests-on-device.md](../rules/tests-on-device.md) |
-| iOS test | `iosTest` | What only a real iOS runtime can answer | [ios/tests.md](../rules/ios/tests.md) |
-| iOS UI test | `iosApp/iosAppUITests` | The real app on a simulator | [tests-on-device.md](../rules/tests-on-device.md), [ios/ci.md](../rules/ios/ci.md) |
-| Restore and theme checks | `.github/scripts/ios-restore-checks.sh` | Saved screen state and the theme on the installed iOS app, on CI | [tests-on-device.md](../rules/tests-on-device.md), [ios/ci.md](../rules/ios/ci.md) |
-| Manual regression | `*-REGRESS.md` | Only what cannot be checked from the code | [module-docs.md](../rules/module-docs.md) |
+| Kind                     | Source set                                                        | Proves                                                                             | Rule                                                                                                                       |
+|--------------------------|-------------------------------------------------------------------|------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| Common test              | `commonTest`                                                      | Shared logic: stores, executors, sources, usecases, screen components with real DI | [tests.md](../rules/tests.md), [test-coverage.md](../rules/test-coverage.md)                                               |
+| Host test                | `androidHostTest`; `src/test/kotlin` in a non-KMP module          | Android implementations and composables, on the JVM under Robolectric              | [android/tests.md](../rules/android/tests.md)                                                                              |
+| Device test              | `androidDeviceTest`; `src/androidTest/kotlin` in a non-KMP module | What a host test cannot reach, on an emulator                                      | [android/instrumented-tests.md](../rules/android/instrumented-tests.md), [tests-on-device.md](../rules/tests-on-device.md) |
+| iOS test                 | `iosTest`                                                         | What only a real iOS runtime can answer                                            | [ios/tests.md](../rules/ios/tests.md)                                                                                      |
+| iOS UI test              | `iosApp/iosAppUITests`                                            | The real app on a simulator                                                        | [tests-on-device.md](../rules/tests-on-device.md), [ios/ci.md](../rules/ios/ci.md)                                         |
+| Restore and theme checks | `.github/scripts/ios-restore-checks.sh`                           | Saved screen state and the theme on the installed iOS app, on CI                   | [tests-on-device.md](../rules/tests-on-device.md), [ios/ci.md](../rules/ios/ci.md)                                         |
+| Manual regression        | `*-REGRESS.md`                                                    | Only what cannot be checked from the code                                          | [module-docs.md](../rules/module-docs.md)                                                                                  |
 
 - How each platform's test source sets are set up and what they may do is in
   [.claude/design/testing-platforms.md](testing-platforms.md).

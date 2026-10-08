@@ -39,7 +39,7 @@ these; when a review finding questions a choice listed here; before a version-bu
 
 - Status: accepted (2026-08-09).
 - Why: Room has stable multiplatform support, and the Android app already used Room. Existing
-  installs keep their database file and data; continuity tests on both platforms check it.
+  installations keep their database file and data; continuity tests on both platforms check it.
 - The bundled driver is set once in common code. It ships its own SQLite build, so both
   platforms run the same one. Example:
   [AnimeDatabase.kt](../../core-kmp/anime-database/src/commonMain/kotlin/com/alekseivinogradov/anoti/animedatabase/kmp/impl/data/AnimeDatabase.kt)
@@ -113,7 +113,7 @@ these; when a review finding questions a choice listed here; before a version-bu
 
 - Status: accepted.
 - Why: the database is the single source of truth. Every store instance collects the same flow,
-  so a write from one reaches all. An extra collector costs nothing. Each reader reads the
+  so what one writes reaches all. An extra collector costs nothing. Each reader reads the
   binding once and disposes what it got. Example:
   [RootHost](../../main/src/commonMain/kotlin/com/alekseivinogradov/anoti/main/impl/presentation/RootHost.kt)
 - Rejected: an app-scoped single store. Its executor coroutines belong to the store's scope, so it

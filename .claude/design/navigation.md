@@ -118,7 +118,7 @@ Mirrors: [NavAnimeListScreenComponent](../../feature-kmp/anime-list/src/commonMa
   host maps each label to a config and navigates, skipping the screen already shown.
 - Where the element mirrors the stack, a root host subscription to the child stack sends the
   active root child's section to its store as an intent. It fires at once, before the first
-  composition, and is cancelled in `doOnDestroy`. Example:
+  composition, and is canceled in `doOnDestroy`. Example:
   [RootHost](../../main/src/commonMain/kotlin/com/alekseivinogradov/anoti/main/impl/presentation/RootHost.kt).
 - An overlay over the root, such as a dialog, is a state holder the root host builds and root
   content draws. Example:

@@ -66,25 +66,25 @@ and [IosScreenHost](../../main/src/iosMain/kotlin/com/alekseivinogradov/anoti/ma
 
 ## Mirror table
 
-| Role | Android | iOS |
-|---|---|---|
-| Process entry | `Application` subclass in the Android host, named by its manifest | `IosApp` object in the composition root's `iosMain`, called from Swift |
-| App graph | `DiAppComponent` in `androidMain`, built with `::class.create` | `DiAppComponent` in `iosMain`, `internal`, built with `createDiAppComponent` |
-| Screen host | `MainActivity` in the entry module's `androidMain` | `IosScreenHost` in the entry module's `iosMain` |
-| Root | a new `RootHost` each time the activity is created | one `RootHost` for the process, held by `IosRootHolder` |
-| Root graph | from the `Application` through `DiRootComponentHolder` | from a function the screen host hands to `IosRootHolder` |
-| Saved state | Decompose's `defaultComponentContext()` over the saved instance state | one JSON string in the scene's `@SceneStorage` |
-| Saved-state version drop | none in the app's code | a state written by another app version is dropped |
-| Tap delivery | a `PendingIntent` to the screen host; the extra is read on a fresh start, `addOnNewIntentListener` while it lives | the notification center's delegate; a target that arrives before the root is held for it |
-| Tap contract | an external contract building the `PendingIntent` | an external contract building the payload map |
-| Posting | `NotificationManagerCompat` into a channel created at start-up | `UNUserNotificationCenter`; no channel |
-| Background refresh | WorkManager unique periodic work; workers built by a factory from the app graph | a `BGTaskScheduler` app refresh task, registered at launch, resubmitted as each run starts |
-| One-off refresh | WorkManager unique one-time work | a single-flight usecase running in its own scope |
-| Notification permission | `POST_NOTIFICATIONS` through an activity result launcher | `requestAuthorization` on the notification center |
-| Orientation | `requestedOrientation` from the whole display at stock density | `supportedInterfaceOrientations` from the window's size in points |
-| Keyboard and insets | `adjustResize` and edge-to-edge | `ignoresSafeArea` and `OnFocusBehavior.DoNothing` |
-| HTTP engine | OkHttp | Darwin |
-| Status bar | `enableEdgeToEdge` with dark bar styles | `UIStatusBarStyleLightContent` in `Info.plist` |
+| Role                     | Android                                                                                                           | iOS                                                                                        |
+|--------------------------|-------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| Process entry            | `Application` subclass in the Android host, named by its manifest                                                 | `IosApp` object in the composition root's `iosMain`, called from Swift                     |
+| App graph                | `DiAppComponent` in `androidMain`, built with `::class.create`                                                    | `DiAppComponent` in `iosMain`, `internal`, built with `createDiAppComponent`               |
+| Screen host              | `MainActivity` in the entry module's `androidMain`                                                                | `IosScreenHost` in the entry module's `iosMain`                                            |
+| Root                     | a new `RootHost` each time the activity is created                                                                | one `RootHost` for the process, held by `IosRootHolder`                                    |
+| Root graph               | from the `Application` through `DiRootComponentHolder`                                                            | from a function the screen host hands to `IosRootHolder`                                   |
+| Saved state              | Decompose's `defaultComponentContext()` over the saved instance state                                             | one JSON string in the scene's `@SceneStorage`                                             |
+| Saved-state version drop | none in the app's code                                                                                            | a state written by another app version is dropped                                          |
+| Tap delivery             | a `PendingIntent` to the screen host; the extra is read on a fresh start, `addOnNewIntentListener` while it lives | the notification center's delegate; a target that arrives before the root is held for it   |
+| Tap contract             | an external contract building the `PendingIntent`                                                                 | an external contract building the payload map                                              |
+| Posting                  | `NotificationManagerCompat` into a channel created at start-up                                                    | `UNUserNotificationCenter`; no channel                                                     |
+| Background refresh       | WorkManager unique periodic work; workers built by a factory from the app graph                                   | a `BGTaskScheduler` app refresh task, registered at launch, resubmitted as each run starts |
+| One-off refresh          | WorkManager unique one-time work                                                                                  | a single-flight usecase running in its own scope                                           |
+| Notification permission  | `POST_NOTIFICATIONS` through an activity result launcher                                                          | `requestAuthorization` on the notification center                                          |
+| Orientation              | `requestedOrientation` from the whole display at stock density                                                    | `supportedInterfaceOrientations` from the window's size in points                          |
+| Keyboard and insets      | `adjustResize` and edge-to-edge                                                                                   | `ignoresSafeArea` and `OnFocusBehavior.DoNothing`                                          |
+| HTTP engine              | OkHttp                                                                                                            | Darwin                                                                                     |
+| Status bar               | `enableEdgeToEdge` with dark bar styles                                                                           | `UIStatusBarStyleLightContent` in `Info.plist`                                             |
 
 Where the details live:
 

@@ -14,74 +14,74 @@ written as build files use them, after `libs.`.
 
 Build plugins:
 
-| Library | Role | Where | Alias |
-|---|---|---|---|
-| Kotlin Multiplatform | KMP targets and source sets | every module but the Android host | `plugins.kotlinMultiplatform` |
-| AGP KMP library plugin | The Android target of a KMP module | every KMP module | `plugins.androidKotlinMultiplatformLibrary` |
-| AGP application plugin | The Android host | Android host | `plugins.android.application` |
-| Compose Multiplatform + Compose compiler | Compose and its resources; always applied together | modules with UI or resources, and the composition root for the framework | `plugins.composeMultiplatform`, `plugins.kotlinCompose` |
-| kotlinx.serialization plugin | `@Serializable` classes | navigation, network, shared base module, screen features | `plugins.kotlinSerialization` |
-| KSP | Code generation for kotlin-inject components and Room | only modules with a `@Component` or Room | `plugins.ksp` |
-| Room plugin | Room schema settings | persistence | `plugins.androidx.room` |
-| detekt + formatting + Compose rules | Static analysis | every module, set up by the root build | `plugins.detekt`, `detekt.formatting`, `detekt.compose` |
-| Kover | Coverage | root build, applied to every module | `plugins.kover` |
+| Library                                  | Role                                                  | Where                                                                    | Alias                                                   |
+|------------------------------------------|-------------------------------------------------------|--------------------------------------------------------------------------|---------------------------------------------------------|
+| Kotlin Multiplatform                     | KMP targets and source sets                           | every module but the Android host                                        | `plugins.kotlinMultiplatform`                           |
+| AGP KMP library plugin                   | The Android target of a KMP module                    | every KMP module                                                         | `plugins.androidKotlinMultiplatformLibrary`             |
+| AGP application plugin                   | The Android host                                      | Android host                                                             | `plugins.android.application`                           |
+| Compose Multiplatform + Compose compiler | Compose and its resources; always applied together    | modules with UI or resources, and the composition root for the framework | `plugins.composeMultiplatform`, `plugins.kotlinCompose` |
+| kotlinx.serialization plugin             | `@Serializable` classes                               | navigation, network, shared base module, screen features                 | `plugins.kotlinSerialization`                           |
+| KSP                                      | Code generation for kotlin-inject components and Room | only modules with a `@Component` or Room                                 | `plugins.ksp`                                           |
+| Room plugin                              | Room schema settings                                  | persistence                                                              | `plugins.androidx.room`                                 |
+| detekt + formatting + Compose rules      | Static analysis                                       | every module, set up by the root build                                   | `plugins.detekt`, `detekt.formatting`, `detekt.compose` |
+| Kover                                    | Coverage                                              | root build, applied to every module                                      | `plugins.kover`                                         |
 
 Shared code:
 
-| Library | Role | Where | Alias |
-|---|---|---|---|
-| kotlinx.coroutines | Concurrency, flows | almost every module | `kotlinx.coroutines.core` |
-| kotlinx.serialization JSON | JSON for the network, deep-link payloads and iOS saved state | network, navigation, entry module, features | `kotlinx.serialization.json` |
-| kotlinx.collections.immutable | Immutable collections in UI models | screen features | `kotlinx.collections.immutable` |
-| kotlinx-datetime | Date formatting | UI kit | `kotlinx.datetime` |
-| kotlin-inject | Compile-time DI | runtime in every module with DI annotations; compiler where a `@Component` lives | `kotlin.inject.runtime.kmp`, `kotlin.inject.compiler.ksp` |
-| Decompose | Root child stack and screen components | navigation, entry module, screen features | `decompose`, `decompose.extensions.compose` (entry module only) |
-| Essenty | Lifecycle and state keeper under Decompose and MVIKotlin | entry module, screen features, root-level element | `essenty.lifecycle`, `essenty.state.keeper` |
-| MVIKotlin | Stores, executors, binders | UI kit, persistence, features, entry module | `mvikotlin`, `mvikotlin.extensions.coroutines`, `mvikotlin.main` |
-| Ktor client | HTTP with content negotiation and JSON | network; core also in the shared base module | `ktor.client.core`, `ktor.client.content.negotiation`, `ktor.serialization.kotlinx.json` |
-| Ktor engines | Platform HTTP engines | network `androidMain`, `iosMain` | `ktor.client.okhttp`, `ktor.client.darwin` |
-| Room + bundled SQLite | Persistence on both platforms | persistence | `androidx.room.runtime`, `androidx.room.compiler`, `androidx.sqlite.bundled` |
-| Coil | Image loading over Ktor | screen features (Compose), notification module (posters) | `coil`, `coil.compose`, `coil.network.ktor3` |
-| Compose Multiplatform | Runtime, foundation, UI, resources | every module with UI | `compose.runtime`, `compose.foundation`, `compose.ui`, `compose.components.resources` |
-| Material 3 | Material components and theme; pinned at its last stable release | UI kit and UI modules | `compose.material3` |
-| runtime-saveable | `rememberSaveable` codec on iOS | entry module `iosMain` | `compose.runtime.saveable` |
-| Compose tooling | Previews | UI modules; `ui-tooling` on `androidRuntimeClasspath` | `compose.ui.tooling.preview`, `compose.ui.tooling` |
+| Library                       | Role                                                             | Where                                                                            | Alias                                                                                    |
+|-------------------------------|------------------------------------------------------------------|----------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| kotlinx.coroutines            | Concurrency, flows                                               | almost every module                                                              | `kotlinx.coroutines.core`                                                                |
+| kotlinx.serialization JSON    | JSON for the network, deep-link payloads and iOS saved state     | network, navigation, entry module, features                                      | `kotlinx.serialization.json`                                                             |
+| kotlinx.collections.immutable | Immutable collections in UI models                               | screen features                                                                  | `kotlinx.collections.immutable`                                                          |
+| kotlinx-datetime              | Date formatting                                                  | UI kit                                                                           | `kotlinx.datetime`                                                                       |
+| kotlin-inject                 | Compile-time DI                                                  | runtime in every module with DI annotations; compiler where a `@Component` lives | `kotlin.inject.runtime.kmp`, `kotlin.inject.compiler.ksp`                                |
+| Decompose                     | Root child stack and screen components                           | navigation, entry module, screen features                                        | `decompose`, `decompose.extensions.compose` (entry module only)                          |
+| Essenty                       | Lifecycle and state keeper under Decompose and MVIKotlin         | entry module, screen features, root-level element                                | `essenty.lifecycle`, `essenty.state.keeper`                                              |
+| MVIKotlin                     | Stores, executors, binders                                       | UI kit, persistence, features, entry module                                      | `mvikotlin`, `mvikotlin.extensions.coroutines`, `mvikotlin.main`                         |
+| Ktor client                   | HTTP with content negotiation and JSON                           | network; core also in the shared base module                                     | `ktor.client.core`, `ktor.client.content.negotiation`, `ktor.serialization.kotlinx.json` |
+| Ktor engines                  | Platform HTTP engines                                            | network `androidMain`, `iosMain`                                                 | `ktor.client.okhttp`, `ktor.client.darwin`                                               |
+| Room + bundled SQLite         | Persistence on both platforms                                    | persistence                                                                      | `androidx.room.runtime`, `androidx.room.compiler`, `androidx.sqlite.bundled`             |
+| Coil                          | Image loading over Ktor                                          | screen features (Compose), notification module (posters)                         | `coil`, `coil.compose`, `coil.network.ktor3`                                             |
+| Compose Multiplatform         | Runtime, foundation, UI, resources                               | every module with UI                                                             | `compose.runtime`, `compose.foundation`, `compose.ui`, `compose.components.resources`    |
+| Material 3                    | Material components and theme; pinned at its last stable release | UI kit and UI modules                                                            | `compose.material3`                                                                      |
+| runtime-saveable              | `rememberSaveable` codec on iOS                                  | entry module `iosMain`                                                           | `compose.runtime.saveable`                                                               |
+| Compose tooling               | Previews                                                         | UI modules; `ui-tooling` on `androidRuntimeClasspath`                            | `compose.ui.tooling.preview`, `compose.ui.tooling`                                       |
 
 Android only:
 
-| Library | Role | Where | Alias |
-|---|---|---|---|
-| AndroidX Activity | `ComponentActivity`, `setContent`, edge-to-edge, permission launcher | entry module `androidMain` | `androidx.activity`, `androidx.activity.compose` |
-| AndroidX Core | `NotificationCompat`, permission checks | entry module, notification module | `androidx.core` |
-| AndroidX Window | Window metrics for orientation | entry module `androidMain` | `androidx.window` |
-| WorkManager | Background update | background update module `androidMain`, composition root (KSP), Android host | `androidx.work.runtime` |
-| Play services app set | Backs the `AD_ID` permission; the reason is in the Android host's build file | Android host | `play.services.appset` |
+| Library               | Role                                                                         | Where                                                                        | Alias                                            |
+|-----------------------|------------------------------------------------------------------------------|------------------------------------------------------------------------------|--------------------------------------------------|
+| AndroidX Activity     | `ComponentActivity`, `setContent`, edge-to-edge, permission launcher         | entry module `androidMain`                                                   | `androidx.activity`, `androidx.activity.compose` |
+| AndroidX Core         | `NotificationCompat`, permission checks                                      | entry module, notification module                                            | `androidx.core`                                  |
+| AndroidX Window       | Window metrics for orientation                                               | entry module `androidMain`                                                   | `androidx.window`                                |
+| WorkManager           | Background update                                                            | background update module `androidMain`, composition root (KSP), Android host | `androidx.work.runtime`                          |
+| Play services app set | Backs the `AD_ID` permission; the reason is in the Android host's build file | Android host                                                                 | `play.services.appset`                           |
 
 Tests:
 
-| Library | Role | Where | Alias |
-|---|---|---|---|
-| kotlin-test | Assertions | every `commonTest` | `kotlin.test` |
-| kotlin-test-junit | kotlin-test wired to JUnit 4 for a non-KMP module; JUnit rules | Android host tests, test utilities | `kotlin.test.junit` |
-| kotlinx-coroutines-test | Virtual time | tests | `kotlinx.coroutines.test` |
-| Ktor MockEngine | HTTP doubles | tests | `ktor.client.mock` |
-| Robolectric | Android on the JVM for host tests; its SDK is pinned in the catalog | every module with `androidHostTest` sources, Android host tests | `robolectric`, `versions.robolectricSdk` |
-| Compose ui-test (multiplatform) | Compose tests in common code and on iOS | test utilities, entry module `iosTest` | `compose.ui.test` |
-| Compose ui-test-junit4 + ui-test-manifest | Compose rules for Android tests, and the activity they launch | both in `androidHostTest`; ui-test-junit4 also in Android host instrumented tests | `compose.ui.test.junit4`, `compose.ui.test.manifest` |
-| AndroidX Test rules | `GrantPermissionRule` | instrumented tests | `androidx.rules` |
-| WorkManager testing | WorkManager in test mode | background update module and Android host host tests | `androidx.work.testing` |
-| Espresso, Activity | Version constraints only, for instrumented tests | Android host | `androidx.espresso.core`, `androidx.activity` |
-| Bundled SQLite JVM natives | The native SQLite for Room in host tests | persistence build file, by coordinates at `versions.sqlite` | none |
+| Library                                   | Role                                                                | Where                                                                             | Alias                                                |
+|-------------------------------------------|---------------------------------------------------------------------|-----------------------------------------------------------------------------------|------------------------------------------------------|
+| kotlin-test                               | Assertions                                                          | every `commonTest`                                                                | `kotlin.test`                                        |
+| kotlin-test-junit                         | kotlin-test wired to JUnit 4 for a non-KMP module; JUnit rules      | Android host tests, test utilities                                                | `kotlin.test.junit`                                  |
+| kotlinx-coroutines-test                   | Virtual time                                                        | tests                                                                             | `kotlinx.coroutines.test`                            |
+| Ktor MockEngine                           | HTTP doubles                                                        | tests                                                                             | `ktor.client.mock`                                   |
+| Robolectric                               | Android on the JVM for host tests; its SDK is pinned in the catalog | every module with `androidHostTest` sources, Android host tests                   | `robolectric`, `versions.robolectricSdk`             |
+| Compose ui-test (multiplatform)           | Compose tests in common code and on iOS                             | test utilities, entry module `iosTest`                                            | `compose.ui.test`                                    |
+| Compose ui-test-junit4 + ui-test-manifest | Compose rules for Android tests, and the activity they launch       | both in `androidHostTest`; ui-test-junit4 also in Android host instrumented tests | `compose.ui.test.junit4`, `compose.ui.test.manifest` |
+| AndroidX Test rules                       | `GrantPermissionRule`                                               | instrumented tests                                                                | `androidx.rules`                                     |
+| WorkManager testing                       | WorkManager in test mode                                            | background update module and Android host host tests                              | `androidx.work.testing`                              |
+| Espresso, Activity                        | Version constraints only, for instrumented tests                    | Android host                                                                      | `androidx.espresso.core`, `androidx.activity`        |
+| Bundled SQLite JVM natives                | The native SQLite for Room in host tests                            | persistence build file, by coordinates at `versions.sqlite`                       | none                                                 |
 
 Non-library entries:
 
-| Entry | Holds | Read by |
-|---|---|---|
-| `versionCode`, `versionName` | App versions both apps share | Android host build file, iOS xcconfig task; see [versioning-and-release.md](versioning-and-release.md) |
-| `compileSdk`, `minSdk`, `targetSdk`, `jvmTarget` | Android build settings | build files |
-| `iosDeploymentTarget`, `xcode`, `xcodeGen`, `xcodeGenSha256` | iOS build settings and toolchain | iOS xcconfig task, CI |
-| `swiftLint`, `swiftLintSha256*` | SwiftLint version and archive hashes | `iosApp/scripts/swiftlint.sh` |
-| `robolectricSdk` | The SDK Robolectric emulates | root build |
+| Entry                                                        | Holds                                | Read by                                                                                                |
+|--------------------------------------------------------------|--------------------------------------|--------------------------------------------------------------------------------------------------------|
+| `versionCode`, `versionName`                                 | App versions both apps share         | Android host build file, iOS xcconfig task; see [versioning-and-release.md](versioning-and-release.md) |
+| `compileSdk`, `minSdk`, `targetSdk`, `jvmTarget`             | Android build settings               | build files                                                                                            |
+| `iosDeploymentTarget`, `xcode`, `xcodeGen`, `xcodeGenSha256` | iOS build settings and toolchain     | iOS xcconfig task, CI                                                                                  |
+| `swiftLint`, `swiftLintSha256*`                              | SwiftLint version and archive hashes | `iosApp/scripts/swiftlint.sh`                                                                          |
+| `robolectricSdk`                                             | The SDK Robolectric emulates         | root build                                                                                             |
 
 The iOS version entries are governed by [versions.md](../rules/ios/versions.md).
 

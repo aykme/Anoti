@@ -13,7 +13,7 @@ Read when: changing the root `build.gradle.kts`, `gradle.properties`, the daemon
 The root [build.gradle.kts](../../build.gradle.kts) holds everything shared by all modules.
 
 - Plugins are declared with `apply false`, so the modules apply them by catalog alias. Kover is the
-  one plugin applied at the root, since the root aggregates coverage.
+  one plugin applied at the root, since coverage is aggregated there.
 - The Compose compiler plugin is declared only to put its extension on the classpath. The
   `subprojects` block configures that extension.
 - Catalog values the `subprojects` block needs are read into root-level `val`s first. A project's
@@ -87,7 +87,7 @@ CI writes smaller heap and worker settings into the runner's own `~/.gradle/grad
 Example: [the gradle-memory action](../../.github/actions/gradle-memory/action.yml).
 
 [gradle/gradle-daemon-jvm.properties](../../gradle/gradle-daemon-jvm.properties) runs the daemon on
-JDK 21. A machine without one downloads it from Adoptium's "latest JDK 21" links. Rerunning
+JDK 21. A machine without one downloads it from the Adoptium "latest JDK 21" links. Rerunning
 `updateDaemonJvm` writes one pinned build's links back, so the file's comment says to restore
 these afterward. Why this was chosen is in [.claude/design/decisions.md](decisions.md).
 
@@ -113,15 +113,15 @@ Files and line endings:
 
 ## Commands
 
-| Command | What it does |
-|---|---|
-| `./gradlew :androidApp:assembleDebug` | Builds the debug app |
-| `./gradlew allTests :androidApp:testDebugUnitTest` | Runs every host test; no device test |
-| `./gradlew detektAll` | Runs detekt over every module and source set |
-| `./gradlew koverVerify` | Checks the whole-project coverage bar |
-| `./gradlew :<module>:koverLog` | Prints one module's coverage while writing tests, e.g. `:feature-kmp:anime-list:koverLog` |
-| `./gradlew :androidApp:assembleMinified` | Builds the minified app |
-| `./gradlew generateIosVersionXcconfig` | Regenerates the iOS version file |
+| Command                                            | What it does                                                                              |
+|----------------------------------------------------|-------------------------------------------------------------------------------------------|
+| `./gradlew :androidApp:assembleDebug`              | Builds the debug app                                                                      |
+| `./gradlew allTests :androidApp:testDebugUnitTest` | Runs every host test; no device test                                                      |
+| `./gradlew detektAll`                              | Runs detekt over every module and source set                                              |
+| `./gradlew koverVerify`                            | Checks the whole-project coverage bar                                                     |
+| `./gradlew :<module>:koverLog`                     | Prints one module's coverage while writing tests, e.g. `:feature-kmp:anime-list:koverLog` |
+| `./gradlew :androidApp:assembleMinified`           | Builds the minified app                                                                   |
+| `./gradlew generateIosVersionXcconfig`             | Regenerates the iOS version file                                                          |
 
 - The device tests' commands are in
   [android/instrumented-tests.md](../rules/android/instrumented-tests.md).
@@ -133,7 +133,7 @@ Files and line endings:
 - `android.yml` runs on Linux. `ios.yml` runs its plan, SwiftLint and drift jobs on Linux, and
   every job that builds or runs iOS code on macOS. When they run and how to start and follow a run
   is in [ci-github.md](../rules/ci-github.md).
-- What each checks is in [android/ci.md](../rules/android/ci.md) and
+- What each workflow checks is in [android/ci.md](../rules/android/ci.md) and
   [ios/ci.md](../rules/ios/ci.md).
 - Steps several iOS jobs repeat live in composite actions under `.github/actions/`. The
   `ios-toolchain` action reads the Xcode and XcodeGen versions from the catalog. Example:

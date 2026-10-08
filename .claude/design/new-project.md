@@ -42,25 +42,25 @@ it; carrying build, CI or agent files over to another repository.
   [TECHNICAL-DESIGN.md](TECHNICAL-DESIGN.md#placeholders).
 - Rewrite the facts below that belong to this repository, this developer or this machine.
 
-| File | Facts to rewrite |
-|---|---|
-| `CLAUDE.md` | remote name `master`, repository `aykme/Anoti`, the `gh` path on the developer's Windows machine, the `develop` branch, the root `README.md` rule, the foreign user-level plugins under "Skills" |
-| `.claude/skills/creating-a-module/` | `ANOTI-FULL-REGRESS.md` in `SKILL.md` and the script; in the script, the groups `core-kmp` and `feature-kmp`, the navigation module the root configs are read from, and the entry module `main` |
-| `ci-github.md` | `aykme/Anoti` in every `gh` command; `develop` as the branch that runs both workflows |
-| `ios/xcode-project.md` | `aykme/Anoti` in `gh run download` |
-| `logging.md` | `ANOTI_TAG`; the restore-check script that quotes log wording |
-| `module-docs.md` | `ANOTI-FULL-REGRESS.md`; the example `:core-kmp:celebrity`; the module folders `androidApp`, `main`, `core-kmp/*`, `feature-kmp/*`, `iosApp/` |
-| `tests-on-device.md` | `AnimeFavoritesUserFlowTest`, the iOS UI tests and restore checks as allowed live-backend tests; `RetryRule` in `core-kmp:test-utils`; the two script paths |
-| `android/instrumented-tests.md` | the task `:feature-kmp:anime-notification:connectedAndroidDeviceTest`; the live backend |
-| `ios/ci.md` | `AnimeFavoritesUserFlowTest`, `OrientationUITests`, the restore and theme checks; the media folder `~/Desktop/iOS test/`; `develop` as the branch whose push runs it |
-| `ios/swiftlint.md` | `develop` as the push that runs the lint |
-| `finishing-a-task.md` | the media folder `~/Desktop/iOS test/` |
-| `test-coverage.md` | the 95% bar; `repeatingClickable`, `Colors.kt`, `Fonts.kt`; `core-kmp:test-utils` in text and `paths:` |
-| `tests.md` | `core-kmp/test-utils` in `paths:` |
-| `ios/build-check.md`, `ios/tests.md` | the developer's Windows machine; `DiAppComponent` in `core-kmp:di-app` |
-| `ios/framework.md`, `CLAUDE-IOS.md` | `core-kmp:di-app` as the module that links the framework |
-| `CLAUDE-ANDROID.md` | the developer's own phone as a device that is not a test bench |
-| `code-documentation` skill | its examples from this project's modules, in `SKILL.md` and `references/` |
+| File                                 | Facts to rewrite                                                                                                                                                                                 |
+|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `CLAUDE.md`                          | remote name `master`, repository `aykme/Anoti`, the `gh` path on the developer's Windows machine, the `develop` branch, the root `README.md` rule, the foreign user-level plugins under "Skills" |
+| `.claude/skills/creating-a-module/`  | `ANOTI-FULL-REGRESS.md` in `SKILL.md` and the script; in the script, the groups `core-kmp` and `feature-kmp`, the navigation module the root configs are read from, and the entry module `main`  |
+| `ci-github.md`                       | `aykme/Anoti` in every `gh` command; `develop` as the branch that runs both workflows                                                                                                            |
+| `ios/xcode-project.md`               | `aykme/Anoti` in `gh run download`                                                                                                                                                               |
+| `logging.md`                         | `ANOTI_TAG`; the restore-check script that quotes log wording                                                                                                                                    |
+| `module-docs.md`                     | `ANOTI-FULL-REGRESS.md`; the example `:core-kmp:celebrity`; the module folders `androidApp`, `main`, `core-kmp/*`, `feature-kmp/*`, `iosApp/`                                                    |
+| `tests-on-device.md`                 | `AnimeFavoritesUserFlowTest`, the iOS UI tests and restore checks as allowed live-backend tests; `RetryRule` in `core-kmp:test-utils`; the two script paths                                      |
+| `android/instrumented-tests.md`      | the task `:feature-kmp:anime-notification:connectedAndroidDeviceTest`; the live backend                                                                                                          |
+| `ios/ci.md`                          | `AnimeFavoritesUserFlowTest`, `OrientationUITests`, the restore and theme checks; the media folder `~/Desktop/iOS test/`; `develop` as the branch whose push runs it                             |
+| `ios/swiftlint.md`                   | `develop` as the push that runs the lint                                                                                                                                                         |
+| `finishing-a-task.md`                | the media folder `~/Desktop/iOS test/`                                                                                                                                                           |
+| `test-coverage.md`                   | the 95% bar; `repeatingClickable`, `Colors.kt`, `Fonts.kt`; `core-kmp:test-utils` in text and `paths:`                                                                                           |
+| `tests.md`                           | `core-kmp/test-utils` in `paths:`                                                                                                                                                                |
+| `ios/build-check.md`, `ios/tests.md` | the developer's Windows machine; `DiAppComponent` in `core-kmp:di-app`                                                                                                                           |
+| `ios/framework.md`, `CLAUDE-IOS.md`  | `core-kmp:di-app` as the module that links the framework                                                                                                                                         |
+| `CLAUDE-ANDROID.md`                  | the developer's own phone as a device that is not a test bench                                                                                                                                   |
+| `code-documentation` skill           | its examples from this project's modules, in `SKILL.md` and `references/`                                                                                                                        |
 
 ## Prerequisites
 
@@ -78,27 +78,27 @@ it; carrying build, CI or agent files over to another repository.
 
 ## Carry-over files
 
-| File | What to edit |
-|---|---|
-| [build.gradle.kts](../../build.gradle.kts) | the `testsdk` package under the root package; the Kover filters naming the root package (`generated.resources`, `testutils`) and the Room constructor class |
-| [settings.gradle.kts](../../settings.gradle.kts) | `rootProject.name`; the `include` list |
-| [gradle.properties](../../gradle.properties) | nothing app-specific |
-| [.gitattributes](../../.gitattributes), [.editorconfig](../../.editorconfig) | nothing; LF everywhere, CRLF only for `*.bat` |
-| [.gitignore](../../.gitignore), [androidApp/.gitignore](../../androidApp/.gitignore), [main/.gitignore](../../main/.gitignore) | the root file's `androidApp/release` paths if the host is renamed; the module files hold only `/build` |
-| `gradlew`, `gradlew.bat`, [gradle/wrapper](../../gradle/wrapper/gradle-wrapper.properties) | nothing; keep the comments |
-| [gradle/gradle-daemon-jvm.properties](../../gradle/gradle-daemon-jvm.properties) | nothing; keep the comments |
-| [gradle/libs.versions.toml](../../gradle/libs.versions.toml) | reset `versionName` to `1.0` and `versionCode` to `10`, by its rule comment; drop the libraries only dropped features used, keeping the core modules' ones; keep the sections and reason comments |
-| [config/detekt](../../config/detekt/detekt.yml), [config/swiftlint](../../config/swiftlint/swiftlint.yml) | nothing |
-| [androidApp/proguard-rules.pro](../../androidApp/proguard-rules.pro) | nothing |
-| [.github/workflows](../../.github/workflows/android.yml), [actions](../../.github/actions/ios-toolchain/action.yml) | the `develop` branch in `on.push`; app name in `.app` and dSYM paths; the flow test's name in inputs and steps; `TEST_RUNNER_<APP>_*` variables |
+| File                                                                                                                            | What to edit                                                                                                                                                                                                                |
+|---------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [build.gradle.kts](../../build.gradle.kts)                                                                                      | the `testsdk` package under the root package; the Kover filters naming the root package (`generated.resources`, `testutils`) and the Room constructor class                                                                 |
+| [settings.gradle.kts](../../settings.gradle.kts)                                                                                | `rootProject.name`; the `include` list                                                                                                                                                                                      |
+| [gradle.properties](../../gradle.properties)                                                                                    | nothing app-specific                                                                                                                                                                                                        |
+| [.gitattributes](../../.gitattributes), [.editorconfig](../../.editorconfig)                                                    | nothing; LF everywhere, CRLF only for `*.bat`                                                                                                                                                                               |
+| [.gitignore](../../.gitignore), [androidApp/.gitignore](../../androidApp/.gitignore), [main/.gitignore](../../main/.gitignore)  | the root file's `androidApp/release` paths if the host is renamed; the module files hold only `/build`                                                                                                                      |
+| `gradlew`, `gradlew.bat`, [gradle/wrapper](../../gradle/wrapper/gradle-wrapper.properties)                                      | nothing; keep the comments                                                                                                                                                                                                  |
+| [gradle/gradle-daemon-jvm.properties](../../gradle/gradle-daemon-jvm.properties)                                                | nothing; keep the comments                                                                                                                                                                                                  |
+| [gradle/libs.versions.toml](../../gradle/libs.versions.toml)                                                                    | reset `versionName` to `1.0` and `versionCode` to `10`, by its rule comment; drop the libraries only dropped features used, keeping the core modules' ones; keep the sections and reason comments                           |
+| [config/detekt](../../config/detekt/detekt.yml), [config/swiftlint](../../config/swiftlint/swiftlint.yml)                       | nothing                                                                                                                                                                                                                     |
+| [androidApp/proguard-rules.pro](../../androidApp/proguard-rules.pro)                                                            | nothing                                                                                                                                                                                                                     |
+| [.github/workflows](../../.github/workflows/android.yml), [actions](../../.github/actions/ios-toolchain/action.yml)             | the `develop` branch in `on.push`; app name in `.app` and dSYM paths; the flow test's name in inputs and steps; `TEST_RUNNER_<APP>_*` variables                                                                             |
 | [.github/scripts](../../.github/scripts/ios-ci-plan.sh) and [their tests](../../.github/scripts/test/ios-release-check-test.sh) | executable name and `kfun:` package prefix in the release check and its fixtures; the flow test's name in the plan script; bundle id, payload and quoted log lines in the restore checks, which belong to the first feature |
-| [iosApp/project.yml](../../iosApp/project.yml) | the framework search path if the composition root moves; `Shared` stays |
-| [Config.xcconfig](../../iosApp/Configuration/Config.xcconfig) | `BUNDLE_ID`, `APP_NAME`; `Version.xcconfig` is regenerated, not edited |
-| [Info.plist](../../iosApp/iosApp/Info.plist) | the background-task identifier, if any |
-| [PrivacyInfo.xcprivacy](../../iosApp/iosApp/PrivacyInfo.xcprivacy) | the accessed API categories and reasons the new app really has |
-| [iosApp/scripts](../../iosApp/scripts/compile-kotlin-framework.sh) | the composition root's Gradle path, if it moves |
-| [ANOTI-FULL-REGRESS.md](../../ANOTI-FULL-REGRESS.md) | renamed `<APP>-FULL-REGRESS.md`; links emptied |
-| `.claude`, `CLAUDE.md` | as in "Two modes" |
+| [iosApp/project.yml](../../iosApp/project.yml)                                                                                  | the framework search path if the composition root moves; `Shared` stays                                                                                                                                                     |
+| [Config.xcconfig](../../iosApp/Configuration/Config.xcconfig)                                                                   | `BUNDLE_ID`, `APP_NAME`; `Version.xcconfig` is regenerated, not edited                                                                                                                                                      |
+| [Info.plist](../../iosApp/iosApp/Info.plist)                                                                                    | the background-task identifier, if any                                                                                                                                                                                      |
+| [PrivacyInfo.xcprivacy](../../iosApp/iosApp/PrivacyInfo.xcprivacy)                                                              | the accessed API categories and reasons the new app really has                                                                                                                                                              |
+| [iosApp/scripts](../../iosApp/scripts/compile-kotlin-framework.sh)                                                              | the composition root's Gradle path, if it moves                                                                                                                                                                             |
+| [ANOTI-FULL-REGRESS.md](../../ANOTI-FULL-REGRESS.md)                                                                            | renamed `<APP>-FULL-REGRESS.md`; links emptied                                                                                                                                                                              |
+| `.claude`, `CLAUDE.md`                                                                                                          | as in "Two modes"                                                                                                                                                                                                           |
 
 The Xcode project is generated from `project.yml` and committed; take the first one from an
 `ios.yml` run, as [ios/xcode-project.md](../rules/ios/xcode-project.md) says.
