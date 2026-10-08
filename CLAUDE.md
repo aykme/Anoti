@@ -53,8 +53,9 @@ and [CLAUDE-IOS.md](.claude/rules/ios/CLAUDE-IOS.md) load with it.
 - A rule that sends you to a design file counts the same: once it loads and the task does what its
   bullet names, read that design file before writing.
 - Such rules arrive while you work, often right after you read or write a file in a new area.
-  When one arrives, read its design file before your next write in that area, even mid-task. A
-  task that spans several areas (a store, its UI, DI, tests) reads the design file of each.
+  When one arrives, read its design file before you write another file in that area, even
+  mid-task. A task that spans several areas (a store, its UI, DI, tests) reads the design file
+  of each.
 - Read the design files yourself before writing. A subagent's summary does not replace them, and
   a subagent sent to write or review code gets the design files of its task in its prompt.
 - Before creating a module, read [new-module.md](.claude/design/new-module.md) and every file its

@@ -5,8 +5,9 @@ what it declares to the stores. The app talks to one public API without accounts
 it keeps its persisted data on the device.
 
 Read when: reading input from outside the app (an intent extra, a notification payload, a
-network response), adding a permission, a network host or a persisted field, writing a log line
-with data in it, or changing a manifest, the R8 rules or the iOS privacy manifest.
+network response), or adding a permission, a network host or a persisted field. Also when
+writing a log line with data in it, or changing a manifest, the R8 rules or the iOS privacy
+manifest.
 
 ## Untrusted input
 
@@ -69,8 +70,8 @@ with data in it, or changing a manifest, the R8 rules or the iOS privacy manifes
 
 ## Data at rest
 
-- The app keeps one Room database: on Android in its private database directory, on iOS in its
-  documents directory. It holds the data the features persist.
+- The app keeps one Room database: on Android in its private database directory, on iOS in the
+  app's Documents directory. It holds the data the features persist.
 - Nothing is encrypted at rest; nothing the app keeps is a secret.
 - Android backup is on (`android:allowBackup="true"`) with no backup rules, so the system's auto
   backup includes the database. See
@@ -86,7 +87,7 @@ with data in it, or changing a manifest, the R8 rules or the iOS privacy manifes
 
 - [iosApp/iosApp/PrivacyInfo.xcprivacy](../../iosApp/iosApp/PrivacyInfo.xcprivacy) declares no
   tracking, no tracking domains and no collected data.
-- It lists two required-reason API categories with their reason codes: file timestamps and
-  system boot time.
+- It lists two API categories that Apple requires a reason for, with their reason codes: file
+  timestamps and system boot time.
 - When the app or a library starts using another required-reason API, its entry is added there.
 - `Info.plist` declares that the app uses no non-exempt encryption.

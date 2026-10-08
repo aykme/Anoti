@@ -30,7 +30,7 @@ Read when: a change spans several areas, as each heading below names one.
 An element with a store of its own, beside the stack:
 
 1. Create the module as a root-level element: [new-module.md](new-module.md).
-2. A store, and a controller passing labels to a callback: [mvi.md](mvi.md#controllers).
+2. A store and a controller passing labels to a callback: [mvi.md](mvi.md#controllers).
 3. Its module component, mixed into the root graph:
    [dependency-injection.md](dependency-injection.md#module-and-platform-components), section
    "Module and platform components".

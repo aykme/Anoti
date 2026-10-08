@@ -118,7 +118,8 @@ Examples of the placement:
   (stores),
   [RootHostTest](../../main/src/commonTest/kotlin/com/alekseivinogradov/anoti/main/impl/presentation/RootHostTest.kt)
   (lifecycles).
-- A debounce or a delay is crossed with `advanceTimeBy` on the virtual clock, never by waiting.
+- Debounce and delay periods are crossed with `advanceTimeBy` on the virtual clock, never by
+  waiting.
 - `MockEngine` answers on `Dispatchers.IO` unless told otherwise. That takes the answer off the
   virtual clock and onto a second thread. Each engine is given the test's dispatcher through
   `MockEngineConfig.dispatcher`. Example:

@@ -16,7 +16,7 @@ Read with the Read tool, in this order: the files the task table of
 section "Before the first file" names, then `.claude/rules/module-docs.md`. A screen feature
 also reads `.claude/design/recipes.md` "New screen feature"; a root-level element or overlay,
 "Root-level element or overlay"; a platform service, "Platform-specific implementation". Read
-each area's design file before the first write in that area, not after.
+each area's design file before writing the first file in that area, not after.
 
 ## Steps
 

@@ -118,20 +118,20 @@ Concepts:
 - [ui-compose.md](ui-compose.md) — read when writing or changing a composable, a screen or its
   route, the theme, a design token (`Dimens`, `Fonts`, `Colors`) or a constants file, a Compose
   resource (string, drawable, font), a UI model's stability, or a preview.
-- [accessibility-and-adaptive-layout.md](accessibility-and-adaptive-layout.md) — read when adding or
-  changing a tappable control, an image or icon, a custom gesture or semantics, a layout that must
-  hold at large text or display size, or anything that depends on the screen's size, its
-  orientation, the system bars or the keyboard.
+- [accessibility-and-adaptive-layout.md](accessibility-and-adaptive-layout.md) — read when adding
+  or changing a tappable control, an image or icon, a custom gesture or semantics, or a layout
+  that must hold at large text or display size. Also when adding or changing anything that
+  depends on the screen's size, its orientation, the system bars or the keyboard.
 - [platform-mirroring.md](platform-mirroring.md) — read when adding or changing code that one
   platform has and the other must mirror; changing the `Application`, the screen host, the iOS entry
   object or anything they start; writing a `*Worker`, a background refresh, a notification or a
   permission request.
 - [ios-host.md](ios-host.md) — read when changing Swift app code, `Info.plist`, or the `iosMain`
   code Swift calls.
-- [security-and-privacy.md](security-and-privacy.md) — read when reading input from outside the app
-  (an intent extra, a notification payload, a network response), adding a permission, a network host
-  or a persisted field, writing a log line with data in it, or changing a manifest, the R8 rules or
-  the iOS privacy manifest.
+- [security-and-privacy.md](security-and-privacy.md) — read when reading input from outside the
+  app (an intent extra, a notification payload, a network response), or adding a permission, a
+  network host or a persisted field. Also when writing a log line with data in it, or changing a
+  manifest, the R8 rules or the iOS privacy manifest.
 - [code-style.md](code-style.md) — read when writing Kotlin in any module, suppressing a detekt
   finding, or writing Swift or Markdown in the repository.
 

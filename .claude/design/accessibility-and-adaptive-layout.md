@@ -5,8 +5,9 @@ semantics for screen readers, custom gestures, screen size and orientation, syst
 the keyboard. The composables themselves are written as [ui-compose.md](ui-compose.md) says.
 
 Read when: adding or changing a tappable control, an image or icon, a custom gesture or
-semantics, a layout that must hold at large text or display size, or anything that depends on
-the screen's size, its orientation, the system bars or the keyboard.
+semantics, or a layout that must hold at large text or display size. Also when adding or
+changing anything that depends on the screen's size, its orientation, the system bars or the
+keyboard.
 
 ## Text and display scale
 

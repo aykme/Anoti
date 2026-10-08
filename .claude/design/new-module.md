@@ -1,7 +1,8 @@
 # New module
 
-How a Gradle module is added: its kind, its names, its line in `settings.gradle.kts`, its build
-file and its wiring. What a module holds inside is in [module-anatomy.md](module-anatomy.md).
+How a Gradle module is added: the kind, the names, the line in `settings.gradle.kts`, the build
+file and the wiring. The contents of a module are described in
+[module-anatomy.md](module-anatomy.md).
 
 Read when: creating a Gradle module or choosing its kind; changing a module's build file or
 `settings.gradle.kts`.

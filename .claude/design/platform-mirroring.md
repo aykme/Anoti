@@ -117,7 +117,7 @@ Where the details live:
   `Application`, so it outlives a recreated activity. iOS keeps it in the root holder, which lives
   as long as the process.
 - **Notification channel.** Only Android has one, created at start-up. iOS posts without it.
-- **Platform context.** It is the application `Context` on Android. On iOS it carries nothing,
+- **Platform context.** It is the application `Context` on Android. On iOS, it carries nothing,
   and the app graph takes it only so both twins are built the same way.
   Example: [IosAppContext](../../core-kmp/di-app/src/iosMain/kotlin/com/alekseivinogradov/anoti/di/kmp/IosAppContext.kt).
 - **Deferred graph access.** Both platforms pass a function instead of a value into the
