@@ -30,8 +30,37 @@ and [CLAUDE-IOS.md](.claude/rules/ios/CLAUDE-IOS.md) load with it.
 
 - Before starting any task, check the available skills (this project's `.claude/skills/` and any
   user-level ones). Propose one that applies rather than doing ad-hoc work a skill already covers.
+- A user-level skill written for another codebase does not apply here, whatever its description
+  matches: the `multimodule-architecture`, `navigation`, `network-layer`, `testing`,
+  `feature-flags`, `checks`, `qa-engineer`, `dependency-diagrams` and `network-baseline-capture`
+  plugins describe other projects. This project's technical design and rules decide how code is
+  written here.
 - The `code-documentation` skill covers module READMEs and KDoc/code-comment conventions. Use it
   before writing a README or documenting code.
+- The [creating-a-module](.claude/skills/creating-a-module/SKILL.md) skill creates every new
+  `:core-kmp` or `:feature-kmp` module: a screen or bottom-bar tab, a root-level element, a
+  UI-only component such as a dialog, a platform service, a shared base, an external contract
+  module or a core library. Use it whenever new code has no fitting home in an existing module.
+
+## Technical design
+
+- [.claude/design/TECHNICAL-DESIGN.md](.claude/design/TECHNICAL-DESIGN.md) holds how code is
+  written here: modules, entities, KMP, DI, navigation, saved state, UI, tests and docs, and how to
+  start a new project in this image. Rules say what to do and when; the design says how to write.
+- Read it before adding to or changing the structure of the code: a module, class, interface,
+  object, DI binding, destination, store, library, resource or saved state. Read it before starting
+  a new project too. Then read the files its task table names, in order. Both are hard steps.
+- A rule that sends you to a design file counts the same: once it loads and the task does what its
+  bullet names, read that design file before writing.
+- Such rules arrive while you work, often right after you read or write a file in a new area.
+  When one arrives, read its design file before you write another file in that area, even
+  mid-task. A task that spans several areas (a store, its UI, DI, tests) reads the design file
+  of each.
+- Read the design files yourself before writing. A subagent's summary does not replace them, and
+  a subagent sent to write or review code gets the design files of its task in its prompt.
+- Before creating a module, read [new-module.md](.claude/design/new-module.md) and every file its
+  section "Before the first file" names, then [module-docs.md](.claude/rules/module-docs.md).
+  Create it through the [creating-a-module](.claude/skills/creating-a-module/SKILL.md) skill.
 
 ## Branching
 
@@ -66,27 +95,28 @@ Shared rules, in `.claude/rules/`:
 - [finishing-a-task.md](.claude/rules/finishing-a-task.md) — read when finishing a task, and
   before reviewing or re-checking a change.
 - [ci-github.md](.claude/rules/ci-github.md) — read before a push, a `gh` command or a CI run.
-- [tests.md](.claude/rules/tests.md) — read before writing or changing a test or a test double.
+- [tests.md](.claude/rules/tests.md) — read before writing or changing a test or a test double;
+  it sends you to the design's testing file.
 - [tests-on-device.md](.claude/rules/tests-on-device.md) — read before a test that runs on a device
   or simulator, or launches the real app.
 - [test-coverage.md](.claude/rules/test-coverage.md) — read before writing tests or measuring
   coverage.
 - [source-sets.md](.claude/rules/source-sets.md) — read before adding Kotlin code or deciding
-  where it lives.
+  where it lives; it sends you to the design's KMP file.
 - [code-comments.md](.claude/rules/code-comments.md) — read before writing a comment or KDoc.
 - [logging.md](.claude/rules/logging.md) — read before adding or changing a log line.
-- [mvi-stores.md](.claude/rules/mvi-stores.md) — read before writing a Store, Executor or reducer.
+- [mvi-stores.md](.claude/rules/mvi-stores.md) — read before writing a Store, Executor or reducer;
+  it sends you to the design's MVI file.
 - [compose-design-tokens.md](.claude/rules/compose-design-tokens.md) — read before writing Compose
-  UI or a UI constant.
+  UI or a UI constant; it sends you to the design's Compose UI file.
+- [technical-design.md](.claude/rules/technical-design.md) — read before creating or editing a
+  file in a `di/`, `navigation/`, `data/`, `usecase/`, `savedstate/` or `composeResources/`
+  package, a manifest, a `*Worker.kt`, a build file, the version catalog or the iOS privacy
+  manifest; it names the design file of each.
 - [compose-compiler-reports.md](.claude/rules/compose-compiler-reports.md) — read before
   committing Compose UI.
 - [module-docs.md](.claude/rules/module-docs.md) — read when a module is created, changed or
   deleted, before documenting it, and before a regression walk.
-- Before creating a module, read [module-docs.md](.claude/rules/module-docs.md),
-  [source-sets.md](.claude/rules/source-sets.md), [tests.md](.claude/rules/tests.md),
-  [compose-design-tokens.md](.claude/rules/compose-design-tokens.md),
-  [android/tests.md](.claude/rules/android/tests.md) and
-  [ios/framework.md](.claude/rules/ios/framework.md).
 
 Platform rules: [CLAUDE-ANDROID.md](.claude/rules/android/CLAUDE-ANDROID.md) and
 [CLAUDE-IOS.md](.claude/rules/ios/CLAUDE-IOS.md).

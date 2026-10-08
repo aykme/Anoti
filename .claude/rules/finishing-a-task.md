@@ -23,7 +23,9 @@ code. The reviewer-prompt rule under "Review" applies to every review, mid-task 
 - Run every test in each affected module, not only the ones this task wrote, and confirm all are
   green. Then take the test rules one by one against what the module now holds, and fix whatever
   doesn't conform: [tests.md](tests.md), [tests-on-device.md](tests-on-device.md),
-  [android/tests.md](android/tests.md), [ios/tests.md](ios/tests.md).
+  [android/tests.md](android/tests.md), [ios/tests.md](ios/tests.md), and the design files they
+  send you to, [.claude/design/testing.md](../design/testing.md) and
+  [.claude/design/testing-platforms.md](../design/testing-platforms.md).
 - The Android instrumented tests are part of that run, on an emulator. Read
   [android/instrumented-tests.md](android/instrumented-tests.md) for the tasks and the clean
   installation.
@@ -66,13 +68,20 @@ code. The reviewer-prompt rule under "Review" applies to every review, mid-task 
   failed to reproduce it.
 - Every reviewer and skeptic prompt says: Read each changed file with the Read tool, not the
   shell, so its rules load. Read [committing.md](committing.md), this file, and the topic files
-  the indexes name for the areas of the diff, deleted paths included.
+  the indexes name for the areas of the diff, deleted paths included. Read the design files the
+  thin rules and [technical-design.md](technical-design.md) name for the diff's paths, and the
+  files of the task's row in the task table of
+  [.claude/design/TECHNICAL-DESIGN.md](../design/TECHNICAL-DESIGN.md). Flag code that departs from
+  them, and an approach the change altered that the design still describes the old way.
 
 ## Wrapping up
 
 - Document what the task changed before calling it done: the module README, the KDoc on the
   entities it points at, and the module's regression file. Call the `code-documentation` skill for
   it, and read [module-docs.md](module-docs.md).
+- When the task changed how something is built (an approach, a convention, a file a design
+  skeleton mirrors), update the technical design in the same task. Its maintenance notes are in
+  [.claude/design/TECHNICAL-DESIGN.md](../design/TECHNICAL-DESIGN.md).
 - Delete every artifact produced while verifying: screenshots, logcat dumps, UI hierarchy dumps,
   temporary scripts, anything created only to check the result. This covers the session scratchpad
   and the device/emulator alike, whether the check passed or failed. The iOS CI media under
