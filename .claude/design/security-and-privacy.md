@@ -87,7 +87,7 @@ manifest.
 
 - [iosApp/iosApp/PrivacyInfo.xcprivacy](../../iosApp/iosApp/PrivacyInfo.xcprivacy) declares no
   tracking, no tracking domains and no collected data.
-- It lists two API categories that Apple requires a reason for, with their reason codes: file
-  timestamps and system boot time.
+- It lists two API categories that Apple asks apps to justify, each with its justification code:
+  file timestamps and system boot time.
 - When the app or a library starts using another required-reason API, its entry is added there.
 - `Info.plist` declares that the app uses no non-exempt encryption.
