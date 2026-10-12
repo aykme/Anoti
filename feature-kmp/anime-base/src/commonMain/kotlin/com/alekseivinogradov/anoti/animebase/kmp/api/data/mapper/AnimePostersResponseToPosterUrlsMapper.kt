@@ -19,10 +19,10 @@ internal fun AnimePostersResponse.toPosterUrls(): Map<AnimeId, String> {
 }
 
 private fun AnimePosterResponse.toPosterUrlEntry(): Pair<AnimeId, String>? {
-    val animeId = id?.toIntOrNull() ?: return null
+    val animeId = id?.toIntOrNull()
     // Neither platform allows cleartext, so an http poster would only replace a working image.
-    val posterUrl = poster?.originalUrl?.takeIf { it.startsWith(SECURE_URL_PREFIX) } ?: return null
-    return animeId to posterUrl
+    val posterUrl = poster?.originalUrl?.takeIf { it.startsWith(SECURE_URL_PREFIX) }
+    return if (animeId != null && posterUrl != null) animeId to posterUrl else null
 }
 
 private const val SECURE_URL_PREFIX = "https://"
