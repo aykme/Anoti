@@ -13,7 +13,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
-@Database(entities = [AnimeDbEntity::class], version = 2, exportSchema = false)
+@Database(entities = [AnimeDbEntity::class], version = 3, exportSchema = false)
 @ConstructedBy(AnimeDatabaseConstructor::class)
 abstract class AnimeDatabase : RoomDatabase() {
     abstract fun animeDao(): AnimeDao
@@ -34,6 +34,20 @@ internal val MIGRATION_1_2 = object : Migration(startVersion = 1, endVersion = 2
     }
 }
 
+/**
+ * Clears the placeholder image URLs REST handed out, under either host the app has used, so the
+ * next update writes the real posters. `_` is a LIKE wildcard, hence the escape.
+ */
+internal val MIGRATION_2_3 = object : Migration(startVersion = 2, endVersion = 3) {
+    override fun migrate(connection: SQLiteConnection) {
+        println("$ANOTI_TAG AnimeDatabase: migrates from 2 to 3")
+        connection.execSQL(
+            "UPDATE $ANIME_TABLE_NAME SET image_url = NULL " +
+                "WHERE image_url LIKE '%/assets/globals/missing\\_%' ESCAPE '\\'"
+        )
+    }
+}
+
 /** Logs when the database file is created and each time it is opened. */
 private object OpeningLog : RoomDatabase.Callback() {
     override fun onCreate(connection: SQLiteConnection) {
@@ -47,7 +61,7 @@ private object OpeningLog : RoomDatabase.Callback() {
 
 internal fun getRoomDatabase(builder: RoomDatabase.Builder<AnimeDatabase>): AnimeDatabase {
     return builder
-        .addMigrations(MIGRATION_1_2)
+        .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
         .addCallback(OpeningLog)
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
