@@ -3,13 +3,15 @@ Shikimori API access shared by the anime feature modules.
 ## Entities
 
 - [ShikimoriApiService](src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/data/service/ShikimoriApiService.kt) —
-  Shikimori endpoints for the anime list and a single anime's details.
+  Shikimori endpoints for the anime list, a single anime's details and the posters of a page.
+- [AnimePosterSource](src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/domain/source/AnimePosterSource.kt) —
+  real posters by anime id, best effort.
 - [AnimeShortResponse](src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/data/response/AnimeShortResponse.kt) —
   one anime list item.
 - [AnimeDetailsResponse](src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/data/response/AnimeDetailsResponse.kt) —
   full details for one anime.
 - [AnimeResponseToListItemDomainMapper](src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/data/mapper/AnimeResponseToListItemDomainMapper.kt) —
-  maps response fields (image, release status) to domain-ready values.
+  maps response fields (image or poster, release status) to domain-ready values.
 - [PullToRefreshBox](src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/impl/presentation/compose/PullToRefreshBox.kt) —
   a full-size swipe-to-refresh surface, shared by every screen state that should let the user
   pull down to retry.
@@ -17,8 +19,8 @@ Shikimori API access shared by the anime feature modules.
 ## How to include it
 
 - Gradle: `implementation(project(":feature-kmp:anime-base"))`
-- `ShikimoriApiService` is provided via `DiAnimeBaseComponent`, mixed into `DiAppComponent` on
-  both platforms — inject it, don't construct it yourself.
+- `ShikimoriApiService` and `AnimePosterSource` are provided via `DiAnimeBaseComponent`, mixed
+  into `DiAppComponent` on both platforms — inject them, don't construct them yourself.
 
 ## How to use it
 

@@ -92,6 +92,13 @@ immediately and does not wait for the poster.
    - At most four lines, ending in "…". It never pushes the episodes line or the bottom row
      off the item.
 5. A very long status word at a large font size — see section 13.
+6. Scroll through "On air" and "Soon", then search for a few recent titles.
+   - Every poster is the anime's own artwork, the same as on its shikimori.io page, in all three
+     lists. None is the site's grey "no image" placeholder, unless the site itself shows one.
+7. Search for "Steel Ball Run".
+   - Its item shows the same artwork as its shikimori.io page, not the grey placeholder.
+8. Search for "Implicity".
+   - Its item shows a picture, not the grey placeholder and not a broken-image icon.
 
 ## 6. The episode-info button
 
