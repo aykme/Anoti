@@ -1,6 +1,7 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.di
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
+import com.alekseivinogradov.anoti.animebase.kmp.api.domain.source.AnimePosterSource
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.di.DiAnimeListDependencies
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
@@ -69,8 +70,15 @@ abstract class DiAnimeListComponent(
     abstract val searchSectionStore: SearchSectionStore
 
     @Provides
-    fun provideAnimeListSource(service: ShikimoriApiService, safeApi: SafeApi): AnimeListSource =
-        AnimeListSourceImpl(service = service, safeApi = safeApi)
+    fun provideAnimeListSource(
+        service: ShikimoriApiService,
+        safeApi: SafeApi,
+        posterSource: AnimePosterSource
+    ): AnimeListSource = AnimeListSourceImpl(
+        service = service,
+        safeApi = safeApi,
+        posterSource = posterSource
+    )
 
     @Provides
     fun provideFetchAnimeDetailsByIdUsecase(source: AnimeListSource): FetchAnimeDetailsByIdUsecase =

@@ -1,8 +1,11 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ANIME_LIST_APPEND_URL
+import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.GRAPHQL_APPEND_URL
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
+import com.alekseivinogradov.anoti.animebase.kmp.api.domain.source.AnimePosterSource
 import com.alekseivinogradov.anoti.animebase.kmp.impl.data.service.ShikimoriApiServiceImpl
+import com.alekseivinogradov.anoti.animebase.kmp.impl.data.source.AnimePosterSourceImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseExecutorImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseStoreFactory
@@ -92,6 +95,8 @@ class NavAnimeListScreenComponentTest {
         override val shikimoriApiService: ShikimoriApiService =
             ShikimoriApiServiceImpl(createHttpClient(engine))
         override val safeApi: SafeApi = SafeApiFake()
+        override val animePosterSource: AnimePosterSource =
+            AnimePosterSourceImpl(service = shikimoriApiService, safeApi = safeApi)
     }
 
     /** One component, the state keeper it consumes from and saves through, and its catalog. */
@@ -406,8 +411,9 @@ private const val CHANGED_SEARCH_TEXT = "kiki"
 private const val RESTORED_STATE_KEY = "AnimeListMainStoreRestoredState"
 
 /**
- * Answers every listing with one full page of the same items, and every details call with the
- * anime asked for, so the screen always has something to show.
+ * Answers every listing with one full page of the same items, every poster lookup with no
+ * posters, and every details call with the anime asked for, so the screen always has something
+ * to show.
  *
  * @param dispatcher what the engine answers on. Left to itself it picks `Dispatchers.IO`, which
  * takes the answer off the test's virtual clock and onto a second thread.
@@ -417,14 +423,19 @@ private fun singlePageCatalog(dispatcher: CoroutineDispatcher) = MockEngine(
         this.dispatcher = dispatcher
         addHandler { request ->
             val path = request.url.encodedPath
-            val body = if (path.endsWith("/$ANIME_LIST_APPEND_URL")) {
-                (1..PAGE_ITEM_COUNT).joinToString(prefix = "[", postfix = "]") { id: Int ->
-                    """{"id": $id, "name": "Item $id", "status": "ongoing"}"""
+            val body = when {
+                path.endsWith("/$ANIME_LIST_APPEND_URL") ->
+                    (1..PAGE_ITEM_COUNT).joinToString(prefix = "[", postfix = "]") { id: Int ->
+                        """{"id": $id, "name": "Item $id", "status": "ongoing"}"""
+                    }
+
+                path.endsWith("/$GRAPHQL_APPEND_URL") -> """{"data":{"animes":[]}}"""
+
+                else -> {
+                    val id = path.substringAfterLast(delimiter = "/")
+                    """{"id": $id, "name": "Item $id", """ +
+                        """"next_episode_at": "$NEXT_EPISODE_AT", "status": "ongoing"}"""
                 }
-            } else {
-                val id = path.substringAfterLast(delimiter = "/")
-                """{"id": $id, "name": "Item $id", """ +
-                    """"next_episode_at": "$NEXT_EPISODE_AT", "status": "ongoing"}"""
             }
             respond(
                 content = ByteReadChannel(body),

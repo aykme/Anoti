@@ -2,6 +2,7 @@ package com.alekseivinogradov.anoti.main.api.di
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
+import com.alekseivinogradov.anoti.animebase.kmp.api.domain.source.AnimePosterSource
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
@@ -38,6 +39,9 @@ interface DiRootDependencies {
 
     /** Runs a network call with retries and returns its outcome as a `CallResult`. */
     val safeApi: SafeApi
+
+    /** Looks up the real posters REST no longer carries. */
+    val animePosterSource: AnimePosterSource
 
     /** Triggers a one-off background update of every saved anime. */
     val updateAllAnimeInBackgroundOnceUsecase: UpdateAllAnimeInBackgroundOnceUsecase
