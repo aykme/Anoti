@@ -91,6 +91,7 @@ class AnimePosterSourceImplTest {
         lookup.cancelAndJoin()
 
         //Then
+        assertEquals(1, requests.size)
         assertTrue(lookup.isCancelled)
         assertNull(posterUrls)
     }

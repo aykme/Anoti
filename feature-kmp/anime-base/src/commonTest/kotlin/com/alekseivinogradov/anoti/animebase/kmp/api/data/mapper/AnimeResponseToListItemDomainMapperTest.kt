@@ -30,7 +30,7 @@ class AnimeResponseToListItemDomainMapperTest {
     }
 
     @Test
-    fun withoutAPosterTheRestImageIsUsedAsBefore() {
+    fun withoutAPosterTheRestImageIsUsed() {
         //Given
         val imageResponse = ImageResponse(originalSizeUrl = ORIGINAL_PATH)
 

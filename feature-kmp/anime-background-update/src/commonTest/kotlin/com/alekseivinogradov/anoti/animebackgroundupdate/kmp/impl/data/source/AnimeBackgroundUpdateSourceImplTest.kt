@@ -30,6 +30,7 @@ import kotlin.test.assertTrue
 
 private const val FRIEREN_ID = 61316
 private const val BLEACH_ID = 41467
+private const val UNKNOWN_ID = 5
 private const val ORIGINAL_IMAGE_PATH = "/system/animes/original/61316.jpg"
 private const val REQUESTED_IDS = "$FRIEREN_ID,$BLEACH_ID"
 private const val TRANSPORT_FAILURE_MESSAGE = "no route to host"
@@ -170,15 +171,18 @@ class AnimeBackgroundUpdateSourceImplTest {
     @Test
     fun thePostersAreLookedUpForTheAnimeTheServerSent() = runTest {
         //Given
-        val source = createSource(restAnswer = { animeListJsonResponse })
+        val source = createSource(
+            restAnswer = { """[{ "id": $FRIEREN_ID }, { "id": $BLEACH_ID }]""" }
+        )
 
         //When
-        source.getListByIds(REQUESTED_IDS)
+        source.getListByIds("$FRIEREN_ID,$BLEACH_ID,$UNKNOWN_ID")
 
         //Then
-        // Two ids were asked for; the server sent one, so one is looked up.
+        // Three ids were asked for; the server sent two, so those two are looked up.
         val body = (graphQlRequests.single().body as TextContent).text
-        assertTrue(""""ids":"$FRIEREN_ID"""" in body, body)
+        assertTrue(""""ids":"$FRIEREN_ID,$BLEACH_ID"""" in body, body)
+        assertTrue(""""limit":2""" in body, body)
     }
 
     /**

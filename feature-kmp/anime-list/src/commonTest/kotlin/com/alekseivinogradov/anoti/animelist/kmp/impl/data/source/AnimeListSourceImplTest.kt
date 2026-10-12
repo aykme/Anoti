@@ -44,6 +44,7 @@ private const val ORIGINAL_IMAGE_PATH = "/system/animes/original/61316.jpg"
 private const val PAGE = 2
 private const val TRANSPORT_FAILURE_MESSAGE = "no route to host"
 private const val OTHER_ANIME_ID = 52991
+private const val THIRD_ANIME_ID = 5114
 private const val POSTER_URL = "https://shikimori.io/uploads/poster/animes/61316/a.jpeg"
 private const val NO_POSTERS_JSON = """{"data":{"animes":[]}}"""
 
@@ -280,15 +281,24 @@ class AnimeListSourceImplTest {
     @Test
     fun onlyThePageIdsAreLookedUpWithTheirCountAsTheLimit() = runTest {
         //Given
-        val source = createSource(restAnswer = { animeListWithAnEntryMissingItsId })
+        val source = createSource(
+            restAnswer = {
+                """[{ "name": "No id at all" }, { "id": $ANIME_ID }, """ +
+                    """{ "id": $OTHER_ANIME_ID }, { "id": $THIRD_ANIME_ID }]"""
+            }
+        )
 
         //When
         source.getOngoingList(page = PAGE, sort = SortData.POPULARITY)
 
         //Then
         val variables = graphQlVariables(graphQlRequests.single())
-        assertEquals(ANIME_ID.toString(), variables.getValue("ids").jsonPrimitive.content)
-        assertEquals(1, variables.getValue("limit").jsonPrimitive.int)
+        assertEquals(
+            "$ANIME_ID,$OTHER_ANIME_ID,$THIRD_ANIME_ID",
+            variables.getValue("ids").jsonPrimitive.content
+        )
+        // Three, not the server's default of two.
+        assertEquals(3, variables.getValue("limit").jsonPrimitive.int)
     }
 
     @Test
