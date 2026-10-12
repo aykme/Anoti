@@ -1,9 +1,9 @@
 # Manual regression — talking to the server
 
 This module is how the app reaches the anime service: it makes the request, gives up after a
-bounded wait, tries each request three times in all, and classifies what went wrong. It has no screen of
-its own. Every check below is done on a screen that loads anime and looks only at whether the
-request behaved — how the screen then reacts is checked in its own file.
+bounded wait, tries each request three times in all, and classifies what went wrong. It has no
+screen of its own. Every check below is done on a screen that loads anime and looks only at
+whether the request behaved — how the screen then reacts is checked in its own file.
 
 Unless a step says otherwise, start with the app opened at least once.
 
@@ -43,7 +43,11 @@ Unless a step says otherwise, start with the app opened at least once.
    Either the anime arrive, or the screen ends in its error state within about twenty seconds.
    A list page also looks up its posters, so when both of its requests crawl it may take up to
    about forty seconds. It never stays on a spinner indefinitely.
-2. Remove the throttling and refresh.
+2. With the connection still throttled, scroll a list to more than sixty anime, then let the
+   system end the app in the background and open it again, so it restores the list.
+   The restore loads up to four pages in a row, so its spinner may last up to about a minute
+   and a half. It still ends on the list or its error state.
+3. Remove the throttling and refresh.
    The anime load.
 
 ## The server answering badly

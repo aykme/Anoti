@@ -125,7 +125,7 @@ other starts, and neither may break the other.
    it once, then let a pass run.
    - Every subscribed anime is still there with its counts and its marks.
    - The update happens as before.
-   - A row that showed the site's grey "no image" placeholder, or a broken-image icon, shows its
+   - A row that showed the site's gray "404" placeholder, or a broken-image icon, shows its
      real poster after the pass.
 5. Straight after step 4, turn on airplane mode and wait an hour.
    - Nothing happens, exactly as in section 4. The newer build's rule about needing a

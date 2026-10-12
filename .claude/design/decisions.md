@@ -184,6 +184,10 @@ these; when a review finding questions a choice listed here; before a version-bu
   learn the backend is split); merging inside the service (it would have to catch); scraping
   the site (its API page forbids it); MAL or Jikan images (other artwork, another service);
   showing REST images first and patching posters in (new state in four executors).
+- Cost: a failing lookup keeps its three attempts, so it adds about 8 s to each page, about
+  20 s when it hangs. A restored section loads up to four pages in a row and pays it each
+  time, and an iOS background pass covers fewer pages. Skipping lookups for the rest of a
+  pass after the first failure was offered and not taken.
 - Revisit when: REST serves the new posters again, or the app moves fully to GraphQL.
 - Applied in: [data-layer.md "Sources and usecases"](data-layer.md#sources-and-usecases).
 

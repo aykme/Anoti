@@ -28,18 +28,20 @@ manifest.
   [AnimeNotificationIntentProviderImpl.kt](../../main/src/androidMain/kotlin/com/alekseivinogradov/anoti/main/impl/presentation/provider/AnimeNotificationIntentProviderImpl.kt).
 - A network response is decoded with unknown keys ignored, and every failure becomes a result
   value instead of an exception. Both are in [data-layer.md](data-layer.md), section "Network".
-- A malformed entry in a list from the server is skipped, never thrown on. Example:
+- An entry from the server whose fields are missing or unusable is skipped, never thrown on;
+  an answer of the wrong shape fails as a whole and falls back. Example:
   [AnimePostersResponseToPosterUrlsMapper](../../feature-kmp/anime-base/src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/data/mapper/AnimePostersResponseToPosterUrlsMapper.kt).
 - Text the user types is capped in length before it reaches the store. Example:
   [AnimeListTopBar.kt](../../feature-kmp/anime-list/src/commonMain/kotlin/com/alekseivinogradov/anoti/animelist/kmp/impl/presentation/compose/AnimeListTopBar.kt).
 
 ## Network
 
-- The app calls one host over HTTPS. Its base URL is a constant of the network core module, and
-  image paths from responses are joined to it. Example:
+- The app calls its API on one host over HTTPS. Its base URL is a constant of the network core
+  module, and image paths from responses are joined to it. Example:
   [NetworkConsts.kt](../../core-kmp/network/src/commonMain/kotlin/com/alekseivinogradov/anoti/network/kmp/api/domain/NetworkConsts.kt).
-- An absolute URL a response carries is used as given only when it is HTTPS; relative image
-  paths are still joined to the base URL. Example: [AnimePostersResponseToPosterUrlsMapper](../../feature-kmp/anime-base/src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/data/mapper/AnimePostersResponseToPosterUrlsMapper.kt).
+- An absolute image URL a response carries is used as given only when it is HTTPS, whatever
+  its host; relative image paths are still joined to the base URL. Example:
+  [AnimePostersResponseToPosterUrlsMapper](../../feature-kmp/anime-base/src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/data/mapper/AnimePostersResponseToPosterUrlsMapper.kt).
 - Neither platform allows cleartext. Android has no network security config and no
   `usesCleartextTraffic`; iOS has no App Transport Security exception in its `Info.plist`.
 - The API needs no account and no key, so the repository holds no secret. `local.properties`
