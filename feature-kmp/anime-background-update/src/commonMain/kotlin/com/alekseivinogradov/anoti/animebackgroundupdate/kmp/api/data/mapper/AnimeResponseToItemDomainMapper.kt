@@ -8,14 +8,19 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeShortRes
 /**
  * One fetched anime as the update pass reads it, or null when the response carries no id.
  * Nothing downstream can match an id-less anime to a saved row.
+ *
+ * @param posterUrl the real poster, when GraphQL had one.
  */
-internal fun AnimeShortResponse.toListItemDomain(): ListItemDomain? {
+internal fun AnimeShortResponse.toListItemDomain(posterUrl: String?): ListItemDomain? {
     val animeId = this.id ?: return null
 
     return ListItemDomain(
         id = animeId,
         name = this.englishName ?: "",
-        imageUrl = mapImageUrlDataToDomain(this.imageResponse),
+        imageUrl = mapImageUrlDataToDomain(
+            posterUrl = posterUrl,
+            imageResponse = this.imageResponse
+        ),
         episodesAired = this.episodesAired,
         episodesTotal = this.episodesTotal,
         airedOn = this.airedOn,

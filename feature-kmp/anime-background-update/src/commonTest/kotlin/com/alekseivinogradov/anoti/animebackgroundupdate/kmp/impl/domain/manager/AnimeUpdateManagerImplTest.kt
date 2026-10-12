@@ -27,6 +27,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 private const val POSTER_URL_PREFIX = "https://shikimori.io/system/animes/original/"
+private const val FRESH_POSTER_URL = "https://shikimori.io/uploads/poster/animes/1/fresh.jpeg"
 private const val AIRED_ON = "2025-10-01"
 private const val NEXT_EPISODE_AT = "2026-01-05T18:00:00.000+03:00"
 private const val EPISODES_TOTAL = 12
@@ -158,6 +159,43 @@ class AnimeUpdateManagerImplTest {
         assertTrue(written.isNewEpisode, "the favorites screen shows the mark, not the count")
         assertEquals(
             listOf(NewEpisodeNotification("Anime 1", 7, POSTER_URL_PREFIX + "1.jpg")),
+            notifications.notifications
+        )
+    }
+
+    @Test
+    fun aPosterThatArrivedForASavedTitleIsWrittenWithoutANotification() = runTest {
+        //Given
+        // A row the 2→3 migration cleared, or one REST gave a placeholder.
+        val database = databaseWith(listOf(savedAnime(1, imageUrl = null)))
+        val notifications = AnimeNotificationManagerFake()
+        val source = AnimeBackgroundUpdateSourceFake {
+            succeedWith(remoteAnime(1, imageUrl = FRESH_POSTER_URL))
+        }
+
+        //When
+        createManager(database = database, source = source, notifications = notifications).update()
+
+        //Then
+        assertEquals(FRESH_POSTER_URL, database.updatedItems.single().imageUrl)
+        assertEquals(listOf(), notifications.notifications)
+    }
+
+    @Test
+    fun aNewEpisodeIsNotifiedWithTheFreshPosterRatherThanTheSavedOne() = runTest {
+        //Given
+        val database = databaseWith(listOf(savedAnime(1, episodesAired = 6)))
+        val notifications = AnimeNotificationManagerFake()
+        val source = AnimeBackgroundUpdateSourceFake {
+            succeedWith(remoteAnime(1, episodesAired = 7, imageUrl = FRESH_POSTER_URL))
+        }
+
+        //When
+        createManager(database = database, source = source, notifications = notifications).update()
+
+        //Then
+        assertEquals(
+            listOf(NewEpisodeNotification("Anime 1", 7, FRESH_POSTER_URL)),
             notifications.notifications
         )
     }
@@ -409,10 +447,11 @@ class AnimeUpdateManagerImplTest {
         id: AnimeId,
         episodesAired: Int? = 1,
         isNewEpisode: Boolean = false,
-        score: Float? = SCORE
+        score: Float? = SCORE,
+        imageUrl: String? = "$POSTER_URL_PREFIX$id.jpg"
     ) = AnimeDbDomain(
         id = id,
-        imageUrl = "$POSTER_URL_PREFIX$id.jpg",
+        imageUrl = imageUrl,
         name = "Anime $id",
         episodesAired = episodesAired,
         episodesTotal = EPISODES_TOTAL,
@@ -430,11 +469,12 @@ class AnimeUpdateManagerImplTest {
         id: AnimeId,
         episodesAired: Int? = 1,
         episodesTotal: Int? = EPISODES_TOTAL,
-        releaseStatus: ReleaseStatusDomain = ReleaseStatusDomain.ONGOING
+        releaseStatus: ReleaseStatusDomain = ReleaseStatusDomain.ONGOING,
+        imageUrl: String? = "$POSTER_URL_PREFIX$id.jpg"
     ) = ListItemDomain(
         id = id,
         name = "Anime $id",
-        imageUrl = "$POSTER_URL_PREFIX$id.jpg",
+        imageUrl = imageUrl,
         episodesAired = episodesAired,
         episodesTotal = episodesTotal,
         airedOn = AIRED_ON,
