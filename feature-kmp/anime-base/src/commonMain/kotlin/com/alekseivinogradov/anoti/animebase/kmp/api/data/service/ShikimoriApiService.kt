@@ -3,12 +3,14 @@ package com.alekseivinogradov.anoti.animebase.kmp.api.data.service
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.ReleaseStatusData
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.SortData
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeDetailsResponse
+import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimePostersResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeShortResponse
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 
 const val ANIME_LIST_APPEND_URL = "api/animes"
+const val GRAPHQL_APPEND_URL = "api/graphql"
 
-/** Shikimori endpoints for the anime list and a single anime's details. */
+/** Shikimori endpoints for the anime list, a single anime's details and the posters of a page. */
 interface ShikimoriApiService {
 
     /**
@@ -29,4 +31,12 @@ interface ShikimoriApiService {
 
     /** Fetches full details for the anime with the given [id]. */
     suspend fun getAnimeById(id: AnimeId): AnimeDetailsResponse
+
+    /**
+     * The posters of [ids] from Shikimori GraphQL, the only API that carries posters uploaded since
+     * 2024-06. Ids come back as strings, in the server's order; an unknown id is left out.
+     *
+     * @param ids at most 50, the server's cap for one answer.
+     */
+    suspend fun getAnimePosters(ids: List<AnimeId>): AnimePostersResponse
 }
