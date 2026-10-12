@@ -173,6 +173,20 @@ these; when a review finding questions a choice listed here; before a version-bu
   [finishing-a-task.md](../rules/finishing-a-task.md) says.
 - Revisit when: a dependency analyzer understands KMP and Kotlin/Native.
 
+## Posters from GraphQL
+
+- Status: accepted (2026-10-13).
+- Why: REST v1 reads only the legacy image attachment, which Shikimori stopped filling on
+  2024-06-21; its API page says new posters are only in GraphQL. Most ongoing and announced
+  titles showed the placeholder. REST stays, and one GraphQL lookup per page fills the posters;
+  any failure falls back to the REST image.
+- Rejected: a full move to GraphQL (every call rewritten); merging in usecases (the domain would
+  learn the backend is split); merging inside the service (it would have to catch); scraping
+  the site (its API page forbids it); MAL or Jikan images (other artwork, another service);
+  showing REST images first and patching posters in (new state in four executors).
+- Revisit when: REST serves the new posters again, or the app moves fully to GraphQL.
+- Applied in: [data-layer.md "Sources and usecases"](data-layer.md#sources-and-usecases).
+
 ## Rule-backed decisions
 
 - The app logs with `println` only: [logging.md](../rules/logging.md).

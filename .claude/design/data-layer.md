@@ -36,6 +36,9 @@ database or its schema, a model mapper at the data boundary, or a paged list.
 - A response model is a `@Serializable data class <Name>Response` in `api/data/response`. Every
   field has a `@SerialName`, a nullable type and a `null` default.
   Example: [AnimeShortResponse](../../feature-kmp/anime-base/src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/data/response/AnimeShortResponse.kt)
+- A GraphQL call is one `POST` with a fixed query and its variables as a JSON body, built in
+  the service. An answer without `data` is a failure; `data` that comes with `errors` is used.
+  Example: [ShikimoriApiServiceImpl](../../feature-kmp/anime-base/src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/impl/data/service/ShikimoriApiServiceImpl.kt)
 - Values the API takes or sends as strings are `*Data` enums with a `value: String`, in
   `api/data/model`.
   Example: [SortData](../../feature-kmp/anime-base/src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/data/model/SortData.kt)
@@ -45,6 +48,10 @@ database or its schema, a model mapper at the data boundary, or a paged list.
 - A source is an interface `<Feature>Source` in `api/domain/source` that returns
   `CallResult<*Domain>`. `<Feature>SourceImpl` in `impl/data/source` takes the service and
   `SafeApi`.
+- A source may also take a best-effort lookup from the shared base module and call it inside
+  its own safe call. Such a lookup returns its fallback rather than a `CallResult`: what it
+  adds is optional.
+  Example: [AnimePosterSource](../../feature-kmp/anime-base/src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/domain/source/AnimePosterSource.kt), [AnimeListSourceImpl](../../feature-kmp/anime-list/src/commonMain/kotlin/com/alekseivinogradov/anoti/animelist/kmp/impl/data/source/AnimeListSourceImpl.kt)
 - Each source method wraps the service call and the response-to-domain mapping in one
   `safeApi.call { }`. A mapping failure then becomes an `OtherError`. Items without an id are
   dropped. As found: the list source filters them from its pages before mapping, the background
@@ -100,7 +107,8 @@ database or its schema, a model mapper at the data boundary, or a paged list.
 
 ## Schema changes
 
-- Bump `version` in `@Database`.
+- Bump `version` in `@Database`. A data-only migration still bumps it, so it runs once.
+  Example: [AnimeDatabase](../../core-kmp/anime-database/src/commonMain/kotlin/com/alekseivinogradov/anoti/animedatabase/kmp/impl/data/AnimeDatabase.kt)
 - Write the `Migration(startVersion, endVersion)` by hand, as an `internal val MIGRATION_<a>_<b>`
   next to the database class. Add it in `getRoomDatabase` with `addMigrations`.
 - A new column gets a SQL `DEFAULT` in the migration and the same `defaultValue` in its
