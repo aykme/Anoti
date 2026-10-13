@@ -5,7 +5,7 @@ Shikimori API access shared by the anime feature modules.
 - [ShikimoriApiService](src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/data/service/ShikimoriApiService.kt) —
   Shikimori endpoints for the anime list, a single anime's details and the posters of a page.
 - [AnimePosterSource](src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/domain/source/AnimePosterSource.kt) —
-  real posters by anime id, best effort.
+  best-effort real posters by anime id.
 - [AnimeShortResponse](src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/data/response/AnimeShortResponse.kt) —
   one anime list item.
 - [AnimeDetailsResponse](src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/data/response/AnimeDetailsResponse.kt) —

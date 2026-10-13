@@ -64,5 +64,5 @@ class ShikimoriApiServiceImpl(
 }
 
 private const val ANIME_POSTERS_QUERY =
-    "query Posters(\$ids: String!, \$limit: PositiveInt!) { " +
-        "animes(ids: \$ids, limit: \$limit) { id poster { originalUrl } } }"
+    $$"query Posters($ids: String!, $limit: PositiveInt!) { " +
+        $$"animes(ids: $ids, limit: $limit) { id poster { originalUrl } } }"
