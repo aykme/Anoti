@@ -51,7 +51,8 @@ Android: open system settings for the app, then its notification categories.
 - Android: the small icon in the status bar is the app's notification icon.
 - The title is the anime's name, the same name the favorites screen shows for it.
 - The line below reads "Episode aired: " followed by the episode number.
-- The anime's poster is shown in the notification.
+- The anime's poster is shown in the notification: its own artwork, as on its shikimori.io
+  page, not the site's gray "404" placeholder.
 
 ## 4. Several notifications at once
 

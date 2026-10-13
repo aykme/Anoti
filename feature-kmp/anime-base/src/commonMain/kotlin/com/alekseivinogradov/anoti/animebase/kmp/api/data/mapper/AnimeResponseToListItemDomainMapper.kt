@@ -19,6 +19,13 @@ fun mapImageUrlDataToDomain(imageResponse: ImageResponse?): String? {
 }
 
 /**
+ * [posterUrl], already absolute, when there is one; otherwise [imageResponse] resolved as
+ * [mapImageUrlDataToDomain] does, the placeholder included.
+ */
+fun mapImageUrlDataToDomain(posterUrl: String?, imageResponse: ImageResponse?): String? =
+    posterUrl ?: mapImageUrlDataToDomain(imageResponse)
+
+/**
  * Maps a raw Shikimori [releaseStatus] string to [ReleaseStatusDomain], defaulting to
  * [ReleaseStatusDomain.UNKNOWN].
  */

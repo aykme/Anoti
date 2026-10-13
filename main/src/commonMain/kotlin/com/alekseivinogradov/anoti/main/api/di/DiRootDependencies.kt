@@ -2,6 +2,7 @@ package com.alekseivinogradov.anoti.main.api.di
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.usecase.UpdateAllAnimeInBackgroundOnceUsecase
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
+import com.alekseivinogradov.anoti.animebase.kmp.api.domain.source.AnimePosterSource
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
@@ -33,11 +34,14 @@ interface DiRootDependencies {
     /** The store over the saved anime. Every read hands out a new one. */
     val animeDatabaseStore: AnimeDatabaseStore
 
-    /** The Shikimori endpoints for the anime list and an anime's details. */
+    /** The Shikimori endpoints for the anime list, an anime's details and the posters of a page. */
     val shikimoriApiService: ShikimoriApiService
 
     /** Runs a network call with retries and returns its outcome as a `CallResult`. */
     val safeApi: SafeApi
+
+    /** Looks up the real posters, which only GraphQL carries. */
+    val animePosterSource: AnimePosterSource
 
     /** Triggers a one-off background update of every saved anime. */
     val updateAllAnimeInBackgroundOnceUsecase: UpdateAllAnimeInBackgroundOnceUsecase

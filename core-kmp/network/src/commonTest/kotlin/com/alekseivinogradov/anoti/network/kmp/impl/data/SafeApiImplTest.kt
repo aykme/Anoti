@@ -4,6 +4,8 @@ import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockEngineConfig
+import io.ktor.client.engine.mock.MockRequestHandler
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
@@ -12,6 +14,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.io.IOException
 import kotlin.test.Test
@@ -21,6 +25,7 @@ import kotlin.test.assertIs
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class SafeApiImplTest {
 
     @Test
@@ -56,12 +61,10 @@ class SafeApiImplTest {
         //Given
         val safeApi = createSafeApi(maxAttempt = 3)
         var attempts = 0
-        val client = mockClient(
-            MockEngine {
-                attempts++
-                respond(content = ByteReadChannel(""), status = HttpStatusCode.BadRequest)
-            }
-        )
+        val client = mockClient {
+            attempts++
+            respond(content = ByteReadChannel(""), status = HttpStatusCode.BadRequest)
+        }
 
         //When
         val result = safeApi.call { client.get("https://test/") }
@@ -77,12 +80,10 @@ class SafeApiImplTest {
         //Given
         val safeApi = createSafeApi(maxAttempt = 3)
         var attempts = 0
-        val client = mockClient(
-            MockEngine {
-                attempts++
-                respond(content = ByteReadChannel(""), status = HttpStatusCode.InternalServerError)
-            }
-        )
+        val client = mockClient {
+            attempts++
+            respond(content = ByteReadChannel(""), status = HttpStatusCode.InternalServerError)
+        }
 
         //When
         val result = safeApi.call { client.get("https://test/") }
@@ -98,16 +99,14 @@ class SafeApiImplTest {
         //Given
         val safeApi = createSafeApi(maxAttempt = 3)
         var attempts = 0
-        val client = mockClient(
-            MockEngine {
-                attempts++
-                if (attempts < 2) {
-                    respond(content = ByteReadChannel(""), status = HttpStatusCode.InternalServerError)
-                } else {
-                    respond(content = ByteReadChannel(""), status = HttpStatusCode.OK)
-                }
+        val client = mockClient {
+            attempts++
+            if (attempts < 2) {
+                respond(content = ByteReadChannel(""), status = HttpStatusCode.InternalServerError)
+            } else {
+                respond(content = ByteReadChannel(""), status = HttpStatusCode.OK)
             }
-        )
+        }
 
         //When
         val result = safeApi.call { client.get("https://test/") }
@@ -202,7 +201,6 @@ class SafeApiImplTest {
         assertEquals(1, attempts)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun callWaitsIncreasingBackoffBetweenRetries() = runTest {
         //Given
@@ -250,7 +248,16 @@ class SafeApiImplTest {
         attemptDelay = attemptDelay
     )
 
-    private fun mockClient(engine: MockEngine): HttpClient = HttpClient(engine) {
-        expectSuccess = true
+    /** A client over [handler] that answers on the test's virtual clock. */
+    private fun TestScope.mockClient(handler: MockRequestHandler): HttpClient {
+        val engine = MockEngine(
+            MockEngineConfig().apply {
+                dispatcher = UnconfinedTestDispatcher(testScheduler)
+                addHandler(handler)
+            }
+        )
+        return HttpClient(engine) {
+            expectSuccess = true
+        }
     }
 }

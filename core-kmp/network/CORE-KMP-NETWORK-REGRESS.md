@@ -1,9 +1,9 @@
 # Manual regression — talking to the server
 
 This module is how the app reaches the anime service: it makes the request, gives up after a
-bounded wait, retries a failure a few times, and classifies what went wrong. It has no screen of
-its own. Every check below is done on a screen that loads anime and looks only at whether the
-request behaved — how the screen then reacts is checked in its own file.
+bounded wait, tries each request three times in all, and classifies what went wrong. It has no
+screen of its own. Every check below is done on a screen that loads anime and looks only at
+whether the request behaved — how the screen then reacts is checked in its own file.
 
 Unless a step says otherwise, start with the app opened at least once.
 
@@ -21,7 +21,7 @@ Unless a step says otherwise, start with the app opened at least once.
 
 1. Put the device in airplane mode, close the app fully and open it again.
    The main screen ends in its error state. It does not sit on a spinner: it gives up within
-   about half a minute.
+   about ten seconds.
 2. Leave airplane mode on and refresh.
    The same thing happens again, with about the same wait. The app does not take longer with each
    attempt and does not crash.
@@ -40,9 +40,14 @@ Unless a step says otherwise, start with the app opened at least once.
 
 1. Throttle the device's connection hard — for example, set the emulator's network speed to the
    slowest setting — then refresh the main screen.
-   Either the anime arrive, or the screen ends in its error state within about half a minute. It
-   never stays on a spinner indefinitely.
-2. Remove the throttling and refresh.
+   Either the anime arrive, or the screen ends in its error state within about twenty seconds.
+   A list page also looks up its posters, so when both of its requests crawl it may take up to
+   about forty seconds. It never stays on a spinner indefinitely.
+2. With the connection still throttled, scroll a list to more than sixty anime, then let the
+   system end the app in the background and open it again, so it restores the list.
+   The restore loads up to four pages in a row, so its spinner may last up to about a minute
+   and a half. It still ends on the list or its error state.
+3. Remove the throttling and refresh.
    The anime load.
 
 ## The server answering badly
@@ -50,8 +55,8 @@ Unless a step says otherwise, start with the app opened at least once.
 Needs a way to make the service answer differently — for example a proxy in front of the device.
 
 1. Make every request come back as **500 Internal Server Error**, then refresh the main screen.
-   The screen ends in its error state after about half a minute, not instantly: the request is
-   retried several times before it gives up.
+   The screen ends in its error state after about eight seconds, not instantly: the request is
+   tried three times before it gives up.
 2. Make every request come back as **404 Not Found** and refresh.
    The same: retried, then the error state after about the same wait. A refused request is
    treated no more quickly than a broken one.

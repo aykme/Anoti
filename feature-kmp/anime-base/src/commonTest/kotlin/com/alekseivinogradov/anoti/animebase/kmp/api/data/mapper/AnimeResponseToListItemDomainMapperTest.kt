@@ -10,8 +10,36 @@ import kotlin.test.assertNull
 
 private const val ORIGINAL_PATH = "/system/animes/original/1.jpg"
 private const val PREVIEW_PATH = "/system/animes/preview/1.jpg"
+private const val POSTER_URL = "https://shikimori.io/uploads/poster/animes/1/a.jpeg"
 
 class AnimeResponseToListItemDomainMapperTest {
+
+    @Test
+    fun aPosterWinsOverTheRestImage() {
+        //Given
+        val imageResponse = ImageResponse(originalSizeUrl = ORIGINAL_PATH)
+
+        //When
+        val imageUrl = mapImageUrlDataToDomain(
+            posterUrl = POSTER_URL,
+            imageResponse = imageResponse
+        )
+
+        //Then
+        assertEquals(POSTER_URL, imageUrl)
+    }
+
+    @Test
+    fun withoutAPosterTheRestImageIsUsed() {
+        //Given
+        val imageResponse = ImageResponse(originalSizeUrl = ORIGINAL_PATH)
+
+        //When
+        val imageUrl = mapImageUrlDataToDomain(posterUrl = null, imageResponse = imageResponse)
+
+        //Then
+        assertEquals(SHIKIMORI_BASE_URL + ORIGINAL_PATH, imageUrl)
+    }
 
     @Test
     fun theFullSizeImageIsPreferredOverThePreview() {

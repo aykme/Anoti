@@ -2,8 +2,10 @@ package com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.data.source
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.source.AnimeBackgroundUpdateSource
+import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.GRAPHQL_APPEND_URL
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animebase.kmp.impl.data.service.ShikimoriApiServiceImpl
+import com.alekseivinogradov.anoti.animebase.kmp.impl.data.source.AnimePosterSourceImpl
 import com.alekseivinogradov.anoti.network.kmp.api.domain.SHIKIMORI_BASE_URL
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.alekseivinogradov.anoti.network.kmp.impl.data.client.createHttpClient
@@ -14,10 +16,11 @@ import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.HttpRequestData
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.TextContent
 import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -27,14 +30,18 @@ import kotlin.test.assertTrue
 
 private const val FRIEREN_ID = 61316
 private const val BLEACH_ID = 41467
+private const val UNKNOWN_ID = 5
 private const val ORIGINAL_IMAGE_PATH = "/system/animes/original/61316.jpg"
 private const val REQUESTED_IDS = "$FRIEREN_ID,$BLEACH_ID"
 private const val TRANSPORT_FAILURE_MESSAGE = "no route to host"
+private const val POSTER_URL = "https://shikimori.io/uploads/poster/animes/61316/a.jpeg"
+private const val NO_POSTERS_JSON = """{"data":{"animes":[]}}"""
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AnimeBackgroundUpdateSourceImplTest {
 
-    private lateinit var lastRequest: HttpRequestData
+    private val restRequests = mutableListOf<HttpRequestData>()
+    private val graphQlRequests = mutableListOf<HttpRequestData>()
 
     private val animeListJsonResponse = """
         [
@@ -76,30 +83,28 @@ class AnimeBackgroundUpdateSourceImplTest {
     @Test
     fun theSavedIdsAreAskedForAsOneUnfilteredPage() = runTest {
         //Given
-        val source = createSource(animeListJsonResponse, UnconfinedTestDispatcher(testScheduler))
+        val source = createSource(restAnswer = { animeListJsonResponse })
 
         //When
         val result = source.getListByIds(REQUESTED_IDS)
 
         //Then
-        assertEquals(REQUESTED_IDS, lastRequest.url.parameters["ids"])
+        val request = restRequests.single()
+        assertEquals(REQUESTED_IDS, request.url.parameters["ids"])
         // Asking by id is asking for those anime exactly, so there is never a second page.
-        assertEquals("1", lastRequest.url.parameters["page"])
+        assertEquals("1", request.url.parameters["page"])
         // Asking by id means asking for those anime whatever they are, so none of the listing
         // filters may narrow the answer.
-        assertNull(lastRequest.url.parameters["status"])
-        assertNull(lastRequest.url.parameters["order"])
-        assertNull(lastRequest.url.parameters["search"])
+        assertNull(request.url.parameters["status"])
+        assertNull(request.url.parameters["order"])
+        assertNull(request.url.parameters["search"])
         assertEquals(CallResult.Success(listOf(expectedListItem)), result)
     }
 
     @Test
     fun anAnimeTheServerSendsWithoutAnIdIsLeftOutOfTheList() = runTest {
         //Given
-        val source = createSource(
-            animeListWithAnEntryMissingItsId,
-            UnconfinedTestDispatcher(testScheduler)
-        )
+        val source = createSource(restAnswer = { animeListWithAnEntryMissingItsId })
 
         //When
         val result = source.getListByIds(REQUESTED_IDS)
@@ -113,18 +118,8 @@ class AnimeBackgroundUpdateSourceImplTest {
     @Test
     fun anExceptionFromTheCallComesBackAsAFailureRatherThanEscaping() = runTest {
         //Given
-        val source = AnimeBackgroundUpdateSourceImpl(
-            service = ShikimoriApiServiceImpl(
-                createHttpClient(
-                    MockEngine(
-                        MockEngineConfig().apply {
-                            dispatcher = UnconfinedTestDispatcher(testScheduler)
-                            addHandler { throw IllegalStateException(TRANSPORT_FAILURE_MESSAGE) }
-                        }
-                    )
-                )
-            ),
-            safeApi = SafeApiFake()
+        val source = createSource(
+            restAnswer = { throw IllegalStateException(TRANSPORT_FAILURE_MESSAGE) }
         )
 
         //When
@@ -137,30 +132,90 @@ class AnimeBackgroundUpdateSourceImplTest {
         assertEquals(TRANSPORT_FAILURE_MESSAGE, result.throwable.message)
     }
 
+    @Test
+    fun aPosterReplacesTheRestImage() = runTest {
+        //Given
+        val source = createSource(
+            restAnswer = { animeListJsonResponse },
+            graphQlAnswer = {
+                """{"data":{"animes":[""" +
+                    """{"id":"$FRIEREN_ID","poster":{"originalUrl":"$POSTER_URL"}}]}}"""
+            }
+        )
+
+        //When
+        val result = source.getListByIds(REQUESTED_IDS)
+
+        //Then
+        assertEquals(
+            CallResult.Success(listOf(expectedListItem.copy(imageUrl = POSTER_URL))),
+            result
+        )
+    }
+
+    @Test
+    fun aFailedPosterLookupKeepsTheRestImages() = runTest {
+        //Given
+        val source = createSource(
+            restAnswer = { animeListJsonResponse },
+            graphQlStatus = HttpStatusCode.InternalServerError
+        )
+
+        //When
+        val result = source.getListByIds(REQUESTED_IDS)
+
+        //Then
+        assertEquals(CallResult.Success(listOf(expectedListItem)), result)
+    }
+
+    @Test
+    fun thePostersAreLookedUpForTheAnimeTheServerSent() = runTest {
+        //Given
+        val source = createSource(
+            restAnswer = { """[{ "id": $FRIEREN_ID }, { "id": $BLEACH_ID }]""" }
+        )
+
+        //When
+        source.getListByIds("$FRIEREN_ID,$BLEACH_ID,$UNKNOWN_ID")
+
+        //Then
+        // Three ids were asked for; the server sent two, so those two are looked up.
+        val body = (graphQlRequests.single().body as TextContent).text
+        assertTrue(""""ids":"$FRIEREN_ID,$BLEACH_ID"""" in body, body)
+        assertTrue(""""limit":2""" in body, body)
+    }
+
     /**
-     * @param dispatcher what the engine answers on. Left to itself it picks `Dispatchers.IO`,
+     * The engine answers on the test's dispatcher. Left to itself it picks `Dispatchers.IO`,
      * which takes the answer off the test's virtual clock and onto a second thread.
      */
-    private fun createSource(
-        jsonResponse: String,
-        dispatcher: CoroutineDispatcher
+    private fun TestScope.createSource(
+        restAnswer: suspend () -> String,
+        graphQlStatus: HttpStatusCode = HttpStatusCode.OK,
+        graphQlAnswer: suspend () -> String = { NO_POSTERS_JSON }
     ): AnimeBackgroundUpdateSource {
         val engine = MockEngine(
             MockEngineConfig().apply {
-                this.dispatcher = dispatcher
+                dispatcher = UnconfinedTestDispatcher(testScheduler)
                 addHandler { request ->
-                    lastRequest = request
+                    val isGraphQl = request.url.encodedPath.endsWith("/$GRAPHQL_APPEND_URL")
+                    if (isGraphQl) graphQlRequests += request else restRequests += request
                     respond(
-                        content = ByteReadChannel(jsonResponse),
-                        status = HttpStatusCode.OK,
+                        content = ByteReadChannel(
+                            if (isGraphQl) graphQlAnswer() else restAnswer()
+                        ),
+                        status = if (isGraphQl) graphQlStatus else HttpStatusCode.OK,
                         headers = headersOf(HttpHeaders.ContentType, "application/json")
                     )
                 }
             }
         )
+        val service = ShikimoriApiServiceImpl(createHttpClient(engine))
+        val safeApi = SafeApiFake()
         return AnimeBackgroundUpdateSourceImpl(
-            service = ShikimoriApiServiceImpl(createHttpClient(engine)),
-            safeApi = SafeApiFake()
+            service = service,
+            safeApi = safeApi,
+            posterSource = AnimePosterSourceImpl(service = service, safeApi = safeApi)
         )
     }
 }

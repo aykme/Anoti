@@ -69,6 +69,13 @@ The right-hand panel is drawn immediately and does not wait for it.
    - The score bar, title, episodes line, status and bell are all still readable.
 3. Turn the network on and pull to refresh.
    - Real pictures replace the broken-image icons.
+4. On "Main", subscribe to a few recent titles from "Soon" and "On air", then open this screen.
+   - Each shows the same artwork it showed on "Main", not the site's gray "404"
+     placeholder.
+5. Install the previous release, subscribe to a few recent titles that show the gray
+   placeholder there, then install this build over it without uninstalling. Open the screen.
+   - The rows are all there. Those that showed the placeholder now show the broken-image icon.
+   - Pull to refresh and wait up to a minute: the real posters replace the icons.
 
 ## 4. What an item shows in the main mode
 

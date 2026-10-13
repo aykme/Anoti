@@ -53,7 +53,8 @@ anime at once. Do not use it in the middle of the last section.
 1. Install an older build, save two anime and raise the watched-episode count on one of them.
 2. Install the newer build over it, without uninstalling, and open **Favorites**.
    Both anime are still listed, with the watched count unchanged. Nothing is emptied and the app
-   does not crash on first open.
+   does not crash on first open. A row that showed the site's gray "404" placeholder before
+   now shows a broken-image icon until the next update; every other poster is unchanged.
 3. Uninstall the app, install it again, and without saving anything open **Favorites**.
    The screen shows its empty state, not an error, and the app does not crash.
 4. Save an anime, uninstall the app and install it again. On a device with system backup switched
