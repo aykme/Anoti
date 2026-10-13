@@ -135,6 +135,9 @@ Files and line endings:
   is in [ci-github.md](../rules/ci-github.md).
 - What each workflow checks is in [android/ci.md](../rules/android/ci.md) and
   [ios/ci.md](../rules/ios/ci.md).
+- Robolectric downloads its Android jar from Maven Central when a host test runs, outside Gradle.
+  `android.yml` caches `~/.m2/repository/org/robolectric` under a key from the catalog, so a run
+  does not depend on that download. Example: [android.yml](../../.github/workflows/android.yml).
 - Steps several iOS jobs repeat live in composite actions under `.github/actions/`. The
   `ios-toolchain` action reads the Xcode and XcodeGen versions from the catalog. Example:
   [ios-toolchain](../../.github/actions/ios-toolchain/action.yml).

@@ -34,6 +34,14 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v6
 
+      # Robolectric fetches its Android jar from Maven Central when a host test runs, outside
+      # Gradle's cache. A released jar never changes; the catalog's hash only retires old entries.
+      - uses: actions/cache@v6
+        with:
+          path: ~/.m2/repository/org/robolectric
+          key: robolectric-${{ hashFiles('gradle/libs.versions.toml') }}
+          restore-keys: robolectric-
+
       - name: Fit Gradle to the runner
         run: |
           cat >> ~/.gradle/gradle.properties <<'PROPS'
