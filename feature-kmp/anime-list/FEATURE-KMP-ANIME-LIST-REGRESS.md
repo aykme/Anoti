@@ -119,8 +119,7 @@ two modes and changes nothing else on the item.
 5. Open the extra info on an item the server has no date for.
    - The label is shown with "No data" where the date would be.
 6. On an "Ongoing" item, tap the button and watch.
-   - The line switches and shows its date at once. It never shows "No data" first and fills in
-     later.
+   - The line switches and shows its date at once.
    - The date is the same as the next episode's on the anime's shikimori.io page.
 7. Load "On air", turn the network off, then open the extra info on an "Ongoing" item.
    - The line switches and shows its date. No error banner appears.

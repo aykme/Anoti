@@ -74,7 +74,7 @@ interface AnimeFavoritesMainStore :
         /** Disable the "new episode" notification for the item with [id]. */
         data class DisableNotificationClick(val id: AnimeId) : Label
 
-        /** Persist [listItem]'s updated viewed-episodes count to the database. */
+        /** Persist [listItem]'s changed viewed-episodes count or display mode to the database. */
         data class UpdateListItem(val listItem: ListItemDomain) : Label
     }
 

@@ -419,13 +419,13 @@ class ApplyRestoredMainStateTest {
         ongoingStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
         //Then
-        // 50 is below RESTORED_SECTION_MAX_ITEM_COUNT (100) and pages have 100 items available,
+        // 50 is below RESTORED_SECTION_MAX_ITEM_COUNT and pages have 100 items available,
         // so the exact saved count must come back untouched by the cap.
         assertEquals(50, ongoingStore.state.sectionContent.listItems.size)
     }
 
     @Test
-    fun ongoingsRestoredStateAboveMaxCapsAtAHundredEvenWhenMoreDataIsAvailable() = runTest(testDispatcher) {
+    fun ongoingsRestoredStateAboveMaxCapsAtTheMaximumEvenWhenMoreDataIsAvailable() = runTest(testDispatcher) {
         //Given
         val pages = sequentialPages(pageCount = 20)
         val mainStore = createMainStore()
@@ -447,7 +447,7 @@ class ApplyRestoredMainStateTest {
         ongoingStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
         //Then
-        // 200 items are available (well above the saved 150), so this must hit the 100 cap
+        // 200 items are available (well above the saved 150), so this must hit the cap
         // itself, not data exhaustion — unlike ongoingsRestoredStateCapsPagedInItemCountAtTheMaximum.
         assertEquals(100, ongoingStore.state.sectionContent.listItems.size)
     }
@@ -509,7 +509,7 @@ class ApplyRestoredMainStateTest {
     }
 
     @Test
-    fun announcedRestoredStateAboveMaxCapsAtAHundredEvenWhenMoreDataIsAvailable() = runTest(testDispatcher) {
+    fun announcedRestoredStateAboveMaxCapsAtTheMaximumEvenWhenMoreDataIsAvailable() = runTest(testDispatcher) {
         //Given
         val pages = sequentialPages(pageCount = 20)
         val mainStore = createMainStore()
@@ -558,7 +558,7 @@ class ApplyRestoredMainStateTest {
     }
 
     @Test
-    fun searchRestoredStateAboveMaxCapsAtAHundredEvenWhenMoreDataIsAvailable() = runTest(testDispatcher) {
+    fun searchRestoredStateAboveMaxCapsAtTheMaximumEvenWhenMoreDataIsAvailable() = runTest(testDispatcher) {
         //Given
         val pages = sequentialPages(pageCount = 20)
         val mainStore = createMainStore()

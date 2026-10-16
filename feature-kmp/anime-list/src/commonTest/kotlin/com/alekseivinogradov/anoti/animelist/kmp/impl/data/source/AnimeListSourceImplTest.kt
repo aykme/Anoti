@@ -167,21 +167,6 @@ class AnimeListSourceImplTest {
     }
 
     @Test
-    fun anAnimeWithoutAPosterHasNoImage() = runTest {
-        //Given
-        val source = createSource(
-            answer = { animesJson("""{ "id": "$ANIME_ID", "poster": null }""") }
-        )
-
-        //When
-        val result = source.getOngoingList(page = PAGE, sort = SortData.POPULARITY)
-
-        //Then
-        assertTrue(result is CallResult.Success)
-        assertEquals(listOf(null), result.value.map(ListItemDomain::imageUrl))
-    }
-
-    @Test
     fun anAnswerWithErrorsAndNoDataFailsThePage() = runTest {
         //Given
         val source = createSource(

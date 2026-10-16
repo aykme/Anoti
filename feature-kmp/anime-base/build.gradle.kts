@@ -39,10 +39,10 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            // Each of these appears in this module's own public signatures: the api service's
-            // anime id, the http client and the scope annotation its binding carries, the
-            // public string resources, and the refresh box with its modifier and its content's
-            // scope.
+            // Each of these appears in this module's own public signatures: the anime id the
+            // response mapper returns, the http client and the scope annotation its binding
+            // carries, the public string resources, and the refresh box with its modifier and its
+            // content's scope.
             api(project(":core-kmp:celebrity"))
             api(project(":core-kmp:di-scope"))
             api(libs.ktor.client.core)

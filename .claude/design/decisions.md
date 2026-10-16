@@ -182,7 +182,8 @@ these; when a review finding questions a choice listed here; before a version-bu
   the next-episode date, which REST gave only from a details call per anime. Measured against
   REST, the same queries answered the same anime in the same order with the same fields, the
   date included. One request per page instead of two, and none per date.
-- Rejected: keeping the hybrid (two requests per page, a details call per date); starting a
+- Rejected: keeping the hybrid (two requests per page, a details call per date); scraping the
+  site (its API page forbids it); MAL or Jikan images (other artwork, another service); starting a
   background pass on every Favorites arrival to keep its dates fresh (the bar recreates the
   screen on every tab switch, and a pass posts notifications while the user looks at the list).
 - Cost: a title GraphQL has no poster for shows the image-error icon, with no REST image to fall

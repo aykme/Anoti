@@ -124,8 +124,9 @@ modes. This is the part to check most carefully: it is not a partial change.
    - The panel switches and shows its date at once, the same one "Main" showed for it.
 8. Turn the network off and switch an "Ongoing" item into extra mode.
    - The panel switches and shows the item's date. No error banner appears.
-9. Install the previous release, subscribe to an "Ongoing" title and open this screen there.
-   Then install this build over it without uninstalling, and open the screen.
+9. Install release 1.1, or any build whose extra mode fetched the date when switched on.
+   Subscribe to an "Ongoing" title and open this screen there. Then install this build over it
+   without uninstalling, and open the screen.
    - Extra mode on that item shows "No data" until the first update: expected once.
    - Pull to refresh and wait up to a minute: extra mode then shows the date.
 10. Switch three items into extra mode at once.

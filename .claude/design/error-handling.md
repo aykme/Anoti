@@ -10,11 +10,11 @@ scope or context, or catching an exception.
 ## Failure to message
 
 - A failed call arrives as a `CallResult` failure; see [data-layer.md](data-layer.md), section
-  "Network". The executor maps it with an exhaustive `when`:
-  - `HttpError` and `NetworkError` show the connection error message;
-  - `OtherError` shows the unknown error message.
-- A paged load maps the same way: `PageLoadResult.Error` shows the connection error,
-  `PageLoadResult.UnexpectedError` the unknown error.
+  "Network". A paged load turns it into a `PageLoadResult`: `HttpError` and `NetworkError` become
+  `Error`, `OtherError` becomes `UnexpectedError`. The executor maps that with an exhaustive
+  `when`:
+  - `PageLoadResult.Error` shows the connection error message;
+  - `PageLoadResult.UnexpectedError` shows the unknown error message.
 - A failed first page also moves the section's content type to its error state. A failed next
   page shows the message only and keeps the items already shown.
   Example: [OngoingSectionExecutorImpl](../../feature-kmp/anime-list/src/commonMain/kotlin/com/alekseivinogradov/anoti/animelist/kmp/impl/domain/store/ongoingsection/OngoingSectionExecutorImpl.kt)
