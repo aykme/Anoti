@@ -23,7 +23,6 @@ import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.ongoingsectio
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.searchsection.SearchSectionExecutorFactory
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.searchsection.SearchSectionExecutorImpl
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.searchsection.SearchSectionStoreFactory
-import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnimeListBySearchUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnnouncedAnimeListUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchOngoingAnimeListUsecase
@@ -98,12 +97,10 @@ class ApplyRestoredMainStateTest {
 
     private fun restoredSectionState(
         itemCount: Int = 0,
-        enabledExtraEpisodesInfoIds: Set<AnimeId> = setOf(),
-        nextEpisodesInfo: Map<AnimeId, String?> = mapOf()
+        enabledExtraEpisodesInfoIds: Set<AnimeId> = setOf()
     ) = RestoredSectionState(
         itemCount = itemCount,
-        enabledExtraEpisodesInfoIds = enabledExtraEpisodesInfoIds,
-        nextEpisodesInfo = nextEpisodesInfo
+        enabledExtraEpisodesInfoIds = enabledExtraEpisodesInfoIds
     )
 
     // One parameter per RestoredMainState field, so the count follows the model it builds.
@@ -138,8 +135,7 @@ class ApplyRestoredMainStateTest {
 
     private fun createOngoingStore(source: AnimeListSource = emptySource()): OngoingSectionStore {
         val usecases = OngoingUsecases(
-            fetchOngoingAnimeListUsecase = FetchOngoingAnimeListUsecase(source),
-            fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)
+            fetchOngoingAnimeListUsecase = FetchOngoingAnimeListUsecase(source)
         )
         val executorFactory: OngoingSectionExecutorFactory = {
             OngoingSectionExecutorImpl(
@@ -179,8 +175,7 @@ class ApplyRestoredMainStateTest {
 
     private fun createSearchStore(source: AnimeListSource = emptySource()): SearchSectionStore {
         val usecases = SearchUsecases(
-            fetchAnimeListBySearchUsecase = FetchAnimeListBySearchUsecase(source),
-            fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)
+            fetchAnimeListBySearchUsecase = FetchAnimeListBySearchUsecase(source)
         )
         val executorFactory: SearchSectionExecutorFactory = {
             SearchSectionExecutorImpl(
@@ -424,13 +419,13 @@ class ApplyRestoredMainStateTest {
         ongoingStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
         //Then
-        // 50 is below RESTORED_SECTION_MAX_ITEM_COUNT (80) and pages have 100 items available,
+        // 50 is below RESTORED_SECTION_MAX_ITEM_COUNT (100) and pages have 100 items available,
         // so the exact saved count must come back untouched by the cap.
         assertEquals(50, ongoingStore.state.sectionContent.listItems.size)
     }
 
     @Test
-    fun ongoingsRestoredStateAboveMaxCapsAtEightyEvenWhenMoreDataIsAvailable() = runTest(testDispatcher) {
+    fun ongoingsRestoredStateAboveMaxCapsAtAHundredEvenWhenMoreDataIsAvailable() = runTest(testDispatcher) {
         //Given
         val pages = sequentialPages(pageCount = 20)
         val mainStore = createMainStore()
@@ -442,7 +437,7 @@ class ApplyRestoredMainStateTest {
         applyRestoredMainState(
             restoredState = restoredMainState(
                 SectionHatDomain.ONGOINGS,
-                ongoing = restoredSectionState(itemCount = 120)
+                ongoing = restoredSectionState(itemCount = 150)
             ),
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
@@ -452,9 +447,9 @@ class ApplyRestoredMainStateTest {
         ongoingStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
         //Then
-        // 200 items are available (well above the saved 120), so this must hit the 80 cap
+        // 200 items are available (well above the saved 150), so this must hit the 100 cap
         // itself, not data exhaustion — unlike ongoingsRestoredStateCapsPagedInItemCountAtTheMaximum.
-        assertEquals(80, ongoingStore.state.sectionContent.listItems.size)
+        assertEquals(100, ongoingStore.state.sectionContent.listItems.size)
     }
 
     @Test
@@ -468,7 +463,7 @@ class ApplyRestoredMainStateTest {
         applyRestoredMainState(
             restoredState = restoredMainState(
                 SectionHatDomain.ONGOINGS,
-                ongoing = restoredSectionState(itemCount = 120)
+                ongoing = restoredSectionState(itemCount = 150)
             ),
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
@@ -478,13 +473,13 @@ class ApplyRestoredMainStateTest {
         ongoingStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
         //When
-        // The user scrolling near the end of the 80 restored items triggers this the same way a
+        // The user scrolling near the end of the 100 restored items triggers this the same way a
         // fresh (non-restored) list would: the cap must not block the paginator from continuing.
         ongoingStore.accept(OngoingSectionStore.Intent.LoadNextPage)
-        ongoingStore.states.first { it.sectionContent.listItems.size == 90 }
+        ongoingStore.states.first { it.sectionContent.listItems.size == 110 }
 
         //Then
-        assertEquals((81..90).map(::testListItem), ongoingStore.state.sectionContent.listItems.takeLast(10))
+        assertEquals((101..110).map(::testListItem), ongoingStore.state.sectionContent.listItems.takeLast(10))
     }
 
     @Test
@@ -514,7 +509,7 @@ class ApplyRestoredMainStateTest {
     }
 
     @Test
-    fun announcedRestoredStateAboveMaxCapsAtEightyEvenWhenMoreDataIsAvailable() = runTest(testDispatcher) {
+    fun announcedRestoredStateAboveMaxCapsAtAHundredEvenWhenMoreDataIsAvailable() = runTest(testDispatcher) {
         //Given
         val pages = sequentialPages(pageCount = 20)
         val mainStore = createMainStore()
@@ -526,7 +521,7 @@ class ApplyRestoredMainStateTest {
         applyRestoredMainState(
             restoredState = restoredMainState(
                 SectionHatDomain.ANNOUNCED,
-                announced = restoredSectionState(itemCount = 120)
+                announced = restoredSectionState(itemCount = 150)
             ),
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
@@ -536,7 +531,7 @@ class ApplyRestoredMainStateTest {
         announcedStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
         //Then
-        assertEquals(80, announcedStore.state.sectionContent.listItems.size)
+        assertEquals(100, announcedStore.state.sectionContent.listItems.size)
     }
 
     @Test
@@ -563,7 +558,7 @@ class ApplyRestoredMainStateTest {
     }
 
     @Test
-    fun searchRestoredStateAboveMaxCapsAtEightyEvenWhenMoreDataIsAvailable() = runTest(testDispatcher) {
+    fun searchRestoredStateAboveMaxCapsAtAHundredEvenWhenMoreDataIsAvailable() = runTest(testDispatcher) {
         //Given
         val pages = sequentialPages(pageCount = 20)
         val mainStore = createMainStore()
@@ -573,7 +568,7 @@ class ApplyRestoredMainStateTest {
 
         //When
         applyRestoredMainState(
-            restoredState = restoredMainState(SectionHatDomain.SEARCH, search = restoredSectionState(itemCount = 120)),
+            restoredState = restoredMainState(SectionHatDomain.SEARCH, search = restoredSectionState(itemCount = 150)),
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
@@ -582,7 +577,7 @@ class ApplyRestoredMainStateTest {
         searchStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
         //Then
-        assertEquals(80, searchStore.state.sectionContent.listItems.size)
+        assertEquals(100, searchStore.state.sectionContent.listItems.size)
     }
 
     @Test
@@ -597,10 +592,7 @@ class ApplyRestoredMainStateTest {
         applyRestoredMainState(
             restoredState = restoredMainState(
                 SectionHatDomain.SEARCH,
-                ongoing = restoredSectionState(
-                    enabledExtraEpisodesInfoIds = setOf(1),
-                    nextEpisodesInfo = mapOf(1 to "2026-09-10T12:00:00Z")
-                ),
+                ongoing = restoredSectionState(enabledExtraEpisodesInfoIds = setOf(1)),
                 announced = restoredSectionState(enabledExtraEpisodesInfoIds = setOf(2))
             ),
             mainStore = mainStore,
@@ -612,10 +604,6 @@ class ApplyRestoredMainStateTest {
         //Then
         // Applied immediately even though neither Ongoing nor Announced is the selected section.
         assertEquals(setOf(1), ongoingStore.state.sectionContent.enabledExtraEpisodesInfoIds)
-        assertEquals(
-            mapOf(1 to "2026-09-10T12:00:00Z"),
-            ongoingStore.state.sectionContent.animeDetails.nextEpisodesInfo
-        )
         assertEquals(setOf(2), announcedStore.state.sectionContent.enabledExtraEpisodesInfoIds)
     }
 

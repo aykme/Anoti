@@ -1,6 +1,5 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation
 
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.GRAPHQL_APPEND_URL
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anoti.animebase.kmp.impl.data.service.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
@@ -16,7 +15,6 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeList
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.ongoingsection.OngoingSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.SearchSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.impl.di.createDiAnimeListComponent
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
@@ -182,20 +180,6 @@ class NavAnimeListScreenComponentTest {
         component.searchSectionStore.accept(
             SearchSectionStore.Intent.EpisodesInfoClick(EXPANDED_ITEM_ID)
         )
-        awaitExpandedDetails(component)
-    }
-
-    /**
-     * The details behind an expanded item arrive after the list it sits in. Only the sections
-     * that fetch them are waited on; the upcoming one shows no next-episode date.
-     */
-    private suspend fun awaitExpandedDetails(component: NavAnimeListScreenComponent) {
-        component.ongoingSectionStore.states.first {
-            it.sectionContent.animeDetails.nextEpisodesInfo.containsKey(EXPANDED_ITEM_ID)
-        }
-        component.searchSectionStore.states.first {
-            it.sectionContent.animeDetails.nextEpisodesInfo.containsKey(EXPANDED_ITEM_ID)
-        }
     }
 
     @Test
@@ -275,7 +259,7 @@ class NavAnimeListScreenComponentTest {
     }
 
     @Test
-    fun theSavedStateReplaysEverySectionsItemCountEnabledIdsAndNextEpisodeInfo() =
+    fun theSavedStateReplaysEverySectionsItemCountAndEnabledIds() =
         runTest(testDispatcher) {
             //Given
             val beforeProcessDeath = createWiring()
@@ -284,20 +268,17 @@ class NavAnimeListScreenComponentTest {
 
             //When
             val afterProcessDeath = createWiring(savedState = savedState)
-            // The restored section reloads its list and refetches the expanded item's details,
-            // so the state to assert on is the one where both have landed, not whichever is
-            // current once the wait returns.
             val ongoing = afterProcessDeath.component.ongoingSectionStore.states.first {
-                it.sectionContent.contentType == ContentTypeDomain.LOADED &&
-                    it.sectionContent.animeDetails.nextEpisodesInfo.containsKey(EXPANDED_ITEM_ID)
+                it.sectionContent.contentType == ContentTypeDomain.LOADED
             }
 
             //Then
             assertEquals(PAGE_ITEM_COUNT, ongoing.sectionContent.listItems.size)
             assertEquals(setOf(EXPANDED_ITEM_ID), ongoing.sectionContent.enabledExtraEpisodesInfoIds)
+            // The date the expanded item shows comes back with the reloaded list itself.
             assertEquals(
-                mapOf<AnimeId, String?>(EXPANDED_ITEM_ID to NEXT_EPISODE_AT),
-                ongoing.sectionContent.animeDetails.nextEpisodesInfo
+                NEXT_EPISODE_AT,
+                ongoing.sectionContent.listItems.single { it.id == EXPANDED_ITEM_ID }.nextEpisodeAt
             )
             // The sections the user was not on page their items back in only once they open, so
             // their saved count comes back as the target that opening will page up to.
@@ -310,10 +291,6 @@ class NavAnimeListScreenComponentTest {
             val search = afterProcessDeath.component.searchSectionStore.state
             assertEquals(PAGE_ITEM_COUNT, search.restoreTargetItemCount)
             assertEquals(setOf(EXPANDED_ITEM_ID), search.sectionContent.enabledExtraEpisodesInfoIds)
-            assertEquals(
-                mapOf<AnimeId, String?>(EXPANDED_ITEM_ID to NEXT_EPISODE_AT),
-                search.sectionContent.animeDetails.nextEpisodesInfo
-            )
         }
 
     @Test
@@ -410,8 +387,8 @@ private const val CHANGED_SEARCH_TEXT = "kiki"
 private const val RESTORED_STATE_KEY = "AnimeListMainStoreRestoredState"
 
 /**
- * Answers every listing with one full page of the same items, each with a next-episode date, and
- * every details call with the anime asked for, so the screen always has something to show.
+ * Answers every listing with one full page of the same items, each with a next-episode date, so
+ * the screen always has something to show.
  *
  * @param dispatcher what the engine answers on. Left to itself it picks `Dispatchers.IO`, which
  * takes the answer off the test's virtual clock and onto a second thread.
@@ -419,23 +396,13 @@ private const val RESTORED_STATE_KEY = "AnimeListMainStoreRestoredState"
 private fun singlePageCatalog(dispatcher: CoroutineDispatcher) = MockEngine(
     MockEngineConfig().apply {
         this.dispatcher = dispatcher
-        addHandler { request ->
-            val path = request.url.encodedPath
-            val body = when {
-                path.endsWith("/$GRAPHQL_APPEND_URL") ->
-                    (1..PAGE_ITEM_COUNT).joinToString(
-                        prefix = """{"data":{"animes":[""",
-                        postfix = "]}}"
-                    ) { id: Int ->
-                        """{"id": "$id", "name": "Item $id", """ +
-                            """"nextEpisodeAt": "$NEXT_EPISODE_AT", "status": "ongoing"}"""
-                    }
-
-                else -> {
-                    val id = path.substringAfterLast(delimiter = "/")
-                    """{"id": $id, "name": "Item $id", """ +
-                        """"next_episode_at": "$NEXT_EPISODE_AT", "status": "ongoing"}"""
-                }
+        addHandler {
+            val body = (1..PAGE_ITEM_COUNT).joinToString(
+                prefix = """{"data":{"animes":[""",
+                postfix = "]}}"
+            ) { id: Int ->
+                """{"id": "$id", "name": "Item $id", """ +
+                    """"nextEpisodeAt": "$NEXT_EPISODE_AT", "status": "ongoing"}"""
             }
             respond(
                 content = ByteReadChannel(body),

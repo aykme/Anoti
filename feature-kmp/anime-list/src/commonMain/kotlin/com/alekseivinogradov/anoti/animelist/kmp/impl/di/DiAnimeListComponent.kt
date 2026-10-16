@@ -21,7 +21,6 @@ import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.ongoingsectio
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.searchsection.SearchSectionExecutorFactory
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.searchsection.SearchSectionExecutorImpl
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.searchsection.SearchSectionStoreFactory
-import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnimeListBySearchUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnnouncedAnimeListUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchOngoingAnimeListUsecase
@@ -75,10 +74,6 @@ abstract class DiAnimeListComponent(
     ): AnimeListSource = AnimeListSourceImpl(service = service, safeApi = safeApi)
 
     @Provides
-    fun provideFetchAnimeDetailsByIdUsecase(source: AnimeListSource): FetchAnimeDetailsByIdUsecase =
-        FetchAnimeDetailsByIdUsecase(source)
-
-    @Provides
     fun provideAnimeListExecutorFactory(
         coroutineContextProvider: CoroutineContextProvider
     ): AnimeListExecutorFactory = { AnimeListExecutorImpl(coroutineContextProvider = coroutineContextProvider) }
@@ -123,11 +118,9 @@ abstract class DiAnimeListComponent(
 
     @Provides
     fun provideOngoingUsecases(
-        fetchOngoingAnimeListUsecase: FetchOngoingAnimeListUsecase,
-        fetchAnimeDetailsByIdUsecase: FetchAnimeDetailsByIdUsecase
+        fetchOngoingAnimeListUsecase: FetchOngoingAnimeListUsecase
     ): OngoingUsecases = OngoingUsecases(
-        fetchOngoingAnimeListUsecase = fetchOngoingAnimeListUsecase,
-        fetchAnimeDetailsByIdUsecase = fetchAnimeDetailsByIdUsecase
+        fetchOngoingAnimeListUsecase = fetchOngoingAnimeListUsecase
     )
 
     @Provides
@@ -155,11 +148,9 @@ abstract class DiAnimeListComponent(
 
     @Provides
     fun provideSearchUsecases(
-        fetchAnimeListBySearchUsecase: FetchAnimeListBySearchUsecase,
-        fetchAnimeDetailsByIdUsecase: FetchAnimeDetailsByIdUsecase
+        fetchAnimeListBySearchUsecase: FetchAnimeListBySearchUsecase
     ): SearchUsecases = SearchUsecases(
-        fetchAnimeListBySearchUsecase = fetchAnimeListBySearchUsecase,
-        fetchAnimeDetailsByIdUsecase = fetchAnimeDetailsByIdUsecase
+        fetchAnimeListBySearchUsecase = fetchAnimeListBySearchUsecase
     )
 
     @Provides

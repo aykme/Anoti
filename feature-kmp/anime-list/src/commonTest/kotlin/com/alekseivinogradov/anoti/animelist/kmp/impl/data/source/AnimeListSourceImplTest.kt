@@ -1,12 +1,10 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.data.source
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.SortData
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.GRAPHQL_APPEND_URL
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animebase.kmp.impl.data.service.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
-import com.alekseivinogradov.anoti.network.kmp.api.domain.SHIKIMORI_BASE_URL
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.alekseivinogradov.anoti.network.kmp.impl.data.client.createHttpClient
 import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
@@ -33,7 +31,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 private const val ANIME_ID = 61316
-private const val ORIGINAL_IMAGE_PATH = "/system/animes/original/61316.jpg"
 private const val PAGE = 2
 private const val TRANSPORT_FAILURE_MESSAGE = "no route to host"
 private const val POSTER_URL = "https://shikimori.io/uploads/poster/animes/61316/a.jpeg"
@@ -42,8 +39,7 @@ private const val NEXT_EPISODE_AT = "2026-01-05T18:00:00+03:00"
 @OptIn(ExperimentalCoroutinesApi::class)
 class AnimeListSourceImplTest {
 
-    private val graphQlRequests = mutableListOf<HttpRequestData>()
-    private val restRequests = mutableListOf<HttpRequestData>()
+    private val requests = mutableListOf<HttpRequestData>()
 
     private val frierenJson = """
         {
@@ -61,20 +57,6 @@ class AnimeListSourceImplTest {
     """.trimIndent()
 
     private val animeListJsonResponse = animesJson(frierenJson)
-
-    private val animeDetailsJsonResponse = """
-        {
-          "id": $ANIME_ID,
-          "name": "Frieren",
-          "image": { "original": "$ORIGINAL_IMAGE_PATH" },
-          "episodes_aired": 7,
-          "episodes": 28,
-          "next_episode_at": "2026-01-05T18:00:00.000+03:00",
-          "aired_on": "2025-10-01",
-          "score": 9.11,
-          "status": "ongoing"
-        }
-    """.trimIndent()
 
     private val expectedListItem = ListItemDomain(
         id = ANIME_ID,
@@ -94,8 +76,7 @@ class AnimeListSourceImplTest {
             MockEngineConfig().apply {
                 dispatcher = UnconfinedTestDispatcher(testScheduler)
                 addHandler { request ->
-                    val isGraphQl = request.url.encodedPath.endsWith("/$GRAPHQL_APPEND_URL")
-                    if (isGraphQl) graphQlRequests += request else restRequests += request
+                    requests += request
                     respond(
                         content = ByteReadChannel(answer()),
                         status = HttpStatusCode.OK,
@@ -123,7 +104,7 @@ class AnimeListSourceImplTest {
 
         //Then
         assertEquals(CallResult.Success(listOf(expectedListItem)), result)
-        val variables = variables(graphQlRequests.single())
+        val variables = variables(requests.single())
         assertEquals("ongoing", variables.getValue("status").jsonPrimitive.content)
         assertEquals("popularity", variables.getValue("order").jsonPrimitive.content)
         assertEquals(PAGE.toString(), variables.getValue("page").jsonPrimitive.content)
@@ -139,7 +120,7 @@ class AnimeListSourceImplTest {
         val result = source.getAnnouncedList(page = PAGE, sort = SortData.SCORE)
 
         //Then
-        val variables = variables(graphQlRequests.single())
+        val variables = variables(requests.single())
         assertEquals("anons", variables.getValue("status").jsonPrimitive.content)
         assertEquals("ranked", variables.getValue("order").jsonPrimitive.content)
         assertEquals(CallResult.Success(listOf(expectedListItem)), result)
@@ -158,7 +139,7 @@ class AnimeListSourceImplTest {
         )
 
         //Then
-        val variables = variables(graphQlRequests.single())
+        val variables = variables(requests.single())
         assertEquals("frieren", variables.getValue("search").jsonPrimitive.content)
         assertFalse("status" in variables)
         assertEquals(CallResult.Success(listOf(expectedListItem)), result)
@@ -216,46 +197,12 @@ class AnimeListSourceImplTest {
     }
 
     @Test
-    fun oneAnimeIsAskedForByIdAndComesBackParsed() = runTest {
-        //Given
-        val source = createSource(answer = { animeDetailsJsonResponse })
-
-        //When
-        val result = source.getItemById(ANIME_ID)
-
-        //Then
-        assertEquals(
-            CallResult.Success(
-                expectedListItem.copy(
-                    imageUrl = SHIKIMORI_BASE_URL + ORIGINAL_IMAGE_PATH,
-                    nextEpisodeAt = "2026-01-05T18:00:00.000+03:00"
-                )
-            ),
-            result
-        )
-        assertTrue(restRequests.single().url.encodedPath.endsWith("/api/animes/$ANIME_ID"))
-    }
-
-    @Test
     fun aListCallThatNeverReachesTheServerComesBackAsAnError() = runTest {
         //Given
         val source = createFailingSource()
 
         //When
         val result = source.getOngoingList(page = PAGE, sort = SortData.POPULARITY)
-
-        //Then
-        assertTrue(result is CallResult.OtherError)
-        assertEquals(TRANSPORT_FAILURE_MESSAGE, result.throwable.message)
-    }
-
-    @Test
-    fun aSingleAnimeCallThatNeverReachesTheServerComesBackAsAnError() = runTest {
-        //Given
-        val source = createFailingSource()
-
-        //When
-        val result = source.getItemById(ANIME_ID)
 
         //Then
         assertTrue(result is CallResult.OtherError)

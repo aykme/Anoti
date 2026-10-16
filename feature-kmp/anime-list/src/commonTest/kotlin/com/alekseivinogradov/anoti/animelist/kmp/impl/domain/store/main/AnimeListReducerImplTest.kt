@@ -1,7 +1,6 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.main
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
-import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SearchDomain
@@ -37,10 +36,7 @@ class AnimeListReducerImplTest {
     private fun sectionContent(id: AnimeId) = SectionContentDomain(
         contentType = ContentTypeDomain.LOADED,
         listItems = listOf(listItem(id)),
-        enabledExtraEpisodesInfoIds = setOf(id),
-        animeDetails = AnimeDetails(
-            nextEpisodesInfo = mapOf(id to "2026-01-05T18:00:00.000+03:00")
-        )
+        enabledExtraEpisodesInfoIds = setOf(id)
     )
 
     private val baseState = AnimeListMainStore.State(
@@ -54,10 +50,6 @@ class AnimeListReducerImplTest {
     )
 
     private val incomingItems = listOf(listItem(INCOMING_ID))
-
-    private val incomingDetails = AnimeDetails(
-        nextEpisodesInfo = mapOf(INCOMING_ID to "2026-02-11T18:00:00.000+03:00")
-    )
 
     private fun reduce(msg: AnimeListMainStore.Message): AnimeListMainStore.State {
         return with(reducer) { baseState.reduce(msg) }
@@ -280,40 +272,6 @@ class AnimeListReducerImplTest {
                 searchContent = baseState.searchContent.copy(
                     enabledExtraEpisodesInfoIds = setOf(INCOMING_ID)
                 )
-            ),
-            state
-        )
-    }
-
-    @Test
-    fun updateOngoingAnimeDetailsReplacesOnlyTheOngoingAnimeDetails() {
-        //Given
-        val msg = AnimeListMainStore.Message.UpdateOngoingAnimeDetails(incomingDetails)
-
-        //When
-        val state = reduce(msg)
-
-        //Then
-        assertEquals(
-            baseState.copy(
-                ongoingContent = baseState.ongoingContent.copy(animeDetails = incomingDetails)
-            ),
-            state
-        )
-    }
-
-    @Test
-    fun updateSearchAnimeDetailsReplacesOnlyTheSearchAnimeDetails() {
-        //Given
-        val msg = AnimeListMainStore.Message.UpdateSearchAnimeDetails(incomingDetails)
-
-        //When
-        val state = reduce(msg)
-
-        //Then
-        assertEquals(
-            baseState.copy(
-                searchContent = baseState.searchContent.copy(animeDetails = incomingDetails)
             ),
             state
         )

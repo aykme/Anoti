@@ -7,7 +7,6 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiSe
 import com.alekseivinogradov.anoti.animelist.kmp.api.data.mapper.toListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 
@@ -46,12 +45,6 @@ class AnimeListSourceImpl(
         sort = sort,
         search = search
     )
-
-    override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
-        return safeApi.call {
-            service.getAnimeById(id).toListItemDomain()
-        }
-    }
 
     private suspend fun getPage(
         page: Int,

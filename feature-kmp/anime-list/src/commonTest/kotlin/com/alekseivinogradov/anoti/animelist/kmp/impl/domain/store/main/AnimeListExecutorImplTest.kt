@@ -2,7 +2,6 @@ package com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.main
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.ANIMATION_DURATION_VERY_SHORT
-import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SearchDomain
@@ -562,8 +561,7 @@ class AnimeListExecutorImplTest {
             AnimeListMainStore.Intent.UpdateOngoingContent(
                 content = SectionContentDomain(
                     listItems = listOf(ongoingItem),
-                    enabledExtraEpisodesInfoIds = setOf(ongoingItem.id),
-                    animeDetails = AnimeDetails(nextEpisodesInfo = mapOf(ongoingItem.id to "today"))
+                    enabledExtraEpisodesInfoIds = setOf(ongoingItem.id)
                 )
             )
         )
@@ -579,8 +577,7 @@ class AnimeListExecutorImplTest {
             AnimeListMainStore.Intent.UpdateSearchContent(
                 content = SectionContentDomain(
                     listItems = listOf(searchItem),
-                    enabledExtraEpisodesInfoIds = setOf(searchItem.id),
-                    animeDetails = AnimeDetails(nextEpisodesInfo = mapOf(searchItem.id to "soon"))
+                    enabledExtraEpisodesInfoIds = setOf(searchItem.id)
                 )
             )
         )
@@ -591,10 +588,6 @@ class AnimeListExecutorImplTest {
             setOf(ongoingItem.id),
             store.state.ongoingContent.enabledExtraEpisodesInfoIds
         )
-        assertEquals(
-            mapOf(ongoingItem.id to "today"),
-            store.state.ongoingContent.animeDetails.nextEpisodesInfo
-        )
         assertEquals(listOf(announcedItem), store.state.announcedContent.listItems)
         assertEquals(
             setOf(announcedItem.id),
@@ -602,10 +595,6 @@ class AnimeListExecutorImplTest {
         )
         assertEquals(listOf(searchItem), store.state.searchContent.listItems)
         assertEquals(setOf(searchItem.id), store.state.searchContent.enabledExtraEpisodesInfoIds)
-        assertEquals(
-            mapOf(searchItem.id to "soon"),
-            store.state.searchContent.animeDetails.nextEpisodesInfo
-        )
     }
 
     @Test

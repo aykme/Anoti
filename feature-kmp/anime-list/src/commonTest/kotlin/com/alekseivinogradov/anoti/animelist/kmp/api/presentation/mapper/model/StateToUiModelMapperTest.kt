@@ -1,7 +1,6 @@
 package com.alekseivinogradov.anoti.animelist.kmp.api.presentation.mapper.model
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
-import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SearchDomain
@@ -25,21 +24,22 @@ private const val SECOND_ID = 22
 private const val THIRD_ID = 33
 
 private const val ITEM_NEXT_EPISODE_AT = "2023-10-06T18:00:00.000+03:00"
-private const val DETAILS_NEXT_EPISODE_AT = "2026-01-05T18:00:00.000+03:00"
+private const val OTHER_NEXT_EPISODE_AT = "2026-01-05T18:00:00+03:00"
 
 class StateToUiModelMapperTest {
 
     private fun listItem(
         id: AnimeId,
         score: Float? = 9.1F,
-        releaseStatus: ReleaseStatusDomain = ReleaseStatusDomain.ONGOING
+        releaseStatus: ReleaseStatusDomain = ReleaseStatusDomain.ONGOING,
+        nextEpisodeAt: String? = ITEM_NEXT_EPISODE_AT
     ) = ListItemDomain(
         id = id,
         name = "Frieren $id",
         imageUrl = "https://example.com/$id.jpg",
         episodesAired = 7,
         episodesTotal = 28,
-        nextEpisodeAt = ITEM_NEXT_EPISODE_AT,
+        nextEpisodeAt = nextEpisodeAt,
         airedOn = "2023-09-29",
         releasedOn = "2024-03-22",
         score = score,
@@ -178,7 +178,7 @@ class StateToUiModelMapperTest {
                 episodesInfoType = EpisodesInfoTypeUi.AVAILABLE,
                 episodesAired = 7,
                 episodesTotal = 28,
-                nextEpisodeAt = null,
+                nextEpisodeAt = ITEM_NEXT_EPISODE_AT,
                 airedOn = "2023-09-29",
                 releasedOn = "2024-03-22",
                 score = "9.1",
@@ -208,13 +208,15 @@ class StateToUiModelMapperTest {
     }
 
     @Test
-    fun theNextEpisodeDateComesFromTheFetchedDetailsAndIsNullWithoutThem() {
+    fun theNextEpisodeDateIsEachItemsOwnWhetherOrNotItsExtraInfoShows() {
         //Given
         val content = SectionContentDomain(
-            listItems = listOf(listItem(FIRST_ID), listItem(SECOND_ID)),
-            animeDetails = AnimeDetails(
-                nextEpisodesInfo = mapOf(FIRST_ID to DETAILS_NEXT_EPISODE_AT)
-            )
+            listItems = listOf(
+                listItem(FIRST_ID),
+                listItem(SECOND_ID, nextEpisodeAt = null),
+                listItem(THIRD_ID, nextEpisodeAt = OTHER_NEXT_EPISODE_AT)
+            ),
+            enabledExtraEpisodesInfoIds = setOf(FIRST_ID, SECOND_ID)
         )
 
         //When
@@ -222,29 +224,23 @@ class StateToUiModelMapperTest {
 
         //Then
         assertEquals(
-            listOf(DETAILS_NEXT_EPISODE_AT, null),
+            listOf(ITEM_NEXT_EPISODE_AT, null, OTHER_NEXT_EPISODE_AT),
             items.map { it.nextEpisodeAt }
         )
     }
 
     @Test
-    fun theExtraEpisodesInfoAndDetailsComeFromTheSelectedSectionsOwnContent() {
+    fun theExtraEpisodesInfoComesFromTheSelectedSectionsOwnContent() {
         //Given
         val state = AnimeListMainStore.State(
             selectedSection = SectionHatDomain.ANNOUNCED,
             ongoingContent = SectionContentDomain(
-                listItems = listOf(listItem(FIRST_ID)),
-                enabledExtraEpisodesInfoIds = setOf(),
-                animeDetails = AnimeDetails(
-                    nextEpisodesInfo = mapOf(SECOND_ID to ITEM_NEXT_EPISODE_AT)
-                )
+                listItems = listOf(listItem(SECOND_ID)),
+                enabledExtraEpisodesInfoIds = setOf()
             ),
             announcedContent = SectionContentDomain(
-                listItems = listOf(listItem(SECOND_ID)),
-                enabledExtraEpisodesInfoIds = setOf(SECOND_ID),
-                animeDetails = AnimeDetails(
-                    nextEpisodesInfo = mapOf(SECOND_ID to DETAILS_NEXT_EPISODE_AT)
-                )
+                listItems = listOf(listItem(SECOND_ID, nextEpisodeAt = OTHER_NEXT_EPISODE_AT)),
+                enabledExtraEpisodesInfoIds = setOf(SECOND_ID)
             )
         )
 
@@ -253,7 +249,7 @@ class StateToUiModelMapperTest {
 
         //Then
         assertEquals(EpisodesInfoTypeUi.EXTRA, item.episodesInfoType)
-        assertEquals(DETAILS_NEXT_EPISODE_AT, item.nextEpisodeAt)
+        assertEquals(OTHER_NEXT_EPISODE_AT, item.nextEpisodeAt)
     }
 
     @Test

@@ -1,6 +1,5 @@
 package com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection
 
-import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SectionContentDomain
@@ -43,20 +42,17 @@ interface SearchSectionStore :
         data class EpisodesInfoClick(val id: AnimeId) : Intent
 
         /**
-         * Replays a snapshot saved before restore. [enabledExtraEpisodesInfoIds] and
-         * [nextEpisodesInfo] apply immediately, ahead of any [OpenSection] call. [itemCount] only
-         * guides how many items [OpenSection] pages in once the section actually opens.
+         * Replays a snapshot saved before restore. [enabledExtraEpisodesInfoIds] applies
+         * immediately, ahead of any [OpenSection] call. [itemCount] only guides how many items
+         * [OpenSection] pages in once the section actually opens.
          *
          * @param itemCount how many items were loaded before restore.
          * @param enabledExtraEpisodesInfoIds ids that were showing the extra episode-info
          * variant.
-         * @param nextEpisodesInfo next-episode air date/time by anime id, already fetched before
-         * restore.
          */
         data class RestoreSection(
             val itemCount: Int,
-            val enabledExtraEpisodesInfoIds: Set<AnimeId>,
-            val nextEpisodesInfo: Map<AnimeId, String?>
+            val enabledExtraEpisodesInfoIds: Set<AnimeId>
         ) : Intent
     }
 
@@ -102,26 +98,16 @@ interface SearchSectionStore :
         ) : Message
 
         /**
-         * Replaces [State.sectionContent]'s fetched anime details.
-         *
-         * @param animeDetails extra per-item details fetched for the section.
-         */
-        data class UpdateAnimeDetails(val animeDetails: AnimeDetails) : Message
-
-        /**
-         * Replaces [State.sectionContent]'s extra-episode-info-enabled ids and fetched anime
-         * details, and sets [State.restoreTargetItemCount].
+         * Replaces [State.sectionContent]'s extra-episode-info-enabled ids, and sets
+         * [State.restoreTargetItemCount].
          *
          * @param itemCount how many items were loaded before restore.
          * @param enabledExtraEpisodesInfoIds ids that were showing the extra episode-info
          * variant.
-         * @param nextEpisodesInfo next-episode air date/time by anime id, already fetched before
-         * restore.
          */
         data class RestoreSection(
             val itemCount: Int,
-            val enabledExtraEpisodesInfoIds: Set<AnimeId>,
-            val nextEpisodesInfo: Map<AnimeId, String?>
+            val enabledExtraEpisodesInfoIds: Set<AnimeId>
         ) : Message
 
         /** Replaces [State.restoreTargetItemCount] with `null`. */

@@ -1,7 +1,6 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.ongoingsection
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
-import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SectionContentDomain
@@ -36,19 +35,12 @@ class OngoingSectionReducerImplTest {
         sectionContent = SectionContentDomain(
             contentType = ContentTypeDomain.LOADED,
             listItems = listOf(listItem(CURRENT_ID)),
-            enabledExtraEpisodesInfoIds = setOf(CURRENT_ID),
-            animeDetails = AnimeDetails(
-                nextEpisodesInfo = mapOf(CURRENT_ID to "2026-01-05T18:00:00.000+03:00")
-            )
+            enabledExtraEpisodesInfoIds = setOf(CURRENT_ID)
         ),
         restoreTargetItemCount = CURRENT_ITEM_COUNT
     )
 
     private val incomingItems = listOf(listItem(INCOMING_ID))
-
-    private val incomingDetails = AnimeDetails(
-        nextEpisodesInfo = mapOf(INCOMING_ID to "2026-02-11T18:00:00.000+03:00")
-    )
 
     private fun reduce(msg: OngoingSectionStore.Message): OngoingSectionStore.State {
         return with(reducer) { baseState.reduce(msg) }
@@ -110,29 +102,11 @@ class OngoingSectionReducerImplTest {
     }
 
     @Test
-    fun updateAnimeDetailsReplacesOnlyTheAnimeDetails() {
-        //Given
-        val msg = OngoingSectionStore.Message.UpdateAnimeDetails(incomingDetails)
-
-        //When
-        val state = reduce(msg)
-
-        //Then
-        assertEquals(
-            baseState.copy(
-                sectionContent = baseState.sectionContent.copy(animeDetails = incomingDetails)
-            ),
-            state
-        )
-    }
-
-    @Test
     fun restoreSectionSeedsTheDisplayStateAndTheRestoreTargetWithoutTouchingTheItems() {
         //Given
         val msg = OngoingSectionStore.Message.RestoreSection(
             itemCount = INCOMING_ITEM_COUNT,
-            enabledExtraEpisodesInfoIds = setOf(INCOMING_ID),
-            nextEpisodesInfo = incomingDetails.nextEpisodesInfo
+            enabledExtraEpisodesInfoIds = setOf(INCOMING_ID)
         )
 
         //When
@@ -142,8 +116,7 @@ class OngoingSectionReducerImplTest {
         assertEquals(
             baseState.copy(
                 sectionContent = baseState.sectionContent.copy(
-                    enabledExtraEpisodesInfoIds = setOf(INCOMING_ID),
-                    animeDetails = incomingDetails
+                    enabledExtraEpisodesInfoIds = setOf(INCOMING_ID)
                 ),
                 restoreTargetItemCount = INCOMING_ITEM_COUNT
             ),
@@ -158,8 +131,7 @@ class OngoingSectionReducerImplTest {
         // first page as usual instead of trying to restore a position that does not exist.
         val msg = OngoingSectionStore.Message.RestoreSection(
             itemCount = 0,
-            enabledExtraEpisodesInfoIds = setOf(),
-            nextEpisodesInfo = mapOf()
+            enabledExtraEpisodesInfoIds = setOf()
         )
 
         //When
@@ -169,8 +141,7 @@ class OngoingSectionReducerImplTest {
         assertEquals(
             baseState.copy(
                 sectionContent = baseState.sectionContent.copy(
-                    enabledExtraEpisodesInfoIds = setOf(),
-                    animeDetails = AnimeDetails()
+                    enabledExtraEpisodesInfoIds = setOf()
                 ),
                 restoreTargetItemCount = null
             ),

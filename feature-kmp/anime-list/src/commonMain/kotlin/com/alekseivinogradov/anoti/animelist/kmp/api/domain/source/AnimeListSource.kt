@@ -2,7 +2,6 @@ package com.alekseivinogradov.anoti.animelist.kmp.api.domain.source
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.SortData
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 
 interface AnimeListSource {
@@ -22,6 +21,4 @@ interface AnimeListSource {
         search: String,
         sort: SortData
     ): CallResult<List<ListItemDomain>>
-
-    suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain>
 }

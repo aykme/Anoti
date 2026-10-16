@@ -360,8 +360,9 @@ class AnnouncedSectionExecutorImplTest {
         store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
         //Then
-        assertEquals(listOf(1, 2, 3), requestedPages)
-        assertEquals(pageSize * 3, store.state.sectionContent.listItems.size)
+        // 100 items is the cap: three pages of 30 fall short of it, a fourth reaches it.
+        assertEquals(listOf(1, 2, 3, 4), requestedPages)
+        assertEquals(pageSize * 4, store.state.sectionContent.listItems.size)
     }
 
     @Test

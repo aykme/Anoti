@@ -30,7 +30,6 @@ import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.ongoingsectio
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.searchsection.SearchSectionExecutorFactory
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.searchsection.SearchSectionExecutorImpl
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.searchsection.SearchSectionStoreFactory
-import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnimeListBySearchUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnnouncedAnimeListUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchOngoingAnimeListUsecase
@@ -201,8 +200,7 @@ class AnimeListControllerTest {
             OngoingSectionExecutorImpl(
                 coroutineContextProvider = createCoroutineContextProvider(),
                 usecases = OngoingUsecases(
-                    fetchOngoingAnimeListUsecase = FetchOngoingAnimeListUsecase(source),
-                    fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)
+                    fetchOngoingAnimeListUsecase = FetchOngoingAnimeListUsecase(source)
                 ),
                 systemMessageProvider = noOpSystemMessageProvider()
             )
@@ -234,8 +232,7 @@ class AnimeListControllerTest {
             SearchSectionExecutorImpl(
                 coroutineContextProvider = createCoroutineContextProvider(),
                 usecases = SearchUsecases(
-                    fetchAnimeListBySearchUsecase = FetchAnimeListBySearchUsecase(source),
-                    fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)
+                    fetchAnimeListBySearchUsecase = FetchAnimeListBySearchUsecase(source)
                 ),
                 systemMessageProvider = noOpSystemMessageProvider()
             )
