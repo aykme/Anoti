@@ -74,10 +74,6 @@ lint/reports/
 androidApp/release/output.json
 # Local git worktrees
 .worktrees/
-# Agent planning docs (local reference only, not tracked)
-docs/superpowers/
-# Subagent-driven-development workspace (ledgers, briefs, review packages)
-.superpowers/
 # Xcode user data and build output
 xcuserdata/
 *.xcuserstate
