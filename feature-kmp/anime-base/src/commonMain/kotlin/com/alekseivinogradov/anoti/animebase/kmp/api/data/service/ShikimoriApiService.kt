@@ -2,15 +2,12 @@ package com.alekseivinogradov.anoti.animebase.kmp.api.data.service
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.ReleaseStatusData
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.SortData
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeDetailsResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeListResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.ITEMS_PER_PAGE
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 
-const val ANIME_LIST_APPEND_URL = "api/animes"
 const val GRAPHQL_APPEND_URL = "api/graphql"
 
-/** Shikimori endpoints for the anime list and a single anime's details. */
+/** The Shikimori endpoint for anime lists, by filter or by id. */
 interface ShikimoriApiService {
 
     /**
@@ -32,7 +29,4 @@ interface ShikimoriApiService {
         search: String?,
         ids: String?
     ): AnimeListResponse
-
-    /** Fetches full details for the anime with the given [id]. */
-    suspend fun getAnimeById(id: AnimeId): AnimeDetailsResponse
 }

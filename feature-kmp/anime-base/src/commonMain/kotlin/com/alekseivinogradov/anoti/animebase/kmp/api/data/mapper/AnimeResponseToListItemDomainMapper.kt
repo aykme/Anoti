@@ -2,24 +2,9 @@ package com.alekseivinogradov.anoti.animebase.kmp.api.data.mapper
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.ReleaseStatusData
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeResponse
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.ImageResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.PosterResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
-import com.alekseivinogradov.anoti.network.kmp.api.domain.SHIKIMORI_BASE_URL
-
-/**
- * Resolves [imageResponse] to a full, absolute image URL (original size, falling back to
- * preview size), or null if neither is set.
- */
-fun mapImageUrlDataToDomain(imageResponse: ImageResponse?): String? {
-    val additionalImageUrl =
-        imageResponse?.originalSizeUrl ?: imageResponse?.previewSizeUrl
-    val fullImageUrl = additionalImageUrl?.let {
-        SHIKIMORI_BASE_URL + additionalImageUrl
-    }
-    return fullImageUrl
-}
 
 /**
  * The poster's absolute URL, or null when there is no poster or it is not HTTPS. Neither platform

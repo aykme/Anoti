@@ -1,7 +1,6 @@
 package com.alekseivinogradov.anoti.main.impl.presentation
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.fake.UpdateAllAnimeInBackgroundOnceUsecaseFake
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.GRAPHQL_APPEND_URL
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anoti.animebase.kmp.impl.data.service.ShikimoriApiServiceImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
@@ -41,12 +40,6 @@ internal class DiRootDependenciesFake : DiRootDependencies {
 
     /** Every store handed out through [animeDatabaseStore], in the order they were asked for. */
     val animeDatabaseStores = mutableListOf<AnimeDatabaseStoreFake>()
-
-    /** The path of every details call a screen made. A test-driving the shell has none. */
-    val animeDetailsRequests: List<String>
-        get() = catalogEngine.requestHistory
-            .map { it.url.encodedPath }
-            .filterNot { it.endsWith("/$GRAPHQL_APPEND_URL") }
 
     /** Every store built through [storeFactory], by the name it was built under. */
     val builtStores = mutableListOf<Pair<String?, Store<*, *, *>>>()
@@ -98,8 +91,7 @@ internal class DiRootDependenciesFake : DiRootDependencies {
 }
 
 /**
- * Answers every listing with nothing, so the screens settle on their empty state. A details call
- * gets the same, and is caught by asserting on [DiRootDependenciesFake.animeDetailsRequests].
+ * Answers every listing with nothing, so the screens settle on their empty state.
  *
  * It answers on the main dispatcher the test installed. Left to itself it would pick
  * `Dispatchers.IO`, taking the answer off the virtual clock and onto a second thread.

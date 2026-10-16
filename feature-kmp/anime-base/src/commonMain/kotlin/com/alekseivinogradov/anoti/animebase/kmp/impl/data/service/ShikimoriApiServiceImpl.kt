@@ -1,16 +1,12 @@
 package com.alekseivinogradov.anoti.animebase.kmp.impl.data.service
 
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeDetailsResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeListResponse
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ANIME_LIST_APPEND_URL
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.GRAPHQL_APPEND_URL
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.ITEMS_PER_PAGE
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.network.kmp.api.domain.SHIKIMORI_BASE_URL
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -48,10 +44,6 @@ class ShikimoriApiServiceImpl(
                 }
             )
         }.body()
-    }
-
-    override suspend fun getAnimeById(id: AnimeId): AnimeDetailsResponse {
-        return httpClient.get("$SHIKIMORI_BASE_URL/$ANIME_LIST_APPEND_URL/$id").body()
     }
 }
 

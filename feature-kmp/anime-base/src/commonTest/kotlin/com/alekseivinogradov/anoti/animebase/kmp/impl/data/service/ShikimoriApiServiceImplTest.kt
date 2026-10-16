@@ -1,6 +1,5 @@
 package com.alekseivinogradov.anoti.animebase.kmp.impl.data.service
 
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeDetailsResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeListDataResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeListResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeResponse
@@ -63,25 +62,6 @@ class ShikimoriApiServiceImplTest {
     """.trimIndent()
 
     private val emptyAnimeListJsonResponse = """{"data":{"animes":[]}}"""
-
-    private val animeDetailsJsonResponse = """
-        {
-          "id": 5,
-          "name": "Bleach",
-          "russian": "Блич",
-          "url": "/animes/5",
-          "image": null,
-          "episodes_aired": 10,
-          "episodes": null,
-          "next_episode_at": "2024-12-28T17:00:00+03:00",
-          "aired_on": "2004-10-05",
-          "released_on": null,
-          "score": 8.97,
-          "status": "ongoing",
-          "kind": "tv",
-          "description": "desc"
-        }
-    """.trimIndent()
 
     @Test
     fun aListPagePostsItsVariablesToGraphQlAndDecodesTheAnswer() = runTest {
@@ -151,37 +131,6 @@ class ShikimoriApiServiceImplTest {
         assertEquals("1,2", variables.getValue("ids").jsonPrimitive.content)
         // Sent as null, an order would change the ranking rather than leave the default.
         assertEquals(setOf("page", "limit", "ids"), variables.keys)
-    }
-
-    @Test
-    fun getAnimeByIdRequestsExpectedPathAndDecodesResponse() = runTest {
-        //Given
-        val service = createService(animeDetailsJsonResponse)
-
-        //When
-        val result = service.getAnimeById(5)
-
-        //Then
-        assertEquals(
-            AnimeDetailsResponse(
-                id = 5,
-                englishName = "Bleach",
-                russianName = "Блич",
-                pageUrl = "/animes/5",
-                imageResponse = null,
-                episodesAired = 10,
-                episodesTotal = null,
-                nextEpisodeAt = "2024-12-28T17:00:00+03:00",
-                airedOn = "2004-10-05",
-                releasedOn = null,
-                score = 8.97F,
-                releaseStatus = "ongoing",
-                kind = "tv",
-                description = "desc"
-            ),
-            result
-        )
-        assertTrue(lastRequest.url.encodedPath.endsWith("/api/animes/5"))
     }
 
     private fun TestScope.createService(jsonResponse: String): ShikimoriApiService {

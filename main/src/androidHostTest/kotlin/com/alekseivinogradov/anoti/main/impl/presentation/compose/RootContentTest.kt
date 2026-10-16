@@ -23,7 +23,6 @@ import org.robolectric.RobolectricTestRunner
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 @RunWith(RobolectricTestRunner::class)
 class RootContentTest {
@@ -49,7 +48,6 @@ class RootContentTest {
     fun tearDown() {
         lifecycle.destroy()
         mainDispatcher.remove()
-        assertEquals(listOf(), dependencies.animeDetailsRequests)
     }
 
     @Test
