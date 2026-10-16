@@ -173,23 +173,23 @@ these; when a review finding questions a choice listed here; before a version-bu
   [finishing-a-task.md](../rules/finishing-a-task.md) says.
 - Revisit when: a dependency analyzer understands KMP and Kotlin/Native.
 
-## Posters from GraphQL
+## The catalog from GraphQL
 
-- Status: accepted (2026-10-13).
+- Status: accepted (2026-10-16). Replaces the 2026-10-13 hybrid, where REST served the lists and
+  one GraphQL lookup per page filled the posters.
 - Why: REST v1 reads only the legacy image attachment, which Shikimori stopped filling on
-  2024-06-21; its API page says new posters are only in GraphQL. Most ongoing and announced
-  titles showed the placeholder. REST stays, and one GraphQL lookup per page fills the posters;
-  any failure falls back to the REST image.
-- Rejected: a full move to GraphQL (every call rewritten); merging in usecases (the domain would
-  learn the backend is split); merging inside the service (it would have to catch); scraping
-  the site (its API page forbids it); MAL or Jikan images (other artwork, another service);
-  showing REST images first and patching posters in (new state in four executors).
-- Cost: a failing lookup keeps its three attempts, so it adds about 8 s to each page, about
-  20 s when it hangs. A restored section loads up to four pages in a row and pays it each
-  time, and an iOS background pass covers fewer pages. Skipping lookups for the rest of a
-  pass after the first failure was offered and not taken.
-- Revisit when: REST serves the new posters again, or the app moves fully to GraphQL.
-- Applied in: [data-layer.md "Sources and usecases"](data-layer.md#sources-and-usecases).
+  2024-06-21; its API page says new posters are only in GraphQL. The GraphQL list also carries
+  the next-episode date, which REST gave only from a details call per anime. Measured against
+  REST, the same queries answered the same anime in the same order with the same fields, the
+  date included. One request per page instead of two, and none per date.
+- Rejected: keeping the hybrid (two requests per page, a details call per date); starting a
+  background pass on every Favorites arrival to keep its dates fresh (the bar recreates the
+  screen on every tab switch, and a pass posts notifications while the user looks at the list).
+- Cost: a title GraphQL has no poster for shows the image-error icon, with no REST image to fall
+  back on. The Favorites date is as fresh as the last background pass or pull-to-refresh. The
+  live schema of a closed-source server can change without notice.
+- Revisit when: the GraphQL schema drops a field the app reads, or Shikimori retires it.
+- Applied in: [data-layer.md "Network"](data-layer.md#network).
 
 ## Rule-backed decisions
 

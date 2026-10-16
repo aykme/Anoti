@@ -20,9 +20,6 @@ scope or context, or catching an exception.
   Example: [OngoingSectionExecutorImpl](../../feature-kmp/anime-list/src/commonMain/kotlin/com/alekseivinogradov/anoti/animelist/kmp/impl/domain/store/ongoingsection/OngoingSectionExecutorImpl.kt)
 - An `OtherError` is not a connectivity problem, so it gets the unknown error message. It covers
   response bodies that fail to decode and unexpected throws.
-- A best-effort lookup on a screen's path shows no message either: it logs the failure's kind
-  and returns its fallback.
-  Example: [AnimePosterSourceImpl](../../feature-kmp/anime-base/src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/impl/data/source/AnimePosterSourceImpl.kt)
 - Background work shows no message. It turns a failure into its work result and logs it.
   Example: [AnimeUpdateManagerImpl](../../feature-kmp/anime-background-update/src/commonMain/kotlin/com/alekseivinogradov/anoti/animebackgroundupdate/kmp/impl/domain/manager/AnimeUpdateManagerImpl.kt)
 

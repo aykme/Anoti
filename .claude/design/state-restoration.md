@@ -118,9 +118,6 @@ Store bootstrappers fit this protocol:
 
 - Data the database or the network owns. A screen saves how much it had loaded and its display
   state; the list itself is fetched or read again.
-- As found: one snapshot also saves per-item details fetched from the network after the list, so
-  a restore does not fetch them again. Example:
-  [NavAnimeListScreenComponent](../../feature-kmp/anime-list/src/commonMain/kotlin/com/alekseivinogradov/anoti/animelist/kmp/impl/presentation/navigation/NavAnimeListScreenComponent.kt).
 - A list's scroll position goes through `rememberSaveable`, not the screen's saved part.
 - Saved state can hold user input, so it is never logged; see [logging.md](../rules/logging.md).
 

@@ -37,8 +37,8 @@ filter for the cleanup after a walk.
 
 ## What goes in
 
-- An expected flash or placeholder is stated in the step: "The date may read 'unknown' for a
-  moment while the details load."
+- An expected flash or placeholder is stated in the step: "A spinner spins in the poster area
+  until its picture arrives."
 - A step for every check a walk needed and could not find, such as folding a foldable with each
   screen open.
 - Every way the device can differ: no network, rotation, dark mode, maximum font and display size,

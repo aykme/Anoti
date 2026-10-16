@@ -33,7 +33,7 @@ interface DiRootDependencies {
     /** The store over the saved anime. Every read hands out a new one. */
     val animeDatabaseStore: AnimeDatabaseStore
 
-    /** The Shikimori endpoints for the anime list and an anime's details. */
+    /** The Shikimori endpoint the anime lists and the background update page through. */
     val shikimoriApiService: ShikimoriApiService
 
     /** Runs a network call with retries and returns its outcome as a `CallResult`. */
