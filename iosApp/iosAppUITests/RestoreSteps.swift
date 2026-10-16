@@ -46,7 +46,12 @@ final class RestoreSteps: XCTestCase {
         field.typeText("Frieren\n")
 
         //When
-        waitFor(app.tagged("anime_favorites_button"), timeout: 10).tap()
+        let favoritesButton = waitFor(app.tagged("anime_favorites_button"), timeout: 10)
+        favoritesButton.tap()
+        // A tap that lands while the keyboard still closes is lost.
+        if !favoritesAreOpen(within: 10) {
+            favoritesButton.tap()
+        }
         waitForFavorites()
         keepScreenshot("favorites before going home")
         signalReady()
@@ -213,16 +218,21 @@ final class RestoreSteps: XCTestCase {
         waitFor(app.tagged("ongoing_button"))
     }
 
-    // Favorites is open once it shows either its empty text or a favorite.
     @MainActor
     private func waitForFavorites() {
+        XCTAssertTrue(favoritesAreOpen(within: loadTimeout), "favorites did not open")
+    }
+
+    // Favorites is open once it shows either its empty text or a favorite.
+    @MainActor
+    private func favoritesAreOpen(within timeout: TimeInterval) -> Bool {
         let emptyText = app.descendants(matching: .any)
             .matching(NSPredicate(format: "label BEGINSWITH %@", "You haven")).firstMatch
         let favorite = app.allTagged("anime_favorites_item").firstMatch
-        let deadline = Date().addingTimeInterval(loadTimeout)
+        let deadline = Date().addingTimeInterval(timeout)
         while !emptyText.exists, !favorite.exists, Date() < deadline {
             RunLoop.current.run(until: Date().addingTimeInterval(0.5))
         }
-        XCTAssertTrue(emptyText.exists || favorite.exists, "favorites did not open")
+        return emptyText.exists || favorite.exists
     }
 }
