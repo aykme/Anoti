@@ -81,7 +81,7 @@ class AnimeDatabaseStoreFake(
             }
 
             AnimeDatabaseStore.Intent.ResetAllItemsExtraInfo ->
-                emit(items.map { it.copy(isExtraInfoEnabled = false, nextEpisodeAt = null) })
+                emit(items.map { it.copy(isExtraInfoEnabled = false) })
         }
     }
 

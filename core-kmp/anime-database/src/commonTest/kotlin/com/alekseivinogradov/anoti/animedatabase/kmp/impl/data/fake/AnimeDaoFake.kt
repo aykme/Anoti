@@ -78,7 +78,7 @@ class AnimeDaoFake(
 
     override suspend fun resetAllItemsExtraInfo() {
         beforeWrite()
-        items.value = items.value.map { it.copy(isExtraInfoEnabled = false, nextEpisodeAt = null) }
+        items.value = items.value.map { it.copy(isExtraInfoEnabled = false) }
         republishStoredItems()
     }
 

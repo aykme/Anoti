@@ -41,6 +41,6 @@ interface AnimeDao {
      * No using Boolean params in "Query",
      * otherwise there will be a crash on older versions of android
      */
-    @Query("UPDATE $ANIME_TABLE_NAME SET is_extra_info_enabled = 0, next_episode_at = NULL")
+    @Query("UPDATE $ANIME_TABLE_NAME SET is_extra_info_enabled = 0")
     suspend fun resetAllItemsExtraInfo()
 }

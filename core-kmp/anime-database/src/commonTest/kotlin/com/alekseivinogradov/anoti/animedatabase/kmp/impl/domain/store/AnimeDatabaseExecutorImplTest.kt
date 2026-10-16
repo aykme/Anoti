@@ -31,7 +31,6 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AnimeDatabaseExecutorImplTest {
@@ -468,7 +467,7 @@ class AnimeDatabaseExecutorImplTest {
         }
 
     @Test
-    fun resetAllItemsExtraInfoClearsTheModeAndTheNextEpisodeDate() = runTest(testDispatcher) {
+    fun resetAllItemsExtraInfoClearsTheModeAndKeepsTheNextEpisodeDate() = runTest(testDispatcher) {
         //Given
         val dao = AnimeDaoFake()
         val store = createStore(dao)
@@ -484,7 +483,7 @@ class AnimeDatabaseExecutorImplTest {
         //Then
         val stored = dao.getAllItems().single()
         assertEquals(false, stored.isExtraInfoEnabled)
-        assertNull(stored.nextEpisodeAt)
+        assertEquals(NEXT_EPISODE_AT, stored.nextEpisodeAt)
     }
 
     @Test
