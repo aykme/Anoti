@@ -7,6 +7,7 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusD
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 private const val POSTER_URL = "https://shikimori.io/uploads/poster/animes/21/a.jpeg"
@@ -60,7 +61,7 @@ class AnimeResponseToListItemDomainMapperTest {
         val listItem = response.toListItemDomain()
 
         //Then
-        assertNull(listItem?.imageUrl)
+        assertNull(assertNotNull(listItem).imageUrl)
     }
 
     @Test
@@ -84,7 +85,7 @@ class AnimeResponseToListItemDomainMapperTest {
         val listItem = response.toListItemDomain()
 
         //Then
-        assertNull(listItem?.airedOn)
-        assertNull(listItem?.releasedOn)
+        assertNull(assertNotNull(listItem).airedOn)
+        assertNull(listItem.releasedOn)
     }
 }

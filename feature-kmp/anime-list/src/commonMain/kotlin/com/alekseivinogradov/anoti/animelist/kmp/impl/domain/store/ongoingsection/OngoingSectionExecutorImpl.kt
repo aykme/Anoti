@@ -16,8 +16,6 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provid
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-// One function per Intent handled, not incidental growth.
-@Suppress("TooManyFunctions")
 class OngoingSectionExecutorImpl(
     coroutineContextProvider: CoroutineContextProvider,
     private val usecases: OngoingUsecases,
@@ -67,8 +65,8 @@ class OngoingSectionExecutorImpl(
         )
     }
 
-    // Never resets enabledExtraEpisodesInfoIds: RestoreSection just seeded it, and
-    // this call, from OpenSection, must page in enough items without disturbing that state.
+    // Never resets enabledExtraEpisodesInfoIds: RestoreSection just seeded it, and this call,
+    // from OpenSection, must page in enough items without disturbing that state.
     private fun restoreSectionContent(targetItemCount: Int) {
         updateSectionJob?.cancel()
         loadNextPageJob?.cancel()

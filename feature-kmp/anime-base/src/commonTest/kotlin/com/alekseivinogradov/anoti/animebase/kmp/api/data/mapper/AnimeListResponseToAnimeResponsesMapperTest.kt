@@ -53,4 +53,15 @@ class AnimeListResponseToAnimeResponsesMapperTest {
         val failure = assertFailsWith<IllegalStateException> { response.toAnimeResponses() }
         assertFalse(ERROR_TEXT in failure.message.orEmpty())
     }
+
+    @Test
+    fun dataWithoutItsAnimeFailsRatherThanReadingAsAnEmptyPage() {
+        //Given
+        // GraphQL answers this way when the field itself failed: an empty page would read as the
+        // end of the list, or as every saved anime being gone.
+        val response = AnimeListResponse(data = AnimeListDataResponse(animes = null))
+
+        //When / Then
+        assertFailsWith<IllegalStateException> { response.toAnimeResponses() }
+    }
 }

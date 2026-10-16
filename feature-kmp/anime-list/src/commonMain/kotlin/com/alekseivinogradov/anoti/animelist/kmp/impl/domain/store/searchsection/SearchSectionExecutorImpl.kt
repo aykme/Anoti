@@ -89,8 +89,8 @@ class SearchSectionExecutorImpl(
         )
     }
 
-    // Never resets enabledExtraEpisodesInfoIds: RestoreSection just seeded it, and
-    // this call, from OpenSection, must page in enough items without disturbing that state.
+    // Never resets enabledExtraEpisodesInfoIds: RestoreSection just seeded it, and this call,
+    // from OpenSection, must page in enough items without disturbing that state.
     private fun restoreSectionContent(targetItemCount: Int) {
         updateSectionJob?.cancel()
         loadNextPageJob?.cancel()

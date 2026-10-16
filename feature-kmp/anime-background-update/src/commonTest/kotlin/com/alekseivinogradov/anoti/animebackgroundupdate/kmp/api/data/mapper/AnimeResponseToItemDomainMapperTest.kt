@@ -4,6 +4,7 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.IncompleteDateResponse
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class AnimeResponseToItemDomainMapperTest {
@@ -17,7 +18,7 @@ class AnimeResponseToItemDomainMapperTest {
         val listItem = response.toListItemDomain()
 
         //Then
-        assertNull(listItem?.imageUrl)
+        assertNull(assertNotNull(listItem).imageUrl)
     }
 
     @Test
@@ -33,8 +34,8 @@ class AnimeResponseToItemDomainMapperTest {
         val listItem = response.toListItemDomain()
 
         //Then
-        assertEquals("1999-10-20", listItem?.airedOn)
-        assertNull(listItem?.releasedOn)
+        assertEquals("1999-10-20", assertNotNull(listItem).airedOn)
+        assertNull(listItem.releasedOn)
     }
 
     @Test

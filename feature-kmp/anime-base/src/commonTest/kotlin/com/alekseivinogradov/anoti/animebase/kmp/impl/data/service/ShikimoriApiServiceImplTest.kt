@@ -23,7 +23,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.descriptors.elementNames
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -52,7 +54,7 @@ class ShikimoriApiServiceImplTest {
                 "episodesAired": 3,
                 "nextEpisodeAt": "2026-10-18T17:15:00+03:00",
                 "airedOn": { "date": "2026-09-27" },
-                "releasedOn": { "date": null },
+                "releasedOn": { "date": "2027-03-21" },
                 "score": 8.9,
                 "status": "ongoing"
               }
@@ -90,7 +92,7 @@ class ShikimoriApiServiceImplTest {
                             episodesAired = 3,
                             nextEpisodeAt = "2026-10-18T17:15:00+03:00",
                             airedOn = IncompleteDateResponse(date = "2026-09-27"),
-                            releasedOn = IncompleteDateResponse(date = null),
+                            releasedOn = IncompleteDateResponse(date = "2027-03-21"),
                             score = 8.9F,
                             releaseStatus = "ongoing"
                         )
@@ -112,10 +114,36 @@ class ShikimoriApiServiceImplTest {
         assertEquals("ranked", variables.getValue("order").jsonPrimitive.content)
         assertEquals("\"steel\" & 100%", variables.getValue("search").jsonPrimitive.content)
         assertFalse("ids" in variables)
-        val query = body.getValue("query").jsonPrimitive.content
-        assertTrue("nextEpisodeAt" in query)
-        assertTrue("poster { originalUrl }" in query)
     }
+
+    @Test
+    fun theQueryAsksForEveryFieldTheAnswerIsReadInto() = runTest {
+        //Given
+        val service = createService(emptyAnimeListJsonResponse)
+
+        //When
+        service.getAnimeList(
+            page = 1,
+            releaseStatus = "ongoing",
+            sort = "ranked",
+            search = "a",
+            ids = "1"
+        )
+
+        //Then
+        val body = Json.parseToJsonElement((lastRequest.body as TextContent).text).jsonObject
+        val query = query(body)
+        val selection = query.substringAfter(") {")
+        val readFields = AnimeResponse.serializer().descriptor.elementNames
+        assertTrue(readFields.all { Regex("\\b$it\\b") in selection }, "missing in: $selection")
+        val variables = body.getValue("variables").jsonObject
+        assertTrue(
+            variables.keys.all { "$$it:" in query && "$it: $$it" in query },
+            "every variable sent must be declared and passed to the field"
+        )
+    }
+
+    private fun query(body: JsonObject): String = body.getValue("query").jsonPrimitive.content
 
     @Test
     fun anIdsLookupLeavesOutEveryFilterItHasNoValueFor() = runTest {
