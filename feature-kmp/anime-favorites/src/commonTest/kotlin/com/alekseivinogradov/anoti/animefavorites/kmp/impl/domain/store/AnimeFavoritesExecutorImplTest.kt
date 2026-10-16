@@ -7,22 +7,15 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.presentation.compose.ANIMAT
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.LIST_ARRIVAL_TIMEOUT_SECONDS
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ListItemDomain
-import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.source.AnimeFavoritesSource
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
-import com.alekseivinogradov.anoti.animefavorites.kmp.impl.data.source.fake.AnimeFavoritesSourceFake
-import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.wrapper.FavoritesUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
-import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
@@ -78,25 +71,16 @@ class AnimeFavoritesExecutorImplTest {
     }
 
     private fun createStore(
-        source: AnimeFavoritesSource = AnimeFavoritesSourceFake(),
-        backgroundUpdateUsecase: UpdateAllAnimeInBackgroundOnceUsecase = UpdateAllAnimeInBackgroundOnceUsecaseFake(),
-        onConnectionErrorSystemMessage: () -> Unit = {},
-        onUnknownErrorSystemMessage: () -> Unit = {}
+        backgroundUpdateUsecase: UpdateAllAnimeInBackgroundOnceUsecase = UpdateAllAnimeInBackgroundOnceUsecaseFake()
     ): AnimeFavoritesMainStore {
         val coroutineContextProvider = CoroutineContextProviderFake()
         val usecases = FavoritesUsecases(
-            updateAllAnimeInBackgroundOnceUsecase = backgroundUpdateUsecase,
-            fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)
-        )
-        val systemMessageProvider = SystemMessageProvider(
-            makeConnectionErrorSystemMessage = onConnectionErrorSystemMessage,
-            makeUnknownErrorSystemMessage = onUnknownErrorSystemMessage
+            updateAllAnimeInBackgroundOnceUsecase = backgroundUpdateUsecase
         )
         val executorFactory: AnimeFavoritesExecutorFactory = {
             AnimeFavoritesExecutorImpl(
                 coroutineContextProvider = coroutineContextProvider,
-                usecases = usecases,
-                systemMessageProvider = systemMessageProvider
+                usecases = usecases
             )
         }
         return AnimeFavoritesMainStoreFactory(
@@ -251,9 +235,11 @@ class AnimeFavoritesExecutorImplTest {
     }
 
     @Test
-    fun infoTypeClickOnMainItemPublishesUpdateListItemWithExtraInfoEnabled() = runTest(testDispatcher) {
+    fun infoTypeClickOnMainItemPublishesOnlyTheItemWithExtraInfoEnabled() = runTest(testDispatcher) {
         //Given
-        val item = testListItem(nextEpisodeAt = "2026-09-10T12:00:00Z")
+        // An ongoing item with no date stored: the extra view shows what the database holds,
+        // and nothing else is published for it.
+        val item = testListItem(nextEpisodeAt = null)
         val store = createStore()
         store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
         val emittedLabels = mutableListOf<AnimeFavoritesMainStore.Label>()
@@ -263,13 +249,13 @@ class AnimeFavoritesExecutorImplTest {
         store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
 
         //Then
-        assertTrue(
-            emittedLabels.contains(
+        assertEquals(
+            listOf<AnimeFavoritesMainStore.Label>(
                 AnimeFavoritesMainStore.Label.UpdateListItem(
                     listItem = item.copy(isExtraInfoEnabled = true)
                 )
             ),
-            "Expected an UpdateListItem with isExtraInfoEnabled = true among $emittedLabels"
+            emittedLabels
         )
         collectJob.cancel()
     }
@@ -299,89 +285,6 @@ class AnimeFavoritesExecutorImplTest {
     }
 
     @Test
-    fun infoTypeClickToExtraWithoutNextEpisodeAtFetchesDetailsAndPublishesResult() = runTest(testDispatcher) {
-        //Given
-        val item = testListItem()
-        val fetchedItem = item.copy(nextEpisodeAt = "2026-09-10T12:00:00Z")
-        val store = createStore(
-            source = AnimeFavoritesSourceFake { _, _ -> CallResult.Success(fetchedItem) }
-        )
-        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
-        val emittedLabels = mutableListOf<AnimeFavoritesMainStore.Label>()
-        val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
-
-        //When
-        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
-
-        //Then
-        assertTrue(
-            emittedLabels.contains(
-                AnimeFavoritesMainStore.Label.UpdateListItem(
-                    listItem = item.copy(nextEpisodeAt = fetchedItem.nextEpisodeAt)
-                )
-            ),
-            "Expected the fetched nextEpisodeAt to be published among $emittedLabels"
-        )
-        collectJob.cancel()
-    }
-
-    @Test
-    fun infoTypeClickToExtraWithNextEpisodeAtAlreadyKnownDoesNotFetchDetails() = runTest(testDispatcher) {
-        //Given
-        val item = testListItem(nextEpisodeAt = "2026-09-10T12:00:00Z")
-        val source = AnimeFavoritesSourceFake { _, _ -> CallResult.Success(item) }
-        val store = createStore(source = source)
-        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
-
-        //When
-        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
-        runCurrent()
-
-        //Then
-        assertEquals(false, source.wasCalled)
-    }
-
-    @Test
-    fun infoTypeClickToExtraWithLegitimatelyNullNextEpisodeAtDoesNotRefetchOnLaterClick() = runTest(testDispatcher) {
-        //Given
-        val item = testListItem()
-        // The API legitimately has no next-episode date: the fetch result keeps nextEpisodeAt
-        // null, which must not be mistaken for "never fetched" on a later toggle.
-        val source = AnimeFavoritesSourceFake { _, _ -> CallResult.Success(item) }
-        val store = createStore(source = source)
-        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
-
-        //When
-        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
-        runCurrent()
-        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
-        runCurrent()
-
-        //Then
-        assertEquals(1, source.callCount)
-    }
-
-    @Test
-    fun openSectionResetsFetchedAnimeDetailsIdsSoARefreshedNullResultIsRefetched() = runTest(testDispatcher) {
-        //Given
-        val item = testListItem()
-        val source = AnimeFavoritesSourceFake { _, _ -> CallResult.Success(item) }
-        val store = createStore(source = source)
-        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
-        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
-        runCurrent()
-
-        //When
-        store.accept(AnimeFavoritesMainStore.Intent.OpenSection)
-        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
-        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
-        runCurrent()
-
-        //Then
-        assertEquals(2, source.callCount)
-    }
-
-    @Test
     fun aRefreshWhoseListNeverArrivesStopsShowingLoading() = runTest(testDispatcher) {
         //Given
         val store = createStore()
@@ -397,53 +300,6 @@ class AnimeFavoritesExecutorImplTest {
 
         //Then
         assertEquals(ContentTypeDomain.EMPTY, store.state.contentType)
-    }
-
-    @Test
-    fun aSecondDetailsFetchForTheSameItemReplacesTheFirst() = runTest(testDispatcher) {
-        //Given
-        val item = testListItem()
-        val fetched = item.copy(nextEpisodeAt = "2026-09-10T12:00:00Z")
-        val source = AnimeFavoritesSourceFake { _, callNumber ->
-            if (callNumber == 1) awaitCancellation() else CallResult.Success(fetched)
-        }
-        val store = createStore(source = source)
-        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
-        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
-        val emittedLabels = mutableListOf<AnimeFavoritesMainStore.Label>()
-        val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
-
-        //When
-        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
-        runCurrent()
-
-        //Then
-        assertEquals(listOf(1), source.canceledCalls, "the replaced fetch outlived its replacement")
-        assertTrue(
-            emittedLabels.contains(
-                AnimeFavoritesMainStore.Label.UpdateListItem(
-                    listItem = item.copy(nextEpisodeAt = fetched.nextEpisodeAt)
-                )
-            ),
-            "Expected the replacement fetch's result to be published among $emittedLabels"
-        )
-        collectJob.cancel()
-    }
-
-    @Test
-    fun disposingTheStoreCancelsAnInFlightDetailsFetch() = runTest(testDispatcher) {
-        //Given
-        val source = AnimeFavoritesSourceFake { _, _ -> awaitCancellation() }
-        val item = testListItem()
-        val store = createStore(source = source)
-        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
-        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
-
-        //When
-        store.dispose()
-
-        //Then
-        assertTrue(source.wasCanceled, "the details fetch outlived its store")
     }
 
     @Test
@@ -807,101 +663,5 @@ class AnimeFavoritesExecutorImplTest {
 
         //Then
         assertEquals(1, backgroundUpdateUsecase.executeCount)
-    }
-
-    @Test
-    fun aDetailsFetchRejectedByTheServerShowsTheConnectionMessage() = runTest(testDispatcher) {
-        //Given
-        var connectionErrorCount = 0
-        var unknownErrorCount = 0
-        val item = testListItem()
-        val store = createStore(
-            source = AnimeFavoritesSourceFake { _, _ -> CallResult.HttpError(code = 500, throwable = Throwable()) },
-            onConnectionErrorSystemMessage = { connectionErrorCount++ },
-            onUnknownErrorSystemMessage = { unknownErrorCount++ }
-        )
-        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
-
-        //When
-        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
-        runCurrent()
-
-        //Then
-        assertEquals(1, connectionErrorCount)
-        assertEquals(0, unknownErrorCount)
-    }
-
-    @Test
-    fun aDetailsFetchThatNeverReachedTheServerShowsTheConnectionMessage() = runTest(testDispatcher) {
-        //Given
-        var connectionErrorCount = 0
-        var unknownErrorCount = 0
-        val item = testListItem()
-        val store = createStore(
-            source = AnimeFavoritesSourceFake { _, _ -> CallResult.NetworkError(throwable = Throwable()) },
-            onConnectionErrorSystemMessage = { connectionErrorCount++ },
-            onUnknownErrorSystemMessage = { unknownErrorCount++ }
-        )
-        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
-
-        //When
-        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
-        runCurrent()
-
-        //Then
-        assertEquals(1, connectionErrorCount)
-        assertEquals(0, unknownErrorCount)
-    }
-
-    @Test
-    fun aDetailsFetchFailingForAnotherReasonShowsTheUnknownMessage() = runTest(testDispatcher) {
-        //Given
-        var connectionErrorCount = 0
-        var unknownErrorCount = 0
-        val item = testListItem()
-        val store = createStore(
-            source = AnimeFavoritesSourceFake { _, _ -> CallResult.OtherError(throwable = Throwable()) },
-            onConnectionErrorSystemMessage = { connectionErrorCount++ },
-            onUnknownErrorSystemMessage = { unknownErrorCount++ }
-        )
-        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
-
-        //When
-        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
-        runCurrent()
-
-        //Then
-        assertEquals(1, unknownErrorCount)
-        assertEquals(0, connectionErrorCount)
-    }
-
-    @Test
-    fun detailsArrivingForAnItemNoLongerInTheListAreDropped() = runTest(testDispatcher) {
-        //Given
-        val item = testListItem()
-        val fetched = item.copy(nextEpisodeAt = "2026-09-10T12:00:00Z")
-        val gate = CompletableDeferred<Unit>()
-        val source = AnimeFavoritesSourceFake { _, _ ->
-            gate.await()
-            CallResult.Success(fetched)
-        }
-        val store = createStore(source = source)
-        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(listOf(item)))
-        store.accept(AnimeFavoritesMainStore.Intent.InfoTypeClick(id = item.id))
-        val emittedLabels = mutableListOf<AnimeFavoritesMainStore.Label>()
-        val collectJob = launch { store.labels.collect { emittedLabels.add(it) } }
-
-        //When
-        store.accept(AnimeFavoritesMainStore.Intent.UpdateListItems(emptyList()))
-        gate.complete(Unit)
-        runCurrent()
-
-        //Then
-        assertTrue(
-            store.state.fetchedAnimeDetailsIds.isEmpty(),
-            "a removed item was marked as fetched"
-        )
-        assertTrue(emittedLabels.isEmpty(), "Expected no labels, got $emittedLabels")
-        collectJob.cancel()
     }
 }

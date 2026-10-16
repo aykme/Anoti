@@ -17,10 +17,6 @@ internal class AnimeFavoritesReducerImpl :
             is AnimeFavoritesMainStore.Message.ChangeContentType -> copy(
                 contentType = msg.contentType
             )
-
-            is AnimeFavoritesMainStore.Message.UpdateFetchedAnimeDetailsIds -> copy(
-                fetchedAnimeDetailsIds = msg.fetchedAnimeDetailsIds
-            )
         }
     }
 }
