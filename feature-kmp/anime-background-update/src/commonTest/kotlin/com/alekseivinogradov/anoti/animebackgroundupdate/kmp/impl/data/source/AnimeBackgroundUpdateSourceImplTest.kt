@@ -128,7 +128,7 @@ class AnimeBackgroundUpdateSourceImplTest {
     fun anAnswerWithErrorsAndNoDataIsAFailureNotAnEmptyPage() = runTest {
         //Given
         val source = createSource(
-            answer = { """{"errors":[{"message":"Variable ${'$'}ids was provided invalid value"}]}""" }
+            answer = { $$"""{"errors":[{"message":"Variable $ids was provided invalid value"}]}""" }
         )
 
         //When

@@ -9,6 +9,6 @@ import kotlinx.serialization.Serializable
  * @param message the server's description.
  */
 @Serializable
-data class GraphQlErrorResponse(
+data class ErrorResponse(
     @SerialName("message") val message: String? = null
 )

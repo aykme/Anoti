@@ -7,8 +7,8 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusD
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 
 /**
- * The poster's absolute URL, or null when there is no poster or it is not HTTPS. Neither platform
- * allows cleartext, so an `http` poster could only fail to load.
+ * The poster's absolute URL, or null without a poster. A non-HTTPS poster is null too: neither
+ * platform allows cleartext, so it could only fail to load.
  */
 fun mapPosterUrlDataToDomain(poster: PosterResponse?): String? =
     poster?.originalUrl?.takeIf { it.startsWith(SECURE_URL_PREFIX) }

@@ -5,7 +5,7 @@ import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.SortData
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeListResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.ITEMS_PER_PAGE
 
-const val GRAPHQL_APPEND_URL = "api/graphql"
+const val ANIME_LIST_APPEND_URL = "api/graphql"
 
 /** The Shikimori endpoint for anime lists, by filter or by id. */
 interface ShikimoriApiService {

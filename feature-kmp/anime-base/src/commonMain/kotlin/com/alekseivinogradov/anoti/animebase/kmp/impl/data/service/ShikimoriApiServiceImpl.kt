@@ -1,7 +1,7 @@
 package com.alekseivinogradov.anoti.animebase.kmp.impl.data.service
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeListResponse
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.GRAPHQL_APPEND_URL
+import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ANIME_LIST_APPEND_URL
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.anoti.network.kmp.api.domain.SHIKIMORI_BASE_URL
@@ -27,7 +27,7 @@ class ShikimoriApiServiceImpl(
         search: String?,
         ids: String?
     ): AnimeListResponse {
-        return httpClient.post("$SHIKIMORI_BASE_URL/$GRAPHQL_APPEND_URL") {
+        return httpClient.post("$SHIKIMORI_BASE_URL/$ANIME_LIST_APPEND_URL") {
             contentType(ContentType.Application.Json)
             setBody(
                 buildJsonObject {

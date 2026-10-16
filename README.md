@@ -36,7 +36,10 @@ Technology stack:
 3. Multi-module architecture. MVI is based on [MVIKotlin](https://github.com/arkivanov/MVIKotlin),
    navigation on [Decompose](https://github.com/arkivanov/Decompose).
 4. Kotlin Coroutines and Flow.
-5. Networking is implemented via [Ktor](https://github.com/ktorio/ktor).
+5. Networking is implemented via [Ktor](https://github.com/ktorio/ktor). Anime data comes from
+   the [Shikimori GraphQL API](https://shikimori.io/api/doc/graphql) instead of REST, to cut the
+   number of requests: one request returns a whole page with only the fields the app needs, the
+   posters and the next-episode dates included.
 6. The local database is implemented via
    [Room](https://developer.android.com/kotlin/multiplatform/room) for Kotlin Multiplatform.
 7. Custom pagination, written without third-party libraries and designed to fit MVI and UDF.

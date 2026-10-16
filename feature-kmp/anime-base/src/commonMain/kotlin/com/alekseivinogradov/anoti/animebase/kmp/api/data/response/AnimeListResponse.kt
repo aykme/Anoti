@@ -13,5 +13,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AnimeListResponse(
     @SerialName("data") val data: AnimeListDataResponse? = null,
-    @SerialName("errors") val errors: List<GraphQlErrorResponse>? = null
+    @SerialName("errors") val errors: List<ErrorResponse>? = null
 )

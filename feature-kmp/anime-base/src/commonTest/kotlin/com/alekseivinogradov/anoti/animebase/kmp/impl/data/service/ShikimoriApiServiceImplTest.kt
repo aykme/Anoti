@@ -66,7 +66,7 @@ class ShikimoriApiServiceImplTest {
     private val emptyAnimeListJsonResponse = """{"data":{"animes":[]}}"""
 
     @Test
-    fun aListPagePostsItsVariablesToGraphQlAndDecodesTheAnswer() = runTest {
+    fun aListPagePostsItsVariablesAndDecodesTheAnswer() = runTest {
         //Given
         val service = createService(animeListJsonResponse)
 

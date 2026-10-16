@@ -3,13 +3,13 @@ package com.alekseivinogradov.anoti.animebase.kmp.api.data.mapper
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeListDataResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeListResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeResponse
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.GraphQlErrorResponse
+import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.ErrorResponse
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 
-private const val ERROR_TEXT = "Variable \$search was provided invalid value frieren"
+private const val ERROR_TEXT = $$"Variable $search was provided invalid value frieren"
 
 class AnimeListResponseToAnimeResponsesMapperTest {
 
@@ -32,7 +32,7 @@ class AnimeListResponseToAnimeResponsesMapperTest {
         //Given
         val response = AnimeListResponse(
             data = AnimeListDataResponse(animes = animes),
-            errors = listOf(GraphQlErrorResponse(message = ERROR_TEXT))
+            errors = listOf(ErrorResponse(message = ERROR_TEXT))
         )
 
         //When
@@ -46,7 +46,7 @@ class AnimeListResponseToAnimeResponsesMapperTest {
     fun anAnswerWithoutDataFailsWithoutQuotingTheErrors() {
         //Given
         val response = AnimeListResponse(
-            errors = listOf(GraphQlErrorResponse(message = ERROR_TEXT))
+            errors = listOf(ErrorResponse(message = ERROR_TEXT))
         )
 
         //When / Then

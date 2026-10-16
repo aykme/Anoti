@@ -170,7 +170,7 @@ class AnimeListSourceImplTest {
     fun anAnswerWithErrorsAndNoDataFailsThePage() = runTest {
         //Given
         val source = createSource(
-            answer = { """{"errors":[{"message":"Variable ${'$'}order was provided invalid value"}]}""" }
+            answer = { $$"""{"errors":[{"message":"Variable $order was provided invalid value"}]}""" }
         )
 
         //When
