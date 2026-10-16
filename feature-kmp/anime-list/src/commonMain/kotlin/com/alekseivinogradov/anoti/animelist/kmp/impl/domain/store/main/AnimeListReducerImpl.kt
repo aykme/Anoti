@@ -81,18 +81,6 @@ internal class AnimeListReducerImpl :
                     enabledExtraEpisodesInfoIds = msg.enabledExtraEpisodesInfoId
                 )
             )
-
-            is AnimeListMainStore.Message.UpdateOngoingAnimeDetails -> copy(
-                ongoingContent = ongoingContent.copy(
-                    animeDetails = msg.animeDetails
-                )
-            )
-
-            is AnimeListMainStore.Message.UpdateSearchAnimeDetails -> copy(
-                searchContent = searchContent.copy(
-                    animeDetails = msg.animeDetails
-                )
-            )
         }
     }
 }

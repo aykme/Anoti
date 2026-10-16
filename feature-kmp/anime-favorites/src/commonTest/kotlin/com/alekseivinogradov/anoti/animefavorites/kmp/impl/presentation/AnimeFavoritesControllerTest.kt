@@ -11,14 +11,11 @@ import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.usecase.fake.An
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.presentation.mapper.mapStateToUiModel
-import com.alekseivinogradov.anoti.animefavorites.kmp.impl.data.source.fake.AnimeFavoritesSourceFake
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store.AnimeFavoritesExecutorFactory
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store.AnimeFavoritesExecutorImpl
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.store.AnimeFavoritesMainStoreFactory
-import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.wrapper.FavoritesUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.CoroutineContextProviderBase
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
@@ -110,12 +107,7 @@ class AnimeFavoritesControllerTest {
             AnimeFavoritesExecutorImpl(
                 coroutineContextProvider = coroutineContextProvider,
                 usecases = FavoritesUsecases(
-                    updateAllAnimeInBackgroundOnceUsecase = backgroundUpdateUsecase,
-                    fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(AnimeFavoritesSourceFake())
-                ),
-                systemMessageProvider = SystemMessageProvider(
-                    makeConnectionErrorSystemMessage = {},
-                    makeUnknownErrorSystemMessage = {}
+                    updateAllAnimeInBackgroundOnceUsecase = backgroundUpdateUsecase
                 )
             )
         }

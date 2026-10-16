@@ -35,9 +35,11 @@ database or its schema, a model mapper at the data boundary, or a paged list.
   scope is in [dependency-injection.md "Scopes"](dependency-injection.md#scopes).
 - A response model is a `@Serializable data class <Name>Response` in `api/data/response`. Every
   field has a `@SerialName`, a nullable type and a `null` default.
-  Example: [AnimeShortResponse](../../feature-kmp/anime-base/src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/data/response/AnimeShortResponse.kt)
-- A GraphQL call is one `POST` with a fixed query and its variables as a JSON body, built in
-  the service. An answer without `data` is a failure; `data` that comes with `errors` is used.
+  Example: [AnimeResponse](../../feature-kmp/anime-base/src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/data/response/AnimeResponse.kt)
+- The catalog is Shikimori GraphQL: one `POST` with a fixed query and its variables as a JSON
+  body, built in the service. A variable without a value is left out, never sent as `null`,
+  which the server reads differently. An answer without `data` is a failure; `data` that comes
+  with `errors` is used.
   Example: [ShikimoriApiServiceImpl](../../feature-kmp/anime-base/src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/impl/data/service/ShikimoriApiServiceImpl.kt)
 - Values the API takes or sends as strings are `*Data` enums with a `value: String`, in
   `api/data/model`.
@@ -48,14 +50,9 @@ database or its schema, a model mapper at the data boundary, or a paged list.
 - A source is an interface `<Feature>Source` in `api/domain/source` that returns
   `CallResult<*Domain>`. `<Feature>SourceImpl` in `impl/data/source` takes the service and
   `SafeApi`.
-- A source may also take a best-effort lookup from the shared base module and call it inside
-  its own safe call. Such a lookup returns its fallback rather than a `CallResult`: what it
-  adds is optional.
-  Example: [AnimePosterSource](../../feature-kmp/anime-base/src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/api/domain/source/AnimePosterSource.kt), [AnimeListSourceImpl](../../feature-kmp/anime-list/src/commonMain/kotlin/com/alekseivinogradov/anoti/animelist/kmp/impl/data/source/AnimeListSourceImpl.kt)
 - Each source method wraps the service call and the response-to-domain mapping in one
-  `safeApi.call { }`. A mapping failure then becomes an `OtherError`. Items without an id are
-  dropped. As found: the list source filters them from its pages before mapping, the background
-  source drops them in its mapper, and both single-item fetches map a missing id to `-1`.
+  `safeApi.call { }`. A mapping failure then becomes an `OtherError`. Items without a usable
+  id are dropped by each feature's response mapper, which returns `null` for them.
   Example: [AnimeListSourceImpl](../../feature-kmp/anime-list/src/commonMain/kotlin/com/alekseivinogradov/anoti/animelist/kmp/impl/data/source/AnimeListSourceImpl.kt)
 - A usecase used only inside its module is a concrete class in `impl/domain/usecase` with one
   `execute` function. It takes a source and fixes the parameters the caller need not choose.
@@ -146,7 +143,8 @@ kotlinx.serialization is used for:
 - A next page is appended without items whose id is already in the list. The backend can repeat
   an item between two requests.
   Example: [ListItemsPage](../../feature-kmp/anime-list/src/commonMain/kotlin/com/alekseivinogradov/anoti/animelist/kmp/impl/domain/store/ListItemsPage.kt)
-- The first page number and the page size are shared constants of the shared base module.
+- The first page number and the page size are shared constants of the shared base module. The
+  page size is the server's cap for one answer, and the background update batches ids by it.
 
 ## Testing
 

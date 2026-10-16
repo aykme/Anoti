@@ -117,7 +117,7 @@ class AnimeDatabaseRepositoryImplTest {
     }
 
     @Test
-    fun resetAllItemsExtraInfoClearsEveryFlagAndNextEpisodeDate() = runTest {
+    fun resetAllItemsExtraInfoClearsEveryFlagAndKeepsTheNextEpisodeDates() = runTest {
         //Given
         val repository = AnimeDatabaseRepositoryImpl(AnimeDaoFake())
         repository.insert(
@@ -133,7 +133,10 @@ class AnimeDatabaseRepositoryImplTest {
         //Then
         val items = repository.getAllItems()
         assertTrue(items.none { it.isExtraInfoEnabled })
-        assertTrue(items.none { it.nextEpisodeAt != null })
+        assertEquals(
+            listOf("2026-09-10T12:00:00Z", "2026-09-11T12:00:00Z"),
+            items.sortedBy { it.id }.map { it.nextEpisodeAt }
+        )
     }
 
     @Test

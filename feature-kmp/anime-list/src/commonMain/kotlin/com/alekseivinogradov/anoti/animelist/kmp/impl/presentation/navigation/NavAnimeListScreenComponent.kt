@@ -74,8 +74,7 @@ class NavAnimeListScreenComponent(
                 ongoing = ongoingSectionStore.state.sectionContent.let {
                     RestoredSectionState(
                         itemCount = it.listItems.size,
-                        enabledExtraEpisodesInfoIds = it.enabledExtraEpisodesInfoIds,
-                        nextEpisodesInfo = it.animeDetails.nextEpisodesInfo
+                        enabledExtraEpisodesInfoIds = it.enabledExtraEpisodesInfoIds
                     )
                 },
                 announced = announcedSectionStore.state.sectionContent.let {
@@ -87,8 +86,7 @@ class NavAnimeListScreenComponent(
                 search = searchSectionStore.state.sectionContent.let {
                     RestoredSectionState(
                         itemCount = it.listItems.size,
-                        enabledExtraEpisodesInfoIds = it.enabledExtraEpisodesInfoIds,
-                        nextEpisodesInfo = it.animeDetails.nextEpisodesInfo
+                        enabledExtraEpisodesInfoIds = it.enabledExtraEpisodesInfoIds
                     )
                 }
             )
@@ -138,14 +136,11 @@ internal data class RestoredMainState(
  *
  * @param itemCount how many items were loaded before restore.
  * @param enabledExtraEpisodesInfoIds ids that were showing the extra episode-info variant.
- * @param nextEpisodesInfo next-episode air date/time by anime id, already fetched before restore.
- * Always empty for the announced section, which never fetches this.
  */
 @Serializable
 internal data class RestoredSectionState(
     val itemCount: Int,
-    val enabledExtraEpisodesInfoIds: Set<AnimeId>,
-    val nextEpisodesInfo: Map<AnimeId, String?> = mapOf()
+    val enabledExtraEpisodesInfoIds: Set<AnimeId>
 )
 
 /**
@@ -187,8 +182,7 @@ internal fun applyRestoredMainState(
         ongoingSectionStore.accept(
             OngoingSectionStore.Intent.RestoreSection(
                 itemCount = restoredState.ongoing.itemCount,
-                enabledExtraEpisodesInfoIds = restoredState.ongoing.enabledExtraEpisodesInfoIds,
-                nextEpisodesInfo = restoredState.ongoing.nextEpisodesInfo
+                enabledExtraEpisodesInfoIds = restoredState.ongoing.enabledExtraEpisodesInfoIds
             )
         )
         announcedSectionStore.accept(
@@ -200,8 +194,7 @@ internal fun applyRestoredMainState(
         searchSectionStore.accept(
             SearchSectionStore.Intent.RestoreSection(
                 itemCount = restoredState.search.itemCount,
-                enabledExtraEpisodesInfoIds = restoredState.search.enabledExtraEpisodesInfoIds,
-                nextEpisodesInfo = restoredState.search.nextEpisodesInfo
+                enabledExtraEpisodesInfoIds = restoredState.search.enabledExtraEpisodesInfoIds
             )
         )
     }

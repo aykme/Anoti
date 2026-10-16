@@ -91,7 +91,8 @@ How an executor is written:
 - `executeIntent` and `executeAction` are exhaustive `when`s, one private function per case. The
   executor reads `state()`, dispatches messages, publishes labels, and launches work in `scope`.
 - Dependencies come through the constructor: the `CoroutineContextProvider`, a `*Usecases` wrapper,
-  and the `SystemMessageProvider`. Usecases are owned by [data-layer.md](data-layer.md).
+  and the `SystemMessageProvider` when the executor shows failures; see
+  [error-handling.md](error-handling.md). Usecases are owned by [data-layer.md](data-layer.md).
 - The executor factory is `typealias <Feature>ExecutorFactory = () -> <Feature>ExecutorImpl`. The
   feature graph provides it as a lambda that builds the executor.
   Example: [DiAnimeFavoritesComponent](../../feature-kmp/anime-favorites/src/commonMain/kotlin/com/alekseivinogradov/anoti/animefavorites/kmp/impl/di/DiAnimeFavoritesComponent.kt)
@@ -104,8 +105,7 @@ typealias <Feature>ExecutorFactory = () -> <Feature>ExecutorImpl
 
 class <Feature>ExecutorImpl(
     coroutineContextProvider: CoroutineContextProvider,
-    private val usecases: <Feature>Usecases,
-    private val systemMessageProvider: SystemMessageProvider
+    private val usecases: <Feature>Usecases
 ) : <Feature>Executor(mainContext = coroutineContextProvider.newMainCoroutineContext()) {
     private var loadJob: Job? = null
     override fun executeIntent(intent: <Feature>MainStore.Intent) {
@@ -118,12 +118,7 @@ class <Feature>ExecutorImpl(
     private fun openSection() {
         loadJob?.cancel()
         loadJob = scope.launch {
-            when (val result = usecases.fetch<Name>Usecase.execute()) {
-                is CallResult.Success -> dispatch(<Feature>MainStore.Message.UpdateItems(result.value))
-                is CallResult.HttpError,
-                is CallResult.NetworkError -> systemMessageProvider.makeConnectionErrorSystemMessage()
-                is CallResult.OtherError -> systemMessageProvider.makeUnknownErrorSystemMessage()
-            }
+            dispatch(<Feature>MainStore.Message.UpdateItems(usecases.read<Name>sUsecase.execute()))
         }
     }
 }

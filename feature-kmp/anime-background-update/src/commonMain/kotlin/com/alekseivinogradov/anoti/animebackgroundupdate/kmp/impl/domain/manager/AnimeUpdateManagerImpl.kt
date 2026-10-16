@@ -129,6 +129,7 @@ class AnimeUpdateManagerImpl(
                 name = remoteItem.name,
                 episodesAired = remoteItem.episodesAired,
                 episodesTotal = remoteItem.episodesTotal,
+                nextEpisodeAt = remoteItem.nextEpisodeAt,
                 airedOn = remoteItem.airedOn,
                 releasedOn = remoteItem.releasedOn,
                 score = remoteItem.score,

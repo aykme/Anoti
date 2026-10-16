@@ -1,7 +1,6 @@
 package com.alekseivinogradov.anoti.animelist.kmp.api.presentation.mapper.model
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
-import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SearchDomain
@@ -79,8 +78,7 @@ private fun getListItemsUi(
         getListItemUi(
             listItem = listItem,
             enabledNotificationIds = state.enabledNotificationIds,
-            enabledExtraEpisodesInfoIds = listItemsContent.enabledExtraEpisodesInfoIds,
-            animeDetails = listItemsContent.animeDetails
+            enabledExtraEpisodesInfoIds = listItemsContent.enabledExtraEpisodesInfoIds
         )
     }.toPersistentList()
 }
@@ -88,8 +86,7 @@ private fun getListItemsUi(
 private fun getListItemUi(
     listItem: ListItemDomain,
     enabledNotificationIds: Set<AnimeId>,
-    enabledExtraEpisodesInfoIds: Set<AnimeId>,
-    animeDetails: AnimeDetails
+    enabledExtraEpisodesInfoIds: Set<AnimeId>
 ): ListItemUi {
     return ListItemUi(
         id = listItem.id,
@@ -101,7 +98,7 @@ private fun getListItemUi(
         ),
         episodesAired = listItem.episodesAired,
         episodesTotal = listItem.episodesTotal,
-        nextEpisodeAt = animeDetails.nextEpisodesInfo[listItem.id],
+        nextEpisodeAt = listItem.nextEpisodeAt,
         airedOn = listItem.airedOn,
         releasedOn = listItem.releasedOn,
         score = listItem.score?.toString().orEmpty(),

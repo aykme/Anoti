@@ -1,11 +1,8 @@
 package com.alekseivinogradov.anoti.main.impl.presentation
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.fake.UpdateAllAnimeInBackgroundOnceUsecaseFake
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ANIME_LIST_APPEND_URL
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
-import com.alekseivinogradov.anoti.animebase.kmp.api.domain.source.AnimePosterSource
 import com.alekseivinogradov.anoti.animebase.kmp.impl.data.service.ShikimoriApiServiceImpl
-import com.alekseivinogradov.anoti.animebase.kmp.impl.data.source.AnimePosterSourceImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.fake.AnimeDatabaseStoreFake
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
@@ -43,12 +40,6 @@ internal class DiRootDependenciesFake : DiRootDependencies {
 
     /** Every store handed out through [animeDatabaseStore], in the order they were asked for. */
     val animeDatabaseStores = mutableListOf<AnimeDatabaseStoreFake>()
-
-    /** The path of every details call a screen made. A test-driving the shell has none. */
-    val animeDetailsRequests: List<String>
-        get() = catalogEngine.requestHistory
-            .map { it.url.encodedPath }
-            .filterNot { it.endsWith("/$ANIME_LIST_APPEND_URL") }
 
     /** Every store built through [storeFactory], by the name it was built under. */
     val builtStores = mutableListOf<Pair<String?, Store<*, *, *>>>()
@@ -91,8 +82,6 @@ internal class DiRootDependenciesFake : DiRootDependencies {
     override val shikimoriApiService: ShikimoriApiService =
         ShikimoriApiServiceImpl(createHttpClient(catalogEngine))
     override val safeApi: SafeApi = SafeApiFake()
-    override val animePosterSource: AnimePosterSource =
-        AnimePosterSourceImpl(service = shikimoriApiService, safeApi = safeApi)
     override val updateAllAnimeInBackgroundOnceUsecase = UpdateAllAnimeInBackgroundOnceUsecaseFake()
 
     // The real graph leaves this binding unscoped, so each consumer builds its own store. Mirrored
@@ -102,8 +91,7 @@ internal class DiRootDependenciesFake : DiRootDependencies {
 }
 
 /**
- * Answers every listing with nothing, so the screens settle on their empty state. A details call
- * gets the same, and is caught by asserting on [DiRootDependenciesFake.animeDetailsRequests].
+ * Answers every listing with nothing, so the screens settle on their empty state.
  *
  * It answers on the main dispatcher the test installed. Left to itself it would pick
  * `Dispatchers.IO`, taking the answer off the virtual clock and onto a second thread.
@@ -113,7 +101,7 @@ private fun emptyCatalogEngine() = MockEngine(
         dispatcher = Dispatchers.Main
         addHandler {
             respond(
-                content = ByteReadChannel("[]"),
+                content = ByteReadChannel("""{"data":{"animes":[]}}"""),
                 status = HttpStatusCode.OK,
                 headers = headersOf(HttpHeaders.ContentType, "application/json")
             )

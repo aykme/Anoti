@@ -179,13 +179,6 @@ class AnimeListExecutorImpl(
                 )
             )
         }
-        if (state.ongoingContent.animeDetails != intent.content.animeDetails) {
-            dispatch(
-                AnimeListMainStore.Message.UpdateOngoingAnimeDetails(
-                    animeDetails = intent.content.animeDetails
-                )
-            )
-        }
         // A switch still waiting out its delay was computed against content this update has
         // just replaced, so it must not be allowed to land.
         updateOngoingContentJob?.cancel()
@@ -259,13 +252,6 @@ class AnimeListExecutorImpl(
             dispatch(
                 AnimeListMainStore.Message.UpdateSearchEnabledExtraEpisodesInfoIds(
                     intent.content.enabledExtraEpisodesInfoIds
-                )
-            )
-        }
-        if (state.searchContent.animeDetails != intent.content.animeDetails) {
-            dispatch(
-                AnimeListMainStore.Message.UpdateSearchAnimeDetails(
-                    animeDetails = intent.content.animeDetails
                 )
             )
         }

@@ -42,10 +42,7 @@ class MainActivityNotificationSettingsTest {
     fun installTestDispatcher() = mainDispatcher.install()
 
     @AfterTest
-    fun removeTestDispatcher() {
-        mainDispatcher.remove()
-        assertNoAnimeDetailsRequested()
-    }
+    fun removeTestDispatcher() = mainDispatcher.remove()
 
     @Test
     fun saysNothingWhileNotificationsAreAlreadyOn() {

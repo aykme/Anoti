@@ -41,12 +41,11 @@ Unless a step says otherwise, start with the app opened at least once.
 1. Throttle the device's connection hard — for example, set the emulator's network speed to the
    slowest setting — then refresh the main screen.
    Either the anime arrive, or the screen ends in its error state within about twenty seconds.
-   A list page also looks up its posters, so when both of its requests crawl it may take up to
-   about forty seconds. It never stays on a spinner indefinitely.
+   It never stays on a spinner indefinitely.
 2. With the connection still throttled, scroll a list to more than sixty anime, then let the
    system end the app in the background and open it again, so it restores the list.
-   The restore loads up to four pages in a row, so its spinner may last up to about a minute
-   and a half. It still ends on the list or its error state.
+   The restore loads up to two pages in a row, so its spinner may last up to about forty
+   seconds. It still ends on the list or its error state.
 3. Remove the throttling and refresh.
    The anime load.
 

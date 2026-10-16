@@ -1,6 +1,5 @@
 package com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main
 
-import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.SearchDomain
@@ -231,24 +230,6 @@ interface AnimeListMainStore :
          */
         data class UpdateSearchEnabledExtraEpisodesInfoIds(
             val enabledExtraEpisodesInfoId: Set<AnimeId>
-        ) : Message
-
-        /**
-         * Replaces [State.ongoingContent]'s fetched anime details.
-         *
-         * @param animeDetails extra per-item details fetched for the ongoing section.
-         */
-        data class UpdateOngoingAnimeDetails(
-            val animeDetails: AnimeDetails
-        ) : Message
-
-        /**
-         * Replaces [State.searchContent]'s fetched anime details.
-         *
-         * @param animeDetails extra per-item details fetched for the search section.
-         */
-        data class UpdateSearchAnimeDetails(
-            val animeDetails: AnimeDetails
         ) : Message
     }
 }

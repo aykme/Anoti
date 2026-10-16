@@ -29,7 +29,8 @@ import kotlin.test.assertTrue
 private const val POSTER_URL_PREFIX = "https://shikimori.io/system/animes/original/"
 private const val FRESH_POSTER_URL = "https://shikimori.io/uploads/poster/animes/1/fresh.jpeg"
 private const val AIRED_ON = "2025-10-01"
-private const val NEXT_EPISODE_AT = "2026-01-05T18:00:00.000+03:00"
+private const val NEXT_EPISODE_AT = "2026-01-05T18:00:00+03:00"
+private const val RESCHEDULED_NEXT_EPISODE_AT = "2026-01-12T18:00:00+03:00"
 private const val EPISODES_TOTAL = 12
 private const val SCORE = 8.0F
 
@@ -166,7 +167,7 @@ class AnimeUpdateManagerImplTest {
     @Test
     fun aPosterThatArrivedForASavedTitleIsWrittenWithoutANotification() = runTest {
         //Given
-        // A row the 2→3 migration cleared, or one REST gave a placeholder.
+        // A row the 2→3 migration cleared.
         val database = databaseWith(listOf(savedAnime(1, imageUrl = null)))
         val notifications = AnimeNotificationManagerFake()
         val source = AnimeBackgroundUpdateSourceFake {
@@ -178,6 +179,23 @@ class AnimeUpdateManagerImplTest {
 
         //Then
         assertEquals(FRESH_POSTER_URL, database.updatedItems.single().imageUrl)
+        assertEquals(listOf(), notifications.notifications)
+    }
+
+    @Test
+    fun aRescheduledNextEpisodeIsWrittenWithoutANotification() = runTest {
+        //Given
+        val database = databaseWith(listOf(savedAnime(1)))
+        val notifications = AnimeNotificationManagerFake()
+        val source = AnimeBackgroundUpdateSourceFake {
+            succeedWith(remoteAnime(1).copy(nextEpisodeAt = RESCHEDULED_NEXT_EPISODE_AT))
+        }
+
+        //When
+        createManager(database = database, source = source, notifications = notifications).update()
+
+        //Then
+        assertEquals(RESCHEDULED_NEXT_EPISODE_AT, database.updatedItems.single().nextEpisodeAt)
         assertEquals(listOf(), notifications.notifications)
     }
 
@@ -477,6 +495,7 @@ class AnimeUpdateManagerImplTest {
         imageUrl = imageUrl,
         episodesAired = episodesAired,
         episodesTotal = episodesTotal,
+        nextEpisodeAt = NEXT_EPISODE_AT,
         airedOn = AIRED_ON,
         releasedOn = null,
         score = SCORE,

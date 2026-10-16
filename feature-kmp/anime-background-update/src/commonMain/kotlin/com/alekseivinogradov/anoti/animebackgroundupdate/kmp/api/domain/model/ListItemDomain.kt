@@ -11,6 +11,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
  * @param imageUrl URL to the anime's cover image.
  * @param episodesAired number of episodes that have aired.
  * @param episodesTotal total planned episodes.
+ * @param nextEpisodeAt air date/time of the next episode, or null if none is scheduled.
  * @param airedOn when the anime first aired.
  * @param releasedOn when the anime was released.
  * @param score average rating.
@@ -22,6 +23,7 @@ data class ListItemDomain(
     val imageUrl: String?,
     val episodesAired: Int?,
     val episodesTotal: Int?,
+    val nextEpisodeAt: String?,
     val airedOn: String?,
     val releasedOn: String?,
     val score: Float?,

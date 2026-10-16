@@ -1,9 +1,7 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.ongoingsection
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.FIRST_PAGE
-import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.RESTORED_SECTION_MAX_ITEM_COUNT
-import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.AnimeDetails
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.ongoingsection.OngoingSectionExecutor
@@ -11,17 +9,13 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.ongoingsection
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.plusPage
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.OngoingUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.paging.PageLoadResult
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.paging.Paginator
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
-import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-// One function per Intent handled, not incidental growth.
-@Suppress("TooManyFunctions")
 class OngoingSectionExecutorImpl(
     coroutineContextProvider: CoroutineContextProvider,
     private val usecases: OngoingUsecases,
@@ -32,7 +26,6 @@ class OngoingSectionExecutorImpl(
 
     private var updateSectionJob: Job? = null
     private var loadNextPageJob: Job? = null
-    private val updateAnimeDetailsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
     private var paginator: Paginator<ListItemDomain> = createPaginator()
 
     override fun executeIntent(intent: OngoingSectionStore.Intent) {
@@ -67,14 +60,13 @@ class OngoingSectionExecutorImpl(
         dispatch(
             OngoingSectionStore.Message.RestoreSection(
                 itemCount = intent.itemCount,
-                enabledExtraEpisodesInfoIds = intent.enabledExtraEpisodesInfoIds,
-                nextEpisodesInfo = intent.nextEpisodesInfo
+                enabledExtraEpisodesInfoIds = intent.enabledExtraEpisodesInfoIds
             )
         )
     }
 
-    // Never resets enabledExtraEpisodesInfoIds/animeDetails: RestoreSection just seeded them, and
-    // this call, from OpenSection, must page in enough items without disturbing that state.
+    // Never resets enabledExtraEpisodesInfoIds: RestoreSection just seeded it, and this call,
+    // from OpenSection, must page in enough items without disturbing that state.
     private fun restoreSectionContent(targetItemCount: Int) {
         updateSectionJob?.cancel()
         loadNextPageJob?.cancel()
@@ -124,11 +116,6 @@ class OngoingSectionExecutorImpl(
             dispatch(
                 OngoingSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
                     enabledExtraEpisodesInfoIds = setOf()
-                )
-            )
-            dispatch(
-                OngoingSectionStore.Message.UpdateAnimeDetails(
-                    animeDetails = AnimeDetails()
                 )
             )
             println("$ANOTI_TAG OngoingSection: first page requested")
@@ -218,56 +205,6 @@ class OngoingSectionExecutorImpl(
         dispatch(
             OngoingSectionStore.Message.UpdateEnabledExtraEpisodesInfoIds(
                 newEnabledExtraEpisodesInfoIds
-            )
-        )
-        if (
-            listItem.releaseStatus == ReleaseStatusDomain.ONGOING &&
-            !state().sectionContent.animeDetails.nextEpisodesInfo.contains(listItem.id)
-        ) {
-            updateAnimeDetails(listItem.id)
-        }
-    }
-
-    private fun updateAnimeDetails(id: AnimeId) {
-        updateAnimeDetailsJobMap[id]?.cancel()
-        val job = scope.launch {
-            val result = usecases
-                .fetchAnimeDetailsByIdUsecase
-                .execute(id)
-
-            when (result) {
-                is CallResult.Success -> onSuccessUpdateAnimeDetails(
-                    updateListItem = result.value
-                )
-
-                is CallResult.HttpError,
-                is CallResult.NetworkError -> {
-                    systemMessageProvider.makeConnectionErrorSystemMessage()
-                }
-
-                is CallResult.OtherError -> systemMessageProvider.makeUnknownErrorSystemMessage()
-            }
-        }
-        updateAnimeDetailsJobMap[id] = job
-        // Keeping the finished job would hold every id the section ever expanded for the
-        // executor's whole lifetime. Removed by identity, so the job canceled above cannot
-        // evict its own replacement.
-        job.invokeOnCompletion {
-            if (updateAnimeDetailsJobMap[id] === job) updateAnimeDetailsJobMap.remove(id)
-        }
-    }
-
-    private fun onSuccessUpdateAnimeDetails(
-        updateListItem: ListItemDomain
-    ) {
-        val newNextEpisodesInfo = state().sectionContent.animeDetails.nextEpisodesInfo +
-            (updateListItem.id to updateListItem.nextEpisodeAt)
-
-        dispatch(
-            OngoingSectionStore.Message.UpdateAnimeDetails(
-                animeDetails = state().sectionContent.animeDetails.copy(
-                    nextEpisodesInfo = newNextEpisodesInfo
-                )
             )
         )
     }

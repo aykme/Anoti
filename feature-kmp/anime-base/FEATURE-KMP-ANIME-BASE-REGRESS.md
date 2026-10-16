@@ -63,6 +63,7 @@ module. These checks confirm it arrives complete and correct.
    - Its line reads "Episodes: 0 / ?", never the word "null" and never a blank gap.
 7. Look at the posters of the "On air" and "Soon" lists, the newest titles included.
    - Each shows the anime's own artwork, as on its shikimori.io page. None shows the site's gray
-     "404" placeholder, a pencil sketch of a girl, except a title the site has no poster for.
+     "404" placeholder, a pencil sketch of a girl. A title the site has no poster for shows the
+     grayed broken-image icon.
 8. Open a poster-heavy list and look closely at a few posters.
    - They are sharp, not blurry or blocky, at the size the row shows them.

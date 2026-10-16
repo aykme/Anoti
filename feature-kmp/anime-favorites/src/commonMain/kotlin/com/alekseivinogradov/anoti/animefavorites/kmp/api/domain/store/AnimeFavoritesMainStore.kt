@@ -18,15 +18,10 @@ interface AnimeFavoritesMainStore :
     /**
      * @param listItems favorites list items.
      * @param contentType loading state of the list.
-     * @param fetchedAnimeDetailsIds ids whose next-episode info was already fetched this
-     * section load. A null [ListItemDomain.nextEpisodeAt] can mean either "not fetched yet" or
-     * "fetched, and the API legitimately has none" — this id set is the only reliable way to
-     * tell those apart and avoid re-fetching in the second case.
      */
     data class State(
         val listItems: List<ListItemDomain> = listOf(),
-        val contentType: ContentTypeDomain = ContentTypeDomain.LOADING(),
-        val fetchedAnimeDetailsIds: Set<AnimeId> = setOf()
+        val contentType: ContentTypeDomain = ContentTypeDomain.LOADING()
     )
 
     /** Actions a caller can dispatch via [accept]. */
@@ -70,10 +65,7 @@ interface AnimeFavoritesMainStore :
         /** Ask the database store for a fresh section update. */
         data object UpdateSection : Label
 
-        /**
-         * Ask the database store to turn off every item's extra-info display mode and clear its
-         * next-episode date.
-         */
+        /** Ask the database store to turn off every item's extra-info display mode. */
         data object ResetExtraInfo : Label
 
         /** Navigate to the details of the item with [id]. */
@@ -82,7 +74,7 @@ interface AnimeFavoritesMainStore :
         /** Disable the "new episode" notification for the item with [id]. */
         data class DisableNotificationClick(val id: AnimeId) : Label
 
-        /** Persist [listItem]'s updated viewed-episodes count to the database. */
+        /** Persist [listItem]'s changed viewed-episodes count or display mode to the database. */
         data class UpdateListItem(val listItem: ListItemDomain) : Label
     }
 
@@ -104,10 +96,5 @@ interface AnimeFavoritesMainStore :
          * @param contentType the list's new loading state.
          */
         data class ChangeContentType(val contentType: ContentTypeDomain) : Message
-
-        /** Replaces [State.fetchedAnimeDetailsIds]. */
-        data class UpdateFetchedAnimeDetailsIds(
-            val fetchedAnimeDetailsIds: Set<AnimeId>
-        ) : Message
     }
 }

@@ -97,8 +97,8 @@ immediately and does not wait for the poster.
      lists. None is the site's gray "404" placeholder, unless the site itself shows one.
 7. Search for "Steel Ball Run".
    - Its item shows the same artwork as its shikimori.io page, not the gray "404" placeholder.
-8. Search for "Implicity".
-   - Its item shows a picture, not the gray "404" placeholder and not a broken-image icon.
+8. Search for "Implicity". The site has no poster for it.
+   - Its item shows the grayed broken-image icon, not the gray "404" placeholder.
 
 ## 6. The episode-info button
 
@@ -118,15 +118,11 @@ two modes and changes nothing else on the item.
    - The line reads "Show is finished:" with the date.
 5. Open the extra info on an item the server has no date for.
    - The label is shown with "No data" where the date would be.
-6. On an "Ongoing" item that has never had its date fetched, tap the button and watch.
-   - The line switches immediately, and the date fills in a moment later when it arrives.
-     Until then the line may show "No data" for a moment. That is expected.
-   - Turning the mode off and on again does not fetch it a second time: the date is there at
-     once.
-7. Turn the network off and open the extra info on an "Ongoing" item whose date is not yet
-   known.
-   - The line switches and shows "No data". An error banner appears at the bottom of the
-     screen.
+6. On an "Ongoing" item, tap the button and watch.
+   - The line switches and shows its date at once.
+   - The date is the same as the next episode's on the anime's shikimori.io page.
+7. Load "On air", turn the network off, then open the extra info on an "Ongoing" item.
+   - The line switches and shows its date. No error banner appears.
 8. Open the extra info on three items at once.
    - All three stay open independently. Closing one leaves the others open.
 9. With extra info open on an item, scroll it far off-screen and back.
@@ -173,6 +169,7 @@ two modes and changes nothing else on the item.
 ## 9. Paging
 
 1. In "On air", scroll to the bottom.
+   - The first page holds about fifty items, and about fifty more append each time.
    - More items append and the list grows. The items already shown do not move or reload.
    - No full-screen spinner appears while this happens.
 2. Keep scrolling. Repeat several times.
@@ -264,8 +261,8 @@ two modes and changes nothing else on the item.
 5. Repeat step 4 with the search bar closed but the search section selected.
    - It comes back on the search section with the bar closed and the query still applied.
 6. Repeat step 4 with "Soon" selected and several pages scrolled in.
-   - It comes back on "Soon" with about as many items as before — up to eighty — not just the
-     first page.
+   - It comes back on "Soon" with about as many items as before — up to a hundred — not just
+     the first page.
    - Items that had their extra info open have it open again.
    - The bells are as they were.
 7. Repeat step 4 with "On air" selected and nothing scrolled.

@@ -9,10 +9,7 @@ import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavo
 import com.alekseivinogradov.anoti.animefavorites.kmp.api.domain.store.AnimeFavoritesMainStore
 import com.alekseivinogradov.anoti.animefavorites.kmp.impl.domain.usecase.wrapper.FavoritesUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
-import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -23,15 +20,13 @@ import kotlinx.coroutines.withTimeoutOrNull
 @Suppress("TooManyFunctions")
 class AnimeFavoritesExecutorImpl(
     coroutineContextProvider: CoroutineContextProvider,
-    private val usecases: FavoritesUsecases,
-    private val systemMessageProvider: SystemMessageProvider
+    private val usecases: FavoritesUsecases
 ) : AnimeFavoritesExecutor(
     mainContext = coroutineContextProvider.newMainCoroutineContext()
 ) {
 
     private var updateListItemsJob: Job? = null
     private var updateSectionJob: Job? = null
-    private val updateAnimeDetailsJobMap: MutableMap<AnimeId, Job> = mutableMapOf()
 
     // Signals a fresh UpdateListItems intent arriving during an open/refresh cycle, so the
     // minimum-duration resolve below waits for real data instead of judging a stale snapshot.
@@ -115,7 +110,6 @@ class AnimeFavoritesExecutorImpl(
                 ContentTypeDomain.LOADING(hasMinimumDuration = true)
             )
         )
-        dispatch(AnimeFavoritesMainStore.Message.UpdateFetchedAnimeDetailsIds(setOf()))
         resolveContentTypeAfterMinimumDuration()
     }
 
@@ -128,7 +122,6 @@ class AnimeFavoritesExecutorImpl(
                 ContentTypeDomain.LOADING(hasMinimumDuration = true)
             )
         )
-        dispatch(AnimeFavoritesMainStore.Message.UpdateFetchedAnimeDetailsIds(setOf()))
         publish(AnimeFavoritesMainStore.Label.ResetExtraInfo)
         publish(AnimeFavoritesMainStore.Label.UpdateSection)
         resolveContentTypeAfterMinimumDuration()
@@ -241,71 +234,6 @@ class AnimeFavoritesExecutorImpl(
         publish(
             AnimeFavoritesMainStore.Label.UpdateListItem(
                 listItem = listItem.copy(isExtraInfoEnabled = true)
-            )
-        )
-
-        val isOngoingStatus = listItem.releaseStatus == ReleaseStatusDomain.ONGOING
-        // A non-null nextEpisodeAt means the database already has a known date (e.g. from a
-        // background update). Otherwise, fetchedAnimeDetailsIds is the only reliable "already
-        // tried" signal: a null nextEpisodeAt can also mean the API legitimately has none.
-        val alreadyKnown = listItem.nextEpisodeAt != null ||
-            state().fetchedAnimeDetailsIds.contains(listItem.id)
-
-        if (isOngoingStatus && !alreadyKnown) {
-            updateAnimeDetails(listItem.id)
-        }
-    }
-
-    private fun updateAnimeDetails(id: AnimeId) {
-        updateAnimeDetailsJobMap[id]?.cancel()
-        val job = scope.launch {
-            val result = usecases
-                .fetchAnimeDetailsByIdUsecase
-                .execute(id)
-
-            when (result) {
-                is CallResult.Success -> onSuccessUpdateAnimeDetails(
-                    currentItemId = id,
-                    updateListItem = result.value
-                )
-
-                is CallResult.HttpError,
-                is CallResult.NetworkError -> {
-                    systemMessageProvider.makeConnectionErrorSystemMessage()
-                }
-
-                is CallResult.OtherError -> {
-                    systemMessageProvider.makeUnknownErrorSystemMessage()
-                }
-            }
-        }
-        updateAnimeDetailsJobMap[id] = job
-        // Keeping the finished job would hold every id the screen ever expanded for the
-        // executor's whole lifetime. Removed by identity, so the job canceled above cannot
-        // evict its own replacement.
-        job.invokeOnCompletion {
-            if (updateAnimeDetailsJobMap[id] === job) updateAnimeDetailsJobMap.remove(id)
-        }
-    }
-
-    private fun onSuccessUpdateAnimeDetails(
-        currentItemId: AnimeId,
-        updateListItem: ListItemDomain
-    ) {
-        val currentListItem = state().listItems.find { listItemDomain: ListItemDomain ->
-            listItemDomain.id == currentItemId
-        } ?: return
-
-        dispatch(
-            AnimeFavoritesMainStore.Message.UpdateFetchedAnimeDetailsIds(
-                fetchedAnimeDetailsIds = state().fetchedAnimeDetailsIds + currentItemId
-            )
-        )
-        publish(
-            AnimeFavoritesMainStore.Label.UpdateListItem(
-                listItem = currentListItem.copy(
-                    nextEpisodeAt = updateListItem.nextEpisodeAt
-                )
             )
         )
     }

@@ -1,11 +1,11 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.ongoingsection
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.RESTORED_SECTION_MAX_ITEM_COUNT
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.ongoingsection.OngoingSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.impl.data.source.fake.AnimeListSourceFake
-import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchOngoingAnimeListUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.OngoingUsecases
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
@@ -66,9 +66,6 @@ class OngoingSectionExecutorImplTest {
     private fun createStore(
         pages: Map<Int, CallResult<List<ListItemDomain>>>,
         beforeOngoingResult: suspend (page: Int) -> Unit = {},
-        details: suspend (AnimeId) -> CallResult<ListItemDomain> = {
-            error("no details source in this test")
-        },
         onConnectionErrorSystemMessage: () -> Unit = {},
         onUnknownErrorSystemMessage: () -> Unit = {}
     ): OngoingSectionStore {
@@ -76,13 +73,11 @@ class OngoingSectionExecutorImplTest {
             ongoing = { page, _ ->
                 beforeOngoingResult(page)
                 pages[page] ?: CallResult.Success(emptyList())
-            },
-            byId = details
+            }
         )
         val coroutineContextProvider = CoroutineContextProviderFake()
         val usecases = OngoingUsecases(
-            fetchOngoingAnimeListUsecase = FetchOngoingAnimeListUsecase(source),
-            fetchAnimeDetailsByIdUsecase = FetchAnimeDetailsByIdUsecase(source)
+            fetchOngoingAnimeListUsecase = FetchOngoingAnimeListUsecase(source)
         )
         val systemMessageProvider = SystemMessageProvider(
             makeConnectionErrorSystemMessage = onConnectionErrorSystemMessage,
@@ -341,8 +336,7 @@ class OngoingSectionExecutorImplTest {
         store.accept(
             OngoingSectionStore.Intent.RestoreSection(
                 itemCount = restoredItems.size + stalePageItems.size,
-                enabledExtraEpisodesInfoIds = setOf(),
-                nextEpisodesInfo = mapOf()
+                enabledExtraEpisodesInfoIds = setOf()
             )
         )
         store.accept(OngoingSectionStore.Intent.OpenSection)
@@ -355,44 +349,6 @@ class OngoingSectionExecutorImplTest {
 
         //Then
         assertEquals(listOf(refreshedItem), store.state.sectionContent.listItems)
-    }
-
-    @Test
-    fun aSecondDetailsFetchForTheSameItemReplacesTheFirst() = runTest(testDispatcher) {
-        //Given
-        val item = testListItem(id = 1)
-        val fetched = item.copy(nextEpisodeAt = "2026-09-10T12:00:00Z")
-        var detailsCallCount = 0
-        var firstCallWasCancelled = false
-        val store = createStore(
-            pages = mapOf(1 to CallResult.Success(listOf(item))),
-            details = {
-                detailsCallCount++
-                if (detailsCallCount == 1) {
-                    try {
-                        awaitCancellation()
-                    } finally {
-                        firstCallWasCancelled = true
-                    }
-                }
-                CallResult.Success(fetched)
-            }
-        )
-        store.accept(OngoingSectionStore.Intent.OpenSection)
-        store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
-        store.accept(OngoingSectionStore.Intent.EpisodesInfoClick(id = item.id))
-        store.accept(OngoingSectionStore.Intent.EpisodesInfoClick(id = item.id))
-
-        //When
-        store.accept(OngoingSectionStore.Intent.EpisodesInfoClick(id = item.id))
-        runCurrent()
-
-        //Then
-        assertTrue(firstCallWasCancelled, "the replaced fetch outlived its replacement")
-        assertEquals(
-            mapOf(item.id to fetched.nextEpisodeAt),
-            store.state.sectionContent.animeDetails.nextEpisodesInfo
-        )
     }
 
     @Test
@@ -455,8 +411,7 @@ class OngoingSectionExecutorImplTest {
         store.accept(
             OngoingSectionStore.Intent.RestoreSection(
                 itemCount = 4,
-                enabledExtraEpisodesInfoIds = setOf(),
-                nextEpisodesInfo = mapOf()
+                enabledExtraEpisodesInfoIds = setOf()
             )
         )
 
@@ -483,8 +438,7 @@ class OngoingSectionExecutorImplTest {
         store.accept(
             OngoingSectionStore.Intent.RestoreSection(
                 itemCount = 4,
-                enabledExtraEpisodesInfoIds = setOf(),
-                nextEpisodesInfo = mapOf()
+                enabledExtraEpisodesInfoIds = setOf()
             )
         )
 
@@ -493,43 +447,6 @@ class OngoingSectionExecutorImplTest {
         store.states.first { it.sectionContent.contentType == ContentTypeDomain.ERROR }
 
         //Then
-        assertEquals(1, unknownErrorCount)
-    }
-
-    @Test
-    fun aFailedDetailsFetchShowsTheMessageThatMatchesTheFailure() = runTest(testDispatcher) {
-        //Given
-        var connectionErrorCount = 0
-        var unknownErrorCount = 0
-        val item = testListItem(id = 1)
-        val failures = listOf(
-            CallResult.HttpError(code = 500, throwable = Throwable()),
-            CallResult.NetworkError(throwable = Throwable()),
-            CallResult.OtherError(throwable = Throwable())
-        )
-        var failureIndex = 0
-        val store = createStore(
-            pages = mapOf(1 to CallResult.Success(listOf(item))),
-            details = { failures[failureIndex] },
-            onConnectionErrorSystemMessage = { connectionErrorCount++ },
-            onUnknownErrorSystemMessage = { unknownErrorCount++ }
-        )
-        store.accept(OngoingSectionStore.Intent.OpenSection)
-        store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
-
-        //When
-        // Each pair of clicks expands the item, which fetches, and collapses it again, so the
-        // next expansion fetches once more.
-        failures.indices.forEach { index: Int ->
-            failureIndex = index
-            store.accept(OngoingSectionStore.Intent.EpisodesInfoClick(id = item.id))
-            runCurrent()
-            store.accept(OngoingSectionStore.Intent.EpisodesInfoClick(id = item.id))
-            runCurrent()
-        }
-
-        //Then
-        assertEquals(2, connectionErrorCount)
         assertEquals(1, unknownErrorCount)
     }
 
@@ -556,7 +473,6 @@ class OngoingSectionExecutorImplTest {
         runTest(testDispatcher) {
             //Given
             val requestedPages = mutableListOf<Int>()
-            val restoredNextEpisodesInfo = mapOf<AnimeId, String?>(1 to "2026-09-10T12:00:00Z")
             val firstPageItems = listOf(testListItem(id = 1), testListItem(id = 2))
             val secondPageItems = listOf(testListItem(id = 3), testListItem(id = 4))
             val store = createStore(
@@ -569,8 +485,7 @@ class OngoingSectionExecutorImplTest {
             store.accept(
                 OngoingSectionStore.Intent.RestoreSection(
                     itemCount = 3,
-                    enabledExtraEpisodesInfoIds = setOf(1),
-                    nextEpisodesInfo = restoredNextEpisodesInfo
+                    enabledExtraEpisodesInfoIds = setOf(1)
                 )
             )
 
@@ -582,10 +497,6 @@ class OngoingSectionExecutorImplTest {
             assertEquals(firstPageItems + secondPageItems, store.state.sectionContent.listItems)
             assertEquals(listOf(1, 2), requestedPages)
             assertEquals(setOf(1), store.state.sectionContent.enabledExtraEpisodesInfoIds)
-            assertEquals(
-                restoredNextEpisodesInfo,
-                store.state.sectionContent.animeDetails.nextEpisodesInfo
-            )
             assertNull(store.state.restoreTargetItemCount)
         }
 
@@ -603,8 +514,7 @@ class OngoingSectionExecutorImplTest {
         store.accept(
             OngoingSectionStore.Intent.RestoreSection(
                 itemCount = 2,
-                enabledExtraEpisodesInfoIds = emptySet(),
-                nextEpisodesInfo = emptyMap()
+                enabledExtraEpisodesInfoIds = emptySet()
             )
         )
 
@@ -619,7 +529,8 @@ class OngoingSectionExecutorImplTest {
     @Test
     fun aRestoredItemCountAboveTheCapStopsPagingAtTheCap() = runTest(testDispatcher) {
         //Given
-        val pageSize = 30
+        // Four pages land exactly on the cap: a fifth would mean it is not reached at it.
+        val pageSize = RESTORED_SECTION_MAX_ITEM_COUNT / 4
         val requestedPages = mutableListOf<Int>()
         val pages = (1..5).associateWith { page ->
             CallResult.Success(
@@ -633,8 +544,7 @@ class OngoingSectionExecutorImplTest {
         store.accept(
             OngoingSectionStore.Intent.RestoreSection(
                 itemCount = pageSize * pages.size,
-                enabledExtraEpisodesInfoIds = setOf(),
-                nextEpisodesInfo = mapOf()
+                enabledExtraEpisodesInfoIds = setOf()
             )
         )
 
@@ -643,64 +553,30 @@ class OngoingSectionExecutorImplTest {
         store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
         //Then
-        assertEquals(listOf(1, 2, 3), requestedPages)
-        assertEquals(pageSize * 3, store.state.sectionContent.listItems.size)
+        assertEquals(listOf(1, 2, 3, 4), requestedPages)
+        assertEquals(pageSize * 4, store.state.sectionContent.listItems.size)
     }
 
     @Test
-    fun aRestoredNextEpisodeDateIsNotFetchedAgain() = runTest(testDispatcher) {
+    fun aRefreshAfterARestoreClearsTheRestoredToggles() = runTest(testDispatcher) {
         //Given
-        var detailsCallCount = 0
         val item = testListItem(id = 1)
-        val store = createStore(
-            pages = mapOf(1 to CallResult.Success(listOf(item))),
-            details = {
-                detailsCallCount++
-                CallResult.Success(item)
-            }
-        )
+        val store = createStore(pages = mapOf(1 to CallResult.Success(listOf(item))))
         store.accept(
             OngoingSectionStore.Intent.RestoreSection(
                 itemCount = 1,
-                enabledExtraEpisodesInfoIds = setOf(),
-                nextEpisodesInfo = mapOf(item.id to "2026-09-10T12:00:00Z")
+                enabledExtraEpisodesInfoIds = setOf(item.id)
             )
         )
         store.accept(OngoingSectionStore.Intent.OpenSection)
         store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
         //When
-        store.accept(OngoingSectionStore.Intent.EpisodesInfoClick(id = item.id))
-        runCurrent()
-
-        //Then
-        assertEquals(0, detailsCallCount)
-    }
-
-    @Test
-    fun disposingTheStoreCancelsAnInFlightDetailsFetch() = runTest(testDispatcher) {
-        //Given
-        var detailsFetchWasCancelled = false
-        val item = testListItem(id = 1)
-        val store = createStore(
-            pages = mapOf(1 to CallResult.Success(listOf(item))),
-            details = {
-                try {
-                    awaitCancellation()
-                } finally {
-                    detailsFetchWasCancelled = true
-                }
-            }
-        )
-        store.accept(OngoingSectionStore.Intent.OpenSection)
+        store.accept(OngoingSectionStore.Intent.UpdateSection)
         store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
-        store.accept(OngoingSectionStore.Intent.EpisodesInfoClick(id = item.id))
-
-        //When
-        store.dispose()
 
         //Then
-        assertTrue(detailsFetchWasCancelled, "the details fetch outlived its store")
+        assertEquals(emptySet(), store.state.sectionContent.enabledExtraEpisodesInfoIds)
     }
 
     @Test

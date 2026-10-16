@@ -3,7 +3,6 @@ package com.alekseivinogradov.anoti.animelist.kmp.impl.data.source.fake
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.SortData
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
-import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 
 /** One request for a page of a section. */
@@ -13,7 +12,7 @@ data class PageCall(val page: Int, val sort: SortData)
 data class SearchCall(val page: Int, val search: String, val sort: SortData)
 
 /**
- * Answers each of the four listings from its own lambda and records what was asked for. A
+ * Answers each of the three listings from its own lambda and records what was asked for. A
  * listing left unconfigured throws when called.
  *
  * A caller that wraps the call turns that throw into an error path of its own. A paginator does,
@@ -23,7 +22,6 @@ data class SearchCall(val page: Int, val search: String, val sort: SortData)
  * @param ongoing answers the on-air listing.
  * @param announced answers the upcoming listing.
  * @param search answers the search listing.
- * @param byId answers a single anime's details.
  */
 class AnimeListSourceFake(
     private val ongoing: suspend (page: Int, sort: SortData) -> CallResult<List<ListItemDomain>> =
@@ -34,9 +32,7 @@ class AnimeListSourceFake(
         page: Int,
         search: String,
         sort: SortData
-    ) -> CallResult<List<ListItemDomain>> = { _, _, _ -> notConfigured("getListBySearch") },
-    private val byId: suspend (id: AnimeId) -> CallResult<ListItemDomain> =
-        { notConfigured("getItemById") }
+    ) -> CallResult<List<ListItemDomain>> = { _, _, _ -> notConfigured("getListBySearch") }
 ) : AnimeListSource {
 
     /** Every on-air page asked for, oldest first. */
@@ -50,10 +46,6 @@ class AnimeListSourceFake(
     /** Every search page asked for, oldest first. */
     val searchCalls: List<SearchCall>
         field = mutableListOf<SearchCall>()
-
-    /** Every anime id asked for, oldest first. */
-    val requestedIds: List<AnimeId>
-        field = mutableListOf<AnimeId>()
 
     override suspend fun getOngoingList(
         page: Int,
@@ -78,11 +70,6 @@ class AnimeListSourceFake(
     ): CallResult<List<ListItemDomain>> {
         searchCalls += SearchCall(page = page, search = search, sort = sort)
         return this.search(page, search, sort)
-    }
-
-    override suspend fun getItemById(id: AnimeId): CallResult<ListItemDomain> {
-        requestedIds += id
-        return byId(id)
     }
 }
 

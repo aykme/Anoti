@@ -1,13 +1,12 @@
 package com.alekseivinogradov.anoti.animebase.kmp.impl.data.service
 
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeDetailsResponse
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimePosterResponse
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimePostersDataResponse
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimePostersResponse
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeShortResponse
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.ImageResponse
+import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeListDataResponse
+import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeListResponse
+import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeResponse
+import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.IncompleteDateResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.PosterResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
+import com.alekseivinogradov.anoti.animebase.kmp.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.anoti.network.kmp.impl.data.client.createHttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockEngineConfig
@@ -24,13 +23,15 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.descriptors.elementNames
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 private const val POSTER_URL =
@@ -42,63 +43,30 @@ class ShikimoriApiServiceImplTest {
     private lateinit var lastRequest: HttpRequestData
 
     private val animeListJsonResponse = """
-        [
-          {
-            "id": 1,
-            "name": "Attack on Titan",
-            "russian": "Атака титанов",
-            "url": "/animes/1",
-            "image": {
-              "original": "/o.jpg",
-              "preview": "/p.jpg",
-              "x96": "/x96.jpg",
-              "x48": "/x48.jpg"
-            },
-            "episodes_aired": 12,
-            "episodes": 25,
-            "aired_on": "2013-04-07",
-            "released_on": "2013-09-28",
-            "score": 8.53,
-            "status": "released",
-            "kind": "tv"
-          }
-        ]
-    """.trimIndent()
-
-    private val emptyAnimeListJsonResponse = "[]"
-
-    private val animeDetailsJsonResponse = """
-        {
-          "id": 5,
-          "name": "Bleach",
-          "russian": "Блич",
-          "url": "/animes/5",
-          "image": null,
-          "episodes_aired": 10,
-          "episodes": null,
-          "next_episode_at": "2024-12-28T17:00:00+03:00",
-          "aired_on": "2004-10-05",
-          "released_on": null,
-          "score": 8.97,
-          "status": "ongoing",
-          "kind": "tv",
-          "description": "desc"
-        }
-    """.trimIndent()
-
-    private val animePostersJsonResponse = """
         {
           "data": {
             "animes": [
-              { "id": "61469", "poster": { "originalUrl": "$POSTER_URL" } },
-              { "id": "35891", "poster": null }
+              {
+                "id": "61469",
+                "name": "Steel Ball Run",
+                "poster": { "originalUrl": "$POSTER_URL" },
+                "episodes": 24,
+                "episodesAired": 3,
+                "nextEpisodeAt": "2026-10-18T17:15:00+03:00",
+                "airedOn": { "date": "2026-09-27" },
+                "releasedOn": { "date": "2027-03-21" },
+                "score": 8.9,
+                "status": "ongoing"
+              }
             ]
           }
         }
     """.trimIndent()
 
+    private val emptyAnimeListJsonResponse = """{"data":{"animes":[]}}"""
+
     @Test
-    fun getAnimeListSendsQueryParamsAndDecodesResponse() = runTest {
+    fun aListPagePostsItsVariablesAndDecodesTheAnswer() = runTest {
         //Given
         val service = createService(animeListJsonResponse)
 
@@ -106,106 +74,28 @@ class ShikimoriApiServiceImplTest {
         val result = service.getAnimeList(
             page = 2,
             releaseStatus = "ongoing",
-            sort = "popularity",
-            search = "titan",
-            ids = "1,2"
+            sort = "ranked",
+            search = "\"steel\" & 100%",
+            ids = null
         )
 
         //Then
         assertEquals(
-            listOf(
-                AnimeShortResponse(
-                    id = 1,
-                    englishName = "Attack on Titan",
-                    russianName = "Атака титанов",
-                    pageUrl = "/animes/1",
-                    imageResponse = ImageResponse(
-                        originalSizeUrl = "/o.jpg",
-                        previewSizeUrl = "/p.jpg",
-                        x96SizeUrl = "/x96.jpg",
-                        x48SizeUrl = "/x48.jpg"
-                    ),
-                    episodesAired = 12,
-                    episodesTotal = 25,
-                    airedOn = "2013-04-07",
-                    releasedOn = "2013-09-28",
-                    score = 8.53F,
-                    releaseStatus = "released",
-                    kind = "tv"
-                )
-            ),
-            result
-        )
-        val params = lastRequest.url.parameters
-        assertEquals("2", params["page"])
-        assertEquals("ongoing", params["status"])
-        assertEquals("popularity", params["order"])
-        assertEquals("titan", params["search"])
-        assertEquals("1,2", params["ids"])
-    }
-
-    @Test
-    fun getAnimeListOmitsNullOptionalParams() = runTest {
-        //Given
-        val service = createService(emptyAnimeListJsonResponse)
-
-        //When
-        service.getAnimeList(page = 1, releaseStatus = null, sort = null, search = null, ids = null)
-
-        //Then
-        val params = lastRequest.url.parameters
-        assertNull(params["status"])
-        assertNull(params["order"])
-        assertNull(params["search"])
-        assertNull(params["ids"])
-    }
-
-    @Test
-    fun getAnimeByIdRequestsExpectedPathAndDecodesResponse() = runTest {
-        //Given
-        val service = createService(animeDetailsJsonResponse)
-
-        //When
-        val result = service.getAnimeById(5)
-
-        //Then
-        assertEquals(
-            AnimeDetailsResponse(
-                id = 5,
-                englishName = "Bleach",
-                russianName = "Блич",
-                pageUrl = "/animes/5",
-                imageResponse = null,
-                episodesAired = 10,
-                episodesTotal = null,
-                nextEpisodeAt = "2024-12-28T17:00:00+03:00",
-                airedOn = "2004-10-05",
-                releasedOn = null,
-                score = 8.97F,
-                releaseStatus = "ongoing",
-                kind = "tv",
-                description = "desc"
-            ),
-            result
-        )
-        assertTrue(lastRequest.url.encodedPath.endsWith("/api/animes/5"))
-    }
-
-    @Test
-    fun getAnimePostersPostsTheIdsAndTheirCountToGraphQlAndDecodesTheAnswer() = runTest {
-        //Given
-        val service = createService(animePostersJsonResponse)
-
-        //When
-        val result = service.getAnimePosters(listOf(61469, 35891))
-
-        //Then
-        assertEquals(
-            AnimePostersResponse(
-                data = AnimePostersDataResponse(
+            AnimeListResponse(
+                data = AnimeListDataResponse(
                     animes = listOf(
-                        AnimePosterResponse(id = "61469", poster = PosterResponse(POSTER_URL)),
-                        AnimePosterResponse(id = "35891", poster = null)
+                        AnimeResponse(
+                            id = "61469",
+                            englishName = "Steel Ball Run",
+                            poster = PosterResponse(POSTER_URL),
+                            episodesTotal = 24,
+                            episodesAired = 3,
+                            nextEpisodeAt = "2026-10-18T17:15:00+03:00",
+                            airedOn = IncompleteDateResponse(date = "2026-09-27"),
+                            releasedOn = IncompleteDateResponse(date = "2027-03-21"),
+                            score = 8.9F,
+                            releaseStatus = "ongoing"
+                        )
                     )
                 )
             ),
@@ -217,10 +107,58 @@ class ShikimoriApiServiceImplTest {
         assertEquals(ContentType.Application.Json, content.contentType.withoutParameters())
         val body = Json.parseToJsonElement(content.text).jsonObject
         val variables = body.getValue("variables").jsonObject
-        assertEquals("61469,35891", variables.getValue("ids").jsonPrimitive.content)
+        assertEquals(2, variables.getValue("page").jsonPrimitive.int)
         // Without a limit the server answers two anime only.
-        assertEquals(2, variables.getValue("limit").jsonPrimitive.int)
-        assertTrue("poster { originalUrl }" in body.getValue("query").jsonPrimitive.content)
+        assertEquals(ITEMS_PER_PAGE, variables.getValue("limit").jsonPrimitive.int)
+        assertEquals("ongoing", variables.getValue("status").jsonPrimitive.content)
+        assertEquals("ranked", variables.getValue("order").jsonPrimitive.content)
+        assertEquals("\"steel\" & 100%", variables.getValue("search").jsonPrimitive.content)
+        assertFalse("ids" in variables)
+    }
+
+    @Test
+    fun theQueryAsksForEveryFieldTheAnswerIsReadInto() = runTest {
+        //Given
+        val service = createService(emptyAnimeListJsonResponse)
+
+        //When
+        service.getAnimeList(
+            page = 1,
+            releaseStatus = "ongoing",
+            sort = "ranked",
+            search = "a",
+            ids = "1"
+        )
+
+        //Then
+        val body = Json.parseToJsonElement((lastRequest.body as TextContent).text).jsonObject
+        val query = query(body)
+        val selection = query.substringAfter(") {")
+        val readFields = AnimeResponse.serializer().descriptor.elementNames
+        assertTrue(readFields.all { Regex("\\b$it\\b") in selection }, "missing in: $selection")
+        val variables = body.getValue("variables").jsonObject
+        assertTrue(
+            variables.keys.all { "$$it:" in query && "$it: $$it" in query },
+            "every variable sent must be declared and passed to the field"
+        )
+    }
+
+    private fun query(body: JsonObject): String = body.getValue("query").jsonPrimitive.content
+
+    @Test
+    fun anIdsLookupLeavesOutEveryFilterItHasNoValueFor() = runTest {
+        //Given
+        val service = createService(emptyAnimeListJsonResponse)
+
+        //When
+        service.getAnimeList(page = 1, releaseStatus = null, sort = null, search = null, ids = "1,2")
+
+        //Then
+        val variables = Json.parseToJsonElement((lastRequest.body as TextContent).text)
+            .jsonObject.getValue("variables").jsonObject
+        assertEquals("1,2", variables.getValue("ids").jsonPrimitive.content)
+        // Sent as null, an order would change the ranking rather than leave the default.
+        assertEquals(setOf("page", "limit", "ids"), variables.keys)
     }
 
     private fun TestScope.createService(jsonResponse: String): ShikimoriApiService {

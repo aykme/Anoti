@@ -8,11 +8,9 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
  * @param contentType loading state of the list.
  * @param listItems the section's list items.
  * @param enabledExtraEpisodesInfoIds ids currently showing the extra episode-info variant.
- * @param animeDetails extra per-item details fetched for ids in [enabledExtraEpisodesInfoIds].
  */
 data class SectionContentDomain(
     val contentType: ContentTypeDomain = ContentTypeDomain.LOADING,
     val listItems: List<ListItemDomain> = emptyList(),
-    val enabledExtraEpisodesInfoIds: Set<AnimeId> = setOf(),
-    val animeDetails: AnimeDetails = AnimeDetails()
+    val enabledExtraEpisodesInfoIds: Set<AnimeId> = setOf()
 )

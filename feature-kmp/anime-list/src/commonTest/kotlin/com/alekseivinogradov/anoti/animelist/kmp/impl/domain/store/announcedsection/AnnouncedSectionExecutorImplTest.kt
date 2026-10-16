@@ -1,6 +1,7 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.announcedsection
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
+import com.alekseivinogradov.anoti.animelist.kmp.api.domain.RESTORED_SECTION_MAX_ITEM_COUNT
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ContentTypeDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsection.AnnouncedSectionStore
@@ -337,7 +338,8 @@ class AnnouncedSectionExecutorImplTest {
     @Test
     fun aRestoredItemCountAboveTheCapStopsPagingAtTheCap() = runTest(testDispatcher) {
         //Given
-        val pageSize = 30
+        // Four pages land exactly on the cap: a fifth would mean it is not reached at it.
+        val pageSize = RESTORED_SECTION_MAX_ITEM_COUNT / 4
         val requestedPages = mutableListOf<Int>()
         val pages = (1..5).associateWith { page ->
             CallResult.Success(
@@ -360,8 +362,8 @@ class AnnouncedSectionExecutorImplTest {
         store.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
         //Then
-        assertEquals(listOf(1, 2, 3), requestedPages)
-        assertEquals(pageSize * 3, store.state.sectionContent.listItems.size)
+        assertEquals(listOf(1, 2, 3, 4), requestedPages)
+        assertEquals(pageSize * 4, store.state.sectionContent.listItems.size)
     }
 
     @Test

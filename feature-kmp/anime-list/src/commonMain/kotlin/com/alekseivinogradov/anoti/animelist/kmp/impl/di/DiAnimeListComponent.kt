@@ -1,7 +1,6 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.di
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
-import com.alekseivinogradov.anoti.animebase.kmp.api.domain.source.AnimePosterSource
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.di.DiAnimeListDependencies
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.source.AnimeListSource
@@ -22,7 +21,6 @@ import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.ongoingsectio
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.searchsection.SearchSectionExecutorFactory
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.searchsection.SearchSectionExecutorImpl
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.store.searchsection.SearchSectionStoreFactory
-import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnimeDetailsByIdUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnimeListBySearchUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchAnnouncedAnimeListUsecase
 import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.FetchOngoingAnimeListUsecase
@@ -72,17 +70,8 @@ abstract class DiAnimeListComponent(
     @Provides
     fun provideAnimeListSource(
         service: ShikimoriApiService,
-        safeApi: SafeApi,
-        posterSource: AnimePosterSource
-    ): AnimeListSource = AnimeListSourceImpl(
-        service = service,
-        safeApi = safeApi,
-        posterSource = posterSource
-    )
-
-    @Provides
-    fun provideFetchAnimeDetailsByIdUsecase(source: AnimeListSource): FetchAnimeDetailsByIdUsecase =
-        FetchAnimeDetailsByIdUsecase(source)
+        safeApi: SafeApi
+    ): AnimeListSource = AnimeListSourceImpl(service = service, safeApi = safeApi)
 
     @Provides
     fun provideAnimeListExecutorFactory(
@@ -129,11 +118,9 @@ abstract class DiAnimeListComponent(
 
     @Provides
     fun provideOngoingUsecases(
-        fetchOngoingAnimeListUsecase: FetchOngoingAnimeListUsecase,
-        fetchAnimeDetailsByIdUsecase: FetchAnimeDetailsByIdUsecase
+        fetchOngoingAnimeListUsecase: FetchOngoingAnimeListUsecase
     ): OngoingUsecases = OngoingUsecases(
-        fetchOngoingAnimeListUsecase = fetchOngoingAnimeListUsecase,
-        fetchAnimeDetailsByIdUsecase = fetchAnimeDetailsByIdUsecase
+        fetchOngoingAnimeListUsecase = fetchOngoingAnimeListUsecase
     )
 
     @Provides
@@ -161,11 +148,9 @@ abstract class DiAnimeListComponent(
 
     @Provides
     fun provideSearchUsecases(
-        fetchAnimeListBySearchUsecase: FetchAnimeListBySearchUsecase,
-        fetchAnimeDetailsByIdUsecase: FetchAnimeDetailsByIdUsecase
+        fetchAnimeListBySearchUsecase: FetchAnimeListBySearchUsecase
     ): SearchUsecases = SearchUsecases(
-        fetchAnimeListBySearchUsecase = fetchAnimeListBySearchUsecase,
-        fetchAnimeDetailsByIdUsecase = fetchAnimeDetailsByIdUsecase
+        fetchAnimeListBySearchUsecase = fetchAnimeListBySearchUsecase
     )
 
     @Provides

@@ -33,8 +33,7 @@ class AnimeFavoritesReducerImplTest {
 
     private val baseState = AnimeFavoritesMainStore.State(
         listItems = listOf(listItem(CURRENT_ID)),
-        contentType = ContentTypeDomain.LOADED,
-        fetchedAnimeDetailsIds = setOf(CURRENT_ID)
+        contentType = ContentTypeDomain.LOADED
     )
 
     private fun reduce(msg: AnimeFavoritesMainStore.Message): AnimeFavoritesMainStore.State {
@@ -71,17 +70,5 @@ class AnimeFavoritesReducerImplTest {
             baseState.copy(contentType = ContentTypeDomain.LOADING(hasMinimumDuration = true)),
             state
         )
-    }
-
-    @Test
-    fun updateFetchedAnimeDetailsIdsReplacesOnlyThatSet() {
-        //Given
-        val msg = AnimeFavoritesMainStore.Message.UpdateFetchedAnimeDetailsIds(setOf(INCOMING_ID))
-
-        //When
-        val state = reduce(msg)
-
-        //Then
-        assertEquals(baseState.copy(fetchedAnimeDetailsIds = setOf(INCOMING_ID)), state)
     }
 }

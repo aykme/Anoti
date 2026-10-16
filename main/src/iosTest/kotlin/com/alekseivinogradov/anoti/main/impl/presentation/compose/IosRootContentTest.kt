@@ -60,7 +60,6 @@ class IosRootContentTest {
     fun tearDown() {
         appLifecycles.forEach { it.destroy() }
         Dispatchers.resetMain()
-        assertEquals(listOf(), dependencies.animeDetailsRequests)
     }
 
     @Test

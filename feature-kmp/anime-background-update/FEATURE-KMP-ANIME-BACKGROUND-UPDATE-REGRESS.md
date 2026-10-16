@@ -55,6 +55,9 @@ mode and a force-stop stand for.
    - Its row updates if the server changed anything about it, and it produces no notification.
 6. Wait until a real new episode is out for one of the airing anime, then let a pass run.
    - Exactly one notification for it, naming the number of the episode that aired.
+7. After that pass, open "Favorites" and switch that anime into extra mode.
+   - The date shown is its following episode's, as on its shikimori.io page, not the one that
+     just aired.
 
 ## 2. The update the Favorites screen asks for
 
@@ -133,8 +136,8 @@ other starts, and neither may break the other.
 
 ## 6. Different data
 
-1. Subscribe to more than twenty anime and let a pass run.
-   - Every one of them is updated, not only the first twenty.
+1. Subscribe to more than fifty anime and let a pass run.
+   - Every one of them is updated, not only the first fifty.
 2. Subscribe to around a hundred and let a pass run.
    - All of them are updated. The phone stays usable and the app does not stop responding.
 3. Remove every subscription and let a pass run.

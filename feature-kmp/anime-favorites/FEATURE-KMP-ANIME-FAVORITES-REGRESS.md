@@ -120,17 +120,22 @@ modes. This is the part to check most carefully: it is not a partial change.
    - The date line reads "Finished:" with the date.
 6. An item the server has no date for.
    - The label is shown with "No data" in place of the date.
-7. An "Ongoing" item whose date has never been fetched.
-   - The panel switches immediately and the date fills in a moment later.
-   - Switching the mode off and on again does not fetch it again — the date is there at once.
-8. Turn the network off and switch an item with no known date into extra mode.
-   - The panel switches and shows "No data". An error banner appears at the bottom.
-9. Switch three items into extra mode at once.
-   - All three stay in extra mode independently.
-10. Switch an item into extra mode, scroll it far off-screen and back.
+7. An "Ongoing" item subscribed to from "Main".
+   - The panel switches and shows its date at once, the same one "Main" showed for it.
+8. Turn the network off and switch an "Ongoing" item into extra mode.
+   - The panel switches and shows the item's date. No error banner appears.
+9. Install release 1.1, or any build whose extra mode fetched the date when switched on.
+   Subscribe to an "Ongoing" title and open this screen there. Then install this build over it
+   without uninstalling, and open the screen.
+   - Extra mode on that item shows "No data" until the first update: expected once.
+   - Pull to refresh and wait up to a minute: extra mode then shows the date.
+10. Switch three items into extra mode at once.
+    - All three stay in extra mode independently.
+11. Switch an item into extra mode, scroll it far off-screen and back.
     - It is still in extra mode, and no other item switched by itself.
-11. Switch an item into extra mode and leave the screen to "Main" and back.
+12. Switch an "Ongoing" item into extra mode and leave the screen to "Main" and back.
     - It is back in main mode. Every arrival at this screen resets the mode on every item.
+    - Switching it into extra mode again shows the date at once; the reset does not clear it.
 
 ## 6. Counting viewed episodes
 
@@ -194,7 +199,7 @@ until it airs, or trigger the update the way your team normally does.
 
 1. From List, with several items and one of them in extra mode.
    - A spinner replaces the list, then the list comes back.
-   - Every item is back in main mode.
+   - Every item is back in main mode. Switching one into extra mode again shows its date.
    - Every new-episode mark is cleared.
    - The viewed-episode counters are unchanged.
    - The items themselves are all still there.
@@ -212,7 +217,8 @@ until it airs, or trigger the update the way your team normally does.
    app runs on its own. Pull to refresh while that hourly update is running — either wait for
    it or ask a developer to start one.
    - The pull is not ignored: the spinner appears, the marks clear, and the list comes back.
-   - Within about a minute the items show whatever the server changed.
+   - Within about a minute the items show whatever the server changed, the date in extra
+     mode included.
    - Expected for now: an episode that aired can be announced twice when the two overlap.
      Note it, do not treat it as a new fault of this screen.
 8. Pull to refresh with the network off so the fetch fails, turn the network on, and pull

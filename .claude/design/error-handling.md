@@ -10,19 +10,16 @@ scope or context, or catching an exception.
 ## Failure to message
 
 - A failed call arrives as a `CallResult` failure; see [data-layer.md](data-layer.md), section
-  "Network". The executor maps it with an exhaustive `when`:
-  - `HttpError` and `NetworkError` show the connection error message;
-  - `OtherError` shows the unknown error message.
-- A paged load maps the same way: `PageLoadResult.Error` shows the connection error,
-  `PageLoadResult.UnexpectedError` the unknown error.
+  "Network". A paged load turns it into a `PageLoadResult`: `HttpError` and `NetworkError` become
+  `Error`, `OtherError` becomes `UnexpectedError`. The executor maps that with an exhaustive
+  `when`:
+  - `PageLoadResult.Error` shows the connection error message;
+  - `PageLoadResult.UnexpectedError` shows the unknown error message.
 - A failed first page also moves the section's content type to its error state. A failed next
   page shows the message only and keeps the items already shown.
   Example: [OngoingSectionExecutorImpl](../../feature-kmp/anime-list/src/commonMain/kotlin/com/alekseivinogradov/anoti/animelist/kmp/impl/domain/store/ongoingsection/OngoingSectionExecutorImpl.kt)
 - An `OtherError` is not a connectivity problem, so it gets the unknown error message. It covers
   response bodies that fail to decode and unexpected throws.
-- A best-effort lookup on a screen's path shows no message either: it logs the failure's kind
-  and returns its fallback.
-  Example: [AnimePosterSourceImpl](../../feature-kmp/anime-base/src/commonMain/kotlin/com/alekseivinogradov/anoti/animebase/kmp/impl/data/source/AnimePosterSourceImpl.kt)
 - Background work shows no message. It turns a failure into its work result and logs it.
   Example: [AnimeUpdateManagerImpl](../../feature-kmp/anime-background-update/src/commonMain/kotlin/com/alekseivinogradov/anoti/animebackgroundupdate/kmp/impl/domain/manager/AnimeUpdateManagerImpl.kt)
 

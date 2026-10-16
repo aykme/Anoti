@@ -43,13 +43,12 @@ kotlin {
             api(libs.mvikotlin.extensions.coroutines)
 
             // Each of these appears in this module's own public signatures: the screen
-            // component's dependencies, its source and store, the controller's lifecycle,
-            // database store and state flow, the navigation component's own supertype, and the
-            // Compose entry points with their UI models.
+            // component's dependencies, its store, the controller's lifecycle, database store and
+            // state flow, the navigation component's own supertype, and the Compose entry points
+            // with their UI models.
             api(project(":feature-kmp:anime-background-update"))
             api(project(":feature-kmp:anime-base"))
             api(project(":core-kmp:celebrity"))
-            api(project(":core-kmp:network"))
             api(project(":core-kmp:anime-database"))
             api(libs.mvikotlin)
             api(libs.kotlinx.collections.immutable)
@@ -75,7 +74,6 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.mvikotlin.main)
-            implementation(libs.ktor.client.mock)
         }
         getByName("androidHostTest").dependencies {
             implementation(libs.robolectric)

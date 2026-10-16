@@ -54,7 +54,7 @@ interface AnimeDatabaseStore :
          */
         data class UpdateAnimeDatabaseItem(val animeDatabaseItem: AnimeDbDomain) : Intent
 
-        /** Turns off the extra-info display mode and clears the next-episode date on every item. */
+        /** Turns off the extra-info display mode on every item; the next-episode date stays. */
         data object ResetAllItemsExtraInfo : Intent
     }
 
