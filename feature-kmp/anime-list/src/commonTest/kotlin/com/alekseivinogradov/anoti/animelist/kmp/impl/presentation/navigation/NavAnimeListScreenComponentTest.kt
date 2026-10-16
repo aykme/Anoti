@@ -1,11 +1,8 @@
 package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation
 
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ANIME_LIST_APPEND_URL
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.GRAPHQL_APPEND_URL
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
-import com.alekseivinogradov.anoti.animebase.kmp.api.domain.source.AnimePosterSource
 import com.alekseivinogradov.anoti.animebase.kmp.impl.data.service.ShikimoriApiServiceImpl
-import com.alekseivinogradov.anoti.animebase.kmp.impl.data.source.AnimePosterSourceImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseExecutorImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.AnimeDatabaseStoreFactory
@@ -43,8 +40,10 @@ import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockEngineConfig
 import io.ktor.client.engine.mock.respond
+import io.ktor.client.request.HttpRequestData
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.TextContent
 import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -57,6 +56,9 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -95,8 +97,6 @@ class NavAnimeListScreenComponentTest {
         override val shikimoriApiService: ShikimoriApiService =
             ShikimoriApiServiceImpl(createHttpClient(engine))
         override val safeApi: SafeApi = SafeApiFake()
-        override val animePosterSource: AnimePosterSource =
-            AnimePosterSourceImpl(service = shikimoriApiService, safeApi = safeApi)
     }
 
     /** One component, the state keeper it consumes from and saves through, and its catalog. */
@@ -269,8 +269,7 @@ class NavAnimeListScreenComponentTest {
         )
         assertEquals(
             SEARCH_TEXT,
-            afterProcessDeath.engine.requestHistory.last { it.url.parameters["search"] != null }
-                .url.parameters["search"],
+            afterProcessDeath.engine.requestHistory.mapNotNull(::searchVariable).last(),
             "the restored search did not reach the catalog"
         )
     }
@@ -411,9 +410,8 @@ private const val CHANGED_SEARCH_TEXT = "kiki"
 private const val RESTORED_STATE_KEY = "AnimeListMainStoreRestoredState"
 
 /**
- * Answers every listing with one full page of the same items, every poster lookup with no
- * posters, and every details call with the anime asked for, so the screen always has something
- * to show.
+ * Answers every listing with one full page of the same items, each with a next-episode date, and
+ * every details call with the anime asked for, so the screen always has something to show.
  *
  * @param dispatcher what the engine answers on. Left to itself it picks `Dispatchers.IO`, which
  * takes the answer off the test's virtual clock and onto a second thread.
@@ -424,12 +422,14 @@ private fun singlePageCatalog(dispatcher: CoroutineDispatcher) = MockEngine(
         addHandler { request ->
             val path = request.url.encodedPath
             val body = when {
-                path.endsWith("/$ANIME_LIST_APPEND_URL") ->
-                    (1..PAGE_ITEM_COUNT).joinToString(prefix = "[", postfix = "]") { id: Int ->
-                        """{"id": $id, "name": "Item $id", "status": "ongoing"}"""
+                path.endsWith("/$GRAPHQL_APPEND_URL") ->
+                    (1..PAGE_ITEM_COUNT).joinToString(
+                        prefix = """{"data":{"animes":[""",
+                        postfix = "]}}"
+                    ) { id: Int ->
+                        """{"id": "$id", "name": "Item $id", """ +
+                            """"nextEpisodeAt": "$NEXT_EPISODE_AT", "status": "ongoing"}"""
                     }
-
-                path.endsWith("/$GRAPHQL_APPEND_URL") -> """{"data":{"animes":[]}}"""
 
                 else -> {
                     val id = path.substringAfterLast(delimiter = "/")
@@ -445,3 +445,9 @@ private fun singlePageCatalog(dispatcher: CoroutineDispatcher) = MockEngine(
         }
     }
 )
+
+/** The search text a catalog request carried, or null when it had none. */
+private fun searchVariable(request: HttpRequestData): String? =
+    (request.body as? TextContent)?.text
+        ?.let { Json.parseToJsonElement(it).jsonObject["variables"]?.jsonObject }
+        ?.get("search")?.jsonPrimitive?.content

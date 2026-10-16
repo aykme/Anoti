@@ -2,11 +2,10 @@ package com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.data.source
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.model.ListItemDomain
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.source.AnimeBackgroundUpdateSource
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.GRAPHQL_APPEND_URL
+import com.alekseivinogradov.anoti.animebase.kmp.api.domain.FIRST_PAGE
+import com.alekseivinogradov.anoti.animebase.kmp.api.domain.ITEMS_PER_PAGE
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.model.ReleaseStatusDomain
 import com.alekseivinogradov.anoti.animebase.kmp.impl.data.service.ShikimoriApiServiceImpl
-import com.alekseivinogradov.anoti.animebase.kmp.impl.data.source.AnimePosterSourceImpl
-import com.alekseivinogradov.anoti.network.kmp.api.domain.SHIKIMORI_BASE_URL
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
 import com.alekseivinogradov.anoti.network.kmp.impl.data.client.createHttpClient
 import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
@@ -23,57 +22,50 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 private const val FRIEREN_ID = 61316
 private const val BLEACH_ID = 41467
-private const val UNKNOWN_ID = 5
-private const val ORIGINAL_IMAGE_PATH = "/system/animes/original/61316.jpg"
 private const val REQUESTED_IDS = "$FRIEREN_ID,$BLEACH_ID"
 private const val TRANSPORT_FAILURE_MESSAGE = "no route to host"
 private const val POSTER_URL = "https://shikimori.io/uploads/poster/animes/61316/a.jpeg"
-private const val NO_POSTERS_JSON = """{"data":{"animes":[]}}"""
+private const val NEXT_EPISODE_AT = "2026-10-18T17:15:00+03:00"
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AnimeBackgroundUpdateSourceImplTest {
 
-    private val restRequests = mutableListOf<HttpRequestData>()
-    private val graphQlRequests = mutableListOf<HttpRequestData>()
+    private val requests = mutableListOf<HttpRequestData>()
 
-    private val animeListJsonResponse = """
-        [
-          {
-            "id": $FRIEREN_ID,
-            "name": "Frieren",
-            "russian": "Фрирен",
-            "image": { "original": "$ORIGINAL_IMAGE_PATH" },
-            "episodes_aired": 7,
-            "episodes": 28,
-            "aired_on": "2025-10-01",
-            "released_on": null,
-            "score": 9.11,
-            "status": "ongoing",
-            "kind": "tv"
-          }
-        ]
+    private val frierenJson = """
+        {
+          "id": "$FRIEREN_ID",
+          "name": "Frieren",
+          "poster": { "originalUrl": "$POSTER_URL" },
+          "episodes": 28,
+          "episodesAired": 7,
+          "nextEpisodeAt": "$NEXT_EPISODE_AT",
+          "airedOn": { "date": "2025-10-01" },
+          "releasedOn": { "date": null },
+          "score": 9.11,
+          "status": "ongoing"
+        }
     """.trimIndent()
 
-    private val animeListWithAnEntryMissingItsId = """
-        [
-          { "name": "No id at all", "status": "ongoing" },
-          { "id": $FRIEREN_ID, "name": "Frieren", "status": "ongoing" }
-        ]
-    """.trimIndent()
+    private val bleachJson = """{ "id": "$BLEACH_ID", "name": "Bleach", "status": "released" }"""
 
-    private val expectedListItem = ListItemDomain(
+    private val expectedFrieren = ListItemDomain(
         id = FRIEREN_ID,
         name = "Frieren",
-        imageUrl = SHIKIMORI_BASE_URL + ORIGINAL_IMAGE_PATH,
+        imageUrl = POSTER_URL,
         episodesAired = 7,
         episodesTotal = 28,
+        nextEpisodeAt = NEXT_EPISODE_AT,
         airedOn = "2025-10-01",
         releasedOn = null,
         score = 9.11F,
@@ -83,28 +75,45 @@ class AnimeBackgroundUpdateSourceImplTest {
     @Test
     fun theSavedIdsAreAskedForAsOneUnfilteredPage() = runTest {
         //Given
-        val source = createSource(restAnswer = { animeListJsonResponse })
+        val source = createSource(answer = { animesJson(frierenJson) })
 
         //When
         val result = source.getListByIds(REQUESTED_IDS)
 
         //Then
-        val request = restRequests.single()
-        assertEquals(REQUESTED_IDS, request.url.parameters["ids"])
+        val variables = Json.parseToJsonElement((requests.single().body as TextContent).text)
+            .jsonObject.getValue("variables").jsonObject
+        assertEquals(REQUESTED_IDS, variables.getValue("ids").jsonPrimitive.content)
         // Asking by id is asking for those anime exactly, so there is never a second page.
-        assertEquals("1", request.url.parameters["page"])
-        // Asking by id means asking for those anime whatever they are, so none of the listing
-        // filters may narrow the answer.
-        assertNull(request.url.parameters["status"])
-        assertNull(request.url.parameters["order"])
-        assertNull(request.url.parameters["search"])
-        assertEquals(CallResult.Success(listOf(expectedListItem)), result)
+        assertEquals(FIRST_PAGE, variables.getValue("page").jsonPrimitive.int)
+        // Without a limit the server answers two of the asked ids only.
+        assertEquals(ITEMS_PER_PAGE, variables.getValue("limit").jsonPrimitive.int)
+        // None of the listing filters may narrow an answer by id.
+        assertEquals(setOf("page", "limit", "ids"), variables.keys)
+        assertEquals(CallResult.Success(listOf(expectedFrieren)), result)
     }
 
     @Test
-    fun anAnimeTheServerSendsWithoutAnIdIsLeftOutOfTheList() = runTest {
+    fun theAnswerIsReadWhateverOrderTheServerSendsItIn() = runTest {
         //Given
-        val source = createSource(restAnswer = { animeListWithAnEntryMissingItsId })
+        val source = createSource(answer = { animesJson(bleachJson, frierenJson) })
+
+        //When
+        val result = source.getListByIds(REQUESTED_IDS)
+
+        //Then
+        assertTrue(result is CallResult.Success)
+        assertEquals(listOf(BLEACH_ID, FRIEREN_ID), result.value.map(ListItemDomain::id))
+    }
+
+    @Test
+    fun anAnimeTheServerSendsWithoutAUsableIdIsLeftOutOfTheList() = runTest {
+        //Given
+        val source = createSource(
+            answer = {
+                animesJson("""{ "name": "No id at all", "status": "ongoing" }""", frierenJson)
+            }
+        )
 
         //When
         val result = source.getListByIds(REQUESTED_IDS)
@@ -116,10 +125,26 @@ class AnimeBackgroundUpdateSourceImplTest {
     }
 
     @Test
+    fun anAnswerWithErrorsAndNoDataIsAFailureNotAnEmptyPage() = runTest {
+        //Given
+        val source = createSource(
+            answer = { """{"errors":[{"message":"Variable ${'$'}ids was provided invalid value"}]}""" }
+        )
+
+        //When
+        val result = source.getListByIds(REQUESTED_IDS)
+
+        //Then
+        // An empty success would read as "none of these anime exist" and skip every saved row.
+        assertTrue(result is CallResult.Failure)
+        assertTrue(result.throwable is IllegalStateException)
+    }
+
+    @Test
     fun anExceptionFromTheCallComesBackAsAFailureRatherThanEscaping() = runTest {
         //Given
         val source = createSource(
-            restAnswer = { throw IllegalStateException(TRANSPORT_FAILURE_MESSAGE) }
+            answer = { throw IllegalStateException(TRANSPORT_FAILURE_MESSAGE) }
         )
 
         //When
@@ -132,90 +157,30 @@ class AnimeBackgroundUpdateSourceImplTest {
         assertEquals(TRANSPORT_FAILURE_MESSAGE, result.throwable.message)
     }
 
-    @Test
-    fun aPosterReplacesTheRestImage() = runTest {
-        //Given
-        val source = createSource(
-            restAnswer = { animeListJsonResponse },
-            graphQlAnswer = {
-                """{"data":{"animes":[""" +
-                    """{"id":"$FRIEREN_ID","poster":{"originalUrl":"$POSTER_URL"}}]}}"""
-            }
-        )
-
-        //When
-        val result = source.getListByIds(REQUESTED_IDS)
-
-        //Then
-        assertEquals(
-            CallResult.Success(listOf(expectedListItem.copy(imageUrl = POSTER_URL))),
-            result
-        )
-    }
-
-    @Test
-    fun aFailedPosterLookupKeepsTheRestImages() = runTest {
-        //Given
-        val source = createSource(
-            restAnswer = { animeListJsonResponse },
-            graphQlStatus = HttpStatusCode.InternalServerError
-        )
-
-        //When
-        val result = source.getListByIds(REQUESTED_IDS)
-
-        //Then
-        assertEquals(CallResult.Success(listOf(expectedListItem)), result)
-    }
-
-    @Test
-    fun thePostersAreLookedUpForTheAnimeTheServerSent() = runTest {
-        //Given
-        val source = createSource(
-            restAnswer = { """[{ "id": $FRIEREN_ID }, { "id": $BLEACH_ID }]""" }
-        )
-
-        //When
-        source.getListByIds("$FRIEREN_ID,$BLEACH_ID,$UNKNOWN_ID")
-
-        //Then
-        // Three ids were asked for; the server sent two, so those two are looked up.
-        val body = (graphQlRequests.single().body as TextContent).text
-        assertTrue(""""ids":"$FRIEREN_ID,$BLEACH_ID"""" in body, body)
-        assertTrue(""""limit":2""" in body, body)
-    }
+    private fun animesJson(vararg animes: String) =
+        animes.joinToString(prefix = """{"data":{"animes":[""", postfix = "]}}")
 
     /**
      * The engine answers on the test's dispatcher. Left to itself it picks `Dispatchers.IO`,
      * which takes the answer off the test's virtual clock and onto a second thread.
      */
-    private fun TestScope.createSource(
-        restAnswer: suspend () -> String,
-        graphQlStatus: HttpStatusCode = HttpStatusCode.OK,
-        graphQlAnswer: suspend () -> String = { NO_POSTERS_JSON }
-    ): AnimeBackgroundUpdateSource {
+    private fun TestScope.createSource(answer: suspend () -> String): AnimeBackgroundUpdateSource {
         val engine = MockEngine(
             MockEngineConfig().apply {
                 dispatcher = UnconfinedTestDispatcher(testScheduler)
                 addHandler { request ->
-                    val isGraphQl = request.url.encodedPath.endsWith("/$GRAPHQL_APPEND_URL")
-                    if (isGraphQl) graphQlRequests += request else restRequests += request
+                    requests += request
                     respond(
-                        content = ByteReadChannel(
-                            if (isGraphQl) graphQlAnswer() else restAnswer()
-                        ),
-                        status = if (isGraphQl) graphQlStatus else HttpStatusCode.OK,
+                        content = ByteReadChannel(answer()),
+                        status = HttpStatusCode.OK,
                         headers = headersOf(HttpHeaders.ContentType, "application/json")
                     )
                 }
             }
         )
-        val service = ShikimoriApiServiceImpl(createHttpClient(engine))
-        val safeApi = SafeApiFake()
         return AnimeBackgroundUpdateSourceImpl(
-            service = service,
-            safeApi = safeApi,
-            posterSource = AnimePosterSourceImpl(service = service, safeApi = safeApi)
+            service = ShikimoriApiServiceImpl(createHttpClient(engine)),
+            safeApi = SafeApiFake()
         )
     }
 }

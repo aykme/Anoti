@@ -7,7 +7,6 @@ import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.data.source.An
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.manager.AnimeUpdateManagerImpl
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.FetchAnimeListByIdsUsecase
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
-import com.alekseivinogradov.anoti.animebase.kmp.api.domain.source.AnimePosterSource
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.FetchAllAnimeDatabaseItemsUsecase
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.usecase.UpdateAnimeDatabaseItemUsecase
 import com.alekseivinogradov.anoti.animenotification.kmp.api.domain.manager.AnimeNotificationManager
@@ -29,12 +28,10 @@ interface DiAnimeBackgroundUpdateComponent {
     @AppScope
     fun provideAnimeBackgroundUpdateSource(
         service: ShikimoriApiService,
-        safeApi: SafeApi,
-        posterSource: AnimePosterSource
+        safeApi: SafeApi
     ): AnimeBackgroundUpdateSource = AnimeBackgroundUpdateSourceImpl(
         service = service,
-        safeApi = safeApi,
-        posterSource = posterSource
+        safeApi = safeApi
     )
 
     @Provides

@@ -5,13 +5,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Shikimori GraphQL's answer to [ShikimoriApiService.getAnimePosters].
+ * Shikimori GraphQL's answer to [ShikimoriApiService.getAnimeList].
  *
- * @param data the posters, or null when the query failed as a whole.
+ * @param data the anime, or null when the query failed as a whole.
  * @param errors what went wrong, if anything; may come together with [data].
  */
 @Serializable
-data class AnimePostersResponse(
-    @SerialName("data") val data: AnimePostersDataResponse? = null,
+data class AnimeListResponse(
+    @SerialName("data") val data: AnimeListDataResponse? = null,
     @SerialName("errors") val errors: List<GraphQlErrorResponse>? = null
 )

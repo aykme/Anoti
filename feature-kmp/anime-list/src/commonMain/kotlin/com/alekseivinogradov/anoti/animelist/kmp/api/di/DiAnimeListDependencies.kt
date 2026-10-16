@@ -1,7 +1,6 @@
 package com.alekseivinogradov.anoti.animelist.kmp.api.di
 
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
-import com.alekseivinogradov.anoti.animebase.kmp.api.domain.source.AnimePosterSource
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
@@ -32,7 +31,4 @@ interface DiAnimeListDependencies {
 
     /** Wraps every call to [shikimoriApiService] with retries and error classification. */
     val safeApi: SafeApi
-
-    /** Looks up the real posters of each page the lists load. */
-    val animePosterSource: AnimePosterSource
 }

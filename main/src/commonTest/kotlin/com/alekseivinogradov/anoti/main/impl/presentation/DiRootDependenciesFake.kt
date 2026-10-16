@@ -1,11 +1,9 @@
 package com.alekseivinogradov.anoti.main.impl.presentation
 
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.domain.usecase.fake.UpdateAllAnimeInBackgroundOnceUsecaseFake
-import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ANIME_LIST_APPEND_URL
+import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.GRAPHQL_APPEND_URL
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
-import com.alekseivinogradov.anoti.animebase.kmp.api.domain.source.AnimePosterSource
 import com.alekseivinogradov.anoti.animebase.kmp.impl.data.service.ShikimoriApiServiceImpl
-import com.alekseivinogradov.anoti.animebase.kmp.impl.data.source.AnimePosterSourceImpl
 import com.alekseivinogradov.anoti.animedatabase.kmp.api.domain.store.AnimeDatabaseStore
 import com.alekseivinogradov.anoti.animedatabase.kmp.impl.domain.store.fake.AnimeDatabaseStoreFake
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.CoroutineContextProvider
@@ -48,7 +46,7 @@ internal class DiRootDependenciesFake : DiRootDependencies {
     val animeDetailsRequests: List<String>
         get() = catalogEngine.requestHistory
             .map { it.url.encodedPath }
-            .filterNot { it.endsWith("/$ANIME_LIST_APPEND_URL") }
+            .filterNot { it.endsWith("/$GRAPHQL_APPEND_URL") }
 
     /** Every store built through [storeFactory], by the name it was built under. */
     val builtStores = mutableListOf<Pair<String?, Store<*, *, *>>>()
@@ -91,8 +89,6 @@ internal class DiRootDependenciesFake : DiRootDependencies {
     override val shikimoriApiService: ShikimoriApiService =
         ShikimoriApiServiceImpl(createHttpClient(catalogEngine))
     override val safeApi: SafeApi = SafeApiFake()
-    override val animePosterSource: AnimePosterSource =
-        AnimePosterSourceImpl(service = shikimoriApiService, safeApi = safeApi)
     override val updateAllAnimeInBackgroundOnceUsecase = UpdateAllAnimeInBackgroundOnceUsecaseFake()
 
     // The real graph leaves this binding unscoped, so each consumer builds its own store. Mirrored
@@ -113,7 +109,7 @@ private fun emptyCatalogEngine() = MockEngine(
         dispatcher = Dispatchers.Main
         addHandler {
             respond(
-                content = ByteReadChannel("[]"),
+                content = ByteReadChannel("""{"data":{"animes":[]}}"""),
                 status = HttpStatusCode.OK,
                 headers = headersOf(HttpHeaders.ContentType, "application/json")
             )
