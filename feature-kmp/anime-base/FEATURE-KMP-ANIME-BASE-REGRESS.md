@@ -67,3 +67,8 @@ module. These checks confirm it arrives complete and correct.
      grayed broken-image icon.
 8. Open a poster-heavy list and look closely at a few posters.
    - They are sharp, not blurry or blocky, at the size the row shows them.
+9. On "Main", open search and look for `Kuroinu`. The catalog site has two titles by that name,
+   both sexually explicit.
+   - The search ends up as an empty list. No item and no poster appear.
+10. Search for `Given`. It is a regular title the filter of explicit titles must leave in.
+    - "Given" is among the results.

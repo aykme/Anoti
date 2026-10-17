@@ -1,9 +1,11 @@
 package com.alekseivinogradov.anoti.animebase.kmp.impl.data.service
 
+import com.alekseivinogradov.anoti.animebase.kmp.api.data.model.RatingData
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.response.AnimeListResponse
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ANIME_LIST_APPEND_URL
 import com.alekseivinogradov.anoti.animebase.kmp.api.data.service.ShikimoriApiService
 import com.alekseivinogradov.anoti.animebase.kmp.api.domain.ITEMS_PER_PAGE
+import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.CAN_SHOW_EXPLICIT_CONTENT
 import com.alekseivinogradov.anoti.network.kmp.api.domain.SHIKIMORI_BASE_URL
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -40,6 +42,8 @@ class ShikimoriApiServiceImpl(
                         putIfPresent("status", releaseStatus)
                         putIfPresent("search", search)
                         putIfPresent("ids", ids)
+                        // Without a rating filter the server answers explicit titles too.
+                        if (!CAN_SHOW_EXPLICIT_CONTENT) put("rating", RatingData.WITHOUT_EXPLICIT_CONTENT.value)
                     }
                 }
             )
@@ -54,8 +58,9 @@ private fun JsonObjectBuilder.putIfPresent(key: String, value: String?) {
 
 private const val ANIME_LIST_QUERY =
     $$"query Animes($page: PositiveInt!, $limit: PositiveInt!, $order: OrderEnum, " +
-        $$"$status: AnimeStatusString, $search: String, $ids: String) { " +
+        $$"$status: AnimeStatusString, $search: String, $rating: RatingString, " +
+        $$"$ids: String) { " +
         $$"animes(page: $page, limit: $limit, order: $order, status: $status, " +
-        $$"search: $search, ids: $ids) { " +
+        $$"search: $search, rating: $rating, ids: $ids) { " +
         "id name poster { originalUrl } episodes episodesAired nextEpisodeAt " +
         "airedOn { date } releasedOn { date } score status } }"
