@@ -11,6 +11,8 @@ if [ "${EVENT:-}" != workflow_dispatch ]; then
   SWIFTLINT=true
   DEVICE=phone
   ORIENTATION=portrait
+  TABLET_MODEL=air
+  TEXT_SIZE=default
 fi
 
 case $DEVICE in
@@ -24,6 +26,26 @@ case $ORIENTATION in
   portrait | landscape) orientations=$ORIENTATION ;;
   all) orientations="portrait landscape" ;;
   *) echo "Unknown orientation: $ORIENTATION" >&2; exit 1 ;;
+esac
+
+# The iPads by the prefix of their simulator's name, each with the suffix of its media artifact.
+air='{"device":"iPad Air 11-inch","slug":"air"}'
+mini='{"device":"iPad mini","slug":"mini"}'
+pro='{"device":"iPad Pro 13-inch","slug":"pro"}'
+case $TABLET_MODEL in
+  air) tablet_models="[$air]" ;;
+  mini) tablet_models="[$mini]" ;;
+  pro) tablet_models="[$pro]" ;;
+  all) tablet_models="[$air,$mini,$pro]" ;;
+  *) echo "Unknown tablet model: $TABLET_MODEL" >&2; exit 1 ;;
+esac
+
+# The Dynamic Type sizes by the names simctl takes. Large is the system's default.
+case $TEXT_SIZE in
+  default) content_size=large ;;
+  xxxl) content_size=extra-extra-extra-large ;;
+  ax5) content_size=accessibility-extra-extra-extra-large ;;
+  *) echo "Unknown text size: $TEXT_SIZE" >&2; exit 1 ;;
 esac
 
 # Prints true when every argument is true.
@@ -56,4 +78,6 @@ fi
   echo "tablet_flow=$tablet_flow"
   echo "tablet_ios_tests=$(all_true "$IOS_TESTS" "$tablet")"
   echo "orientations=$orientations"
+  echo "tablet_models=$tablet_models"
+  echo "content_size=$content_size"
 } | tee -a "${GITHUB_OUTPUT:-/dev/null}"
