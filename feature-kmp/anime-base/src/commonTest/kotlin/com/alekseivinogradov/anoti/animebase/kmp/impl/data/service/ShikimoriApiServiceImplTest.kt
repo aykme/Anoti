@@ -113,6 +113,7 @@ class ShikimoriApiServiceImplTest {
         assertEquals("ongoing", variables.getValue("status").jsonPrimitive.content)
         assertEquals("ranked", variables.getValue("order").jsonPrimitive.content)
         assertEquals("\"steel\" & 100%", variables.getValue("search").jsonPrimitive.content)
+        assertEquals("!rx", variables.getValue("rating").jsonPrimitive.content)
         assertFalse("ids" in variables)
     }
 
@@ -158,7 +159,7 @@ class ShikimoriApiServiceImplTest {
             .jsonObject.getValue("variables").jsonObject
         assertEquals("1,2", variables.getValue("ids").jsonPrimitive.content)
         // Sent as null, an order would change the ranking rather than leave the default.
-        assertEquals(setOf("page", "limit", "ids"), variables.keys)
+        assertEquals(setOf("page", "limit", "ids", "rating"), variables.keys)
     }
 
     private fun TestScope.createService(jsonResponse: String): ShikimoriApiService {

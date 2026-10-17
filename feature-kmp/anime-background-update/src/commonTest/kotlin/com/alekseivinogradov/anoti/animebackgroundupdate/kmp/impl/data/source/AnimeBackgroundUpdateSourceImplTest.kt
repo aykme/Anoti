@@ -88,8 +88,8 @@ class AnimeBackgroundUpdateSourceImplTest {
         assertEquals(FIRST_PAGE, variables.getValue("page").jsonPrimitive.int)
         // Without a limit the server answers two of the asked ids only.
         assertEquals(ITEMS_PER_PAGE, variables.getValue("limit").jsonPrimitive.int)
-        // None of the listing filters may narrow an answer by id.
-        assertEquals(setOf("page", "limit", "ids"), variables.keys)
+        // Only the rating filter may narrow an answer by id.
+        assertEquals(setOf("page", "limit", "ids", "rating"), variables.keys)
         assertEquals(CallResult.Success(listOf(expectedFrieren)), result)
     }
 
