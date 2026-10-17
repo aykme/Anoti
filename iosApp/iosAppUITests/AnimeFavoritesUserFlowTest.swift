@@ -15,7 +15,7 @@ final class AnimeFavoritesUserFlowTest: XCTestCase {
     }
 
     @MainActor
-    func testTheListLaysOutOneOrTwoColumnsByItsWidth() {
+    func testTheListLaysOutOneTwoOrThreeColumnsByItsWidth() {
         //Given
         let app = launchedApp()
         defer { XCUIDevice.shared.orientation = .portrait }
@@ -24,16 +24,22 @@ final class AnimeFavoritesUserFlowTest: XCTestCase {
         firstOngoingBell(in: app)
         let items = app.allTagged("anime_list_item")
         let first = waitFor(items.element(boundBy: 0))
-        let second = waitFor(items.element(boundBy: 1))
         // The posters take a moment to arrive, and the screenshot is for a person to look at.
         sleep(2)
         keepScreenshot("main list")
+        let width = app.windows.firstMatch.frame.width
+        let columns = width >= threeColumnMinWidth ? 3 : width >= twoColumnMinWidth ? 2 : 1
 
         //Then
-        if app.windows.firstMatch.frame.width >= twoColumnMinWidth {
-            XCTAssertEqual(first.frame.minY, second.frame.minY, accuracy: 1)
-        } else {
-            XCTAssertGreaterThan(second.frame.minY, first.frame.minY)
+        // The items of the first row are on screen whatever the text size. The next row may be
+        // below the screen at a large one, so an item there is checked only if it is shown.
+        for index in 1..<columns {
+            let neighbor = waitFor(items.element(boundBy: index))
+            XCTAssertEqual(first.frame.minY, neighbor.frame.minY, accuracy: 1, "in the first row")
+        }
+        let nextRow = items.element(boundBy: columns)
+        if nextRow.waitForExistence(timeout: nextRowTimeout) {
+            XCTAssertGreaterThan(nextRow.frame.minY, first.frame.minY, "starts the next row")
         }
     }
 
@@ -174,9 +180,13 @@ final class AnimeFavoritesUserFlowTest: XCTestCase {
     }
 }
 
-/// The list's threshold, `TWO_COLUMN_MIN_WIDTH_DP` in `feature-kmp:anime-list`. The list spans the
-/// whole window on the devices CI runs.
+/// The list's thresholds, `TWO_COLUMN_MIN_WIDTH_DP` and `THREE_COLUMN_MIN_WIDTH_DP` in
+/// `feature-kmp:anime-list`. The list spans the whole window on the devices CI runs.
 private let twoColumnMinWidth: CGFloat = 600
+private let threeColumnMinWidth: CGFloat = 1_100
+
+/// How long an item of the second row may take to show, when the screen has room for it.
+private let nextRowTimeout: TimeInterval = 5
 
 /// The app's own rule: a window whose smaller side reaches 600 points may turn.
 private let rotatingWindowMinSide: CGFloat = 600

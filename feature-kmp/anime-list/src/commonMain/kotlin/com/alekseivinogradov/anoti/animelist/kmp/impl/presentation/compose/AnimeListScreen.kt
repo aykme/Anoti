@@ -222,7 +222,7 @@ private fun LoadNextPageEffect(
     // Keyed on gridState: each section has its own LazyGridState instance. Without that key this
     // would stay bound to whichever section was current on the first composition, and scrolling
     // in a section switched to afterward would go unnoticed.
-    // The distance counts items, so at two columns it reaches half as many rows ahead.
+    // The distance counts items, so the more columns, the fewer rows ahead it reaches.
     val shouldLoadNextPage = remember(gridState) {
         derivedStateOf {
             val layoutInfo = gridState.layoutInfo

@@ -277,8 +277,9 @@ checks that only make sense once.
    - The state is kept. Nothing reloads, the scroll position holds, open extra info stays open,
      bells keep their state, and text typed into the search field is still there.
 2. Rotating in landscape, with items shown.
-   - The screen is wide enough to show two items in a row, so it does. Title, episodes line,
-     score, status and bell are all still present in each, and none overlaps another.
+   - The screen is wide enough to show two or three items in a row, as step 9 says, so it does.
+     Title, episodes line, score, status and bell are all still present in each, and none
+     overlaps another.
 3. At maximum font and display size, an item's bottom row.
    - The bell keeps its full size. The status word is the one that shortens with "…" when the
      row runs out of room — never the bell, never the score.
@@ -299,18 +300,28 @@ checks that only make sense once.
 8. Turn on the system dark theme and repeat pass 1 in outline.
    - Text over the poster's dark strip stays readable, and so do the top bar's labels.
    - No white-on-white or black-on-black anywhere.
-9. One or two columns, by the screen's width. Walk "On air", "Soon" and search on each screen.
+9. One, two or three columns, by the screen's width. Walk "On air", "Soon" and search on each
+   screen.
    - A phone, or a foldable folded: one item per row, as wide as the screen.
-   - A screen at least 600 dp wide: two items per row, of equal width. That is a tablet in
-     either orientation, a foldable unfolded in either orientation, and an iPad.
+   - A screen at least 600 dp wide and under 1100: two items per row, of equal width. That is a
+     tablet or an iPad held upright, and a foldable unfolded in either orientation.
+   - A screen at least 1100 dp wide: three items per row, of equal width, never more. That is an
+     iPad or a 10-inch tablet in landscape. A smaller tablet can stay under 1100 and show two.
    - The columns follow the app's width at the display size set, in dp on Android and in points
-     on iOS. At maximum display size a tablet held upright, or a foldable unfolded, can drop
-     under 600 and show one item per row. That is expected.
-   - The gap between the two columns equals the gap between two rows.
-   - The top bar stays one bar across the full width, over both columns. Its labels and the
+     on iOS. At maximum display size a tablet in landscape can drop under 1100 and show two
+     items per row, and a tablet held upright, or a foldable unfolded, under 600 and show one.
+     A larger window, as an iPad's "More Space" gives, can reach 1100 upright and show three.
+     That is expected.
+   - The gap between two columns equals the gap between two rows.
+   - The top bar stays one bar across the full width, over every column. Its labels and the
      search button stay tappable.
-   - With an odd number of items, the last row holds one item on the left, at a single column's
-     width.
+   - When the items do not fill the last row, it holds them on the left, each at a single
+     column's width.
+   - Android only, at the default display size: the width right at 1100. A simulator cannot be
+     resized this way. On a 2560 x 1600 tablet at 320 dpi, held in landscape, run
+     `adb shell wm size 2198x1600` from a development machine. The width is then 1099 dp: two
+     items per row. Run `adb shell wm size 2200x1600` for 1100 dp: three items per row. Finish
+     with `adb shell wm size reset`.
 10. At the default display size, fold and unfold a foldable with the list scrolled down, then
     rotate it unfolded.
     - Folding and unfolding switch the rows between one and two columns. Rotating unfolded keeps

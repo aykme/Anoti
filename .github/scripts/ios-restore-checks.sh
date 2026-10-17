@@ -339,6 +339,7 @@ restart_the_simulator() {
   xcrun simctl shutdown "$SIM_UDID"
   xcrun simctl boot "$SIM_UDID"
   xcrun simctl bootstatus "$SIM_UDID" -b > /dev/null
+  echo "Text size after the restart: $(xcrun simctl ui "$SIM_UDID" content_size)"
   sleep 30
 }
 

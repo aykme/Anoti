@@ -6,14 +6,16 @@ set -euo pipefail
 script="$(dirname "$0")/../ios-ci-plan.sh"
 failures=0
 
-# plan <var=value>... prints the script's outputs for that environment.
+# plan <var=value>... prints the script's outputs for that environment. A run by hand carries
+# every input, so the iPad and the text size start at their defaults; a case may name others.
 plan() {
-  env -u GITHUB_OUTPUT "$@" bash "$script"
+  env -u GITHUB_OUTPUT TABLET_MODEL=air TEXT_SIZE=default "$@" bash "$script"
 }
 
 expect() {
   local name=$1 output=$2 line=$3
-  if grep -qx -- "$line" <<< "$output"; then
+  # A fixed string: a JSON line holds brackets a pattern would read as a class.
+  if grep -qxF -- "$line" <<< "$output"; then
     echo "ok   $name: $line"
   else
     echo "FAIL $name: expected $line in:"
@@ -34,13 +36,15 @@ refused() {
 }
 
 # A push gets the inputs' defaults, whatever the inputs say.
-out=$(plan EVENT=push UI_FLOW=true DEVICE=all ORIENTATION=all)
+out=$(plan EVENT=push UI_FLOW=true DEVICE=all ORIENTATION=all TABLET_MODEL=all TEXT_SIZE=ax5)
 expect push "$out" "unit_tests=true"
 expect push "$out" "swiftlint=true"
 expect push "$out" "phone_flow=false"
 expect push "$out" "phone_ios_tests=false"
 expect push "$out" "tablet_flow=false"
 expect push "$out" "tablet_ios_tests=false"
+expect push "$out" 'tablet_models=[{"device":"iPad Air 11-inch","slug":"air"}]'
+expect push "$out" "content_size=large"
 
 # A run by hand with every default of ios.yml's inputs does what a push does.
 yml="$(dirname "$0")/../../workflows/ios.yml"
@@ -53,7 +57,8 @@ push_out=$(plan EVENT=push)
 dispatch_out=$(plan EVENT=workflow_dispatch UNIT_TESTS="$(default_of unit_tests)" \
   UI_FLOW="$(default_of ui_flow)" IOS_TESTS="$(default_of ios_tests)" \
   SWIFTLINT="$(default_of swiftlint)" DEVICE="$(default_of device)" \
-  ORIENTATION="$(default_of orientation)")
+  ORIENTATION="$(default_of orientation)" TABLET_MODEL="$(default_of tablet_model)" \
+  TEXT_SIZE="$(default_of text_size)")
 if [ "$push_out" = "$dispatch_out" ]; then
   echo "ok   defaults: a push plans what a run with ios.yml's defaults plans"
 else
@@ -90,6 +95,23 @@ expect tablet "$out" "tablet_flow=false"
 expect tablet "$out" "tablet_ios_tests=true"
 expect tablet "$out" "orientations=portrait"
 
+# Every iPad, each in a job of its own, at the largest text size.
+out=$(plan EVENT=workflow_dispatch UNIT_TESTS=false UI_FLOW=true IOS_TESTS=false SWIFTLINT=false \
+  DEVICE=tablet ORIENTATION=all TABLET_MODEL=all TEXT_SIZE=ax5)
+air='{"device":"iPad Air 11-inch","slug":"air"}'
+mini='{"device":"iPad mini","slug":"mini"}'
+pro='{"device":"iPad Pro 13-inch","slug":"pro"}'
+expect every-ipad "$out" "tablet_models=[$air,$mini,$pro]"
+expect every-ipad "$out" "content_size=accessibility-extra-extra-extra-large"
+
+# One iPad at a time, at the largest text size outside the accessibility sizes.
+for model in mini pro; do
+  out=$(plan EVENT=workflow_dispatch UNIT_TESTS=false UI_FLOW=true IOS_TESTS=false \
+    SWIFTLINT=false DEVICE=tablet ORIENTATION=portrait TABLET_MODEL="$model" TEXT_SIZE=xxxl)
+  expect "$model" "$out" "tablet_models=[${!model}]"
+  expect "$model" "$out" "content_size=extra-extra-extra-large"
+done
+
 # An unknown value, or a flow left with no device to run on, fails rather than passing empty.
 refused "an unknown device" EVENT=workflow_dispatch UNIT_TESTS=true UI_FLOW=true IOS_TESTS=false \
   SWIFTLINT=true DEVICE=fold ORIENTATION=portrait
@@ -97,6 +119,12 @@ refused "an unknown orientation" EVENT=workflow_dispatch UNIT_TESTS=true UI_FLOW
   IOS_TESTS=false SWIFTLINT=true DEVICE=phone ORIENTATION=sideways
 refused "the flow on an iPhone in landscape" EVENT=workflow_dispatch UNIT_TESTS=true UI_FLOW=true \
   IOS_TESTS=false SWIFTLINT=true DEVICE=phone ORIENTATION=landscape
+refused "an unknown tablet model" EVENT=workflow_dispatch UNIT_TESTS=true UI_FLOW=true \
+  IOS_TESTS=false SWIFTLINT=true DEVICE=tablet ORIENTATION=portrait TABLET_MODEL=galaxy \
+  TEXT_SIZE=default
+refused "an unknown text size" EVENT=workflow_dispatch UNIT_TESTS=true UI_FLOW=true \
+  IOS_TESTS=false SWIFTLINT=true DEVICE=tablet ORIENTATION=portrait TABLET_MODEL=air \
+  TEXT_SIZE=huge
 
 # lint_only and release run no app test, so the same choice passes alongside either.
 for override in LINT_ONLY=true RELEASE=true; do

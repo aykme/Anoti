@@ -59,6 +59,27 @@ on:
           - landscape
           - all
         default: portrait
+      # The iPads that run when the device takes in the tablet, each in a job of its own: the
+      # iPad Air 11-inch, the iPad mini (the narrowest), the iPad Pro 13-inch (the widest).
+      tablet_model:
+        description: The iPads the tablet's tests run on
+        type: choice
+        options:
+          - air
+          - mini
+          - pro
+          - all
+        default: air
+      # The Dynamic Type size of every simulator the run boots: the system's default, the largest
+      # outside the accessibility sizes, or the largest of all.
+      text_size:
+        description: The text size of the simulators
+        type: choice
+        options:
+          - default
+          - xxxl
+          - ax5
+        default: default
       release:
         description: Build only the Release app and check its stripping, with no test
         type: boolean
@@ -83,6 +104,8 @@ jobs:
       tablet_flow: ${{ steps.flags.outputs.tablet_flow }}
       tablet_ios_tests: ${{ steps.flags.outputs.tablet_ios_tests }}
       orientations: ${{ steps.flags.outputs.orientations }}
+      tablet_models: ${{ steps.flags.outputs.tablet_models }}
+      content_size: ${{ steps.flags.outputs.content_size }}
     steps:
       - uses: actions/checkout@v7
       - name: Turn the inputs into flags
@@ -95,6 +118,8 @@ jobs:
           SWIFTLINT: ${{ inputs.swiftlint }}
           DEVICE: ${{ inputs.device }}
           ORIENTATION: ${{ inputs.orientation }}
+          TABLET_MODEL: ${{ inputs.tablet_model }}
+          TEXT_SIZE: ${{ inputs.text_size }}
           LINT_ONLY: ${{ inputs.lint_only }}
           RELEASE: ${{ inputs.release }}
         run: bash .github/scripts/ios-ci-plan.sh
@@ -209,6 +234,7 @@ jobs:
       RESULTS_DIR: ${{ github.workspace }}/build/ios-results
       PHONE_FLOW: ${{ needs.plan.outputs.phone_flow }}
       PHONE_IOS_TESTS: ${{ needs.plan.outputs.phone_ios_tests }}
+      CONTENT_SIZE: ${{ needs.plan.outputs.content_size }}
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/ios-toolchain
@@ -294,9 +320,10 @@ jobs:
           name: ios-media
           path: build/ios-media
 
-  # The app's tests on an iPad, whose wide window turns the app. Only when a run's device asks
-  # for it.
+  # The app's tests on the iPads a run's tablet model names, one job each, whose wide window turns
+  # the app. Only when a run's device asks for it.
   ipad:
+    name: ipad ${{ matrix.tablet.slug }}
     if: >-
       ${{ !inputs.release && !inputs.lint_only
       && (needs.plan.outputs.tablet_flow == 'true'
@@ -304,10 +331,15 @@ jobs:
     needs: [project, plan]
     runs-on: macos-26
     timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        tablet: ${{ fromJSON(needs.plan.outputs.tablet_models) }}
     env:
       MEDIA_DIR: ${{ github.workspace }}/build/ios-media-ipad
       RESULTS_DIR: ${{ github.workspace }}/build/ios-results-ipad
-      SIM_DEVICE: iPad Air
+      SIM_DEVICE: ${{ matrix.tablet.device }}
+      CONTENT_SIZE: ${{ needs.plan.outputs.content_size }}
       TABLET_FLOW: ${{ needs.plan.outputs.tablet_flow }}
       TABLET_IOS_TESTS: ${{ needs.plan.outputs.tablet_ios_tests }}
       ORIENTATIONS: ${{ needs.plan.outputs.orientations }}
@@ -389,7 +421,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: ios-media-ipad
+          name: ios-media-ipad-${{ matrix.tablet.slug }}
           path: build/ios-media-ipad
 
   # The app built in Release, stripped as an archive is, and checked. By hand only; no test runs.

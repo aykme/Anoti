@@ -148,7 +148,7 @@ class AnimeListScreenTest {
     }
 
     @Test
-    fun aTabletWideListStillPutsOnlyTwoItemsInARow() {
+    fun aTabletLandscapeWideListPutsThreeItemsInARow() {
         //Given
         val width = TABLET_LANDSCAPE_WIDTH_DP.dp
 
@@ -157,7 +157,8 @@ class AnimeListScreenTest {
 
         //Then
         assertEquals(titleTop("Anime 0"), titleTop("Anime 1"), "the first two items share a row")
-        assertTrue(titleTop("Anime 2") > titleTop("Anime 0"), "the third item starts a new row")
+        assertEquals(titleTop("Anime 0"), titleTop("Anime 2"), "the third item shares it too")
+        assertTrue(titleTop("Anime 3") > titleTop("Anime 0"), "the fourth item starts a new row")
     }
 
     @Test
@@ -186,6 +187,20 @@ class AnimeListScreenTest {
         //Then
         assertEquals(ODD_ITEM_ROW_COUNT, info.rowCount, "the last row holds a single item")
         assertEquals(2, info.columnCount)
+    }
+
+    @Test
+    fun aThreeColumnGridReportsItsRealRowsAndColumns() {
+        //Given
+        showListAt(TABLET_LANDSCAPE_WIDTH_DP.dp, itemCount = ODD_ITEM_COUNT)
+
+        //When
+        val info = composeRule.onNode(hasScrollToIndexAction())
+            .fetchSemanticsNode().config[SemanticsProperties.CollectionInfo]
+
+        //Then
+        assertEquals(ODD_ITEM_ROW_COUNT_AT_THREE_COLUMNS, info.rowCount, "the last row is not full")
+        assertEquals(TABLET_LANDSCAPE_COLUMN_COUNT, info.columnCount)
     }
 
     @Test
@@ -388,11 +403,17 @@ private const val PHONE_WIDTH_DP = 411
 private const val UNFOLDED_WIDTH_DP = 852
 private const val TABLET_LANDSCAPE_WIDTH_DP = 1280
 
+// The columns a list as wide as a tablet in landscape lays out.
+private const val TABLET_LANDSCAPE_COLUMN_COUNT = 3
+
 // Tall enough for several rows of 366 dp items, so a row's neighbors are laid out at all.
 private const val TALL_SCREEN_HEIGHT_DP = 1600
 
-// Leaves the last row of a two-column grid with a single item.
+// Leaves the last row short: one item at two columns, two at three.
 private const val ODD_ITEM_COUNT = 5
 
 // The rows ODD_ITEM_COUNT items fill at two columns.
 private const val ODD_ITEM_ROW_COUNT = 3
+
+// The rows ODD_ITEM_COUNT items fill at three columns.
+private const val ODD_ITEM_ROW_COUNT_AT_THREE_COLUMNS = 2
