@@ -409,7 +409,7 @@ private const val TABLET_LANDSCAPE_COLUMN_COUNT = 3
 // Tall enough for several rows of 366 dp items, so a row's neighbors are laid out at all.
 private const val TALL_SCREEN_HEIGHT_DP = 1600
 
-// Leaves the last row of a two-column grid with a single item.
+// Leaves the last row short: one item at two columns, two at three.
 private const val ODD_ITEM_COUNT = 5
 
 // The rows ODD_ITEM_COUNT items fill at two columns.
