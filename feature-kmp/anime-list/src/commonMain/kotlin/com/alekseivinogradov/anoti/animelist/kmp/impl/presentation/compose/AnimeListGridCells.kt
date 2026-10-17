@@ -23,9 +23,9 @@ internal object AnimeListGridCells : GridCells {
 }
 
 /**
- * One column below [twoColumnMinWidthPx], two from it on, three from [threeColumnMinWidthPx] on:
- * one more for each threshold reached. Compared in pixels, since a width converted to dp can land
- * a hair under the threshold it exactly meets.
+ * One column below [twoColumnMinWidthPx], two from it on, three from [threeColumnMinWidthPx] on.
+ * Compared in pixels, since a width converted to dp can land a hair under the threshold it
+ * exactly meets.
  */
 internal fun animeListColumnCount(
     availableWidthPx: Int,

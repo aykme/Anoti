@@ -36,7 +36,7 @@ refused() {
 }
 
 # A push gets the inputs' defaults, whatever the inputs say.
-out=$(plan EVENT=push UI_FLOW=true DEVICE=all ORIENTATION=all)
+out=$(plan EVENT=push UI_FLOW=true DEVICE=all ORIENTATION=all TABLET_MODEL=all TEXT_SIZE=ax5)
 expect push "$out" "unit_tests=true"
 expect push "$out" "swiftlint=true"
 expect push "$out" "phone_flow=false"

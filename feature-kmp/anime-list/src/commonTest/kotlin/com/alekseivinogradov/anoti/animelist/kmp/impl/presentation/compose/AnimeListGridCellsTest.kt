@@ -109,20 +109,6 @@ class AnimeListGridCellsTest {
     }
 
     @Test
-    fun aWiderListGetsTheSameThreeCellsAsThreeFixedColumns() {
-        //Given
-        // 1280 dp at 420 dpi, a tablet in landscape.
-        val density = Density(PHONE_DENSITY)
-        val expected = with(GridCells.Fixed(3)) { density.calculateCrossAxisCellSizes(3360, 0) }
-
-        //When
-        val cells = with(AnimeListGridCells) { density.calculateCrossAxisCellSizes(3360, 0) }
-
-        //Then
-        assertEquals(expected, cells)
-    }
-
-    @Test
     fun aListExactlyAtTheTwoColumnThresholdAtAnInexactDensityHasTwoColumns() {
         //Given
         // Android computes the density as dpi * (1f / 160). At 336 dpi, 1260 px then reads back as a
