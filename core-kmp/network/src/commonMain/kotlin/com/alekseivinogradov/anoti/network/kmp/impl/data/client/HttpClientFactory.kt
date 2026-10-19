@@ -36,7 +36,8 @@ fun createHttpClient(engine: HttpClientEngine): HttpClient = HttpClient(engine) 
 
 /**
  * Creates the [HttpClient] images load through, with the app's name as its `User-Agent` and the
- * engine's defaults otherwise. The image loader checks statuses and caches on its own.
+ * engine's defaults otherwise, timeouts included. The image loader checks statuses and caches on
+ * its own.
  *
  * @param engine transport to use (e.g. OkHttp, Darwin) — this function doesn't pick one itself.
  */

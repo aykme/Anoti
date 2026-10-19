@@ -3,6 +3,7 @@ package com.alekseivinogradov.anoti.network.kmp.impl.data.client
 import coil3.annotation.ExperimentalCoilApi
 import coil3.decode.BlackholeDecoder
 import coil3.request.CachePolicy
+import coil3.request.ErrorResult
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import com.alekseivinogradov.anoti.network.kmp.api.domain.SHIKIMORI_USER_AGENT
@@ -53,7 +54,7 @@ class ImageLoaderFactoryTest {
         val result = loader.execute(posterRequest())
 
         //Then
-        assertIs<SuccessResult>(result)
+        assertIs<SuccessResult>(result, (result as? ErrorResult)?.throwable?.toString())
         assertEquals(listOf<String?>(SHIKIMORI_USER_AGENT), requests)
     }
 
@@ -70,7 +71,8 @@ class ImageLoaderFactoryTest {
         assertNotNull(diskCache)
     }
 
-    // Nothing is decoded and nothing is kept, so the test sees only the fetch.
+    // Nothing is decoded and nothing is kept, so the test sees only the fetch. The fetch stays on
+    // Coil's own I/O dispatcher: Coil refuses a network fetch on the main thread the test runs on.
     @OptIn(ExperimentalCoilApi::class)
     private fun posterRequest(): ImageRequest = ImageRequest.Builder(context)
         .data(POSTER_URL)

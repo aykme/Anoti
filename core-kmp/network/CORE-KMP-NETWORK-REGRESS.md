@@ -1,9 +1,11 @@
 # Manual regression — talking to the server
 
 This module is how the app reaches the anime service: it makes the request, gives up after a
-bounded wait, tries each request three times in all, and classifies what went wrong. It has no
-screen of its own. Every check below is done on a screen that loads anime and looks only at
-whether the request behaved — how the screen then reacts is checked in its own file.
+bounded wait, tries each request three times in all, and classifies what went wrong. It also
+fetches every poster the app shows, on screen and in notifications, and a poster is fetched once,
+without the retries. It has no screen of its own. Every check below is done on a screen that loads
+anime and looks only at whether the request behaved — how the screen then reacts is checked in
+its own file.
 
 Unless a step says otherwise, start with the app opened at least once.
 
@@ -67,6 +69,22 @@ Needs a way to make the service answer differently — for example a proxy in fr
    The anime load normally. Unknown fields are ignored, not treated as an error.
 5. Remove the proxy and refresh.
    The anime load.
+
+## The app names itself to the server
+
+Needs a proxy in front of the device that shows each request's headers, as in the section above.
+Walk it on Android and on iOS.
+
+1. Close the app fully, clear its data, open it on the main screen and let the anime load.
+   Every request to the anime service carries the header **User-Agent: Anoti**, exactly that,
+   with nothing before or after it.
+2. Scroll the main screen until new posters appear.
+   Every poster request carries the same **User-Agent: Anoti**.
+3. Add an anime to **Favorites** and open **Favorites**.
+   Its poster request, if it is not already cached, carries **User-Agent: Anoti** too.
+4. Make the app post a new-episode notification with the app closed.
+   The poster request it makes for the notification carries **User-Agent: Anoti**. No request
+   from the app carries any other `User-Agent`.
 
 ## Leaving a screen mid-request
 
