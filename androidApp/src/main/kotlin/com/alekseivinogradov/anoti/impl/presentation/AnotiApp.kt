@@ -3,6 +3,7 @@ package com.alekseivinogradov.anoti.impl.presentation
 import android.app.Application
 import android.app.NotificationManager
 import androidx.work.Configuration
+import coil3.SingletonImageLoader
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import com.alekseivinogradov.anoti.di.kmp.DiAppComponent
 import com.alekseivinogradov.anoti.di.kmp.create
@@ -32,6 +33,8 @@ class AnotiApp : Application(), DiRootComponentHolder, Configuration.Provider {
 
     override fun onCreate() {
         diAppComponent = DiAppComponent::class.create(this.applicationContext)
+        // Before anything loads an image, or Coil builds its own default loader.
+        SingletonImageLoader.setSafe { diAppComponent.imageLoader }
         super.onCreate()
         println("$ANOTI_TAG AnotiApp: a new process starts")
 

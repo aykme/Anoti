@@ -66,7 +66,6 @@ kotlin {
             implementation(libs.compose.material3)
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.coil.compose)
-            implementation(libs.coil.network.ktor3)
 
             implementation(libs.kotlin.inject.runtime.kmp)
         }

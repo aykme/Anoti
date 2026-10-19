@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anoti.di.kmp
 
+import coil3.ImageLoader
 import com.alekseivinogradov.anoti.animebackgroundupdate.ios.impl.di.DiAnimeBackgroundUpdatePlatformComponent
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.scheduler.AnimeBackgroundScheduler
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.di.DiAnimeBackgroundUpdateComponent
@@ -50,6 +51,9 @@ internal abstract class DiAppComponent(
 
     /** Schedules the periodic background update pass. */
     abstract val animeBackgroundScheduler: AnimeBackgroundScheduler
+
+    /** The image loader Coil hands every screen and notification. */
+    abstract val imageLoader: ImageLoader
 }
 
 /** Builds the iOS app-wide graph. KSP writes the body for each iOS target. */

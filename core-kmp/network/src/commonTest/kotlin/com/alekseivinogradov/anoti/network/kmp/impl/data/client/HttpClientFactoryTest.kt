@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anoti.network.kmp.impl.data.client
 
+import com.alekseivinogradov.anoti.network.kmp.api.domain.SHIKIMORI_USER_AGENT
 import io.ktor.client.call.body
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockEngineConfig
@@ -57,13 +58,63 @@ class HttpClientFactoryTest {
         }
     }
 
-    /** The app's client over [handler], answering on the test's virtual clock. */
-    private fun TestScope.createTestClient(handler: MockRequestHandler) = createHttpClient(
-        MockEngine(
-            MockEngineConfig().apply {
-                dispatcher = UnconfinedTestDispatcher(testScheduler)
-                addHandler(handler)
+    @Test
+    fun namesTheAppInTheUserAgentOfEveryRequest() = runTest {
+        //Given
+        var userAgent: String? = null
+        val client = createTestClient { request ->
+            userAgent = request.headers[HttpHeaders.UserAgent]
+            respond(content = ByteReadChannel(""), status = HttpStatusCode.OK)
+        }
+
+        //When
+        client.get("https://test/")
+
+        //Then
+        assertEquals(SHIKIMORI_USER_AGENT, userAgent)
+    }
+
+    @Test
+    fun theImageClientNamesTheAppInTheUserAgent() = runTest {
+        //Given
+        var userAgent: String? = null
+        val client = createImageHttpClient(
+            mockEngine { request ->
+                userAgent = request.headers[HttpHeaders.UserAgent]
+                respond(content = ByteReadChannel(""), status = HttpStatusCode.OK)
             }
         )
+
+        //When
+        client.get("https://test/poster.jpg")
+
+        //Then
+        assertEquals(SHIKIMORI_USER_AGENT, userAgent)
+    }
+
+    @Test
+    fun theImageClientLeavesAFailedStatusToItsCaller() = runTest {
+        //Given
+        val client = createImageHttpClient(
+            mockEngine { respond(content = ByteReadChannel(""), status = HttpStatusCode.NotFound) }
+        )
+
+        //When
+        val response = client.get("https://test/poster.jpg")
+
+        //Then
+        assertEquals(HttpStatusCode.NotFound, response.status)
+    }
+
+    /** The app's client over [handler], answering on the test's virtual clock. */
+    private fun TestScope.createTestClient(handler: MockRequestHandler) =
+        createHttpClient(mockEngine(handler))
+
+    /** An engine answering with [handler] on the test's virtual clock. */
+    private fun TestScope.mockEngine(handler: MockRequestHandler) = MockEngine(
+        MockEngineConfig().apply {
+            dispatcher = UnconfinedTestDispatcher(testScheduler)
+            addHandler(handler)
+        }
     )
 }

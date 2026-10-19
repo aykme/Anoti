@@ -53,7 +53,6 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.compose.components.resources)
             implementation(libs.coil)
-            implementation(libs.coil.network.ktor3)
 
             implementation(libs.kotlin.inject.runtime.kmp)
         }
