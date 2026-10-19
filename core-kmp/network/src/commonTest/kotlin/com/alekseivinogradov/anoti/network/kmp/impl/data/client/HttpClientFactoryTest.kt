@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anoti.network.kmp.impl.data.client
 
+import com.alekseivinogradov.anoti.network.kmp.api.domain.SHIKIMORI_USER_AGENT
 import io.ktor.client.call.body
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockEngineConfig
@@ -55,6 +56,22 @@ class HttpClientFactoryTest {
         assertFailsWith<ResponseException> {
             client.get("https://test/")
         }
+    }
+
+    @Test
+    fun namesTheAppInTheUserAgentOfEveryRequest() = runTest {
+        //Given
+        var userAgent: String? = null
+        val client = createTestClient { request ->
+            userAgent = request.headers[HttpHeaders.UserAgent]
+            respond(content = ByteReadChannel(""), status = HttpStatusCode.OK)
+        }
+
+        //When
+        client.get("https://test/")
+
+        //Then
+        assertEquals(SHIKIMORI_USER_AGENT, userAgent)
     }
 
     /** The app's client over [handler], answering on the test's virtual clock. */
