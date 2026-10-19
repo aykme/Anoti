@@ -3,6 +3,7 @@ package com.alekseivinogradov.anoti.network.kmp.impl.data.client
 import com.alekseivinogradov.anoti.network.kmp.api.domain.PER_ATTEMPT_TIMEOUT_MILLIS
 import com.alekseivinogradov.anoti.network.kmp.api.domain.SHIKIMORI_USER_AGENT
 import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.UserAgent
@@ -30,6 +31,20 @@ fun createHttpClient(engine: HttpClientEngine): HttpClient = HttpClient(engine) 
         connectTimeoutMillis = PER_ATTEMPT_TIMEOUT_MILLIS
         socketTimeoutMillis = PER_ATTEMPT_TIMEOUT_MILLIS
     }
+    nameTheApp()
+}
+
+/**
+ * Creates the [HttpClient] images load through, with the app's name as its `User-Agent` and the
+ * engine's defaults otherwise. The image loader checks statuses and caches on its own.
+ *
+ * @param engine transport to use (e.g. OkHttp, Darwin) — this function doesn't pick one itself.
+ */
+fun createImageHttpClient(engine: HttpClientEngine): HttpClient = HttpClient(engine) {
+    nameTheApp()
+}
+
+private fun HttpClientConfig<*>.nameTheApp() {
     install(UserAgent) {
         agent = SHIKIMORI_USER_AGENT
     }

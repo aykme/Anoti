@@ -1,6 +1,7 @@
 package com.alekseivinogradov.anoti.di.kmp
 
 import androidx.work.Configuration
+import coil3.ImageLoader
 import com.alekseivinogradov.anoti.animebackgroundupdate.android.impl.presentation.di.DiAnimeBackgroundUpdatePlatformComponent
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.api.domain.scheduler.AnimeBackgroundScheduler
 import com.alekseivinogradov.anoti.animebackgroundupdate.kmp.impl.di.DiAnimeBackgroundUpdateComponent
@@ -48,6 +49,9 @@ abstract class DiAppComponent(
 
     /** Schedules the periodic background update pass. */
     abstract val animeBackgroundScheduler: AnimeBackgroundScheduler
+
+    /** The image loader Coil hands every screen and notification. */
+    abstract val imageLoader: ImageLoader
 
     /** WorkManager's configuration, served to its on-demand initialization. */
     @AnimeBackgroundUpdate

@@ -26,6 +26,9 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(libs.ktor.client.core)
+            // The platform DI components bind an `ImageLoader`, and the app graphs expose it.
+            api(libs.coil)
+            implementation(libs.coil.network.ktor3)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
@@ -39,6 +42,9 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.ktor.client.mock)
+        }
+        getByName("androidHostTest").dependencies {
+            implementation(libs.robolectric)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)

@@ -1,5 +1,6 @@
 package com.alekseivinogradov.anoti.di.kmp
 
+import coil3.SingletonImageLoader
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import com.alekseivinogradov.anoti.main.api.presentation.IosScreenHost
 import com.alekseivinogradov.anoti.main.api.presentation.iosSupportedInterfaceOrientations
@@ -28,6 +29,8 @@ object IosApp {
         println("$ANOTI_TAG IosApp: a new process starts")
 
         val diAppComponent = createDiAppComponent(appContext = IosAppContext)
+        // Before anything loads an image, or Coil builds its own default loader.
+        SingletonImageLoader.setSafe { diAppComponent.imageLoader }
         // Building the scheduler registers its background-task handler.
         diAppComponent.animeBackgroundScheduler.schedulePeriodicUpdate()
         screenHost = IosScreenHost(diRootDependencies = diAppComponent).also { it.start() }
