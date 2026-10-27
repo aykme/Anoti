@@ -106,8 +106,16 @@ jobs:
       orientations: ${{ steps.flags.outputs.orientations }}
       tablet_models: ${{ steps.flags.outputs.tablet_models }}
       content_size: ${{ steps.flags.outputs.content_size }}
+      macos: ${{ steps.runner.outputs.macos }}
     steps:
       - uses: actions/checkout@v7
+      # A job's runner is picked before it checks out, so the catalog is read here.
+      - name: Read the macOS runner from the catalog
+        id: runner
+        run: |
+          macos=$(sed -n 's/^macosRunner = "\(.*\)"/\1/p' gradle/libs.versions.toml)
+          [ -n "$macos" ]
+          echo "macos=$macos" | tee -a "$GITHUB_OUTPUT"
       - name: Turn the inputs into flags
         id: flags
         env:
@@ -135,8 +143,9 @@ jobs:
         run: bash iosApp/scripts/swiftlint.sh
 
   framework:
+    needs: plan
     if: ${{ !inputs.lint_only && !inputs.release }}
-    runs-on: macos-26
+    runs-on: ${{ needs.plan.outputs.macos }}
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
@@ -153,7 +162,7 @@ jobs:
   native-tests:
     needs: plan
     if: ${{ !inputs.lint_only && !inputs.release && needs.plan.outputs.unit_tests == 'true' }}
-    runs-on: macos-26
+    runs-on: ${{ needs.plan.outputs.macos }}
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v7
@@ -177,8 +186,9 @@ jobs:
             **/build/test-results/iosSimulatorArm64Test/
 
   project:
+    needs: plan
     if: ${{ !inputs.lint_only || inputs.release }}
-    runs-on: macos-26
+    runs-on: ${{ needs.plan.outputs.macos }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
@@ -227,7 +237,7 @@ jobs:
   app:
     if: ${{ !inputs.release }}
     needs: [project, plan]
-    runs-on: macos-26
+    runs-on: ${{ needs.plan.outputs.macos }}
     timeout-minutes: 150
     env:
       MEDIA_DIR: ${{ github.workspace }}/build/ios-media
@@ -329,7 +339,7 @@ jobs:
       && (needs.plan.outputs.tablet_flow == 'true'
       || needs.plan.outputs.tablet_ios_tests == 'true') }}
     needs: [project, plan]
-    runs-on: macos-26
+    runs-on: ${{ needs.plan.outputs.macos }}
     timeout-minutes: 120
     strategy:
       fail-fast: false
@@ -427,8 +437,8 @@ jobs:
   # The app built in Release, stripped as an archive is, and checked. By hand only; no test runs.
   release-build:
     if: ${{ inputs.release }}
-    needs: project
-    runs-on: macos-26
+    needs: [project, plan]
+    runs-on: ${{ needs.plan.outputs.macos }}
     timeout-minutes: 90
     env:
       MEDIA_DIR: ${{ github.workspace }}/build/ios-release
@@ -478,8 +488,8 @@ jobs:
 
   setup-check:
     if: ${{ inputs.setup_check && !inputs.release }}
-    needs: project
-    runs-on: macos-26
+    needs: [project, plan]
+    runs-on: ${{ needs.plan.outputs.macos }}
     timeout-minutes: 150
     env:
       LOG_DIR: ${{ github.workspace }}/build/setup-check
