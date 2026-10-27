@@ -10,17 +10,29 @@ Download the app:
 <a href="https://play.google.com/store/apps/details?id=com.alekseivinogradov.anoti"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="60" align="middle"></a>
 [Google Play](https://play.google.com/store/apps/details?id=com.alekseivinogradov.anoti)
 
-Anoti allows you to always be aware of the release of new episodes!
+Stay on top of the anime you follow: get notified about new episodes and keep track of where you
+left off.
 
-■ Choose anime to your liking from the list of ongoings and announcements or using the search
+■ Browse what's airing now and what's coming soon, or search by title
 
-■ Subscribe to the expected anime and receive notifications about new episodes
+■ Tap the bell to follow an anime and get a notification with its poster and the new episode's
+number
 
-■ See information about the date of the next episode
+■ See when the next episode airs, or when an upcoming show is expected to premiere
 
-■ Use the convenient "Favorites" section to control all subscriptions
+■ Keep every show you follow in Favorites, with a badge on the tab showing how many have new
+episodes
 
-■ Keep a record of the episodes you've watched so you don't forget where you left off
+■ Track the episodes you've watched so you never lose your place
+
+■ Pull down on Favorites to check for new episodes right away
+
+■ Open your Favorites even when you're offline
+
+■ Enjoy a dark interface made for phones and tablets
+
+No sign-up, no ads, no data collection. Your Favorites and episode counts are stored only on your
+device.
 
 <img src="https://github.com/user-attachments/assets/dee9275c-b37f-40d3-b33a-25f3e9d4fc22" width="100"  alt=""/>
 <img src="https://github.com/user-attachments/assets/4955a06c-0280-4702-8047-296f0200e184" width="100"  alt=""/>
