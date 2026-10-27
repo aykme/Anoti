@@ -25,7 +25,7 @@ targetSdk = "37"
 # stay within the deployment targets the xcode entry below supports, iOS 15 and up for Xcode 26.
 #noinspection UnusedVersionCatalogEntry
 iosDeploymentTarget = "16.0"
-# The Xcode the iOS app is built with. Kotlin 2.4.20 is documented against this release, so a
+# The Xcode the iOS app is built with. Kotlin 2.4.21 is documented against this release, so a
 # kotlin bump can move it. The root README.md names this Xcode and the macOS it needs. Update
 # both when this changes.
 # Kotlin-to-Xcode table:
@@ -43,19 +43,19 @@ xcodeGen = "2.46.0"
 #noinspection UnusedVersionCatalogEntry
 xcodeGenSha256 = "4d9e34b62172d645eed6457cac13fc222569974098ef4ee9c3368bedf0196806"
 
-# KMP library versions
+# KMP library versions (actual at 2026-10-27)
 coil = "3.6.3"
-composeMultiplatform = "1.12.1"
+composeMultiplatform = "1.12.2"
 coroutines = "1.11.0"
 decompose = "3.5.0"
 detekt = "1.23.8"
 # Each Kotlin release is documented against one Xcode. Check the xcode entry above when this
 # changes.
-kotlin = "2.4.20"
+kotlin = "2.4.21"
 kotlinInject = "0.9.0"
 kotlinxCollectionsImmutable = "0.5.2"
 kotlinxDatetime = "0.8.0"
-kotlinxSerialization = "1.11.0"
+kotlinxSerialization = "1.12.0"
 kover = "0.9.11"
 ksp = "2.3.12"
 ktor = "3.6.0"
@@ -63,17 +63,18 @@ mviKotlin = "4.4.0"
 room = "2.8.5"
 sqlite = "2.7.1"
 
-# Non maxed suppressed KMP library versions
+# Non maxed suppressed KMP library versions (actual at 2026-10-27)
 
 # Material 3 has no stable release on the Compose Multiplatform line above 1.9.0. Everything
-# published since is an alpha, currently up to 1.13.0-alpha01.
+# published since is an alpha or a beta, currently up to 1.13.0-beta01.
 composeMaterial3 = "1.9.0"
 # Compose rules for detekt. Every release from 0.5.0 on is built against detekt 2.0.0-alpha,
-# which has no stable release of its own, so 0.4.22 is the ceiling while detekt stays on 1.23.
+# which has no stable release of its own. So 0.4.28, the last release on detekt 1.23, is the
+# ceiling while detekt stays on 1.23.
 #noinspection NewerVersionAvailable
-composeRules = "0.4.22"
+composeRules = "0.4.28"
 
-# Android library versions
+# Android library versions (actual at 2026-10-27)
 activity = "1.13.0"
 # Tracks the androidx.compose.ui:ui version that :androidApp's androidTest classpath resolves
 # to, which composeMultiplatform decides. An instrumented test shares the app's process, so
@@ -91,7 +92,7 @@ rules = "1.7.0"
 window = "1.5.1"
 workRuntimeKtx = "2.12.0"
 
-# Non maxed suppressed Android library versions
+# Non maxed suppressed Android library versions (actual at 2026-10-27)
 
 # The AGP minor sets the oldest Android Studio that can open the project, so it is not maxed.
 # It is chosen in three steps:
@@ -114,7 +115,7 @@ workRuntimeKtx = "2.12.0"
 #noinspection AndroidGradlePluginVersion,NewerVersionAvailable
 agp = "9.1.1"
 
-# iOS library versions
+# iOS library versions (actual at 2026-10-27)
 # Lints the Swift sources: config/swiftlint/swiftlint.yml, run by iosApp/scripts/swiftlint.sh.
 #noinspection UnusedVersionCatalogEntry
 swiftLint = "0.65.1"
@@ -127,7 +128,7 @@ swiftLintSha256Linux = "caeed6f4a679c35539ffaf124f6c4ab4a8416917f7d8796279dc52b7
 #noinspection UnusedVersionCatalogEntry
 swiftLintSha256Mac = "c1e429b0599cf1b516f369a2d9ec04eaf0e436f3c12b637df8851fa52ff694d0"
 
-# Non maxed suppressed iOS library versions
+# Non maxed suppressed iOS library versions (actual at 2026-10-27)
 
 [libraries]
 # KMP libraries
