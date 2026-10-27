@@ -1,7 +1,7 @@
 # Archives the iOS app in Release and uploads it to TestFlight, by hand only. Apple's cloud
 # certificate signs the export through the App Store Connect API key in the repository's secrets,
 # so no certificate or profile is kept here. The build number is the catalog's version code and
-# this workflow's run number, unique per upload.
+# this workflow's run number, so each run has its own.
 name: TestFlight
 
 on:
@@ -33,6 +33,9 @@ jobs:
           [ -n "$macos" ]
           echo "macos=$macos" | tee -a "$GITHUB_OUTPUT"
 
+  # The key's secrets reach only the steps that sign in, and each writes the key to a temporary
+  # file of its own. GitHub masks secrets in the console alone, and this repository is public, so
+  # no file the artifact keeps carries them.
   upload:
     needs: runner
     runs-on: ${{ needs.runner.outputs.macos }}
@@ -42,27 +45,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/ios-toolchain
-      - uses: ./.github/actions/gradle-on-macos
-
-      # The project generated from project.yml, as ios.yml builds it, not the committed one.
-      - name: Install the catalog's XcodeGen
-        run: |
-          curl -fsSL -o "$RUNNER_TEMP/xcodegen.zip" \
-            "https://github.com/yonaskolb/XcodeGen/releases/download/${XCODEGEN_VERSION}/xcodegen.zip"
-          echo "$XCODEGEN_SHA256  $RUNNER_TEMP/xcodegen.zip" | shasum -a 256 -c
-          unzip -q "$RUNNER_TEMP/xcodegen.zip" -d "$RUNNER_TEMP/xcodegen"
-          binary=$(find "$RUNNER_TEMP/xcodegen" -type f -name xcodegen -perm -u+x | head -1)
-          dirname "$binary" >> "$GITHUB_PATH"
-      - name: Generate the Xcode project
-        working-directory: iosApp
-        run: |
-          xcodegen --version
-          xcodegen generate
 
       - name: Read the app's identity
         run: |
-          echo "ARCHIVE=$RUNNER_TEMP/Anoti.xcarchive" >> "$GITHUB_ENV"
-          echo "KEY_PATH=$RUNNER_TEMP/asc/AuthKey.p8" >> "$GITHUB_ENV"
           # The project leaves its own team empty, so the team comes from the catalog.
           team=$(sed -n 's/^iosTeamId = "\(.*\)"/\1/p' gradle/libs.versions.toml)
           read_setting() { sed -n "s/^$1 = //p" iosApp/Configuration/"$2"; }
@@ -76,31 +61,44 @@ jobs:
           echo "TEAM_ID=$team" >> "$GITHUB_ENV"
           echo "BUNDLE_ID=$bundle" >> "$GITHUB_ENV"
           echo "BUILD_NUMBER=$code.$GITHUB_RUN_NUMBER" >> "$GITHUB_ENV"
+          echo "ARCHIVE=$RUNNER_TEMP/Anoti.xcarchive" >> "$GITHUB_ENV"
           echo "Team $team, bundle $bundle, version $version ($code.$GITHUB_RUN_NUMBER)"
           mkdir -p "$LOG_DIR"
 
-      # The key's IDs reach only the steps that sign in. A file in the artifact never carries them:
-      # GitHub masks secrets in the console alone, and this repository is public.
-      - name: Write the App Store Connect key
-        env:
-          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          KEY_P8: ${{ secrets.APP_STORE_CONNECT_KEY_P8 }}
-        run: |
-          [ -n "$KEY_ID" ] && [ -n "$ISSUER_ID" ] && [ -n "$KEY_P8" ] \
-            || { echo "An APP_STORE_CONNECT_* secret is missing"; exit 1; }
-          umask 077
-          mkdir -p "$(dirname "$KEY_PATH")"
-          # A key pasted on Windows may carry CR line ends.
-          printf '%s\n' "$KEY_P8" | tr -d '\r' > "$KEY_PATH"
-
-      # A refused key fails here in seconds with its reason. xcodebuild would report it only as
-      # missing profiles, after the archive.
+      # A refused key fails here in seconds with Apple's answer.
       - name: The key signs in to App Store Connect
         env:
           KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-        run: bash .github/scripts/asc-key-check.sh "$KEY_PATH" "$KEY_ID" "$ISSUER_ID" "$BUNDLE_ID"
+          KEY_P8: ${{ secrets.APP_STORE_CONNECT_KEY_P8 }}
+        run: bash .github/scripts/asc-key-check.sh
+
+      - name: Install the catalog's XcodeGen
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/xcodegen.zip" \
+            "https://github.com/yonaskolb/XcodeGen/releases/download/${XCODEGEN_VERSION}/xcodegen.zip"
+          echo "$XCODEGEN_SHA256  $RUNNER_TEMP/xcodegen.zip" | shasum -a 256 -c
+          unzip -q "$RUNNER_TEMP/xcodegen.zip" -d "$RUNNER_TEMP/xcodegen"
+          binary=$(find "$RUNNER_TEMP/xcodegen" -type f -name xcodegen -perm -u+x | head -1)
+          dirname "$binary" >> "$GITHUB_PATH"
+
+      # xcodebuild's own sign-in may refuse a key the API takes. A one-screen app shows it in a
+      # minute or two, before the app's long archive.
+      - name: xcodebuild signs in with the key
+        env:
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          KEY_P8: ${{ secrets.APP_STORE_CONNECT_KEY_P8 }}
+        run: bash .github/scripts/testflight-probe.sh
+
+      - uses: ./.github/actions/gradle-on-macos
+
+      # The project generated from project.yml, as ios.yml builds it, not the committed one.
+      - name: Generate the Xcode project
+        working-directory: iosApp
+        run: |
+          xcodegen --version
+          xcodegen generate
 
       # Built unsigned: xcodebuild takes an API key only to export.
       - name: Archive the app, Release
@@ -113,51 +111,19 @@ jobs:
             || { tail -60 "$LOG_DIR/archive.log"; exit 1; }
           tail -5 "$LOG_DIR/archive.log"
 
-      # The export reads the app's entitlements from its signature, so the app is signed ad hoc
-      # with the identifier and team Xcode would give it. PlistBuddy takes the dotted key whole.
-      - name: Sign the archive ad hoc
+      # An empty folder would pass a plain test for it.
+      - name: The archived app carries the Compose resources
         run: |
           app="$ARCHIVE/Products/Applications/Anoti.app"
-          entitlements="$RUNNER_TEMP/entitlements.plist"
-          /usr/libexec/PlistBuddy \
-            -c "Add :application-identifier string $TEAM_ID.$BUNDLE_ID" \
-            -c "Add :com.apple.developer.team-identifier string $TEAM_ID" "$entitlements"
-          codesign --force --sign - --timestamp=none --generate-entitlement-der \
-            --entitlements "$entitlements" "$app"
-          codesign --verify --deep --strict "$app"
-          codesign --display --entitlements - "$app"
+          [ -n "$(find "$app/compose-resources" -type f | head -1)" ]
+          ls -R "$app/compose-resources" | sed -n '1,40p'
 
-      # Its log names the key's IDs, so it stays out of the artifact. The console masks them.
       - name: Export and upload to TestFlight
         env:
           KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-        run: |
-          options="$RUNNER_TEMP/ExportOptions.plist"
-          plutil -create xml1 "$options"
-          plutil -insert method -string app-store-connect "$options"
-          plutil -insert destination -string upload "$options"
-          plutil -insert teamID -string "$TEAM_ID" "$options"
-          plutil -insert signingStyle -string automatic "$options"
-          plutil -insert uploadSymbols -bool YES "$options"
-          plutil -insert manageAppVersionAndBuildNumber -bool NO "$options"
-          log="$RUNNER_TEMP/export.log"
-          if xcodebuild -exportArchive -archivePath "$ARCHIVE" -exportOptionsPlist "$options" \
-            -exportPath "$RUNNER_TEMP/export" -allowProvisioningUpdates \
-            -authenticationKeyPath "$KEY_PATH" -authenticationKeyID "$KEY_ID" \
-            -authenticationKeyIssuerID "$ISSUER_ID" > "$log" 2>&1; then
-            tail -20 "$log"
-            exit 0
-          fi
-          tail -80 "$log"
-          # The summary log only: the verbose one holds the requests.
-          find "$TMPDIR" -name 'IDEDistribution.standard.log' -path '*.xcdistributionlogs/*' \
-            -exec cat {} \; 2> /dev/null | tail -80
-          exit 1
-
-      - name: Remove the key
-        if: always()
-        run: rm -rf "$(dirname "$KEY_PATH")"
+          KEY_P8: ${{ secrets.APP_STORE_CONNECT_KEY_P8 }}
+        run: bash .github/scripts/testflight-export.sh "$ARCHIVE" upload
 
       - uses: actions/upload-artifact@v7
         if: always()
