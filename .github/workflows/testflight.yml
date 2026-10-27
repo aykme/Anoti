@@ -54,14 +54,16 @@ jobs:
           team=$(read_catalog iosTeamId)
           version=$(read_catalog versionName)
           code=$(read_catalog versionCode)
+          target=$(read_catalog iosDeploymentTarget)
           bundle=$(read_setting BUNDLE_ID Config.xcconfig)
-          if [ -z "$team" ] || [ -z "$bundle" ] || [ -z "$version" ] || [ -z "$code" ]; then
-            echo "Missing: team '$team', bundle '$bundle', version '$version', code '$code'"
+          if [ -z "$team" ] || [ -z "$bundle" ] || [ -z "$version" ] || [ -z "$code" ] \
+            || [ -z "$target" ]; then
+            echo "Missing: team '$team', bundle '$bundle', version '$version', code '$code'," \
+              "iOS '$target'"
             exit 1
           fi
           # The build takes the catalog's versions through the generated Version.xcconfig, which
           # must match it.
-          target=$(read_catalog iosDeploymentTarget)
           built_version=$(read_setting MARKETING_VERSION Version.xcconfig)
           built_code=$(read_setting CURRENT_PROJECT_VERSION Version.xcconfig)
           built_target=$(read_setting IPHONEOS_DEPLOYMENT_TARGET Version.xcconfig)
@@ -80,8 +82,9 @@ jobs:
           echo "Team $team, bundle $bundle, version $version ($code)"
           mkdir -p "$LOG_DIR"
 
-      # A refused key, or a build already uploaded, fails here in seconds with Apple's answer.
-      - name: The key signs in to App Store Connect
+      # A refused key fails here in seconds with Apple's answer, and so does a version App Store
+      # Connect already has.
+      - name: App Store Connect takes the key and lacks this build
         timeout-minutes: 5
         env:
           KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Signs in to the App Store Connect API with the CI's key and looks the app up by its bundle ID.
-# It then checks the build to upload is not there yet. Either failure shows in seconds, with
-# Apple's answer, not after the archive.
+# It then checks the build to upload is not there yet. Either failure shows in seconds, not after
+# the archive.
 # Env: KEY_ID, ISSUER_ID and KEY_P8, the key's secrets; BUNDLE_ID, VERSION_NAME and VERSION_CODE,
 # the app's.
 set -euo pipefail
@@ -79,6 +79,8 @@ echo "The key signs in, and App Store Connect has the app $BUNDLE_ID"
 # Each version is uploaded once. A build of it already there needs a catalog bump first.
 builds_path="/v1/builds?filter[app]=$app_id&filter[version]=$VERSION_CODE"
 builds_path+="&filter[preReleaseVersion.version]=$VERSION_NAME&limit=1"
+# Apple names no default state, so a build still processing is asked for too.
+builds_path+="&filter[processingState]=PROCESSING,FAILED,INVALID,VALID"
 status=$(api "$builds_path" "$work/builds.json")
 if [ "$status" != 200 ]; then
   echo "App Store Connect answered the build lookup with HTTP $status:"

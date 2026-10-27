@@ -4,11 +4,11 @@ Anoti - anime info & notifs
 
 Download the app:
 
+<a href="https://apps.apple.com/app/id6827621853"><img src="https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-app-store/black/en-us" alt="Download on the App Store" height="40" align="middle"></a>
+&nbsp;&nbsp;[App Store](https://apps.apple.com/app/id6827621853)
+
 <a href="https://play.google.com/store/apps/details?id=com.alekseivinogradov.anoti"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="60" align="middle"></a>
 [Google Play](https://play.google.com/store/apps/details?id=com.alekseivinogradov.anoti)
-
-<a href="https://apps.apple.com/app/id6827621853"><img src="https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-app-store/black/en-us" alt="Download on the App Store" height="40" align="middle"></a>
-[App Store](https://apps.apple.com/app/id6827621853)
 
 Anoti allows you to always be aware of the release of new episodes!
 
