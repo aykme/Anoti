@@ -2,8 +2,13 @@ Please review the [license](https://github.com/aykme/Anoti/blob/develop/LICENSE)
 
 Anoti - anime info & notifs
 
-Download the app
-via [Google Play](https://play.google.com/store/apps/details?id=com.alekseivinogradov.anoti)
+Download the app:
+
+<a href="https://apps.apple.com/app/id6827621853"><img src="https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-app-store/black/en-us" alt="Download on the App Store" height="40" align="middle"></a>
+&nbsp;&nbsp;[App Store](https://apps.apple.com/app/id6827621853)
+
+<a href="https://play.google.com/store/apps/details?id=com.alekseivinogradov.anoti"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="60" align="middle"></a>
+[Google Play](https://play.google.com/store/apps/details?id=com.alekseivinogradov.anoti)
 
 Anoti allows you to always be aware of the release of new episodes!
 
@@ -59,6 +64,12 @@ Technology stack:
     the code and removes unused resources. `minified` is `release` signed with the debug key, so
     it installs on a device. On iOS, the Release build strips symbols and dead code from the
     executable and keeps a dSYM to decode crash reports. Kotlin/Native offers no obfuscation.
+12. CI runs on [GitHub Actions](https://github.com/features/actions). Every push to `develop`
+    builds both apps and runs their checks: on Android the host tests, detekt and the coverage
+    bar; on iOS, on a macOS runner, the Kotlin/Native tests on a simulator and SwiftLint. A manual
+    iOS run adds the UI tests on iPhone and iPad simulators, in both orientations and at large
+    text sizes, and a check of the stripped Release build. The iOS app is uploaded to TestFlight
+    from CI too, signed through an App Store Connect API key, so no Mac is needed.
 
 Minimum versions:
 
