@@ -1,7 +1,7 @@
 # Archives the iOS app in Release and uploads it to TestFlight, by hand only. Apple's cloud
 # certificate signs the export through the App Store Connect API key in the repository's secrets,
-# so no certificate or profile is kept here. The build number is the catalog's version code and
-# this workflow's run number, so each run has its own.
+# so no certificate or profile is kept here. The version and the build number are the catalog's
+# versionName and versionCode, unchanged.
 name: TestFlight
 
 on:
@@ -48,21 +48,29 @@ jobs:
 
       - name: Read the app's identity
         run: |
-          # The project leaves its own team empty, so the team comes from the catalog.
-          team=$(sed -n 's/^iosTeamId = "\(.*\)"/\1/p' gradle/libs.versions.toml)
+          read_catalog() { sed -n "s/^$1 = \"\(.*\)\"/\1/p" gradle/libs.versions.toml; }
           read_setting() { sed -n "s/^$1 = //p" iosApp/Configuration/"$2"; }
+          # The project leaves its own team empty, so the team comes from the catalog.
+          team=$(read_catalog iosTeamId)
+          version=$(read_catalog versionName)
+          code=$(read_catalog versionCode)
           bundle=$(read_setting BUNDLE_ID Config.xcconfig)
-          version=$(read_setting MARKETING_VERSION Version.xcconfig)
-          code=$(read_setting CURRENT_PROJECT_VERSION Version.xcconfig)
           if [ -z "$team" ] || [ -z "$bundle" ] || [ -z "$version" ] || [ -z "$code" ]; then
             echo "Missing: team '$team', bundle '$bundle', version '$version', code '$code'"
             exit 1
           fi
+          # The build takes them through the generated Version.xcconfig, which must match.
+          built_version=$(read_setting MARKETING_VERSION Version.xcconfig)
+          built_code=$(read_setting CURRENT_PROJECT_VERSION Version.xcconfig)
+          if [ "$built_version" != "$version" ] || [ "$built_code" != "$code" ]; then
+            echo "Version.xcconfig has $built_version ($built_code), the catalog $version ($code)."
+            echo "Run ./gradlew generateIosVersionXcconfig and commit the file."
+            exit 1
+          fi
           echo "TEAM_ID=$team" >> "$GITHUB_ENV"
           echo "BUNDLE_ID=$bundle" >> "$GITHUB_ENV"
-          echo "BUILD_NUMBER=$code.$GITHUB_RUN_NUMBER" >> "$GITHUB_ENV"
           echo "ARCHIVE=$RUNNER_TEMP/Anoti.xcarchive" >> "$GITHUB_ENV"
-          echo "Team $team, bundle $bundle, version $version ($code.$GITHUB_RUN_NUMBER)"
+          echo "Team $team, bundle $bundle, version $version ($code)"
           mkdir -p "$LOG_DIR"
 
       # A refused key fails here in seconds with Apple's answer.
@@ -108,9 +116,7 @@ jobs:
         run: |
           xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Release \
             -destination 'generic/platform=iOS' -archivePath "$ARCHIVE" \
-            CODE_SIGNING_ALLOWED=NO DEVELOPMENT_TEAM="$TEAM_ID" \
-            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
-            archive > "$LOG_DIR/archive.log" 2>&1 \
+            CODE_SIGNING_ALLOWED=NO DEVELOPMENT_TEAM="$TEAM_ID" archive > "$LOG_DIR/archive.log" 2>&1 \
             || { tail -60 "$LOG_DIR/archive.log"; exit 1; }
           tail -5 "$LOG_DIR/archive.log"
 
