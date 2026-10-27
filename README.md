@@ -59,6 +59,12 @@ Technology stack:
     the code and removes unused resources. `minified` is `release` signed with the debug key, so
     it installs on a device. On iOS, the Release build strips symbols and dead code from the
     executable and keeps a dSYM to decode crash reports. Kotlin/Native offers no obfuscation.
+12. CI runs on [GitHub Actions](https://github.com/features/actions). Every push to `develop`
+    builds both apps and runs their checks: on Android the host tests, detekt and the coverage
+    bar; on iOS, on a macOS runner, the Kotlin/Native tests on a simulator and SwiftLint. A manual
+    iOS run adds the UI tests on iPhone and iPad simulators, in both orientations and at large
+    text sizes, and a check of the stripped Release build. The iOS app is uploaded to TestFlight
+    from CI too, signed through an App Store Connect API key, so no Mac is needed.
 
 Minimum versions:
 
