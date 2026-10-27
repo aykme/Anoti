@@ -1,6 +1,7 @@
 [versions]
 # KMP app versions — all used via libs.versions.<name>.get() in build.gradle.kts,
-# Studio's unused-entry inspection just doesn't recognize that accessor pattern
+# Studio's unused-entry inspection just doesn't recognize that accessor pattern.
+# .github/workflows/testflight.yml also reads versionCode and versionName, each as one line.
 # versionCode grows in whole steps of 1, together with versionName. It is versionName without the
 # dot, so 1.1 is 11 and 1.2 is 12.
 #noinspection UnusedVersionCatalogEntry

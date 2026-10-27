@@ -59,21 +59,28 @@ jobs:
             echo "Missing: team '$team', bundle '$bundle', version '$version', code '$code'"
             exit 1
           fi
-          # The build takes them through the generated Version.xcconfig, which must match.
+          # The build takes the catalog's versions through the generated Version.xcconfig, which
+          # must match it.
+          target=$(read_catalog iosDeploymentTarget)
           built_version=$(read_setting MARKETING_VERSION Version.xcconfig)
           built_code=$(read_setting CURRENT_PROJECT_VERSION Version.xcconfig)
-          if [ "$built_version" != "$version" ] || [ "$built_code" != "$code" ]; then
-            echo "Version.xcconfig has $built_version ($built_code), the catalog $version ($code)."
+          built_target=$(read_setting IPHONEOS_DEPLOYMENT_TARGET Version.xcconfig)
+          if [ "$built_version" != "$version" ] || [ "$built_code" != "$code" ] \
+            || [ "$built_target" != "$target" ]; then
+            echo "Version.xcconfig has $built_version ($built_code), iOS $built_target."
+            echo "The catalog has $version ($code), iOS $target."
             echo "Run ./gradlew generateIosVersionXcconfig and commit the file."
             exit 1
           fi
           echo "TEAM_ID=$team" >> "$GITHUB_ENV"
           echo "BUNDLE_ID=$bundle" >> "$GITHUB_ENV"
+          echo "VERSION_NAME=$version" >> "$GITHUB_ENV"
+          echo "VERSION_CODE=$code" >> "$GITHUB_ENV"
           echo "ARCHIVE=$RUNNER_TEMP/Anoti.xcarchive" >> "$GITHUB_ENV"
           echo "Team $team, bundle $bundle, version $version ($code)"
           mkdir -p "$LOG_DIR"
 
-      # A refused key fails here in seconds with Apple's answer.
+      # A refused key, or a build already uploaded, fails here in seconds with Apple's answer.
       - name: The key signs in to App Store Connect
         timeout-minutes: 5
         env:
