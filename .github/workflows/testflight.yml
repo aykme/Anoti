@@ -67,6 +67,7 @@ jobs:
 
       # A refused key fails here in seconds with Apple's answer.
       - name: The key signs in to App Store Connect
+        timeout-minutes: 5
         env:
           KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -85,6 +86,7 @@ jobs:
       # xcodebuild's own sign-in may refuse a key the API takes. A one-screen app shows it in a
       # minute or two, before the app's long archive.
       - name: xcodebuild signs in with the key
+        timeout-minutes: 15
         env:
           KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -100,7 +102,8 @@ jobs:
           xcodegen --version
           xcodegen generate
 
-      # Built unsigned: xcodebuild takes an API key only to export.
+      # Built unsigned. Signing it would need a development certificate with its private key on the
+      # runner; only the export signs through Apple's cloud certificate.
       - name: Archive the app, Release
         run: |
           xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Release \
@@ -119,11 +122,22 @@ jobs:
           ls -R "$app/compose-resources" | sed -n '1,40p'
 
       - name: Export and upload to TestFlight
+        id: export
+        timeout-minutes: 30
         env:
           KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           KEY_P8: ${{ secrets.APP_STORE_CONNECT_KEY_P8 }}
         run: bash .github/scripts/testflight-export.sh "$ARCHIVE" upload
+
+      # The uploaded build's own dSYM, which no rebuild can recreate. It holds no secret.
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() && steps.export.outcome == 'success' }}
+        with:
+          name: testflight-dsym
+          path: ${{ env.ARCHIVE }}/dSYMs
+          if-no-files-found: error
+          retention-days: 90
 
       - uses: actions/upload-artifact@v7
         if: always()

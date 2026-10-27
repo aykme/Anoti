@@ -43,7 +43,7 @@ if [ ${#signature_hex} -ne 128 ]; then
 fi
 signature=$(printf '%s' "$signature_hex" | xxd -r -p | base64url)
 
-status=$(curl -sS -g -o "$work/body.json" -w '%{http_code}' \
+status=$(curl -sS -g --max-time 60 -o "$work/body.json" -w '%{http_code}' \
   -H "Authorization: Bearer $input.$signature" \
   "https://api.appstoreconnect.apple.com/v1/apps?filter[bundleId]=$BUNDLE_ID")
 
@@ -54,7 +54,9 @@ if [ "$status" != 200 ]; then
   echo
   exit 1
 fi
-if grep -Eq '"data" *: *\[ *\]' "$work/body.json"; then
+# The filter may match more than the exact ID, so the answer must name it.
+bundle_pattern=$(printf '%s' "$BUNDLE_ID" | sed 's/\./\\./g')
+if ! grep -Eq "\"bundleId\"[[:space:]]*:[[:space:]]*\"$bundle_pattern\"" "$work/body.json"; then
   echo "The key signs in, but App Store Connect has no app with the bundle ID $BUNDLE_ID"
   exit 1
 fi

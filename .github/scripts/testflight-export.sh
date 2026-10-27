@@ -48,7 +48,8 @@ if xcodebuild -exportArchive -archivePath "$archive" \
   exit 0
 fi
 tail -80 "$log"
-# The summary of Xcode's distribution logs only: the verbose one holds the requests.
-find "${TMPDIR:-/tmp}" -name 'IDEDistribution.standard.log' -path '*.xcdistributionlogs/*' \
-  -exec cat {} \; 2> /dev/null | tail -80
+# The summary of this export's distribution logs only: the verbose one holds the requests. An
+# earlier export of the same job, the probe's, leaves its own logs there too.
+find "${TMPDIR:-/tmp}/" -name 'IDEDistribution.standard.log' -path '*.xcdistributionlogs/*' \
+  -newer "$work/ExportOptions.plist" -exec cat {} \; 2> /dev/null | tail -80
 exit 1
