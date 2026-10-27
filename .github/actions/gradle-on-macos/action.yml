@@ -1,12 +1,9 @@
 name: Gradle on macOS
-description: Java 21, Gradle with its caches, and settings that fit the macOS runner.
+description: The daemon's Java, Gradle with its caches, and settings that fit the macOS runner.
 runs:
   using: composite
   steps:
-    - uses: actions/setup-java@v6
-      with:
-        distribution: temurin
-        java-version: '21'
+    - uses: ./.github/actions/gradle-java
 
     - uses: gradle/actions/setup-gradle@v6
 

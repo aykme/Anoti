@@ -25,6 +25,15 @@ targetSdk = "37"
 # stay within the deployment targets the xcode entry below supports, iOS 15 and up for Xcode 26.
 #noinspection UnusedVersionCatalogEntry
 iosDeploymentTarget = "16.0"
+# The Apple developer team the TestFlight upload signs for. Only .github/workflows/testflight.yml
+# reads it. Not a secret: every signed build carries it. The project's own team stays empty in
+# iosApp/Configuration/Config.xcconfig.
+#noinspection UnusedVersionCatalogEntry
+iosTeamId = "AHN2995ZQ6"
+# The GitHub runner image every macOS job of .github/workflows runs on. It must carry the xcode
+# entry below. The image's Xcodes: https://github.com/actions/runner-images, images/macos.
+#noinspection UnusedVersionCatalogEntry
+macosRunner = "macos-26"
 # The Xcode the iOS app is built with. Kotlin 2.4.21 is documented against this release, so a
 # kotlin bump can move it. The root README.md names this Xcode and the macOS it needs. Update
 # both when this changes.

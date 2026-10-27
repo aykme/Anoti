@@ -1,0 +1,17 @@
+name: Java for Gradle
+description: Installs the Java gradle/gradle-daemon-jvm.properties names for the Gradle daemon.
+runs:
+  using: composite
+  steps:
+    - name: Read the daemon's Java version
+      id: version
+      shell: bash
+      run: |
+        version=$(sed -n 's/^toolchainVersion=//p' gradle/gradle-daemon-jvm.properties)
+        [ -n "$version" ]
+        echo "java=$version" | tee -a "$GITHUB_OUTPUT"
+
+    - uses: actions/setup-java@v6
+      with:
+        distribution: temurin
+        java-version: ${{ steps.version.outputs.java }}
