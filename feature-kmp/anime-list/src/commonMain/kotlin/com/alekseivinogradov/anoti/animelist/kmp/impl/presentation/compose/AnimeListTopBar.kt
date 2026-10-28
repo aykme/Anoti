@@ -78,8 +78,9 @@ import org.jetbrains.compose.resources.stringResource
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as CelebrityRes
 
 /**
- * The anime list screen's top bar: section tabs (ongoing/announced) plus a search toggle, or
- * the search field itself, depending on [search].
+ * The anime list screen's top bar: an info button that opens the information dialog, section
+ * tabs (ongoing/announced) plus a search toggle, or the search field itself, depending on
+ * [search].
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.
@@ -93,6 +94,7 @@ fun AnimeListTopBar(
     onSearchClick: () -> Unit,
     onCancelSearchClick: () -> Unit,
     onSearchTextChange: (String) -> Unit,
+    onInfoClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Hoisted above the `search == SHOWN` check so typed text survives closing and reopening
@@ -120,7 +122,8 @@ fun AnimeListTopBar(
                 selectedSection = selectedSection,
                 onOngoingClick = onOngoingClick,
                 onAnnouncedClick = onAnnouncedClick,
-                onSearchClick = onSearchClick
+                onSearchClick = onSearchClick,
+                onInfoClick = onInfoClick
             )
         } else {
             SearchField(
@@ -141,7 +144,8 @@ private fun TabsRow(
     selectedSection: SectionHatUi,
     onOngoingClick: () -> Unit,
     onAnnouncedClick: () -> Unit,
-    onSearchClick: () -> Unit
+    onSearchClick: () -> Unit,
+    onInfoClick: () -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -151,7 +155,7 @@ private fun TabsRow(
             .padding(top = 8.dp)
     ) {
         InfoButton(
-            onClick = { println("tagtag Info") },
+            onClick = onInfoClick,
             modifier = Modifier.padding(start = 8.dp)
         )
         SectionTab(
@@ -356,7 +360,8 @@ private fun AnimeListTopBarTabsPreview() {
             onAnnouncedClick = {},
             onSearchClick = {},
             onCancelSearchClick = {},
-            onSearchTextChange = {}
+            onSearchTextChange = {},
+            onInfoClick = {}
         )
     }
 }
@@ -373,7 +378,8 @@ private fun AnimeListTopBarSearchPreview() {
             onAnnouncedClick = {},
             onSearchClick = {},
             onCancelSearchClick = {},
-            onSearchTextChange = {}
+            onSearchTextChange = {},
+            onInfoClick = {}
         )
     }
 }
