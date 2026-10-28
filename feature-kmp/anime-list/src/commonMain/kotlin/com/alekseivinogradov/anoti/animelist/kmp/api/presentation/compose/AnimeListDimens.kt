@@ -36,7 +36,10 @@ const val EPISODES_EXTRA_MAX_LINES = 3
 val TOP_BAR_ICON_OFFSET_X_DP: Dp = 0.dp
 
 @Suppress("MagicNumber")
-val TOP_BAR_ICON_OFFSET_Y_DP: Dp = (-3).dp
+val TOP_BAR_ICON_OFFSET_Y_DP: Dp = (-2).dp
+
+// Shifts each top-bar icon's shadow left, so it falls down and to the left like the tab texts'.
+val TOP_BAR_ICON_SHADOW_OFFSET_X_DP: Dp = (-1).dp
 
 // The number of flexible gaps in an item's score-divider-status-divider-notification chain.
 const val GAP_COUNT_WITH_STATUS = 4

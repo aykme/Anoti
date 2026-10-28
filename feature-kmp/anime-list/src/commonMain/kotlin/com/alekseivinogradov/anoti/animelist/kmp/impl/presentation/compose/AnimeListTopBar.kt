@@ -46,6 +46,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.SEARCH_TEXT_MAX_LENG
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BAR_CONTROL_SIZE_DP
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BAR_ICON_OFFSET_X_DP
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BAR_ICON_OFFSET_Y_DP
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BAR_ICON_SHADOW_OFFSET_X_DP
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BAR_PREVIEW_HEIGHT_DP
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BAR_PREVIEW_WIDTH_DP
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.SearchUi
@@ -190,7 +191,7 @@ private fun InfoButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
             painter = painterResource(Res.drawable.ic_info_outline_30),
             contentDescription = null,
             colorFilter = ColorFilter.tint(BlackTransparent),
-            modifier = Modifier.size(30.dp)
+            modifier = Modifier.size(30.dp).offset(x = TOP_BAR_ICON_SHADOW_OFFSET_X_DP)
         )
         IconButton(
             onClick = onClick,
@@ -263,7 +264,7 @@ private fun SearchButton(selected: Boolean, onClick: () -> Unit, modifier: Modif
             painter = painterResource(Res.drawable.ic_search_34),
             contentDescription = null,
             colorFilter = ColorFilter.tint(BlackTransparent),
-            modifier = Modifier.size(34.dp)
+            modifier = Modifier.size(34.dp).offset(x = TOP_BAR_ICON_SHADOW_OFFSET_X_DP)
         )
         IconButton(
             onClick = onClick,
