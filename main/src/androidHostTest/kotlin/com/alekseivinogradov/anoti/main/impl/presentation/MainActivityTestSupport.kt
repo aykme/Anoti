@@ -20,6 +20,11 @@ internal const val ANIME_LIST_TAB_TAG = "anime_list_button"
 internal const val ANIME_FAVORITES_TAB_TAG = "anime_favorites_button"
 internal const val SEARCH_BUTTON_TAG = "search_button"
 internal const val SEARCH_TEXT = "frieren"
+internal const val INFO_BUTTON_TAG = "info_button"
+internal const val INFO_DIALOG_TITLE_TAG = "info_dialog_title"
+internal const val INFO_DIALOG_PRIVACY_POLICY_TAG = "info_dialog_privacy_policy"
+internal const val INFO_DIALOG_SUPPORT_TAG = "info_dialog_support"
+internal const val INFO_DIALOG_CLOSE_TAG = "info_dialog_close"
 
 /** The application the activity under test runs in. */
 internal val hostApplication: HostApplicationFake
