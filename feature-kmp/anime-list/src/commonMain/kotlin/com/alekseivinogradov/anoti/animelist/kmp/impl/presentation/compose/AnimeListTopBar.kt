@@ -51,8 +51,8 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BA
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.SearchUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.SectionHatUi
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.Res
-import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_info_outline_32
-import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_info_outline_34
+import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_info_outline_28
+import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_info_outline_30
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_search_32
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_search_34
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_search_cancel_32
@@ -187,10 +187,10 @@ private fun InfoButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     ) {
         // Manual hard-edged shadow: a second, larger, darker icon behind the real one.
         Image(
-            painter = painterResource(Res.drawable.ic_info_outline_34),
+            painter = painterResource(Res.drawable.ic_info_outline_30),
             contentDescription = null,
             colorFilter = ColorFilter.tint(BlackTransparent),
-            modifier = Modifier.size(34.dp)
+            modifier = Modifier.size(30.dp)
         )
         IconButton(
             onClick = onClick,
@@ -199,10 +199,10 @@ private fun InfoButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
                 .testTag("info_button")
         ) {
             Image(
-                painter = painterResource(Res.drawable.ic_info_outline_32),
+                painter = painterResource(Res.drawable.ic_info_outline_28),
                 contentDescription = stringResource(Res.string.info_description),
                 colorFilter = ColorFilter.tint(WhiteTransparent),
-                modifier = Modifier.size(32.dp).offset(x = TOP_BAR_ICON_OFFSET_X_DP, y = TOP_BAR_ICON_OFFSET_Y_DP)
+                modifier = Modifier.size(28.dp).offset(x = TOP_BAR_ICON_OFFSET_X_DP, y = TOP_BAR_ICON_OFFSET_Y_DP)
             )
         }
     }
