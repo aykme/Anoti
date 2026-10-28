@@ -163,12 +163,40 @@ final class RestoreSteps: XCTestCase {
     }
 
     @MainActor
-    private func waitUntilGone(_ element: XCUIElement, timeout: TimeInterval) -> Bool {
-        let gone = XCTNSPredicateExpectation(
-            predicate: NSPredicate(format: "exists == false"),
-            object: element
+    func testLeaveTheAppWithTheInformationDialogOpen() {
+        //Given
+        bringTheAppForward()
+        let title = app.tagged("info_dialog_title")
+        waitFor(app.tagged("info_button")).tap()
+        // A tap that lands while the screen still settles is lost.
+        if !title.waitForExistence(timeout: 10) {
+            app.tagged("info_button").tap()
+        }
+
+        //When
+        waitFor(title, timeout: 10)
+        keepScreenshot("the information dialog before going home")
+        signalReady()
+        XCUIDevice.shared.press(.home)
+
+        //Then
+        assertInTheBackground()
+    }
+
+    @MainActor
+    func testFindTheInformationDialogOpen() {
+        //Given
+        bringTheAppForward()
+
+        //When
+        let title = app.tagged("info_dialog_title")
+
+        //Then
+        XCTAssertTrue(
+            title.waitForExistence(timeout: loadTimeout),
+            "the information dialog did not come back"
         )
-        return XCTWaiter().wait(for: [gone], timeout: timeout) == .completed
+        keepScreenshot("the information dialog after the relaunch")
     }
 
     @MainActor

@@ -14,6 +14,14 @@ var springboard: XCUIApplication {
     XCUIApplication(bundleIdentifier: "com.apple.springboard")
 }
 
+/// The app's own threshold: a window whose smaller side reaches 600 points may turn.
+let wideWindowMinSide: CGFloat = 600
+
+/// Whether a window with this frame is wide enough to turn.
+func isWide(_ frame: CGRect) -> Bool {
+    min(frame.width, frame.height) >= wideWindowMinSide
+}
+
 extension XCUIElement {
     /// The first element under this one whose test tag is `tag`.
     func tagged(_ tag: String) -> XCUIElement {
@@ -51,6 +59,16 @@ extension XCTestCase {
             line: line
         )
         return element
+    }
+
+    /// Waits until `element` is gone, and tells whether it went within `timeout`.
+    @MainActor
+    func waitUntilGone(_ element: XCUIElement, timeout: TimeInterval) -> Bool {
+        let gone = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "exists == false"),
+            object: element
+        )
+        return XCTWaiter().wait(for: [gone], timeout: timeout) == .completed
     }
 
     /// Keeps a screenshot of the whole screen in the result bundle.

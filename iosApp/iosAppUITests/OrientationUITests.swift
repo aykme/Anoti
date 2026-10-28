@@ -69,9 +69,4 @@ final class OrientationUITests: XCTestCase {
         waitFor(app.tagged("anime_list_button"))
         return app
     }
-
-    // The app's own threshold: a window whose smaller side reaches 600 points may turn.
-    private func isWide(_ frame: CGRect) -> Bool {
-        min(frame.width, frame.height) >= 600
-    }
 }
