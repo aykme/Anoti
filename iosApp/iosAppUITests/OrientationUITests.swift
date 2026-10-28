@@ -67,7 +67,8 @@ final class OrientationUITests: XCTestCase {
         app.launch()
         allowNotificationsIfAsked()
         closeTheDialogIfKept(in: app)
-        waitFor(app.tagged("anime_list_button"))
+        // The app may open on favorites, kept from an earlier run.
+        waitFor(app.tagged("anime_list_button")).tap()
         return app
     }
 }
