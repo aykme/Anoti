@@ -8,6 +8,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormat
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.controller.SystemMessageController
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
+import com.alekseivinogradov.anoti.webpageopener.kmp.api.domain.usecase.OpenWebPageUsecase
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 
 /**
@@ -41,4 +42,7 @@ interface DiRootDependencies {
 
     /** Triggers a one-off background update of every saved anime. */
     val updateAllAnimeInBackgroundOnceUsecase: UpdateAllAnimeInBackgroundOnceUsecase
+
+    /** Opens a page of the app's site in the system browser. */
+    val openWebPageUsecase: OpenWebPageUsecase
 }

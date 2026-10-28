@@ -23,6 +23,8 @@ import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.formatter.fake.Date
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.alekseivinogradov.anoti.network.kmp.impl.data.client.createHttpClient
 import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
+import com.alekseivinogradov.anoti.webpageopener.kmp.api.domain.usecase.OpenWebPageUsecase
+import com.alekseivinogradov.anoti.webpageopener.kmp.impl.domain.usecase.fake.OpenWebPageUsecaseFake
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
@@ -95,6 +97,7 @@ class NavAnimeListScreenComponentTest {
         override val shikimoriApiService: ShikimoriApiService =
             ShikimoriApiServiceImpl(createHttpClient(engine))
         override val safeApi: SafeApi = SafeApiFake()
+        override val openWebPageUsecase: OpenWebPageUsecase = OpenWebPageUsecaseFake()
     }
 
     /** One component, the state keeper it consumes from and saves through, and its catalog. */

@@ -16,6 +16,7 @@ import com.alekseivinogradov.anoti.main.api.di.DiRootDependencies
 import com.alekseivinogradov.anoti.main.impl.presentation.di.DiRootNotificationTapComponent
 import com.alekseivinogradov.anoti.network.ios.impl.di.DiNetworkPlatformComponent
 import com.alekseivinogradov.anoti.network.kmp.impl.di.DiNetworkComponent
+import com.alekseivinogradov.anoti.webpageopener.ios.impl.di.DiWebPageOpenerPlatformComponent
 import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.KmpComponentCreate
 import me.tatarka.inject.annotations.Provides
@@ -43,6 +44,7 @@ internal abstract class DiAppComponent(
     DiAnimeBackgroundUpdateComponent,
     DiAnimeBackgroundUpdatePlatformComponent,
     DiAnimeNotificationPlatformComponent,
+    DiWebPageOpenerPlatformComponent,
     DiRootNotificationTapComponent,
     DiRootDependencies {
 

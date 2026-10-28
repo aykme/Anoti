@@ -49,6 +49,7 @@ kotlin {
             api(project(":feature-kmp:anime-base"))
             api(project(":feature-kmp:anime-background-update"))
             api(project(":feature-kmp:anime-notification"))
+            api(project(":feature-kmp:web-page-opener"))
             api(project(":main"))
 
             implementation(libs.kotlin.inject.runtime.kmp)

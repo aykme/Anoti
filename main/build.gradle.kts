@@ -38,6 +38,7 @@ kotlin {
             api(project(":feature-kmp:anime-favorites"))
             api(project(":feature-kmp:anime-base"))
             api(project(":feature-kmp:anime-background-update"))
+            api(project(":feature-kmp:web-page-opener"))
             api(project(":core-kmp:celebrity"))
             api(project(":core-kmp:network"))
             api(project(":core-kmp:anime-database"))
