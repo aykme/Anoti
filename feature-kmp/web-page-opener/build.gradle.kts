@@ -32,6 +32,9 @@ kotlin {
 
             implementation(libs.kotlin.inject.runtime.kmp)
         }
+        androidMain.dependencies {
+            implementation(libs.androidx.core)
+        }
         iosMain.dependencies {
             implementation(libs.kotlinx.coroutines.core)
         }

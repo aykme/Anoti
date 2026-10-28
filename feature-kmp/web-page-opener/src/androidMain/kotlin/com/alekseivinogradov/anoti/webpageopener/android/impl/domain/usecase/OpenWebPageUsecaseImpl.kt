@@ -3,7 +3,7 @@ package com.alekseivinogradov.anoti.webpageopener.android.impl.domain.usecase
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
+import androidx.core.net.toUri
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.ANOTI_TAG
 import com.alekseivinogradov.anoti.webpageopener.kmp.api.domain.usecase.OpenWebPageUsecase
 
@@ -21,7 +21,7 @@ class OpenWebPageUsecaseImpl(private val appContext: Context) : OpenWebPageUseca
             /* action = */
             Intent.ACTION_VIEW,
             /* uri = */
-            Uri.parse(url)
+            url.toUri()
         ).addCategory(Intent.CATEGORY_BROWSABLE)
             // The application context starts an activity only into a new task.
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

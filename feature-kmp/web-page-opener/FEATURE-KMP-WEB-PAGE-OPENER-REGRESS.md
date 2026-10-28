@@ -53,7 +53,7 @@ Preparation, on an emulator or a device connected to a development machine:
 1. List the apps that open web pages:
    `adb shell cmd package query-activities --brief -a android.intent.action.VIEW -c
    android.intent.category.BROWSABLE -d https://aykme.github.io/Anoti/privacy/`.
-2. Turn each one off: `adb shell pm disable-user --user 0 <package>`.
+2. Disable every app on that list: `adb shell pm disable-user --user 0 <package>`.
 
 The steps:
 
@@ -64,7 +64,7 @@ The steps:
      dialog is open, the banner sits under the dialog's dimmed backdrop. That is expected.
 2. Tap "Support".
    - The same result as step 1.
-3. Turn every app from the preparation back on with `adb shell pm enable <package>`. Tap a link
+3. Enable every app the preparation disabled: `adb shell pm enable <package>`. Tap a link
    again.
    - The page opens, as in section 2.
 
@@ -82,7 +82,7 @@ On the iPhone:
 
 - The page opens in Safari, or in the browser the user chose as the default.
 - There is no system Back. Step 2 of section 2 returns to the app with the "◀ Anoti" link iOS
-  shows at the top-left corner of the screen.
+  shows in the top-left corner of the screen.
 - Section 3 does not apply.
 - Section 4 ends the app as step 2 of "Leaving and coming back" in `main`'s file says, with its
   iPhone notes, while Safari is on screen. Return with the "◀ Anoti" link.
