@@ -373,6 +373,33 @@ case_dark_in_a_theme() {
   expect $? "the app's card in the switcher is dark, $theme theme"
 }
 
+# The theme is $1. The two pages the information dialog opens follow the system theme in Safari,
+# unlike the app, which stays dark in both.
+case_pages_in_a_theme() {
+  local theme=$1 page step expect_light=""
+  [ "$theme" = light ] && expect_light=--expect-light
+  xcrun simctl ui "$SIM_UDID" appearance "$theme"
+  start_video "case6-$theme"
+  prepare_case "case6-$theme"
+  launch_logged "case6-$theme"
+  sleep 15
+  # The privacy page first: the dialog stays open after it, and the support step taps on.
+  for page in privacy support; do
+    if [ "$page" = privacy ]; then step=testOpenThePrivacyPage; else step=testOpenTheSupportPage; fi
+    run_step "$step" "case6-$theme"
+    expect $? "the $page page loaded in Safari, $theme theme"
+    attachments="$MEDIA_DIR/attachments/$step-case6-$theme"
+    rm -rf "$attachments"
+    xcrun xcresulttool export attachments \
+      --path "$RESULTS_DIR/$step-case6-$theme.xcresult" --output-path "$attachments"
+    # shellcheck disable=SC2086 # the empty flag must vanish, not reach the script as ''
+    python3 "$check_dark" page "$attachments/$(attachment "$attachments" "the $page page")" \
+      $expect_light
+    expect $? "the $page page is $theme in the $theme system theme"
+  done
+  stop_video
+}
+
 # After a UI test has launched the app, iOS hands no kept scene state back to the app's later
 # launches, however they end. A restart of the simulator clears that; nothing is erased. A
 # simulator that has just booted is still busy and slow to answer, so it gets time to settle.
@@ -397,6 +424,10 @@ main() {
   for theme in light dark; do
     run_case "4. Dark in the $theme system theme: launch, bars, app switcher" "case4-$theme" \
       case_dark_in_a_theme "$theme"
+  done
+  for theme in light dark; do
+    run_case "6. The pages in Safari follow the $theme system theme" "case6-$theme" \
+      case_pages_in_a_theme "$theme"
   done
   xcrun simctl ui "$SIM_UDID" appearance light
 

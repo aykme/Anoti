@@ -199,6 +199,35 @@ final class RestoreSteps: XCTestCase {
         keepScreenshot("the information dialog after the relaunch")
     }
 
+    // The page follows the system theme, which the script sets before the step. The script judges
+    // the screenshot.
+    @MainActor
+    func testOpenThePrivacyPage() {
+        //Given
+        bringTheAppForward()
+        openTheDialogIfClosed()
+
+        //When
+        app.tagged("info_dialog_privacy_policy").tap()
+
+        //Then
+        assertThePageLoaded(heading: "Anoti Privacy Policy", screenshot: "the privacy page")
+    }
+
+    // The dialog stays open after the privacy page, so this step taps its second link.
+    @MainActor
+    func testOpenTheSupportPage() {
+        //Given
+        bringTheAppForward()
+        openTheDialogIfClosed()
+
+        //When
+        app.tagged("info_dialog_support").tap()
+
+        //Then
+        assertThePageLoaded(heading: "Anoti Support", screenshot: "the support page")
+    }
+
     @MainActor
     private func bringTheAppForward() {
         XCUIDevice.shared.orientation = .portrait
@@ -237,6 +266,33 @@ final class RestoreSteps: XCTestCase {
             top.press(forDuration: 0.1, thenDragTo: down)
         }
         waitFor(notification, timeout: 20).tap()
+    }
+
+    @MainActor
+    private func openTheDialogIfClosed() {
+        let title = app.tagged("info_dialog_title")
+        if !title.exists {
+            waitFor(app.tagged("info_button")).tap()
+            // A tap that lands while the screen still settles is lost.
+            if !title.waitForExistence(timeout: 10) {
+                app.tagged("info_button").tap()
+            }
+        }
+        waitFor(title, timeout: 10)
+    }
+
+    // Safari shows the page's heading once the page has loaded from the network.
+    @MainActor
+    private func assertThePageLoaded(heading: String, screenshot: String) {
+        let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
+        XCTAssertTrue(
+            safari.wait(for: .runningForeground, timeout: 30),
+            "Safari did not come to the front"
+        )
+        let title = safari.descendants(matching: .any)
+            .matching(NSPredicate(format: "label == %@", heading)).firstMatch
+        XCTAssertTrue(title.waitForExistence(timeout: loadTimeout), "\(heading) did not load")
+        keepScreenshot(screenshot)
     }
 
     // The list screen is open once its top bar is. Its items come from the live backend, which a
