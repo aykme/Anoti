@@ -7,3 +7,7 @@ const val INFO_DIALOG_LINKS_GAP_DP = 8
 // to a full device screen, and AnotiTheme's Surface.fillMaxSize() stretches to fill it.
 const val INFO_DIALOG_PREVIEW_WIDTH_DP = 360
 const val INFO_DIALOG_PREVIEW_HEIGHT_DP = 280
+
+// Tall enough for the whole dialog at twice the font size, so that preview shows the links
+// unscrolled, as a full-height screen does.
+const val INFO_DIALOG_LARGE_FONT_PREVIEW_HEIGHT_DP = 300

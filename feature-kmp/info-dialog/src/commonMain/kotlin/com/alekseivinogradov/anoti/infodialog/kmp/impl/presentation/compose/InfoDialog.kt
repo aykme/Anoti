@@ -22,6 +22,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.Grey70
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.SilverTransparent
 import com.alekseivinogradov.anoti.celebrity.kmp.api.presentation.compose.White
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.AnotiTheme
+import com.alekseivinogradov.anoti.infodialog.kmp.api.presentation.compose.INFO_DIALOG_LARGE_FONT_PREVIEW_HEIGHT_DP
 import com.alekseivinogradov.anoti.infodialog.kmp.api.presentation.compose.INFO_DIALOG_LINKS_GAP_DP
 import com.alekseivinogradov.anoti.infodialog.kmp.api.presentation.compose.INFO_DIALOG_PREVIEW_HEIGHT_DP
 import com.alekseivinogradov.anoti.infodialog.kmp.api.presentation.compose.INFO_DIALOG_PREVIEW_WIDTH_DP
@@ -117,7 +118,7 @@ private fun InfoDialogPreview() {
 @Suppress("FunctionNaming", "UnusedPrivateMember")
 @Preview(
     widthDp = INFO_DIALOG_PREVIEW_WIDTH_DP,
-    heightDp = INFO_DIALOG_PREVIEW_HEIGHT_DP,
+    heightDp = INFO_DIALOG_LARGE_FONT_PREVIEW_HEIGHT_DP,
     fontScale = 2f
 )
 @Composable
