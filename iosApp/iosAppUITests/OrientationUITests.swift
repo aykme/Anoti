@@ -66,6 +66,7 @@ final class OrientationUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
         allowNotificationsIfAsked()
+        closeTheDialogIfKept(in: app)
         waitFor(app.tagged("anime_list_button"))
         return app
     }

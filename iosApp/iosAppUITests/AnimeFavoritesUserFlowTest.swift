@@ -101,6 +101,7 @@ final class AnimeFavoritesUserFlowTest: XCTestCase {
         let app = XCUIApplication()
         app.launch()
         allowNotificationsIfAsked()
+        closeTheDialogIfKept(in: app)
         if environment["ANOTI_ORIENTATION"] == "landscape" {
             turnToLandscape(app)
         }

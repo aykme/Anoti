@@ -142,6 +142,7 @@ final class InfoDialogUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
         allowNotificationsIfAsked()
+        closeTheDialogIfKept(in: app)
         // The app may open on favorites, kept from an earlier run.
         waitFor(app.tagged("anime_list_button")).tap()
         waitFor(app.tagged("info_button"))
