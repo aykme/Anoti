@@ -66,6 +66,9 @@ kotlin {
             implementation(libs.robolectric)
             implementation(libs.compose.ui.test.junit4)
             implementation(libs.compose.ui.test.manifest)
+            // The dialog test presses Back through Espresso, which compose-ui-test-junit4 puts
+            // only on the runtime classpath.
+            implementation(libs.androidx.espresso.core)
         }
     }
 }
