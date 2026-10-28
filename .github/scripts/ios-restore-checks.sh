@@ -294,6 +294,33 @@ case_fresh_after_a_reinstall() {
   stop_video
 }
 
+case_info_dialog_kept_across_a_termination() {
+  start_video case5-info-dialog
+  prepare_case case5
+  launch_logged case5-before
+  sleep 10
+  home="$RUNNER_TEMP/home-5"
+  rm -f "$home"
+  # The step creates the file right before it goes home, so a later state file is that save's.
+  READY_FILE="$home" run_step testLeaveTheAppWithTheInformationDialogOpen case5
+  expect $? "the app was left with the information dialog open"
+  wait_for_line "$MEDIA_DIR/case5-before.log" "saved [0-9]+ characters on AnimeList" 30
+  expect $? "the app saved its state with the dialog open"
+  wait_for_saved_scene 60 "$home"
+  expect $? "the dialog's state reached the disk before the termination"
+  end_like_the_system
+  launch_logged case5-relaunch
+  sleep 20
+  screenshot case5-relaunch
+  run_step testFindTheInformationDialogOpen case5
+  expect $? "the relaunch shows the information dialog"
+  stop_video
+  grep -q "InfoDialog: the information dialog is shown" "$MEDIA_DIR/case5-relaunch.log"
+  expect $? "the relaunch reopened the dialog from the kept state"
+  grep -q "the root opens on AnimeList" "$MEDIA_DIR/case5-relaunch.log"
+  expect $? "the relaunch opens on the list"
+}
+
 # The theme is $1.
 case_dark_in_a_theme() {
   local theme=$1
@@ -351,6 +378,8 @@ main() {
   run_case "2b. A notification tap with the app closed and the list kept" case2b \
     case_tap_with_the_app_closed
   run_case "3. A fresh start after a reinstall" case3 case_fresh_after_a_reinstall
+  run_case "5. The information dialog is kept across a termination" case5 \
+    case_info_dialog_kept_across_a_termination
   for theme in light dark; do
     run_case "4. Dark in the $theme system theme: launch, bars, app switcher" "case4-$theme" \
       case_dark_in_a_theme "$theme"

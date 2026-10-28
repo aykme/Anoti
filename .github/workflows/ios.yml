@@ -29,10 +29,10 @@ on:
         description: Run AnimeFavoritesUserFlowTest
         type: boolean
         default: false
-      # The other tests that run the app on a simulator: OrientationUITests, and the restore and
-      # theme checks, which need the iPhone.
+      # The other tests that run the app on a simulator: OrientationUITests, InfoDialogUITests,
+      # and the restore and theme checks, which need the iPhone.
       ios_tests:
-        description: Run OrientationUITests and the restore checks
+        description: Run OrientationUITests, InfoDialogUITests and the restore checks
         type: boolean
         default: false
       # SwiftLint's own job, and its analyzer over the Debug build log.
@@ -287,7 +287,8 @@ jobs:
             only+=(-only-testing:iosAppUITests/AnimeFavoritesUserFlowTest)
           fi
           if [ "$PHONE_IOS_TESTS" = true ]; then
-            only+=(-only-testing:iosAppUITests/OrientationUITests)
+            only+=(-only-testing:iosAppUITests/OrientationUITests
+              -only-testing:iosAppUITests/InfoDialogUITests)
           fi
           xcrun simctl io "$SIM_UDID" recordVideo --codec=h264 --force "$MEDIA_DIR/ui-tests.mp4" &
           recorder=$!
@@ -377,7 +378,7 @@ jobs:
           products="$GITHUB_WORKSPACE/build/DerivedData/Build/Products"
           echo "XCTESTRUN=$(ls "$products"/*.xctestrun | head -1)" >> "$GITHUB_ENV"
 
-      - name: OrientationUITests
+      - name: OrientationUITests and InfoDialogUITests
         if: ${{ env.TABLET_IOS_TESTS == 'true' }}
         run: |
           xcrun simctl io "$SIM_UDID" recordVideo --codec=h264 --force \
@@ -388,6 +389,7 @@ jobs:
           # The UI tests reach the live backend, so a failed one gets up to three tries.
           xcodebuild test-without-building -xctestrun "$XCTESTRUN" -destination "id=$SIM_UDID" \
             -only-testing:iosAppUITests/OrientationUITests \
+            -only-testing:iosAppUITests/InfoDialogUITests \
             -retry-tests-on-failure -test-iterations 3 \
             -resultBundlePath "$RESULTS_DIR/orientation-tests.xcresult" \
             2>&1 | tee "$MEDIA_DIR/orientation-tests.log" || status=$?
