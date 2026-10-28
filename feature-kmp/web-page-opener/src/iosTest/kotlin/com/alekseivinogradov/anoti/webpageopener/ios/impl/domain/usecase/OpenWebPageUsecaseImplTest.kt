@@ -59,5 +59,6 @@ class OpenWebPageUsecaseImplTest {
 
 private const val PAGE_URL = "https://example.com/page/"
 
-// NSURL refuses the empty string; iOS 17 and later percent-encode most other bad input.
-private const val UNPARSABLE_URL = ""
+// iOS 17 and later percent-encode most bad input, the empty string included. A port of letters
+// cannot be encoded into digits, so NSURL refuses it.
+private const val UNPARSABLE_URL = "https://example.com:port/"
