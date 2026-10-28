@@ -11,7 +11,7 @@ class OpenWebPageUsecaseFake(private val result: Boolean = true) : OpenWebPageUs
 
     /** Every address asked for, in order. */
     val openedUrls: List<String>
-        field = mutableListOf()
+        field = mutableListOf<String>()
 
     override suspend fun execute(url: String): Boolean {
         openedUrls += url

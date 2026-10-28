@@ -1,4 +1,5 @@
-"""Fails when a part of a screenshot that the app keeps dark in every system theme is light.
+"""Judges whether parts of a screenshot are dark: the app's bars, which stay dark in every system
+theme, or a web page in the browser, which follows the theme.
 
 Modes: `edges` for the top system bar and the area under the bottom navigation; `card` for the
 bars of the app's card in the app switcher. A screen with posters is light between the bars, so
@@ -106,7 +107,8 @@ def main(mode, path, expect_light=False):
             "bottom": crop(rows, channels, 1 - EDGE_FRACTION, 1, 0, 1),
         }
     elif mode == "page":
-        # Below the browser's top bar and above its bottom toolbar, on any iPhone or iPad.
+        # Below the browser's top bar and above its bottom toolbar, as Safari lays out on an
+        # iPhone, where the restore checks run.
         parts = {"page": crop(rows, channels, 0.2, 0.75, 0.05, 0.95)}
         limit = MAX_PAGE_BRIGHTNESS
     elif mode == "card":

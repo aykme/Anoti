@@ -271,7 +271,8 @@ final class RestoreSteps: XCTestCase {
     @MainActor
     private func openTheDialogIfClosed() {
         let title = app.tagged("info_dialog_title")
-        if !title.exists {
+        // Back from Safari, the dialog's tree may take a moment to return.
+        if !title.waitForExistence(timeout: 5) {
             waitFor(app.tagged("info_button")).tap()
             // A tap that lands while the screen still settles is lost.
             if !title.waitForExistence(timeout: 10) {
@@ -292,6 +293,8 @@ final class RestoreSteps: XCTestCase {
         let title = safari.descendants(matching: .any)
             .matching(NSPredicate(format: "label == %@", heading)).firstMatch
         XCTAssertTrue(title.waitForExistence(timeout: loadTimeout), "\(heading) did not load")
+        // A page from Safari's cache can be there while the switch from the app still animates.
+        sleep(2)
         keepScreenshot(screenshot)
     }
 
