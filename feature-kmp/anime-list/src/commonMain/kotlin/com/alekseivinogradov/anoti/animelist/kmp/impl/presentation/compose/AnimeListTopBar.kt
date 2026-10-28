@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -44,17 +43,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.SEARCH_TEXT_MAX_LENGTH
-import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.SEARCH_ICON_OFFSET_X_DP
-import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.SEARCH_ICON_OFFSET_Y_DP
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BAR_CONTROL_SIZE_DP
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BAR_ICON_OFFSET_X_DP
+import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BAR_ICON_OFFSET_Y_DP
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BAR_PREVIEW_HEIGHT_DP
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.compose.TOP_BAR_PREVIEW_WIDTH_DP
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.SearchUi
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.model.SectionHatUi
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.Res
+import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_info_outline_32
+import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_info_outline_34
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_search_32
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_search_34
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.ic_search_cancel_32
+import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.info_description
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.on_air
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.search_hint
 import com.alekseivinogradov.anoti.animelist.kmp.generated.resources.search_off_description
@@ -132,8 +134,8 @@ fun AnimeListTopBar(
     }
 }
 
-// Long because it lays out four sibling bindings (filter spacer, two tabs, divider, search
-// button) each with its own exact spacing/color, not because of nested logic.
+// Long because it lays out five sibling bindings (info button, two tabs, divider, search button)
+// each with its own exact spacing/color, not because of nested logic.
 @Suppress("FunctionNaming", "LongMethod")
 @Composable
 private fun TabsRow(
@@ -156,8 +158,33 @@ private fun TabsRow(
             .height(IntrinsicSize.Min)
             .padding(top = 8.dp)
     ) {
-        // Reserved layout space with no interactive control.
-        Spacer(Modifier.padding(start = 8.dp).size(TOP_BAR_CONTROL_SIZE_DP.dp))
+        Box(
+            modifier = Modifier
+                .padding(start = 8.dp)
+                .size(width = TOP_BAR_CONTROL_SIZE_DP.dp, height = TOP_BAR_CONTROL_SIZE_DP.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            // Manual hard-edged shadow: a second, larger, darker icon behind the real one.
+            Image(
+                painter = painterResource(Res.drawable.ic_info_outline_34),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(BlackTransparent),
+                modifier = Modifier.size(34.dp)
+            )
+            IconButton(
+                onClick = { println("tagtag Info") },
+                modifier = Modifier
+                    .size(TOP_BAR_CONTROL_SIZE_DP.dp)
+                    .testTag("info_button")
+            ) {
+                Image(
+                    painter = painterResource(Res.drawable.ic_info_outline_32),
+                    contentDescription = stringResource(Res.string.info_description),
+                    colorFilter = ColorFilter.tint(WhiteTransparent),
+                    modifier = Modifier.size(32.dp).offset(x = TOP_BAR_ICON_OFFSET_X_DP, y = TOP_BAR_ICON_OFFSET_Y_DP)
+                )
+            }
+        }
 
         Text(
             text = stringResource(Res.string.on_air),
@@ -246,7 +273,7 @@ private fun TabsRow(
                     // The magnifying-glass glyph isn't centered the same way in this icon's own
                     // artwork as it is in ic_search_cancel_32's. So this nudge lines its contour
                     // up with the cancel icon shown in the exact same spot once search opens.
-                    modifier = Modifier.size(32.dp).offset(x = SEARCH_ICON_OFFSET_X_DP, y = SEARCH_ICON_OFFSET_Y_DP)
+                    modifier = Modifier.size(32.dp).offset(x = TOP_BAR_ICON_OFFSET_X_DP, y = TOP_BAR_ICON_OFFSET_Y_DP)
                 )
             }
         }

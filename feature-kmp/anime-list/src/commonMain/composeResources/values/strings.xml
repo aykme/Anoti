@@ -1,6 +1,7 @@
 <resources>
     <string name="extra_episodes_info_description">Display extra episodes info</string>
     <string name="available_episodes_info_discription">Display information about the available episodes</string>
+    <string name="info_description">Open information bottom sheet</string>
     <string name="search_on_description">Move to search section and/or open search input field</string>
     <string name="search_off_description">Close search input field</string>
     <string name="on_air">On air</string>
