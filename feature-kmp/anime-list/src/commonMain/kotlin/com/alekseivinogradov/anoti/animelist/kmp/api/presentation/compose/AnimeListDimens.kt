@@ -34,6 +34,7 @@ const val EPISODES_EXTRA_MAX_LINES = 3
 // at the same height.
 val TOP_BAR_ICON_OFFSET_X_DP: Dp = 0.dp
 
+// A nudge measured against the icons' artwork; detekt counts -2 as magic.
 @Suppress("MagicNumber")
 val TOP_BAR_ICON_OFFSET_Y_DP: Dp = (-2).dp
 

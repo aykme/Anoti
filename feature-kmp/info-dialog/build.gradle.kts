@@ -41,7 +41,6 @@ kotlin {
             // Each of these appears in this module's own public signatures: the composable, the
             // store contract and its executor, and the module component's providers.
             api(libs.compose.runtime)
-            api(libs.compose.ui)
             api(libs.mvikotlin)
             api(libs.mvikotlin.extensions.coroutines)
             // The executor and the module component take the UI kit's coroutine context and
@@ -55,6 +54,7 @@ kotlin {
             implementation(libs.compose.components.resources)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
+            implementation(libs.compose.ui)
             implementation(libs.compose.ui.tooling.preview)
         }
         commonTest.dependencies {

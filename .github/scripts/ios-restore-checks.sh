@@ -90,6 +90,20 @@ wait_for_line() {
   done
 }
 
+# Waits up to $2 seconds for a save on the list logged after the information dialog showed, in
+# the log $1. Starting a step sends the app to the background, which saves the list with the
+# dialog still closed.
+wait_for_save_with_the_dialog_open() {
+  local waited=0
+  until awk '/InfoDialog: the information dialog is shown/ { shown = 1 }
+      shown && /saved [0-9]+ characters on AnimeList/ { found = 1 }
+      END { exit !found }' "$1" 2> /dev/null; do
+    [ "$waited" -ge "$2" ] && return 1
+    sleep 1
+    waited=$((waited + 1))
+  done
+}
+
 wait_for_file() {
   local waited=0
   until [ -f "$1" ]; do
@@ -304,7 +318,7 @@ case_info_dialog_kept_across_a_termination() {
   # The step creates the file right before it goes home, so a later state file is that save's.
   READY_FILE="$home" run_step testLeaveTheAppWithTheInformationDialogOpen case5
   expect $? "the app was left with the information dialog open"
-  wait_for_line "$MEDIA_DIR/case5-before.log" "saved [0-9]+ characters on AnimeList" 30
+  wait_for_save_with_the_dialog_open "$MEDIA_DIR/case5-before.log" 30
   expect $? "the app saved its state with the dialog open"
   wait_for_saved_scene 60 "$home"
   expect $? "the dialog's state reached the disk before the termination"

@@ -7,7 +7,9 @@ Opens a web page in the system's browser, outside the app.
 
 ## How to include it
 
-- Gradle: `implementation(project(":feature-kmp:web-page-opener"))`
+- Gradle: `api(project(":feature-kmp:web-page-opener"))` in a module whose public signatures name
+  `OpenWebPageUsecase`, such as a dependencies contract or a usecases wrapper; `implementation`
+  otherwise.
 - `OpenWebPageUsecase` is provided by this module's per-platform
   `DiWebPageOpenerPlatformComponent` (a separate one on Android and on iOS), mixed into
   `DiAppComponent` on both platforms. It reaches a screen through `DiRootDependencies` and the

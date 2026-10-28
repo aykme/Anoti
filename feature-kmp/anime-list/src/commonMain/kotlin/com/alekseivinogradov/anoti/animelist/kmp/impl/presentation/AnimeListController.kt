@@ -39,7 +39,7 @@ import kotlinx.coroutines.flow.mapNotNull
  * @param searchSectionStore the search section's own store.
  * @param infoDialogStore the information dialog's own store; nothing binds it to the others.
  */
-// One parameter per store the controller wires.
+// The lifecycle plus one parameter per store the controller wires or exposes.
 @Suppress("LongParameterList")
 class AnimeListController(
     lifecycle: Lifecycle,

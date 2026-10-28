@@ -355,7 +355,8 @@ checked in its own file.
 3. Close the dialog with its "Close".
    - The list is as it was: the same section, scroll position, open extra info and bells.
      Nothing reloads and nothing scrolls.
-4. Repeat steps 2 and 3 while the section area shows Loading, and again while it shows Error.
+4. While the section area shows Loading, and again while it shows Error, tap the info button and
+   close the dialog with its "Close".
    - The dialog opens and closes the same way. The section area keeps its state underneath and
      goes on to List or Error as it would without the dialog.
 5. Search for `naruto`, close the field with the cross, and open and close the dialog.

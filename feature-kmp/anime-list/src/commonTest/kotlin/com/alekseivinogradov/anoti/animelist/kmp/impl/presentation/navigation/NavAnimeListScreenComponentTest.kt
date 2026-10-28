@@ -371,7 +371,7 @@ class NavAnimeListScreenComponentTest {
         //Given
         val beforeProcessDeath = createWiring()
         beforeProcessDeath.component.controller.acceptInfoDialog(InfoDialogStore.Intent.InfoClick)
-        val savedState = beforeProcessDeath.stateKeeper.save()
+        val savedState = encodedBetweenProcesses(beforeProcessDeath.stateKeeper.save())
 
         //When
         val afterProcessDeath = createWiring(savedState = savedState)
@@ -425,12 +425,7 @@ class NavAnimeListScreenComponentTest {
                     )
                 }
             }.save()
-            // Encoded as a saved state is between processes: a container never encoded hands
-            // back the registered object itself, and no decoder runs.
-            val savedWithoutTheDialog = Json.decodeFromString(
-                SerializableContainer.serializer(),
-                Json.encodeToString(SerializableContainer.serializer(), registered)
-            )
+            val savedWithoutTheDialog = encodedBetweenProcesses(registered)
 
             //When
             val wiring = createWiring(savedState = savedWithoutTheDialog)
@@ -505,6 +500,16 @@ private data class RestoredMainStateWithoutTheDialog(
     val announced: RestoredSectionState,
     val search: RestoredSectionState
 )
+
+/**
+ * Encodes [savedState] and decodes it back, as a saved state is between processes. A container
+ * never encoded hands back the registered object itself, and no decoder runs.
+ */
+private fun encodedBetweenProcesses(savedState: SerializableContainer): SerializableContainer =
+    Json.decodeFromString(
+        SerializableContainer.serializer(),
+        Json.encodeToString(SerializableContainer.serializer(), savedState)
+    )
 
 /**
  * Answers every listing with one full page of the same items, each with a next-episode date, so
