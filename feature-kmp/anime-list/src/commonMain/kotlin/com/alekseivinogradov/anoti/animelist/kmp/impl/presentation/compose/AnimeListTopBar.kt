@@ -187,7 +187,7 @@ private fun TabsRow(
 @Composable
 private fun InfoButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     Box(
-        modifier = modifier.size(width = TOP_BAR_CONTROL_SIZE_DP.dp, height = TOP_BAR_CONTROL_SIZE_DP.dp),
+        modifier = modifier.size(TOP_BAR_CONTROL_SIZE_DP.dp),
         contentAlignment = Alignment.Center
     ) {
         // Manual hard-edged shadow: a second, larger, darker icon behind the real one.
@@ -207,7 +207,9 @@ private fun InfoButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
                 painter = painterResource(Res.drawable.ic_info_outline_28),
                 contentDescription = stringResource(Res.string.info_description),
                 colorFilter = ColorFilter.tint(WhiteTransparent),
-                modifier = Modifier.size(28.dp).offset(x = TOP_BAR_ICON_OFFSET_X_DP, y = TOP_BAR_ICON_OFFSET_Y_DP)
+                modifier = Modifier
+                    .size(28.dp)
+                    .offset(x = TOP_BAR_ICON_OFFSET_X_DP, y = TOP_BAR_ICON_OFFSET_Y_DP)
             )
         }
     }
@@ -215,7 +217,12 @@ private fun InfoButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
 
 @Suppress("FunctionNaming")
 @Composable
-private fun SectionTab(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun SectionTab(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Text(
         text = text,
         color = if (selected) Cinnabar500 else WhiteTransparent,
@@ -260,7 +267,7 @@ private fun TabsDivider(modifier: Modifier = Modifier) {
 @Composable
 private fun SearchButton(selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Box(
-        modifier = modifier.size(width = TOP_BAR_CONTROL_SIZE_DP.dp, height = TOP_BAR_CONTROL_SIZE_DP.dp),
+        modifier = modifier.size(TOP_BAR_CONTROL_SIZE_DP.dp),
         contentAlignment = Alignment.Center
     ) {
         // Manual hard-edged shadow: a second, larger, darker icon behind the real one.
@@ -289,7 +296,9 @@ private fun SearchButton(selected: Boolean, onClick: () -> Unit, modifier: Modif
                 // The magnifying-glass glyph isn't centered the same way in this icon's own
                 // artwork as it is in ic_search_cancel_32's. So this nudge lines its contour up
                 // with the cancel icon shown in the exact same spot once search opens.
-                modifier = Modifier.size(32.dp).offset(x = TOP_BAR_ICON_OFFSET_X_DP, y = TOP_BAR_ICON_OFFSET_Y_DP)
+                modifier = Modifier
+                    .size(32.dp)
+                    .offset(x = TOP_BAR_ICON_OFFSET_X_DP, y = TOP_BAR_ICON_OFFSET_Y_DP)
             )
         }
     }

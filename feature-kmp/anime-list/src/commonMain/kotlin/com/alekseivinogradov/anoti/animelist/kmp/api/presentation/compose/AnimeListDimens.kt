@@ -12,8 +12,7 @@ const val TWO_COLUMN_MIN_WIDTH_DP = 600
 // The width from which the anime list lays out in three columns, its most.
 const val THREE_COLUMN_MIN_WIDTH_DP = 1100
 
-// Standard square control size shared by the top bar's info button, search button, search field
-// height, and cancel button.
+// The side of the top bar's square controls and the search field's minimum height.
 const val TOP_BAR_CONTROL_SIZE_DP = 56
 
 // Safety cap on the anime title's line count at large font/display scales; at normal scale the
