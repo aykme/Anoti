@@ -373,7 +373,7 @@ The steps name Android's tools. On the iPhone:
   and coming back" in `main`'s file says, with its iPhone notes. Everything section 12 expects
   comes back the same way, the text in the search field and the scroll position included.
 - There is no system Back. Step 9 of section 12 returns from Safari with the "◀ Anoti" link iOS
-  shows at the top-left corner of the screen.
+  shows in the top-left corner of the screen.
 - Swiping the app away in the app switcher is the user closing it. The app then starts fresh.
 - A new text size reaches the iPhone app only when it is opened again. After changing it, close
   the app in the app switcher and open it before walking the pass. Changing Display Zoom restarts
