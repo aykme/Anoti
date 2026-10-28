@@ -69,7 +69,8 @@ and do not commit it.
 
 The app logs its key events, and every line starts with `[Anoti]`. The lines name the screen
 being built and the notification permission decision. They give each load and how many titles it
-brought, each background pass with its result, and each notification handed to the system.
+brought, each background pass with its result, and each notification handed to the system. They
+also mark the information dialog opening and closing, and each web page handed to the browser.
 Nothing is logged per scroll or keystroke, and never the search text. Use them to tell states
 apart and to time a screenshot. They are not a step of their own: a check still looks at the
 screen.
@@ -121,4 +122,6 @@ platform and says why.
 - [feature-kmp:anime-notification](feature-kmp/anime-notification/FEATURE-KMP-ANIME-NOTIFICATION-REGRESS.md)
 - [feature-kmp:anime-notification-external](feature-kmp/anime-notification-external/FEATURE-KMP-ANIME-NOTIFICATION-EXTERNAL-REGRESS.md)
 - [feature-kmp:bottom-navigation-bar](feature-kmp/bottom-navigation-bar/FEATURE-KMP-BOTTOM-NAVIGATION-BAR-REGRESS.md)
+- [feature-kmp:info-dialog](feature-kmp/info-dialog/FEATURE-KMP-INFO-DIALOG-REGRESS.md)
 - [feature-kmp:notifications-rationale-dialog](feature-kmp/notifications-rationale-dialog/FEATURE-KMP-NOTIFICATIONS-RATIONALE-DIALOG-REGRESS.md)
+- [feature-kmp:web-page-opener](feature-kmp/web-page-opener/FEATURE-KMP-WEB-PAGE-OPENER-REGRESS.md)

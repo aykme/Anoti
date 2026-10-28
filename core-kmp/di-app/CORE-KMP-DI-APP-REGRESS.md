@@ -24,6 +24,10 @@ Unless a step says otherwise, start from a clean installation, with the device o
    The anime is listed there. A screen that got no store to read from would show nothing.
 3. Switch between the main screen and **Favorites** twenty times.
    Both keep working. The app does not slow down noticeably and does not crash.
+4. On the main screen, tap the info button at the left end of the top bar, then **Privacy
+   Policy**.
+   The browser opens on the app's privacy policy. A screen that got no working way to open a page
+   would open nothing.
 
 ## Starting when things are against it
 

@@ -27,12 +27,16 @@ interface InfoDialogStore :
     /** None: nothing outside the dialog reacts to it. */
     sealed interface Label
 
-    /** None: the store bootstraps nothing. */
+    /** None: the store bootstraps nothing. Internal plumbing; a consumer never dispatches it. */
     sealed interface Action
 
-    /** What the executor tells the reducer. */
+    /** What the executor tells the reducer. Internal plumbing; a consumer never dispatches it. */
     sealed interface Message {
-        /** Replaces [State.isShown]. */
+        /**
+         * Replaces [State.isShown].
+         *
+         * @param isShown whether the dialog is on screen.
+         */
         data class ChangeVisibility(val isShown: Boolean) : Message
     }
 }
