@@ -13,6 +13,7 @@
 		5D930C42ECCF1A8FA52AA8E6 /* AnimeFavoritesUserFlowTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFBEFACDF5A358AA3947742 /* AnimeFavoritesUserFlowTest.swift */; };
 		85395B31615E29C89A4EB4CD /* AnotiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78B9CBEC7EAABE25BBE51776 /* AnotiApp.swift */; };
 		96F9997B98FADD29744270C8 /* OrientationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7648DB82F4C8D2B7B1C955E5 /* OrientationUITests.swift */; };
+		97DF1E9F5BCAD4BDEDE9A233 /* InfoDialogUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E610F116868C3E5F181020CA /* InfoDialogUITests.swift */; };
 		C1C264EAAA0F2CEC500369CA /* RestoreSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599693EADB2228F37A7B4AF3 /* RestoreSteps.swift */; };
 		FDE52B8D57A097A60A4CF366 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B6C1F485E0CF8BB70C9DDD2 /* AppDelegate.swift */; };
 		FE7AC234EC3B815795A82EC6 /* UITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2AF7D2D9475CB6237C289A /* UITestSupport.swift */; };
@@ -41,6 +42,7 @@
 		C6D2DD7FE2E0BF5DB2A96B4B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		CE8509E5A49E4A5CAAEB3ADB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		DA2AF7D2D9475CB6237C289A /* UITestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestSupport.swift; sourceTree = "<group>"; };
+		E610F116868C3E5F181020CA /* InfoDialogUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoDialogUITests.swift; sourceTree = "<group>"; };
 		F543015C899423D4B01CEB2E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -89,6 +91,7 @@
 			isa = PBXGroup;
 			children = (
 				4AFBEFACDF5A358AA3947742 /* AnimeFavoritesUserFlowTest.swift */,
+				E610F116868C3E5F181020CA /* InfoDialogUITests.swift */,
 				7648DB82F4C8D2B7B1C955E5 /* OrientationUITests.swift */,
 				599693EADB2228F37A7B4AF3 /* RestoreSteps.swift */,
 				DA2AF7D2D9475CB6237C289A /* UITestSupport.swift */,
@@ -216,6 +219,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5D930C42ECCF1A8FA52AA8E6 /* AnimeFavoritesUserFlowTest.swift in Sources */,
+				97DF1E9F5BCAD4BDEDE9A233 /* InfoDialogUITests.swift in Sources */,
 				96F9997B98FADD29744270C8 /* OrientationUITests.swift in Sources */,
 				C1C264EAAA0F2CEC500369CA /* RestoreSteps.swift in Sources */,
 				FE7AC234EC3B815795A82EC6 /* UITestSupport.swift in Sources */,

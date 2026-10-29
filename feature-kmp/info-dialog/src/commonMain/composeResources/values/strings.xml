@@ -1,0 +1,7 @@
+<resources>
+    <string name="info_dialog_title">Information</string>
+    <string name="info_dialog_privacy_policy">Privacy Policy</string>
+    <string name="info_dialog_support">Support</string>
+    <string name="info_dialog_close">Close</string>
+    <string name="open_in_browser_description">Open in browser</string>
+</resources>

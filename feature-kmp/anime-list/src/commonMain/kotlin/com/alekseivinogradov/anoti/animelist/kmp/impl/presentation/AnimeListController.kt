@@ -14,6 +14,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.announcedsecti
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.main.AnimeListMainStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.ongoingsection.OngoingSectionStore
 import com.alekseivinogradov.anoti.animelist.kmp.api.domain.store.searchsection.SearchSectionStore
+import com.alekseivinogradov.anoti.infodialog.kmp.api.domain.store.InfoDialogStore
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.mvikotlin.core.binder.BinderLifecycleMode
 import com.arkivanov.mvikotlin.extensions.coroutines.bind
@@ -27,6 +28,7 @@ import kotlinx.coroutines.flow.mapNotNull
 /**
  * Wires the main store, its three section stores and [AnimeDatabaseStore] to each other while the
  * screen component is started. The UI reads [state] and sends its events through [accept]. The
+ * information dialog's state and events go through [infoDialogState] and [acceptInfoDialog]. The
  * component that owns the stores builds it once and disposes them.
  *
  * @param lifecycle the screen component's lifecycle; the stores are wired while it is started.
@@ -35,18 +37,25 @@ import kotlinx.coroutines.flow.mapNotNull
  * @param ongoingSectionStore the "ongoing" section's own store.
  * @param announcedSectionStore the "announced" section's own store.
  * @param searchSectionStore the search section's own store.
+ * @param infoDialogStore the information dialog's own store; nothing binds it to the others.
  */
+// The lifecycle plus one parameter per store the controller wires or exposes.
+@Suppress("LongParameterList")
 class AnimeListController(
     lifecycle: Lifecycle,
     private val mainStore: AnimeListMainStore,
     private val animeDatabaseStore: AnimeDatabaseStore,
     private val ongoingSectionStore: OngoingSectionStore,
     private val announcedSectionStore: AnnouncedSectionStore,
-    private val searchSectionStore: SearchSectionStore
+    private val searchSectionStore: SearchSectionStore,
+    private val infoDialogStore: InfoDialogStore
 ) {
 
     /** The main store's state, for as long as the screen component lives. */
     val state: StateFlow<AnimeListMainStore.State> = mainStore.stateFlow(lifecycle)
+
+    /** The information dialog's state, for as long as the screen component lives. */
+    val infoDialogState: StateFlow<InfoDialogStore.State> = infoDialogStore.stateFlow(lifecycle)
 
     init {
         connectAllAuxiliaryStoresToMain(lifecycle)
@@ -55,6 +64,11 @@ class AnimeListController(
     /** Sends an event of the screen to the main store. */
     fun accept(intent: AnimeListMainStore.Intent) {
         mainStore.accept(intent)
+    }
+
+    /** Sends an event of the information dialog to its store. */
+    fun acceptInfoDialog(intent: InfoDialogStore.Intent) {
+        infoDialogStore.accept(intent)
     }
 
     private fun connectAllAuxiliaryStoresToMain(lifecycle: Lifecycle) {

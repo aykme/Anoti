@@ -11,6 +11,7 @@ import com.alekseivinogradov.anoti.animelist.kmp.impl.di.DiAnimeListComponent
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.AnimeListController
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
+import com.alekseivinogradov.anoti.infodialog.kmp.api.domain.store.InfoDialogStore
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.essenty.lifecycle.doOnStart
@@ -20,8 +21,9 @@ import kotlinx.serialization.Serializable
  * Owns the anime-list screen's `FeatureScope` DI subgraph for as long as this component's
  * lifecycle (inherited from [componentContext]) is alive — created once when
  * `NavRootConfig.AnimeList` becomes the active root config, disposed when
- * `NavRootComponent.navigateTo()` replaces it. It builds the screen's [controller] and replays
- * the saved state on its first start; [AnimeListRoute] only draws the controller's state.
+ * `NavRootComponent.navigateTo()` replaces it. It builds the screen's [controller], holds the
+ * information dialog's store beside the screen's own, and replays the saved state on its first
+ * start; [AnimeListRoute] only draws the controller's state.
  */
 class NavAnimeListScreenComponent(
     componentContext: ComponentContext,
@@ -47,6 +49,9 @@ class NavAnimeListScreenComponent(
     /** The search section's own store. */
     internal val searchSectionStore: SearchSectionStore = diAnimeListComponent.searchSectionStore
 
+    /** The information dialog's own store. */
+    internal val infoDialogStore: InfoDialogStore = diAnimeListComponent.infoDialogStore
+
     init {
         // Registered before the saved state is read. A state the screen rejects throws there, and
         // the stores must still close with the lifecycle.
@@ -54,6 +59,7 @@ class NavAnimeListScreenComponent(
             ongoingSectionStore.dispose()
             announcedSectionStore.dispose()
             searchSectionStore.dispose()
+            infoDialogStore.dispose()
             animeDatabaseStore.dispose()
             mainStore.dispose()
         }
@@ -88,7 +94,8 @@ class NavAnimeListScreenComponent(
                         itemCount = it.listItems.size,
                         enabledExtraEpisodesInfoIds = it.enabledExtraEpisodesInfoIds
                     )
-                }
+                },
+                isInfoDialogShown = infoDialogStore.state.isShown
             )
         }
 
@@ -101,7 +108,8 @@ class NavAnimeListScreenComponent(
                 mainStore = mainStore,
                 ongoingSectionStore = ongoingSectionStore,
                 announcedSectionStore = announcedSectionStore,
-                searchSectionStore = searchSectionStore
+                searchSectionStore = searchSectionStore,
+                infoDialogStore = infoDialogStore
             )
         }
     }
@@ -113,7 +121,8 @@ class NavAnimeListScreenComponent(
         animeDatabaseStore = animeDatabaseStore,
         ongoingSectionStore = ongoingSectionStore,
         announcedSectionStore = announcedSectionStore,
-        searchSectionStore = searchSectionStore
+        searchSectionStore = searchSectionStore,
+        infoDialogStore = infoDialogStore
     )
 
     private companion object {
@@ -121,6 +130,18 @@ class NavAnimeListScreenComponent(
     }
 }
 
+/**
+ * The screen's saved snapshot, replayed by [applyRestoredMainState] on the first start.
+ *
+ * @param selectedSection the section the user was on.
+ * @param searchType whether the search bar was shown.
+ * @param searchText what the search field held.
+ * @param ongoing the "ongoing" section's snapshot.
+ * @param announced the "announced" section's snapshot.
+ * @param search the search section's snapshot.
+ * @param isInfoDialogShown whether the information dialog was open. Its default keeps a state
+ * saved without this field decodable.
+ */
 @Serializable
 internal data class RestoredMainState(
     val selectedSection: SectionHatDomain,
@@ -128,7 +149,8 @@ internal data class RestoredMainState(
     val searchText: String,
     val ongoing: RestoredSectionState,
     val announced: RestoredSectionState,
-    val search: RestoredSectionState
+    val search: RestoredSectionState,
+    val isInfoDialogShown: Boolean = false
 )
 
 /**
@@ -169,14 +191,19 @@ internal data class RestoredSectionState(
  * use each store's own [RestoredSectionState] to page in the right number of items once that
  * section actually opens, whether that's right now or from a later manual tap.
  *
+ * Reopens the information dialog when it was open, straight into its store.
+ *
  * @param restoredState the saved snapshot, or `null` on a fresh (non-restored) start.
  */
+// One parameter per store the replay reaches directly.
+@Suppress("LongParameterList")
 internal fun applyRestoredMainState(
     restoredState: RestoredMainState?,
     mainStore: AnimeListMainStore,
     ongoingSectionStore: OngoingSectionStore,
     announcedSectionStore: AnnouncedSectionStore,
-    searchSectionStore: SearchSectionStore
+    searchSectionStore: SearchSectionStore,
+    infoDialogStore: InfoDialogStore
 ) {
     if (restoredState != null) {
         ongoingSectionStore.accept(
@@ -235,5 +262,9 @@ internal fun applyRestoredMainState(
         if (restoredState?.searchType == SearchDomain.Type.HIDDEN) {
             mainStore.accept(AnimeListMainStore.Intent.CancelSearchClick)
         }
+    }
+
+    if (restoredState?.isInfoDialogShown == true) {
+        infoDialogStore.accept(InfoDialogStore.Intent.InfoClick)
     }
 }

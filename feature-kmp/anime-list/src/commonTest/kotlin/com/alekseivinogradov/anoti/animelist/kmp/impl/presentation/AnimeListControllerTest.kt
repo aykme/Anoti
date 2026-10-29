@@ -39,7 +39,10 @@ import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.Sea
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
+import com.alekseivinogradov.anoti.infodialog.kmp.api.domain.store.InfoDialogStore
+import com.alekseivinogradov.anoti.infodialog.kmp.impl.di.DiInfoDialogComponent
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
+import com.alekseivinogradov.anoti.webpageopener.kmp.impl.domain.usecase.fake.OpenWebPageUsecaseFake
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.destroy
 import com.arkivanov.essenty.lifecycle.resume
@@ -158,7 +161,8 @@ class AnimeListControllerTest {
             animeDatabaseStore = animeDatabaseStore,
             ongoingSectionStore = ongoingSectionStore,
             announcedSectionStore = announcedSectionStore,
-            searchSectionStore = searchSectionStore
+            searchSectionStore = searchSectionStore,
+            infoDialogStore = createInfoDialogStore()
         )
         lifecycle.resume()
 
@@ -241,6 +245,20 @@ class AnimeListControllerTest {
             storeFactory = DefaultStoreFactory(),
             executorFactory = executorFactory
         ).create().also(createdStores::add)
+    }
+
+    private fun createInfoDialogStore(): InfoDialogStore {
+        val component = object : DiInfoDialogComponent {}
+        return component.provideInfoDialogStore(
+            storeFactory = DefaultStoreFactory(),
+            executorFactory = component.provideInfoDialogExecutorFactory(
+                coroutineContextProvider = createCoroutineContextProvider(),
+                usecases = component.provideInfoDialogUsecases(
+                    openWebPageUsecase = OpenWebPageUsecaseFake()
+                ),
+                systemMessageProvider = noOpSystemMessageProvider()
+            )
+        ).also(createdStores::add)
     }
 
     @Test

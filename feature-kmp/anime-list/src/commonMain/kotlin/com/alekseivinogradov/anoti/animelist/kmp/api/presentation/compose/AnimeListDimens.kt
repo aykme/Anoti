@@ -12,8 +12,7 @@ const val TWO_COLUMN_MIN_WIDTH_DP = 600
 // The width from which the anime list lays out in three columns, its most.
 const val THREE_COLUMN_MIN_WIDTH_DP = 1100
 
-// Standard square control size shared by the top bar's filter spacer, search button, search
-// field height, and cancel button.
+// The side of the top bar's square controls and the search field's minimum height.
 const val TOP_BAR_CONTROL_SIZE_DP = 56
 
 // Safety cap on the anime title's line count at large font/display scales; at normal scale the
@@ -28,14 +27,19 @@ const val EPISODES_AVAILABLE_MAX_LINES = 2
 // large font/display scales.
 const val EPISODES_EXTRA_MAX_LINES = 3
 
-// Shifts the search icon so its contour lines up with ic_search_cancel_32, shown in the same
-// spot once search opens. The two icons aren't centered identically within their own artwork,
-// and OutlinedTextField's trailingIcon slot positions the cancel icon slightly differently than
-// a plain Box would.
-val SEARCH_ICON_OFFSET_X_DP: Dp = 0.dp
+// Shifts each top-bar icon within its button. It lines the search icon's contour up with
+// ic_search_cancel_32, shown in the same spot once search opens. The two aren't centered
+// identically within their own artwork, and OutlinedTextField's trailingIcon slot positions the
+// cancel icon slightly differently than a plain Box would. One shift keeps every icon of the bar
+// at the same height.
+val TOP_BAR_ICON_OFFSET_X_DP: Dp = 0.dp
 
+// A nudge measured against the icons' artwork; detekt counts -2 as magic.
 @Suppress("MagicNumber")
-val SEARCH_ICON_OFFSET_Y_DP: Dp = (-3).dp
+val TOP_BAR_ICON_OFFSET_Y_DP: Dp = (-2).dp
+
+// Shifts each top-bar icon's shadow left, so it falls down and to the left like the tab texts'.
+val TOP_BAR_ICON_SHADOW_OFFSET_X_DP: Dp = (-1).dp
 
 // The number of flexible gaps in an item's score-divider-status-divider-notification chain.
 const val GAP_COUNT_WITH_STATUS = 4

@@ -110,6 +110,57 @@ class MainActivityRecreationTest {
     }
 
     @Test
+    fun keepsTheInformationDialogOpenWhenItIsRebuiltInTheSameProcess() {
+        //Given
+        val controller = composeRule.launchMainActivity(plainLaunchingIntent())
+        composeRule.onNodeWithTag(INFO_BUTTON_TAG).performClick()
+        composeRule.waitForIdle()
+
+        //When
+        controller.recreate()
+        composeRule.waitForIdle()
+
+        //Then
+        composeRule.onNodeWithTag(INFO_DIALOG_TITLE_TAG).assertIsDisplayed()
+    }
+
+    @Test
+    fun keepsTheInformationDialogOpenWhenItIsRebuiltFromSavedState() {
+        //Given
+        val first = composeRule.launchMainActivity(plainLaunchingIntent())
+        composeRule.onNodeWithTag(INFO_BUTTON_TAG).performClick()
+        composeRule.waitForIdle()
+        val saved = Bundle()
+        first.saveInstanceState(saved).pause().stop().destroy()
+
+        //When
+        Robolectric.buildActivity(MainActivity::class.java, plainLaunchingIntent())
+            .create(saved).start().restoreInstanceState(saved).postCreate(saved)
+            .resume().visible()
+        composeRule.waitForIdle()
+
+        //Then
+        composeRule.onNodeWithTag(INFO_DIALOG_TITLE_TAG).assertIsDisplayed()
+    }
+
+    @Test
+    fun keepsAClosedInformationDialogClosedWhenItIsRebuilt() {
+        //Given
+        val controller = composeRule.launchMainActivity(plainLaunchingIntent())
+        composeRule.onNodeWithTag(INFO_BUTTON_TAG).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag(INFO_DIALOG_CLOSE_TAG).performClick()
+        composeRule.waitForIdle()
+
+        //When
+        controller.recreate()
+        composeRule.waitForIdle()
+
+        //Then
+        composeRule.onNodeWithTag(INFO_DIALOG_TITLE_TAG).assertDoesNotExist()
+    }
+
+    @Test
     fun theSearchTextTypedOnTheListComesBackWhenItIsRebuiltFromSavedState() {
         //Given
         val first = composeRule.launchMainActivity(plainLaunchingIntent())

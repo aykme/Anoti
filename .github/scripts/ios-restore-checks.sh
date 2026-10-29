@@ -90,6 +90,20 @@ wait_for_line() {
   done
 }
 
+# Waits up to $2 seconds for a save on the list logged after the information dialog showed, in
+# the log $1. Starting a step sends the app to the background, which saves the list with the
+# dialog still closed.
+wait_for_save_with_the_dialog_open() {
+  local waited=0
+  until awk '/InfoDialog: the information dialog is shown/ { shown = 1 }
+      shown && /saved [0-9]+ characters on AnimeList/ { found = 1 }
+      END { exit !found }' "$1" 2> /dev/null; do
+    [ "$waited" -ge "$2" ] && return 1
+    sleep 1
+    waited=$((waited + 1))
+  done
+}
+
 wait_for_file() {
   local waited=0
   until [ -f "$1" ]; do
@@ -294,6 +308,33 @@ case_fresh_after_a_reinstall() {
   stop_video
 }
 
+case_info_dialog_kept_across_a_termination() {
+  start_video case5-info-dialog
+  prepare_case case5
+  launch_logged case5-before
+  sleep 10
+  home="$RUNNER_TEMP/home-5"
+  rm -f "$home"
+  # The step creates the file right before it goes home, so a later state file is that save's.
+  READY_FILE="$home" run_step testLeaveTheAppWithTheInformationDialogOpen case5
+  expect $? "the app was left with the information dialog open"
+  wait_for_save_with_the_dialog_open "$MEDIA_DIR/case5-before.log" 30
+  expect $? "the app saved its state with the dialog open"
+  wait_for_saved_scene 60 "$home"
+  expect $? "the dialog's state reached the disk before the termination"
+  end_like_the_system
+  launch_logged case5-relaunch
+  sleep 20
+  screenshot case5-relaunch
+  run_step testFindTheInformationDialogOpen case5
+  expect $? "the relaunch shows the information dialog"
+  stop_video
+  grep -q "InfoDialog: the information dialog is shown" "$MEDIA_DIR/case5-relaunch.log"
+  expect $? "the relaunch reopened the dialog from the kept state"
+  grep -q "the root opens on AnimeList" "$MEDIA_DIR/case5-relaunch.log"
+  expect $? "the relaunch opens on the list"
+}
+
 # The theme is $1.
 case_dark_in_a_theme() {
   local theme=$1
@@ -332,9 +373,36 @@ case_dark_in_a_theme() {
   expect $? "the app's card in the switcher is dark, $theme theme"
 }
 
-# After a UI test has launched the app, iOS hands no kept scene state back to the app's later
-# launches, however they end. A restart of the simulator clears that; nothing is erased. A
-# simulator that has just booted is still busy and slow to answer, so it gets time to settle.
+# The theme is $1. The two pages the information dialog opens follow the system theme in Safari,
+# unlike the app, which stays dark in both.
+case_pages_in_a_theme() {
+  local theme=$1 page step expect_light=""
+  [ "$theme" = light ] && expect_light=--expect-light
+  xcrun simctl ui "$SIM_UDID" appearance "$theme"
+  start_video "case6-$theme"
+  prepare_case "case6-$theme"
+  launch_logged "case6-$theme"
+  sleep 15
+  # The privacy page first: the dialog stays open after it, and the support step taps on.
+  for page in privacy support; do
+    if [ "$page" = privacy ]; then step=testOpenThePrivacyPage; else step=testOpenTheSupportPage; fi
+    run_step "$step" "case6-$theme"
+    expect $? "the $page page loaded in Safari, $theme theme"
+    attachments="$MEDIA_DIR/attachments/$step-case6-$theme"
+    rm -rf "$attachments"
+    xcrun xcresulttool export attachments \
+      --path "$RESULTS_DIR/$step-case6-$theme.xcresult" --output-path "$attachments"
+    # shellcheck disable=SC2086 # the empty flag must vanish, not reach the script as ''
+    python3 "$check_dark" page "$attachments/$(attachment "$attachments" "the $page page")" \
+      $expect_light
+    expect $? "the $page page is $theme in the $theme system theme"
+  done
+  stop_video
+}
+
+# After a UI test has launched the app, iOS hands no kept scene state to the app's later launches
+# from outside XCTest, however they end. A restart of the simulator clears that; nothing is erased.
+# A simulator that has just booted is still busy and slow to answer, so it gets time to settle.
 restart_the_simulator() {
   xcrun simctl shutdown "$SIM_UDID"
   xcrun simctl boot "$SIM_UDID"
@@ -351,9 +419,15 @@ main() {
   run_case "2b. A notification tap with the app closed and the list kept" case2b \
     case_tap_with_the_app_closed
   run_case "3. A fresh start after a reinstall" case3 case_fresh_after_a_reinstall
+  run_case "5. The information dialog is kept across a termination" case5 \
+    case_info_dialog_kept_across_a_termination
   for theme in light dark; do
     run_case "4. Dark in the $theme system theme: launch, bars, app switcher" "case4-$theme" \
       case_dark_in_a_theme "$theme"
+  done
+  for theme in light dark; do
+    run_case "6. The pages in Safari follow the $theme system theme" "case6-$theme" \
+      case_pages_in_a_theme "$theme"
   done
   xcrun simctl ui "$SIM_UDID" appearance light
 

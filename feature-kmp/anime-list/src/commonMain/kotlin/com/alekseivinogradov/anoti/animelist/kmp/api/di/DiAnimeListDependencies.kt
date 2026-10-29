@@ -6,6 +6,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.Cor
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
+import com.alekseivinogradov.anoti.webpageopener.kmp.api.domain.usecase.OpenWebPageUsecase
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 
 /** What the anime-list screen's component takes from its parent. */
@@ -31,4 +32,7 @@ interface DiAnimeListDependencies {
 
     /** Wraps every call to [shikimoriApiService] with retries and error classification. */
     val safeApi: SafeApi
+
+    /** Opens a page of the app's site in the system browser. */
+    val openWebPageUsecase: OpenWebPageUsecase
 }

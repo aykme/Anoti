@@ -31,6 +31,8 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.coroutinecontext.Cor
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormatter
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.di.kmp.scope.FeatureScope
+import com.alekseivinogradov.anoti.infodialog.kmp.api.domain.store.InfoDialogStore
+import com.alekseivinogradov.anoti.infodialog.kmp.impl.di.DiInfoDialogComponent
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import me.tatarka.inject.annotations.Component
@@ -38,9 +40,9 @@ import me.tatarka.inject.annotations.KmpComponentCreate
 import me.tatarka.inject.annotations.Provides
 
 /**
- * The anime-list screen's [FeatureScope] component. Provides the [AnimeListSource], its usecases
- * and the main/announced/ongoing/search section stores, on top of the bindings it inherits from
- * [parent].
+ * The anime-list screen's [FeatureScope] component. Provides the [AnimeListSource], its usecases,
+ * the main/announced/ongoing/search section stores and the information dialog's store, on top of
+ * the bindings it inherits from [parent].
  */
 // One function per provided dependency is the DI @Provides convention here, not god-interface growth.
 @Suppress("TooManyFunctions")
@@ -48,7 +50,7 @@ import me.tatarka.inject.annotations.Provides
 @FeatureScope
 abstract class DiAnimeListComponent(
     @Component val parent: DiAnimeListDependencies
-) {
+) : DiInfoDialogComponent {
     /** The [DateFormatter], inherited from the parent. */
     abstract val dateFormatter: DateFormatter
 
@@ -66,6 +68,9 @@ abstract class DiAnimeListComponent(
 
     /** The screen's [SearchSectionStore]. */
     abstract val searchSectionStore: SearchSectionStore
+
+    /** The screen's [InfoDialogStore]. */
+    abstract val infoDialogStore: InfoDialogStore
 
     @Provides
     fun provideAnimeListSource(

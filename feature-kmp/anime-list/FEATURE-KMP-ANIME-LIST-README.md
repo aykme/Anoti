@@ -1,5 +1,6 @@
 The anime list screen: ongoing/announced/search sections, each with its own paginated MVI store,
-coordinated by a top-level store.
+coordinated by a top-level store. Its info button opens the
+[information dialog](../info-dialog/FEATURE-KMP-INFO-DIALOG-README.md).
 
 ## Entities
 
@@ -14,11 +15,12 @@ coordinated by a top-level store.
 
 - Gradle: `implementation(project(":feature-kmp:anime-list"))`
 - Satisfy [DiAnimeListDependencies](src/commonMain/kotlin/com/alekseivinogradov/anoti/animelist/kmp/api/di/DiAnimeListDependencies.kt)
-  from the app's root component, then build a `DiAnimeListComponent` with
-  `createDiAnimeListComponent(parent)` and wrap it in a `NavAnimeListScreenComponent` together
-  with the Decompose `ComponentContext` the screen's navigation child owns. The stores and the
-  controller have no wiring of their own to do. The component builds the controller once, and
-  `AnimeListRoute` reads its state and sends the screen's events to it.
+  from the app's root component, its `openWebPageUsecase` for the dialog's links included. Then
+  build a `DiAnimeListComponent` with `createDiAnimeListComponent(parent)` and wrap it in a
+  `NavAnimeListScreenComponent` together with the Decompose `ComponentContext` the screen's
+  navigation child owns. The stores, the dialog's included, and the controller have no wiring of
+  their own to do. The component builds the controller once, and `AnimeListRoute` reads its state
+  and sends the screen's events to it.
 
 ## How to use it
 

@@ -44,9 +44,12 @@ kotlin {
 
             // Each of these appears in this module's own public signatures: the screen
             // component's dependencies, its source and stores, the controller's lifecycle,
-            // database store and state flow, the navigation component's own supertype, and the
-            // Compose entry points with their UI models.
+            // database store and state flow, the navigation component's own supertype, the
+            // Compose entry points with their UI models, the information dialog's store and
+            // module component, and the web page usecase the screen's dependencies name.
             api(project(":feature-kmp:anime-base"))
+            api(project(":feature-kmp:info-dialog"))
+            api(project(":feature-kmp:web-page-opener"))
             api(project(":core-kmp:celebrity"))
             api(project(":core-kmp:network"))
             api(project(":core-kmp:anime-database"))

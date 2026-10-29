@@ -32,7 +32,10 @@ import com.alekseivinogradov.anoti.animelist.kmp.impl.domain.usecase.wrapper.Sea
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
+import com.alekseivinogradov.anoti.infodialog.kmp.api.domain.store.InfoDialogStore
+import com.alekseivinogradov.anoti.infodialog.kmp.impl.di.DiInfoDialogComponent
 import com.alekseivinogradov.anoti.network.kmp.api.domain.model.CallResult
+import com.alekseivinogradov.anoti.webpageopener.kmp.impl.domain.usecase.fake.OpenWebPageUsecaseFake
 import com.arkivanov.mvikotlin.extensions.coroutines.states
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import kotlinx.coroutines.Dispatchers
@@ -46,11 +49,15 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ApplyRestoredMainStateTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
+
+    private val infoDialogStores = mutableListOf<InfoDialogStore>()
 
     @BeforeTest
     fun setup() {
@@ -59,6 +66,7 @@ class ApplyRestoredMainStateTest {
 
     @AfterTest
     fun tearDown() {
+        infoDialogStores.forEach { it.dispose() }
         Dispatchers.resetMain()
     }
 
@@ -111,14 +119,16 @@ class ApplyRestoredMainStateTest {
         searchText: String = "",
         ongoing: RestoredSectionState = restoredSectionState(),
         announced: RestoredSectionState = restoredSectionState(),
-        search: RestoredSectionState = restoredSectionState()
+        search: RestoredSectionState = restoredSectionState(),
+        isInfoDialogShown: Boolean = false
     ) = RestoredMainState(
         selectedSection = selectedSection,
         searchType = searchType,
         searchText = searchText,
         ongoing = ongoing,
         announced = announced,
-        search = search
+        search = search,
+        isInfoDialogShown = isInfoDialogShown
     )
 
     private fun createCoroutineContextProvider() = CoroutineContextProviderFake()
@@ -193,6 +203,23 @@ class ApplyRestoredMainStateTest {
         ).create()
     }
 
+    private fun createInfoDialogStore(): InfoDialogStore {
+        val component = object : DiInfoDialogComponent {}
+        return component.provideInfoDialogStore(
+            storeFactory = DefaultStoreFactory(),
+            executorFactory = component.provideInfoDialogExecutorFactory(
+                coroutineContextProvider = createCoroutineContextProvider(),
+                usecases = component.provideInfoDialogUsecases(
+                    openWebPageUsecase = OpenWebPageUsecaseFake()
+                ),
+                systemMessageProvider = SystemMessageProvider(
+                    makeConnectionErrorSystemMessage = {},
+                    makeUnknownErrorSystemMessage = {}
+                )
+            )
+        ).also(infoDialogStores::add)
+    }
+
     @Test
     fun nullRestoredStateOpensOnlyOngoingsSection() = runTest(testDispatcher) {
         //Given
@@ -200,6 +227,7 @@ class ApplyRestoredMainStateTest {
         val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
+        val infoDialogStore = createInfoDialogStore()
 
         //When
         applyRestoredMainState(
@@ -207,7 +235,8 @@ class ApplyRestoredMainStateTest {
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
-            searchSectionStore = searchStore
+            searchSectionStore = searchStore,
+            infoDialogStore = infoDialogStore
         )
         ongoingStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
@@ -225,6 +254,7 @@ class ApplyRestoredMainStateTest {
         val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
+        val infoDialogStore = createInfoDialogStore()
 
         //When
         applyRestoredMainState(
@@ -232,7 +262,8 @@ class ApplyRestoredMainStateTest {
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
-            searchSectionStore = searchStore
+            searchSectionStore = searchStore,
+            infoDialogStore = infoDialogStore
         )
         ongoingStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
@@ -250,6 +281,7 @@ class ApplyRestoredMainStateTest {
         val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
+        val infoDialogStore = createInfoDialogStore()
 
         //When
         applyRestoredMainState(
@@ -257,7 +289,8 @@ class ApplyRestoredMainStateTest {
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
-            searchSectionStore = searchStore
+            searchSectionStore = searchStore,
+            infoDialogStore = infoDialogStore
         )
 
         //Then
@@ -274,6 +307,7 @@ class ApplyRestoredMainStateTest {
         val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
+        val infoDialogStore = createInfoDialogStore()
 
         //When
         applyRestoredMainState(
@@ -281,7 +315,8 @@ class ApplyRestoredMainStateTest {
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
-            searchSectionStore = searchStore
+            searchSectionStore = searchStore,
+            infoDialogStore = infoDialogStore
         )
         announcedStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
@@ -299,6 +334,7 @@ class ApplyRestoredMainStateTest {
         val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
+        val infoDialogStore = createInfoDialogStore()
 
         //When
         applyRestoredMainState(
@@ -306,7 +342,8 @@ class ApplyRestoredMainStateTest {
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
-            searchSectionStore = searchStore
+            searchSectionStore = searchStore,
+            infoDialogStore = infoDialogStore
         )
 
         //Then
@@ -324,6 +361,7 @@ class ApplyRestoredMainStateTest {
         val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
+        val infoDialogStore = createInfoDialogStore()
 
         //When
         applyRestoredMainState(
@@ -331,7 +369,8 @@ class ApplyRestoredMainStateTest {
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
-            searchSectionStore = searchStore
+            searchSectionStore = searchStore,
+            infoDialogStore = infoDialogStore
         )
 
         //Then
@@ -353,6 +392,7 @@ class ApplyRestoredMainStateTest {
         val ongoingStore = createOngoingStore(source = pagedSource(pages))
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
+        val infoDialogStore = createInfoDialogStore()
 
         //When
         applyRestoredMainState(
@@ -360,7 +400,8 @@ class ApplyRestoredMainStateTest {
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
-            searchSectionStore = searchStore
+            searchSectionStore = searchStore,
+            infoDialogStore = infoDialogStore
         )
         ongoingStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
@@ -378,6 +419,7 @@ class ApplyRestoredMainStateTest {
         val ongoingStore = createOngoingStore(source = pagedSource(pages))
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
+        val infoDialogStore = createInfoDialogStore()
 
         //When
         applyRestoredMainState(
@@ -388,7 +430,8 @@ class ApplyRestoredMainStateTest {
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
-            searchSectionStore = searchStore
+            searchSectionStore = searchStore,
+            infoDialogStore = infoDialogStore
         )
         ongoingStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
@@ -404,6 +447,7 @@ class ApplyRestoredMainStateTest {
         val ongoingStore = createOngoingStore(source = pagedSource(pages))
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
+        val infoDialogStore = createInfoDialogStore()
 
         //When
         applyRestoredMainState(
@@ -414,7 +458,8 @@ class ApplyRestoredMainStateTest {
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
-            searchSectionStore = searchStore
+            searchSectionStore = searchStore,
+            infoDialogStore = infoDialogStore
         )
         ongoingStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
@@ -432,6 +477,7 @@ class ApplyRestoredMainStateTest {
         val ongoingStore = createOngoingStore(source = pagedSource(pages))
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
+        val infoDialogStore = createInfoDialogStore()
 
         //When
         applyRestoredMainState(
@@ -442,7 +488,8 @@ class ApplyRestoredMainStateTest {
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
-            searchSectionStore = searchStore
+            searchSectionStore = searchStore,
+            infoDialogStore = infoDialogStore
         )
         ongoingStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
@@ -460,6 +507,7 @@ class ApplyRestoredMainStateTest {
         val ongoingStore = createOngoingStore(source = pagedSource(pages))
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
+        val infoDialogStore = createInfoDialogStore()
         applyRestoredMainState(
             restoredState = restoredMainState(
                 SectionHatDomain.ONGOINGS,
@@ -468,7 +516,8 @@ class ApplyRestoredMainStateTest {
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
-            searchSectionStore = searchStore
+            searchSectionStore = searchStore,
+            infoDialogStore = infoDialogStore
         )
         ongoingStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
@@ -490,6 +539,7 @@ class ApplyRestoredMainStateTest {
         val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore(source = pagedSource(pages))
         val searchStore = createSearchStore()
+        val infoDialogStore = createInfoDialogStore()
 
         //When
         applyRestoredMainState(
@@ -500,7 +550,8 @@ class ApplyRestoredMainStateTest {
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
-            searchSectionStore = searchStore
+            searchSectionStore = searchStore,
+            infoDialogStore = infoDialogStore
         )
         announcedStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
@@ -516,6 +567,7 @@ class ApplyRestoredMainStateTest {
         val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore(source = pagedSource(pages))
         val searchStore = createSearchStore()
+        val infoDialogStore = createInfoDialogStore()
 
         //When
         applyRestoredMainState(
@@ -526,7 +578,8 @@ class ApplyRestoredMainStateTest {
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
-            searchSectionStore = searchStore
+            searchSectionStore = searchStore,
+            infoDialogStore = infoDialogStore
         )
         announcedStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
@@ -542,6 +595,7 @@ class ApplyRestoredMainStateTest {
         val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore(source = pagedSource(pages))
+        val infoDialogStore = createInfoDialogStore()
 
         //When
         applyRestoredMainState(
@@ -549,7 +603,8 @@ class ApplyRestoredMainStateTest {
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
-            searchSectionStore = searchStore
+            searchSectionStore = searchStore,
+            infoDialogStore = infoDialogStore
         )
         searchStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
@@ -565,6 +620,7 @@ class ApplyRestoredMainStateTest {
         val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore(source = pagedSource(pages))
+        val infoDialogStore = createInfoDialogStore()
 
         //When
         applyRestoredMainState(
@@ -572,7 +628,8 @@ class ApplyRestoredMainStateTest {
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
-            searchSectionStore = searchStore
+            searchSectionStore = searchStore,
+            infoDialogStore = infoDialogStore
         )
         searchStore.states.first { it.sectionContent.contentType == ContentTypeDomain.LOADED }
 
@@ -587,6 +644,7 @@ class ApplyRestoredMainStateTest {
         val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
+        val infoDialogStore = createInfoDialogStore()
 
         //When
         applyRestoredMainState(
@@ -598,7 +656,8 @@ class ApplyRestoredMainStateTest {
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
-            searchSectionStore = searchStore
+            searchSectionStore = searchStore,
+            infoDialogStore = infoDialogStore
         )
 
         //Then
@@ -614,6 +673,7 @@ class ApplyRestoredMainStateTest {
         val ongoingStore = createOngoingStore()
         val announcedStore = createAnnouncedStore()
         val searchStore = createSearchStore()
+        val infoDialogStore = createInfoDialogStore()
 
         //When
         applyRestoredMainState(
@@ -624,11 +684,64 @@ class ApplyRestoredMainStateTest {
             mainStore = mainStore,
             ongoingSectionStore = ongoingStore,
             announcedSectionStore = announcedStore,
-            searchSectionStore = searchStore
+            searchSectionStore = searchStore,
+            infoDialogStore = infoDialogStore
         )
 
         //Then
         assertEquals(SectionHatDomain.SEARCH, mainStore.state.selectedSection)
         assertEquals(SearchDomain.Type.HIDDEN, mainStore.state.search.type)
+    }
+
+    @Test
+    fun aSnapshotWithTheDialogOpenReopensIt() = runTest(testDispatcher) {
+        //Given
+        val mainStore = createMainStore()
+        val ongoingStore = createOngoingStore()
+        val announcedStore = createAnnouncedStore()
+        val searchStore = createSearchStore()
+        val infoDialogStore = createInfoDialogStore()
+
+        //When
+        applyRestoredMainState(
+            restoredState = restoredMainState(
+                SectionHatDomain.ONGOINGS,
+                isInfoDialogShown = true
+            ),
+            mainStore = mainStore,
+            ongoingSectionStore = ongoingStore,
+            announcedSectionStore = announcedStore,
+            searchSectionStore = searchStore,
+            infoDialogStore = infoDialogStore
+        )
+
+        //Then
+        assertTrue(infoDialogStore.state.isShown)
+    }
+
+    @Test
+    fun aSnapshotWithTheDialogClosedLeavesItClosed() = runTest(testDispatcher) {
+        //Given
+        val mainStore = createMainStore()
+        val ongoingStore = createOngoingStore()
+        val announcedStore = createAnnouncedStore()
+        val searchStore = createSearchStore()
+        val infoDialogStore = createInfoDialogStore()
+
+        //When
+        applyRestoredMainState(
+            restoredState = restoredMainState(
+                SectionHatDomain.ONGOINGS,
+                isInfoDialogShown = false
+            ),
+            mainStore = mainStore,
+            ongoingSectionStore = ongoingStore,
+            announcedSectionStore = announcedStore,
+            searchSectionStore = searchStore,
+            infoDialogStore = infoDialogStore
+        )
+
+        //Then
+        assertFalse(infoDialogStore.state.isShown)
     }
 }

@@ -20,9 +20,12 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.formatter.DateFormat
 import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.systemmessage.provider.SystemMessageProvider
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.coroutinecontext.fake.CoroutineContextProviderFake
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.formatter.fake.DateFormatterFake
+import com.alekseivinogradov.anoti.infodialog.kmp.api.domain.PRIVACY_POLICY_URL
+import com.alekseivinogradov.anoti.infodialog.kmp.api.domain.store.InfoDialogStore
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.alekseivinogradov.anoti.network.kmp.impl.data.client.createHttpClient
 import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
+import com.alekseivinogradov.anoti.webpageopener.kmp.impl.domain.usecase.fake.OpenWebPageUsecaseFake
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
@@ -53,6 +56,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
@@ -61,6 +65,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -84,6 +89,7 @@ class NavAnimeListScreenComponentTest {
     private class DiAnimeListDependenciesFake(
         override val animeDatabaseStore: AnimeDatabaseStore,
         override val coroutineContextProvider: CoroutineContextProvider,
+        override val openWebPageUsecase: OpenWebPageUsecaseFake,
         engine: MockEngine
     ) : DiAnimeListDependencies {
         override val storeFactory: StoreFactory = DefaultStoreFactory()
@@ -97,12 +103,16 @@ class NavAnimeListScreenComponentTest {
         override val safeApi: SafeApi = SafeApiFake()
     }
 
-    /** One component, the state keeper it consumes from and saves through, and its catalog. */
+    /**
+     * One component, the state keeper it consumes from and saves through, its catalog and the
+     * web page opener it reaches.
+     */
     private class Wiring(
         val lifecycle: LifecycleRegistry,
         val stateKeeper: StateKeeperDispatcher,
         val component: NavAnimeListScreenComponent,
-        val engine: MockEngine
+        val engine: MockEngine,
+        val openWebPageUsecase: OpenWebPageUsecaseFake
     )
 
     private val databaseUsecases = AnimeDatabaseUsecasesFake().usecases
@@ -127,6 +137,7 @@ class NavAnimeListScreenComponentTest {
         val lifecycle = LifecycleRegistry().also(lifecycles::add)
         val stateKeeper = StateKeeperDispatcher(savedState)
         val engine = singlePageCatalog(testDispatcher)
+        val openWebPageUsecase = OpenWebPageUsecaseFake()
         val component = NavAnimeListScreenComponent(
             componentContext = DefaultComponentContext(
                 lifecycle = lifecycle,
@@ -136,6 +147,7 @@ class NavAnimeListScreenComponentTest {
                 parent = DiAnimeListDependenciesFake(
                     animeDatabaseStore = createDatabaseStore(coroutineContextProvider),
                     coroutineContextProvider = coroutineContextProvider,
+                    openWebPageUsecase = openWebPageUsecase,
                     engine = engine
                 )
             )
@@ -145,7 +157,8 @@ class NavAnimeListScreenComponentTest {
             lifecycle = lifecycle,
             stateKeeper = stateKeeper,
             component = component,
-            engine = engine
+            engine = engine,
+            openWebPageUsecase = openWebPageUsecase
         )
     }
 
@@ -338,6 +351,7 @@ class NavAnimeListScreenComponentTest {
                         parent = DiAnimeListDependenciesFake(
                             animeDatabaseStore = databaseStore,
                             coroutineContextProvider = coroutineContextProvider,
+                            openWebPageUsecase = OpenWebPageUsecaseFake(),
                             engine = singlePageCatalog(testDispatcher)
                         )
                     )
@@ -351,6 +365,92 @@ class NavAnimeListScreenComponentTest {
             assertTrue(built.isFailure, "the screen read a state it cannot decode")
             assertTrue(databaseStore.isDisposed, "the rejected screen left its stores running")
         }
+
+    @Test
+    fun anOpenInformationDialogComesBackFromTheSavedState() = runTest(testDispatcher) {
+        //Given
+        val beforeProcessDeath = createWiring()
+        beforeProcessDeath.component.controller.acceptInfoDialog(InfoDialogStore.Intent.InfoClick)
+        val savedState = encodedBetweenProcesses(beforeProcessDeath.stateKeeper.save())
+
+        //When
+        val afterProcessDeath = createWiring(savedState = savedState)
+
+        //Then
+        assertTrue(
+            afterProcessDeath.component.controller.infoDialogState.value.isShown,
+            "the information dialog open before the restore did not come back"
+        )
+    }
+
+    @Test
+    fun aClosedInformationDialogStaysClosedAfterTheSavedState() = runTest(testDispatcher) {
+        //Given
+        val beforeProcessDeath = createWiring()
+        val controller = beforeProcessDeath.component.controller
+        controller.acceptInfoDialog(InfoDialogStore.Intent.InfoClick)
+        controller.acceptInfoDialog(InfoDialogStore.Intent.CloseClick)
+        val savedState = beforeProcessDeath.stateKeeper.save()
+
+        //When
+        val afterProcessDeath = createWiring(savedState = savedState)
+
+        //Then
+        assertFalse(
+            afterProcessDeath.component.controller.infoDialogState.value.isShown,
+            "a closed information dialog came back open"
+        )
+    }
+
+    @Test
+    fun aStateSavedWithoutTheDialogKeyStillBuildsTheScreenWithTheDialogClosed() =
+        runTest(testDispatcher) {
+            //Given
+            val emptySection = RestoredSectionState(
+                itemCount = 0,
+                enabledExtraEpisodesInfoIds = emptySet()
+            )
+            val registered = StateKeeperDispatcher().apply {
+                register(
+                    key = RESTORED_STATE_KEY,
+                    strategy = RestoredMainStateWithoutTheDialog.serializer()
+                ) {
+                    RestoredMainStateWithoutTheDialog(
+                        selectedSection = SectionHatDomain.ANNOUNCED,
+                        searchType = SearchDomain.Type.SHOWN,
+                        searchText = "",
+                        ongoing = emptySection,
+                        announced = emptySection,
+                        search = emptySection
+                    )
+                }
+            }.save()
+            val savedWithoutTheDialog = encodedBetweenProcesses(registered)
+
+            //When
+            val wiring = createWiring(savedState = savedWithoutTheDialog)
+
+            //Then
+            assertEquals(
+                SectionHatDomain.ANNOUNCED,
+                wiring.component.mainStore.state.selectedSection,
+                "the screen did not read the saved state"
+            )
+            assertFalse(wiring.component.controller.infoDialogState.value.isShown)
+        }
+
+    @Test
+    fun thePrivacyPolicyLinkReachesTheOpenerWithItsPage() = runTest(testDispatcher) {
+        //Given
+        val wiring = createWiring()
+        wiring.component.controller.acceptInfoDialog(InfoDialogStore.Intent.InfoClick)
+
+        //When
+        wiring.component.controller.acceptInfoDialog(InfoDialogStore.Intent.PrivacyPolicyClick)
+
+        //Then
+        assertEquals(listOf(PRIVACY_POLICY_URL), wiring.openWebPageUsecase.openedUrls)
+    }
 
     @Test
     fun destroyingTheLifecycleDisposesEveryStoreTheComponentOwns() = runTest(testDispatcher) {
@@ -370,6 +470,10 @@ class NavAnimeListScreenComponentTest {
         )
         assertTrue(component.searchSectionStore.isDisposed, "the search store outlived its screen")
         assertTrue(component.animeDatabaseStore.isDisposed, "the database store outlived its screen")
+        assertTrue(
+            component.infoDialogStore.isDisposed,
+            "the information dialog's store outlived its screen"
+        )
     }
 }
 
@@ -385,6 +489,27 @@ private const val CHANGED_SEARCH_TEXT = "kiki"
 
 // The key the screen saves its state under.
 private const val RESTORED_STATE_KEY = "AnimeListMainStoreRestoredState"
+
+/** A saved state with no `isInfoDialogShown` key. */
+@Serializable
+private data class RestoredMainStateWithoutTheDialog(
+    val selectedSection: SectionHatDomain,
+    val searchType: SearchDomain.Type,
+    val searchText: String,
+    val ongoing: RestoredSectionState,
+    val announced: RestoredSectionState,
+    val search: RestoredSectionState
+)
+
+/**
+ * Encodes [savedState] and decodes it back, as a saved state is between processes. A container
+ * never encoded hands back the registered object itself, and no decoder runs.
+ */
+private fun encodedBetweenProcesses(savedState: SerializableContainer): SerializableContainer =
+    Json.decodeFromString(
+        SerializableContainer.serializer(),
+        Json.encodeToString(SerializableContainer.serializer(), savedState)
+    )
 
 /**
  * Answers every listing with one full page of the same items, each with a next-episode date, so

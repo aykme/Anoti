@@ -163,12 +163,69 @@ final class RestoreSteps: XCTestCase {
     }
 
     @MainActor
-    private func waitUntilGone(_ element: XCUIElement, timeout: TimeInterval) -> Bool {
-        let gone = XCTNSPredicateExpectation(
-            predicate: NSPredicate(format: "exists == false"),
-            object: element
+    func testLeaveTheAppWithTheInformationDialogOpen() {
+        //Given
+        bringTheAppForward()
+        let title = app.tagged("info_dialog_title")
+        waitFor(app.tagged("info_button")).tap()
+        // A tap that lands while the screen still settles is lost.
+        if !title.waitForExistence(timeout: 10) {
+            app.tagged("info_button").tap()
+        }
+
+        //When
+        waitFor(title, timeout: 10)
+        keepScreenshot("the information dialog before going home")
+        signalReady()
+        XCUIDevice.shared.press(.home)
+
+        //Then
+        assertInTheBackground()
+    }
+
+    @MainActor
+    func testFindTheInformationDialogOpen() {
+        //Given
+        bringTheAppForward()
+
+        //When
+        let title = app.tagged("info_dialog_title")
+
+        //Then
+        XCTAssertTrue(
+            title.waitForExistence(timeout: loadTimeout),
+            "the information dialog did not come back"
         )
-        return XCTWaiter().wait(for: [gone], timeout: timeout) == .completed
+        keepScreenshot("the information dialog after the relaunch")
+    }
+
+    // The page follows the system theme, which the script sets before the step. The script judges
+    // the screenshot.
+    @MainActor
+    func testOpenThePrivacyPage() {
+        //Given
+        bringTheAppForward()
+        openTheDialogIfClosed()
+
+        //When
+        app.tagged("info_dialog_privacy_policy").tap()
+
+        //Then
+        assertThePageLoaded(heading: "Anoti Privacy Policy", screenshot: "the privacy page")
+    }
+
+    // The dialog stays open after the privacy page, so this step taps its second link.
+    @MainActor
+    func testOpenTheSupportPage() {
+        //Given
+        bringTheAppForward()
+        openTheDialogIfClosed()
+
+        //When
+        app.tagged("info_dialog_support").tap()
+
+        //Then
+        assertThePageLoaded(heading: "Anoti Support", screenshot: "the support page")
     }
 
     @MainActor
@@ -209,6 +266,36 @@ final class RestoreSteps: XCTestCase {
             top.press(forDuration: 0.1, thenDragTo: down)
         }
         waitFor(notification, timeout: 20).tap()
+    }
+
+    @MainActor
+    private func openTheDialogIfClosed() {
+        let title = app.tagged("info_dialog_title")
+        // Back from Safari, the dialog's tree may take a moment to return.
+        if !title.waitForExistence(timeout: 5) {
+            waitFor(app.tagged("info_button")).tap()
+            // A tap that lands while the screen still settles is lost.
+            if !title.waitForExistence(timeout: 10) {
+                app.tagged("info_button").tap()
+            }
+        }
+        waitFor(title, timeout: 10)
+    }
+
+    // Safari shows the page's heading once the page has loaded from the network.
+    @MainActor
+    private func assertThePageLoaded(heading: String, screenshot: String) {
+        let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
+        XCTAssertTrue(
+            safari.wait(for: .runningForeground, timeout: 30),
+            "Safari did not come to the front"
+        )
+        let title = safari.descendants(matching: .any)
+            .matching(NSPredicate(format: "label == %@", heading)).firstMatch
+        XCTAssertTrue(title.waitForExistence(timeout: loadTimeout), "\(heading) did not load")
+        // A page from Safari's cache can be there while the switch from the app still animates.
+        sleep(2)
+        keepScreenshot(screenshot)
     }
 
     // The list screen is open once its top bar is. Its items come from the live backend, which a

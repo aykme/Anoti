@@ -15,7 +15,7 @@ Every section below is run once per pass listed under "Passes" in the root
 On Android, changing the font size rebuilds the screen, and it keeps its state. Changing the
 display size or the orientation rebuilds nothing — the screen keeps its state, which is itself
 checked in section 13. The iPhone keeps its screen through a rotation and a text size change. A
-Display Zoom change restarts it, as section 14 says.
+Display Zoom change restarts it, as section 15 says.
 
 ## 1. The three states of the section area
 
@@ -201,6 +201,7 @@ two modes and changes nothing else on the item.
 1. Tap the magnifier.
    - The two section buttons are replaced by a text field with the hint "Enter the name of
      anime" and a cross button at its right.
+   - The info button at the left end goes with them. It stays hidden while the field is open.
    - The section area shows whatever the search section holds: Loading on the first ever
      visit, otherwise its previous results.
 2. Tap the field, type `naruto` and stop.
@@ -222,6 +223,7 @@ two modes and changes nothing else on the item.
 9. Tap the cross.
    - The field closes and the two section buttons come back, with neither highlighted — the
      search section is still the one showing.
+   - The info button comes back at the left end, and opens the information dialog again.
    - The keyboard closes.
 10. Tap the magnifier again.
     - The field reopens with the previous text still in it, and the results below are unchanged.
@@ -267,6 +269,12 @@ two modes and changes nothing else on the item.
    - The bells are as they were.
 7. Repeat step 4 with "On air" selected and nothing scrolled.
    - It comes back on "On air" with the first page.
+8. Repeat step 6 with the information dialog open over "Soon".
+   - It comes back as step 6 expects, with the dialog open over the list, once.
+9. Scroll "On air" halfway and open the extra info on one item. Open the information dialog, tap
+   "Privacy Policy", and press system Back in the browser.
+   - The list comes back as it was left: the same section, scroll position and open extra info,
+     with the dialog still open over it. Nothing reloads.
 
 ## 13. What changes with scale and orientation
 
@@ -293,6 +301,8 @@ checks that only make sense once.
 6. At maximum size, the top bar.
    - Both section labels stay on one line each and remain tappable across their full height.
      On a narrow screen a label may shorten with "…".
+   - The info button keeps its full size at the left end, and still opens the information
+     dialog.
    - With the search field open, the hint or the typed text does not run under the cross
      button.
 7. At maximum size, the empty-search result and the Error picture.
@@ -330,13 +340,41 @@ checks that only make sense once.
 11. Open the search, type something, and leave the keyboard up. Fold the device, then unfold it.
     - The typed text is still in the field, and the results still match it.
 
-## 14. Platforms
+## 14. The information button and dialog
+
+The info button sits at the left end of the top bar, before "On air": a white outlined "i" in a
+circle. Only the button and the list around the dialog are checked here. The dialog itself is
+checked in its own file.
+
+1. Look at the top bar on "On air", on "Soon", and on the search section with the field closed.
+   - The info button is there each time, at the left end, about the size of the magnifier at
+     the right end.
+2. Scroll "On air" halfway, open the extra info on one item and turn a bell on. Tap the info
+   button.
+   - The information dialog opens over the list.
+3. Close the dialog with its "Close".
+   - The list is as it was: the same section, scroll position, open extra info and bells.
+     Nothing reloads and nothing scrolls.
+4. While the section area shows Loading, and again while it shows Error, tap the info button and
+   close the dialog with its "Close".
+   - The dialog opens and closes the same way. The section area keeps its state underneath and
+     goes on to List or Error as it would without the dialog.
+5. Search for `naruto`, close the field with the cross, and open and close the dialog.
+   - The search results are unchanged. Opening the field again shows `naruto` still in it.
+6. Go to "Favorites" in the bottom bar.
+   - There is no info button there. It belongs to this screen only.
+7. With the screen reader on, move to the info button.
+   - It is read as "Open information dialog", as a button. Activating it opens the dialog.
+
+## 15. Platforms
 
 The steps name Android's tools. On the iPhone:
 
 - Section 12 ends the app with `adb shell am kill`. On the iPhone, end it as step 2 of "Leaving
   and coming back" in `main`'s file says, with its iPhone notes. Everything section 12 expects
   comes back the same way, the text in the search field and the scroll position included.
+- There is no system Back. Step 9 of section 12 returns from Safari with the "◀ Anoti" link iOS
+  shows in the top-left corner of the screen.
 - Swiping the app away in the app switcher is the user closing it. The app then starts fresh.
 - A new text size reaches the iPhone app only when it is opened again. After changing it, close
   the app in the app switcher and open it before walking the pass. Changing Display Zoom restarts

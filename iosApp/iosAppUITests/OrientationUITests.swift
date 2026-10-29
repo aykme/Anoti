@@ -66,12 +66,9 @@ final class OrientationUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
         allowNotificationsIfAsked()
-        waitFor(app.tagged("anime_list_button"))
+        closeTheDialogIfKept(in: app)
+        // The app may open on favorites, kept from an earlier run.
+        waitFor(app.tagged("anime_list_button")).tap()
         return app
-    }
-
-    // The app's own threshold: a window whose smaller side reaches 600 points may turn.
-    private func isWide(_ frame: CGRect) -> Bool {
-        min(frame.width, frame.height) >= 600
     }
 }

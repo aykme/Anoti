@@ -15,6 +15,8 @@ import com.alekseivinogradov.anoti.main.api.di.DiRootDependencies
 import com.alekseivinogradov.anoti.network.kmp.api.data.SafeApi
 import com.alekseivinogradov.anoti.network.kmp.impl.data.client.createHttpClient
 import com.alekseivinogradov.anoti.network.kmp.impl.data.fake.SafeApiFake
+import com.alekseivinogradov.anoti.webpageopener.kmp.api.domain.usecase.OpenWebPageUsecase
+import com.alekseivinogradov.anoti.webpageopener.kmp.impl.domain.usecase.fake.OpenWebPageUsecaseFake
 import com.arkivanov.mvikotlin.core.store.Bootstrapper
 import com.arkivanov.mvikotlin.core.store.Executor
 import com.arkivanov.mvikotlin.core.store.Reducer
@@ -33,8 +35,13 @@ import kotlinx.coroutines.Dispatchers
 /**
  * The whole root graph built from fakes, so it can be created without a database, a network
  * client or a real dispatcher.
+ *
+ * @param openWebPageUsecase the web page opener the graph hands down. A test that must see the
+ *   started page passes the real platform one.
  */
-internal class DiRootDependenciesFake : DiRootDependencies {
+internal class DiRootDependenciesFake(
+    override val openWebPageUsecase: OpenWebPageUsecase = OpenWebPageUsecaseFake()
+) : DiRootDependencies {
 
     private val catalogEngine = emptyCatalogEngine()
 

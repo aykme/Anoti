@@ -1,3 +1,7 @@
+// All functions here render pieces of the anime list screen; splitting them across files
+// wouldn't make sense.
+@file:Suppress("TooManyFunctions")
+
 package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.compose
 
 import androidx.compose.foundation.Image
@@ -14,8 +18,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
@@ -57,6 +63,8 @@ import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.Anoti
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.LoadingSpinner
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.horizontalSystemBarsPadding
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.systemBarsTopPadding
+import com.alekseivinogradov.anoti.infodialog.kmp.api.domain.store.InfoDialogStore
+import com.alekseivinogradov.anoti.infodialog.kmp.impl.presentation.compose.InfoDialog
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.filter
 import org.jetbrains.compose.resources.painterResource
@@ -66,16 +74,21 @@ import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.Res as Cele
 
 /**
  * The anime list screen: top bar plus loading spinner, error state, or the selected section's
- * item list with pull-to-refresh and pagination, depending on [uiModel]'s [AnimeListUiModel.contentType].
+ * item list with pull-to-refresh and pagination, depending on [uiModel]'s
+ * [AnimeListUiModel.contentType]. The information dialog shows over it while [isInfoDialogShown]
+ * is `true`. The info button and the dialog's choices go to [infoDialogDispatch].
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.
-@Suppress("FunctionNaming")
+// The screen takes the information dialog's state and dispatch beside its own.
+@Suppress("FunctionNaming", "LongParameterList")
 @Composable
 fun AnimeListScreen(
     uiModel: AnimeListUiModel,
     dateFormatter: DateFormatter,
     dispatch: (AnimeListMainStore.Intent) -> Unit,
+    isInfoDialogShown: State<Boolean>,
+    infoDialogDispatch: (InfoDialogStore.Intent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Remembered here, not inside ListState(), so a switch to a not-yet-loaded section can't
@@ -111,8 +124,10 @@ fun AnimeListScreen(
             onAnnouncedClick = { dispatch(AnimeListMainStore.Intent.AnnouncedSectionClick) },
             onSearchClick = { dispatch(AnimeListMainStore.Intent.SearchSectionClick) },
             onCancelSearchClick = { dispatch(AnimeListMainStore.Intent.CancelSearchClick) },
-            onSearchTextChange = { dispatch(AnimeListMainStore.Intent.ChangeSearchText(it)) }
+            onSearchTextChange = { dispatch(AnimeListMainStore.Intent.ChangeSearchText(it)) },
+            onInfoClick = { infoDialogDispatch(InfoDialogStore.Intent.InfoClick) }
         )
+        InfoDialogOverlay(isShown = isInfoDialogShown, dispatch = infoDialogDispatch)
     }
 }
 
@@ -270,6 +285,22 @@ private fun ResetListPositionEffect(
     }
 }
 
+// A separate composable: reading the State here recomposes only this overlay on a toggle.
+@Suppress("FunctionNaming")
+@Composable
+private fun InfoDialogOverlay(
+    isShown: State<Boolean>,
+    dispatch: (InfoDialogStore.Intent) -> Unit
+) {
+    if (isShown.value) {
+        InfoDialog(
+            onPrivacyPolicyClick = { dispatch(InfoDialogStore.Intent.PrivacyPolicyClick) },
+            onSupportClick = { dispatch(InfoDialogStore.Intent.SupportClick) },
+            onClose = { dispatch(InfoDialogStore.Intent.CloseClick) }
+        )
+    }
+}
+
 private object AnimeListScreenPreviewDateFormatter : DateFormatter {
     override fun getFormattedDate(inputText: String, fallbackText: String): String = inputText
 }
@@ -297,7 +328,9 @@ private fun AnimeListScreenLoadingPreview() {
         AnimeListScreen(
             uiModel = AnimeListUiModel(contentType = ContentTypeUi.LOADING),
             dateFormatter = AnimeListScreenPreviewDateFormatter,
-            dispatch = {}
+            dispatch = {},
+            isInfoDialogShown = remember { mutableStateOf(false) },
+            infoDialogDispatch = {}
         )
     }
 }
@@ -310,7 +343,9 @@ private fun AnimeListScreenErrorPreview() {
         AnimeListScreen(
             uiModel = AnimeListUiModel(contentType = ContentTypeUi.ERROR),
             dateFormatter = AnimeListScreenPreviewDateFormatter,
-            dispatch = {}
+            dispatch = {},
+            isInfoDialogShown = remember { mutableStateOf(false) },
+            infoDialogDispatch = {}
         )
     }
 }
@@ -350,7 +385,9 @@ private fun AnimeListScreenLoadedPreview() {
                     )
                 ),
                 dateFormatter = AnimeListScreenPreviewDateFormatter,
-                dispatch = {}
+                dispatch = {},
+                isInfoDialogShown = remember { mutableStateOf(false) },
+                infoDialogDispatch = {}
             )
         }
     }

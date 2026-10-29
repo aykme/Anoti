@@ -12,6 +12,7 @@ import androidx.compose.ui.test.isNotSelected
 import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -61,7 +62,8 @@ class AnimeListTopBarTest {
                     onAnnouncedClick = { clicks += ANNOUNCED_CLICK },
                     onSearchClick = { clicks += SEARCH_CLICK },
                     onCancelSearchClick = { clicks += CANCEL_SEARCH_CLICK },
-                    onSearchTextChange = { reportedSearchTexts += it }
+                    onSearchTextChange = { reportedSearchTexts += it },
+                    onInfoClick = { clicks += INFO_CLICK }
                 )
             }
         }
@@ -244,6 +246,46 @@ class AnimeListTopBarTest {
         //Then
         composeRule.onNodeWithText("frieren").assertIsDisplayed()
     }
+
+    @Test
+    fun theInfoButtonReportsItsClickOnce() {
+        //Given
+        searchState.value = SearchUi.HIDDEN
+        setTopBar()
+
+        //When
+        composeRule.onNodeWithTag(INFO_BUTTON_TAG).performClick()
+        composeRule.waitForIdle()
+
+        //Then
+        assertEquals(listOf(INFO_CLICK), clicks)
+    }
+
+    @Test
+    fun theInfoButtonIsAbsentWhileTheSearchBarIsShown() {
+        //Given
+        searchState.value = SearchUi.SHOWN
+
+        //When
+        setTopBar(selectedSection = SectionHatUi.SEARCH)
+
+        //Then
+        composeRule.onNodeWithTag(INFO_BUTTON_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun theInfoButtonComesBackOnceTheSearchBarCloses() {
+        //Given
+        searchState.value = SearchUi.SHOWN
+        setTopBar(selectedSection = SectionHatUi.SEARCH)
+
+        //When
+        searchState.value = SearchUi.HIDDEN
+        composeRule.waitForIdle()
+
+        //Then
+        composeRule.onNodeWithTag(INFO_BUTTON_TAG).assertIsDisplayed()
+    }
 }
 
 private val isTab = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
@@ -252,3 +294,6 @@ private const val ONGOING_CLICK = "ongoing"
 private const val ANNOUNCED_CLICK = "announced"
 private const val SEARCH_CLICK = "search"
 private const val CANCEL_SEARCH_CLICK = "cancelSearch"
+private const val INFO_CLICK = "info"
+
+private const val INFO_BUTTON_TAG = "info_button"

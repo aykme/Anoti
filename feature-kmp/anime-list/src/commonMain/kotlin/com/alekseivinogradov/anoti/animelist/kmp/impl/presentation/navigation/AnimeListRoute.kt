@@ -2,14 +2,16 @@ package com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import com.alekseivinogradov.anoti.animelist.kmp.api.presentation.mapper.model.mapStateToUiModel
 import com.alekseivinogradov.anoti.animelist.kmp.impl.presentation.compose.AnimeListScreen
 
 /**
- * Renders the anime-list screen of [screenComponent], reading its controller's state for as long
- * as the composition lasts and sending the screen's events back to it.
+ * Renders the anime-list screen of [screenComponent], reading its controller's state and the
+ * information dialog's for as long as the composition lasts. It sends the screen's events back to
+ * the controller.
  */
 // Composable functions use PascalCase by convention; detekt's FunctionNaming rule expects
 // lowerCamelCase.
@@ -19,9 +21,15 @@ fun AnimeListRoute(screenComponent: NavAnimeListScreenComponent) {
     val controller = screenComponent.controller
     val state by controller.state.collectAsState()
     val uiModel = remember(state) { mapStateToUiModel(state) }
+    val infoDialogState = controller.infoDialogState.collectAsState()
+    val isInfoDialogShown = remember(infoDialogState) {
+        derivedStateOf { infoDialogState.value.isShown }
+    }
     AnimeListScreen(
         uiModel = uiModel,
         dateFormatter = screenComponent.dateFormatter,
-        dispatch = controller::accept
+        dispatch = controller::accept,
+        isInfoDialogShown = isInfoDialogShown,
+        infoDialogDispatch = controller::acceptInfoDialog
     )
 }

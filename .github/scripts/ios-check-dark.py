@@ -1,9 +1,13 @@
-"""Fails when a part of a screenshot that the app keeps dark in every system theme is light.
+"""Judges whether parts of a screenshot are dark: the app's bars, which stay dark in every system
+theme, or a web page in the browser, which follows the theme.
 
 Modes: `edges` for the top system bar and the area under the bottom navigation; `card` for the
 bars of the app's card in the app switcher. A screen with posters is light between the bars, so
 only the bars are measured. `icons` fails when the status bar's clock and icons are not light.
-With `--expect-light`, a light result passes and a dark one fails, for a control shot."""
+`page` judges a web page in the browser, which follows the system theme: the middle of the
+screen, between the browser's bars, must be mostly dark.
+With `--expect-light`, a light result passes and a dark one fails, for a control shot or for a
+page in the light theme."""
 import struct
 import sys
 import zlib
@@ -11,6 +15,9 @@ import zlib
 EDGE_FRACTION = 0.03  # the top and bottom 3% of the screen
 MAX_MEAN_BRIGHTNESS = 60  # out of 255; the app's bars are black or near it
 MIN_ICON_BRIGHTNESS = 200  # out of 255; the brightest status-bar pixel, when the icons are light
+# Out of 255. A dark page's light text can lift its mean above the bars' limit, while a light page
+# sits near white, so the middle of the range tells the two apart.
+MAX_PAGE_BRIGHTNESS = 128
 
 
 def read_png(path):
@@ -93,11 +100,17 @@ def main(mode, path, expect_light=False):
         limit = MIN_ICON_BRIGHTNESS
         print(f"{path}: brightest status-bar pixel {brightest:.0f} (at least {limit})")
         return 0 if brightest >= limit else 1
+    limit = MAX_MEAN_BRIGHTNESS
     if mode == "edges":
         parts = {
             "top": crop(rows, channels, 0, EDGE_FRACTION, 0, 1),
             "bottom": crop(rows, channels, 1 - EDGE_FRACTION, 1, 0, 1),
         }
+    elif mode == "page":
+        # Below the browser's top bar and above its bottom toolbar, as Safari lays out on an
+        # iPhone, where the restore checks run.
+        parts = {"page": crop(rows, channels, 0.2, 0.75, 0.05, 0.95)}
+        limit = MAX_PAGE_BRIGHTNESS
     elif mode == "card":
         # Where an iPhone 17 shows the card: its status-bar strip above the content, and its
         # bottom bar below the bar's labels.
@@ -109,8 +122,8 @@ def main(mode, path, expect_light=False):
         sys.exit(f"unknown mode {mode}")
     values = {name: mean_brightness(part, channels) for name, part in parts.items()}
     shown = ", ".join(f"{name} {value:.0f}" for name, value in values.items())
-    print(f"{path}: {shown} (limit {MAX_MEAN_BRIGHTNESS})")
-    dark = all(value <= MAX_MEAN_BRIGHTNESS for value in values.values())
+    print(f"{path}: {shown} (limit {limit})")
+    dark = all(value <= limit for value in values.values())
     return 0 if dark != expect_light else 1
 
 

@@ -10,6 +10,7 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
@@ -32,6 +33,7 @@ import com.alekseivinogradov.anoti.celebrity.kmp.api.domain.AnimeId
 import com.alekseivinogradov.anoti.celebrity.kmp.generated.resources.connection_error
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.domain.formatter.fake.DateFormatterFake
 import com.alekseivinogradov.anoti.celebrity.kmp.impl.presentation.compose.AnotiTheme
+import com.alekseivinogradov.anoti.infodialog.kmp.api.domain.store.InfoDialogStore
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.getString
@@ -55,6 +57,10 @@ class AnimeListScreenTest {
     private val uiModelState = mutableStateOf(AnimeListUiModel())
 
     private val dispatched = mutableListOf<AnimeListMainStore.Intent>()
+
+    private val infoDialogShownState = mutableStateOf(false)
+
+    private val infoDialogDispatched = mutableListOf<InfoDialogStore.Intent>()
 
     // Null lets the screen take the emulated window. A size is required rather than capped,
     // since the theme's surface hands its own size down as a minimum.
@@ -94,7 +100,9 @@ class AnimeListScreenTest {
                     AnimeListScreen(
                         uiModel = uiModelState.value,
                         dateFormatter = DateFormatterFake(),
-                        dispatch = { dispatched += it }
+                        dispatch = { dispatched += it },
+                        isInfoDialogShown = infoDialogShownState,
+                        infoDialogDispatch = { infoDialogDispatched += it }
                     )
                 }
             }
@@ -385,6 +393,81 @@ class AnimeListScreenTest {
             dispatched
         )
     }
+
+    @Test
+    fun theInfoButtonAsksToOpenTheDialogAndNothingElse() {
+        //Given
+        uiModelState.value = AnimeListUiModel(contentType = ContentTypeUi.LOADING)
+        setScreen()
+
+        //When
+        composeRule.onNodeWithTag(INFO_BUTTON_TAG).performClick()
+        composeRule.waitForIdle()
+
+        //Then
+        assertEquals(
+            listOf<InfoDialogStore.Intent>(InfoDialogStore.Intent.InfoClick),
+            infoDialogDispatched
+        )
+        assertEquals(emptyList(), dispatched, "the info button sends nothing to the main store")
+    }
+
+    @Test
+    fun theDialogShowsOnlyWhileItsStateSaysSo() {
+        //Given
+        uiModelState.value = AnimeListUiModel(contentType = ContentTypeUi.LOADING)
+        setScreen()
+        composeRule.onNodeWithTag(INFO_DIALOG_TITLE_TAG).assertDoesNotExist()
+
+        //When
+        infoDialogShownState.value = true
+        composeRule.waitForIdle()
+
+        //Then
+        composeRule.onNodeWithTag(INFO_DIALOG_TITLE_TAG).assertIsDisplayed()
+    }
+
+    @Test
+    fun theDialogsLinksAndCloseSendTheirOwnIntents() {
+        //Given
+        uiModelState.value = AnimeListUiModel(contentType = ContentTypeUi.LOADING)
+        infoDialogShownState.value = true
+        setScreen()
+
+        //When
+        listOf(INFO_DIALOG_PRIVACY_POLICY_TAG, INFO_DIALOG_SUPPORT_TAG, INFO_DIALOG_CLOSE_TAG)
+            .forEach { tag: String ->
+                composeRule.onNodeWithTag(tag).performClick()
+                composeRule.waitForIdle()
+            }
+
+        //Then
+        assertEquals(
+            listOf(
+                InfoDialogStore.Intent.PrivacyPolicyClick,
+                InfoDialogStore.Intent.SupportClick,
+                InfoDialogStore.Intent.CloseClick
+            ),
+            infoDialogDispatched
+        )
+        assertEquals(emptyList(), dispatched, "the dialog sends nothing to the main store")
+    }
+
+    @Test
+    fun turningTheStateOffRemovesTheDialog() {
+        //Given
+        uiModelState.value = AnimeListUiModel(contentType = ContentTypeUi.LOADING)
+        infoDialogShownState.value = true
+        setScreen()
+        composeRule.onNodeWithTag(INFO_DIALOG_TITLE_TAG).assertIsDisplayed()
+
+        //When
+        infoDialogShownState.value = false
+        composeRule.waitForIdle()
+
+        //Then
+        composeRule.onNodeWithTag(INFO_DIALOG_TITLE_TAG).assertDoesNotExist()
+    }
 }
 
 // Long enough that the paging threshold sits well below the last item, so the list starts out
@@ -417,3 +500,11 @@ private const val ODD_ITEM_ROW_COUNT = 3
 
 // The rows ODD_ITEM_COUNT items fill at three columns.
 private const val ODD_ITEM_ROW_COUNT_AT_THREE_COLUMNS = 2
+
+private const val INFO_BUTTON_TAG = "info_button"
+
+// The information dialog's own tags: its module keeps its strings to itself.
+private const val INFO_DIALOG_TITLE_TAG = "info_dialog_title"
+private const val INFO_DIALOG_PRIVACY_POLICY_TAG = "info_dialog_privacy_policy"
+private const val INFO_DIALOG_SUPPORT_TAG = "info_dialog_support"
+private const val INFO_DIALOG_CLOSE_TAG = "info_dialog_close"
