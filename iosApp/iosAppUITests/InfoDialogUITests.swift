@@ -9,8 +9,9 @@ final class InfoDialogUITests: XCTestCase {
     /// How long the app may take to come back to the front.
     private let foregroundTimeout: TimeInterval = 30
 
-    /// How long the dialog may take to open or close.
-    private let dialogTimeout: TimeInterval = 10
+    /// How long the dialog may take to open or close. Safari's first launch can slow the runner
+    /// down for a while.
+    private let dialogTimeout: TimeInterval = 30
 
     /// The smallest gap an outside tap aims at: Apple's minimum touch target.
     private let minimumGap: CGFloat = 44
