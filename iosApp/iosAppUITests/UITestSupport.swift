@@ -8,8 +8,9 @@ let loadTimeout: TimeInterval = 60
 /// How long the system may take to ask for permission to notify.
 let notificationQuestionTimeout: TimeInterval = 10
 
-/// How long the information dialog may take to close.
-let dialogCloseTimeout: TimeInterval = 10
+/// How long the information dialog may take to close. Safari's first launch can slow the runner
+/// down for a while.
+let dialogCloseTimeout: TimeInterval = 30
 
 /// How often a wait for one of several elements looks again.
 let pollInterval: TimeInterval = 0.5

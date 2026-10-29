@@ -272,7 +272,7 @@ final class RestoreSteps: XCTestCase {
     private func openTheDialogIfClosed() {
         let title = app.tagged("info_dialog_title")
         // Back from Safari, the dialog's tree may take a moment to return.
-        if !title.waitForExistence(timeout: 5) {
+        if !title.waitForExistence(timeout: 10) {
             waitFor(app.tagged("info_button")).tap()
             // A tap that lands while the screen still settles is lost.
             if !title.waitForExistence(timeout: 10) {
