@@ -34,22 +34,32 @@ next episode comes out
 
 Phone:
 
-<img src="screenshots/android/phone/phone-01.jpg" alt=""/>
-<img src="screenshots/android/phone/phone-02.jpg" alt=""/>
-<img src="screenshots/android/phone/phone-03.jpg" alt=""/>
-<img src="screenshots/android/phone/phone-04.jpg" alt=""/>
-<img src="screenshots/android/phone/phone-05.jpg" alt=""/>
-<img src="screenshots/android/phone/phone-06.jpg" alt=""/>
+<!-- The images are stored at twice the width shown, so they stay sharp on dense screens. -->
+<!--suppress CheckImageSize -->
+<p>
+<img src="screenshots/android/phone/phone-01.jpg" width="180" alt=""/>
+<img src="screenshots/android/phone/phone-02.jpg" width="180" alt=""/>
+<img src="screenshots/android/phone/phone-03.jpg" width="180" alt=""/>
+<img src="screenshots/android/phone/phone-04.jpg" width="180" alt=""/>
+<img src="screenshots/android/phone/phone-05.jpg" width="180" alt=""/>
+<img src="screenshots/android/phone/phone-06.jpg" width="180" alt=""/>
+</p>
 
 Tablet:
 
-<img src="screenshots/android/tablet/tablet-01.jpg" alt=""/>
-<img src="screenshots/android/tablet/tablet-02.jpg" alt=""/>
+<!--suppress CheckImageSize -->
+<p>
+<img src="screenshots/android/tablet/tablet-01.jpg" width="400" alt=""/>
+<img src="screenshots/android/tablet/tablet-02.jpg" width="400" alt=""/>
+</p>
 
-<img src="screenshots/android/tablet/tablet-03.jpg" alt=""/>
-<img src="screenshots/android/tablet/tablet-04.jpg" alt=""/>
-<img src="screenshots/android/tablet/tablet-05.jpg" alt=""/>
-<img src="screenshots/android/tablet/tablet-06.jpg" alt=""/>
+<!--suppress CheckImageSize -->
+<p>
+<img src="screenshots/android/tablet/tablet-03.jpg" width="180" alt=""/>
+<img src="screenshots/android/tablet/tablet-04.jpg" width="180" alt=""/>
+<img src="screenshots/android/tablet/tablet-05.jpg" width="180" alt=""/>
+<img src="screenshots/android/tablet/tablet-06.jpg" width="180" alt=""/>
+</p>
 
 Technology stack:
 
