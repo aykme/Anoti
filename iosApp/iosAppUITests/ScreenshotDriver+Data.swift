@@ -1,4 +1,5 @@
-import XCTest
+import Foundation
+import XCUIAutomation
 
 /// The steps that change the app's data: follows through search, update passes, database edits.
 extension ScreenshotDriver {

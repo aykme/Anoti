@@ -1,4 +1,5 @@
-import XCTest
+import Foundation
+import XCUIAutomation
 
 /// Finding cards and bars on the app's screens, and scrolling its lists without a tap.
 extension ScreenshotDriver {
