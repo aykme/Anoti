@@ -58,11 +58,6 @@ dependencies {
     // The app's one entry into the shared code, as the iOS app's framework is. It exposes `main`.
     implementation(project(":core-kmp:di-app"))
 
-    // No direct Kotlin usage, but required for the manifest's AD_ID permission (Google Play
-    // review) — a past cleanup pass already dropped this as apparently unused and had to
-    // restore it; do not remove without also removing that permission.
-    implementation(libs.play.services.appset)
-
     // `AnotiApp` implements WorkManager's `Configuration.Provider`. This also puts androidx.startup
     // on this module's compile classpath, so the manifest's InitializationProvider resolves.
     implementation(libs.androidx.work.runtime)
@@ -84,19 +79,13 @@ dependencies {
     androidTestImplementation(libs.androidx.rules)
     androidTestImplementation(libs.compose.ui.test.junit4)
 
-    // Neither artifact is used from this module's code. Both arrive transitively at a version
-    // that breaks the instrumented tests, so only their version is pinned here.
+    // Not used from this module's code. It arrives transitively at a version that breaks the
+    // instrumented tests, so only its version is pinned here.
     constraints {
         androidTestImplementation(libs.androidx.espresso.core) {
             because(
                 "Compose's ui-test ships Espresso 3.5.0, whose reflective " +
                     "InputManager.getInstance() API 37 removed"
-            )
-        }
-        androidTestImplementation(libs.androidx.activity) {
-            because(
-                "Play Services drags in an activity version that no longer satisfies " +
-                    "createAndroidComposeRule's ComponentActivity bound"
             )
         }
     }
