@@ -107,6 +107,24 @@ extension ScreenshotDriver {
         throw ScreenshotFailure("\(anchor.title) did not settle at the top of the list")
     }
 
+    /// Waits for `condition` on Main's results. Results that arrive in steps can leave the list
+    /// scrolled past its first cards, so a slow condition gets the list pulled back to its top.
+    func waitForResults(_ condition: () -> Bool) -> Bool {
+        if waitUntil(shortTimeout, condition) {
+            return true
+        }
+        scrollToListTop()
+        return waitUntil(loadTimeout, condition)
+    }
+
+    /// Pulls Main's list back to its first card. Each drag stays short of what starts a refresh
+    /// when the list is already at its top.
+    func scrollToListTop() {
+        for _ in 0..<topDrags {
+            drag(by: topDragLength, itemTag: listItemTag)
+        }
+    }
+
     /// Moves the list's content by `deltaY` points with one press-and-drag: a short press, so no
     /// long press fires, and a hold at the end, so the list does not fling. The drag starts away
     /// from the top bar and, on Favorites, over the posters' column.
@@ -160,3 +178,10 @@ let dragMargin: CGFloat = 30
 
 /// Where across a favorite a drag starts: over the poster, clear of the counter's arrows.
 let posterColumnFraction: CGFloat = 0.15
+
+/// How many drags bring Main's list back to its top: more than the longest card.
+let topDrags = 4
+
+/// How far one drag pulls Main's list down. Past the top, half of it moves the refresh indicator,
+/// which refreshes at 80 points.
+let topDragLength: CGFloat = 120

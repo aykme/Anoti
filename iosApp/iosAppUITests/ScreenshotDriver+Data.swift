@@ -9,7 +9,7 @@ extension ScreenshotDriver {
         try openTabAnew(listTab)
         for title in titles {
             try search(title)
-            let found = waitUntil(loadTimeout) { self.titleBell(title) != nil }
+            let found = waitForResults { self.titleBell(title) != nil }
             guard found, let button = titleBell(title) else {
                 throw ScreenshotFailure("the search did not show \(title) with its bell")
             }
@@ -164,19 +164,18 @@ extension ScreenshotDriver {
     }
 
     // Submitting closes the keyboard of a single-line field. A simulator with a hardware keyboard
-    // shows none at all.
+    // shows none at all. A fresh simulator's first keyboard can swallow the submit under its
+    // typing tip, so the submit key is pressed again.
     private func hideKeyboard() throws {
         let keyboard = app.keyboards.firstMatch
-        let closed = waitUntil(shortTimeout) { !keyboard.exists }
-        if closed {
-            return
+        var closed = waitUntil(shortTimeout) { !keyboard.exists }
+        for _ in 0..<submitPresses where !closed {
+            if let key = submitKeys.first(where: { keyboard.buttons[$0].exists }) {
+                keyboard.buttons[key].tap()
+            }
+            closed = waitUntil(shortTimeout) { !keyboard.exists }
         }
-        for key in submitKeys where keyboard.buttons[key].exists {
-            keyboard.buttons[key].tap()
-            break
-        }
-        let gone = waitUntil(shortTimeout) { !keyboard.exists }
-        guard gone else {
+        guard closed else {
             throw ScreenshotFailure("the keyboard stayed over the search results")
         }
     }
@@ -206,6 +205,9 @@ let searchSettleTime: TimeInterval = 2
 
 /// The keyboard keys that submit a field, by the names iOS gives them.
 let submitKeys = ["search", "Search", "Done", "done", "Return", "return"]
+
+/// How many times the submit key is pressed while the keyboard stays.
+let submitPresses = 3
 
 /// How long the first update pass may take before a second pull is considered.
 let firstPassTimeout: TimeInterval = 45

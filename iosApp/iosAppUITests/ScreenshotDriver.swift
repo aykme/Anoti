@@ -6,7 +6,8 @@ import XCTest
 /// before it is kept, so a wrong one fails the run instead of reaching the store.
 ///
 /// Data steps live in `ScreenshotDriver+Data.swift`, finding and scrolling in
-/// `ScreenshotDriver+Lists.swift`, checks and captures in `ScreenshotDriver+Shots.swift`.
+/// `ScreenshotDriver+Lists.swift`, checks and captures in `ScreenshotDriver+Shots.swift`, and
+/// Notification Center in `ScreenshotDriver+NotificationCenter.swift`.
 @MainActor
 final class ScreenshotDriver {
     /// The names of the shots kept so far, in order.
@@ -50,6 +51,9 @@ final class ScreenshotDriver {
     /// Launches the app upright and fails when the screenshots would not have `expectedSize`.
     func launch(expectedSize: CGSize) throws {
         XCUIDevice.shared.orientation = .portrait
+        if isPad {
+            useFullScreenApps()
+        }
         relaunch()
         let image = XCUIScreen.main.screenshot().image.cgImage
         let size = CGSize(width: image?.width ?? 0, height: image?.height ?? 0)
@@ -115,6 +119,29 @@ final class ScreenshotDriver {
     }
 
     // MARK: - Launch and navigation
+
+    // An iPad in windowed mode draws a resize grabber in the app's corner, in every shot.
+    // Settings switches it to full-screen apps. Its tree is kept, in case the choice moved.
+    private func useFullScreenApps() {
+        let settings = XCUIApplication(bundleIdentifier: settingsBundleId)
+        settings.launch()
+        let section = settings.descendants(matching: .any)
+            .matching(NSPredicate(format: "label == %@", multitaskingSection)).firstMatch
+        if section.waitForExistence(timeout: shortTimeout), section.isHittable {
+            section.tap()
+            let option = settings.descendants(matching: .any)
+                .matching(NSPredicate(format: "label == %@", fullScreenAppsOption)).firstMatch
+            if option.waitForExistence(timeout: shortTimeout), option.isHittable {
+                option.tap()
+                RunLoop.current.run(until: Date().addingTimeInterval(settleTime))
+            }
+        }
+        let tree = XCTAttachment(string: settings.debugDescription)
+        tree.name = "settings tree"
+        tree.lifetime = .keepAlways
+        test.add(tree)
+        settings.terminate()
+    }
 
     /// Starts the app again. The notification question comes once per installation.
     func relaunch() {
@@ -193,12 +220,14 @@ final class ScreenshotDriver {
         try normalize()
         try openTabAnew(listTab)
         try search(query)
-        let found = waitUntil(loadTimeout) {
+        let found = waitForResults {
             (dateMode + shows).allSatisfy { self.mainCard($0) != nil }
         }
         guard found else {
             throw ScreenshotFailure("search \"\(query)\" did not show \(dateMode + shows)")
         }
+        // The shot starts at the first result, wherever the results left the list.
+        scrollToListTop()
         try measureListStart(itemTag: listItemTag)
         try showDates(on: dateMode)
         screen = .list(anchor: nil, dateMode: dateMode, shows: shows)
@@ -256,6 +285,10 @@ struct ScreenshotFailure: Error, CustomStringConvertible {
 
 /// How Favorites' text for an empty list starts.
 let favoritesEmptyStart = "You haven"
+
+let settingsBundleId = "com.apple.Preferences"
+let multitaskingSection = "Multitasking & Gestures"
+let fullScreenAppsOption = "Full Screen Apps"
 
 let listTab = "anime_list_button"
 let favoritesTab = "anime_favorites_button"

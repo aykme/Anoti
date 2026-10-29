@@ -1,7 +1,6 @@
 import XCTest
 
-/// Composing the last details of a screen, checking it, and keeping it, Notification Center
-/// included.
+/// Composing the last details of a screen, checking it, and keeping it.
 extension ScreenshotDriver {
     /// Shows the date on each Main card named, instead of its episode count.
     func showDates(on titles: [String]) throws {
@@ -41,22 +40,6 @@ extension ScreenshotDriver {
                 throw ScreenshotFailure("a favorite at \(frame.minY) did not show extra info")
             }
         }
-    }
-
-    /// Pulls Notification Center down over the app and waits until it lists a named title.
-    func openNotificationCenter(listing titles: [String]) throws {
-        swipe(springboard, from: notificationCenterStart, to: notificationCenterEnd)
-        let shown = waitUntil(revealWait) { titles.contains { self.notification($0).exists } }
-        if !shown {
-            // Notifications that came while the app was open can wait below the clock.
-            swipe(springboard, from: listRevealStart, to: listRevealEnd)
-        }
-        let found = waitUntil(shortTimeout) { titles.contains { self.notification($0).exists } }
-        guard found else {
-            attachSpringboardTree()
-            throw ScreenshotFailure("Notification Center shows none of \(titles)")
-        }
-        screen = .notificationCenter(titles)
     }
 
     /// Checks the screen the last step set up, then keeps it three times, a little apart, since
@@ -192,8 +175,8 @@ extension ScreenshotDriver {
 
     // MARK: - Captures
 
-    // The test keeps the screen as the device holds it; the CI job turns a landscape one upright.
-    private func capture(_ name: String) {
+    /// Keeps the screen as the device holds it; the CI job turns a landscape one upright.
+    func capture(_ name: String) {
         let screenshot = XCUIScreen.main.screenshot()
         let attachment = XCTAttachment(
             data: screenshot.pngRepresentation,
@@ -201,85 +184,6 @@ extension ScreenshotDriver {
         )
         let landscape = XCUIDevice.shared.orientation.isLandscape
         attachment.name = landscape ? name + landscapeMarker : name
-        attachment.lifetime = .keepAlways
-        test.add(attachment)
-    }
-
-    // MARK: - Notification Center
-
-    func notification(_ title: String) -> XCUIElement {
-        springboard.descendants(matching: .any)
-            .matching(NSPredicate(format: "label CONTAINS %@", title)).firstMatch
-    }
-
-    // A collapsed group hides all but its newest notification, and a tap expands it. A tap on an
-    // expanded notification would open the app instead, so the tap comes only when needed.
-    private func expandNotifications(_ titles: [String], collapsedName: String) throws {
-        guard !allListed(titles) else { return }
-        capture(collapsedName)
-        guard let newest = titles.first, notification(newest).isHittable else {
-            attachSpringboardTree()
-            throw ScreenshotFailure("the newest notification cannot be tapped")
-        }
-        notification(newest).tap()
-        RunLoop.current.run(until: Date().addingTimeInterval(settleTime))
-        guard notification(newest).exists else {
-            throw ScreenshotFailure("the tap left Notification Center instead of expanding it")
-        }
-        let listed = waitUntil(shortTimeout) { self.allListed(titles) }
-        guard listed else {
-            attachSpringboardTree()
-            throw ScreenshotFailure("Notification Center does not list all of \(titles)")
-        }
-    }
-
-    // Every title shows, each in a notification of its own.
-    private func allListed(_ titles: [String]) -> Bool {
-        let frames = titles.map { notification($0) }
-            .filter { $0.isHittable }
-            .map { $0.frame }
-        let rows = Set(frames.map { Int($0.minY) })
-        return frames.count == titles.count && rows.count == titles.count
-    }
-
-    // On a wide screen a long press opens the newest notification large, with its poster. Its
-    // capture is an extra, whatever the press showed.
-    private func pressNewestNotification(_ titles: [String], name: String) {
-        guard isPad, let newest = titles.first else { return }
-        let element = notification(newest)
-        guard element.isHittable else { return }
-        element.press(forDuration: longPressDuration)
-        RunLoop.current.run(until: Date().addingTimeInterval(captureSpacing))
-        capture(name)
-    }
-
-    // The app counts as in front even under Notification Center, so the list going away is what
-    // proves it closed. A home press may close only an open preview.
-    private func closeNotificationCenter(listing titles: [String]) throws {
-        let newest = notification(titles.first ?? "")
-        for _ in 0..<homePresses {
-            XCUIDevice.shared.press(.home)
-            RunLoop.current.run(until: Date().addingTimeInterval(settleTime))
-            if test.waitUntilGone(newest, timeout: shortTimeout) {
-                break
-            }
-        }
-        app.activate()
-        let back = waitUntil(shortTimeout) { !newest.exists && self.app.tagged(listTab).isHittable }
-        guard back else {
-            throw ScreenshotFailure("the app did not come back after Notification Center")
-        }
-    }
-
-    private func swipe(_ target: XCUIApplication, from start: CGVector, to end: CGVector) {
-        let destination = target.coordinate(withNormalizedOffset: end)
-        target.coordinate(withNormalizedOffset: start)
-            .press(forDuration: pressDuration, thenDragTo: destination)
-    }
-
-    func attachSpringboardTree() {
-        let attachment = XCTAttachment(string: springboard.debugDescription)
-        attachment.name = "springboard tree"
         attachment.lifetime = .keepAlways
         test.add(attachment)
     }
@@ -304,30 +208,3 @@ let maxRepairs = 2
 
 /// How far an anchor may sit from the list's left edge and still be in the first column.
 let columnTolerance: CGFloat = 20
-
-/// How long a press opens a notification large.
-let longPressDuration: TimeInterval = 1.5
-
-/// How long Notification Center may take to list notifications once pulled down.
-let revealWait: TimeInterval = 3
-
-/// How many home presses closing Notification Center may take.
-let homePresses = 2
-
-/// Where across the screen Notification Center is pulled down: left of centre, since the right
-/// side opens Control Center. Normalized, as the next five.
-let notificationCenterX: CGFloat = 0.3
-
-/// The pull starts at the top edge and ends past the middle.
-let topEdgeY: CGFloat = 0.01
-let pullDownEndY: CGFloat = 0.6
-
-/// The drag up that brings the notification list from below the clock.
-let revealX: CGFloat = 0.5
-let revealStartY: CGFloat = 0.75
-let revealEndY: CGFloat = 0.35
-
-let notificationCenterStart = CGVector(dx: notificationCenterX, dy: topEdgeY)
-let notificationCenterEnd = CGVector(dx: notificationCenterX, dy: pullDownEndY)
-let listRevealStart = CGVector(dx: revealX, dy: revealStartY)
-let listRevealEnd = CGVector(dx: revealX, dy: revealEndY)

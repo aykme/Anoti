@@ -516,22 +516,31 @@ jobs:
       - name: Boot the simulator
         run: bash .github/scripts/ios-boot-simulator.sh
 
-      # The status bar reads 10:00 local time. A full date sets the date an iPad shows too; the
-      # plain time is the fallback. A Wi-Fi iPad shows no cellular bars.
+      # The status bar reads 10:00 local time, and an iPad's today's date. simctl takes only an
+      # ISO 8601 time, and which spelling it parses varies, so each is tried until one takes. A
+      # Wi-Fi iPad shows no cellular bars.
       - name: Dress the simulator
         run: |
           xcrun simctl ui "$SIM_UDID" appearance dark
           ten=$(date -j -f "%Y-%m-%d %H:%M:%S" "$(date +%Y-%m-%d) 10:00:00" +%s)
-          at_ten=$(date -u -r "$ten" +%Y-%m-%dT%H:%M:%SZ)
+          utc=$(date -u -r "$ten" +%Y-%m-%dT%H:%M:%S)
+          zoned=$(date -r "$ten" +%Y-%m-%dT%H:%M:%S%z)
+          zoned="${zoned:0:22}:${zoned:22}"
           case $SIM_DEVICE in
             iPad*) cellular=(--cellularMode notSupported) ;;
             *) cellular=(--cellularMode active --cellularBars 4) ;;
           esac
-          dress() {
-            xcrun simctl status_bar "$SIM_UDID" override --time "$1" --batteryState charged \
-              --batteryLevel 100 --wifiBars 3 "${cellular[@]}"
-          }
-          dress "$at_ten" || dress 10:00 || echo "The status bar override failed"
+          dressed=""
+          for at in "${utc}Z" "${utc}.000Z" "${utc}+00:00" "$zoned"; do
+            if xcrun simctl status_bar "$SIM_UDID" override --time "$at" \
+              --batteryState charged --batteryLevel 100 --wifiBars 3 "${cellular[@]}"; then
+              dressed=$at
+              break
+            fi
+            echo "The status bar refused the time $at"
+          done
+          echo "The status bar time: ${dressed:-none, the override failed}"
+          [ -n "$dressed" ] || xcrun simctl help status_bar || true
           xcrun simctl status_bar "$SIM_UDID" list || true
           inside=$(xcrun simctl spawn "$SIM_UDID" date 2> /dev/null || true)
           echo "Runner time: $(date); simulator time: ${inside:-unknown, the test logs its zone}"
