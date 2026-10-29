@@ -34,7 +34,7 @@ next episode comes out
 
 Phone:
 
-<!-- The images are stored at twice the width shown, so they stay sharp on dense screens. -->
+<!-- The images are stored at least twice as wide as shown, so they stay sharp on dense screens. -->
 <!--suppress CheckImageSize -->
 <p>
 <img src="screenshots/android/phone/phone-01.jpg" width="180" alt=""/>
