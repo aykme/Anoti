@@ -4,43 +4,52 @@ Anoti - anime info & notifs
 
 Download the app:
 
+<!-- The badge is hidden until the iOS app is live on the App Store.
 <a href="https://apps.apple.com/app/id6827621853"><img src="https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-app-store/black/en-us" alt="Download on the App Store" height="40" hspace="10" align="middle"></a>
+-->
 [App Store](https://apps.apple.com/app/id6827621853)
 
 <a href="https://play.google.com/store/apps/details?id=com.alekseivinogradov.anoti"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="60" align="middle"></a>
 [Google Play](https://play.google.com/store/apps/details?id=com.alekseivinogradov.anoti)
 
-Stay on top of the anime you follow: get notified about new episodes and keep track of where you
-left off.
+Stay on top of the anime you follow: Anoti lets you know when the next episode is out and helps you
+remember where you left off.
 
-■ Browse what's airing now and what's coming soon, or search by title
+■ Pick anime from the lists of shows airing now and upcoming announcements, or search by title
 
-■ Tap the bell to follow an anime and get a notification with its poster and the new episode's
-number
+■ Tap the bell to subscribe and get a notification with the poster and episode number when the
+next episode comes out
 
-■ See when the next episode airs, or when an upcoming show is expected to premiere
+■ See the release date of the next episode, or when an announced show is expected to begin
 
-■ Keep every show you follow in Favorites, with a badge on the tab showing how many have new
-episodes
+■ Keep all your subscriptions in Favorites; a badge on its tab shows how many have fresh episodes
 
-■ Track the episodes you've watched so you never lose your place
+■ Count the episodes you've seen so you don't lose your place
 
-■ Pull down on Favorites to check for new episodes right away
+■ Pull down on Favorites to check for fresh episodes right away
 
-■ Open your Favorites even when you're offline
+■ Your Favorites are available offline
 
-■ Enjoy a dark interface made for phones and tablets
+■ Dark design for phones and tablets, with screen reader and larger text support
 
-No sign-up, no ads, no data collection. Your Favorites and episode counts are stored only on your
-device.
+Phone:
 
-<img src="https://github.com/user-attachments/assets/dee9275c-b37f-40d3-b33a-25f3e9d4fc22" width="100"  alt=""/>
-<img src="https://github.com/user-attachments/assets/4955a06c-0280-4702-8047-296f0200e184" width="100"  alt=""/>
-<img src="https://github.com/user-attachments/assets/853345b7-2704-48e8-9ebb-8a2b42ee0ee9" width="100"  alt=""/>
-<img src="https://github.com/user-attachments/assets/4b0b5168-42ee-45b3-b1cf-4be5ad3f9d71" width="100"  alt=""/>
-<img src="https://github.com/user-attachments/assets/c5ac4d40-e5be-4172-92b4-c1f721001e04" width="100"  alt=""/>
-<img src="https://github.com/user-attachments/assets/889e4b8e-c06a-43e9-b446-02880dfe3ca7" width="100"  alt=""/>
-<img src="https://github.com/user-attachments/assets/b2d04efd-141d-4ac7-bc4a-5285abaf2612" width="100"  alt=""/>
+<img src="screenshots/android/phone/phone-01.jpg" width="180" alt=""/>
+<img src="screenshots/android/phone/phone-02.jpg" width="180" alt=""/>
+<img src="screenshots/android/phone/phone-03.jpg" width="180" alt=""/>
+<img src="screenshots/android/phone/phone-04.jpg" width="180" alt=""/>
+<img src="screenshots/android/phone/phone-05.jpg" width="180" alt=""/>
+<img src="screenshots/android/phone/phone-06.jpg" width="180" alt=""/>
+
+Tablet:
+
+<img src="screenshots/android/tablet/tablet-01.jpg" width="400" alt=""/>
+<img src="screenshots/android/tablet/tablet-02.jpg" width="400" alt=""/>
+
+<img src="screenshots/android/tablet/tablet-03.jpg" width="180" alt=""/>
+<img src="screenshots/android/tablet/tablet-04.jpg" width="180" alt=""/>
+<img src="screenshots/android/tablet/tablet-05.jpg" width="180" alt=""/>
+<img src="screenshots/android/tablet/tablet-06.jpg" width="180" alt=""/>
 
 Technology stack:
 
