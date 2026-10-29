@@ -5,11 +5,11 @@
 # versionCode grows in whole steps of 1, together with versionName. It is versionName without the
 # dot, so 1.1 is 11 and 1.2 is 12.
 #noinspection UnusedVersionCatalogEntry
-versionCode = "11"
+versionCode = "12"
 # versionName grows in steps of 0.1, for iOS. iOS reads each dot-separated part as a whole
 # number and has no hundredths, so 1.09 is not a valid step.
 #noinspection UnusedVersionCatalogEntry
-versionName = "1.1"
+versionName = "1.2"
 
 # Android app versions
 #noinspection UnusedVersionCatalogEntry
