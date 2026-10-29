@@ -1,9 +1,11 @@
 import Foundation
 import SQLite3
 
-/// The app's Room database file, edited by the screenshot test through the simulator's shared file
-/// system. The app must not run during an edit: Room holds the file open and notices only its own
-/// writes, so the app sees an edit after its next launch.
+/// The app's Room database file, as the screenshot test reads and edits it. Some states a
+/// screenshot needs have no control in the app: a "New episode" badge, a viewed count, a new
+/// episode to notify about. The test sets them in the file instead, reached through the
+/// simulator's shared file system. The app must not run during an edit: Room holds the file open
+/// and notices only its own writes, so the app sees an edit after its next launch.
 struct AppDatabase {
     /// The database file's full path.
     let path: String

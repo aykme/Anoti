@@ -1,9 +1,12 @@
 import XCTest
 
-/// Runs a screenshot scenario against the real app: composes each screen the steps describe,
-/// checks it, and keeps it as attachments the `store-screenshots` job collects. Data steps live in
-/// `ScreenshotDriver+Data.swift`, finding and scrolling in `ScreenshotDriver+Lists.swift`, checks
-/// and captures in `ScreenshotDriver+Shots.swift`.
+/// Carries out a screenshot scenario in the real app. The scenario says what each screen shows;
+/// the driver knows how to get there: searches, taps, scrolls, database edits and Notification
+/// Center. So a new set of screenshots changes the scenario, not this code. Each screen is checked
+/// before it is kept, so a wrong one fails the run instead of reaching the store.
+///
+/// Data steps live in `ScreenshotDriver+Data.swift`, finding and scrolling in
+/// `ScreenshotDriver+Lists.swift`, checks and captures in `ScreenshotDriver+Shots.swift`.
 @MainActor
 final class ScreenshotDriver {
     /// The names of the shots kept so far, in order.

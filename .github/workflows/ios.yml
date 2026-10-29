@@ -446,7 +446,9 @@ jobs:
           name: ios-media-ipad-${{ matrix.tablet.slug }}
           path: build/ios-media-ipad
 
-  # The App Store screenshots, one job per device. Only when a run sets store_screenshots.
+  # Makes the App Store screenshots: StoreScreenshotsTests on the two simulators whose sizes App
+  # Store Connect asks for, a job each. Its ios-store-screenshots-<slug> artifact holds the shots,
+  # ready for upload. Only when a run sets store_screenshots.
   store-screenshots:
     name: store screenshots ${{ matrix.device.slug }}
     if: >-

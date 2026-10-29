@@ -1,7 +1,8 @@
 import UIKit
 
 /// One step of a screenshot scenario. A scenario is a list of them, read top to bottom; screen
-/// steps set up what the next `shoot` keeps. Titles are exact Shikimori names.
+/// steps set up what the next `shoot` keeps. Steps are data, so a new set of screenshots is a new
+/// list, not new code. Titles are exact Shikimori names.
 enum ScreenshotStep: Sendable {
     /// Searches each title on Main and turns its bell on.
     case follow([String])

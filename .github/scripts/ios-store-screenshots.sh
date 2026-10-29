@@ -1,6 +1,10 @@
 #!/bin/bash
-# Collects the App Store screenshots the store-screenshots job of ios.yml kept. Each try's result
-# bundle is exported beforehand to $MEDIA_DIR/attachments/store-try-<n>/, beside its manifest.json.
+# Turns the raw attachments of the store-screenshots job of ios.yml into App Store-ready files, and
+# fails the job when a shot would not fit its App Store Connect slot. So the job's artifact can go
+# to the store as it is, and a wrong shot shows in CI, not at upload.
+#
+# Each try's result bundle is exported beforehand to $MEDIA_DIR/attachments/store-try-<n>/, beside
+# its manifest.json.
 # Every shot goes to $MEDIA_DIR/store/try-<n>/<name>.png, named after its attachment. One the test
 # marked @landscape is turned upright and loses the marker. Each shot's size and alpha are checked
 # against what App Store Connect takes. The passing try, named in $MEDIA_DIR/store-passed-try, must

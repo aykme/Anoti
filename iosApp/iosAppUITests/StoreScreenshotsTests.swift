@@ -1,10 +1,14 @@
 import XCTest
 
-/// Makes the App Store screenshots: composes each screen of the scenario below in the real app,
-/// against the live backend, and keeps it as an attachment. Only the `store-screenshots` job of
-/// `ios.yml` runs it, through `ANOTI_STORE_SCREENSHOTS=1`; any other run skips it. Unlike the
-/// other UI tests it asserts the live titles and positions it composes, since composing them is
-/// its purpose.
+/// Makes the app's screenshots for its App Store page. App Store Connect wants a set for each
+/// device size, and the project has no Mac to take them on. So this test composes each screen of
+/// the scenario below in the real app, on CI's simulators, against the live backend. It keeps
+/// every screen as an attachment.
+///
+/// Only the `store-screenshots` job of `ios.yml` runs it, started with `store_screenshots`. Any
+/// other run skips it. The job's `ios-store-screenshots-<slug>` artifact holds the finished shots,
+/// ready for upload. Unlike the other UI tests, it asserts the live titles and positions it
+/// composes, since composing them is its purpose.
 ///
 /// A new version edits the scenario: the titles and the steps of each device.
 final class StoreScreenshotsTests: XCTestCase {
