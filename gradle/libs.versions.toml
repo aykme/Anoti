@@ -94,7 +94,6 @@ activity = "1.13.0"
 composeUiTest = "1.12.1"
 core = "1.19.1"
 espressoCore = "3.7.0"
-playServicesAppset = "16.1.0"
 robolectric = "4.17"
 # The SDK Robolectric emulates. It sits below compileSdk on purpose.
 # Past 35 it dies inside ApplicationSharedMemory.create, which it cannot emulate.
@@ -198,7 +197,6 @@ compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", ve
 # Gradle plugin gets neither from plain kotlin-test.
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
-play-services-appset = { module = "com.google.android.gms:play-services-appset", version.ref = "playServicesAppset" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 
 # iOS libraries
