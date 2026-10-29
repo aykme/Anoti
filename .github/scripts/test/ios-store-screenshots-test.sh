@@ -31,7 +31,8 @@ fi
 file=${*: -1}
 [ -f "$file" ] || { echo "sips: no file $file" >&2; exit 1; }
 read -r width height alpha < "$file"
-printf '%s\n  pixelWidth: %s\n  pixelHeight: %s\n  hasAlpha: %s\n' "$file" "$width" "$height" "$alpha"
+printf '%s\n  pixelWidth: %s\n  pixelHeight: %s\n  hasAlpha: %s\n' \
+  "$file" "$width" "$height" "$alpha"
 EOF
 # Wherever python3 is missing or a stand-in, as on Windows, the script gets the real one.
 if ! python3 -c 'import sys' > /dev/null 2>&1; then
@@ -56,6 +57,7 @@ attachment() {
 manifests() {
   local dir
   for dir in "$work/cases/$1/media/attachments"/store-try-*; do
+    [ -f "$dir/entries" ] || continue
     python3 - "$dir/entries" > "$dir/manifest.json" <<'PY'
 import json, sys
 tests = []
@@ -78,7 +80,8 @@ check() {
   if [ "$got" = "$want" ]; then
     passed=$((passed + 1)); echo "ok   $name"
   else
-    failed=$((failed + 1)); echo "FAIL $name (exit $got, want $want)"; cat "$work/cases/$name/out.txt"
+    failed=$((failed + 1)); echo "FAIL $name (exit $got, want $want)"
+    cat "$work/cases/$name/out.txt"
   fi
 }
 
@@ -116,6 +119,9 @@ holds good store/try-1/iphone-01.png "1206 2622 no"
 holds good store/try-1/iphone-01~2.png "1206 2622 no"
 holds good store/try-1/iphone-05~collapsed.png "1206 2622 no"
 has good "iphone-06"
+if ls "$work/cases/good/media/store/try-1" | grep -q "main list"; then
+  failed=$((failed + 1)); echo "FAIL good: an attachment that is no shot was collected"
+else passed=$((passed + 1)); fi
 
 # An iPad try: the landscape shots come out turned, without their marker.
 for n in 1 2; do
@@ -162,11 +168,27 @@ mkdir -p "$work/cases/missing/media" && echo 1 > "$work/cases/missing/media/stor
 check missing 1
 has missing "iphone-06"
 
-# A shot name the script cannot read.
+# A shot name the script cannot read; the readable shots are still collected.
 six_iphone_shots unnamed 1
 attachment unnamed 1 "iphone-7_$uuid.png" "1206 2622 no"
 check unnamed 1
 has unnamed "iphone-7"
+holds unnamed store/try-1/iphone-04.png "1206 2622 no"
+
+# A passing try that kept nothing, as a skipped test would leave it.
+mkdir -p "$work/cases/nothing/media/attachments/store-try-1"
+echo "unrelated|ABCDEF01-AAAA-BBBB-CCCC-DDDDEEEEFFFF.png" \
+  > "$work/cases/nothing/media/attachments/store-try-1/entries"
+echo 1 > "$work/cases/nothing/media/store-passed-try"
+check nothing 1
+has nothing "kept no shots"
+
+# A try whose export wrote no manifest is skipped; the other try is collected.
+six_iphone_shots no-manifest 2
+mkdir -p "$work/cases/no-manifest/media/attachments/store-try-1"
+echo 2 > "$work/cases/no-manifest/media/store-passed-try"
+check no-manifest 0
+holds no-manifest store/try-2/iphone-01.png "1206 2622 no"
 
 echo "passed $passed, failed $failed"
 [ "$failed" -eq 0 ]

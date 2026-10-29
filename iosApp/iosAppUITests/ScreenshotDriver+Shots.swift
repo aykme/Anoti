@@ -46,8 +46,7 @@ extension ScreenshotDriver {
     /// Pulls Notification Center down over the app and waits until it lists a named title.
     func openNotificationCenter(listing titles: [String]) throws {
         swipe(springboard, from: notificationCenterStart, to: notificationCenterEnd)
-        RunLoop.current.run(until: Date().addingTimeInterval(settleTime))
-        let shown = titles.contains { notification($0).exists }
+        let shown = waitUntil(revealWait) { titles.contains { self.notification($0).exists } }
         if !shown {
             // Notifications that came while the app was open can wait below the clock.
             swipe(springboard, from: listRevealStart, to: listRevealEnd)
@@ -80,7 +79,7 @@ extension ScreenshotDriver {
         keptShots.append(name)
         if case let .notificationCenter(titles) = screen {
             pressNewestNotification(titles, name: name + "~pressed")
-            try closeNotificationCenter()
+            try closeNotificationCenter(listing: titles)
         }
         screen = .none
     }
@@ -96,9 +95,7 @@ extension ScreenshotDriver {
             try checkAnchor(anchor, at: card.frame)
         }
         for title in dateMode + shows {
-            let text = app.descendants(matching: .any)
-                .matching(NSPredicate(format: "label == %@", title)).firstMatch
-            guard text.exists, text.frame.maxY <= bottom else {
+            guard let text = mainTitle(title)?.text, text.frame.maxY <= bottom else {
                 throw ScreenshotFailure("the title of \(title) is not on screen")
             }
         }
@@ -128,18 +125,21 @@ extension ScreenshotDriver {
     }
 
     private func favoritesProblem(anchor: Anchor?, extraInfo: [String]) throws -> String? {
-        let database = try database()
-        let names = Set(try database.names())
+        let store = try database()
+        let names = Set(try store.names())
         guard names == expectedFavorites else {
             throw ScreenshotFailure("the favorites are \(names), not \(expectedFavorites)")
         }
-        let extra = Set(try database.extraInfoNames())
+        let extra = Set(try store.extraInfoNames())
         if extra != Set(extraInfo) {
             return "extra info is on for \(extra), not \(Set(extraInfo))"
         }
-        let flagged = Set(try database.newEpisodeNames())
+        let flagged = Set(try store.newEpisodeNames())
         if flagged != expectedNewEpisodes {
             return "new episodes show on \(flagged), not \(expectedNewEpisodes)"
+        }
+        if let card = misflaggedCard(skipping: Set(extraInfo)) {
+            return "the card of \(card) shows the wrong \"\(newEpisodeText)\""
         }
         let tab = app.tagged(favoritesTab)
         let label = favoritesLabel(newEpisodes: flagged.count)
@@ -161,8 +161,19 @@ extension ScreenshotDriver {
         guard error >= -1, error <= alignTolerance + 1 else {
             throw ScreenshotFailure("\(anchor.title) sits \(error) points off the list's top")
         }
-        if isWide(app.windows.firstMatch.frame), abs(frame.minX - listLeft) > columnTolerance {
+        if isPad, abs(frame.minX - listLeft) > columnTolerance {
             throw ScreenshotFailure("\(anchor.title) is not in the first column")
+        }
+    }
+
+    // A visible favorite in its normal mode shows "New episode" exactly when it is flagged. One in
+    // extra info shows no title to tell it by.
+    private func misflaggedCard(skipping extraInfo: Set<String>) -> String? {
+        expectedFavorites.subtracting(extraInfo).sorted().first { title in
+            guard let card = favoriteCard(title), card.frame.maxY <= tabBarTop else {
+                return false
+            }
+            return card.label.contains(newEpisodeText) != expectedNewEpisodes.contains(title)
         }
     }
 
@@ -231,10 +242,10 @@ extension ScreenshotDriver {
         return frames.count == titles.count && rows.count == titles.count
     }
 
-    // On a wide screen a long press opens the newest notification large, with its poster; kept
-    // as an extra if it opens.
+    // On a wide screen a long press opens the newest notification large, with its poster. Its
+    // capture is an extra, whatever the press showed.
     private func pressNewestNotification(_ titles: [String], name: String) {
-        guard isWide(app.windows.firstMatch.frame), let newest = titles.first else { return }
+        guard isPad, let newest = titles.first else { return }
         let element = notification(newest)
         guard element.isHittable else { return }
         element.press(forDuration: longPressDuration)
@@ -242,11 +253,20 @@ extension ScreenshotDriver {
         capture(name)
     }
 
-    private func closeNotificationCenter() throws {
-        XCUIDevice.shared.press(.home)
-        RunLoop.current.run(until: Date().addingTimeInterval(settleTime))
+    // The app counts as in front even under Notification Center, so the list going away is what
+    // proves it closed. A home press may close only an open preview.
+    private func closeNotificationCenter(listing titles: [String]) throws {
+        let newest = notification(titles.first ?? "")
+        for _ in 0..<homePresses {
+            XCUIDevice.shared.press(.home)
+            RunLoop.current.run(until: Date().addingTimeInterval(settleTime))
+            if test.waitUntilGone(newest, timeout: shortTimeout) {
+                break
+            }
+        }
         app.activate()
-        guard app.wait(for: .runningForeground, timeout: shortTimeout) else {
+        let back = waitUntil(shortTimeout) { !newest.exists && self.app.tagged(listTab).isHittable }
+        guard back else {
             throw ScreenshotFailure("the app did not come back after Notification Center")
         }
     }
@@ -287,6 +307,12 @@ let columnTolerance: CGFloat = 20
 
 /// How long a press opens a notification large.
 let longPressDuration: TimeInterval = 1.5
+
+/// How long Notification Center may take to list notifications once pulled down.
+let revealWait: TimeInterval = 3
+
+/// How many home presses closing Notification Center may take.
+let homePresses = 2
 
 /// Where across the screen Notification Center is pulled down: left of centre, since the right
 /// side opens Control Center. Normalized, as the next five.

@@ -2,7 +2,8 @@ import XCTest
 
 /// Runs a screenshot scenario against the real app: composes each screen the steps describe,
 /// checks it, and keeps it as attachments the `store-screenshots` job collects. Data steps live in
-/// `ScreenshotDriver+Data.swift`, checks and captures in `ScreenshotDriver+Shots.swift`.
+/// `ScreenshotDriver+Data.swift`, finding and scrolling in `ScreenshotDriver+Lists.swift`, checks
+/// and captures in `ScreenshotDriver+Shots.swift`.
 @MainActor
 final class ScreenshotDriver {
     /// The names of the shots kept so far, in order.
@@ -10,6 +11,9 @@ final class ScreenshotDriver {
 
     let test: XCTestCase
     let app: XCUIApplication
+
+    /// Whether the scenario runs on an iPad, whose list has columns and turns on its side.
+    let isPad: Bool
 
     /// Every title the scenario names, to tell "Cyberpunk: Edgerunners" from its sequel.
     let titles: [String]
@@ -37,6 +41,7 @@ final class ScreenshotDriver {
         self.test = test
         self.titles = titles
         app = XCUIApplication()
+        isPad = UIDevice.current.userInterfaceIdiom == .pad
     }
 
     /// Launches the app upright and fails when the screenshots would not have `expectedSize`.
@@ -48,6 +53,14 @@ final class ScreenshotDriver {
         guard size == expectedSize else {
             throw ScreenshotFailure("the screenshots are \(size), not \(expectedSize)")
         }
+        // The zone Notification Center's clock follows, which the CI job picks.
+        let zone = TimeZone.current
+        let clock = XCTAttachment(
+            string: "\(zone.identifier), \(zone.secondsFromGMT()) s from GMT, at \(Date())"
+        )
+        clock.name = "simulator clock"
+        clock.lifetime = .keepAlways
+        test.add(clock)
     }
 
     func run(_ steps: [ScreenshotStep]) throws {
@@ -111,9 +124,9 @@ final class ScreenshotDriver {
     }
 
     /// Closes what a relaunch may have kept open: the information dialog and the search field.
-    func normalize() {
+    func normalize() throws {
         test.closeTheDialogIfKept(in: app)
-        closeSearch()
+        try closeSearch()
     }
 
     var searchField: XCUIElement {
@@ -121,23 +134,50 @@ final class ScreenshotDriver {
     }
 
     /// Opens the tab the other way round first, so its screen is built anew: a fresh Favorites
-    /// turns extra info off, and a fresh Main starts at the top of its list.
-    func openTabAnew(_ tab: String) {
-        let other = tab == listTab ? favoritesTab : listTab
-        test.waitFor(app.tagged(other)).tap()
-        RunLoop.current.run(until: Date().addingTimeInterval(settleTime))
-        app.tagged(tab).tap()
-        if tab == listTab {
-            test.waitFor(app.tagged("ongoing_button"))
-        } else {
-            test.waitFor(app.allTagged(favoriteItemTag).firstMatch)
+    /// turns extra info off, and a fresh Main starts at the top of its list. Tapping the tab
+    /// already shown keeps its screen.
+    func openTabAnew(_ tab: String) throws {
+        try show(tab == listTab ? favoritesTab : listTab)
+        try show(tab)
+    }
+
+    // A tap that lands while the screen still settles is lost, so a tab whose screen does not
+    // show is tapped once more.
+    private func show(_ tab: String) throws {
+        let button = test.waitFor(app.tagged(tab))
+        button.tap()
+        let quick = waitUntil(shortTimeout) { self.isShown(tab) }
+        if !quick {
+            button.tap()
+        }
+        let shown = waitUntil(loadTimeout) { self.isShown(tab) }
+        guard shown else {
+            throw ScreenshotFailure("the screen of \(tab) did not open")
         }
     }
 
+    private func isShown(_ tab: String) -> Bool {
+        let onMain = app.tagged("ongoing_button").exists
+        let favorite = app.allTagged(favoriteItemTag).firstMatch.exists
+        if tab == listTab {
+            return onMain && !favorite
+        }
+        let emptyText = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label BEGINSWITH %@", favoritesEmptyStart)).firstMatch
+        return !onMain && (favorite || emptyText.exists)
+    }
+
     private func openList(section: String, top: Anchor?, dateMode: [String]) throws {
-        normalize()
-        openTabAnew(listTab)
-        app.tagged(section).tap()
+        try normalize()
+        try openTabAnew(listTab)
+        let sectionTab = app.tagged(section)
+        sectionTab.tap()
+        let selected = waitUntil(shortTimeout) { sectionTab.isSelected }
+        if !selected {
+            sectionTab.tap()
+        }
+        // The section's own page replaces the one shown before it.
+        RunLoop.current.run(until: Date().addingTimeInterval(sectionLoadTime))
         try measureListStart(itemTag: listItemTag)
         if let top {
             try align(to: top, itemTag: listItemTag)
@@ -147,8 +187,8 @@ final class ScreenshotDriver {
     }
 
     private func openSearchResults(for query: String, dateMode: [String], shows: [String]) throws {
-        normalize()
-        openTabAnew(listTab)
+        try normalize()
+        try openTabAnew(listTab)
         try search(query)
         let found = waitUntil(loadTimeout) {
             (dateMode + shows).allSatisfy { self.mainCard($0) != nil }
@@ -162,8 +202,8 @@ final class ScreenshotDriver {
     }
 
     func openFavorites(top: Anchor?, extraInfo: [String]) throws {
-        normalize()
-        openTabAnew(favoritesTab)
+        try normalize()
+        try openTabAnew(favoritesTab)
         try measureListStart(itemTag: favoriteItemTag)
         if let top {
             try align(to: top, itemTag: favoriteItemTag)
@@ -178,117 +218,6 @@ final class ScreenshotDriver {
         let wide = orientation.isLandscape
         // A narrow window stays upright whatever the device does.
         _ = waitUntil(shortTimeout) { (window.frame.width > window.frame.height) == wide }
-        RunLoop.current.run(until: Date().addingTimeInterval(settleTime))
-    }
-
-    // MARK: - Finding things
-
-    /// The Main card with this exact title, found by the card's frame around the title text.
-    func mainCard(_ title: String) -> XCUIElement? {
-        let text = app.descendants(matching: .any)
-            .matching(NSPredicate(format: "label == %@", title)).firstMatch
-        guard text.exists else { return nil }
-        let centre = CGPoint(x: text.frame.midX, y: text.frame.midY)
-        return app.allTagged(listItemTag).allElementsBoundByIndex
-            .first { $0.frame.contains(centre) }
-    }
-
-    /// The favorite whose merged label holds this title and no longer title that contains it.
-    /// A favorite showing extra info holds no title at all.
-    func favoriteCard(_ title: String) -> XCUIElement? {
-        let longer = titles.filter { $0 != title && $0.contains(title) }
-        return app.allTagged(favoriteItemTag).allElementsBoundByIndex.first { item in
-            item.label.contains(title) && !longer.contains { item.label.contains($0) }
-        }
-    }
-
-    /// The element with this label inside `frame`, a card's part laid out beside it in the tree.
-    func element(labelled label: String, inside frame: CGRect) -> XCUIElement? {
-        app.descendants(matching: .any)
-            .matching(NSPredicate(format: "label == %@", label))
-            .allElementsBoundByIndex
-            .first { frame.contains(CGPoint(x: $0.frame.midX, y: $0.frame.midY)) }
-    }
-
-    /// The bell inside a card's frame.
-    func bell(inside frame: CGRect) -> XCUIElement? {
-        app.allTagged("notification_button").allElementsBoundByIndex
-            .first { frame.contains(CGPoint(x: $0.frame.midX, y: $0.frame.midY)) }
-    }
-
-    /// The top of the tab bar: what lies lower is hidden.
-    var tabBarTop: CGFloat {
-        min(app.tagged(listTab).frame.minY, app.tagged(favoritesTab).frame.minY)
-    }
-
-    /// The bottom of Main's top bar, drawn over the list; zero where there is none.
-    var topBarBottom: CGFloat {
-        let search = app.tagged("search_button")
-        return search.exists ? search.frame.maxY : 0
-    }
-
-    // MARK: - Scrolling
-
-    func measureListStart(itemTag: String) throws {
-        let loaded = waitUntil(loadTimeout) { self.app.allTagged(itemTag).firstMatch.exists }
-        guard loaded else {
-            throw ScreenshotFailure("the list did not load")
-        }
-        RunLoop.current.run(until: Date().addingTimeInterval(settleTime))
-        let frames = app.allTagged(itemTag).allElementsBoundByIndex.map { $0.frame }
-        listTop = frames.map(\.minY).min() ?? 0
-        listLeft = frames.map(\.minX).min() ?? 0
-    }
-
-    /// Scrolls until the anchor's card sits within a few points below its target. A long move is
-    /// one drag; a short one is a pair, out and back, whose touch slops cancel.
-    private func align(to anchor: Anchor, itemTag: String) throws {
-        let target = listTop - anchor.raisedBy
-        for _ in 0..<maxAlignDrags {
-            let card = itemTag == listItemTag ? mainCard(anchor.title) : favoriteCard(anchor.title)
-            guard let card else {
-                let visible = tabBarTop - max(listTop, topBarBottom)
-                drag(by: -visible * revealFraction, itemTag: itemTag)
-                continue
-            }
-            let error = card.frame.minY - target
-            if error >= 0, error <= alignTolerance {
-                return
-            }
-            if abs(error) >= minimumDrag {
-                drag(by: -error, itemTag: itemTag)
-            } else {
-                let outward: CGFloat = error > 0 ? -overshoot : overshoot
-                drag(by: -error + outward, itemTag: itemTag)
-                drag(by: -outward, itemTag: itemTag)
-            }
-        }
-        throw ScreenshotFailure("\(anchor.title) did not settle at the top of the list")
-    }
-
-    /// Moves the list's content by `deltaY` points with one press-and-drag: a short press, so no
-    /// long press fires, and a hold at the end, so the list does not fling. The drag starts away
-    /// from the top bar and, on Favorites, over the posters' column.
-    func drag(by deltaY: CGFloat, itemTag: String) {
-        let window = app.windows.firstMatch.frame
-        let upper = max(listTop, topBarBottom) + dragMargin
-        let lower = tabBarTop - dragMargin
-        let length = min(abs(deltaY), lower - upper)
-        let startY = deltaY < 0 ? lower : upper
-        let endY = deltaY < 0 ? startY - length : startY + length
-        let startX = itemTag == favoriteItemTag
-            ? window.minX + window.width * posterColumnFraction
-            : window.midX
-        let origin = app.coordinate(withNormalizedOffset: .zero)
-        let offsetX = startX - app.frame.minX
-        let start = origin.withOffset(CGVector(dx: offsetX, dy: startY - app.frame.minY))
-        let end = origin.withOffset(CGVector(dx: offsetX, dy: endY - app.frame.minY))
-        start.press(
-            forDuration: pressDuration,
-            thenDragTo: end,
-            withVelocity: .slow,
-            thenHoldForDuration: holdDuration
-        )
         RunLoop.current.run(until: Date().addingTimeInterval(settleTime))
     }
 
@@ -322,6 +251,9 @@ struct ScreenshotFailure: Error, CustomStringConvertible {
     }
 }
 
+/// How Favorites' text for an empty list starts.
+let favoritesEmptyStart = "You haven"
+
 let listTab = "anime_list_button"
 let favoritesTab = "anime_favorites_button"
 let listItemTag = "anime_list_item"
@@ -333,29 +265,5 @@ let shortTimeout: TimeInterval = 10
 /// How long the screen takes to settle after a tap or a drag.
 let settleTime: TimeInterval = 0.6
 
-/// The press before a drag moves: well under the long-press timeout.
-let pressDuration: TimeInterval = 0.1
-
-/// The hold at a drag's end that stops the list from flinging.
-let holdDuration: TimeInterval = 0.5
-
-/// The shortest drag: longer than any touch slop, so it never counts as a tap.
-let minimumDrag: CGFloat = 40
-
-/// How far past the target the first drag of a pair goes.
-let overshoot: CGFloat = 60
-
-/// How far below its target an anchor's top may settle.
-let alignTolerance: CGFloat = 8
-
-/// How many drags an alignment may take.
-let maxAlignDrags = 30
-
-/// How much of the visible list a drag scrolls while the anchor is still out of sight.
-let revealFraction: CGFloat = 0.6
-
-/// How far from the list's edges a drag starts and ends.
-let dragMargin: CGFloat = 30
-
-/// Where across a favorite a drag starts: over the poster, clear of the counter's arrows.
-let posterColumnFraction: CGFloat = 0.15
+/// How long a Main section takes to load its first page after its tab is tapped.
+let sectionLoadTime: TimeInterval = 3

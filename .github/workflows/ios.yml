@@ -454,7 +454,7 @@ jobs:
       && needs.plan.outputs.store_screenshots == 'true' }}
     needs: [project, plan]
     runs-on: ${{ needs.plan.outputs.macos }}
-    timeout-minutes: 180
+    timeout-minutes: 240
     strategy:
       fail-fast: false
       matrix:
@@ -463,8 +463,6 @@ jobs:
       MEDIA_DIR: ${{ github.workspace }}/build/ios-store
       RESULTS_DIR: ${{ github.workspace }}/build/ios-store-results
       SIM_DEVICE: ${{ matrix.device.device }}
-      # The minutes from the boot to the Notification Center shot, for the time zone below.
-      NOTIFICATION_CENTER_DELAY_MINUTES: 30
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/ios-toolchain
@@ -486,12 +484,18 @@ jobs:
           products="$GITHUB_WORKSPACE/build/DerivedData/Build/Products"
           echo "XCTESTRUN=$(ls "$products"/*.xctestrun | head -1)" >> "$GITHUB_ENV"
 
-      # Notification Center's large clock shows the local time, so the runner takes the whole-hour
-      # zone where the expected moment of that shot falls in the 10 o'clock hour. An Etc zone
-      # inverts the sign: Etc/GMT-3 is three hours ahead of UTC.
+      # Notification Center's large clock shows the local time. So the runner takes the whole-hour
+      # zone in which that shot, minutes from now, falls in the 10 o'clock hour. An Etc zone
+      # inverts the sign: Etc/GMT-3 is three hours ahead of UTC. The simulator service restarts,
+      # so the simulator booted next reads the new zone.
       - name: Set the time zone
         run: |
-          target=$(( $(date -u +%s) + NOTIFICATION_CENTER_DELAY_MINUTES * 60 ))
+          # The minutes a first try takes to reach Notification Center on each device.
+          case $SIM_DEVICE in
+            iPad*) delay=16 ;;
+            *) delay=12 ;;
+          esac
+          target=$(( $(date -u +%s) + delay * 60 ))
           offset=$(( 10 - 10#$(date -u -r "$target" +%H) ))
           if [ "$offset" -lt -12 ]; then offset=$(( offset + 24 )); fi
           if [ "$offset" -gt 14 ]; then offset=$(( offset - 24 )); fi
@@ -503,23 +507,37 @@ jobs:
             zone="Etc/GMT"
           fi
           sudo ln -sf "/usr/share/zoneinfo/$zone" /etc/localtime
+          xcrun simctl shutdown all || true
+          killall com.apple.CoreSimulator.CoreSimulatorService || true
           echo "Time zone $zone, local time $(date)"
 
       - name: Boot the simulator
         run: bash .github/scripts/ios-boot-simulator.sh
 
+      # The status bar reads 10:00 local time. A full date sets the date an iPad shows too; the
+      # plain time is the fallback. A Wi-Fi iPad shows no cellular bars.
       - name: Dress the simulator
         run: |
           xcrun simctl ui "$SIM_UDID" appearance dark
-          xcrun simctl status_bar "$SIM_UDID" override --time 10:00 --batteryState charged \
-            --batteryLevel 100 --wifiBars 3 --cellularMode active --cellularBars 4 \
-            || echo "The status bar override failed"
+          ten=$(date -j -f "%Y-%m-%d %H:%M:%S" "$(date +%Y-%m-%d) 10:00:00" +%s)
+          at_ten=$(date -u -r "$ten" +%Y-%m-%dT%H:%M:%SZ)
+          case $SIM_DEVICE in
+            iPad*) cellular=(--cellularMode notSupported) ;;
+            *) cellular=(--cellularMode active --cellularBars 4) ;;
+          esac
+          dress() {
+            xcrun simctl status_bar "$SIM_UDID" override --time "$1" --batteryState charged \
+              --batteryLevel 100 --wifiBars 3 "${cellular[@]}"
+          }
+          dress "$at_ten" || dress 10:00 || echo "The status bar override failed"
           xcrun simctl status_bar "$SIM_UDID" list || true
-          echo "Simulator time: $(xcrun simctl spawn "$SIM_UDID" date)"
+          inside=$(xcrun simctl spawn "$SIM_UDID" date 2> /dev/null || true)
+          echo "Runner time: $(date); simulator time: ${inside:-unknown, the test logs its zone}"
 
-      # A failed try leaves favorites and notifications behind, so each try starts from a fresh
+      # A failed try leaves favorites and notifications behind. So each try starts from a fresh
       # installation: the uninstall removes both, and the test run installs the app again. A
-      # skipped test also ends well, so only the log's passed line counts.
+      # skipped test also ends well, so only the log's passed line counts. Each try has 40
+      # minutes, so a hung one leaves time for the next.
       - name: The store screenshots
         run: |
           passed="Test Case '-\[iosAppUITests\.StoreScreenshotsTests "
@@ -534,6 +552,8 @@ jobs:
             TEST_RUNNER_ANOTI_STORE_SCREENSHOTS=1 xcodebuild test-without-building \
               -xctestrun "$XCTESTRUN" -destination "id=$SIM_UDID" \
               -only-testing:iosAppUITests/StoreScreenshotsTests \
+              -test-timeouts-enabled YES -default-test-execution-time-allowance 2400 \
+              -maximum-test-execution-time-allowance 2400 \
               -resultBundlePath "$RESULTS_DIR/store-try-$try.xcresult" \
               2>&1 | tee "$MEDIA_DIR/store-try-$try.log" || true
             kill -INT "$recorder" 2> /dev/null || true

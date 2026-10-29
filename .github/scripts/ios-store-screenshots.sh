@@ -1,11 +1,11 @@
 #!/bin/bash
 # Collects the App Store screenshots the store-screenshots job of ios.yml kept. Each try's result
-# bundle is exported beforehand to $MEDIA_DIR/attachments/store-try-<n>/, its manifest.json beside
-# the files. Every shot goes to $MEDIA_DIR/store/try-<n>/<name>.png, named after its attachment;
-# one the test marked @landscape is turned upright and loses the marker. Then each shot's size and
-# alpha are checked against what App Store Connect takes, and the passing try, named in
-# $MEDIA_DIR/store-passed-try, must hold all six main shots. Prints a table; exits 1 on any wrong
-# shot, any shot it cannot name, or a missing main shot.
+# bundle is exported beforehand to $MEDIA_DIR/attachments/store-try-<n>/, beside its manifest.json.
+# Every shot goes to $MEDIA_DIR/store/try-<n>/<name>.png, named after its attachment. One the test
+# marked @landscape is turned upright and loses the marker. Each shot's size and alpha are checked
+# against what App Store Connect takes. The passing try, named in $MEDIA_DIR/store-passed-try, must
+# hold all six main shots. Prints a table. Exits 1 on a wrong shot, a shot it cannot name or file,
+# or a missing main shot.
 #
 # Tested by .github/scripts/test/ios-store-screenshots-test.sh.
 set -euo pipefail
@@ -39,7 +39,8 @@ for export in "$media"/attachments/store-try-*/; do
   # after naming one whose name it cannot read.
   if ! list=$(python3 - "$export/manifest.json" <<'PY'
 import json, re, sys
-shot = re.compile(r"^((?:iphone|ipad)-\d\d(?:~[a-z0-9]+)?)(@landscape)?_\d+_[0-9A-Fa-f-]+\.png$")
+shot = re.compile(
+    r"^((?:iphone|ipad)-\d\d(?:~[a-z0-9]+)?)(@landscape)?_\d+_[0-9A-Fa-f-]+(?:\.png)?$")
 bad = False
 for test in json.load(open(sys.argv[1])):
     for attachment in test.get("attachments", []):
@@ -47,11 +48,12 @@ for test in json.load(open(sys.argv[1])):
         if not re.match(r"^(?:iphone|ipad)-", name):
             continue
         match = shot.match(name)
-        if not match:
-            print(f"cannot read the shot name {name}", file=sys.stderr)
+        file = attachment.get("exportedFileName")
+        if not match or not file:
+            print(f"cannot read the shot {name}", file=sys.stderr)
             bad = True
             continue
-        print(attachment["exportedFileName"], match.group(1), "yes" if match.group(2) else "no")
+        print(file, match.group(1), "yes" if match.group(2) else "no")
 sys.exit(1 if bad else 0)
 PY
   ); then
@@ -64,6 +66,11 @@ PY
     device=${name%%-*}
     source="$export$file"
     target="$out/$name.png"
+    if [ ! -f "$source" ]; then
+      echo "try-$try/$name was not exported: no $file"
+      status=1
+      continue
+    fi
     verdict=ok
     if [ "$landscape" = yes ]; then
       # The test keeps a landscape screen as the portrait buffer, the UI turned a quarter.
@@ -82,6 +89,10 @@ done
 
 if [ -f "$media/store-passed-try" ]; then
   passing=$(cat "$media/store-passed-try")
+  if [ -z "$device" ]; then
+    echo "The passing try $passing kept no shots"
+    status=1
+  fi
   for n in 1 2 3 4 5 6; do
     main="${device:-unknown}-0$n"
     if [ ! -f "$media/store/try-$passing/$main.png" ]; then

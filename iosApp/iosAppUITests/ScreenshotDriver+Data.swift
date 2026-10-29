@@ -4,23 +4,25 @@ import XCTest
 extension ScreenshotDriver {
     /// Searches each title and turns its bell on, unless it is on already.
     func follow(_ titles: [String]) throws {
-        normalize()
-        openTabAnew(listTab)
+        try normalize()
+        try openTabAnew(listTab)
         for title in titles {
             try search(title)
-            let found = waitUntil(loadTimeout) { self.mainCard(title) != nil }
-            guard found, let card = mainCard(title), let bell = bell(inside: card.frame) else {
+            let found = waitUntil(loadTimeout) { self.titleBell(title) != nil }
+            guard found, let button = titleBell(title) else {
                 throw ScreenshotFailure("the search did not show \(title) with its bell")
             }
-            if bell.label == turnOnNotifications {
-                bell.tap()
-                let turnedOn = waitUntil(shortTimeout) { bell.label == turnOffNotifications }
+            if button.label == turnOnNotifications {
+                button.tap()
+                let turnedOn = waitUntil(shortTimeout) {
+                    self.titleBell(title)?.label == turnOffNotifications
+                }
                 guard turnedOn else {
                     throw ScreenshotFailure("the bell of \(title) did not turn on")
                 }
             }
             expectedFavorites.insert(title)
-            closeSearch()
+            try closeSearch()
         }
     }
 
@@ -34,16 +36,27 @@ extension ScreenshotDriver {
             }
         }
         test.waitFor(searchField, timeout: shortTimeout)
-        searchField.tap()
-        clearSearchField()
+        try clearSearchField()
         searchField.typeText(query + "\n")
         try hideKeyboard()
+        // Results arrive in more than one update while the query settles.
+        RunLoop.current.run(until: Date().addingTimeInterval(searchSettleTime))
     }
 
-    func closeSearch() {
+    /// Closes Main's search field, whose close button takes the place of the top bar's tabs.
+    func closeSearch() throws {
         guard searchField.exists else { return }
-        app.tagged("search_button").tap()
-        _ = test.waitUntilGone(searchField, timeout: shortTimeout)
+        let close = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label == %@", closeSearchLabel)).firstMatch
+        test.waitFor(close, timeout: shortTimeout).tap()
+        guard test.waitUntilGone(searchField, timeout: shortTimeout) else {
+            throw ScreenshotFailure("the search field stayed open")
+        }
+    }
+
+    // Found anew on every read: the results can reorder while the query settles.
+    private func titleBell(_ title: String) -> XCUIElement? {
+        mainCard(title).flatMap { card in bell(inside: card.frame) }
     }
 
     /// One update pass that notifies exactly `titles`; see `AppDatabase.lowerAiredEpisodes`.
@@ -51,7 +64,7 @@ extension ScreenshotDriver {
     func notify(_ titles: [String]) throws {
         try editDatabase { try $0.lowerAiredEpisodes(of: titles) }
         expectedNewEpisodes = Set(titles)
-        openTabAnew(favoritesTab)
+        try openTabAnew(favoritesTab)
         try measureListStart(itemTag: favoriteItemTag)
         pullToRefresh()
         guard !notified(titles, within: firstPassTimeout) else { return }
@@ -77,13 +90,13 @@ extension ScreenshotDriver {
 
     /// Ends the app, runs `body` on its database, and starts the app again.
     func editDatabase(_ body: (AppDatabase) throws -> Void) throws {
-        let database = try database()
+        let store = try database()
         app.terminate()
         let ended = waitUntil(shortTimeout) { self.app.state == .notRunning }
         guard ended else {
             throw ScreenshotFailure("the app did not end before a database edit")
         }
-        try body(database)
+        try body(store)
         relaunch()
     }
 
@@ -128,10 +141,25 @@ extension ScreenshotDriver {
         )
     }
 
-    private func clearSearchField() {
-        let value = searchField.value as? String ?? ""
-        guard !value.isEmpty, value != searchHint else { return }
-        searchField.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: value.count))
+    // The field keeps its text when closed. A tap puts the caret where it lands and a backspace
+    // deletes only what lies before it, so each round taps right of the remaining text, left of
+    // the close button.
+    private func clearSearchField() throws {
+        let caret = searchField.coordinate(withNormalizedOffset: caretOffset)
+        for _ in 0..<clearRounds {
+            caret.tap()
+            let value = searchField.value as? String ?? ""
+            if value.isEmpty || value == searchHint {
+                return
+            }
+            searchField.typeText(
+                String(repeating: XCUIKeyboardKey.delete.rawValue, count: value.count)
+            )
+        }
+        let left = searchField.value as? String ?? ""
+        guard left.isEmpty || left == searchHint else {
+            throw ScreenshotFailure("the search field kept \"\(left)\"")
+        }
     }
 
     // Submitting closes the keyboard of a single-line field. A simulator with a hardware keyboard
@@ -160,6 +188,20 @@ let withNewEpisodes = "with new episodes"
 
 /// The search field's placeholder, which an empty field reports as its value.
 let searchHint = "Enter the name of anime"
+
+/// The label of the button that closes the search field.
+let closeSearchLabel = "Close search input field"
+
+/// Where in the search field a tap puts the caret: right of short text, left of the close button.
+let caretOffset = CGVector(dx: caretX, dy: caretY)
+let caretX: CGFloat = 0.7
+let caretY: CGFloat = 0.5
+
+/// How many tap-and-delete rounds clearing the search field may take.
+let clearRounds = 4
+
+/// How long search results take to settle after the query is submitted.
+let searchSettleTime: TimeInterval = 2
 
 /// The keyboard keys that submit a field, by the names iOS gives them.
 let submitKeys = ["search", "Search", "Done", "done", "Return", "return"]
