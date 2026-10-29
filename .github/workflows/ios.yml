@@ -487,9 +487,9 @@ jobs:
           echo "XCTESTRUN=$(ls "$products"/*.xctestrun | head -1)" >> "$GITHUB_ENV"
 
       # Notification Center's large clock shows the local time. So the runner takes the whole-hour
-      # zone in which that shot, minutes from now, falls in the 10 o'clock hour. An Etc zone
-      # inverts the sign: Etc/GMT-3 is three hours ahead of UTC. The simulator service restarts,
-      # so the simulator booted next reads the new zone.
+      # zone in which that shot, minutes from now, falls in the 10 o'clock hour. The zones named
+      # Etc/GMT invert the sign: Etc/GMT-3 is three hours ahead of UTC. The simulator service
+      # restarts, so the simulator booted next reads the new zone.
       - name: Set the time zone
         run: |
           # The minutes a first try takes to reach Notification Center on each device.
@@ -537,7 +537,7 @@ jobs:
           echo "Runner time: $(date); simulator time: ${inside:-unknown, the test logs its zone}"
 
       # A failed try leaves favorites and notifications behind. So each try starts from a fresh
-      # installation: the uninstall removes both, and the test run installs the app again. A
+      # installation: uninstalling removes both, and the test run installs the app again. A
       # skipped test also ends well, so only the log's passed line counts. Each try has 40
       # minutes, so a hung one leaves time for the next.
       - name: The store screenshots
