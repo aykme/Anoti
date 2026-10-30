@@ -143,7 +143,8 @@ extension ScreenshotDriver {
             withNormalizedOffset: CGVector(dx: middleAcross, dy: pressDown)
         )
         var opened = false
-        for _ in 0..<pressTries where !opened {
+        // A notification gone from the screen, or covered, takes no further press.
+        for _ in 0..<pressTries where !opened && cell.isHittable {
             middle.press(forDuration: longPressDuration)
             opened = waitUntil(openTimeout) {
                 Self.change(from: before, to: self.screenThumbnail()) > openedChange
@@ -170,7 +171,7 @@ extension ScreenshotDriver {
                 data: buffer.baseAddress,
                 width: thumbnailWidth,
                 height: thumbnailHeight,
-                bitsPerComponent: thumbnailBitsPerPixel,
+                bitsPerComponent: thumbnailBitsPerComponent,
                 bytesPerRow: thumbnailWidth,
                 space: CGColorSpaceCreateDeviceGray(),
                 bitmapInfo: CGImageAlphaInfo.none.rawValue
@@ -245,7 +246,7 @@ let posterLoadTime: TimeInterval = 2
 /// The size of the grey thumbnail a screen is compared by, one byte a pixel.
 let thumbnailWidth = 32
 let thumbnailHeight = 64
-let thumbnailBitsPerPixel = 8
+let thumbnailBitsPerComponent = 8
 
 /// Added to the name of each capture of a pressed notification. The collector reads a name with
 /// one tilde only, so these are numbers.

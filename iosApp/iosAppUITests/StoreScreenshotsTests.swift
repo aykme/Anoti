@@ -65,7 +65,7 @@ final class StoreScreenshotsTests: XCTestCase {
 
     /// Whether each device's Notification Center shot also opens the newest notification large,
     /// with its poster, kept as extras. Off, the shot lists only the scenario's own titles. An
-    /// iPhone simulator's Notification Center opens none for a test's press, XCTest's or AXe's.
+    /// iPhone simulator's Notification Center opens none for an automated press.
     private static let phoneOpensNewest = false
     private static let padOpensNewest = true
 
