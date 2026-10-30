@@ -128,86 +128,26 @@ extension ScreenshotDriver {
         return frames.count == titles.count && rows.count == titles.count
     }
 
-    // A long press opens the newest notification large, with its poster. iOS takes the test's
-    // press only now and then, and the opened notification is missing from the element tree. So
-    // each press below is tried until the screen changes as much as an opened one changes it.
-    // The captures are extras, whatever the presses showed.
-    func pressNewestNotification(_ titles: [String], name: String) {
-        guard let newest = titles.first else { return }
-        let cell = notification(newest)
-        guard cell.isHittable else {
-            attachSpringboardTree()
-            return
-        }
-        let before = screenThumbnail()
-        for press in notificationPresses {
-            cell.coordinate(withNormalizedOffset: CGVector(dx: press.across, dy: pressDown))
-                .press(forDuration: press.duration)
-            let opened = waitUntil(openTimeout) {
-                Self.change(from: before, to: self.screenThumbnail()) > openedChange
-            }
-            if opened {
-                let note = XCTAttachment(
-                    string: "opened by a press of \(press.duration) s at \(press.across) across"
-                )
-                note.name = "long press"
-                note.lifetime = .keepAlways
-                test.add(note)
-                // The poster arrives after the notification opens.
-                RunLoop.current.run(until: Date().addingTimeInterval(posterLoadTime))
-                break
-            }
-        }
-        for number in pressedCaptureNumbers {
-            RunLoop.current.run(until: Date().addingTimeInterval(captureSpacing))
-            capture(name + number)
-        }
-    }
-
-    // The screen drawn into a few grey pixels: enough to tell a large change from a small one.
-    private func screenThumbnail() -> [UInt8] {
-        guard let image = XCUIScreen.main.screenshot().image.cgImage else { return [] }
-        var pixels = [UInt8](repeating: 0, count: thumbnailWidth * thumbnailHeight)
-        pixels.withUnsafeMutableBytes { buffer in
-            let context = CGContext(
-                data: buffer.baseAddress,
-                width: thumbnailWidth,
-                height: thumbnailHeight,
-                bitsPerComponent: thumbnailBitsPerPixel,
-                bytesPerRow: thumbnailWidth,
-                space: CGColorSpaceCreateDeviceGray(),
-                bitmapInfo: CGImageAlphaInfo.none.rawValue
-            )
-            let area = CGRect(x: 0, y: 0, width: thumbnailWidth, height: thumbnailHeight)
-            context?.draw(image, in: area)
-        }
-        return pixels
-    }
-
-    // The mean difference of two thumbnails, from 0 for the same to 1 for black against white.
-    private static func change(from before: [UInt8], to after: [UInt8]) -> Double {
-        guard !before.isEmpty, before.count == after.count else { return 0 }
-        let total = zip(before, after).reduce(0) { sum, pair in
-            sum + abs(Int(pair.0) - Int(pair.1))
-        }
-        return Double(total) / Double(before.count * Int(UInt8.max))
-    }
-
     // The app counts as in front even under Notification Center, so the list going away is what
     // proves it closed. A home press may close only an open preview.
     func closeNotificationCenter(listing titles: [String]) throws {
         let newest = notification(titles.first ?? "")
+        dismissNotificationCenter(newest)
+        app.activate()
+        let back = waitUntil(shortTimeout) { !newest.exists && self.app.tagged(listTab).isHittable }
+        guard back else {
+            throw ScreenshotFailure("the app did not come back after Notification Center")
+        }
+    }
+
+    /// Presses home until Notification Center no longer lists `newest`.
+    func dismissNotificationCenter(_ newest: XCUIElement) {
         for _ in 0..<homePresses {
             XCUIDevice.shared.press(.home)
             RunLoop.current.run(until: Date().addingTimeInterval(settleTime))
             if test.waitUntilGone(newest, timeout: shortTimeout) {
                 break
             }
-        }
-        app.activate()
-        let back = waitUntil(shortTimeout) { !newest.exists && self.app.tagged(listTab).isHittable }
-        guard back else {
-            throw ScreenshotFailure("the app did not come back after Notification Center")
         }
     }
 
@@ -226,41 +166,6 @@ extension ScreenshotDriver {
         test.keepScreenshot("springboard screen")
     }
 }
-
-/// The long presses tried in turn on the newest notification: how long each holds, and where
-/// across the notification it lands, its middle or its icon's side.
-let notificationPresses: [(duration: TimeInterval, across: CGFloat)] = [
-    (longHold, middleAcross), (mediumHold, middleAcross), (shortHold, iconSideAcross),
-    (longestHold, middleAcross)
-]
-let longHold: TimeInterval = 2.5
-let mediumHold: TimeInterval = 1.5
-let shortHold: TimeInterval = 1
-let longestHold: TimeInterval = 3.5
-let middleAcross: CGFloat = 0.5
-let iconSideAcross: CGFloat = 0.2
-
-/// Where down the notification a press lands: its middle.
-let pressDown: CGFloat = 0.5
-
-/// How long a press may take to open a notification large.
-let openTimeout: TimeInterval = 6
-
-/// How much of the screen an opened notification changes: it blurs the list and shows a poster.
-/// A highlighted row or a ticking time changes far less.
-let openedChange = 0.05
-
-/// How long the poster of an opened notification takes to show.
-let posterLoadTime: TimeInterval = 2
-
-/// The size of the grey thumbnail a screen is compared by, one byte a pixel.
-let thumbnailWidth = 32
-let thumbnailHeight = 64
-let thumbnailBitsPerPixel = 8
-
-/// Added to the name of each capture of a pressed notification. The collector reads a name with
-/// one tilde only, so these are numbers.
-let pressedCaptureNumbers = ["", "2", "3"]
 
 /// How long Notification Center may take to list notifications once pulled down.
 let revealWait: TimeInterval = 3

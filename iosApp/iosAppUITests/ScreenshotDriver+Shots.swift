@@ -72,7 +72,7 @@ extension ScreenshotDriver {
         }
         if case let .notificationCenter(titles, opensNewest) = screen {
             if opensNewest {
-                pressNewestNotification(titles, name: name + "~pressed")
+                openNewestNotification(titles, name: name)
             }
             try closeNotificationCenter(listing: titles)
         }

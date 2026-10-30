@@ -6,8 +6,9 @@ import XCTest
 /// before it is kept, so a wrong one fails the run instead of reaching the store.
 ///
 /// Data steps live in `ScreenshotDriver+Data.swift`, finding and scrolling in
-/// `ScreenshotDriver+Lists.swift`, checks and captures in `ScreenshotDriver+Shots.swift`, and
-/// Notification Center in `ScreenshotDriver+NotificationCenter.swift`.
+/// `ScreenshotDriver+Lists.swift`, checks and captures in `ScreenshotDriver+Shots.swift`,
+/// Notification Center in `ScreenshotDriver+NotificationCenter.swift`, and opening its newest
+/// notification in `ScreenshotDriver+OpeningNotification.swift`.
 @MainActor
 final class ScreenshotDriver {
     let test: XCTestCase
