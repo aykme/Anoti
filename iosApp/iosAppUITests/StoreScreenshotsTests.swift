@@ -77,10 +77,19 @@ final class StoreScreenshotsTests: XCTestCase {
     private static let edgerunners2 = "Cyberpunk: Edgerunners 2"
     private static let maou = "Maou 2099"
 
+    /// Ongoing titles that only lengthen Notification Center's list. A long list puts the newest
+    /// notification high, so it opens large with others still showing below it. An iPad's list
+    /// takes all six, an iPhone's room under the clock only two.
+    private static let listFillers = [
+        "Chiikawa", "Xian Ni", "Hotaru no Yomeiri", "Koori no Jouheki 2nd Season",
+        "Ao no Hako Season 2", "Tensei shitara Ken deshita II"
+    ]
+    private static let phoneListFillers = Array(listFillers.prefix(2))
+
     private static let titles = [
         steelBallRun, blackClover, onePiece, kusuriya, sekaiSaikou, mashle, bocchi, frierenGold,
         frieren2, dandadan, edgerunners, edgerunners2, maou
-    ]
+    ] + listFillers
 
     /// iPhone 17 Pro, upright throughout.
     private static let iPhoneSteps: [ScreenshotStep] = [
@@ -91,19 +100,23 @@ final class StoreScreenshotsTests: XCTestCase {
         .shoot("iphone-02"),
         .search("cyberpunk", shows: [edgerunners, edgerunners2]),
         .shoot("iphone-03"),
-        .follow([blackClover, frieren2, dandadan]),
-        .notify([edgerunners2]),
+        .follow([blackClover, frieren2, dandadan] + phoneListFillers),
+        .notify([edgerunners2] + phoneListFillers),
         .pause(60),
         .notify([blackClover, steelBallRun]),
         .pause(60),
         .notify([frieren2]),
-        .notificationCenter([frieren2, steelBallRun, blackClover, edgerunners2]),
+        .notificationCenter([frieren2, steelBallRun, blackClover, edgerunners2] + phoneListFillers),
         .shoot("iphone-05"),
         .database(DatabaseEdit(
+            unfollow: phoneListFillers,
             newEpisodes: [edgerunners2, blackClover, steelBallRun],
             episodesViewed: [frieren2: 10, blackClover: 4, dandadan: 0]
         )),
-        .favorites(top: Anchor(title: frieren2), extraInfo: [frieren2, blackClover, dandadan]),
+        .favorites(
+            top: Anchor(title: frieren2, raisedBy: 58),
+            extraInfo: [frieren2, blackClover, dandadan]
+        ),
         .shoot("iphone-06"),
         .database(DatabaseEdit(
             unfollow: [frieren2, dandadan],
@@ -125,18 +138,18 @@ final class StoreScreenshotsTests: XCTestCase {
         .turn(.portrait),
         .search("cyberpunk", dateMode: [maou], shows: [edgerunners, edgerunners2]),
         .shoot("ipad-03"),
-        .follow([blackClover, kusuriya, dandadan, onePiece, frieren2]),
-        .notify([frieren2, blackClover, kusuriya, steelBallRun]),
+        .follow([blackClover, kusuriya, dandadan, onePiece, frieren2] + listFillers),
+        .notify([frieren2, blackClover, kusuriya, steelBallRun] + listFillers),
         .pause(60),
         .notify([onePiece]),
         .pause(60),
         .notify([edgerunners2]),
         .notificationCenter([
             edgerunners2, onePiece, steelBallRun, kusuriya, blackClover, frieren2
-        ]),
+        ] + listFillers),
         .shoot("ipad-05"),
         .database(DatabaseEdit(
-            unfollow: [frieren2, onePiece],
+            unfollow: [frieren2, onePiece] + listFillers,
             newEpisodes: [edgerunners2, kusuriya, steelBallRun]
         )),
         .favorites(),

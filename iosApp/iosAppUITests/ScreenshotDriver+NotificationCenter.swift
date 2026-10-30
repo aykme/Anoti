@@ -115,15 +115,17 @@ extension ScreenshotDriver {
         return frames.count == titles.count && rows.count == titles.count
     }
 
-    // On a wide screen a long press opens the newest notification large, with its poster. Its
-    // capture is an extra, whatever the press showed.
+    // A long press opens the newest notification large, with its poster, which can take seconds
+    // to open. Its captures are extras, whatever the press showed.
     func pressNewestNotification(_ titles: [String], name: String) {
-        guard isPad, let newest = titles.first else { return }
+        guard let newest = titles.first else { return }
         let element = notification(newest)
         guard element.isHittable else { return }
         element.press(forDuration: longPressDuration)
-        RunLoop.current.run(until: Date().addingTimeInterval(captureSpacing))
-        capture(name)
+        for number in pressedCaptureNumbers {
+            RunLoop.current.run(until: Date().addingTimeInterval(captureSpacing))
+            capture(name + number)
+        }
     }
 
     // The app counts as in front even under Notification Center, so the list going away is what
@@ -161,7 +163,11 @@ extension ScreenshotDriver {
 }
 
 /// How long a press opens a notification large.
-let longPressDuration: TimeInterval = 1.5
+let longPressDuration: TimeInterval = 2.5
+
+/// Added to the name of each capture of a pressed notification. The collector reads a name with
+/// one tilde only, so these are numbers.
+let pressedCaptureNumbers = ["", "2", "3"]
 
 /// How long Notification Center may take to list notifications once pulled down.
 let revealWait: TimeInterval = 3
