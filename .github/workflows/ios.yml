@@ -521,45 +521,17 @@ jobs:
           echo "The status bar time: $dressed"
           xcrun simctl status_bar "$SIM_UDID" list || true
 
-      # AXe presses through the simulator's own touch input, not through XCTest. The test asks
-      # for such a press when XCTest's long press leaves a notification closed, and goes on
-      # without it when AXe is missing.
-      - name: Install AXe
-        continue-on-error: true
-        run: brew install cameroncooke/axe/axe && axe --version
-
       # A failed try leaves favorites and notifications behind. So each try starts from a fresh
       # installation: uninstalling removes both, and the test run installs the app again. An
       # uninstall that fails stops the job rather than leave them in the shots. A skipped test
       # also ends well, so only the log's passed line counts. Each try has 40 minutes, so a hung
-      # one leaves time for the next. With AXe, a loop presses wherever the test's request file
-      # names, then writes the done file the test waits for.
+      # one leaves time for the next.
       - name: The store screenshots
         run: |
           app=com.alekseivinogradov.anoti
           passed="Test Case '-\[iosAppUITests\.StoreScreenshotsTests "
           passed+="test(IPhone|IPad)Screenshots\]' passed"
           status=1
-          presser=""
-          if command -v axe > /dev/null; then
-            press_dir="$RUNNER_TEMP/anoti-press"
-            mkdir -p "$press_dir"
-            export TEST_RUNNER_ANOTI_PRESS_DIR="$press_dir"
-            (
-              set +e
-              while true; do
-                if [ -f "$press_dir/request" ]; then
-                  read -r x y hold < "$press_dir/request"
-                  rm -f "$press_dir/request"
-                  echo "$(date +%T) press at $x $y for $hold s"
-                  axe touch -x "$x" -y "$y" --down --up --delay "$hold" --udid "$SIM_UDID"
-                  echo "$(date +%T) axe exit $?" | tee "$press_dir/done"
-                fi
-                sleep 0.2
-              done
-            ) >> "$MEDIA_DIR/axe.log" 2>&1 &
-            presser=$!
-          fi
           for try in 1 2 3; do
             if xcrun simctl get_app_container "$SIM_UDID" "$app" > /dev/null 2>&1; then
               xcrun simctl uninstall "$SIM_UDID" "$app"
@@ -584,19 +556,7 @@ jobs:
             fi
             echo "The store screenshots failed on try $try"
           done
-          if [ -n "$presser" ]; then
-            kill "$presser" 2> /dev/null || true
-          fi
           exit $status
-
-      # The files iOS keeps for the notifications it shows, a poster among them when one came.
-      - name: List the notification files
-        if: always()
-        run: |
-          data=~/Library/Developer/CoreSimulator/Devices/$SIM_UDID/data
-          find "$data" \( -path '*UserNotifications*' -o -name '*anime_notification_poster*' \) \
-            -type f > "$MEDIA_DIR/notification-files.txt" 2> /dev/null || true
-          grep -v -i -E '\.(plist|db|db-wal|db-shm)$' "$MEDIA_DIR/notification-files.txt" || true
 
       - name: Export the screenshots the tests kept
         if: always()
