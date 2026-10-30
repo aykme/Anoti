@@ -167,10 +167,10 @@ extension ScreenshotDriver {
             .min { $0.frame.minY < $1.frame.minY }
     }
 
+    // Told by the card's own text: the toggle keeps its old label after it is tapped.
     var extraInfoCards: [XCUIElement] {
-        app.descendants(matching: .any)
-            .matching(NSPredicate(format: "label == %@", extraInfoOffLabel))
-            .allElementsBoundByIndex
+        app.allTagged(favoriteItemTag).allElementsBoundByIndex
+            .filter { $0.label.contains(episodesViewedText) }
     }
 
     // MARK: - Captures
@@ -192,7 +192,9 @@ extension ScreenshotDriver {
 let showDateLabel = "Display extra episodes info"
 let showEpisodesLabel = "Display information about the available episodes"
 let extraInfoOnLabel = "Turn on the display of extra information"
-let extraInfoOffLabel = "Turn off the display of extra information"
+
+/// What only a favorite showing extra info reads.
+let episodesViewedText = "Episodes viewed"
 
 /// Added to a landscape capture's name; the CI job turns such a shot upright and drops it.
 let landscapeMarker = "@landscape"
