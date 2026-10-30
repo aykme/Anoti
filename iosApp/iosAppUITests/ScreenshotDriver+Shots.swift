@@ -20,22 +20,32 @@ extension ScreenshotDriver {
     }
 
     /// Turns on extra info on each favorite named, the lowest card first: a turned card grows and
-    /// moves the ones below it, never the ones above.
+    /// moves the ones below it, never the ones above. Each card must lie above the tab bar.
+    ///
+    /// The database tells each turn. On iOS a card's accessibility can keep its old label and text
+    /// after the card changes, while the screen and the database show the change.
     func turnOnExtraInfo(for titles: [String]) throws {
+        let bottom = tabBarTop
         let frames = try titles.map { title in
-            guard let card = favoriteCard(title) else {
-                throw ScreenshotFailure("\(title) is not among the favorites on screen")
+            guard let card = favoriteCard(title), card.frame.maxY <= bottom else {
+                throw ScreenshotFailure("\(title) is not wholly among the favorites on screen")
             }
             return card.frame
         }
         let lowestFirst = frames.sorted { $0.minY > $1.minY }
         for frame in lowestFirst {
-            let before = extraInfoCards.count
+            let before = try database().extraInfoNames().count
             guard let button = element(labelled: extraInfoOnLabel, inside: frame) else {
                 throw ScreenshotFailure("a favorite at \(frame.minY) has no extra info to turn on")
             }
-            button.tap()
-            let turned = waitUntil(shortTimeout) { self.extraInfoCards.count == before + 1 }
+            // A tap that lands while the screen still settles is lost; the database tells.
+            var turned = false
+            for _ in 0..<extraInfoTaps where !turned {
+                button.tap()
+                turned = waitUntil(shortTimeout) {
+                    (try? self.database().extraInfoNames().count) == before + 1
+                }
+            }
             guard turned else {
                 throw ScreenshotFailure("a favorite at \(frame.minY) did not show extra info")
             }
@@ -129,10 +139,6 @@ extension ScreenshotDriver {
         if !tab.shows(label) || (flagged.isEmpty && tab.label.contains(withNewEpisodes)) {
             return "the Favorites tab reads \"\(tab.label)\", not \"\(label)\""
         }
-        let shownExtra = extraInfoCards.filter { $0.frame.maxY <= tabBarTop }.count
-        if shownExtra != extraInfo.count {
-            return "\(shownExtra) favorites show extra info on screen, not \(extraInfo.count)"
-        }
         if let anchor, let top = topFavorite(below: listTop - anchor.raisedBy) {
             try checkAnchor(anchor, at: top.frame)
         }
@@ -167,12 +173,6 @@ extension ScreenshotDriver {
             .min { $0.frame.minY < $1.frame.minY }
     }
 
-    // Told by the card's own text: the toggle keeps its old label after it is tapped.
-    var extraInfoCards: [XCUIElement] {
-        app.allTagged(favoriteItemTag).allElementsBoundByIndex
-            .filter { $0.label.contains(episodesViewedText) }
-    }
-
     // MARK: - Captures
 
     /// Keeps the screen as the device holds it; the CI job turns a landscape one upright.
@@ -193,8 +193,8 @@ let showDateLabel = "Display extra episodes info"
 let showEpisodesLabel = "Display information about the available episodes"
 let extraInfoOnLabel = "Turn on the display of extra information"
 
-/// What only a favorite showing extra info reads.
-let episodesViewedText = "Episodes viewed"
+/// How many taps a favorite's extra-info toggle gets before its turn fails.
+let extraInfoTaps = 2
 
 /// Added to a landscape capture's name; the CI job turns such a shot upright and drops it.
 let landscapeMarker = "@landscape"
