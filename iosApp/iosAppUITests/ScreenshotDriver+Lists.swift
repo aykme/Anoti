@@ -117,12 +117,13 @@ extension ScreenshotDriver {
         return waitUntil(loadTimeout, condition)
     }
 
-    /// Pulls Main's list back to its first card: drags until the cards stop moving. Each drag
-    /// stays short of what starts a refresh when the list is already at its top.
+    /// Flicks Main's list back to its first card, until the cards stop moving. A flick's touch
+    /// stays short of what starts a refresh when the list is already at its top, and its glide
+    /// starts none.
     func scrollToListTop() {
-        for _ in 0..<maxTopDrags {
+        for _ in 0..<maxTopFlicks {
             let before = cardFrames
-            drag(by: topDragLength, itemTag: listItemTag)
+            drag(by: topFlickLength, itemTag: listItemTag, flick: true)
             if cardFrames == before {
                 return
             }
@@ -134,9 +135,10 @@ extension ScreenshotDriver {
     }
 
     /// Moves the list's content by `deltaY` points with one press-and-drag: a short press, so no
-    /// long press fires, and a hold at the end, so the list does not fling. The drag starts away
-    /// from the top bar and, on Favorites, over the posters' column.
-    func drag(by deltaY: CGFloat, itemTag: String) {
+    /// long press fires, and a hold at the end, so the list does not fling. A `flick` drags fast
+    /// and lets go, so the list glides on. The drag starts away from the top bar and, on
+    /// Favorites, over the posters' column.
+    func drag(by deltaY: CGFloat, itemTag: String, flick: Bool = false) {
         let window = app.windows.firstMatch.frame
         let upper = max(listTop, topBarBottom) + dragMargin
         let lower = tabBarTop - dragMargin
@@ -153,10 +155,10 @@ extension ScreenshotDriver {
         start.press(
             forDuration: pressDuration,
             thenDragTo: end,
-            withVelocity: .slow,
-            thenHoldForDuration: holdDuration
+            withVelocity: flick ? .fast : .slow,
+            thenHoldForDuration: flick ? 0 : holdDuration
         )
-        RunLoop.current.run(until: Date().addingTimeInterval(settleTime))
+        RunLoop.current.run(until: Date().addingTimeInterval(flick ? glideTime : settleTime))
     }
 }
 
@@ -187,9 +189,12 @@ let dragMargin: CGFloat = 30
 /// Where across a favorite a drag starts: over the poster, clear of the counter's arrows.
 let posterColumnFraction: CGFloat = 0.15
 
-/// The most drags that bring Main's list back to its top: several rows of results.
-let maxTopDrags = 12
+/// The most flicks that bring Main's list back to its top: a whole page of results.
+let maxTopFlicks = 15
 
-/// How far one drag pulls Main's list down. Past the top, half of it moves the refresh indicator,
-/// which refreshes at 80 points.
-let topDragLength: CGFloat = 120
+/// How far one flick's touch pulls Main's list down. Past the top, half of it moves the refresh
+/// indicator, which refreshes at 80 points.
+let topFlickLength: CGFloat = 140
+
+/// How long a flicked list takes to glide to a stop.
+let glideTime: TimeInterval = 2.5
