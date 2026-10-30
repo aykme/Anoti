@@ -53,14 +53,15 @@ extension ScreenshotDriver {
     }
 
     /// Checks the screen the last step set up, then keeps it three times, a little apart, since
-    /// posters keep arriving. Notification Center is expanded first and closed after.
+    /// posters keep arriving. Notification Center is expanded first and closed after; its newest
+    /// notification is opened large between the two when the step asks.
     func shoot(_ name: String) throws {
         switch screen {
         case let .list(anchor, dateMode, shows):
             try checkList(anchor: anchor, dateMode: dateMode, shows: shows)
         case let .favorites(anchor, extraInfo):
             try checkFavorites(anchor: anchor, extraInfo: extraInfo)
-        case let .notificationCenter(titles):
+        case let .notificationCenter(titles, _):
             try expandNotifications(titles, collapsedName: name + "~collapsed")
         case .none:
             break
@@ -70,8 +71,10 @@ extension ScreenshotDriver {
             capture(name + suffix)
         }
         keptShots.append(name)
-        if case let .notificationCenter(titles) = screen {
-            pressNewestNotification(titles, name: name + "~pressed")
+        if case let .notificationCenter(titles, opensNewest) = screen {
+            if opensNewest {
+                pressNewestNotification(titles, name: name + "~pressed")
+            }
             try closeNotificationCenter(listing: titles)
         }
         screen = .none

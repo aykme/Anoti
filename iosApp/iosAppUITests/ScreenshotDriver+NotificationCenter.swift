@@ -3,8 +3,9 @@ import XCTest
 /// Notification Center over the app: opening it, laying out the app's notifications for a
 /// shot, and closing it.
 extension ScreenshotDriver {
-    /// Pulls Notification Center down over the app and waits until it lists a named title.
-    func openNotificationCenter(listing titles: [String]) throws {
+    /// Pulls Notification Center down over the app and waits until it lists a named title. With
+    /// `opensNewest`, the shot then opens the newest notification large.
+    func openNotificationCenter(listing titles: [String], opensNewest: Bool) throws {
         // An iPad's top edge opens the app's menu bar except over the clock.
         let pullXs = isPad ? padPullXs : phonePullXs
         for pullX in pullXs {
@@ -31,7 +32,7 @@ extension ScreenshotDriver {
             attachSpringboardTree()
             throw ScreenshotFailure("Notification Center shows none of \(titles)")
         }
-        screen = .notificationCenter(titles)
+        screen = .notificationCenter(titles, opensNewest: opensNewest)
     }
 
     func notification(_ title: String) -> XCUIElement {

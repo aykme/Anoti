@@ -91,8 +91,8 @@ final class ScreenshotDriver {
             try openSearchResults(for: query, dateMode: dateMode, shows: shows)
         case let .favorites(top, extraInfo):
             try openFavorites(top: top, extraInfo: extraInfo)
-        case let .notificationCenter(titles):
-            try openNotificationCenter(listing: titles)
+        case let .notificationCenter(titles, opensNewest):
+            try openNotificationCenter(listing: titles, opensNewest: opensNewest)
         case let .shoot(name):
             try shoot(name)
         case let .turn(orientation):
@@ -271,7 +271,7 @@ enum Screen {
     case none
     case list(anchor: Anchor?, dateMode: [String], shows: [String])
     case favorites(anchor: Anchor?, extraInfo: [String])
-    case notificationCenter([String])
+    case notificationCenter([String], opensNewest: Bool)
 }
 
 /// A scenario step that could not reach or prove its screen; the message names what failed.

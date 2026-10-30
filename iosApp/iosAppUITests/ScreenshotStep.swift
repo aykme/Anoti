@@ -33,8 +33,10 @@ enum ScreenshotStep: Sendable {
     /// Favorites opened anew, scrolled to `top`, with extra info on the `extraInfo` cards.
     case favorites(top: Anchor? = nil, extraInfo: [String] = [])
 
-    /// Notification Center over the app, its Anoti group expanded to list these titles.
-    case notificationCenter([String])
+    /// Notification Center over the app, its Anoti group expanded to list these titles, newest
+    /// first. With `opensNewest`, a long press then opens the newest one large, with its poster,
+    /// kept as extras beside the shot.
+    case notificationCenter([String], opensNewest: Bool = false)
 
     /// Checks the screen the last step set up, then keeps it under this name.
     case shoot(String)
