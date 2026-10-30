@@ -3,7 +3,8 @@
 # A push builds the app and runs the Kotlin/Native tests and SwiftLint; it installs no app. A run
 # by hand picks the rest through its inputs, which the plan job turns into flags. A run started
 # with lint_only runs SwiftLint and nothing else. A run started with release builds the app in
-# Release, checks its stripping, and runs no test; it overrides every other input.
+# Release, checks its stripping, and runs no test; it overrides every other input. A run started
+# with store_screenshots also takes the App Store screenshots.
 name: iOS
 
 on:
@@ -70,8 +71,9 @@ on:
           - pro
           - all
         default: air
-      # The Dynamic Type size of every simulator the run boots: the system's default, the largest
-      # outside the accessibility sizes, or the largest of all.
+      # The Dynamic Type size of the simulators the app's tests boot: the system's default, the
+      # largest outside the accessibility sizes, or the largest of all. The store screenshots keep
+      # the default.
       text_size:
         description: The text size of the simulators
         type: choice
@@ -80,6 +82,12 @@ on:
           - xxxl
           - ax5
         default: default
+      # StoreScreenshotsTests on the iPhone 17 Pro and the iPad Pro 13-inch, a job each, whatever
+      # the app tests' device, iPads and text size say.
+      store_screenshots:
+        description: Take the App Store screenshots
+        type: boolean
+        default: false
       release:
         description: Build only the Release app and check its stripping, with no test
         type: boolean
@@ -106,6 +114,8 @@ jobs:
       orientations: ${{ steps.flags.outputs.orientations }}
       tablet_models: ${{ steps.flags.outputs.tablet_models }}
       content_size: ${{ steps.flags.outputs.content_size }}
+      store_screenshots: ${{ steps.flags.outputs.store_screenshots }}
+      store_devices: ${{ steps.flags.outputs.store_devices }}
       macos: ${{ steps.runner.outputs.macos }}
     steps:
       - uses: actions/checkout@v7
@@ -128,6 +138,7 @@ jobs:
           ORIENTATION: ${{ inputs.orientation }}
           TABLET_MODEL: ${{ inputs.tablet_model }}
           TEXT_SIZE: ${{ inputs.text_size }}
+          STORE_SCREENSHOTS: ${{ inputs.store_screenshots }}
           LINT_ONLY: ${{ inputs.lint_only }}
           RELEASE: ${{ inputs.release }}
         run: bash .github/scripts/ios-ci-plan.sh
@@ -435,6 +446,136 @@ jobs:
         with:
           name: ios-media-ipad-${{ matrix.tablet.slug }}
           path: build/ios-media-ipad
+
+  # Makes the App Store screenshots: StoreScreenshotsTests on the two simulators whose sizes App
+  # Store Connect asks for, a job each. In its ios-store-screenshots-<slug> artifact, the passing
+  # try's six main shots are ready for upload. Only when a run sets store_screenshots.
+  store-screenshots:
+    name: store screenshots ${{ matrix.device.slug }}
+    if: >-
+      ${{ !inputs.release && !inputs.lint_only
+      && needs.plan.outputs.store_screenshots == 'true' }}
+    needs: [project, plan]
+    runs-on: ${{ needs.plan.outputs.macos }}
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        device: ${{ fromJSON(needs.plan.outputs.store_devices) }}
+    env:
+      MEDIA_DIR: ${{ github.workspace }}/build/ios-store
+      RESULTS_DIR: ${{ github.workspace }}/build/ios-store-results
+      SIM_DEVICE: ${{ matrix.device.device }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ios-toolchain
+      - uses: ./.github/actions/gradle-on-macos
+      - name: Use the generated project
+        run: rm -rf iosApp/iosApp.xcodeproj
+      - uses: actions/download-artifact@v8
+        with:
+          name: xcodeproj
+          path: iosApp/iosApp.xcodeproj
+
+      - name: Build the app and its UI tests, Debug
+        run: |
+          mkdir -p "$MEDIA_DIR" "$RESULTS_DIR"
+          xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO build-for-testing 2>&1 | tee "$MEDIA_DIR/build-debug.log"
+          products="$GITHUB_WORKSPACE/build/DerivedData/Build/Products"
+          echo "XCTESTRUN=$(ls "$products"/*.xctestrun | head -1)" >> "$GITHUB_ENV"
+
+      - name: Boot the simulator
+        run: bash .github/scripts/ios-boot-simulator.sh
+
+      # The status bar and Notification Center's large clock read 10:00 local time. An iPad's
+      # status bar also shows today's date. simctl takes only an ISO 8601 time, and which
+      # spelling it parses varies, so each is tried until one takes. Under the fractional one
+      # Notification Center's date reads Jan 1, so it comes last. Without the override the shots
+      # would show the real time, so the job stops then. No carrier name shows, and a Wi-Fi iPad
+      # shows no cellular bars.
+      - name: Dress the simulator
+        run: |
+          xcrun simctl ui "$SIM_UDID" appearance dark
+          ten=$(date -j -f "%Y-%m-%d %H:%M:%S" "$(date +%Y-%m-%d) 10:00:00" +%s)
+          utc=$(date -u -r "$ten" +%Y-%m-%dT%H:%M:%S)
+          case $SIM_DEVICE in
+            iPad*) cellular=(--cellularMode notSupported) ;;
+            *) cellular=(--cellularMode active --cellularBars 4) ;;
+          esac
+          dressed=""
+          for at in "${utc}Z" "${utc}+00:00" "${utc}.000Z"; do
+            if xcrun simctl status_bar "$SIM_UDID" override --time "$at" --operatorName '' \
+              --batteryState charged --batteryLevel 100 --wifiBars 3 "${cellular[@]}"; then
+              dressed=$at
+              break
+            fi
+            echo "The status bar refused the time $at"
+          done
+          if [ -z "$dressed" ]; then
+            xcrun simctl help status_bar || true
+            echo "The status bar took none of the times"
+            exit 1
+          fi
+          echo "The status bar time: $dressed"
+          xcrun simctl status_bar "$SIM_UDID" list || true
+
+      # A failed try leaves favorites and notifications behind. So each try starts from a fresh
+      # installation: uninstalling removes both, and the test run installs the app again. An
+      # uninstall that fails stops the job rather than leave them in the shots. A skipped test
+      # also ends well, so only the log's passed line counts. Each try has 40 minutes, so a hung
+      # one leaves time for the next.
+      - name: The store screenshots
+        run: |
+          app=com.alekseivinogradov.anoti
+          passed="Test Case '-\[iosAppUITests\.StoreScreenshotsTests "
+          passed+="test(IPhone|IPad)Screenshots\]' passed"
+          status=1
+          for try in 1 2 3; do
+            if xcrun simctl get_app_container "$SIM_UDID" "$app" > /dev/null 2>&1; then
+              xcrun simctl uninstall "$SIM_UDID" "$app"
+            fi
+            xcrun simctl io "$SIM_UDID" recordVideo --codec=h264 --force \
+              "$MEDIA_DIR/store-try-$try.mp4" &
+            recorder=$!
+            sleep 2
+            TEST_RUNNER_ANOTI_STORE_SCREENSHOTS=1 xcodebuild test-without-building \
+              -xctestrun "$XCTESTRUN" -destination "id=$SIM_UDID" \
+              -only-testing:iosAppUITests/StoreScreenshotsTests \
+              -test-timeouts-enabled YES -default-test-execution-time-allowance 2400 \
+              -maximum-test-execution-time-allowance 2400 \
+              -resultBundlePath "$RESULTS_DIR/store-try-$try.xcresult" \
+              2>&1 | tee "$MEDIA_DIR/store-try-$try.log" || true
+            kill -INT "$recorder" 2> /dev/null || true
+            wait "$recorder" || true
+            if grep -qE "$passed" "$MEDIA_DIR/store-try-$try.log"; then
+              echo "$try" > "$MEDIA_DIR/store-passed-try"
+              status=0
+              break
+            fi
+            echo "The store screenshots failed on try $try"
+          done
+          exit $status
+
+      - name: Export the screenshots the tests kept
+        if: always()
+        run: |
+          find "$RESULTS_DIR" -type d -name '*.xcresult' -prune | while read -r bundle; do
+            name=$(basename "$bundle" .xcresult)
+            xcrun xcresulttool export attachments --path "$bundle" \
+              --output-path "$MEDIA_DIR/attachments/$name" || true
+          done
+
+      - name: Collect the store screenshots
+        if: always()
+        run: bash .github/scripts/ios-store-screenshots.sh
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ios-store-screenshots-${{ matrix.device.slug }}
+          path: build/ios-store
 
   # The app built in Release, stripped as an archive is, and checked. By hand only; no test runs.
   release-build:

@@ -13,6 +13,7 @@ if [ "${EVENT:-}" != workflow_dispatch ]; then
   ORIENTATION=portrait
   TABLET_MODEL=air
   TEXT_SIZE=default
+  STORE_SCREENSHOTS=false
 fi
 
 case $DEVICE in
@@ -39,6 +40,11 @@ case $TABLET_MODEL in
   all) tablet_models="[$air,$mini,$pro]" ;;
   *) echo "Unknown tablet model: $TABLET_MODEL" >&2; exit 1 ;;
 esac
+
+# The store screenshots take the two sizes App Store Connect asks for: the 6.3-inch iPhone and
+# the 13-inch iPad.
+iphone='{"device":"iPhone 17 Pro","slug":"iphone"}'
+store_devices="[$iphone,$pro]"
 
 # The Dynamic Type sizes by the names simctl takes. Large is the system's default.
 case $TEXT_SIZE in
@@ -80,4 +86,6 @@ fi
   echo "orientations=$orientations"
   echo "tablet_models=$tablet_models"
   echo "content_size=$content_size"
+  echo "store_screenshots=${STORE_SCREENSHOTS:-false}"
+  echo "store_devices=$store_devices"
 } | tee -a "${GITHUB_OUTPUT:-/dev/null}"

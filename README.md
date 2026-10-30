@@ -34,31 +34,33 @@ next episode comes out
 
 Phone:
 
-<!-- The images are stored at least twice as wide as shown, so they stay sharp on dense screens. -->
+<!-- The images are stored at least twice as tall as shown, so they stay sharp on dense screens. -->
 <!--suppress CheckImageSize -->
 <p>
-<img src="screenshots/android/phone/phone-01.jpg" width="180" alt=""/>
-<img src="screenshots/android/phone/phone-02.jpg" width="180" alt=""/>
-<img src="screenshots/android/phone/phone-03.jpg" width="180" alt=""/>
-<img src="screenshots/android/phone/phone-04.jpg" width="180" alt=""/>
-<img src="screenshots/android/phone/phone-05.jpg" width="180" alt=""/>
-<img src="screenshots/android/phone/phone-06.jpg" width="180" alt=""/>
+<img src="screenshots/android/phone/phone-01.jpg" height="320" alt=""/>
+<img src="screenshots/android/phone/phone-02.jpg" height="320" alt=""/>
+<img src="screenshots/android/phone/phone-03.jpg" height="320" alt=""/>
+<img src="screenshots/android/phone/phone-04.jpg" height="320" alt=""/>
+<img src="screenshots/android/phone/phone-06.jpg" height="320" alt=""/>
+<img src="screenshots/android/phone/phone-05.jpg" height="320" alt=""/>
+<img src="screenshots/ios/iphone/iphone-05.jpg" height="320" alt=""/>
 </p>
 
 Tablet:
 
 <!--suppress CheckImageSize -->
 <p>
-<img src="screenshots/android/tablet/tablet-01.jpg" width="400" alt=""/>
-<img src="screenshots/android/tablet/tablet-02.jpg" width="400" alt=""/>
+<img src="screenshots/android/tablet/tablet-01.jpg" height="225" alt=""/>
+<img src="screenshots/android/tablet/tablet-02.jpg" height="225" alt=""/>
 </p>
 
 <!--suppress CheckImageSize -->
 <p>
-<img src="screenshots/android/tablet/tablet-03.jpg" width="180" alt=""/>
-<img src="screenshots/android/tablet/tablet-04.jpg" width="180" alt=""/>
-<img src="screenshots/android/tablet/tablet-05.jpg" width="180" alt=""/>
-<img src="screenshots/android/tablet/tablet-06.jpg" width="180" alt=""/>
+<img src="screenshots/android/tablet/tablet-03.jpg" height="320" alt=""/>
+<img src="screenshots/android/tablet/tablet-04.jpg" height="320" alt=""/>
+<img src="screenshots/android/tablet/tablet-06.jpg" height="320" alt=""/>
+<img src="screenshots/android/tablet/tablet-05.jpg" height="320" alt=""/>
+<img src="screenshots/ios/ipad/ipad-05.jpg" height="320" alt=""/>
 </p>
 
 Technology stack:

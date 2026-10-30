@@ -1,5 +1,8 @@
 import XCTest
 
+// Helpers every UI test shares: timeouts, element lookups by Compose test tag, and waits. They
+// also answer what the system or the app asks when it starts.
+
 let appBundleId = "com.alekseivinogradov.anoti"
 
 /// How long a screen may take to load from the live backend.

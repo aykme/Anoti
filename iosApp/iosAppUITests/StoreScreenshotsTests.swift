@@ -1,0 +1,177 @@
+import XCTest
+
+/// Makes the app's screenshots for its App Store page. App Store Connect wants a set for each
+/// device size. This test composes each screen of the scenario below in the real app, on CI's
+/// simulators, against the live backend, so the set needs no Mac at hand. It keeps every screen
+/// as an attachment.
+///
+/// Only the `store-screenshots` job of `ios.yml` runs it, started with `store_screenshots`. Any
+/// other run skips it. The passing try's main shots in the job's `ios-store-screenshots-<slug>`
+/// artifact are ready for upload. Unlike the other UI tests, it asserts the live titles and
+/// positions it composes, since composing them is its purpose. Each step checks its own screen, so
+/// a run that ends without a throw has kept every shot.
+///
+/// A new version edits the scenario: the titles and the steps of each device.
+final class StoreScreenshotsTests: XCTestCase {
+    private let environment = ProcessInfo.processInfo.environment
+
+    override func setUp() {
+        continueAfterFailure = false
+    }
+
+    @MainActor
+    func testIPhoneScreenshots() throws {
+        //Given
+        try XCTSkipUnless(environment["ANOTI_STORE_SCREENSHOTS"] == "1", Self.onlyTheJob)
+        try XCTSkipUnless(UIDevice.current.userInterfaceIdiom == .phone, "an iPhone's shots")
+        let driver = ScreenshotDriver(test: self, titles: Self.titles)
+        try driver.launch(expectedSize: CGSize(width: 1_206, height: 2_622))
+
+        //When / Then
+        try driver.run(Self.iPhoneSteps)
+    }
+
+    @MainActor
+    func testIPadScreenshots() throws {
+        //Given
+        try XCTSkipUnless(environment["ANOTI_STORE_SCREENSHOTS"] == "1", Self.onlyTheJob)
+        try XCTSkipUnless(UIDevice.current.userInterfaceIdiom == .pad, "an iPad's shots")
+        defer { XCUIDevice.shared.orientation = .portrait }
+        let driver = ScreenshotDriver(test: self, titles: Self.titles)
+        try driver.launch(expectedSize: CGSize(width: 2_064, height: 2_752))
+
+        //When / Then
+        try driver.run(Self.iPadSteps)
+    }
+
+    private static let onlyTheJob = "made by the store-screenshots job of ios.yml"
+
+    // MARK: - Scenario
+
+    private static let steelBallRun = "Steel Ball Run: JoJo no Kimyou na Bouken"
+    private static let blackClover = "Black Clover 2nd Season"
+    private static let onePiece = "One Piece"
+    private static let kusuriya = "Kusuriya no Hitorigoto 3rd Season"
+    private static let sekaiSaikou =
+        "Sekai Saikou no Ansatsusha, Isekai Kizoku ni Tensei suru Season 2"
+    private static let mashle = "Mashle: Sanma Taisou Shinkakusha Saishuu Shiken-hen"
+    private static let bocchi = "Bocchi the Rock! 2nd Season"
+    private static let frierenGold = "Sousou no Frieren: Ougonkyou-hen"
+    private static let frieren2 = "Sousou no Frieren 2nd Season"
+    private static let dandadan = "Dandadan 3rd Season"
+    private static let edgerunners = "Cyberpunk: Edgerunners"
+    private static let edgerunners2 = "Cyberpunk: Edgerunners 2"
+    private static let maou = "Maou 2099"
+
+    /// Whether each device's Notification Center shot also opens the newest notification large,
+    /// with its poster, kept as extras. Off, the shot lists only the scenario's own titles. An
+    /// iPhone simulator's Notification Center opens none for an automated press.
+    private static let phoneOpensNewest = false
+    private static let padOpensNewest = true
+
+    /// Ongoing titles that only lengthen Notification Center's list for an opened notification.
+    /// A long list puts the newest one high, so it opens large with others still showing below
+    /// it. An iPad's list takes all six, an iPhone's room under the clock only two.
+    private static let listFillers = [
+        "Chiikawa", "Xian Ni", "Hotaru no Yomeiri", "Koori no Jouheki 2nd Season",
+        "Ao no Hako Season 2", "Tensei shitara Ken deshita II"
+    ]
+    private static let phoneListFillers = phoneOpensNewest ? Array(listFillers.prefix(2)) : []
+    private static let padListFillers = padOpensNewest ? listFillers : []
+
+    private static let titles = [
+        steelBallRun, blackClover, onePiece, kusuriya, sekaiSaikou, mashle, bocchi, frierenGold,
+        frieren2, dandadan, edgerunners, edgerunners2, maou
+    ] + listFillers
+
+    /// The iPhone's update passes and its Notification Center. Android's shot has Frieren newest;
+    /// an opened notification shows Edgerunners 2 instead, as the iPad's does.
+    private static let phoneNotificationSteps: [ScreenshotStep] = phoneOpensNewest
+        ? [
+            .notify([frieren2, blackClover, steelBallRun] + phoneListFillers),
+            .pause(60),
+            .notify([edgerunners2]),
+            .notificationCenter(
+                [edgerunners2, frieren2, steelBallRun, blackClover] + phoneListFillers,
+                opensNewest: true
+            )
+        ]
+        : [
+            .notify([edgerunners2]),
+            .pause(60),
+            .notify([blackClover, steelBallRun]),
+            .pause(60),
+            .notify([frieren2]),
+            .notificationCenter([frieren2, steelBallRun, blackClover, edgerunners2])
+        ]
+
+    /// iPhone 17 Pro, upright throughout.
+    private static let iPhoneSteps: [ScreenshotStep] = [
+        .follow([steelBallRun, mashle, edgerunners2]),
+        .onAir(dateMode: [blackClover]),
+        .shoot("iphone-01"),
+        .soon(top: Anchor(title: sekaiSaikou, raisedBy: 70), dateMode: [mashle]),
+        .shoot("iphone-02"),
+        .search("cyberpunk", shows: [edgerunners, edgerunners2]),
+        .shoot("iphone-03"),
+        .follow([blackClover, frieren2, dandadan] + phoneListFillers)
+    ] + phoneNotificationSteps + [
+        .shoot("iphone-05"),
+        .database(DatabaseEdit(
+            unfollow: phoneListFillers,
+            newEpisodes: [edgerunners2, blackClover, steelBallRun],
+            episodesViewed: [frieren2: 10, blackClover: 4, dandadan: 0]
+        )),
+        .favorites(
+            top: Anchor(title: frieren2, raisedBy: 58),
+            extraInfo: [frieren2, blackClover, dandadan]
+        ),
+        .shoot("iphone-06"),
+        .database(DatabaseEdit(
+            unfollow: [frieren2, dandadan],
+            newEpisodes: [edgerunners2, steelBallRun],
+            episodesViewed: [blackClover: 0]
+        )),
+        .favorites(extraInfo: [blackClover]),
+        .shoot("iphone-04")
+    ]
+
+    /// iPad Pro 13-inch: Main on its side, the rest upright.
+    private static let iPadSteps: [ScreenshotStep] = [
+        .follow([steelBallRun, frierenGold, mashle, edgerunners, edgerunners2]),
+        .turn(.landscapeLeft),
+        .onAir(dateMode: [blackClover, kusuriya]),
+        .shoot("ipad-01"),
+        .soon(top: Anchor(title: bocchi), dateMode: [frierenGold, mashle]),
+        .shoot("ipad-02"),
+        .turn(.portrait),
+        .search("cyberpunk", dateMode: [maou], shows: [edgerunners, edgerunners2]),
+        .shoot("ipad-03"),
+        .follow([blackClover, kusuriya, dandadan, onePiece, frieren2] + padListFillers),
+        .notify([frieren2, blackClover, kusuriya, steelBallRun] + padListFillers),
+        .pause(60),
+        .notify([onePiece]),
+        .pause(60),
+        .notify([edgerunners2]),
+        .notificationCenter(
+            [edgerunners2, onePiece, steelBallRun, kusuriya, blackClover, frieren2]
+                + padListFillers,
+            opensNewest: padOpensNewest
+        ),
+        .shoot("ipad-05"),
+        .database(DatabaseEdit(
+            unfollow: [frieren2, onePiece] + padListFillers,
+            newEpisodes: [edgerunners2, kusuriya, steelBallRun]
+        )),
+        .favorites(),
+        .shoot("ipad-04"),
+        .follow([frieren2]),
+        .database(DatabaseEdit(
+            unfollow: [edgerunners, edgerunners2, frierenGold],
+            newEpisodes: [frieren2, blackClover, kusuriya, steelBallRun],
+            episodesViewed: [frieren2: 10, blackClover: 4, kusuriya: 4, dandadan: 0]
+        )),
+        .favorites(extraInfo: [frieren2, blackClover, kusuriya, dandadan]),
+        .shoot("ipad-06")
+    ]
+}

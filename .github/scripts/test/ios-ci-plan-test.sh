@@ -36,7 +36,8 @@ refused() {
 }
 
 # A push gets the inputs' defaults, whatever the inputs say.
-out=$(plan EVENT=push UI_FLOW=true DEVICE=all ORIENTATION=all TABLET_MODEL=all TEXT_SIZE=ax5)
+out=$(plan EVENT=push UI_FLOW=true DEVICE=all ORIENTATION=all TABLET_MODEL=all TEXT_SIZE=ax5 \
+  STORE_SCREENSHOTS=true)
 expect push "$out" "unit_tests=true"
 expect push "$out" "swiftlint=true"
 expect push "$out" "phone_flow=false"
@@ -45,6 +46,7 @@ expect push "$out" "tablet_flow=false"
 expect push "$out" "tablet_ios_tests=false"
 expect push "$out" 'tablet_models=[{"device":"iPad Air 11-inch","slug":"air"}]'
 expect push "$out" "content_size=large"
+expect push "$out" "store_screenshots=false"
 
 # A run by hand with every default of ios.yml's inputs does what a push does.
 yml="$(dirname "$0")/../../workflows/ios.yml"
@@ -58,7 +60,7 @@ dispatch_out=$(plan EVENT=workflow_dispatch UNIT_TESTS="$(default_of unit_tests)
   UI_FLOW="$(default_of ui_flow)" IOS_TESTS="$(default_of ios_tests)" \
   SWIFTLINT="$(default_of swiftlint)" DEVICE="$(default_of device)" \
   ORIENTATION="$(default_of orientation)" TABLET_MODEL="$(default_of tablet_model)" \
-  TEXT_SIZE="$(default_of text_size)")
+  TEXT_SIZE="$(default_of text_size)" STORE_SCREENSHOTS="$(default_of store_screenshots)")
 if [ "$push_out" = "$dispatch_out" ]; then
   echo "ok   defaults: a push plans what a run with ios.yml's defaults plans"
 else
@@ -111,6 +113,16 @@ for model in mini pro; do
   expect "$model" "$out" "tablet_models=[${!model}]"
   expect "$model" "$out" "content_size=extra-extra-extra-large"
 done
+
+# The store screenshots, on the iPhone and the iPad Pro, whatever the app tests' device says.
+out=$(plan EVENT=workflow_dispatch UNIT_TESTS=false UI_FLOW=false IOS_TESTS=false \
+  SWIFTLINT=true DEVICE=phone ORIENTATION=portrait STORE_SCREENSHOTS=true)
+expect store "$out" "store_screenshots=true"
+expect store "$out" "store_devices=[{\"device\":\"iPhone 17 Pro\",\"slug\":\"iphone\"},$pro]"
+out=$(plan EVENT=workflow_dispatch UNIT_TESTS=false UI_FLOW=false IOS_TESTS=false \
+  SWIFTLINT=true DEVICE=tablet ORIENTATION=portrait TABLET_MODEL=mini STORE_SCREENSHOTS=true)
+expect store-beside-ipads "$out" \
+  "store_devices=[{\"device\":\"iPhone 17 Pro\",\"slug\":\"iphone\"},$pro]"
 
 # An unknown value, or a flow left with no device to run on, fails rather than passing empty.
 refused "an unknown device" EVENT=workflow_dispatch UNIT_TESTS=true UI_FLOW=true IOS_TESTS=false \
