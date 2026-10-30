@@ -134,9 +134,9 @@ extension ScreenshotDriver {
         app.allTagged(listItemTag).allElementsBoundByIndex.map(\.frame)
     }
 
-    /// Moves the list's content by `deltaY` points with one press-and-drag: a short press, so no
-    /// long press fires, and a hold at the end, so the list does not fling. A `flick` drags fast
-    /// and lets go, so the list glides on. The drag starts away from the top bar and, on
+    /// Moves the list's content by `deltaY` points with one press-and-drag. The press is short, so
+    /// no long press fires, and a hold at the end keeps the list from flinging. A `flick` drags
+    /// fast and lets go, so the list glides on. The drag starts away from the top bar and, on
     /// Favorites, over the posters' column.
     func drag(by deltaY: CGFloat, itemTag: String, flick: Bool = false) {
         let window = app.windows.firstMatch.frame

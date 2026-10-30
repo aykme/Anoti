@@ -25,6 +25,8 @@ extension ScreenshotDriver {
             expectedFavorites.insert(title)
             try closeSearch()
         }
+        // An older edit may unfollow what this follows, so a repair must not re-apply it.
+        lastEdit = nil
     }
 
     /// Opens Main's search, types `query` and submits it. No keyboard may cover the results.
@@ -61,10 +63,13 @@ extension ScreenshotDriver {
     }
 
     /// One update pass that notifies exactly `titles`; see `AppDatabase.lowerAiredEpisodes`.
-    /// Done once every visible named favorite shows "New episode" and the tab counts them all.
+    /// Done once the database flags exactly them with a new episode. The pass posts each
+    /// notification before it raises the flag, and the flag does not hang on a card's label.
     func notify(_ titles: [String]) throws {
         try editDatabase { try $0.lowerAiredEpisodes(of: titles) }
         expectedNewEpisodes = Set(titles)
+        // A repair re-applies the last edit, which this pass's flags have overtaken.
+        lastEdit = nil
         try openTabAnew(favoritesTab)
         try measureListStart(itemTag: favoriteItemTag)
         pullToRefresh()
@@ -117,12 +122,8 @@ extension ScreenshotDriver {
     }
 
     private func notified(_ titles: [String], within timeout: TimeInterval) -> Bool {
-        let label = favoritesLabel(newEpisodes: titles.count)
-        return waitUntil(timeout) {
-            self.app.tagged(favoritesTab).shows(label) && titles.allSatisfy { title in
-                // A favorite below the screen is left to the tab's count.
-                self.favoriteCard(title).map { $0.label.contains(newEpisodeText) } ?? true
-            }
+        waitUntil(timeout) {
+            (try? self.database().newEpisodeNames()).map(Set.init) == Set(titles)
         }
     }
 
@@ -142,8 +143,8 @@ extension ScreenshotDriver {
         )
     }
 
-    // The field keeps its text when closed. A tap puts the caret where it lands and a backspace
-    // deletes only what lies before it, so each round taps right of the remaining text, left of
+    // The field keeps its text when closed. A tap puts the caret where it lands, and a backspace
+    // deletes only what lies before it. So each round taps right of the remaining text, left of
     // the close button.
     private func clearSearchField() throws {
         let caret = searchField.coordinate(withNormalizedOffset: caretOffset)

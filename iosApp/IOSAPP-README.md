@@ -16,5 +16,5 @@ Nothing depends on it. Xcode builds it from [iosApp.xcodeproj](iosApp.xcodeproj)
 [`core-kmp:di-app`](../core-kmp/di-app/CORE-KMP-DI-APP-README.md) with Gradle first. The UI tests
 live in `iosAppUITests/`. Among them,
 [StoreScreenshotsTests](iosAppUITests/StoreScreenshotsTests.swift) makes the App Store screenshots
-on CI; a new version edits the scenario in it. [swiftlint.sh](scripts/swiftlint.sh) lints the Swift sources by the
-rules in [swiftlint.yml](../config/swiftlint/swiftlint.yml).
+on CI; a new version edits the scenario in it. [swiftlint.sh](scripts/swiftlint.sh) lints the
+Swift sources by the rules in [swiftlint.yml](../config/swiftlint/swiftlint.yml).

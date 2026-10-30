@@ -10,9 +10,6 @@ import XCTest
 /// Notification Center in `ScreenshotDriver+NotificationCenter.swift`.
 @MainActor
 final class ScreenshotDriver {
-    /// The names of the shots kept so far, in order.
-    var keptShots: [String] = []
-
     let test: XCTestCase
     let app: XCUIApplication
 
@@ -52,7 +49,7 @@ final class ScreenshotDriver {
     func launch(expectedSize: CGSize) throws {
         XCUIDevice.shared.orientation = .portrait
         if isPad {
-            useFullScreenApps()
+            try useFullScreenApps()
         }
         relaunch()
         let image = XCUIScreen.main.screenshot().image.cgImage
@@ -60,14 +57,6 @@ final class ScreenshotDriver {
         guard size == expectedSize else {
             throw ScreenshotFailure("the screenshots are \(size), not \(expectedSize)")
         }
-        // The zone Notification Center's clock follows, which the CI job picks.
-        let zone = TimeZone.current
-        let clock = XCTAttachment(
-            string: "\(zone.identifier), \(zone.secondsFromGMT()) s from GMT, at \(Date())"
-        )
-        clock.name = "simulator clock"
-        clock.lifetime = .keepAlways
-        test.add(clock)
     }
 
     func run(_ steps: [ScreenshotStep]) throws {
@@ -75,6 +64,8 @@ final class ScreenshotDriver {
             let handled = try performScreenStep(step)
             if !handled {
                 try performDataStep(step)
+                // A data step leaves no screen for a `shoot` to check.
+                screen = .none
             }
         }
     }
@@ -96,8 +87,8 @@ final class ScreenshotDriver {
         case let .shoot(name):
             try shoot(name)
         case let .turn(orientation):
-            turn(to: orientation)
-        default:
+            try turn(to: orientation)
+        case .follow, .notify, .pause, .database:
             return false
         }
         return true
@@ -113,8 +104,8 @@ final class ScreenshotDriver {
             RunLoop.current.run(until: Date().addingTimeInterval(seconds))
         case let .database(edit):
             try applyEdit(edit)
-        default:
-            throw ScreenshotFailure("no handler for \(step)")
+        case .onAir, .soon, .search, .favorites, .notificationCenter, .shoot, .turn:
+            throw ScreenshotFailure("no data handler for \(step)")
         }
     }
 
@@ -122,25 +113,25 @@ final class ScreenshotDriver {
 
     // An iPad in windowed mode draws a resize grabber in the app's corner, in every shot.
     // Settings switches it to full-screen apps. Its tree is kept, in case the choice moved.
-    private func useFullScreenApps() {
+    private func useFullScreenApps() throws {
         let settings = XCUIApplication(bundleIdentifier: settingsBundleId)
         settings.launch()
-        let section = settings.descendants(matching: .any)
-            .matching(NSPredicate(format: "label == %@", multitaskingSection)).firstMatch
-        if section.waitForExistence(timeout: shortTimeout), section.isHittable {
-            section.tap()
-            let option = settings.descendants(matching: .any)
-                .matching(NSPredicate(format: "label == %@", fullScreenAppsOption)).firstMatch
-            if option.waitForExistence(timeout: shortTimeout), option.isHittable {
-                option.tap()
-                RunLoop.current.run(until: Date().addingTimeInterval(settleTime))
-            }
+        defer {
+            let tree = XCTAttachment(string: settings.debugDescription)
+            tree.name = "settings tree"
+            tree.lifetime = .keepAlways
+            test.add(tree)
+            settings.terminate()
         }
-        let tree = XCTAttachment(string: settings.debugDescription)
-        tree.name = "settings tree"
-        tree.lifetime = .keepAlways
-        test.add(tree)
-        settings.terminate()
+        for label in [multitaskingSection, fullScreenAppsOption] {
+            let item = settings.descendants(matching: .any)
+                .matching(NSPredicate(format: "label == %@", label)).firstMatch
+            guard item.waitForExistence(timeout: shortTimeout), item.isHittable else {
+                throw ScreenshotFailure("Settings shows no \"\(label)\"")
+            }
+            item.tap()
+        }
+        RunLoop.current.run(until: Date().addingTimeInterval(settleTime))
     }
 
     /// Starts the app again. The notification question comes once per installation.
@@ -163,9 +154,9 @@ final class ScreenshotDriver {
         app.textViews.firstMatch
     }
 
-    /// Opens the tab the other way round first, so its screen is built anew: a fresh Favorites
-    /// turns extra info off, and a fresh Main starts at the top of its list. Tapping the tab
-    /// already shown keeps its screen.
+    /// Opens the other tab first, so this tab's screen is built anew. A fresh Favorites turns extra
+    /// info off, and a fresh Main starts at the top of its list. A tap on the tab already shown
+    /// would keep its screen.
     func openTabAnew(_ tab: String) throws {
         try show(tab == listTab ? favoritesTab : listTab)
         try show(tab)
@@ -244,12 +235,19 @@ final class ScreenshotDriver {
         screen = .favorites(anchor: top, extraInfo: extraInfo)
     }
 
-    private func turn(to orientation: UIDeviceOrientation) {
+    // The CI job turns a landscape shot back as from `.landscapeLeft`, the one side it knows. A
+    // narrow window stays upright whatever the device does, so only an iPad's must turn.
+    private func turn(to orientation: UIDeviceOrientation) throws {
+        guard orientation == .portrait || orientation == .landscapeLeft else {
+            throw ScreenshotFailure("the scenario turns the device to \(orientation.rawValue)")
+        }
         XCUIDevice.shared.orientation = orientation
         let window = app.windows.firstMatch
         let wide = orientation.isLandscape
-        // A narrow window stays upright whatever the device does.
-        _ = waitUntil(shortTimeout) { (window.frame.width > window.frame.height) == wide }
+        let turned = waitUntil(shortTimeout) { (window.frame.width > window.frame.height) == wide }
+        if isPad, !turned {
+            throw ScreenshotFailure("the window did not turn with the device")
+        }
         RunLoop.current.run(until: Date().addingTimeInterval(settleTime))
     }
 

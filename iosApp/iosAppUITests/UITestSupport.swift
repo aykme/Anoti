@@ -1,7 +1,7 @@
 import XCTest
 
-// Helpers every UI test shares: timeouts, finding elements by their Compose test tags, waits, and
-// answers to what the system or the app asks when it starts.
+// Helpers every UI test shares: timeouts, element lookups by Compose test tag, and waits. They
+// also answer what the system or the app asks when it starts.
 
 let appBundleId = "com.alekseivinogradov.anoti"
 

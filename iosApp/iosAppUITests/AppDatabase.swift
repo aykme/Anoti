@@ -4,7 +4,7 @@ import SQLite3
 /// The app's Room database file, as the screenshot test reads and edits it. Some states a
 /// screenshot needs have no control in the app: a "New episode" badge, a viewed count, a new
 /// episode to notify about. The test sets them in the file instead, reached through the
-/// simulator's shared file system. The app must not run during an edit: Room holds the file open
+/// simulator's shared file system. The app must not run during an edit. Room holds the file open
 /// and notices only its own writes, so the app sees an edit after its next launch.
 struct AppDatabase {
     /// The database file's full path.
@@ -149,10 +149,15 @@ struct AppDatabase {
             }
             defer { sqlite3_finalize(prepared) }
             var rows: [String] = []
-            while sqlite3_step(prepared) == SQLITE_ROW {
+            var result = sqlite3_step(prepared)
+            while result == SQLITE_ROW {
                 if let text = sqlite3_column_text(prepared, 0) {
                     rows.append(String(cString: text))
                 }
+                result = sqlite3_step(prepared)
+            }
+            guard result == SQLITE_DONE else {
+                throw AppDatabaseError.sqlite("\(message(of: handle)) in: \(query)")
             }
             return rows
         }
@@ -178,6 +183,8 @@ struct AppDatabase {
             throw AppDatabaseError.sqlite("cannot open \(path): \(reason)")
         }
         defer { sqlite3_close_v2(opened) }
+        // The running app's own writes hold the file for a moment.
+        sqlite3_busy_timeout(opened, busyTimeoutMilliseconds)
         return try body(opened)
     }
 
@@ -212,3 +219,6 @@ private let loweredAiredCount = -1
 
 /// Tells `sqlite3_prepare_v2` to read the query up to its terminating zero.
 private let wholeString: Int32 = -1
+
+/// How long a read or an edit waits for the app's write to let the file go.
+private let busyTimeoutMilliseconds: Int32 = 2_000

@@ -1,9 +1,10 @@
 #!/bin/bash
 # Tests ios-store-screenshots.sh on any machine with bash and Python 3, macOS or not. The script
 # calls sips, a macOS tool; this test puts a stub of it first on PATH. A fake screenshot is a text
-# file holding "<width> <height> <alpha>", which the stub reads and, when turning, swaps. Each case
-# lays out the attachments of one or more tries the way xcresulttool exports them, then checks the
-# script's exit code, the files it wrote and the lines of its table.
+# file holding "<width> <height> <alpha>", which the stub reads and, when turning, swaps. A real
+# PNG, for the rotation tag, gives the stub its header's size. Each case lays out the attachments
+# of one or more tries the way xcresulttool exports them. Then it checks the script's exit code,
+# the files it wrote and the lines of its table.
 #
 # Run it from the repository root after any change to ios-store-screenshots.sh:
 #   bash .github/scripts/test/ios-store-screenshots-test.sh
@@ -19,18 +20,36 @@ stubs="$work/stubs"
 mkdir -p "$stubs"
 
 # sips -g pixelWidth -g pixelHeight -g hasAlpha <file> prints the three values as sips does;
-# sips -r 270 <src> --out <dst> writes the source turned a quarter.
+# sips -r 270 <src> --out <dst> writes the source turned a quarter. A PNG keeps its other chunks
+# when turned, as sips keeps the metadata.
 cat > "$stubs/sips" <<'EOF'
 #!/bin/bash
+png() { [ "$(head -c 4 "$1" | tail -c 3)" = PNG ]; }
 if [ "$1" = -r ]; then
-  read -r width height alpha < "$3"
-  echo "$height $width $alpha" > "$5"
+  if png "$3"; then
+    python3 - "$3" "$5" <<'PY'
+import struct, sys, zlib
+data = open(sys.argv[1], "rb").read()
+width, height = struct.unpack(">II", data[16:24])
+header = b"IHDR" + struct.pack(">II", height, width) + data[24:29]
+turned = data[:12] + header + struct.pack(">I", zlib.crc32(header)) + data[33:]
+open(sys.argv[2], "wb").write(turned)
+PY
+  else
+    read -r width height alpha < "$3"
+    echo "$height $width $alpha" > "$5"
+  fi
   echo "$5"
   exit 0
 fi
 file=${*: -1}
 [ -f "$file" ] || { echo "sips: no file $file" >&2; exit 1; }
-read -r width height alpha < "$file"
+if png "$file"; then
+  read -r width height alpha <<< "$(python3 -c 'import struct, sys
+print(*struct.unpack(">II", open(sys.argv[1], "rb").read()[16:24]), "no")' "$file")"
+else
+  read -r width height alpha < "$file"
+fi
 printf '%s\n  pixelWidth: %s\n  pixelHeight: %s\n  hasAlpha: %s\n' \
   "$file" "$width" "$height" "$alpha"
 EOF
@@ -50,6 +69,28 @@ attachment() {
   mkdir -p "$dir"
   file="$(printf '%08X' $RANDOM$RANDOM)-AAAA-BBBB-CCCC-DDDDEEEEFFFF.png"
   echo "$4" > "$dir/$file"
+  echo "$3|$file" >> "$dir/entries"
+}
+
+# png_attachment <case> <try> <attachment name> <width> <height>: a real PNG that carries a
+# rotation tag in EXIF and in XMP, as a landscape capture does.
+png_attachment() {
+  local dir="$work/cases/$1/media/attachments/store-try-$2" file
+  mkdir -p "$dir"
+  file="$(printf '%08X' $RANDOM$RANDOM)-AAAA-BBBB-CCCC-DDDDEEEEFFFF.png"
+  python3 - "$dir/$file" "$4" "$5" <<'PY'
+import struct, sys, zlib
+def chunk(kind, body):
+    return struct.pack(">I", len(body)) + kind + body + struct.pack(">I", zlib.crc32(kind + body))
+path, width, height = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
+exif = bytes.fromhex("4d4d002a00000008000101120003000000010008000000000000")
+xmp = b"XML:com.adobe.xmp\x00\x00\x00\x00\x00<tiff:Orientation>8</tiff:Orientation>"
+open(path, "wb").write(
+    b"\x89PNG\r\n\x1a\n"
+    + chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0))
+    + chunk(b"eXIf", exif) + chunk(b"iTXt", xmp)
+    + chunk(b"IDAT", zlib.compress(b"")) + chunk(b"IEND", b""))
+PY
   echo "$3|$file" >> "$dir/entries"
 }
 
@@ -154,6 +195,25 @@ six_iphone_shots alpha 1
 attachment alpha 1 "iphone-02~3_$uuid.png" "1206 2622 yes"
 check alpha 1
 has alpha "WRONG"
+
+# A turned shot loses the capture's rotation tag, which would have a viewer turn it once more.
+png_attachment rotation 1 "ipad-01@landscape_$uuid.png" 2064 2752
+check rotation 0
+has rotation "2752x2064"
+if python3 - "$work/cases/rotation/media/store/try-1/ipad-01.png" <<'PY'
+import struct, sys
+data = open(sys.argv[1], "rb").read()
+upright = struct.unpack(">II", data[16:24]) == (2752, 2064)
+sys.exit(0 if upright and b"eXIf" not in data and b"adobe.xmp" not in data else 1)
+PY
+then passed=$((passed + 1)); else failed=$((failed + 1)); echo "FAIL rotation: the tag stayed"; fi
+
+# A manifest names a file the export did not write.
+six_iphone_shots not-exported 1
+echo "iphone-02~2_$uuid.png|0000DEAD-AAAA-BBBB-CCCC-DDDDEEEEFFFF.png" \
+  >> "$work/cases/not-exported/media/attachments/store-try-1/entries"
+check not-exported 1
+has not-exported "was not exported"
 
 # A landscape shot whose buffer is already landscape would come out on its side.
 attachment sideways 1 "ipad-01@landscape_$uuid.png" "2752 2064 no"

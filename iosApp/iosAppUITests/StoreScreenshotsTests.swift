@@ -1,14 +1,15 @@
 import XCTest
 
 /// Makes the app's screenshots for its App Store page. App Store Connect wants a set for each
-/// device size, and the project has no Mac to take them on. So this test composes each screen of
-/// the scenario below in the real app, on CI's simulators, against the live backend. It keeps
-/// every screen as an attachment.
+/// device size. This test composes each screen of the scenario below in the real app, on CI's
+/// simulators, against the live backend, so the set needs no Mac at hand. It keeps every screen
+/// as an attachment.
 ///
 /// Only the `store-screenshots` job of `ios.yml` runs it, started with `store_screenshots`. Any
-/// other run skips it. The job's `ios-store-screenshots-<slug>` artifact holds the finished shots,
-/// ready for upload. Unlike the other UI tests, it asserts the live titles and positions it
-/// composes, since composing them is its purpose.
+/// other run skips it. The passing try's main shots in the job's `ios-store-screenshots-<slug>`
+/// artifact are ready for upload. Unlike the other UI tests, it asserts the live titles and
+/// positions it composes, since composing them is its purpose. Each step checks its own screen, so
+/// a run that ends without a throw has kept every shot.
 ///
 /// A new version edits the scenario: the titles and the steps of each device.
 final class StoreScreenshotsTests: XCTestCase {
@@ -26,11 +27,8 @@ final class StoreScreenshotsTests: XCTestCase {
         let driver = ScreenshotDriver(test: self, titles: Self.titles)
         try driver.launch(expectedSize: CGSize(width: 1_206, height: 2_622))
 
-        //When
+        //When / Then
         try driver.run(Self.iPhoneSteps)
-
-        //Then
-        XCTAssertEqual(driver.keptShots, Self.shots(in: Self.iPhoneSteps))
     }
 
     @MainActor
@@ -42,23 +40,11 @@ final class StoreScreenshotsTests: XCTestCase {
         let driver = ScreenshotDriver(test: self, titles: Self.titles)
         try driver.launch(expectedSize: CGSize(width: 2_064, height: 2_752))
 
-        //When
+        //When / Then
         try driver.run(Self.iPadSteps)
-
-        //Then
-        XCTAssertEqual(driver.keptShots, Self.shots(in: Self.iPadSteps))
     }
 
     private static let onlyTheJob = "made by the store-screenshots job of ios.yml"
-
-    private static func shots(in steps: [ScreenshotStep]) -> [String] {
-        steps.compactMap { step in
-            if case let .shoot(name) = step {
-                return name
-            }
-            return nil
-        }
-    }
 
     // MARK: - Scenario
 
@@ -97,25 +83,38 @@ final class StoreScreenshotsTests: XCTestCase {
         frieren2, dandadan, edgerunners, edgerunners2, maou
     ] + listFillers
 
+    /// The iPhone's update passes and its Notification Center. Android's shot has Frieren newest;
+    /// an opened notification shows Edgerunners 2 instead, as the iPad's does.
+    private static let phoneNotificationSteps: [ScreenshotStep] = phoneOpensNewest
+        ? [
+            .notify([frieren2, blackClover, steelBallRun] + phoneListFillers),
+            .pause(60),
+            .notify([edgerunners2]),
+            .notificationCenter(
+                [edgerunners2, frieren2, steelBallRun, blackClover] + phoneListFillers,
+                opensNewest: true
+            )
+        ]
+        : [
+            .notify([edgerunners2]),
+            .pause(60),
+            .notify([blackClover, steelBallRun]),
+            .pause(60),
+            .notify([frieren2]),
+            .notificationCenter([frieren2, steelBallRun, blackClover, edgerunners2])
+        ]
+
     /// iPhone 17 Pro, upright throughout.
     private static let iPhoneSteps: [ScreenshotStep] = [
         .follow([steelBallRun, mashle, edgerunners2]),
         .onAir(dateMode: [blackClover]),
         .shoot("iphone-01"),
-        .soon(top: Anchor(title: sekaiSaikou, raisedBy: 44), dateMode: [mashle]),
+        .soon(top: Anchor(title: sekaiSaikou, raisedBy: 70), dateMode: [mashle]),
         .shoot("iphone-02"),
         .search("cyberpunk", shows: [edgerunners, edgerunners2]),
         .shoot("iphone-03"),
-        .follow([blackClover, frieren2, dandadan] + phoneListFillers),
-        .notify([edgerunners2] + phoneListFillers),
-        .pause(60),
-        .notify([blackClover, steelBallRun]),
-        .pause(60),
-        .notify([frieren2]),
-        .notificationCenter(
-            [frieren2, steelBallRun, blackClover, edgerunners2] + phoneListFillers,
-            opensNewest: phoneOpensNewest
-        ),
+        .follow([blackClover, frieren2, dandadan] + phoneListFillers)
+    ] + phoneNotificationSteps + [
         .shoot("iphone-05"),
         .database(DatabaseEdit(
             unfollow: phoneListFillers,

@@ -1,15 +1,15 @@
 #!/bin/bash
 # Turns the raw attachments of the store-screenshots job of ios.yml into App Store-ready files, and
-# fails the job when a shot would not fit its App Store Connect slot. So the job's artifact can go
-# to the store as it is, and a wrong shot shows in CI, not at upload.
+# fails the job when a shot would not fit its App Store Connect slot. So the passing try's six main
+# shots can go to the store as they are, and a wrong shot shows in CI, not at upload.
 #
 # Each try's result bundle is exported beforehand to $MEDIA_DIR/attachments/store-try-<n>/, beside
 # its manifest.json.
 # Every shot goes to $MEDIA_DIR/store/try-<n>/<name>.png, named after its attachment. One the test
-# marked @landscape is turned upright and loses the marker. Each shot's size and alpha are checked
-# against what App Store Connect takes. The passing try, named in $MEDIA_DIR/store-passed-try, must
-# hold all six main shots. Prints a table. Exits 1 on a wrong shot, a shot it cannot name or file,
-# or a missing main shot.
+# marked @landscape is turned upright and loses the marker and its rotation tag. Each shot's size
+# and alpha are checked against what App Store Connect takes. The passing try, named in
+# $MEDIA_DIR/store-passed-try, must hold all six main shots. Prints a table. Exits 1 on a wrong
+# shot, a shot it cannot name or file, or a missing main shot.
 #
 # Tested by .github/scripts/test/ios-store-screenshots-test.sh.
 set -euo pipefail
@@ -22,6 +22,28 @@ device=""
 size() {
   sips -g pixelWidth -g pixelHeight -g hasAlpha "$1" \
     | awk '/pixelWidth/ {w = $2} /pixelHeight/ {h = $2} /hasAlpha/ {a = $2} END {print w, h, a}'
+}
+
+# drop_rotation <file>: removes the EXIF and XMP chunks of a turned shot. They keep the capture's
+# rotation tag, and a viewer that honors it would turn the upright pixels once more. A file that is
+# no PNG is left as it is.
+drop_rotation() {
+  python3 - "$1" <<'PY'
+import struct, sys
+path = sys.argv[1]
+data = open(path, "rb").read()
+if not data.startswith(b"\x89PNG\r\n\x1a\n"):
+    sys.exit(0)
+kept, at = [data[:8]], 8
+while at < len(data):
+    length = struct.unpack(">I", data[at:at + 4])[0]
+    kind = data[at + 4:at + 8]
+    xmp = kind == b"iTXt" and data[at + 8:at + 25] == b"XML:com.adobe.xmp"
+    if kind != b"eXIf" and not xmp:
+        kept.append(data[at:at + 12 + length])
+    at += 12 + length
+open(path, "wb").write(b"".join(kept))
+PY
 }
 
 # accepted <name> <width> <height>: whether App Store Connect's slot for that device takes it.
@@ -81,6 +103,7 @@ PY
       read -r width height _ <<< "$(size "$source")"
       [ "$width" -lt "$height" ] || verdict=WRONG
       sips -r 270 "$source" --out "$target" > /dev/null
+      drop_rotation "$target"
     else
       cp "$source" "$target"
     fi

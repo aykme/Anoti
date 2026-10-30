@@ -119,6 +119,10 @@ out=$(plan EVENT=workflow_dispatch UNIT_TESTS=false UI_FLOW=false IOS_TESTS=fals
   SWIFTLINT=true DEVICE=phone ORIENTATION=portrait STORE_SCREENSHOTS=true)
 expect store "$out" "store_screenshots=true"
 expect store "$out" "store_devices=[{\"device\":\"iPhone 17 Pro\",\"slug\":\"iphone\"},$pro]"
+out=$(plan EVENT=workflow_dispatch UNIT_TESTS=false UI_FLOW=false IOS_TESTS=false \
+  SWIFTLINT=true DEVICE=tablet ORIENTATION=portrait TABLET_MODEL=mini STORE_SCREENSHOTS=true)
+expect store-beside-ipads "$out" \
+  "store_devices=[{\"device\":\"iPhone 17 Pro\",\"slug\":\"iphone\"},$pro]"
 
 # An unknown value, or a flow left with no device to run on, fails rather than passing empty.
 refused "an unknown device" EVENT=workflow_dispatch UNIT_TESTS=true UI_FLOW=true IOS_TESTS=false \

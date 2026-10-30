@@ -19,8 +19,8 @@ extension ScreenshotDriver {
         }
     }
 
-    /// Turns on extra info on each favorite named, the lowest card first: a turned card grows and
-    /// moves the ones below it, never the ones above. Each card must lie above the tab bar.
+    /// Turns on extra info on each favorite named, the lowest card first. A turned card can grow
+    /// and move the ones below it, never the ones above. Each card must lie above the tab bar.
     ///
     /// The database tells each turn. On iOS a card's accessibility can keep its old label and text
     /// after the card changes, while the screen and the database show the change.
@@ -53,8 +53,8 @@ extension ScreenshotDriver {
     }
 
     /// Checks the screen the last step set up, then keeps it three times, a little apart, since
-    /// posters keep arriving. Notification Center is expanded first and closed after; its newest
-    /// notification is opened large between the two when the step asks.
+    /// posters keep arriving. Notification Center is expanded first and closed after. When the
+    /// step asks, its newest notification is opened large in between.
     func shoot(_ name: String) throws {
         switch screen {
         case let .list(anchor, dateMode, shows):
@@ -64,13 +64,12 @@ extension ScreenshotDriver {
         case let .notificationCenter(titles, _):
             try expandNotifications(titles, collapsedName: name + "~collapsed")
         case .none:
-            break
+            throw ScreenshotFailure("\(name) follows no screen step")
         }
         for suffix in captureSuffixes {
             RunLoop.current.run(until: Date().addingTimeInterval(captureSpacing))
             capture(name + suffix)
         }
-        keptShots.append(name)
         if case let .notificationCenter(titles, opensNewest) = screen {
             if opensNewest {
                 pressNewestNotification(titles, name: name + "~pressed")
@@ -178,15 +177,16 @@ extension ScreenshotDriver {
 
     // MARK: - Captures
 
-    /// Keeps the screen as the device holds it; the CI job turns a landscape one upright.
+    /// Keeps the screen as the device holds it; the CI job turns a landscape one upright. The app's
+    /// window tells landscape, since an iPhone's stays upright whatever the device does.
     func capture(_ name: String) {
         let screenshot = XCUIScreen.main.screenshot()
         let attachment = XCTAttachment(
             data: screenshot.pngRepresentation,
             uniformTypeIdentifier: "public.png"
         )
-        let landscape = XCUIDevice.shared.orientation.isLandscape
-        attachment.name = landscape ? name + landscapeMarker : name
+        let window = app.windows.firstMatch.frame
+        attachment.name = window.width > window.height ? name + landscapeMarker : name
         attachment.lifetime = .keepAlways
         test.add(attachment)
     }

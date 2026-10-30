@@ -35,9 +35,13 @@ extension ScreenshotDriver {
         screen = .notificationCenter(titles, opensNewest: opensNewest)
     }
 
+    // A sequel's notification also holds its first season's title.
     func notification(_ title: String) -> XCUIElement {
-        springboard.descendants(matching: .any)
-            .matching(NSPredicate(format: "label CONTAINS %@", title)).firstMatch
+        let longer = titles.filter { $0 != title && $0.contains(title) }
+        let predicates = [NSPredicate(format: "label CONTAINS %@", title)]
+            + longer.map { NSPredicate(format: "NOT (label CONTAINS %@)", $0) }
+        return springboard.descendants(matching: .any)
+            .matching(NSCompoundPredicate(andPredicateWithSubpredicates: predicates)).firstMatch
     }
 
     // Notification Center opens with every notification in one stack, and a tap spreads it. The
@@ -68,6 +72,17 @@ extension ScreenshotDriver {
             attachSpringboardTree()
             throw ScreenshotFailure("Notification Center does not list all of \(titles)")
         }
+        guard !otherNotification.exists || !otherNotification.isHittable else {
+            attachSpringboardTree()
+            throw ScreenshotFailure("another app's notification stays beside \(newest)")
+        }
+    }
+
+    private var otherNotification: XCUIElement {
+        springboard.descendants(matching: .any)
+            .matching(identifier: notificationViewId)
+            .matching(NSPredicate(format: "NOT (label BEGINSWITH %@)", appNotificationLabel))
+            .firstMatch
     }
 
     // Another app's notification, such as the system's welcome, would share the shot. A swipe to
@@ -75,10 +90,7 @@ extension ScreenshotDriver {
     // since a swipe there would clear the group.
     private func clearOtherNotifications(beside newest: String) {
         for _ in 0..<maxClears {
-            let other = springboard.descendants(matching: .any)
-                .matching(identifier: notificationViewId)
-                .matching(NSPredicate(format: "NOT (label BEGINSWITH %@)", appNotificationLabel))
-                .firstMatch
+            let other = otherNotification
             let ours = notification(newest)
             guard other.exists, other.isHittable,
                   !ours.exists || !other.frame.intersects(ours.frame) else {
