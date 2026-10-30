@@ -117,12 +117,20 @@ extension ScreenshotDriver {
         return waitUntil(loadTimeout, condition)
     }
 
-    /// Pulls Main's list back to its first card. Each drag stays short of what starts a refresh
-    /// when the list is already at its top.
+    /// Pulls Main's list back to its first card: drags until the cards stop moving. Each drag
+    /// stays short of what starts a refresh when the list is already at its top.
     func scrollToListTop() {
-        for _ in 0..<topDrags {
+        for _ in 0..<maxTopDrags {
+            let before = cardFrames
             drag(by: topDragLength, itemTag: listItemTag)
+            if cardFrames == before {
+                return
+            }
         }
+    }
+
+    private var cardFrames: [CGRect] {
+        app.allTagged(listItemTag).allElementsBoundByIndex.map(\.frame)
     }
 
     /// Moves the list's content by `deltaY` points with one press-and-drag: a short press, so no
@@ -179,8 +187,8 @@ let dragMargin: CGFloat = 30
 /// Where across a favorite a drag starts: over the poster, clear of the counter's arrows.
 let posterColumnFraction: CGFloat = 0.15
 
-/// How many drags bring Main's list back to its top: more than the longest card.
-let topDrags = 4
+/// The most drags that bring Main's list back to its top: several rows of results.
+let maxTopDrags = 12
 
 /// How far one drag pulls Main's list down. Past the top, half of it moves the refresh indicator,
 /// which refreshes at 80 points.
