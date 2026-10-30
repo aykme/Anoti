@@ -117,16 +117,34 @@ extension ScreenshotDriver {
     }
 
     // A long press opens the newest notification large, with its poster, which can take seconds
-    // to open. Its captures are extras, whatever the press showed.
+    // to open. A press that leaves the screen as it was is made once more, shorter. The captures
+    // are extras, whatever the press showed; the tree after them shows what it opened.
     func pressNewestNotification(_ titles: [String], name: String) {
         guard let newest = titles.first else { return }
-        let element = notification(newest)
-        guard element.isHittable else { return }
-        element.press(forDuration: longPressDuration)
+        let surface = notificationSurface(newest)
+        guard surface.isHittable else {
+            attachSpringboardTree()
+            return
+        }
+        let before = XCUIScreen.main.screenshot().pngRepresentation
+        surface.press(forDuration: longPressDuration)
+        RunLoop.current.run(until: Date().addingTimeInterval(settleTime))
+        if XCUIScreen.main.screenshot().pngRepresentation == before, surface.isHittable {
+            surface.press(forDuration: shortLongPressDuration)
+        }
         for number in pressedCaptureNumbers {
             RunLoop.current.run(until: Date().addingTimeInterval(captureSpacing))
             capture(name + number)
         }
+        attachSpringboardTree()
+    }
+
+    // The notification's own surface, which takes the press; the cell around it when the surface
+    // has no such label.
+    private func notificationSurface(_ title: String) -> XCUIElement {
+        let surface = springboard.buttons.matching(identifier: notificationSurfaceId)
+            .matching(NSPredicate(format: "label CONTAINS %@", title)).firstMatch
+        return surface.exists ? surface : notification(title)
     }
 
     // The app counts as in front even under Notification Center, so the list going away is what
@@ -163,8 +181,9 @@ extension ScreenshotDriver {
     }
 }
 
-/// How long a press opens a notification large.
+/// How long a press opens a notification large, and the second, shorter press.
 let longPressDuration: TimeInterval = 2.5
+let shortLongPressDuration: TimeInterval = 1
 
 /// Added to the name of each capture of a pressed notification. The collector reads a name with
 /// one tilde only, so these are numbers.
@@ -212,6 +231,9 @@ let notificationCenterClockId = "lockscreen-date-view"
 
 /// The identifier every notification's view carries.
 let notificationViewId = "NotificationShortLookView"
+
+/// The identifier of a notification's surface inside its view, labelled with its time and text.
+let notificationSurfaceId = "ShortLook.Platter.Content.Seamless"
 
 /// How the labels of the app's notifications start, and of its collapsed group.
 let appNotificationLabel = "ANOTI, "
